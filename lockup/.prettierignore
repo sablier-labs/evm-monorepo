@@ -1,0 +1,14 @@
+# directories
+.yarn/
+**/cache
+**/out
+**/node_modules
+
+# files
+*.env
+*.log
+.pnp.*
+coverage.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
