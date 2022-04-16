@@ -55,32 +55,32 @@ interface ISablierV2 {
     );
 
     /// @notice Emitted when attempting to withdraw zero tokens from a stream.
-    /// @notice The id of the linear stream.
+    /// @notice The id of the stream.
     error SablierV2__WithdrawAmountZero(uint256 streamId);
 
     /// EVENTS ///
 
     /// @notice Emitted when a stream is canceled.
-    /// @param streamId The id of the linear stream.
+    /// @param streamId The id of the stream.
     /// @param recipient The address of the recipient.
     /// @param withdrawAmount The amount of tokens withdrawn to the recipient.
     /// @param returnAmount The amount of tokens returned to the sender.
     event Cancel(uint256 indexed streamId, address indexed recipient, uint256 withdrawAmount, uint256 returnAmount);
 
     /// @notice Emitted when a sender makes a stream non-cancelable.
-    /// @param streamId The id of the linear stream.
+    /// @param streamId The id of the stream.
     event LetGo(uint256 indexed streamId);
 
     /// @notice Emitted when tokens are withdrawn from a stream.
-    /// @param streamId The id of the linear stream.
+    /// @param streamId The id of the stream.
     /// @param recipient The address of the recipient.
     /// @param amount The amount of tokens withdrawn.
     event Withdraw(uint256 indexed streamId, address indexed recipient, uint256 amount);
 
     /// CONSTANT FUNCTIONS ///
 
-    /// @notice Calculates the amount that the recipient can withdraw from the linear stream.
-    /// @param streamId The id of the linear stream to make the query for.
+    /// @notice Calculates the amount that the recipient can withdraw from the stream.
+    /// @param streamId The id of the stream to make the query for.
     /// @return withdrawableAmount The amount of tokens that can be withdrawn.
     function getWithdrawableAmount(uint256 streamId) external view returns (uint256 withdrawableAmount);
 
@@ -93,28 +93,28 @@ interface ISablierV2 {
     /// Requiremenets:
     /// - `streamId` must point to an existing stream.
     /// - `msg.sender` must be either the sender or recipient.
-    /// - The linear stream must be cancelable.
+    /// - The stream must be cancelable.
     ///
-    /// @param streamId The id of the linear stream to cancel.
+    /// @param streamId The id of the stream to cancel.
     function cancel(uint256 streamId) external;
 
-    /// @notice Makes the linear stream non-cancelable.
+    /// @notice Makes the stream non-cancelable.
     ///
     /// @dev Emits a {LetGo} event.
     ///
     /// Requiremenets:
     /// - `streamId` must point to an existing stream.
     /// - `msg.sender` must be the sender.
-    /// - The linear stream cannot be already non-cancelable.
+    /// - The stream cannot be already non-cancelable.
     ///
-    /// @param streamId The id of the linear stream to let go of.
+    /// @param streamId The id of the stream to let go of.
     function letGo(uint256 streamId) external;
 
     /// @notice Counter for stream ids.
     /// @return The next stream id;
     function nextStreamId() external view returns (uint256);
 
-    /// @notice Withdraws tokens from the linear stream to the recipient's account.
+    /// @notice Withdraws tokens from the stream to the recipient's account.
     ///
     /// @dev Emits a {Withdraw} event.
     ///
