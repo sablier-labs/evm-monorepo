@@ -227,13 +227,13 @@ contract SablierV2Linear is ISablierV2Linear {
         }
     }
 
-    /// @inheritdoc ISablierV2Linear
+    /// @inheritdoc ISablierV2
     function decreaseAuthorization(address creator, uint256 amount) public override {
         uint256 newAuthorization = authorizations[msg.sender][creator] - amount;
         authorizeInternal(msg.sender, creator, newAuthorization);
     }
 
-    /// @inheritdoc ISablierV2Linear
+    /// @inheritdoc ISablierV2
     function increaseAuthorization(address creator, uint256 amount) public override {
         uint256 newAuthorization = authorizations[msg.sender][creator] + amount;
         authorizeInternal(msg.sender, creator, newAuthorization);

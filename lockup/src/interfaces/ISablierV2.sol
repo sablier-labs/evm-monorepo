@@ -77,6 +77,12 @@ interface ISablierV2 {
     /// @param amount The amount of tokens withdrawn.
     event Withdraw(uint256 indexed streamId, address indexed recipient, uint256 amount);
 
+    /// @notice Emitted when an authorization to create streams is granted.
+    /// @param owner The address of the owner of the tokens.
+    /// @param creator The address of the creator of the streams.
+    /// @param amount The authorization that can be used for creating streams.
+    event Authorize(address indexed owner, address indexed creator, uint256 amount);
+
     /// CONSTANT FUNCTIONS ///
 
     /// @notice Calculates the amount that the recipient can withdraw from the stream.
@@ -123,4 +129,22 @@ interface ISablierV2 {
     /// - `msg.sender` must be either the sender or recipient.
     /// - `amount` cannot execeed the withdrawable amount.
     function withdraw(uint256 streamId, uint256 amount) external;
+
+    /// @notice Atomically decreases the authorization given by `msg.sender` to `creator` to create streams.
+    ///
+    /// @dev Emits an {Authorize} event indicating the updated authorization.
+    ///
+    /// Requirements:
+    /// - `creator` cannot be the zero address.
+    /// - `creator` must have set an authorization to `msg.sender` of at least `amount`.
+    function decreaseAuthorization(address creator, uint256 amount) external;
+
+    /// @notice Atomically increases the authorization to create streams given by `msg.sender` to `creator`.
+    ///
+    /// @dev Emits an {Authorize} event indicating the updated authorization.
+    ///
+    /// Requirements:
+    /// - `creator` cannot be the zero address.
+    /// - The updated authorization cannot overflow uint256.
+    function increaseAuthorization(address creator, uint256 amount) external;
 }

@@ -10,12 +10,6 @@ import { ISablierV2 } from "./ISablierV2.sol";
 interface ISablierV2Linear is ISablierV2 {
     /// EVENTS ///
 
-    /// @notice Emitted when an authorization to create streams is granted.
-    /// @param owner The address of the owner of the tokens.
-    /// @param creator The address of the creator of the streams.
-    /// @param amount The authorization that can be used for creating streams.
-    event Authorize(address indexed owner, address indexed creator, uint256 amount);
-
     /// @notice Emitted when a linear stream is created.
     /// @param streamId The id of the newly created linear stream.
     /// @param sender The address from which to linearly stream the money.
@@ -168,22 +162,4 @@ interface ISablierV2Linear is ISablierV2 {
         uint256 duration,
         bool cancelable
     ) external returns (uint256 streamId);
-
-    /// @notice Atomically decreases the authorization given by `msg.sender` to `creator` to create streams.
-    ///
-    /// @dev Emits an {Authorize} event indicating the updated authorization.
-    ///
-    /// Requirements:
-    /// - `creator` cannot be the zero address.
-    /// - `creator` must have set an authorization to `msg.sender` of at least `amount`.
-    function decreaseAuthorization(address creator, uint256 amount) external;
-
-    /// @notice Atomically increases the authorization to create streams given by `msg.sender` to `creator`.
-    ///
-    /// @dev Emits an {Authorize} event indicating the updated authorization.
-    ///
-    /// Requirements:
-    /// - `creator` cannot be the zero address.
-    /// - The updated authorization cannot overflow uint256.
-    function increaseAuthorization(address creator, uint256 amount) external;
 }
