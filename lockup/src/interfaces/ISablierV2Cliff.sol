@@ -51,8 +51,8 @@ interface ISablierV2Cliff is ISablierV2 {
         uint256 depositAmount;
         uint256 startTime;
         uint256 stopTime;
-        uint256 withdrawnAmount;
         uint256 cliffTime;
+        uint256 withdrawnAmount;
         address recipient;
         address sender;
         IERC20 token;
