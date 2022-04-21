@@ -4,9 +4,9 @@ pragma solidity >=0.8.4;
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.sol";
 
-import { SablierV2UnitTest } from "../../SablierV2UnitTest.t.sol";
+import { SablierV2LinearUnitTest } from "../../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__LetGo__UnitTest is SablierV2UnitTest {
+contract SablierV2Linear__LetGo__UnitTest is SablierV2LinearUnitTest {
     uint256 internal streamId;
 
     /// @dev A setup function invoked before each test case.

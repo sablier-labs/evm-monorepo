@@ -5,9 +5,9 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { stdError } from "forge-std/stdlib.sol";
 
-import { SablierV2UnitTest } from "../../SablierV2UnitTest.t.sol";
+import { SablierV2LinearUnitTest } from "../../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__CreateWithDuration__UnitTest is SablierV2UnitTest {
+contract SablierV2Linear__CreateWithDuration__UnitTest is SablierV2LinearUnitTest {
     /// @dev When the duration calculation overflows uint256, it should revert.
     function testCannotCreateWithDuration__DurationCalculationOverflow() external {
         vm.expectRevert(stdError.arithmeticError);

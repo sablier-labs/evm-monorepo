@@ -1,0 +1,24 @@
+get-withdrawable-amount.t.sol
+├── when the cliff stream does not exist
+│  └── it should return zero
+└── when the cliff stream exists
+   ├── when the cliff time is greater than the block timestamp
+   │  └── it should return zero
+   ├── when the cliff time is equal to the block timestamp
+   │  └── it should return the correct withdrawable amount
+   └── when the cliff time is less than the block timestamp
+      ├── when the current time is greater than the stop time
+      │  ├── when there have been no withdrawals
+      │  │  └── it should return the deposit amount
+      │  └── when there have been withdrawals
+      │     └── it should return the deposit amount minus the withdrawn amount
+      ├── when the current time is equal to the stop time
+      │  ├── when there have been no withdrawals
+      │  │  └── it should return the deposit amount
+      │  └── when there have been withdrawals
+      │     └── it should return the deposit amount minus the withdrawn amount
+      └── when the current time is less than the stop time
+         ├── when there have been no withdrawals
+         │  └── it should return the correct withdrawable amount
+         └── when there have been withdrawals
+            └── it should return the correct withdrawable amount
