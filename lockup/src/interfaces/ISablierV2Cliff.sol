@@ -14,7 +14,7 @@ interface ISablierV2Cliff is ISablierV2 {
     /// CUSTOM ERRORS ///
 
     /// @notice Emitted when attempting to create CliffStream with start time greater than cliff time;
-    error SablierV2Cliff__CliffTimeGreaterThanStartTime(uint256, uint256);
+    error SablierV2Cliff__StartTimeGreaterThanCliffTime(uint256, uint256);
 
     /// @notice Emitted when attempting to create CliffStrem with cliff time greater than stop time;
     error SablierV2Cliff__CliffTimeGreaterThanStopTime(uint256, uint256);

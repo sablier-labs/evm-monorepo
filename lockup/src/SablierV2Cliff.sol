@@ -401,7 +401,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
 
         // Checks: the start time is not greater than the cliff Time.
         if (startTime > cliffTime) {
-            revert SablierV2Cliff__CliffTimeGreaterThanStartTime(startTime, cliffTime);
+            revert SablierV2Cliff__StartTimeGreaterThanCliffTime(startTime, cliffTime);
         }
 
         // Checks: the cliff time is not greater than the stop time.
