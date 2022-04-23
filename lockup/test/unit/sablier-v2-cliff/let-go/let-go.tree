@@ -1,0 +1,9 @@
+cancel.t.sol
+├── when the cliff stream does not exist
+│  └── it should revert
+└── when the cliff stream exists
+   ├── when the caller is not the sender
+   │  └── it should revert
+   └── when the caller is the sender
+      ├── it should make the stream non-cancelable
+      └── it should emit a LetGo event
