@@ -95,8 +95,8 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Cliff.SablierV2Cliff__CliffTimeGreaterThanStopTime.selector,
-                stopTime,
-                cliffTime
+                cliffTime,
+                stopTime
             )
         );
         sablierV2Cliff.create(

@@ -18,7 +18,7 @@ contract SablierV2Cliff__CreateWithDuration__UnitTest is SablierV2CliffUnitTest 
             cliffStream.depositAmount,
             cliffStream.token,
             duration,
-            cliffStream.cliffTime,
+            DEFAULT_CLIFF_DURATION,
             cliffStream.cancelable
         );
     }
@@ -32,7 +32,7 @@ contract SablierV2Cliff__CreateWithDuration__UnitTest is SablierV2CliffUnitTest 
             cliffStream.depositAmount,
             cliffStream.token,
             DEFAULT_DURATION,
-            cliffStream.cliffTime,
+            DEFAULT_CLIFF_DURATION,
             cliffStream.cancelable
         );
         ISablierV2Cliff.CliffStream memory createdCliffStream = sablierV2Cliff.getCliffStream(streamId);
