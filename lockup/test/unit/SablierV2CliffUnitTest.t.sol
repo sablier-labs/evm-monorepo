@@ -29,6 +29,7 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
 
     uint256 internal immutable DEFAULT_DEPOSIT;
     uint256 internal constant DEFAULT_DURATION = 3600 seconds;
+    uint256 internal constant DEFAULT_CLIFF_DURATION = 900 seconds;
     uint256 internal immutable DEFAULT_START_TIME;
     uint256 internal immutable DEFAULT_STOP_TIME;
     uint256 internal immutable DEFAULT_CLIFF_TIME;

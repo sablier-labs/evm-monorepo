@@ -168,12 +168,13 @@ contract SablierV2Cliff is ISablierV2Cliff {
         uint256 depositAmount,
         IERC20 token,
         uint256 duration,
-        uint256 cliffTime,
+        uint256 cliffDuration,
         bool cancelable
     ) external override returns (uint256 streamId) {
         address from = msg.sender;
         uint256 startTime = block.timestamp;
         uint256 stopTime = startTime + duration;
+        uint256 cliffTime = startTime + cliffDuration;
         streamId = createInternal(
             from,
             sender,
@@ -237,7 +238,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
         uint256 depositAmount,
         IERC20 token,
         uint256 duration,
-        uint256 cliffTime,
+        uint256 cliffDuration,
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks: the funder is not the zero address.
@@ -254,6 +255,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
         // Effects & Interactions: create the cliff stream.
         uint256 startTime = block.timestamp;
         uint256 stopTime = startTime + duration;
+        uint256 cliffTime = startTime + cliffDuration;
         streamId = createInternal(
             from,
             sender,
@@ -406,7 +408,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
 
         // Checks: the cliff time is not greater than the stop time.
         if (cliffTime > stopTime) {
-            revert SablierV2Cliff__CliffTimeGreaterThanStopTime(stopTime, cliffTime);
+            revert SablierV2Cliff__CliffTimeGreaterThanStopTime(cliffTime, stopTime);
         }
 
         // Effects: create and store the cliff stream.
