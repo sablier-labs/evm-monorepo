@@ -145,7 +145,7 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param duration The number of seconds for how long the cliff stream will last.
-    /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
+    /// @param cliffDuration The number of seconds for how long the cliff period will last.
     /// @param cancelable Whether the cliff stream is cancelable or not.
     /// @return streamId The id of the newly created cliff stream.
     function createFromWithDuration(
@@ -155,7 +155,7 @@ interface ISablierV2Cliff is ISablierV2 {
         uint256 depositAmount,
         IERC20 token,
         uint256 duration,
-        uint256 cliffTime,
+        uint256 cliffDuration,
         bool cancelable
     ) external returns (uint256 streamId);
 
@@ -172,7 +172,7 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param duration The number of seconds for how long the cliff stream will last.
-    /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
+    /// @param cliffDuration The number of seconds for how long the cliff period will last.
     /// @param cancelable Whether the cliff stream is cancelable or not.
     /// @return streamId The id of the newly created cliff stream.
     function createWithDuration(
@@ -181,7 +181,7 @@ interface ISablierV2Cliff is ISablierV2 {
         uint256 depositAmount,
         IERC20 token,
         uint256 duration,
-        uint256 cliffTime,
+        uint256 cliffDuration,
         bool cancelable
     ) external returns (uint256 streamId);
 }

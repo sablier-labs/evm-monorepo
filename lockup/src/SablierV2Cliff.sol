@@ -23,7 +23,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
 
     /// INTERNAL STORAGE ///
 
-    /// @dev Sablier V2 Cliff streams mapped by unsigned integers.
+    /// @dev Sablier V2 cliff streams mapped by unsigned integers.
     mapping(uint256 => CliffStream) internal cliffStreams;
 
     /// @dev Mapping from owners to creators to stream creation authorizations.
