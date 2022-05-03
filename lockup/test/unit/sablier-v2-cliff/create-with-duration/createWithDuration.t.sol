@@ -23,6 +23,21 @@ contract SablierV2Cliff__CreateWithDuration__UnitTest is SablierV2CliffUnitTest 
         );
     }
 
+    /// @dev When the cliff duration calculation overflows uint256, it should revert.
+    function testCannotCreateWithDuration__CliffDurationCalculationOverflow() external {
+        vm.expectRevert(stdError.arithmeticError);
+        uint256 cliffDuration = type(uint256).max - cliffStream.startTime + 1;
+        sablierV2Cliff.createWithDuration(
+            cliffStream.sender,
+            cliffStream.recipient,
+            cliffStream.depositAmount,
+            cliffStream.token,
+            DEFAULT_DURATION,
+            cliffDuration,
+            cliffStream.cancelable
+        );
+    }
+
     /// @dev When all checks pass, it should create the linear stream with duration.
     function testCreateWithDuration() external {
         uint256 streamId = sablierV2Cliff.nextStreamId();
