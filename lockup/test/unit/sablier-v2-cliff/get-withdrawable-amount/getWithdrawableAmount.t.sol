@@ -28,7 +28,7 @@ contract SablierV2Cliff__GetWithdrawableAmount__UnitTest is SablierV2CliffUnitTe
         assertEq(0, withdrawableAmount);
     }
 
-    /// @dev When the cliff time is equal to the block timestamp
+    /// @dev When the cliff time is equal to the block timestamp, it should return the correct withdrawable amount.
     function testGetWithdrawableAmount__CliffTimeEqualToBlockTimestamp() external {
         vm.warp(cliffStream.cliffTime);
         uint256 expectedWithdrawableAmount = bn(900);
