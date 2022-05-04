@@ -122,7 +122,7 @@ contract SablierV2Linear is ISablierV2Linear {
         // Effects: delete the linear stream from storage.
         delete linearStreams[streamId];
 
-        // Interactions: withdrawn the tokens to the recipient, if any.
+        // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
             linearStream.token.safeTransfer(linearStream.recipient, withdrawAmount);
         }
@@ -146,7 +146,8 @@ contract SablierV2Linear is ISablierV2Linear {
         uint256 stopTime,
         bool cancelable
     ) external returns (uint256 streamId) {
-        streamId = createInternal(msg.sender, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        address from = msg.sender;
+        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
     }
 
     /// @inheritdoc ISablierV2Linear
@@ -240,7 +241,7 @@ contract SablierV2Linear is ISablierV2Linear {
     }
 
     /// @inheritdoc ISablierV2
-    function letGo(uint256 streamId) external streamExists(streamId) {
+    function renounce(uint256 streamId) external streamExists(streamId) {
         LinearStream memory linearStream = linearStreams[streamId];
 
         // Checks: the caller is the sender of the linear stream.
@@ -250,14 +251,14 @@ contract SablierV2Linear is ISablierV2Linear {
 
         // Checks: the linear stream is not already non-cancelable.
         if (!linearStream.cancelable) {
-            revert SablierV2__LetGoNonCancelableStream(streamId);
+            revert SablierV2__RenounceNonCancelableStream(streamId);
         }
 
         // Effects: make the stream non-cancelable.
         linearStreams[streamId].cancelable = false;
 
         // Emit an event.
-        emit LetGo(streamId);
+        emit Renounce(streamId);
     }
 
     /// @inheritdoc ISablierV2

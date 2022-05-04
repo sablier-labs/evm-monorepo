@@ -123,7 +123,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
         // Effects: delete the cliff stream from storage.
         delete cliffStreams[streamId];
 
-        // Interactions: withdrawn the tokens to the recipient, if any.
+        // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
             cliffStream.token.safeTransfer(cliffStream.recipient, withdrawAmount);
         }
@@ -148,8 +148,9 @@ contract SablierV2Cliff is ISablierV2Cliff {
         uint256 cliffTime,
         bool cancelable
     ) external returns (uint256 streamId) {
+        address from = msg.sender;
         streamId = createInternal(
-            msg.sender,
+            from,
             sender,
             recipient,
             depositAmount,
@@ -287,7 +288,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
     }
 
     /// @inheritdoc ISablierV2
-    function letGo(uint256 streamId) external streamExists(streamId) {
+    function renounce(uint256 streamId) external streamExists(streamId) {
         CliffStream memory cliffStream = cliffStreams[streamId];
 
         // Checks: the caller is the sender of the cliff stream.
@@ -297,14 +298,14 @@ contract SablierV2Cliff is ISablierV2Cliff {
 
         // Checks: the cliff stream is not already non-cancelable.
         if (!cliffStream.cancelable) {
-            revert SablierV2__LetGoNonCancelableStream(streamId);
+            revert SablierV2__RenounceNonCancelableStream(streamId);
         }
 
         // Effects: make the stream non-cancelable.
         cliffStreams[streamId].cancelable = false;
 
         // Emit an event.
-        emit LetGo(streamId);
+        emit Renounce(streamId);
     }
 
     /// @inheritdoc ISablierV2

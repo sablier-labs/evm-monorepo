@@ -23,14 +23,14 @@ interface ISablierV2 {
         uint256 depositAmount
     );
 
-    /// @notice Emitted when attempting to let go of an already non-cancelable stream.
-    error SablierV2__LetGoNonCancelableStream(uint256 streamId);
-
     /// @notice Emitted when attempting to approve the zero address as the owner.
     error SablierV2__OwnerZeroAddress();
 
     /// @notice Emitted when attempting to create a stream with recipient as the zero address.
     error SablierV2__RecipientZeroAddress();
+
+    /// @notice Emitted when attempting to renounce an already non-cancelable stream.
+    error SablierV2__RenounceNonCancelableStream(uint256 streamId);
 
     /// @notice Emitted when attempting to create a stream with the sender as the zero address.
     error SablierV2__SenderZeroAddress();
@@ -69,7 +69,7 @@ interface ISablierV2 {
 
     /// @notice Emitted when a sender makes a stream non-cancelable.
     /// @param streamId The id of the stream.
-    event LetGo(uint256 indexed streamId);
+    event Renounce(uint256 indexed streamId);
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The id of the stream.
@@ -106,15 +106,15 @@ interface ISablierV2 {
 
     /// @notice Makes the stream non-cancelable.
     ///
-    /// @dev Emits a {LetGo} event.
+    /// @dev Emits a {Renounce} event.
     ///
     /// Requiremenets:
     /// - `streamId` must point to an existing stream.
     /// - `msg.sender` must be the sender.
     /// - The stream cannot be already non-cancelable.
     ///
-    /// @param streamId The id of the stream to let go of.
-    function letGo(uint256 streamId) external;
+    /// @param streamId The id of the stream to renounce.
+    function renounce(uint256 streamId) external;
 
     /// @notice Counter for stream ids.
     /// @return The next stream id;

@@ -20,7 +20,7 @@ abstract contract SablierV2UnitTest is DSTest {
 
     event Cancel(uint256 indexed streamId, address indexed recipient, uint256 withdrawAmount, uint256 returnAmount);
 
-    event LetGo(uint256 indexed streamId);
+    event Renounce(uint256 indexed streamId);
 
     event Withdraw(uint256 indexed streamId, address indexed recipient, uint256 amount);
 

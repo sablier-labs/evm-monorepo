@@ -6,7 +6,7 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__LetGo__UnitTest is SablierV2LinearUnitTest {
+contract SablierV2Linear__Renounce__UnitTest is SablierV2LinearUnitTest {
     uint256 internal streamId;
 
     /// @dev A setup function invoked before each test case.
@@ -18,25 +18,25 @@ contract SablierV2Linear__LetGo__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the linear stream does not exist, it should revert.
-    function testCannotLetGo__StreamNonExistent() external {
+    function testCannotRenounce__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
-        sablierV2Linear.letGo(nonStreamId);
+        sablierV2Linear.renounce(nonStreamId);
     }
 
     /// @dev When the linear stream does not exist, it should revert.
-    function testCannotLetGo__Unauthorized() external {
+    function testCannotRenounce__Unauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         vm.stopPrank();
         vm.startPrank(users.eve);
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, streamId, users.eve));
-        sablierV2Linear.letGo(streamId);
+        sablierV2Linear.renounce(streamId);
     }
 
     /// @dev When the linear stream is already non-cancelable, it should revert.
-    function testCannotLetGo__NonCancelabeStream() external {
+    function testCannotRenounce__NonCancelabeStream() external {
         // Creaate the non-cancelable stream.
         bool cancelable = false;
         uint256 nonCancelableStreamId = sablierV2Linear.create(
@@ -51,22 +51,22 @@ contract SablierV2Linear__LetGo__UnitTest is SablierV2LinearUnitTest {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2.SablierV2__LetGoNonCancelableStream.selector, nonCancelableStreamId)
+            abi.encodeWithSelector(ISablierV2.SablierV2__RenounceNonCancelableStream.selector, nonCancelableStreamId)
         );
-        sablierV2Linear.letGo(nonCancelableStreamId);
+        sablierV2Linear.renounce(nonCancelableStreamId);
     }
 
     /// @dev When all checks pass, it should make the stream non-cancelable.
-    function testLetGo() external {
-        sablierV2Linear.letGo(streamId);
+    function testRenounce() external {
+        sablierV2Linear.renounce(streamId);
         ISablierV2Linear.LinearStream memory linearStream = sablierV2Linear.getLinearStream(streamId);
         assertEq(linearStream.cancelable, false);
     }
 
-    /// @dev When all checks pass, it should emit a LetGo event.
-    function testLetGo__Event() external {
+    /// @dev When all checks pass, it should emit a Renounce event.
+    function testRenounce__Event() external {
         vm.expectEmit(true, false, false, false);
-        emit LetGo(streamId);
-        sablierV2Linear.letGo(streamId);
+        emit Renounce(streamId);
+        sablierV2Linear.renounce(streamId);
     }
 }
