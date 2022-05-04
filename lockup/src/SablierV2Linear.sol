@@ -59,6 +59,7 @@ contract SablierV2Linear is ISablierV2Linear {
         stream = linearStreams[streamId];
     }
 
+    /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) public view returns (uint256 returnableAmount) {
         // If the linear stream does not exist, return zero.
         LinearStream memory linearStream = linearStreams[streamId];
@@ -72,6 +73,7 @@ contract SablierV2Linear is ISablierV2Linear {
         }
     }
 
+    /// @inheritdoc ISablierV2
     function getWithdrawableAmount(uint256 streamId) public view returns (uint256 withdrawableAmount) {
         // If the linear stream does not exist, return zero.
         LinearStream memory linearStream = linearStreams[streamId];

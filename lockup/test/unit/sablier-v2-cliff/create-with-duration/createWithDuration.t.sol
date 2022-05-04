@@ -8,21 +8,6 @@ import { stdError } from "forge-std/stdlib.sol";
 import { SablierV2CliffUnitTest } from "../../SablierV2CliffUnitTest.t.sol";
 
 contract SablierV2Cliff__CreateWithDuration__UnitTest is SablierV2CliffUnitTest {
-    /// @dev When the duration calculation overflows uint256, it should revert.
-    function testCannotCreateWithDuration__DurationCalculationOverflow() external {
-        vm.expectRevert(stdError.arithmeticError);
-        uint256 duration = type(uint256).max - cliffStream.startTime + 1;
-        sablierV2Cliff.createWithDuration(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
-            duration,
-            DEFAULT_CLIFF_DURATION,
-            cliffStream.cancelable
-        );
-    }
-
     /// @dev When the cliff duration calculation overflows uint256, it should revert.
     function testCannotCreateWithDuration__CliffDurationCalculationOverflow() external {
         vm.expectRevert(stdError.arithmeticError);
@@ -32,8 +17,23 @@ contract SablierV2Cliff__CreateWithDuration__UnitTest is SablierV2CliffUnitTest 
             cliffStream.recipient,
             cliffStream.depositAmount,
             cliffStream.token,
-            DEFAULT_DURATION,
             cliffDuration,
+            DEFAULT_TOTAL_DURATION,
+            cliffStream.cancelable
+        );
+    }
+
+    /// @dev When the duration calculation overflows uint256, it should revert.
+    function testCannotCreateWithDuration__DurationCalculationOverflow() external {
+        vm.expectRevert(stdError.arithmeticError);
+        uint256 totalDuration = type(uint256).max - cliffStream.startTime + 1;
+        sablierV2Cliff.createWithDuration(
+            cliffStream.sender,
+            cliffStream.recipient,
+            cliffStream.depositAmount,
+            cliffStream.token,
+            DEFAULT_CLIFF_DURATION,
+            totalDuration,
             cliffStream.cancelable
         );
     }
@@ -46,8 +46,8 @@ contract SablierV2Cliff__CreateWithDuration__UnitTest is SablierV2CliffUnitTest 
             cliffStream.recipient,
             cliffStream.depositAmount,
             cliffStream.token,
-            DEFAULT_DURATION,
             DEFAULT_CLIFF_DURATION,
+            DEFAULT_TOTAL_DURATION,
             cliffStream.cancelable
         );
         ISablierV2Cliff.CliffStream memory createdCliffStream = sablierV2Cliff.getCliffStream(streamId);

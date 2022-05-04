@@ -60,6 +60,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
         stream = cliffStreams[streamId];
     }
 
+    /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) public view returns (uint256 returnableAmount) {
         // If the cliff stream does not exist, return zero.
         CliffStream memory cliffStream = cliffStreams[streamId];
@@ -73,6 +74,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
         }
     }
 
+    /// @inheritdoc ISablierV2
     function getWithdrawableAmount(uint256 streamId) public view returns (uint256 withdrawableAmount) {
         // If the cliff stream does not exist, return zero.
         CliffStream memory cliffStream = cliffStreams[streamId];
@@ -144,8 +146,8 @@ contract SablierV2Cliff is ISablierV2Cliff {
         uint256 depositAmount,
         IERC20 token,
         uint256 startTime,
-        uint256 stopTime,
         uint256 cliffTime,
+        uint256 stopTime,
         bool cancelable
     ) external returns (uint256 streamId) {
         address from = msg.sender;
@@ -156,8 +158,8 @@ contract SablierV2Cliff is ISablierV2Cliff {
             depositAmount,
             token,
             startTime,
-            stopTime,
             cliffTime,
+            stopTime,
             cancelable
         );
     }
@@ -168,14 +170,14 @@ contract SablierV2Cliff is ISablierV2Cliff {
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 duration,
         uint256 cliffDuration,
+        uint256 totalDuration,
         bool cancelable
     ) external override returns (uint256 streamId) {
         address from = msg.sender;
         uint256 startTime = block.timestamp;
-        uint256 stopTime = startTime + duration;
         uint256 cliffTime = startTime + cliffDuration;
+        uint256 stopTime = startTime + totalDuration;
         streamId = createInternal(
             from,
             sender,
@@ -183,8 +185,8 @@ contract SablierV2Cliff is ISablierV2Cliff {
             depositAmount,
             token,
             startTime,
-            stopTime,
             cliffTime,
+            stopTime,
             cancelable
         );
     }
@@ -197,8 +199,8 @@ contract SablierV2Cliff is ISablierV2Cliff {
         uint256 depositAmount,
         IERC20 token,
         uint256 startTime,
-        uint256 stopTime,
         uint256 cliffTime,
+        uint256 stopTime,
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks: the funder is not the zero address.
@@ -220,8 +222,8 @@ contract SablierV2Cliff is ISablierV2Cliff {
             depositAmount,
             token,
             startTime,
-            stopTime,
             cliffTime,
+            stopTime,
             cancelable
         );
 
@@ -238,8 +240,8 @@ contract SablierV2Cliff is ISablierV2Cliff {
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 duration,
         uint256 cliffDuration,
+        uint256 totalDuration,
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks: the funder is not the zero address.
@@ -255,8 +257,8 @@ contract SablierV2Cliff is ISablierV2Cliff {
 
         // Effects & Interactions: create the cliff stream.
         uint256 startTime = block.timestamp;
-        uint256 stopTime = startTime + duration;
         uint256 cliffTime = startTime + cliffDuration;
+        uint256 stopTime = startTime + totalDuration;
         streamId = createInternal(
             from,
             sender,
@@ -264,8 +266,8 @@ contract SablierV2Cliff is ISablierV2Cliff {
             depositAmount,
             token,
             startTime,
-            stopTime,
             cliffTime,
+            stopTime,
             cancelable
         );
 
@@ -378,8 +380,8 @@ contract SablierV2Cliff is ISablierV2Cliff {
         uint256 depositAmount,
         IERC20 token,
         uint256 startTime,
-        uint256 stopTime,
         uint256 cliffTime,
+        uint256 stopTime,
         bool cancelable
     ) internal returns (uint256 streamId) {
         // Checks: the sender is not the zero address.
@@ -416,12 +418,12 @@ contract SablierV2Cliff is ISablierV2Cliff {
         streamId = nextStreamId;
         cliffStreams[streamId] = CliffStream({
             cancelable: cancelable,
+            cliffTime: cliffTime,
             depositAmount: depositAmount,
             recipient: recipient,
             sender: sender,
             startTime: startTime,
             stopTime: stopTime,
-            cliffTime: cliffTime,
             token: token,
             withdrawnAmount: 0
         });
@@ -443,8 +445,8 @@ contract SablierV2Cliff is ISablierV2Cliff {
             depositAmount,
             token,
             startTime,
-            stopTime,
             cliffTime,
+            stopTime,
             cancelable
         );
     }

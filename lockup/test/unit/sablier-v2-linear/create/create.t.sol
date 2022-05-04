@@ -89,7 +89,7 @@ contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
     /// @dev When the token is not a contract, it should revert.
     function testCannotCreate__TokenNotContract() external {
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(0)));
-        IERC20 token = IERC20(address(0));
+        IERC20 token = IERC20(address(6174));
         sablierV2Linear.create(
             linearStream.sender,
             linearStream.recipient,

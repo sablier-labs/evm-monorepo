@@ -4,7 +4,7 @@ get-withdrawable-amount.t.sol
 └── when the linear stream exists
    ├── when the start time is greater than the block timestamp
    │  └── it should return zero
-   ├── when the start time is equal to the the block timestamp
+   ├── when the start time is equal to the block timestamp
    │  └── it should return zero
    └── when the start time is less than the block timestamp
       ├── when the current time is greater than the stop time

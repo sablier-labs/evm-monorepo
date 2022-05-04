@@ -85,6 +85,11 @@ interface ISablierV2 {
 
     /// CONSTANT FUNCTIONS ///
 
+    /// @notice Calculates the amount that the sender would be returned if the stream was canceled.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return returnableAmount The amount of tokens that would be returned if the stream was canceled.
+    function getReturnableAmount(uint256 streamId) external view returns (uint256 returnableAmount);
+
     /// @notice Calculates the amount that the recipient can withdraw from the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return withdrawableAmount The amount of tokens that can be withdrawn.

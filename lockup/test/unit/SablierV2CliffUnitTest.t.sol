@@ -13,6 +13,8 @@ import { SablierV2Cliff } from "@sablier/v2-core/SablierV2Cliff.sol";
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
 abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
+    /// EVENTS ///
+
     event CreateCliffStream(
         uint256 indexed streamId,
         address indexed sender,
@@ -20,23 +22,25 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
         uint256 depositAmount,
         IERC20 token,
         uint256 startTime,
-        uint256 stopTime,
         uint256 cliffTime,
+        uint256 stopTime,
         bool cancelable
     );
 
     /// CONSTANTS ///
 
-    uint256 internal immutable DEFAULT_DEPOSIT;
-    uint256 internal constant DEFAULT_DURATION = 3600 seconds;
     uint256 internal constant DEFAULT_CLIFF_DURATION = 900 seconds;
+    uint256 internal constant DEFAULT_TOTAL_DURATION = 3600 seconds;
+    uint256 internal constant DEFAULT_TIME_OFFSET = 900 seconds;
+
+    uint256 internal immutable DEFAULT_DEPOSIT;
     uint256 internal immutable DEFAULT_START_TIME;
     uint256 internal immutable DEFAULT_STOP_TIME;
     uint256 internal immutable DEFAULT_CLIFF_TIME;
     uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT;
-    uint256 internal constant DEFAULT_TIME_OFFSET = 900 seconds;
 
-    // SablierCliff-specific testing variables
+    /// CLIFF-SPECIFIC TESTING VARIABLES ///
+
     SablierV2Cliff internal sablierV2Cliff = new SablierV2Cliff();
     ISablierV2Cliff.CliffStream internal cliffStream;
 
@@ -44,10 +48,10 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
 
     constructor() {
         // Initialize the default stream values.
+        DEFAULT_CLIFF_TIME = block.timestamp + DEFAULT_TIME_OFFSET;
         DEFAULT_DEPOSIT = bn(3600);
         DEFAULT_START_TIME = block.timestamp;
-        DEFAULT_STOP_TIME = block.timestamp + DEFAULT_DURATION;
-        DEFAULT_CLIFF_TIME = block.timestamp + DEFAULT_TIME_OFFSET;
+        DEFAULT_STOP_TIME = block.timestamp + DEFAULT_TOTAL_DURATION;
         DEFAULT_WITHDRAW_AMOUNT = bn(900);
     }
 
@@ -58,12 +62,12 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
         // Create the default cliff stream to be used across many tests.
         cliffStream = ISablierV2Cliff.CliffStream({
             cancelable: true,
+            cliffTime: DEFAULT_CLIFF_TIME,
             depositAmount: DEFAULT_DEPOSIT,
             recipient: users.recipient,
             sender: users.sender,
             startTime: DEFAULT_START_TIME,
             stopTime: DEFAULT_STOP_TIME,
-            cliffTime: DEFAULT_CLIFF_TIME,
             token: usd,
             withdrawnAmount: 0
         });
@@ -88,13 +92,13 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
         assertEq(a.recipient, b.recipient);
         assertEq(a.sender, b.sender);
         assertEq(a.startTime, b.startTime);
-        assertEq(a.stopTime, b.stopTime);
         assertEq(a.cliffTime, b.cliffTime);
+        // assertEq(a.stopTime, b.stopTime);
         assertEq(a.token, b.token);
         assertEq(a.withdrawnAmount, b.withdrawnAmount);
     }
 
-    /// @dev ...
+    /// @dev Helper function to create a default cliff stream.
     function createDefaultCliffStream() internal returns (uint256 streamId) {
         streamId = sablierV2Cliff.create(
             cliffStream.sender,
@@ -102,8 +106,8 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
             cliffStream.depositAmount,
             cliffStream.token,
             cliffStream.startTime,
-            cliffStream.stopTime,
             cliffStream.cliffTime,
+            cliffStream.stopTime,
             cliffStream.cancelable
         );
     }

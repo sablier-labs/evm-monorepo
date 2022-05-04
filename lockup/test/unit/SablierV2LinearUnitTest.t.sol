@@ -13,6 +13,8 @@ import { SablierV2Linear } from "@sablier/v2-core/SablierV2Linear.sol";
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
 abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
+    /// EVENTS ///
+
     event CreateLinearStream(
         uint256 indexed streamId,
         address indexed sender,
@@ -27,13 +29,14 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
     /// CONSTANTS ///
 
     uint256 internal immutable DEFAULT_DEPOSIT;
-    uint256 internal constant DEFAULT_DURATION = 3600 seconds;
+    uint256 internal constant DEFAULT_TOTAL_DURATION = 3600 seconds;
     uint256 internal immutable DEFAULT_START_TIME;
     uint256 internal immutable DEFAULT_STOP_TIME;
     uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT;
     uint256 internal constant DEFAULT_TIME_OFFSET = 36 seconds;
 
-    // SablierLinear-specific testing variables
+    /// LINEAR-SPECIFIC TESTING VARIABLES ///
+
     SablierV2Linear internal sablierV2Linear = new SablierV2Linear();
     ISablierV2Linear.LinearStream internal linearStream;
 
@@ -43,7 +46,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         // Initialize the default stream values.
         DEFAULT_DEPOSIT = bn(3600);
         DEFAULT_START_TIME = block.timestamp;
-        DEFAULT_STOP_TIME = block.timestamp + DEFAULT_DURATION;
+        DEFAULT_STOP_TIME = block.timestamp + DEFAULT_TOTAL_DURATION;
         DEFAULT_WITHDRAW_AMOUNT = bn(36);
     }
 
@@ -88,7 +91,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         assertEq(a.withdrawnAmount, b.withdrawnAmount);
     }
 
-    /// @dev ...
+    /// @dev Helper function to create a linear cliff stream.
     function createDefaultLinearStream() internal returns (uint256 streamId) {
         streamId = sablierV2Linear.create(
             linearStream.sender,

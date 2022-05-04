@@ -45,8 +45,8 @@ contract SablierV2Cliff__Renounce__UnitTest is SablierV2CliffUnitTest {
             cliffStream.depositAmount,
             cliffStream.token,
             cliffStream.startTime,
-            cliffStream.stopTime,
             cliffStream.cliffTime,
+            cliffStream.stopTime,
             cancelable
         );
 
