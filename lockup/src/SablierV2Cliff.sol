@@ -11,7 +11,6 @@ import { ISablierV2Cliff } from "./interfaces/ISablierV2Cliff.sol";
 
 /// @title SablierV2Cliff
 /// @author Sablier Labs Ltd.
-
 contract SablierV2Cliff is ISablierV2Cliff {
     using PRBMathUD60x18 for uint256;
     using SafeERC20 for IERC20;
@@ -24,7 +23,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
     /// INTERNAL STORAGE ///
 
     /// @dev Sablier V2 cliff streams mapped by unsigned integers.
-    mapping(uint256 => CliffStream) internal cliffStreams;
+    mapping(uint256 => Stream) internal streams;
 
     /// @dev Mapping from owners to creators to stream creation authorizations.
     mapping(address => mapping(address => uint256)) internal authorizations;
@@ -33,15 +32,15 @@ contract SablierV2Cliff is ISablierV2Cliff {
 
     /// @dev Checks that `streamId` points to a stream that exists.
     modifier streamExists(uint256 streamId) {
-        if (cliffStreams[streamId].sender == address(0)) {
+        if (streams[streamId].sender == address(0)) {
             revert SablierV2__StreamNonExistent(streamId);
         }
         _;
     }
 
-    /// @notice Checks that `msg.sender` is either the sender or the recipient of the cliff stream.
+    /// @notice Checks that `msg.sender` is either the sender or the recipient of the stream.
     modifier onlySenderOrRecipient(uint256 streamId) {
-        if (msg.sender != cliffStreams[streamId].sender && msg.sender != cliffStreams[streamId].recipient) {
+        if (msg.sender != streams[streamId].sender && msg.sender != streams[streamId].recipient) {
             revert SablierV2__Unauthorized(streamId, msg.sender);
         }
         _;
@@ -55,52 +54,52 @@ contract SablierV2Cliff is ISablierV2Cliff {
 
     /// CONSTANT FUNCTIONS ///
 
-    /// @inheritdoc ISablierV2Cliff
-    function getCliffStream(uint256 streamId) external view override returns (CliffStream memory stream) {
-        stream = cliffStreams[streamId];
-    }
-
     /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) public view returns (uint256 returnableAmount) {
-        // If the cliff stream does not exist, return zero.
-        CliffStream memory cliffStream = cliffStreams[streamId];
-        if (cliffStream.sender == address(0)) {
+        // If the stream does not exist, return zero.
+        Stream memory stream = streams[streamId];
+        if (stream.sender == address(0)) {
             return 0;
         }
 
         unchecked {
             uint256 withdrawableAmount = getWithdrawableAmount(streamId);
-            returnableAmount = cliffStream.depositAmount - cliffStream.withdrawnAmount - withdrawableAmount;
+            returnableAmount = stream.depositAmount - stream.withdrawnAmount - withdrawableAmount;
         }
+    }
+
+    /// @inheritdoc ISablierV2Cliff
+    function getStream(uint256 streamId) external view override returns (Stream memory stream) {
+        stream = streams[streamId];
     }
 
     /// @inheritdoc ISablierV2
     function getWithdrawableAmount(uint256 streamId) public view returns (uint256 withdrawableAmount) {
-        // If the cliff stream does not exist, return zero.
-        CliffStream memory cliffStream = cliffStreams[streamId];
-        if (cliffStream.sender == address(0)) {
+        // If the stream does not exist, return zero.
+        Stream memory stream = streams[streamId];
+        if (stream.sender == address(0)) {
             return 0;
         }
 
         // If the cliff time is greater than the block timestamp, return zero.
         uint256 currentTime = block.timestamp;
-        if (cliffStream.cliffTime > currentTime) {
+        if (stream.cliffTime > currentTime) {
             return 0;
         }
 
         unchecked {
             // If the current time is greater than or equal to the stop time, return the deposit minus
             // the withdrawn amount.
-            if (currentTime >= cliffStream.stopTime) {
-                return cliffStream.depositAmount - cliffStream.withdrawnAmount;
+            if (currentTime >= stream.stopTime) {
+                return stream.depositAmount - stream.withdrawnAmount;
             }
 
             // In all other cases, calculate how much the recipient can withdraw.
-            uint256 elapsed = (currentTime - cliffStream.startTime).fromUint();
-            uint256 duration = (cliffStream.stopTime - cliffStream.startTime).fromUint();
+            uint256 elapsed = (currentTime - stream.startTime).fromUint();
+            uint256 duration = (stream.stopTime - stream.startTime).fromUint();
             uint256 quotient = elapsed.div(duration);
-            uint256 streamedAmount = quotient.mul(cliffStream.depositAmount);
-            withdrawableAmount = streamedAmount - cliffStream.withdrawnAmount;
+            uint256 streamedAmount = quotient.mul(stream.depositAmount);
+            withdrawableAmount = streamedAmount - stream.withdrawnAmount;
         }
     }
 
@@ -108,10 +107,10 @@ contract SablierV2Cliff is ISablierV2Cliff {
 
     /// @inheritdoc ISablierV2
     function cancel(uint256 streamId) external streamExists(streamId) onlySenderOrRecipient(streamId) {
-        CliffStream memory cliffStream = cliffStreams[streamId];
+        Stream memory stream = streams[streamId];
 
-        // Checks: the cliff stream is cancelable.
-        if (!cliffStream.cancelable) {
+        // Checks: the stream is cancelable.
+        if (!stream.cancelable) {
             revert SablierV2__StreamNonCancelable(streamId);
         }
 
@@ -119,24 +118,24 @@ contract SablierV2Cliff is ISablierV2Cliff {
         uint256 withdrawAmount = getWithdrawableAmount(streamId);
         uint256 returnAmount;
         unchecked {
-            returnAmount = cliffStream.depositAmount - cliffStream.withdrawnAmount - withdrawAmount;
+            returnAmount = stream.depositAmount - stream.withdrawnAmount - withdrawAmount;
         }
 
-        // Effects: delete the cliff stream from storage.
-        delete cliffStreams[streamId];
+        // Effects: delete the stream from storage.
+        delete streams[streamId];
 
         // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
-            cliffStream.token.safeTransfer(cliffStream.recipient, withdrawAmount);
+            stream.token.safeTransfer(stream.recipient, withdrawAmount);
         }
 
         // Interactions: return the tokens to the sender, if any.
         if (returnAmount > 0) {
-            cliffStream.token.safeTransfer(cliffStream.sender, returnAmount);
+            stream.token.safeTransfer(stream.sender, returnAmount);
         }
 
         // Emit an event.
-        emit Cancel(streamId, cliffStream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
     }
 
     /// @inheritdoc ISablierV2Cliff
@@ -214,7 +213,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
             revert SablierV2__InsufficientAuthorization(from, msg.sender, authorization, depositAmount);
         }
 
-        // Effects & Interactions: create the cliff stream.
+        // Effects & Interactions: create the stream.
         streamId = createInternal(
             from,
             sender,
@@ -255,7 +254,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
             revert SablierV2__InsufficientAuthorization(from, msg.sender, authorization, depositAmount);
         }
 
-        // Effects & Interactions: create the cliff stream.
+        // Effects & Interactions: create the stream.
         uint256 startTime = block.timestamp;
         uint256 cliffTime = startTime + cliffDuration;
         uint256 stopTime = startTime + totalDuration;
@@ -291,20 +290,20 @@ contract SablierV2Cliff is ISablierV2Cliff {
 
     /// @inheritdoc ISablierV2
     function renounce(uint256 streamId) external streamExists(streamId) {
-        CliffStream memory cliffStream = cliffStreams[streamId];
+        Stream memory stream = streams[streamId];
 
-        // Checks: the caller is the sender of the cliff stream.
-        if (msg.sender != cliffStreams[streamId].sender) {
+        // Checks: the caller is the sender of the stream.
+        if (msg.sender != streams[streamId].sender) {
             revert SablierV2__Unauthorized(streamId, msg.sender);
         }
 
-        // Checks: the cliff stream is not already non-cancelable.
-        if (!cliffStream.cancelable) {
+        // Checks: the stream is not already non-cancelable.
+        if (!stream.cancelable) {
             revert SablierV2__RenounceNonCancelableStream(streamId);
         }
 
         // Effects: make the stream non-cancelable.
-        cliffStreams[streamId].cancelable = false;
+        streams[streamId].cancelable = false;
 
         // Emit an event.
         emit Renounce(streamId);
@@ -329,22 +328,22 @@ contract SablierV2Cliff is ISablierV2Cliff {
 
         // Effects: update the withdrawn amount.
         unchecked {
-            cliffStreams[streamId].withdrawnAmount += amount;
+            streams[streamId].withdrawnAmount += amount;
         }
 
-        // Load the cliff stream in memory, we will need it later.
-        CliffStream memory cliffStream = cliffStreams[streamId];
+        // Load the stream in memory, we will need it later.
+        Stream memory stream = streams[streamId];
 
-        // Effects: if this cliff stream is done, save gas by deleting it from storage.
-        if (cliffStreams[streamId].depositAmount == cliffStreams[streamId].withdrawnAmount) {
-            delete cliffStreams[streamId];
+        // Effects: if this stream is done, save gas by deleting it from storage.
+        if (streams[streamId].depositAmount == streams[streamId].withdrawnAmount) {
+            delete streams[streamId];
         }
 
         // Interactions: perform the ERC-20 transfer.
-        cliffStream.token.safeTransfer(cliffStream.recipient, amount);
+        stream.token.safeTransfer(stream.recipient, amount);
 
         // Emit an event.
-        emit Withdraw(streamId, cliffStream.recipient, amount);
+        emit Withdraw(streamId, stream.recipient, amount);
     }
 
     /// INTERNAL FUNCTIONS ///
@@ -414,9 +413,9 @@ contract SablierV2Cliff is ISablierV2Cliff {
             revert SablierV2Cliff__CliffTimeGreaterThanStopTime(cliffTime, stopTime);
         }
 
-        // Effects: create and store the cliff stream.
+        // Effects: create and store the stream.
         streamId = nextStreamId;
-        cliffStreams[streamId] = CliffStream({
+        streams[streamId] = Stream({
             cancelable: cancelable,
             cliffTime: cliffTime,
             depositAmount: depositAmount,
@@ -438,7 +437,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
         token.safeTransferFrom(from, address(this), depositAmount);
 
         // Emit an event.
-        emit CreateCliffStream(
+        emit CreateStream(
             streamId,
             sender,
             recipient,

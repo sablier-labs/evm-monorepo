@@ -4,7 +4,7 @@ pragma solidity >=0.8.4;
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.sol";
 
-import { SablierV2LinearUnitTest } from "../../SablierV2LinearUnitTest.t.sol";
+import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__Renounce__UnitTest is SablierV2LinearUnitTest {
     uint256 internal streamId;
@@ -14,17 +14,17 @@ contract SablierV2Linear__Renounce__UnitTest is SablierV2LinearUnitTest {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultLinearStream();
+        streamId = createDefaultStream();
     }
 
-    /// @dev When the linear stream does not exist, it should revert.
+    /// @dev When the stream does not exist, it should revert.
     function testCannotRenounce__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
         sablierV2Linear.renounce(nonStreamId);
     }
 
-    /// @dev When the linear stream does not exist, it should revert.
+    /// @dev When the stream does not exist, it should revert.
     function testCannotRenounce__Unauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         vm.stopPrank();
@@ -35,17 +35,17 @@ contract SablierV2Linear__Renounce__UnitTest is SablierV2LinearUnitTest {
         sablierV2Linear.renounce(streamId);
     }
 
-    /// @dev When the linear stream is already non-cancelable, it should revert.
+    /// @dev When the stream is already non-cancelable, it should revert.
     function testCannotRenounce__NonCancelabeStream() external {
         // Creaate the non-cancelable stream.
         bool cancelable = false;
         uint256 nonCancelableStreamId = sablierV2Linear.create(
-            linearStream.sender,
-            linearStream.recipient,
-            linearStream.depositAmount,
-            linearStream.token,
-            linearStream.startTime,
-            linearStream.stopTime,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
+            stream.stopTime,
             cancelable
         );
 
@@ -59,8 +59,8 @@ contract SablierV2Linear__Renounce__UnitTest is SablierV2LinearUnitTest {
     /// @dev When all checks pass, it should make the stream non-cancelable.
     function testRenounce() external {
         sablierV2Linear.renounce(streamId);
-        ISablierV2Linear.LinearStream memory linearStream = sablierV2Linear.getLinearStream(streamId);
-        assertEq(linearStream.cancelable, false);
+        ISablierV2Linear.Stream memory stream = sablierV2Linear.getStream(streamId);
+        assertEq(stream.cancelable, false);
     }
 
     /// @dev When all checks pass, it should emit a Renounce event.

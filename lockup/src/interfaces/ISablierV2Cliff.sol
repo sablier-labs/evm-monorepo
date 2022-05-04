@@ -9,29 +9,29 @@ import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Cliff
 /// @author Sablier Labs Ltd
-/// @notice Creates linear streams where the streaming function is f(x) = x with a cliff.
+/// @notice Creates cliff streams whose streaming function is $f(x) = x$ after a clif period ends.
 interface ISablierV2Cliff is ISablierV2 {
     /// CUSTOM ERRORS ///
 
-    /// @notice Emitted when attempting to create CliffStream with start time greater than cliff time;
+    /// @notice Emitted when attempting to create a stream with a start time greater than cliff time;
     error SablierV2Cliff__StartTimeGreaterThanCliffTime(uint256 startTime, uint256 cliffTime);
 
-    /// @notice Emitted when attempting to create CliffStrem with cliff time greater than stop time;
+    /// @notice Emitted when attempting to create a stream with a cliff time greater than stop time;
     error SablierV2Cliff__CliffTimeGreaterThanStopTime(uint256 cliffTime, uint256 stopTime);
 
     /// EVENTS ///
 
-    /// @notice Emitted when a cliff stream is created.
-    /// @param streamId The id of the newly created cliff stream.
+    /// @notice Emitted when a stream is created.
+    /// @param streamId The id of the newly created stream.
     /// @param sender The address from which to stream the money with cliff.
     /// @param recipient The address toward which to stream the money with cliff.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param startTime The unix timestamp in seconds for when the cliff stream will start.
+    /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param cliffTime The unix timestamp in seconds for when the cliff period will end.
-    /// @param stopTime The unix timestamp in seconds for when the cliff stream will stop.
-    /// @param cancelable Whether the cliff stream is cancelable or not.
-    event CreateCliffStream(
+    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
+    /// @param cancelable Whether the stream is cancelable or not.
+    event CreateStream(
         uint256 indexed streamId,
         address indexed sender,
         address indexed recipient,
@@ -47,7 +47,7 @@ interface ISablierV2Cliff is ISablierV2 {
 
     /// @notice Cliff stream struct.
     /// @dev The members are arranged like this to save gas via tight variable packing.
-    struct CliffStream {
+    struct Stream {
         uint256 cliffTime;
         uint256 depositAmount;
         uint256 startTime;
@@ -61,13 +61,13 @@ interface ISablierV2Cliff is ISablierV2 {
 
     /// CONSTANT FUNCTIONS ///
 
-    function getCliffStream(uint256 streamId) external view returns (CliffStream memory cliffStream);
+    function getStream(uint256 streamId) external view returns (Stream memory stream);
 
     /// NON-CONSTANT FUNCTIONS ///
 
-    /// @notice Creates a new cliff stream funded by `msg.sender`.
+    /// @notice Creates a new stream funded by `msg.sender`.
     ///
-    /// @dev Emits a {CreateCliffStream} event and an {Approve} event.
+    /// @dev Emits a {CreateStream} event and an {Approve} event.
     ///
     /// Requirements:
     /// - `sender` cannot be the zero address.
@@ -80,11 +80,11 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @param recipient The address toward which to stream the money with cliff.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param startTime The unix timestamp in seconds for when the cliff stream will start.
+    /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
-    /// @param stopTime The unix timestamp in seconds for when the cliff stream will stop.
-    /// @param cancelable Whether the cliff stream is cancelable or not.
-    /// @return streamId The id of the newly created cliff stream.
+    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
+    /// @param cancelable Whether the stream is cancelable or not.
+    /// @return streamId The id of the newly created stream.
     function create(
         address sender,
         address recipient,
@@ -96,9 +96,9 @@ interface ISablierV2Cliff is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a new cliff stream funded by `from`.
+    /// @notice Creates a new stream funded by `from`.
     ///
-    /// @dev Emits a {CreateCliffStream} event.
+    /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
@@ -108,16 +108,16 @@ interface ISablierV2Cliff is ISablierV2 {
     /// - `startTime` cannot be greater than `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
-    /// @param from The address which funds the cliff stream.
+    /// @param from The address which funds the stream.
     /// @param sender The address from which to stream the money with a cliff.
     /// @param recipient The address toward which to stream the money with a cliff.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param startTime The unix timestamp in seconds for when the cliff stream will start.
+    /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
-    /// @param stopTime The unix timestamp in seconds for when the cliff stream will stop.
-    /// @param cancelable Whether the cliff stream is cancelable or not.
-    /// @return streamId The id of the newly created cliff stream.
+    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
+    /// @param cancelable Whether the stream is cancelable or not.
+    /// @return streamId The id of the newly created stream.
     function createFrom(
         address from,
         address sender,
@@ -130,24 +130,24 @@ interface ISablierV2Cliff is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a cliff stream funded by `from`. Sets the start time to `block.timestamp` and the stop
+    /// @notice Creates a stream funded by `from`. Sets the start time to `block.timestamp` and the stop
     /// time to `block.timestamp + duration`.
     ///
-    /// @dev Emits a {CreateCliffStream} event and an {Approve} event.
+    /// @dev Emits a {CreateStream} event and an {Approve} event.
     ///
     /// Requirements:
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
     /// - The duration calculation cannot overflow uint256.
     ///
-    /// @param from The address which funds the cliff stream.
+    /// @param from The address which funds the stream.
     /// @param sender The address from which to stream the money with cliff.
     /// @param recipient The address toward which to stream the money with cliff.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cliffDuration The number of seconds for how long the cliff period will last.
-    /// @param totalDuration The total number of seconds for how long the cliff stream will last.
-    /// @param cancelable Whether the cliff stream is cancelable or not.
-    /// @return streamId The id of the newly created cliff stream.
+    /// @param totalDuration The total number of seconds for how long the stream will last.
+    /// @param cancelable Whether the stream is cancelable or not.
+    /// @return streamId The id of the newly created stream.
     function createFromWithDuration(
         address from,
         address sender,
@@ -159,21 +159,22 @@ interface ISablierV2Cliff is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a cliff stream funded by `msg.sender`. Sets the start time to `block.timestamp` and the stop
+    /// @notice Creates a stream funded by `msg.sender`. Sets the start time to `block.timestamp` and the stop
     ///
-    /// @dev Emits a {CreateCliffStream} event.
+    /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
-    /// - The duration calculation cannot overflow uint256.
+    /// - The cliff duration calculation cannot overflow uint256.
+    /// - The total duration calculation cannot overflow uint256.
     ///
-    /// @param sender The address from which to cliff stream the money.
-    /// @param recipient The address toward which to cliff stream the money.
+    /// @param sender The address from which to stream the money.
+    /// @param recipient The address toward which to stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cliffDuration The number of seconds for how long the cliff period will last.
-    /// @param totalDuration The total number of seconds for how long the cliff stream will last.
-    /// @param cancelable Whether the cliff stream is cancelable or not.
-    /// @return streamId The id of the newly created cliff stream.
+    /// @param totalDuration The total number of seconds for how long the stream will last.
+    /// @param cancelable Whether the stream is cancelable or not.
+    /// @return streamId The id of the newly created stream.
     function createWithDuration(
         address sender,
         address recipient,

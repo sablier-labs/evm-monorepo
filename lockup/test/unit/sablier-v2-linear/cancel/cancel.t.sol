@@ -4,7 +4,7 @@ pragma solidity >=0.8.4;
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.sol";
 
-import { SablierV2LinearUnitTest } from "../../SablierV2LinearUnitTest.t.sol";
+import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
     uint256 internal streamId;
@@ -14,17 +14,17 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultLinearStream();
+        streamId = createDefaultStream();
     }
 
-    /// @dev When the linear stream does not exist, it should revert.
+    /// @dev When the stream does not exist, it should revert.
     function testCannotCancel__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
         sablierV2Linear.cancel(nonStreamId);
     }
 
-    /// @dev When the linear stream does not exist, it should revert.
+    /// @dev When the stream does not exist, it should revert.
     function testCannotCancel__Unauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         vm.stopPrank();
@@ -45,17 +45,17 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
         sablierV2Linear.cancel(streamId);
     }
 
-    /// @dev When the linear stream is non-cancelable, it should revert.
+    /// @dev When the stream is non-cancelable, it should revert.
     function testCannotCancel__StreamNonCancelable() external {
         // Creaate the non-cancelable stream.
         bool cancelable = false;
         uint256 nonCancelableStreamId = sablierV2Linear.create(
-            linearStream.sender,
-            linearStream.recipient,
-            linearStream.depositAmount,
-            linearStream.token,
-            linearStream.startTime,
-            linearStream.stopTime,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
+            stream.stopTime,
             cancelable
         );
 
@@ -68,69 +68,69 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
 
     /// @dev When the stream ended, it should cancel the stream.
     function testCancel__StreamEnded() external {
-        // Warp to the end of the linear stream.
-        vm.warp(linearStream.stopTime);
+        // Warp to the end of the stream.
+        vm.warp(stream.stopTime);
 
         // Run the test.
         sablierV2Linear.cancel(streamId);
     }
 
-    /// @dev When the stream ended, it should delete the linear stream.
-    function testCancel__StreamEnded__DeleteLinearStream() external {
-        // Warp to the end of the linear stream.
-        vm.warp(linearStream.stopTime);
+    /// @dev When the stream ended, it should delete the stream.
+    function testCancel__StreamEnded__DeleteStream() external {
+        // Warp to the end of the stream.
+        vm.warp(stream.stopTime);
 
         // Run the test.
         sablierV2Linear.cancel(streamId);
-        ISablierV2Linear.LinearStream memory expectedLinearStream;
-        ISablierV2Linear.LinearStream memory deletedLinearStream = sablierV2Linear.getLinearStream(streamId);
-        assertEq(expectedLinearStream, deletedLinearStream);
+        ISablierV2Linear.Stream memory expectedStream;
+        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
+        assertEq(expectedStream, deletedStream);
     }
 
     /// @dev When the stream ended, it should emit a Cancel event.
     function testCancel__StreamEnded__Event() public {
-        // Warp to the end of the linear stream.
-        vm.warp(linearStream.stopTime);
+        // Warp to the end of the stream.
+        vm.warp(stream.stopTime);
 
         // Run the test.
         vm.expectEmit(true, true, false, true);
-        uint256 withdrawAmount = linearStream.depositAmount;
+        uint256 withdrawAmount = stream.depositAmount;
         uint256 returnAmount = 0;
-        emit Cancel(streamId, linearStream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
         sablierV2Linear.cancel(streamId);
     }
 
     /// @dev When the stream is ongoing, it should cancel the stream.
     function testCancel__StreamOngoing() external {
-        // Warp to 36 seconds after the start time (1% of the default linear stream duration).
-        vm.warp(linearStream.startTime + DEFAULT_TIME_OFFSET);
+        // Warp to 36 seconds after the start time (1% of the default stream duration).
+        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
 
         // Run the test.
         sablierV2Linear.cancel(streamId);
     }
 
-    /// @dev When the stream is ongoing, it should delete the linear stream.
-    function testCancel__StreamOngoing__DeleteLinearStream() external {
-        // Warp to the end of the linear stream.
-        vm.warp(linearStream.stopTime);
+    /// @dev When the stream is ongoing, it should delete the stream.
+    function testCancel__StreamOngoing__DeleteStream() external {
+        // Warp to the end of the stream.
+        vm.warp(stream.stopTime);
 
         // Run the test.
         sablierV2Linear.cancel(streamId);
-        ISablierV2Linear.LinearStream memory expectedLinearStream;
-        ISablierV2Linear.LinearStream memory deletedLinearStream = sablierV2Linear.getLinearStream(streamId);
-        assertEq(expectedLinearStream, deletedLinearStream);
+        ISablierV2Linear.Stream memory expectedStream;
+        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
+        assertEq(expectedStream, deletedStream);
     }
 
     /// @dev When the stream is ongoing, it should emit a Cancel event.
     function testCancel__StreamOngoing__Event() public {
-        // Warp to the end of the linear stream.
-        vm.warp(linearStream.stopTime);
+        // Warp to the end of the stream.
+        vm.warp(stream.stopTime);
 
         // Run the test.
         vm.expectEmit(true, true, false, true);
-        uint256 withdrawAmount = linearStream.depositAmount;
+        uint256 withdrawAmount = stream.depositAmount;
         uint256 returnAmount = 0;
-        emit Cancel(streamId, linearStream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
         sablierV2Linear.cancel(streamId);
     }
 }

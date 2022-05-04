@@ -4,7 +4,7 @@ pragma solidity >=0.8.4;
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.sol";
 
-import { SablierV2LinearUnitTest } from "../../SablierV2LinearUnitTest.t.sol";
+import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
     uint256 internal streamId;
@@ -14,14 +14,14 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultLinearStream();
+        streamId = createDefaultStream();
 
         // Make the recipient the `msg.sender` in this test suite.
         vm.stopPrank();
         vm.startPrank(users.recipient);
     }
 
-    /// @dev When the linear stream does not exist, it should revert.
+    /// @dev When the stream does not exist, it should revert.
     function testCannotWithdraw__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
@@ -29,7 +29,7 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
         sablierV2Linear.withdraw(nonStreamId, withdrawAmount);
     }
 
-    /// @dev When the linear stream does not exist, it should revert.
+    /// @dev When the stream does not exist, it should revert.
     function testCannotWithdraw__Unauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         vm.stopPrank();
@@ -47,8 +47,8 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
         vm.stopPrank();
         vm.startPrank(users.sender);
 
-        // Warp to 36 seconds after the start time (1% of the default linear stream duration).
-        vm.warp(linearStream.startTime + DEFAULT_TIME_OFFSET);
+        // Warp to 36 seconds after the start time (1% of the default stream duration).
+        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
         uint256 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
 
         // Run the test.
@@ -79,43 +79,43 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
 
     /// @dev When the stream ended, it should withdraw everything.
     function testWithdraw__StreamEnded() public {
-        // Warp to the end of the linear stream.
-        vm.warp(linearStream.stopTime);
+        // Warp to the end of the stream.
+        vm.warp(stream.stopTime);
 
         // Run the test.
-        uint256 withdrawAmount = linearStream.depositAmount;
+        uint256 withdrawAmount = stream.depositAmount;
         sablierV2Linear.withdraw(streamId, withdrawAmount);
     }
 
-    /// @dev When the stream ended, it should delete the linear stream.
-    function testWithdraw__StreamEnded__DeleteLinearStream() public {
-        // Warp to the end of the linear stream.
-        vm.warp(linearStream.stopTime);
+    /// @dev When the stream ended, it should delete the stream.
+    function testWithdraw__StreamEnded__DeleteStream() public {
+        // Warp to the end of the stream.
+        vm.warp(stream.stopTime);
 
         // Run the test.
-        uint256 withdrawAmount = linearStream.depositAmount;
+        uint256 withdrawAmount = stream.depositAmount;
         sablierV2Linear.withdraw(streamId, withdrawAmount);
-        ISablierV2Linear.LinearStream memory expectedLinearStream;
-        ISablierV2Linear.LinearStream memory deletedLinearStream = sablierV2Linear.getLinearStream(streamId);
-        assertEq(expectedLinearStream, deletedLinearStream);
+        ISablierV2Linear.Stream memory expectedStream;
+        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
+        assertEq(expectedStream, deletedStream);
     }
 
     /// @dev When the stream ended, it should emit a Withdraw event.
     function testWithdraw__StreamEnded__Event() public {
-        // Warp to the end of the linear stream.
-        vm.warp(linearStream.stopTime);
+        // Warp to the end of the stream.
+        vm.warp(stream.stopTime);
 
         // Run the test.
         vm.expectEmit(true, true, false, true);
-        uint256 withdrawAmount = linearStream.depositAmount;
-        emit Withdraw(streamId, linearStream.recipient, withdrawAmount);
+        uint256 withdrawAmount = stream.depositAmount;
+        emit Withdraw(streamId, stream.recipient, withdrawAmount);
         sablierV2Linear.withdraw(streamId, withdrawAmount);
     }
 
     /// @dev When the stream is ongoing, it should make the withdrawal.
     function testWithdraw__StreamOngoing() public {
-        // Warp to 36 seconds after the start time (1% of the default linear stream duration).
-        vm.warp(linearStream.startTime + DEFAULT_TIME_OFFSET);
+        // Warp to 36 seconds after the start time (1% of the default stream duration).
+        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
 
         // Run the test.
         sablierV2Linear.withdraw(streamId, DEFAULT_WITHDRAW_AMOUNT);
@@ -123,27 +123,27 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
 
     /// @dev When the stream is ongoing, it should update the withdrawn amount.
     function testWithdraw__StreamOngoing__UpdateWithdrawnAmount() public {
-        // Warp to 36 seconds after the start time (1% of the default linear stream duration).
-        vm.warp(linearStream.startTime + DEFAULT_TIME_OFFSET);
+        // Warp to 36 seconds after the start time (1% of the default stream duration).
+        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
 
         // Run the test.
         uint256 withdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
-        uint256 expectedWithdrawnAmount = linearStream.withdrawnAmount + withdrawnAmount;
+        uint256 expectedWithdrawnAmount = stream.withdrawnAmount + withdrawnAmount;
         sablierV2Linear.withdraw(streamId, withdrawnAmount);
-        ISablierV2Linear.LinearStream memory linearStream = sablierV2Linear.getLinearStream(streamId);
-        uint256 actualWithdrawnAmount = linearStream.withdrawnAmount;
+        ISablierV2Linear.Stream memory stream = sablierV2Linear.getStream(streamId);
+        uint256 actualWithdrawnAmount = stream.withdrawnAmount;
         assertEq(expectedWithdrawnAmount, actualWithdrawnAmount);
     }
 
     /// @dev When the stream is ongoing, it should emit a Withdraw event.
     function testWithdraw__StreamOngoing__Event() public {
-        // Warp to 36 seconds after the start time (1% of the default linear stream duration).
-        vm.warp(linearStream.startTime + DEFAULT_TIME_OFFSET);
+        // Warp to 36 seconds after the start time (1% of the default stream duration).
+        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
 
         // Run the test.
         vm.expectEmit(true, true, false, true);
         uint256 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
-        emit Withdraw(streamId, linearStream.recipient, withdrawAmount);
+        emit Withdraw(streamId, stream.recipient, withdrawAmount);
         sablierV2Linear.withdraw(streamId, withdrawAmount);
     }
 }

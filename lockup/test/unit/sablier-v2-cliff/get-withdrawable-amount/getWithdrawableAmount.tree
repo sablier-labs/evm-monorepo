@@ -1,7 +1,7 @@
 get-withdrawable-amount.t.sol
-├── when the cliff stream does not exist
+├── when the stream does not exist
 │  └── it should return zero
-└── when the cliff stream exists
+└── when the stream exists
    ├── when the cliff time is greater than the block timestamp
    │  └── it should return zero
    ├── when the cliff time is equal to the block timestamp

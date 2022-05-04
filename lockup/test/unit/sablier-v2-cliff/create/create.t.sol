@@ -11,7 +11,7 @@ import { DSTest } from "ds-test/test.sol";
 import { stdError } from "forge-std/stdlib.sol";
 import { Vm } from "forge-std/Vm.sol";
 
-import { SablierV2CliffUnitTest } from "../../SablierV2CliffUnitTest.t.sol";
+import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
 contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
     /// @dev When the recipient is the zero address, it should revert.
@@ -19,14 +19,14 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
         vm.expectRevert(ISablierV2.SablierV2__RecipientZeroAddress.selector);
         address recipient = address(0);
         sablierV2Cliff.create(
-            cliffStream.sender,
+            stream.sender,
             recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
-            cliffStream.startTime,
-            cliffStream.cliffTime,
-            cliffStream.stopTime,
-            cliffStream.cancelable
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
+            stream.cliffTime,
+            stream.stopTime,
+            stream.cancelable
         );
     }
 
@@ -35,66 +35,66 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
         vm.expectRevert(ISablierV2.SablierV2__DepositAmountZero.selector);
         uint256 depositAmount = 0;
         sablierV2Cliff.create(
-            cliffStream.sender,
-            cliffStream.recipient,
+            stream.sender,
+            stream.recipient,
             depositAmount,
-            cliffStream.token,
-            cliffStream.startTime,
-            cliffStream.cliffTime,
-            cliffStream.stopTime,
-            cliffStream.cancelable
+            stream.token,
+            stream.startTime,
+            stream.cliffTime,
+            stream.stopTime,
+            stream.cancelable
         );
     }
 
     /// @dev When the start time is greater than the stop time, it should revert.
     function testCannotCreate__StartTimeGreaterThanStopTime() external {
-        uint256 startTime = cliffStream.stopTime;
-        uint256 stopTime = cliffStream.startTime;
+        uint256 startTime = stream.stopTime;
+        uint256 stopTime = stream.startTime;
         vm.expectRevert(
             abi.encodeWithSelector(ISablierV2.SablierV2__StartTimeGreaterThanStopTime.selector, startTime, stopTime)
         );
         sablierV2Cliff.create(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
             startTime,
-            cliffStream.cliffTime,
+            stream.cliffTime,
             stopTime,
-            cliffStream.cancelable
+            stream.cancelable
         );
     }
 
-    /// @dev When the start time is equal to the stop time, it should create the cliff stream.
+    /// @dev When the start time is equal to the stop time, it should create the stream.
     function testCreate__StartTimeEqualStopTime() external {
-        uint256 cliffTime = cliffStream.startTime;
-        uint256 stopTime = cliffStream.startTime;
+        uint256 cliffTime = stream.startTime;
+        uint256 stopTime = stream.startTime;
         uint256 streamId = sablierV2Cliff.create(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
-            cliffStream.startTime,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
             cliffTime,
             stopTime,
-            cliffStream.cancelable
+            stream.cancelable
         );
-        ISablierV2Cliff.CliffStream memory createdCliffStream = sablierV2Cliff.getCliffStream(streamId);
-        assertEq(cliffStream.sender, createdCliffStream.sender);
-        assertEq(cliffStream.recipient, createdCliffStream.recipient);
-        assertEq(cliffStream.depositAmount, createdCliffStream.depositAmount);
-        assertEq(cliffStream.token, createdCliffStream.token);
-        assertEq(cliffStream.startTime, createdCliffStream.startTime);
-        assertEq(cliffTime, createdCliffStream.cliffTime);
-        assertEq(stopTime, createdCliffStream.stopTime);
-        assertEq(cliffStream.cancelable, createdCliffStream.cancelable);
-        assertEq(cliffStream.withdrawnAmount, createdCliffStream.withdrawnAmount);
+        ISablierV2Cliff.Stream memory createdStream = sablierV2Cliff.getStream(streamId);
+        assertEq(stream.sender, createdStream.sender);
+        assertEq(stream.recipient, createdStream.recipient);
+        assertEq(stream.depositAmount, createdStream.depositAmount);
+        assertEq(stream.token, createdStream.token);
+        assertEq(stream.startTime, createdStream.startTime);
+        assertEq(cliffTime, createdStream.cliffTime);
+        assertEq(stopTime, createdStream.stopTime);
+        assertEq(stream.cancelable, createdStream.cancelable);
+        assertEq(stream.withdrawnAmount, createdStream.withdrawnAmount);
     }
 
     /// @dev When the start time is greater than the cliff time, is should revert.
     function testCannotCreate__StartTimeGreaterThanCliffTime() external {
-        uint256 startTime = cliffStream.cliffTime;
-        uint256 cliffTime = cliffStream.startTime;
+        uint256 startTime = stream.cliffTime;
+        uint256 cliffTime = stream.startTime;
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Cliff.SablierV2Cliff__StartTimeGreaterThanCliffTime.selector,
@@ -103,46 +103,46 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
             )
         );
         sablierV2Cliff.create(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
             startTime,
             cliffTime,
-            cliffStream.stopTime,
-            cliffStream.cancelable
+            stream.stopTime,
+            stream.cancelable
         );
     }
 
-    /// @dev When the cliff time is equal to the stop time, it should create the cliff stream.
+    /// @dev When the cliff time is equal to the stop time, it should create the stream.
     function testCreate__CliffTimeEqualStopTime() external {
-        uint256 cliffTime = cliffStream.stopTime;
+        uint256 cliffTime = stream.stopTime;
         uint256 streamId = sablierV2Cliff.create(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
-            cliffStream.startTime,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
             cliffTime,
-            cliffStream.stopTime,
-            cliffStream.cancelable
+            stream.stopTime,
+            stream.cancelable
         );
-        ISablierV2Cliff.CliffStream memory createdCliffStream = sablierV2Cliff.getCliffStream(streamId);
-        assertEq(cliffStream.sender, createdCliffStream.sender);
-        assertEq(cliffStream.recipient, createdCliffStream.recipient);
-        assertEq(cliffStream.depositAmount, createdCliffStream.depositAmount);
-        assertEq(cliffStream.token, createdCliffStream.token);
-        assertEq(cliffStream.startTime, createdCliffStream.startTime);
-        assertEq(cliffTime, createdCliffStream.cliffTime);
-        assertEq(cliffStream.stopTime, createdCliffStream.stopTime);
-        assertEq(cliffStream.cancelable, createdCliffStream.cancelable);
-        assertEq(cliffStream.withdrawnAmount, createdCliffStream.withdrawnAmount);
+        ISablierV2Cliff.Stream memory createdStream = sablierV2Cliff.getStream(streamId);
+        assertEq(stream.sender, createdStream.sender);
+        assertEq(stream.recipient, createdStream.recipient);
+        assertEq(stream.depositAmount, createdStream.depositAmount);
+        assertEq(stream.token, createdStream.token);
+        assertEq(stream.startTime, createdStream.startTime);
+        assertEq(cliffTime, createdStream.cliffTime);
+        assertEq(stream.stopTime, createdStream.stopTime);
+        assertEq(stream.cancelable, createdStream.cancelable);
+        assertEq(stream.withdrawnAmount, createdStream.withdrawnAmount);
     }
 
     /// @dev When the cliff time is greater than the stop time, is should revert.
     function testCannotCreate__CliffTimeGreaterThanStopTime() external {
-        uint256 cliffTime = cliffStream.stopTime;
-        uint256 stopTime = cliffStream.cliffTime;
+        uint256 cliffTime = stream.stopTime;
+        uint256 stopTime = stream.cliffTime;
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Cliff.SablierV2Cliff__CliffTimeGreaterThanStopTime.selector,
@@ -151,61 +151,61 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
             )
         );
         sablierV2Cliff.create(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
-            cliffStream.startTime,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
             cliffTime,
             stopTime,
-            cliffStream.cancelable
+            stream.cancelable
         );
     }
 
-    /// @dev When the start time is the equal to the stop time, it should create the cliff stream.
+    /// @dev When the start time is the equal to the stop time, it should create the stream.
     function testCreate__StopTimeEqualToStartTimeAndCliffTime() external {
-        uint256 stopTime = cliffStream.startTime;
-        uint256 cliffTime = cliffStream.startTime;
+        uint256 stopTime = stream.startTime;
+        uint256 cliffTime = stream.startTime;
         uint256 streamId = sablierV2Cliff.nextStreamId();
         sablierV2Cliff.create(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
-            cliffStream.startTime,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
             stopTime,
             cliffTime,
-            cliffStream.cancelable
+            stream.cancelable
         );
-        ISablierV2Cliff.CliffStream memory createdCliffStream = sablierV2Cliff.getCliffStream(streamId);
-        assertEq(cliffStream.sender, createdCliffStream.sender);
-        assertEq(cliffStream.recipient, createdCliffStream.recipient);
-        assertEq(cliffStream.depositAmount, createdCliffStream.depositAmount);
-        assertEq(cliffStream.token, createdCliffStream.token);
-        assertEq(cliffStream.startTime, createdCliffStream.startTime);
-        assertEq(cliffTime, createdCliffStream.cliffTime);
-        assertEq(stopTime, createdCliffStream.stopTime);
-        assertEq(cliffStream.cancelable, createdCliffStream.cancelable);
-        assertEq(cliffStream.withdrawnAmount, createdCliffStream.withdrawnAmount);
+        ISablierV2Cliff.Stream memory createdStream = sablierV2Cliff.getStream(streamId);
+        assertEq(stream.sender, createdStream.sender);
+        assertEq(stream.recipient, createdStream.recipient);
+        assertEq(stream.depositAmount, createdStream.depositAmount);
+        assertEq(stream.token, createdStream.token);
+        assertEq(stream.startTime, createdStream.startTime);
+        assertEq(cliffTime, createdStream.cliffTime);
+        assertEq(stopTime, createdStream.stopTime);
+        assertEq(stream.cancelable, createdStream.cancelable);
+        assertEq(stream.withdrawnAmount, createdStream.withdrawnAmount);
     }
 
     /// @dev When the token is not a contract, it should revert.
     function testCannotCreate__TokenNotContract() external {
-        vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(0)));
+        vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(6174)));
         IERC20 token = IERC20(address(6174));
         sablierV2Cliff.create(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
             token,
-            cliffStream.startTime,
-            cliffStream.cliffTime,
-            cliffStream.stopTime,
-            cliffStream.cancelable
+            stream.startTime,
+            stream.cliffTime,
+            stream.stopTime,
+            stream.cancelable
         );
     }
 
-    /// @dev When the token is missing the return value, it should create the cliff stream.
+    /// @dev When the token is missing the return value, it should create the stream.
     function testCreate__TokenMissingReturnValue() external {
         nonStandardToken.mint(users.sender, DEFAULT_DEPOSIT);
         nonStandardToken.approve(address(sablierV2Cliff), DEFAULT_DEPOSIT);
@@ -213,59 +213,59 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
 
         uint256 streamId = sablierV2Cliff.nextStreamId();
         sablierV2Cliff.create(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
             token,
-            cliffStream.startTime,
-            cliffStream.cliffTime,
-            cliffStream.stopTime,
-            cliffStream.cancelable
+            stream.startTime,
+            stream.cliffTime,
+            stream.stopTime,
+            stream.cancelable
         );
 
-        ISablierV2Cliff.CliffStream memory createdCliffStream = sablierV2Cliff.getCliffStream(streamId);
-        assertEq(cliffStream.sender, createdCliffStream.sender);
-        assertEq(cliffStream.recipient, createdCliffStream.recipient);
-        assertEq(cliffStream.depositAmount, createdCliffStream.depositAmount);
-        assertEq(address(nonStandardToken), address(createdCliffStream.token));
-        assertEq(cliffStream.startTime, createdCliffStream.startTime);
-        assertEq(cliffStream.cliffTime, createdCliffStream.cliffTime);
-        assertEq(cliffStream.stopTime, createdCliffStream.stopTime);
-        assertEq(cliffStream.cancelable, createdCliffStream.cancelable);
-        assertEq(cliffStream.withdrawnAmount, createdCliffStream.withdrawnAmount);
+        ISablierV2Cliff.Stream memory createdStream = sablierV2Cliff.getStream(streamId);
+        assertEq(stream.sender, createdStream.sender);
+        assertEq(stream.recipient, createdStream.recipient);
+        assertEq(stream.depositAmount, createdStream.depositAmount);
+        assertEq(address(nonStandardToken), address(createdStream.token));
+        assertEq(stream.startTime, createdStream.startTime);
+        assertEq(stream.cliffTime, createdStream.cliffTime);
+        assertEq(stream.stopTime, createdStream.stopTime);
+        assertEq(stream.cancelable, createdStream.cancelable);
+        assertEq(stream.withdrawnAmount, createdStream.withdrawnAmount);
     }
 
-    /// @dev When all checks pass, it should create the cliff stream.
+    /// @dev When all checks pass, it should create the stream.
     function testCreate() external {
-        uint256 streamId = createDefaultCliffStream();
-        ISablierV2Cliff.CliffStream memory createdCliffStream = sablierV2Cliff.getCliffStream(streamId);
-        assertEq(cliffStream, createdCliffStream);
+        uint256 streamId = createDefaultStream();
+        ISablierV2Cliff.Stream memory createdStream = sablierV2Cliff.getStream(streamId);
+        assertEq(stream, createdStream);
     }
 
     /// @dev When all checks pass, it should bump the next stream id.
     function testCreate__NextStreamId() external {
         uint256 nextStreamId = sablierV2Cliff.nextStreamId();
         uint256 expectedNextStreamId = nextStreamId + 1;
-        createDefaultCliffStream();
+        createDefaultStream();
         uint256 actualNextStreamId = sablierV2Cliff.nextStreamId();
         assertEq(expectedNextStreamId, actualNextStreamId);
     }
 
-    /// @dev When all checks pass, it should emit a CreateCliffStream event.
+    /// @dev When all checks pass, it should emit a CreateStream event.
     function testCreate__Event() external {
         uint256 streamId = sablierV2Cliff.nextStreamId();
         vm.expectEmit(true, true, true, true);
-        emit CreateCliffStream(
+        emit CreateStream(
             streamId,
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
-            cliffStream.startTime,
-            cliffStream.cliffTime,
-            cliffStream.stopTime,
-            cliffStream.cancelable
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
+            stream.cliffTime,
+            stream.stopTime,
+            stream.cancelable
         );
-        createDefaultCliffStream();
+        createDefaultStream();
     }
 }

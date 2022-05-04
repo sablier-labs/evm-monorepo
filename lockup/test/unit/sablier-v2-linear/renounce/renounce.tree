@@ -1,9 +1,9 @@
 cancel.t.sol
-├── when the linear stream does not exist
+├── when the stream does not exist
 │  └── it should revert
-└── when the linear stream exists
+└── when the stream exists
    ├── when the caller is not the sender
    │  └── it should revert
    └── when the caller is the sender
-      ├── it should renounce the cliff stream
+      ├── it should renounce the stream
       └── it should emit a Renounce event

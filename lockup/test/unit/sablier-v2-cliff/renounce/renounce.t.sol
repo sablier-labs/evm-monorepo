@@ -4,7 +4,7 @@ pragma solidity >=0.8.4;
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Cliff } from "@sablier/v2-core/interfaces/ISablierV2Cliff.sol";
 
-import { SablierV2CliffUnitTest } from "../../SablierV2CliffUnitTest.t.sol";
+import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
 contract SablierV2Cliff__Renounce__UnitTest is SablierV2CliffUnitTest {
     uint256 internal streamId;
@@ -14,17 +14,17 @@ contract SablierV2Cliff__Renounce__UnitTest is SablierV2CliffUnitTest {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultCliffStream();
+        streamId = createDefaultStream();
     }
 
-    /// @dev When the cliff stream does not exist, it should revert.
+    /// @dev When the stream does not exist, it should revert.
     function testCannotRenounce__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
         sablierV2Cliff.renounce(nonStreamId);
     }
 
-    /// @dev When the cliff stream does not exist, it should revert.
+    /// @dev When the stream does not exist, it should revert.
     function testCannotRenounce__Unauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         vm.stopPrank();
@@ -35,18 +35,18 @@ contract SablierV2Cliff__Renounce__UnitTest is SablierV2CliffUnitTest {
         sablierV2Cliff.renounce(streamId);
     }
 
-    /// @dev When the cliff stream is already non-cancelable, it should revert.
+    /// @dev When the stream is already non-cancelable, it should revert.
     function testCannotRenounce__NonCancelabeStream() external {
         // Creaate the non-cancelable stream.
         bool cancelable = false;
         uint256 nonCancelableStreamId = sablierV2Cliff.create(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
-            cliffStream.startTime,
-            cliffStream.cliffTime,
-            cliffStream.stopTime,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
+            stream.cliffTime,
+            stream.stopTime,
             cancelable
         );
 
@@ -60,8 +60,8 @@ contract SablierV2Cliff__Renounce__UnitTest is SablierV2CliffUnitTest {
     /// @dev When all checks pass, it should make the stream non-cancelable.
     function testRenounce() external {
         sablierV2Cliff.renounce(streamId);
-        ISablierV2Cliff.CliffStream memory cliffStream = sablierV2Cliff.getCliffStream(streamId);
-        assertEq(cliffStream.cancelable, false);
+        ISablierV2Cliff.Stream memory stream = sablierV2Cliff.getStream(streamId);
+        assertEq(stream.cancelable, false);
     }
 
     /// @dev When all checks pass, it should emit a Renounce event.

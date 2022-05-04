@@ -11,7 +11,7 @@ import { DSTest } from "ds-test/test.sol";
 import { stdError } from "forge-std/stdlib.sol";
 import { Vm } from "forge-std/Vm.sol";
 
-import { SablierV2LinearUnitTest } from "../../SablierV2LinearUnitTest.t.sol";
+import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
     /// @dev When the recipient is the zero address, it should revert.
@@ -19,13 +19,13 @@ contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
         vm.expectRevert(ISablierV2.SablierV2__RecipientZeroAddress.selector);
         address recipient = address(0);
         sablierV2Linear.create(
-            linearStream.sender,
+            stream.sender,
             recipient,
-            linearStream.depositAmount,
-            linearStream.token,
-            linearStream.startTime,
-            linearStream.stopTime,
-            linearStream.cancelable
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
+            stream.stopTime,
+            stream.cancelable
         );
     }
 
@@ -34,74 +34,74 @@ contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
         vm.expectRevert(ISablierV2.SablierV2__DepositAmountZero.selector);
         uint256 depositAmount = 0;
         sablierV2Linear.create(
-            linearStream.sender,
-            linearStream.recipient,
+            stream.sender,
+            stream.recipient,
             depositAmount,
-            linearStream.token,
-            linearStream.startTime,
-            linearStream.stopTime,
-            linearStream.cancelable
+            stream.token,
+            stream.startTime,
+            stream.stopTime,
+            stream.cancelable
         );
     }
 
     /// @dev When the start time is greater than the stop time, it should revert.
     function testCannotCreate__StartTimeGreaterThanStopTime() external {
-        uint256 startTime = linearStream.stopTime;
-        uint256 stopTime = linearStream.startTime;
+        uint256 startTime = stream.stopTime;
+        uint256 stopTime = stream.startTime;
         vm.expectRevert(
             abi.encodeWithSelector(ISablierV2.SablierV2__StartTimeGreaterThanStopTime.selector, startTime, stopTime)
         );
         sablierV2Linear.create(
-            linearStream.sender,
-            linearStream.recipient,
-            linearStream.depositAmount,
-            linearStream.token,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
             startTime,
             stopTime,
-            linearStream.cancelable
+            stream.cancelable
         );
     }
 
-    /// @dev When the start time is the equal to the stop time, it should create the linear stream.
+    /// @dev When the start time is the equal to the stop time, it should create the stream.
     function testCreate__StopTimeEqualToStartTime() external {
-        uint256 stopTime = linearStream.startTime;
+        uint256 stopTime = stream.startTime;
         uint256 streamId = sablierV2Linear.nextStreamId();
         sablierV2Linear.create(
-            linearStream.sender,
-            linearStream.recipient,
-            linearStream.depositAmount,
-            linearStream.token,
-            linearStream.startTime,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
             stopTime,
-            linearStream.cancelable
+            stream.cancelable
         );
-        ISablierV2Linear.LinearStream memory createdLinearStream = sablierV2Linear.getLinearStream(streamId);
-        assertEq(linearStream.sender, createdLinearStream.sender);
-        assertEq(linearStream.recipient, createdLinearStream.recipient);
-        assertEq(linearStream.depositAmount, createdLinearStream.depositAmount);
-        assertEq(linearStream.token, createdLinearStream.token);
-        assertEq(linearStream.startTime, createdLinearStream.startTime);
-        assertEq(stopTime, createdLinearStream.stopTime);
-        assertEq(linearStream.cancelable, createdLinearStream.cancelable);
-        assertEq(linearStream.withdrawnAmount, createdLinearStream.withdrawnAmount);
+        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
+        assertEq(stream.sender, createdStream.sender);
+        assertEq(stream.recipient, createdStream.recipient);
+        assertEq(stream.depositAmount, createdStream.depositAmount);
+        assertEq(stream.token, createdStream.token);
+        assertEq(stream.startTime, createdStream.startTime);
+        assertEq(stopTime, createdStream.stopTime);
+        assertEq(stream.cancelable, createdStream.cancelable);
+        assertEq(stream.withdrawnAmount, createdStream.withdrawnAmount);
     }
 
     /// @dev When the token is not a contract, it should revert.
     function testCannotCreate__TokenNotContract() external {
-        vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(0)));
+        vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(6174)));
         IERC20 token = IERC20(address(6174));
         sablierV2Linear.create(
-            linearStream.sender,
-            linearStream.recipient,
-            linearStream.depositAmount,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
             token,
-            linearStream.startTime,
-            linearStream.stopTime,
-            linearStream.cancelable
+            stream.startTime,
+            stream.stopTime,
+            stream.cancelable
         );
     }
 
-    /// @dev When the token is missing the return value, it should create the linear stream.
+    /// @dev When the token is missing the return value, it should create the stream.
     function testCreate__TokenMissingReturnValue() external {
         nonStandardToken.mint(users.sender, DEFAULT_DEPOSIT);
         nonStandardToken.approve(address(sablierV2Linear), DEFAULT_DEPOSIT);
@@ -109,56 +109,56 @@ contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
 
         uint256 streamId = sablierV2Linear.nextStreamId();
         sablierV2Linear.create(
-            linearStream.sender,
-            linearStream.recipient,
-            linearStream.depositAmount,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
             token,
-            linearStream.startTime,
-            linearStream.stopTime,
-            linearStream.cancelable
+            stream.startTime,
+            stream.stopTime,
+            stream.cancelable
         );
 
-        ISablierV2Linear.LinearStream memory createdLinearStream = sablierV2Linear.getLinearStream(streamId);
-        assertEq(linearStream.sender, createdLinearStream.sender);
-        assertEq(linearStream.recipient, createdLinearStream.recipient);
-        assertEq(linearStream.depositAmount, createdLinearStream.depositAmount);
-        assertEq(address(nonStandardToken), address(createdLinearStream.token));
-        assertEq(linearStream.startTime, createdLinearStream.startTime);
-        assertEq(linearStream.stopTime, createdLinearStream.stopTime);
-        assertEq(linearStream.cancelable, createdLinearStream.cancelable);
-        assertEq(linearStream.withdrawnAmount, createdLinearStream.withdrawnAmount);
+        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
+        assertEq(stream.sender, createdStream.sender);
+        assertEq(stream.recipient, createdStream.recipient);
+        assertEq(stream.depositAmount, createdStream.depositAmount);
+        assertEq(address(nonStandardToken), address(createdStream.token));
+        assertEq(stream.startTime, createdStream.startTime);
+        assertEq(stream.stopTime, createdStream.stopTime);
+        assertEq(stream.cancelable, createdStream.cancelable);
+        assertEq(stream.withdrawnAmount, createdStream.withdrawnAmount);
     }
 
-    /// @dev When all checks pass, it should create the linear stream.
+    /// @dev When all checks pass, it should create the stream.
     function testCreate() external {
-        uint256 streamId = createDefaultLinearStream();
-        ISablierV2Linear.LinearStream memory createdLinearStream = sablierV2Linear.getLinearStream(streamId);
-        assertEq(linearStream, createdLinearStream);
+        uint256 streamId = createDefaultStream();
+        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
+        assertEq(stream, createdStream);
     }
 
     /// @dev When all checks pass, it should bump the next stream id.
     function testCreate__NextStreamId() external {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
         uint256 expectedNextStreamId = nextStreamId + 1;
-        createDefaultLinearStream();
+        createDefaultStream();
         uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
         assertEq(expectedNextStreamId, actualNextStreamId);
     }
 
-    /// @dev When all checks pass, it should emit a CreateLinearStream event.
+    /// @dev When all checks pass, it should emit a CreateStream event.
     function testCreate__Event() external {
         uint256 streamId = sablierV2Linear.nextStreamId();
         vm.expectEmit(true, true, true, true);
-        emit CreateLinearStream(
+        emit CreateStream(
             streamId,
-            linearStream.sender,
-            linearStream.recipient,
-            linearStream.depositAmount,
-            linearStream.token,
-            linearStream.startTime,
-            linearStream.stopTime,
-            linearStream.cancelable
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
+            stream.stopTime,
+            stream.cancelable
         );
-        createDefaultLinearStream();
+        createDefaultStream();
     }
 }

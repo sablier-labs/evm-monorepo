@@ -5,52 +5,52 @@ import { ISablierV2Cliff } from "@sablier/v2-core/interfaces/ISablierV2Cliff.sol
 
 import { stdError } from "forge-std/stdlib.sol";
 
-import { SablierV2CliffUnitTest } from "../../SablierV2CliffUnitTest.t.sol";
+import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
 contract SablierV2Cliff__CreateWithDuration__UnitTest is SablierV2CliffUnitTest {
     /// @dev When the cliff duration calculation overflows uint256, it should revert.
     function testCannotCreateWithDuration__CliffDurationCalculationOverflow() external {
         vm.expectRevert(stdError.arithmeticError);
-        uint256 cliffDuration = type(uint256).max - cliffStream.startTime + 1;
+        uint256 cliffDuration = type(uint256).max - stream.startTime + 1;
         sablierV2Cliff.createWithDuration(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
             cliffDuration,
             DEFAULT_TOTAL_DURATION,
-            cliffStream.cancelable
+            stream.cancelable
         );
     }
 
     /// @dev When the duration calculation overflows uint256, it should revert.
     function testCannotCreateWithDuration__DurationCalculationOverflow() external {
         vm.expectRevert(stdError.arithmeticError);
-        uint256 totalDuration = type(uint256).max - cliffStream.startTime + 1;
+        uint256 totalDuration = type(uint256).max - stream.startTime + 1;
         sablierV2Cliff.createWithDuration(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
             DEFAULT_CLIFF_DURATION,
             totalDuration,
-            cliffStream.cancelable
+            stream.cancelable
         );
     }
 
-    /// @dev When all checks pass, it should create the linear stream with duration.
+    /// @dev When all checks pass, it should create the stream with duration.
     function testCreateWithDuration() external {
         uint256 streamId = sablierV2Cliff.nextStreamId();
         sablierV2Cliff.createWithDuration(
-            cliffStream.sender,
-            cliffStream.recipient,
-            cliffStream.depositAmount,
-            cliffStream.token,
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
             DEFAULT_CLIFF_DURATION,
             DEFAULT_TOTAL_DURATION,
-            cliffStream.cancelable
+            stream.cancelable
         );
-        ISablierV2Cliff.CliffStream memory createdCliffStream = sablierV2Cliff.getCliffStream(streamId);
-        assertEq(cliffStream, createdCliffStream);
+        ISablierV2Cliff.Stream memory createdStream = sablierV2Cliff.getStream(streamId);
+        assertEq(stream, createdStream);
     }
 }

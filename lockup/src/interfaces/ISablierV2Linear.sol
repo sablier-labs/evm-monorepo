@@ -6,20 +6,20 @@ import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Linear
 /// @author Sablier Labs Ltd
-/// @notice Creates linear streams where the streaming function is f(x) = x.
+/// @notice Creates linear streams whose streaming function is $f(x) = x$.
 interface ISablierV2Linear is ISablierV2 {
     /// EVENTS ///
 
-    /// @notice Emitted when a linear stream is created.
-    /// @param streamId The id of the newly created linear stream.
+    /// @notice Emitted when a stream is created.
+    /// @param streamId The id of the newly created stream.
     /// @param sender The address from which to linearly stream the money.
     /// @param recipient The address toward which to linearly stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param startTime The unix timestamp in seconds for when the linear stream will start.
-    /// @param stopTime The unix timestamp in seconds for when the linear stream will stop.
-    /// @param cancelable Whether the linear stream is cancelable or not.
-    event CreateLinearStream(
+    /// @param startTime The unix timestamp in seconds for when the stream will start.
+    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
+    /// @param cancelable Whether the stream is cancelable or not.
+    event CreateStream(
         uint256 indexed streamId,
         address indexed sender,
         address indexed recipient,
@@ -34,7 +34,7 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// @notice Linear stream struct.
     /// @dev The members are arranged like this to save gas via tight variable packing.
-    struct LinearStream {
+    struct Stream {
         uint256 depositAmount;
         uint256 startTime;
         uint256 stopTime;
@@ -47,13 +47,13 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// CONSTANT FUNCTIONS ///
 
-    function getLinearStream(uint256 streamId) external view returns (LinearStream memory linearStream);
+    function getStream(uint256 streamId) external view returns (Stream memory stream);
 
     /// NON-CONSTANT FUNCTIONS ///
 
-    /// @notice Creates a new linear stream funded by `msg.sender`.
+    /// @notice Creates a new stream funded by `msg.sender`.
     ///
-    /// @dev Emits a {CreateLinearStream} event and an {Approve} event.
+    /// @dev Emits a {CreateStream} event and an {Approve} event.
     ///
     /// Requirements:
     /// - `sender` cannot be the zero address.
@@ -66,10 +66,10 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param recipient The address toward which to linearly stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param startTime The unix timestamp in seconds for when the linear stream will start.
-    /// @param stopTime The unix timestamp in seconds for when the linear stream will stop.
-    /// @param cancelable Whether the linear stream is cancelable or not.
-    /// @return streamId The id of the newly created linear stream.
+    /// @param startTime The unix timestamp in seconds for when the stream will start.
+    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
+    /// @param cancelable Whether the stream is cancelable or not.
+    /// @return streamId The id of the newly created stream.
     function create(
         address sender,
         address recipient,
@@ -80,9 +80,9 @@ interface ISablierV2Linear is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a new linear stream funded by `from`.
+    /// @notice Creates a new stream funded by `from`.
     ///
-    /// @dev Emits a {CreateLinearStream} event.
+    /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
@@ -92,15 +92,15 @@ interface ISablierV2Linear is ISablierV2 {
     /// - `startTime` cannot be greater than `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
-    /// @param from The address which funds the linear stream.
+    /// @param from The address which funds the stream.
     /// @param sender The address from which to linearly stream the money.
     /// @param recipient The address toward which to linearly stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param startTime The unix timestamp in seconds for when the linear stream will start.
-    /// @param stopTime The unix timestamp in seconds for when the linear stream will stop.
-    /// @param cancelable Whether the linear stream is cancelable or not.
-    /// @return streamId The id of the newly created linear stream.
+    /// @param startTime The unix timestamp in seconds for when the stream will start.
+    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
+    /// @param cancelable Whether the stream is cancelable or not.
+    /// @return streamId The id of the newly created stream.
     function createFrom(
         address from,
         address sender,
@@ -112,23 +112,23 @@ interface ISablierV2Linear is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a linear stream funded by `from`. Sets the start time to `block.timestamp` and the stop
+    /// @notice Creates a stream funded by `from`. Sets the start time to `block.timestamp` and the stop
     /// time to `block.timestamp + duration`.
     ///
-    /// @dev Emits a {CreateLinearStream} event and an {Approve} event.
+    /// @dev Emits a {CreateStream} event and an {Approve} event.
     ///
     /// Requirements:
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
     /// - The duration calculation cannot overflow uint256.
     ///
-    /// @param from The address which funds the linear stream.
+    /// @param from The address which funds the stream.
     /// @param sender The address from which to linearly stream the money.
     /// @param recipient The address toward which to linearly stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param duration The number of seconds for how long the linear stream will last.
-    /// @param cancelable Whether the linear stream is cancelable or not.
-    /// @return streamId The id of the newly created linear stream.
+    /// @param duration The number of seconds for how long the stream will last.
+    /// @param cancelable Whether the stream is cancelable or not.
+    /// @return streamId The id of the newly created stream.
     function createFromWithDuration(
         address from,
         address sender,
@@ -139,10 +139,10 @@ interface ISablierV2Linear is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a linear stream funded by `msg.sender`. Sets the start time to `block.timestamp` and the stop
+    /// @notice Creates a stream funded by `msg.sender`. Sets the start time to `block.timestamp` and the stop
     /// time to `block.timestamp + duration`.
     ///
-    /// @dev Emits a {CreateLinearStream} event.
+    /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
     /// - The duration calculation cannot overflow uint256.
@@ -151,9 +151,9 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param recipient The address toward which to linearly stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param duration The number of seconds for how long the linear stream will last.
-    /// @param cancelable Whether the linear stream is cancelable or not.
-    /// @return streamId The id of the newly created linear stream.
+    /// @param duration The number of seconds for how long the stream will last.
+    /// @param cancelable Whether the stream is cancelable or not.
+    /// @return streamId The id of the newly created stream.
     function createWithDuration(
         address sender,
         address recipient,

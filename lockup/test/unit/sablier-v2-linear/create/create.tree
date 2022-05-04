@@ -8,13 +8,13 @@ create.t.sol
       ├── when the start time is greater than the stop time
       │  └── it should revert
       ├── when the start time is equal to the stop time
-      │  └── it should create the linear stream
+      │  └── it should create the stream
       └── when the start time is less than the stop time
          ├── when the token is not a contract
          │  └── it should revert
          ├── when the token misses the return value
-         │  └── it should create the linear stream
+         │  └── it should create the stream
          └── when the token is ERC-20 compliant
-            ├── it should create the linear stream
+            ├── it should create the stream
             ├── it should bump the next stream id
-            └── it should emit a CreateLinearStream event
+            └── it should emit a CreateStream event

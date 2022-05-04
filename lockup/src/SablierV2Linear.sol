@@ -23,7 +23,7 @@ contract SablierV2Linear is ISablierV2Linear {
     /// INTERNAL STORAGE ///
 
     /// @dev Sablier V2 linear streams mapped by unsigned integers.
-    mapping(uint256 => LinearStream) internal linearStreams;
+    mapping(uint256 => Stream) internal streams;
 
     /// @dev Mapping from owners to creators to stream creation authorizations.
     mapping(address => mapping(address => uint256)) internal authorizations;
@@ -32,15 +32,15 @@ contract SablierV2Linear is ISablierV2Linear {
 
     /// @dev Checks that `streamId` points to a stream that exists.
     modifier streamExists(uint256 streamId) {
-        if (linearStreams[streamId].sender == address(0)) {
+        if (streams[streamId].sender == address(0)) {
             revert SablierV2__StreamNonExistent(streamId);
         }
         _;
     }
 
-    /// @notice Checks that `msg.sender` is either the sender or the recipient of the linear stream.
+    /// @notice Checks that `msg.sender` is either the sender or the recipient of the stream.
     modifier onlySenderOrRecipient(uint256 streamId) {
-        if (msg.sender != linearStreams[streamId].sender && msg.sender != linearStreams[streamId].recipient) {
+        if (msg.sender != streams[streamId].sender && msg.sender != streams[streamId].recipient) {
             revert SablierV2__Unauthorized(streamId, msg.sender);
         }
         _;
@@ -54,52 +54,52 @@ contract SablierV2Linear is ISablierV2Linear {
 
     /// CONSTANT FUNCTIONS ///
 
-    /// @inheritdoc ISablierV2Linear
-    function getLinearStream(uint256 streamId) external view override returns (LinearStream memory stream) {
-        stream = linearStreams[streamId];
-    }
-
     /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) public view returns (uint256 returnableAmount) {
-        // If the linear stream does not exist, return zero.
-        LinearStream memory linearStream = linearStreams[streamId];
-        if (linearStream.sender == address(0)) {
+        // If the stream does not exist, return zero.
+        Stream memory stream = streams[streamId];
+        if (stream.sender == address(0)) {
             return 0;
         }
 
         unchecked {
             uint256 withdrawableAmount = getWithdrawableAmount(streamId);
-            returnableAmount = linearStream.depositAmount - linearStream.withdrawnAmount - withdrawableAmount;
+            returnableAmount = stream.depositAmount - stream.withdrawnAmount - withdrawableAmount;
         }
+    }
+
+    /// @inheritdoc ISablierV2Linear
+    function getStream(uint256 streamId) external view override returns (Stream memory stream) {
+        stream = streams[streamId];
     }
 
     /// @inheritdoc ISablierV2
     function getWithdrawableAmount(uint256 streamId) public view returns (uint256 withdrawableAmount) {
-        // If the linear stream does not exist, return zero.
-        LinearStream memory linearStream = linearStreams[streamId];
-        if (linearStream.sender == address(0)) {
+        // If the stream does not exist, return zero.
+        Stream memory stream = streams[streamId];
+        if (stream.sender == address(0)) {
             return 0;
         }
 
         // If the start time is greater than or equal to the block timestamp, return zero.
         uint256 currentTime = block.timestamp;
-        if (linearStream.startTime >= currentTime) {
+        if (stream.startTime >= currentTime) {
             return 0;
         }
 
         unchecked {
             // If the current time is greater than or equal to the stop time, return the deposit minus
             // the withdrawn amount.
-            if (currentTime >= linearStream.stopTime) {
-                return linearStream.depositAmount - linearStream.withdrawnAmount;
+            if (currentTime >= stream.stopTime) {
+                return stream.depositAmount - stream.withdrawnAmount;
             }
 
             // In all other cases, calculate how much the recipient can withdraw.
-            uint256 elapsed = (currentTime - linearStream.startTime).fromUint();
-            uint256 duration = (linearStream.stopTime - linearStream.startTime).fromUint();
+            uint256 elapsed = (currentTime - stream.startTime).fromUint();
+            uint256 duration = (stream.stopTime - stream.startTime).fromUint();
             uint256 quotient = elapsed.div(duration);
-            uint256 streamedAmount = quotient.mul(linearStream.depositAmount);
-            withdrawableAmount = streamedAmount - linearStream.withdrawnAmount;
+            uint256 streamedAmount = quotient.mul(stream.depositAmount);
+            withdrawableAmount = streamedAmount - stream.withdrawnAmount;
         }
     }
 
@@ -107,10 +107,10 @@ contract SablierV2Linear is ISablierV2Linear {
 
     /// @inheritdoc ISablierV2
     function cancel(uint256 streamId) external streamExists(streamId) onlySenderOrRecipient(streamId) {
-        LinearStream memory linearStream = linearStreams[streamId];
+        Stream memory stream = streams[streamId];
 
-        // Checks: the linear stream is cancelable.
-        if (!linearStream.cancelable) {
+        // Checks: the stream is cancelable.
+        if (!stream.cancelable) {
             revert SablierV2__StreamNonCancelable(streamId);
         }
 
@@ -118,24 +118,24 @@ contract SablierV2Linear is ISablierV2Linear {
         uint256 withdrawAmount = getWithdrawableAmount(streamId);
         uint256 returnAmount;
         unchecked {
-            returnAmount = linearStream.depositAmount - linearStream.withdrawnAmount - withdrawAmount;
+            returnAmount = stream.depositAmount - stream.withdrawnAmount - withdrawAmount;
         }
 
-        // Effects: delete the linear stream from storage.
-        delete linearStreams[streamId];
+        // Effects: delete the stream from storage.
+        delete streams[streamId];
 
         // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
-            linearStream.token.safeTransfer(linearStream.recipient, withdrawAmount);
+            stream.token.safeTransfer(stream.recipient, withdrawAmount);
         }
 
         // Interactions: return the tokens to the sender, if any.
         if (returnAmount > 0) {
-            linearStream.token.safeTransfer(linearStream.sender, returnAmount);
+            stream.token.safeTransfer(stream.sender, returnAmount);
         }
 
         // Emit an event.
-        emit Cancel(streamId, linearStream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
     }
 
     /// @inheritdoc ISablierV2Linear
@@ -189,7 +189,7 @@ contract SablierV2Linear is ISablierV2Linear {
             revert SablierV2__InsufficientAuthorization(from, msg.sender, authorization, depositAmount);
         }
 
-        // Effects & Interactions: create the linear stream.
+        // Effects & Interactions: create the stream.
         streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
 
         // Effects: decrease the authorization since this stream has consumed part of it.
@@ -219,7 +219,7 @@ contract SablierV2Linear is ISablierV2Linear {
             revert SablierV2__InsufficientAuthorization(from, msg.sender, authorization, depositAmount);
         }
 
-        // Effects & Interactions: create the linear stream.
+        // Effects & Interactions: create the stream.
         uint256 startTime = block.timestamp;
         uint256 stopTime = startTime + duration;
         streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
@@ -244,20 +244,20 @@ contract SablierV2Linear is ISablierV2Linear {
 
     /// @inheritdoc ISablierV2
     function renounce(uint256 streamId) external streamExists(streamId) {
-        LinearStream memory linearStream = linearStreams[streamId];
+        Stream memory stream = streams[streamId];
 
-        // Checks: the caller is the sender of the linear stream.
-        if (msg.sender != linearStreams[streamId].sender) {
+        // Checks: the caller is the sender of the stream.
+        if (msg.sender != stream.sender) {
             revert SablierV2__Unauthorized(streamId, msg.sender);
         }
 
-        // Checks: the linear stream is not already non-cancelable.
-        if (!linearStream.cancelable) {
+        // Checks: the stream is not already non-cancelable.
+        if (!stream.cancelable) {
             revert SablierV2__RenounceNonCancelableStream(streamId);
         }
 
         // Effects: make the stream non-cancelable.
-        linearStreams[streamId].cancelable = false;
+        streams[streamId].cancelable = false;
 
         // Emit an event.
         emit Renounce(streamId);
@@ -282,22 +282,22 @@ contract SablierV2Linear is ISablierV2Linear {
 
         // Effects: update the withdrawn amount.
         unchecked {
-            linearStreams[streamId].withdrawnAmount += amount;
+            streams[streamId].withdrawnAmount += amount;
         }
 
-        // Load the linear stream in memory, we will need it later.
-        LinearStream memory linearStream = linearStreams[streamId];
+        // Load the stream in memory, we will need it later.
+        Stream memory stream = streams[streamId];
 
-        // Effects: if this linear stream is done, save gas by deleting it from storage.
-        if (linearStreams[streamId].depositAmount == linearStreams[streamId].withdrawnAmount) {
-            delete linearStreams[streamId];
+        // Effects: if this stream is done, save gas by deleting it from storage.
+        if (stream.depositAmount == stream.withdrawnAmount) {
+            delete streams[streamId];
         }
 
         // Interactions: perform the ERC-20 transfer.
-        linearStream.token.safeTransfer(linearStream.recipient, amount);
+        stream.token.safeTransfer(stream.recipient, amount);
 
         // Emit an event.
-        emit Withdraw(streamId, linearStream.recipient, amount);
+        emit Withdraw(streamId, stream.recipient, amount);
     }
 
     /// INTERNAL FUNCTIONS ///
@@ -356,9 +356,9 @@ contract SablierV2Linear is ISablierV2Linear {
             revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
         }
 
-        // Effects: create and store the linear stream.
+        // Effects: create and store the stream.
         streamId = nextStreamId;
-        linearStreams[streamId] = LinearStream({
+        streams[streamId] = Stream({
             cancelable: cancelable,
             depositAmount: depositAmount,
             recipient: recipient,
@@ -379,6 +379,6 @@ contract SablierV2Linear is ISablierV2Linear {
         token.safeTransferFrom(from, address(this), depositAmount);
 
         // Emit an event.
-        emit CreateLinearStream(streamId, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        emit CreateStream(streamId, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
     }
 }
