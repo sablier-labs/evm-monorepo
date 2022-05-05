@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 
-import { stdError } from "forge-std/stdlib.sol";
+import { stdError } from "forge-std/Test.sol";
 
 import { AbstractSablierV2UnitTest } from "../AbstractSablierV2UnitTest.t.sol";
 

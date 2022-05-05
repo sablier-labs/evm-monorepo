@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import { ISablierV2Cliff } from "@sablier/v2-core/interfaces/ISablierV2Cliff.sol";
 
-import { stdError } from "forge-std/stdlib.sol";
+import { stdError } from "forge-std/Test.sol";
 
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 

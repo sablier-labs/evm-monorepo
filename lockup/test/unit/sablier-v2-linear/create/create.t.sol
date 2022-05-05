@@ -8,7 +8,7 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 import { SablierV2Linear } from "@sablier/v2-core/SablierV2Linear.sol";
 
 import { DSTest } from "ds-test/test.sol";
-import { stdError } from "forge-std/stdlib.sol";
+import { stdError } from "forge-std/Test.sol";
 import { Vm } from "forge-std/Vm.sol";
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";

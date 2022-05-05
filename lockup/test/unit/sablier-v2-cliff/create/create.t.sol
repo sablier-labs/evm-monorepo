@@ -7,8 +7,8 @@ import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Cliff } from "@sablier/v2-core/interfaces/ISablierV2Cliff.sol";
 import { SablierV2Cliff } from "@sablier/v2-core/SablierV2Cliff.sol";
 
-import { DSTest } from "ds-test/test.sol";
-import { stdError } from "forge-std/stdlib.sol";
+import { DSTest } from "ds-test/Test.sol";
+import { stdError } from "forge-std/Test.sol";
 import { Vm } from "forge-std/Vm.sol";
 
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
