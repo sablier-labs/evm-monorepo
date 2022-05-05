@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { PRBMathUD60x18 } from "@prb/math/PRBMathUD60x18.sol";
+import { UD60x18, toUD60x18 } from "@prb/math/UD60x18.sol";
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Linear } from "./interfaces/ISablierV2Linear.sol";
 import { SablierV2 } from "./SablierV2.sol";
@@ -14,7 +14,6 @@ contract SablierV2Linear is
     SablierV2, // two dependencies
     ISablierV2Linear // one dependency
 {
-    using PRBMathUD60x18 for uint256;
     using SafeERC20 for IERC20;
 
     /// INTERNAL STORAGE ///
@@ -83,11 +82,13 @@ contract SablierV2Linear is
             }
 
             // In all other cases, calculate how much the recipient can withdraw.
-            uint256 elapsed = (currentTime - stream.startTime).fromUint();
-            uint256 duration = (stream.stopTime - stream.startTime).fromUint();
-            uint256 quotient = elapsed.div(duration);
-            uint256 streamedAmount = quotient.mul(stream.depositAmount);
-            withdrawableAmount = streamedAmount - stream.withdrawnAmount;
+            UD60x18 elapsedTime = toUD60x18(currentTime - stream.startTime);
+            UD60x18 totalTime = toUD60x18(stream.stopTime - stream.startTime);
+            UD60x18 quotient = elapsedTime.div(totalTime);
+            UD60x18 depositAmount = UD60x18.wrap(stream.depositAmount);
+            UD60x18 streamedAmount = quotient.mul(depositAmount);
+            UD60x18 withdrawnAmount = UD60x18.wrap(stream.withdrawnAmount);
+            withdrawableAmount = UD60x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount));
         }
     }
 
