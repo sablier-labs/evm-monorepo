@@ -1,4 +1,4 @@
-create-with-duration.t.sol
+createWithDuration.t.sol
 ├── when the cliff duration calculation overflows uint256
 │  └── it should revert
 └── when the cliff duration calculation does not overflow uint256

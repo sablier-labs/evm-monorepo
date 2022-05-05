@@ -8,8 +8,8 @@ import { stdError } from "forge-std/stdlib.sol";
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__CreateWithDuration__UnitTest is SablierV2LinearUnitTest {
-    /// @dev When the duration calculation overflows uint256, it should revert.
-    function testCannotCreateWithDuration__DurationCalculationOverflow() external {
+    /// @dev When the total duration calculation overflows uint256, it should revert.
+    function testCannotCreateWithDuration__TotalDurationCalculationOverflow() external {
         vm.expectRevert(stdError.arithmeticError);
         uint256 duration = type(uint256).max - stream.startTime + 1;
         sablierV2Linear.createWithDuration(

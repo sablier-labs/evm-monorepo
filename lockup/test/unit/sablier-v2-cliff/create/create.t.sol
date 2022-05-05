@@ -207,8 +207,8 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
 
     /// @dev When the token is missing the return value, it should create the stream.
     function testCreate__TokenMissingReturnValue() external {
-        nonStandardToken.mint(users.sender, DEFAULT_DEPOSIT);
-        nonStandardToken.approve(address(sablierV2Cliff), DEFAULT_DEPOSIT);
+        nonStandardToken.mint(users.sender, DEFAULT_DEPOSIT_AMOUNT);
+        nonStandardToken.approve(address(sablierV2Cliff), DEFAULT_DEPOSIT_AMOUNT);
         IERC20 token = IERC20(address(nonStandardToken));
 
         uint256 streamId = sablierV2Cliff.nextStreamId();

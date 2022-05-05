@@ -93,9 +93,9 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
         vm.warp(stream.stopTime);
 
         // Run the test.
-        vm.expectEmit(true, true, false, true);
         uint256 withdrawAmount = stream.depositAmount;
         uint256 returnAmount = 0;
+        vm.expectEmit(true, true, false, true);
         emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
         sablierV2Linear.cancel(streamId);
     }
@@ -127,9 +127,9 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
         vm.warp(stream.stopTime);
 
         // Run the test.
-        vm.expectEmit(true, true, false, true);
         uint256 withdrawAmount = stream.depositAmount;
         uint256 returnAmount = 0;
+        vm.expectEmit(true, true, false, true);
         emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
         sablierV2Linear.cancel(streamId);
     }

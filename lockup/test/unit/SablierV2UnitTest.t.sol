@@ -33,7 +33,7 @@ abstract contract SablierV2UnitTest is DSTest {
     uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
 
     uint256 internal immutable DEFAULT_CLIFF_TIME;
-    uint256 internal immutable DEFAULT_DEPOSIT;
+    uint256 internal immutable DEFAULT_DEPOSIT_AMOUNT;
     uint256 internal immutable DEFAULT_START_TIME;
     uint256 internal immutable DEFAULT_STOP_TIME;
 
@@ -63,7 +63,7 @@ abstract contract SablierV2UnitTest is DSTest {
 
         // Initialize the default stream values.
         DEFAULT_CLIFF_TIME = block.timestamp + DEFAULT_CLIFF_DURATION;
-        DEFAULT_DEPOSIT = bn(10_000);
+        DEFAULT_DEPOSIT_AMOUNT = bn(10_000);
         DEFAULT_START_TIME = block.timestamp;
         DEFAULT_STOP_TIME = block.timestamp + DEFAULT_TOTAL_DURATION;
 

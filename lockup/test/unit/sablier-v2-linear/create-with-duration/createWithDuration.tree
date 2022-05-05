@@ -1,5 +1,5 @@
-create-with-duration.t.sol
-├── when the duration calculation overflows uint256
+createWithDuration.t.sol
+├── when the total duration calculation overflows uint256
 │  └── it should revert
-└── when the duration calculation does not overflow uint256
+└── when the total duration calculation does not overflow uint256
    └── it should create the stream with duration

@@ -43,7 +43,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         // Create the default stream to be used across many tests.
         stream = ISablierV2Linear.Stream({
             cancelable: true,
-            depositAmount: DEFAULT_DEPOSIT,
+            depositAmount: DEFAULT_DEPOSIT_AMOUNT,
             recipient: users.recipient,
             sender: users.sender,
             startTime: DEFAULT_START_TIME,
