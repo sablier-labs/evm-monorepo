@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.4;
 
-import { console } from "forge-std/console.sol";
-
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ISablierV2Cliff } from "@sablier/v2-core/interfaces/ISablierV2Cliff.sol";
 import { SablierV2Cliff } from "@sablier/v2-core/SablierV2Cliff.sol";

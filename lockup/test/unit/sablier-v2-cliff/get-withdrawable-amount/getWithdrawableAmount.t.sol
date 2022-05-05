@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.4;
 
-import { console } from "forge-std/console.sol";
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
 contract SablierV2Cliff__GetWithdrawableAmount__UnitTest is SablierV2CliffUnitTest {
@@ -18,15 +17,17 @@ contract SablierV2Cliff__GetWithdrawableAmount__UnitTest is SablierV2CliffUnitTe
     /// @dev When the stream does not exist, it should return zero.
     function testGetWithdrawableAmount__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint256 withdrawableAmount = sablierV2Cliff.getWithdrawableAmount(nonStreamId);
-        assertEq(0, withdrawableAmount);
+        uint256 expectedWithdrawableAmount = 0;
+        uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(nonStreamId);
+        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
     }
 
     /// @dev When the cliff time is greater than the block timestamp, it should return zero.
     function testGetWithdrawableAmount__CliffTimeGreaterThanBlockTimestamp() external {
         vm.warp(stream.cliffTime - 1 seconds);
-        uint256 withdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
-        assertEq(0, withdrawableAmount);
+        uint256 expectedWithdrawableAmount = 0;
+        uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
+        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
     }
 
     /// @dev When the cliff time is equal to the block timestamp, it should return the correct withdrawable amount.

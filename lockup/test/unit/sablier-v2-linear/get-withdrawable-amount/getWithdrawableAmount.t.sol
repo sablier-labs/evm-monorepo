@@ -17,15 +17,17 @@ contract SablierV2Linear__GetWithdrawableAmount__UnitTest is SablierV2LinearUnit
     /// @dev When the stream does not exist, it should return zero.
     function testGetWithdrawableAmount__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint256 withdrawableAmount = sablierV2Linear.getWithdrawableAmount(nonStreamId);
-        assertEq(0, withdrawableAmount);
+        uint256 expectedWithdrawableAmount = 0;
+        uint256 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(nonStreamId);
+        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
     }
 
     /// @dev When the start time is greater than the block timestamp, it should return zero.
     function testGetWithdrawableAmount__StartTimeGreaterThanBlockTimestamp() external {
         vm.warp(stream.startTime - 1 seconds);
-        uint256 withdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
-        assertEq(0, withdrawableAmount);
+        uint256 expectedWithdrawableAmount = 0;
+        uint256 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
+        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
     }
 
     /// @dev When the start time is equal to the block timestamp, it should return zero.

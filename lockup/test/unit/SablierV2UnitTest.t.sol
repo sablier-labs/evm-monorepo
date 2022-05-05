@@ -6,7 +6,6 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { NonStandardERC20 } from "@prb/contracts/token/erc20/NonStandardERC20.sol";
 
 import { DSTest } from "ds-test/test.sol";
-import { console } from "forge-std/console.sol";
 import { Vm } from "forge-std/Vm.sol";
 
 import { GodModeERC20 } from "../shared/GodModeERC20.t.sol";

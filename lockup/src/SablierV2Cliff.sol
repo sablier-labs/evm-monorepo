@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.4;
 
-import { console } from "forge-std/console.sol";
-
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { PRBMathUD60x18 } from "@prb/math/PRBMathUD60x18.sol";
