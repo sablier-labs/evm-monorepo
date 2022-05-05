@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.13;
 
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Cliff } from "@sablier/v2-core/interfaces/ISablierV2Cliff.sol";

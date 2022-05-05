@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.13;
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 

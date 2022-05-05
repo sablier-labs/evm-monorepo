@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";

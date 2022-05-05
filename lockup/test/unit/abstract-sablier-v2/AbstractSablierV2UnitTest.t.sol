@@ -1,6 +1,6 @@
 /* solhint-disable var-name-mixedcase */
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";

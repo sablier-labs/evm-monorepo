@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ISablierV2 } from "./ISablierV2.sol";

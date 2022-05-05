@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0
-pragma solidity >=0.8.4;
+pragma solidity >=0.8.13;
 
 /// @notice The common interface between all Sablier V2 streaming contracts.
 /// @author Sablier Labs Ltd.
