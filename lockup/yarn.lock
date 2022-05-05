@@ -247,7 +247,7 @@ __metadata:
     husky: ^7.0.4
     lint-staged: ^12.3.7
     prettier: ^2.6.2
-    prettier-plugin-solidity: ^1.0.0-beta.19
+    prettier-plugin-solidity: ^1.0.0-dev.21
     solhint: ^3.3.7
     solhint-plugin-prettier: ^0.0.5
   languageName: unknown
@@ -2467,7 +2467,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-solidity@npm:^1.0.0-beta.19":
+"prettier-plugin-solidity@npm:^1.0.0-dev.21":
   version: 1.0.0-dev.21
   resolution: "prettier-plugin-solidity@npm:1.0.0-dev.21"
   dependencies:
