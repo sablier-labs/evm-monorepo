@@ -28,27 +28,13 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
 
     /// CONSTANTS ///
 
-    uint256 internal immutable DEFAULT_DEPOSIT;
-    uint256 internal constant DEFAULT_TOTAL_DURATION = 3600 seconds;
-    uint256 internal immutable DEFAULT_START_TIME;
-    uint256 internal immutable DEFAULT_STOP_TIME;
-    uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT;
-    uint256 internal constant DEFAULT_TIME_OFFSET = 36 seconds;
+    uint256 internal constant DEFAULT_TIME_OFFSET = 100 seconds;
+    uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT = bn(100);
 
-    /// LINEAR-SPECIFIC TESTING VARIABLES ///
+    /// OTHER TESTING VARIABLES ///
 
     SablierV2Linear internal sablierV2Linear = new SablierV2Linear();
     ISablierV2Linear.Stream internal stream;
-
-    /// CONSTRUCTOR ///
-
-    constructor() {
-        // Initialize the default stream values.
-        DEFAULT_DEPOSIT = bn(3600);
-        DEFAULT_START_TIME = block.timestamp;
-        DEFAULT_STOP_TIME = block.timestamp + DEFAULT_TOTAL_DURATION;
-        DEFAULT_WITHDRAW_AMOUNT = bn(36);
-    }
 
     // SETUP FUNCTION ///
 
@@ -66,10 +52,11 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
             withdrawnAmount: 0
         });
 
-        // Approve the SablierV2Linear contract to spend $USD from the `sender` and the `funder`'s accounts.
+        // Approve the SablierV2Linear contract to spend $USD from the `sender` account.
         vm.prank(users.sender);
         usd.approve(address(sablierV2Linear), type(uint256).max);
 
+        // Approve the SablierV2Linear contract to spend $USD from the `funder` account.
         vm.prank(users.funder);
         usd.approve(address(sablierV2Linear), type(uint256).max);
 

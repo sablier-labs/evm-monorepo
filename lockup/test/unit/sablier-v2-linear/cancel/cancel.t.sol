@@ -102,7 +102,7 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
 
     /// @dev When the stream is ongoing, it should cancel the stream.
     function testCancel__StreamOngoing() external {
-        // Warp to 36 seconds after the start time (1% of the default stream duration).
+        // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
 
         // Run the test.

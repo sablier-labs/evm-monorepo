@@ -26,7 +26,16 @@ abstract contract SablierV2UnitTest is DSTest {
 
     /// CONSTANTS ///
 
-    uint256 internal constant STARTING_BLOCK_TIMESTAMP = 314 seconds;
+    /// CONSTANTS ///
+
+    uint256 internal constant DEFAULT_CLIFF_DURATION = 2_500 seconds;
+    uint256 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
+    uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
+
+    uint256 internal immutable DEFAULT_CLIFF_TIME;
+    uint256 internal immutable DEFAULT_DEPOSIT;
+    uint256 internal immutable DEFAULT_START_TIME;
+    uint256 internal immutable DEFAULT_STOP_TIME;
 
     /// STRUCTS ///
 
@@ -39,7 +48,6 @@ abstract contract SablierV2UnitTest is DSTest {
 
     /// STORAGE ///
 
-    // Generic testing variables
     bytes32 internal nextUser = keccak256(abi.encodePacked("user address"));
     NonStandardERC20 internal nonStandardToken = new NonStandardERC20("Stablecoin", "USD", 18);
     GodModeERC20 internal usd = new GodModeERC20("Stablecoin", "USD", 18);
@@ -50,8 +58,14 @@ abstract contract SablierV2UnitTest is DSTest {
 
     constructor() {
         // By default the test EVM begins at time zero, but some of our tests need to warp back in time, so we
-        // change the default to something else (314 seconds into the future).
+        // change the default to something else (100 seconds into the future).
         vm.warp(STARTING_BLOCK_TIMESTAMP);
+
+        // Initialize the default stream values.
+        DEFAULT_CLIFF_TIME = block.timestamp + DEFAULT_CLIFF_DURATION;
+        DEFAULT_DEPOSIT = bn(10_000);
+        DEFAULT_START_TIME = block.timestamp;
+        DEFAULT_STOP_TIME = block.timestamp + DEFAULT_TOTAL_DURATION;
 
         // Create 4 users for testing. Order matters.
         users = Users({ sender: getNextUser(), recipient: getNextUser(), funder: getNextUser(), eve: getNextUser() });

@@ -1,4 +1,4 @@
-get-withdrawable-amount.t.sol
+getWithdrawableAmount.t.sol
 ├── when the stream does not exist
 │  └── it should return zero
 └── when the stream exists

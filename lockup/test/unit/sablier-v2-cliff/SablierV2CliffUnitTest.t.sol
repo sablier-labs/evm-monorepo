@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.4;
 
+import { console } from "forge-std/console.sol";
+
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ISablierV2Cliff } from "@sablier/v2-core/interfaces/ISablierV2Cliff.sol";
 import { SablierV2Cliff } from "@sablier/v2-core/SablierV2Cliff.sol";
@@ -29,31 +31,13 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
 
     /// CONSTANTS ///
 
-    uint256 internal constant DEFAULT_CLIFF_DURATION = 900 seconds;
-    uint256 internal constant DEFAULT_TOTAL_DURATION = 3600 seconds;
-    uint256 internal constant DEFAULT_TIME_OFFSET = 900 seconds;
+    uint256 internal constant DEFAULT_TIME_OFFSET = 2_600 seconds;
+    uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT = bn(2_600);
 
-    uint256 internal immutable DEFAULT_DEPOSIT;
-    uint256 internal immutable DEFAULT_START_TIME;
-    uint256 internal immutable DEFAULT_STOP_TIME;
-    uint256 internal immutable DEFAULT_CLIFF_TIME;
-    uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT;
-
-    /// CLIFF-SPECIFIC TESTING VARIABLES ///
+    /// OTHER TESTING VARIABLES ///
 
     SablierV2Cliff internal sablierV2Cliff = new SablierV2Cliff();
     ISablierV2Cliff.Stream internal stream;
-
-    /// CONSTRUCTOR ///
-
-    constructor() {
-        // Initialize the default stream values.
-        DEFAULT_CLIFF_TIME = block.timestamp + DEFAULT_TIME_OFFSET;
-        DEFAULT_DEPOSIT = bn(3600);
-        DEFAULT_START_TIME = block.timestamp;
-        DEFAULT_STOP_TIME = block.timestamp + DEFAULT_TOTAL_DURATION;
-        DEFAULT_WITHDRAW_AMOUNT = bn(900);
-    }
 
     // SETUP FUNCTION ///
 
@@ -72,10 +56,11 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
             withdrawnAmount: 0
         });
 
-        // Approve the SablierV2Cliff contract to spend $USD from the `sender` and the `funder`'s accounts.
+        // Approve the SablierV2Cliff contract to spend $USD from the `sender` account.
         vm.prank(users.sender);
         usd.approve(address(sablierV2Cliff), type(uint256).max);
 
+        // Approve the SablierV2Cliff contract to spend $USD from the `funder` account.
         vm.prank(users.funder);
         usd.approve(address(sablierV2Cliff), type(uint256).max);
 

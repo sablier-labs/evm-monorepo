@@ -315,6 +315,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
         streamExists(streamId)
         onlySenderOrRecipient(streamId)
     {
+        Stream memory stream = streams[streamId];
         // Checks: the amount cannot be zero.
         if (amount == 0) {
             revert SablierV2__WithdrawAmountZero(streamId);
@@ -332,7 +333,7 @@ contract SablierV2Cliff is ISablierV2Cliff {
         }
 
         // Load the stream in memory, we will need it later.
-        Stream memory stream = streams[streamId];
+        // Stream memory stream = streams[streamId];
 
         // Effects: if this stream is done, save gas by deleting it from storage.
         if (streams[streamId].depositAmount == streams[streamId].withdrawnAmount) {

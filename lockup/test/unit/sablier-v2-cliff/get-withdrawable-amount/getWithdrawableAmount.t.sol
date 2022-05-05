@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.4;
 
+import { console } from "forge-std/console.sol";
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
 contract SablierV2Cliff__GetWithdrawableAmount__UnitTest is SablierV2CliffUnitTest {
@@ -31,7 +32,7 @@ contract SablierV2Cliff__GetWithdrawableAmount__UnitTest is SablierV2CliffUnitTe
     /// @dev When the cliff time is equal to the block timestamp, it should return the correct withdrawable amount.
     function testGetWithdrawableAmount__CliffTimeEqualToBlockTimestamp() external {
         vm.warp(stream.cliffTime);
-        uint256 expectedWithdrawableAmount = bn(900);
+        uint256 expectedWithdrawableAmount = DEFAULT_WITHDRAW_AMOUNT - bn(100);
         uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
         assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
     }
