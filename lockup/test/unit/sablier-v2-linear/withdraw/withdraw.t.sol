@@ -141,8 +141,8 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
         vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
 
         // Run the test.
-        vm.expectEmit(true, true, false, true);
         uint256 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
+        vm.expectEmit(true, true, false, true);
         emit Withdraw(streamId, stream.recipient, withdrawAmount);
         sablierV2Linear.withdraw(streamId, withdrawAmount);
     }

@@ -1,0 +1,6 @@
+getAuthorization.t.sol
+├── when the authorization is not set
+│  └── it should return zero
+└── when the authorization is set
+   └── it should return the correct authorization
+

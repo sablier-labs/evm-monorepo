@@ -47,7 +47,7 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
         stream = ISablierV2Cliff.Stream({
             cancelable: true,
             cliffTime: DEFAULT_CLIFF_TIME,
-            depositAmount: DEFAULT_DEPOSIT,
+            depositAmount: DEFAULT_DEPOSIT_AMOUNT,
             recipient: users.recipient,
             sender: users.sender,
             startTime: DEFAULT_START_TIME,

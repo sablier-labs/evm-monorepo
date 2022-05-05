@@ -6,25 +6,25 @@ pragma solidity >=0.8.4;
 interface ISablierV2 {
     /// CUSTOM ERRORS ///
 
-    /// @notice Emitted when approving the zero address as the creator.
-    error SablierV2__CreatorZeroAddress();
+    /// @notice Emitted when attempting to approve the zero address as a would-be stream sender.
+    error SablierV2__AuthorizeSenderZeroAddress();
 
-    /// @notice Emitted when attempting to create a stream with a zero amount.
+    /// @notice Emitted when attempting to approve the zero address as a stream funder.
+    error SablierV2__AuthorizeFunderZeroAddress();
+
+    /// @notice Emitted when attempting to create a stream with a zero deposit amount.
     error SablierV2__DepositAmountZero();
 
     /// @notice Emitted when attempting to create a stream on behalf of the zero address.
     error SablierV2__FromZeroAddress();
 
-    /// @notice Emitted when the caller does not have sufficient authorization to create a stream.
+    /// @notice Emitted when the funder does not have sufficient authorization to create a stream.
     error SablierV2__InsufficientAuthorization(
-        address owner,
-        address creator,
+        address sender,
+        address funder,
         uint256 authorization,
         uint256 depositAmount
     );
-
-    /// @notice Emitted when attempting to approve the zero address as the owner.
-    error SablierV2__OwnerZeroAddress();
 
     /// @notice Emitted when attempting to create a stream with recipient as the zero address.
     error SablierV2__RecipientZeroAddress();
@@ -35,7 +35,7 @@ interface ISablierV2 {
     /// @notice Emitted when attempting to create a stream with the sender as the zero address.
     error SablierV2__SenderZeroAddress();
 
-    /// @notice Emitted when the attempting to create a stream with the start time greater than the stop time.
+    /// @notice Emitted when attempting to create a stream with the start time greater than the stop time.
     error SablierV2__StartTimeGreaterThanStopTime(uint256 startTime, uint256 stopTime);
 
     /// @notice Emitted when attempting to cancel a stream that is already non-cancelable.
@@ -60,6 +60,12 @@ interface ISablierV2 {
 
     /// EVENTS ///
 
+    /// @notice Emitted when an authorization to create streams is granted.
+    /// @param sender The address of the would-be stream sender.
+    /// @param funder The address of the stream funder.
+    /// @param amount The authorization that can be used for creating streams.
+    event Authorize(address indexed sender, address indexed funder, uint256 amount);
+
     /// @notice Emitted when a stream is canceled.
     /// @param streamId The id of the stream.
     /// @param recipient The address of the recipient.
@@ -77,13 +83,12 @@ interface ISablierV2 {
     /// @param amount The amount of tokens withdrawn.
     event Withdraw(uint256 indexed streamId, address indexed recipient, uint256 amount);
 
-    /// @notice Emitted when an authorization to create streams is granted.
-    /// @param owner The address of the owner of the tokens.
-    /// @param creator The address of the creator of the streams.
-    /// @param amount The authorization that can be used for creating streams.
-    event Authorize(address indexed owner, address indexed creator, uint256 amount);
-
     /// CONSTANT FUNCTIONS ///
+
+    /// @notice Rreturns the authorization amount that `sender` has given `funder` to create streams.
+    /// @param sender The address of the would-be stream sender.
+    /// @param funder The address of the funder.
+    function getAuthorization(address sender, address funder) external view returns (uint256 authorization);
 
     /// @notice Calculates the amount that the sender would be returned if the stream was canceled.
     /// @param streamId The id of the stream to make the query for.
@@ -135,21 +140,21 @@ interface ISablierV2 {
     /// - `amount` cannot execeed the withdrawable amount.
     function withdraw(uint256 streamId, uint256 amount) external;
 
-    /// @notice Atomically decreases the authorization given by `msg.sender` to `creator` to create streams.
+    /// @notice Atomically decreases the authorization given by `msg.sender` to `funder` to create streams.
     ///
     /// @dev Emits an {Authorize} event indicating the updated authorization.
     ///
     /// Requirements:
-    /// - `creator` cannot be the zero address.
-    /// - `creator` must have set an authorization to `msg.sender` of at least `amount`.
-    function decreaseAuthorization(address creator, uint256 amount) external;
+    /// - `funder` cannot be the zero address.
+    /// - `funder` must have set an authorization to `msg.sender` of at least `amount`.
+    function decreaseAuthorization(address funder, uint256 amount) external;
 
-    /// @notice Atomically increases the authorization to create streams given by `msg.sender` to `creator`.
+    /// @notice Atomically increases the authorization to create streams given by `msg.sender` to `funder`.
     ///
     /// @dev Emits an {Authorize} event indicating the updated authorization.
     ///
     /// Requirements:
-    /// - `creator` cannot be the zero address.
+    /// - `funder` cannot be the zero address.
     /// - The updated authorization cannot overflow uint256.
-    function increaseAuthorization(address creator, uint256 amount) external;
+    function increaseAuthorization(address funder, uint256 amount) external;
 }

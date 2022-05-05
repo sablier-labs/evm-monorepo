@@ -6,27 +6,26 @@ import { console } from "forge-std/console.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { PRBMathUD60x18 } from "@prb/math/PRBMathUD60x18.sol";
+
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Cliff } from "./interfaces/ISablierV2Cliff.sol";
+import { SablierV2 } from "./SablierV2.sol";
 
 /// @title SablierV2Cliff
 /// @author Sablier Labs Ltd.
-contract SablierV2Cliff is ISablierV2Cliff {
+contract SablierV2Cliff is
+    ISablierV2Cliff, // one dependency
+    SablierV2 // one dependency
+{
     using PRBMathUD60x18 for uint256;
     using SafeERC20 for IERC20;
 
     /// PUBLIC STORAGE ///
 
-    /// @inheritdoc ISablierV2
-    uint256 public override nextStreamId;
-
     /// INTERNAL STORAGE ///
 
     /// @dev Sablier V2 cliff streams mapped by unsigned integers.
     mapping(uint256 => Stream) internal streams;
-
-    /// @dev Mapping from owners to creators to stream creation authorizations.
-    mapping(address => mapping(address => uint256)) internal authorizations;
 
     /// MODIFIERS ///
 
@@ -277,18 +276,6 @@ contract SablierV2Cliff is ISablierV2Cliff {
     }
 
     /// @inheritdoc ISablierV2
-    function decreaseAuthorization(address creator, uint256 amount) public override {
-        uint256 newAuthorization = authorizations[msg.sender][creator] - amount;
-        authorizeInternal(msg.sender, creator, newAuthorization);
-    }
-
-    /// @inheritdoc ISablierV2
-    function increaseAuthorization(address creator, uint256 amount) public override {
-        uint256 newAuthorization = authorizations[msg.sender][creator] + amount;
-        authorizeInternal(msg.sender, creator, newAuthorization);
-    }
-
-    /// @inheritdoc ISablierV2
     function renounce(uint256 streamId) external streamExists(streamId) {
         Stream memory stream = streams[streamId];
 
@@ -348,29 +335,6 @@ contract SablierV2Cliff is ISablierV2Cliff {
     }
 
     /// INTERNAL FUNCTIONS ///
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function authorizeInternal(
-        address owner,
-        address creator,
-        uint256 amount
-    ) internal virtual {
-        // Checks: the owner is not the zero address.
-        if (owner == address(0)) {
-            revert SablierV2__OwnerZeroAddress();
-        }
-
-        // Checks: the creator is not the zero address.
-        if (creator == address(0)) {
-            revert SablierV2__CreatorZeroAddress();
-        }
-
-        // Effects: update the authorization for the given owner and creator pair.
-        authorizations[owner][creator] = amount;
-
-        // Emit an event.
-        emit Authorize(owner, creator, amount);
-    }
 
     /// @dev See the documentation for the public functions that call this internal function.
     function createInternal(
