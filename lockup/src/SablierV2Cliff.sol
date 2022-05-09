@@ -17,8 +17,6 @@ contract SablierV2Cliff is
 {
     using SafeERC20 for IERC20;
 
-    /// PUBLIC STORAGE ///
-
     /// INTERNAL STORAGE ///
 
     /// @dev Sablier V2 cliff streams mapped by unsigned integers.
@@ -40,12 +38,6 @@ contract SablierV2Cliff is
             revert SablierV2__Unauthorized(streamId, msg.sender);
         }
         _;
-    }
-
-    /// CONSTRUCTOR ///
-
-    constructor() {
-        nextStreamId = 1;
     }
 
     /// CONSTANT FUNCTIONS ///
