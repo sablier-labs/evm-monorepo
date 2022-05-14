@@ -9,7 +9,8 @@ import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Cliff
 /// @author Sablier Labs Ltd
-/// @notice Creates cliff streams whose streaming function is $f(x) = x$ after a clif period ends.
+/// @notice Creates streams whose streaming function is $f(x) = x$ after a clif period ends, where x is the
+/// elapsed time divided by the total duration of the stream.
 interface ISablierV2Cliff is ISablierV2 {
     /// CUSTOM ERRORS ///
 
@@ -21,7 +22,7 @@ interface ISablierV2Cliff is ISablierV2 {
 
     /// EVENTS ///
 
-    /// @notice Emitted when a stream is created.
+    /// @notice Emitted when a cliff stream is created.
     /// @param streamId The id of the newly created stream.
     /// @param sender The address from which to stream the money with cliff.
     /// @param recipient The address toward which to stream the money with cliff.
@@ -30,7 +31,7 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param cliffTime The unix timestamp in seconds for when the cliff period will end.
     /// @param stopTime The unix timestamp in seconds for when the stream will stop.
-    /// @param cancelable Whether the stream is cancelable or not.
+    /// @param cancelable Whether the stream will be cancelable or not.
     event CreateStream(
         uint256 indexed streamId,
         address indexed sender,
@@ -67,13 +68,15 @@ interface ISablierV2Cliff is ISablierV2 {
 
     /// @notice Creates a new stream funded by `msg.sender`.
     ///
-    /// @dev Emits a {CreateStream} event and an {Approve} event.
+    /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
     /// - `sender` cannot be the zero address.
     /// - `recipient` cannot be the zero address.
     /// - `depositAmount` cannot be zero.
     /// - `startTime` cannot be greater than `stopTime`.
+    /// - `startTime` cannot be greater than cliffTime`.
+    /// - `cliffTime` cannot be greater than `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param sender The address from which to stream the money with cliff.
@@ -83,7 +86,7 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
     /// @param stopTime The unix timestamp in seconds for when the stream will stop.
-    /// @param cancelable Whether the stream is cancelable or not.
+    /// @param cancelable Whether the stream will be cancelable or not.
     /// @return streamId The id of the newly created stream.
     function create(
         address sender,
@@ -98,7 +101,7 @@ interface ISablierV2Cliff is ISablierV2 {
 
     /// @notice Creates a new stream funded by `from`.
     ///
-    /// @dev Emits a {CreateStream} event.
+    /// @dev Emits a {CreateStream} event and an {Authorize} event.
     ///
     /// Requirements:
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
@@ -116,7 +119,7 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
     /// @param stopTime The unix timestamp in seconds for when the stream will stop.
-    /// @param cancelable Whether the stream is cancelable or not.
+    /// @param cancelable Whether the stream will be cancelable or not.
     /// @return streamId The id of the newly created stream.
     function createFrom(
         address from,
@@ -133,7 +136,7 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @notice Creates a stream funded by `from`. Sets the start time to `block.timestamp` and the stop
     /// time to `block.timestamp + duration`.
     ///
-    /// @dev Emits a {CreateStream} event and an {Approve} event.
+    /// @dev Emits a {CreateStream} event and an {Authorize} event.
     ///
     /// Requirements:
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
@@ -146,7 +149,7 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cliffDuration The number of seconds for how long the cliff period will last.
     /// @param totalDuration The total number of seconds for how long the stream will last.
-    /// @param cancelable Whether the stream is cancelable or not.
+    /// @param cancelable Whether the stream will be cancelable or not.
     /// @return streamId The id of the newly created stream.
     function createFromWithDuration(
         address from,
@@ -173,7 +176,7 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cliffDuration The number of seconds for how long the cliff period will last.
     /// @param totalDuration The total number of seconds for how long the stream will last.
-    /// @param cancelable Whether the stream is cancelable or not.
+    /// @param cancelable Whether the stream will be cancelable or not.
     /// @return streamId The id of the newly created stream.
     function createWithDuration(
         address sender,
