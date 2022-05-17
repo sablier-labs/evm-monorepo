@@ -1,0 +1,25 @@
+withdraw.t.sol
+├── when the stream does not exist
+│  └── it should revert
+└── when the stream exists
+   ├── when the caller is neither the sender nor the recipient
+   │  └── it should revert
+   ├── when the caller is the sender
+   │  └── it should make the withdrawal
+   └── when the caller is the recipient
+      ├── when the withdraw amount is zero
+      │  └── it should revert
+      └── when the withdraw amount is not zero
+         ├── when the amount is greater than the withdrawable amount
+         │  └── it should revert
+         └── when the amount is less than or equal to the withdrawable amount
+            └── when the stream ended
+            │  ├── it should withdraw everything
+            │  ├── it should delete the stream
+            │  └── it should emit a Withdraw event
+            └── when the stream did not end
+               ├── it should make the withdrawal
+               ├── it should update the withdrawn amount
+               └── it should emit a Withdraw event
+
+

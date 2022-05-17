@@ -1,0 +1,20 @@
+cancel.t.sol
+├── when the stream does not exist
+│  └── it should revert
+└── when the stream exists
+   ├── when the caller is neither the sender nor the recipient
+   │  └── it should revert
+   ├── when the caller is the recipient
+   │  └── it should cancel the stream
+   └── when the stream is the sender
+      ├── when the stream is non-cancelable
+      │  └── it should revert
+      └── when the stream is cancelable
+         ├── when the stream ended
+         │  ├── it cancels the stream
+         │  ├── it deletes the stream
+         │  └── it emits a Cancel event
+         └── when the stream did not end
+            ├── it cancels the stream
+            ├── it deletes the stream
+            └── it emits a Cancel event
