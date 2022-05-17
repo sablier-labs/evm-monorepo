@@ -403,9 +403,9 @@ contract SablierV2Pro is
     }
 
     /// @dev This function checks segments elements:
-    /// exponent must be bounded between zero and two(0<exponent<=2),
-    /// amount cumulated must be equal to the deposit amount,
-    /// milestone must be bounded between start time and stop time
+    /// amounts cumulated must be equal to the deposit amount,
+    /// exponents must be bounded between zero and two(0<exponent<=2),
+    /// milestones must be bounded between start time and stop time
     /// (startTime<=previousMilestone<milestone<=stopTime).
     function checkSegments(
         uint256[] memory segmentAmounts,
@@ -456,7 +456,7 @@ contract SablierV2Pro is
             }
         }
 
-        // Checks: amount cumulated is equal to deposit amount.
+        // Checks: amounts cumulated is equal to deposit amount.
         if (depositAmount != UD60x18.unwrap(cumulativeAmount)) {
             revert SablierV2Pro__DepositIsNotEqualToSegmentAmounts(depositAmount, cumulativeAmount);
         }

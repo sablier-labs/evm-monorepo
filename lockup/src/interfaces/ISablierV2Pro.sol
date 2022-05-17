@@ -32,7 +32,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Emitted when attempting to create a stream with a segment exponent greater than two.
     error SablierV2Pro__SegmentExponentGreaterThanTwo(uint256 exponent);
 
-    /// @notice Emitted when attempting to create a stream with a deposit amount not equal segement amount cumulated.
+    /// @notice Emitted when attempting to create a stream with a deposit amount not equal segement amounts cumulated.
     error SablierV2Pro__DepositIsNotEqualToSegmentAmounts(uint256 depositAmount, UD60x18 cumulativeAmount);
 
     /// EVENTS ///
