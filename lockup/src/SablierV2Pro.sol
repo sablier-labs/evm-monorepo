@@ -297,26 +297,26 @@ contract SablierV2Pro is
             revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
         }
 
-        uint256 amountLength = segmentAmounts.length;
-        uint256 exponentLength = segmentExponents.length;
-        uint256 milestoneLength = segmentMilestones.length;
+        uint256 amountsLength = segmentAmounts.length;
+        uint256 exponentsLength = segmentExponents.length;
+        uint256 milestonesLength = segmentMilestones.length;
 
         // Checks: the length of variables that represent a segment is equal.
-        if (amountLength != exponentLength && amountLength != milestoneLength) {
-            revert SablierV2Pro__ElementsLengthIsNotEqual(amountLength, exponentLength, milestoneLength);
+        if (amountsLength != exponentsLength && amountsLength != milestonesLength) {
+            revert SablierV2Pro__ElementsLengthIsNotEqual(amountsLength, exponentsLength, milestonesLength);
         }
 
         // Checks: the variables that represent a segment lenght is not zero.
         // it's enough to only check amountLength because all arrays are equal.
-        if (amountLength == 0) {
-            revert SablierV2Pro__SegmentsLengthIsZero(amountLength);
+        if (amountsLength == 0) {
+            revert SablierV2Pro__SegmentsLengthIsZero(amountsLength);
         }
 
         checkSegments(
             segmentAmounts,
             segmentExponents,
             segmentMilestones,
-            amountLength,
+            amountsLength,
             depositAmount,
             startTime,
             stopTime

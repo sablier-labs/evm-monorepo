@@ -38,7 +38,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     uint256 internal constant DEFAULT_TIME_OFFSET = 5000 seconds;
     uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT = bn(2500);
 
-    /// Variables to test exponent > 1, change:
+    /// Variables to change for a exponent != 1:
     /// DEFAULT_SEGMENT_EXPONENT = 2, DEFAULT_TIME_OFFSET = 2500, DEFAULT_WITHDRAW_AMOUNT = bn(625).
 
     /// OTHER TESTING VARIABLES ///
