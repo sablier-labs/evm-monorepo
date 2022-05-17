@@ -416,8 +416,6 @@ contract SablierV2Pro is
         uint256 startTime,
         uint256 stopTime
     ) internal pure {
-        // TODO: check math
-
         // Checks: the start time is not greater than the first milestone.
         if (startTime > segmentMilestones[0]) {
             revert SablierV2Pro__StartTimeGreaterThanMilestone(startTime, segmentMilestones[0]);
@@ -462,6 +460,5 @@ contract SablierV2Pro is
         if (depositAmount != UD60x18.unwrap(cumulativeAmount)) {
             revert SablierV2Pro__DepositIsNotEqualToSegmentAmounts(depositAmount, cumulativeAmount);
         }
-        // TODO: normalize cumulative amount and deposit amount
     }
 }
