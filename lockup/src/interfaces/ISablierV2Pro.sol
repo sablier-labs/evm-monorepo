@@ -11,10 +11,14 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 interface ISablierV2Pro is ISablierV2 {
     /// CUSTOM ERRORS ///
 
-    /// @notice Emitted when attempting to create a stream with segment elements size is not equal.
-    error SablierV2Pro__ElementsLengthIsNotEqual(uint256 amountLength, uint256 exponentLength, uint256 milestoneLength);
+    /// @notice Emitted when attempting to create a stream with segment variables size is not equal.
+    error SablierV2Pro__SegmentVariablesLengthIsNotEqual(
+        uint256 amountLength,
+        uint256 exponentLength,
+        uint256 milestoneLength
+    );
 
-    /// @notice Emitted when attempting to create a stream with an empty segment elements.
+    /// @notice Emitted when attempting to create a stream with an empty segment variables.
     error SablierV2Pro__SegmentsLengthIsZero(uint256 amountLength);
 
     /// @notice Emitted when attempting to create a stream with start time greater than a segment milestone.
@@ -65,14 +69,12 @@ interface ISablierV2Pro is ISablierV2 {
 
     /// STRUCTS ///
 
-    /// @notice Pro stream segment struct.
+    /// @notice Pro stream struct.
     /// @dev Based on the streaming function $f(x) = x^{exponent}$, where x is the elapsed time divided by
     /// the total time.
-    /// @member amount The total amount of tokens to be streamed.
-    /// @member milestone The unix timestamp in seconds for when the segment ends.
-    /// @member exponent The exponent in the streaming function.
-
-    /// @notice Pro stream struct.
+    /// @member segmentAmounts The total amounts of tokens to be streamed.
+    /// @member segmentExponents The exponents in the streaming function.
+    /// @member segmentMilestones The unix timestamps in seconds for when the segment ends.
     /// @dev The members are arranged like this to save gas via tight variable packing.
     struct Stream {
         uint256[] segmentAmounts;
@@ -104,8 +106,11 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `depositAmount` cannot be zero.
     /// - `startTime` cannot be greater than `stopTime`.
     /// - `segmentAmounts` must be non-empty.
+    /// - `segmentAmounts` cumulated must be equal to 'depositAmount'.
     /// - `segmentExponents` must be non-empty.
+    /// - `segmentExponents` must be bounded between zero and two.
     /// - `segmentMilestones` must be non-empty.
+    /// - `segmentMilestones` must be bounded between 'startTime' and 'stopTime'.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param sender The address from which to stream the money.
@@ -143,8 +148,11 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `depositAmount` cannot be zero.
     /// - `startTime` cannot be greater than `stopTime`.
     /// - `segmentAmounts` must be non-empty.
+    /// - `segmentAmounts` cumulated must be equal to 'depositAmount'.
     /// - `segmentExponents` must be non-empty.
+    /// - `segmentExponents` must be bounded between zero and two(0<exponent<=2).
     /// - `segmentMilestones` must be non-empty.
+    /// - `segmentMilestones` must be bounded between 'startTime' and 'stopTime'.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param from The address which funds the stream.

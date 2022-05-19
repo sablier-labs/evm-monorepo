@@ -77,7 +77,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
         uint256[] memory segmentAmounts = fixedSizeToDynamic(amount);
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2Pro.SablierV2Pro__ElementsLengthIsNotEqual.selector,
+                ISablierV2Pro.SablierV2Pro__SegmentVariablesLengthIsNotEqual.selector,
                 segmentAmounts.length,
                 stream.segmentExponents.length,
                 stream.segmentMilestones.length

@@ -303,7 +303,7 @@ contract SablierV2Pro is
 
         // Checks: the length of variables that represent a segment is equal.
         if (amountsLength != exponentsLength && amountsLength != milestonesLength) {
-            revert SablierV2Pro__ElementsLengthIsNotEqual(amountsLength, exponentsLength, milestonesLength);
+            revert SablierV2Pro__SegmentVariablesLengthIsNotEqual(amountsLength, exponentsLength, milestonesLength);
         }
 
         // Checks: the variables that represent a segment lenght is not zero.
@@ -403,10 +403,9 @@ contract SablierV2Pro is
     }
 
     /// @dev This function checks segments elements:
-    /// amounts cumulated must be equal to the deposit amount,
-    /// exponents must be bounded between zero and two(0<exponent<=2),
-    /// milestones must be bounded between start time and stop time
-    /// (startTime<=previousMilestone<milestone<=stopTime).
+    /// amounts cumulated == `depositAmount`,
+    /// 0 < exponent <= 2,
+    /// startTime <= previousMilestone < milestone <= stopTime.
     function checkSegments(
         uint256[] memory segmentAmounts,
         uint256[] memory segmentExponents,
