@@ -71,9 +71,9 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When the length of variables that represent a segment is not equal, it should revert.
-    function testCannotCreate__LengthOfVariablesIsNotEqual() external {
-        uint256 amount = stream.depositAmount;
+    /// @dev When the length of segment amounts is not equal to other segment variables length, it should revert.
+    function testCannotCreate__SegmentAmountsLengthIsNotEqual() external {
+        uint256 amount = DEFAULT_SEGMENT_AMOUNT1;
         uint256[] memory segmentAmounts = fixedSizeToDynamic(amount);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -93,6 +93,58 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
             segmentAmounts,
             stream.segmentExponents,
             stream.segmentMilestones,
+            stream.cancelable
+        );
+    }
+
+    /// @dev When the length of segment exponents is not equal to other segment variables length, it should revert.
+    function testCannotCreate__SegmentExponentsIsNotEqual() external {
+        uint256 exponent = DEFAULT_SEGMENT_EXPONENT;
+        uint256[] memory segmentExponents = fixedSizeToDynamic(exponent);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                ISablierV2Pro.SablierV2Pro__SegmentVariablesLengthIsNotEqual.selector,
+                stream.segmentAmounts.length,
+                segmentExponents.length,
+                stream.segmentMilestones.length
+            )
+        );
+        sablierV2Pro.create(
+            stream.sender,
+            stream.recipient,
+            stream.token,
+            stream.depositAmount,
+            stream.startTime,
+            stream.stopTime,
+            stream.segmentAmounts,
+            segmentExponents,
+            stream.segmentMilestones,
+            stream.cancelable
+        );
+    }
+
+    /// @dev When the length of segment milestones is not equal to other segment variables length, it should revert.
+    function testCannotCreate__LengthOfVariablesIsNotEqualMilestones() external {
+        uint256 milestone = DEFAULT_SEGMENT_MILESTONE;
+        uint256[] memory segmentMilestones = fixedSizeToDynamic(milestone);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                ISablierV2Pro.SablierV2Pro__SegmentVariablesLengthIsNotEqual.selector,
+                stream.segmentAmounts.length,
+                stream.segmentExponents.length,
+                segmentMilestones.length
+            )
+        );
+        sablierV2Pro.create(
+            stream.sender,
+            stream.recipient,
+            stream.token,
+            stream.depositAmount,
+            stream.startTime,
+            stream.stopTime,
+            stream.segmentAmounts,
+            stream.segmentExponents,
+            segmentMilestones,
             stream.cancelable
         );
     }

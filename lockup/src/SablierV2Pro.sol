@@ -297,26 +297,13 @@ contract SablierV2Pro is
             revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
         }
 
-        uint256 amountsLength = segmentAmounts.length;
-        uint256 exponentsLength = segmentExponents.length;
-        uint256 milestonesLength = segmentMilestones.length;
+        uint256 length = checkSegmentLength(segmentAmounts, segmentExponents, segmentMilestones);
 
-        // Checks: the length of variables that represent a segment is equal.
-        if (amountsLength != exponentsLength && amountsLength != milestonesLength) {
-            revert SablierV2Pro__SegmentVariablesLengthIsNotEqual(amountsLength, exponentsLength, milestonesLength);
-        }
-
-        // Checks: the variables that represent a segment lenght is bounded between zero and five.
-        // it's enough to only check amountLength because all arrays are equal to each other.
-        if (amountsLength == 0 || amountsLength > 5) {
-            revert SablierV2Pro__SegmentVariablesLengthIsOutOfBounds(amountsLength);
-        }
-
-        checkVariables(
+        checkSegmentVariables(
             segmentAmounts,
             segmentExponents,
             segmentMilestones,
-            amountsLength,
+            length,
             depositAmount,
             startTime,
             stopTime
@@ -402,11 +389,43 @@ contract SablierV2Pro is
         }
     }
 
+    /// @dev This function checks arrays length:
+    /// segmentAmounts.length == segmentExponents.length == segmentMilestones.length,
+    /// length != 0 && length < 5.
+    function checkSegmentLength(
+        uint256[] memory segmentAmounts,
+        uint256[] memory segmentExponents,
+        uint256[] memory segmentMilestones
+    ) internal pure returns (uint256 length) {
+        uint256 amountsLength = segmentAmounts.length;
+        uint256 exponentsLength = segmentExponents.length;
+        uint256 milestonesLength = segmentMilestones.length;
+
+        // Checks: the length of variables that represent a segment is equal.
+        if (amountsLength != exponentsLength) {
+            revert SablierV2Pro__SegmentVariablesLengthIsNotEqual(amountsLength, exponentsLength, milestonesLength);
+        }
+        if (amountsLength != milestonesLength) {
+            revert SablierV2Pro__SegmentVariablesLengthIsNotEqual(amountsLength, exponentsLength, milestonesLength);
+        }
+
+        // Checks: the variables that represent a segment lenght is bounded between zero and five.
+        // it's enough to only check amountLength because all arrays are equal to each other.
+        if (amountsLength == 0) {
+            revert SablierV2Pro__SegmentVariablesLengthIsOutOfBounds(amountsLength);
+        }
+        if (amountsLength > 5) {
+            revert SablierV2Pro__SegmentVariablesLengthIsOutOfBounds(amountsLength);
+        }
+
+        length = amountsLength;
+    }
+
     /// @dev This function checks segment variables:
     /// amounts cumulated == `depositAmount`,
-    /// 1 <= exponent <= 3,
+    /// 1 < exponent < 3,
     /// startTime <= previousMilestone < milestone <= stopTime.
-    function checkVariables(
+    function checkSegmentVariables(
         uint256[] memory segmentAmounts,
         uint256[] memory segmentExponents,
         uint256[] memory segmentMilestones,
@@ -443,7 +462,10 @@ contract SablierV2Pro is
             exponent = segmentExponents[i];
 
             // Checks: the exponent is not out of bounds.
-            if (exponent < 1 || exponent > 3) {
+            if (exponent < 1) {
+                revert SablierV2Pro__SegmentExponentIsOutOfBounds(segmentExponents[i]);
+            }
+            if (exponent > 3) {
                 revert SablierV2Pro__SegmentExponentIsOutOfBounds(segmentExponents[i]);
             }
 

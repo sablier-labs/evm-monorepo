@@ -102,11 +102,11 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `recipient` cannot be the zero address.
     /// - `depositAmount` cannot be zero.
     /// - `startTime` cannot be greater than `stopTime`.
-    /// - `segmentAmounts` must be non-empty and not greater than five.
+    /// - `segmentAmounts` must be non-empty and not greater than five elements.
     /// - `segmentAmounts` cumulated must be equal to 'depositAmount'.
-    /// - `segmentExponents` must be non-empty and not greater than five.
+    /// - `segmentExponents` must be non-empty and not greater than five elements.
     /// - `segmentExponents` must be bounded between one and three.
-    /// - `segmentMilestones` must be non-empty and not greater than five.
+    /// - `segmentMilestones` must be non-empty and not greater than five elements.
     /// - `segmentMilestones` must be bounded between 'startTime' and 'stopTime'.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
@@ -144,11 +144,11 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `recipient` cannot be the zero address.
     /// - `depositAmount` cannot be zero.
     /// - `startTime` cannot be greater than `stopTime`.
-    /// - `segmentAmounts` must be non-empty and not greater than five.
+    /// - `segmentAmounts` must be non-empty and not greater than five elements.
     /// - `segmentAmounts` cumulated must be equal to 'depositAmount'.
-    /// - `segmentExponents` must be non-empty and not greater than five.
+    /// - `segmentExponents` must be non-empty and not greater than five elements.
     /// - `segmentExponents` must be bounded between one and three.
-    /// - `segmentMilestones` must be non-empty and not greater than five.
+    /// - `segmentMilestones` must be non-empty and not greater than five elements.
     /// - `segmentMilestones` must be bounded between 'startTime' and 'stopTime'.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
