@@ -104,7 +104,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
         uint256[] memory segmentMilestones;
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2Pro.SablierV2Pro__SegmentsLengthIsOutOfBounds.selector,
+                ISablierV2Pro.SablierV2Pro__SegmentVariablesLengthIsOutOfBounds.selector,
                 segmentAmounts.length
             )
         );
@@ -156,7 +156,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
         );
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2Pro.SablierV2Pro__SegmentsLengthIsOutOfBounds.selector,
+                ISablierV2Pro.SablierV2Pro__SegmentVariablesLengthIsOutOfBounds.selector,
                 segmentAmounts.length
             )
         );

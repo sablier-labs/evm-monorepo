@@ -19,7 +19,7 @@ interface ISablierV2Pro is ISablierV2 {
     );
 
     /// @notice Emitted when attempting to create a stream with segment size is out of bounds .
-    error SablierV2Pro__SegmentsLengthIsOutOfBounds(uint256 amountLength);
+    error SablierV2Pro__SegmentVariablesLengthIsOutOfBounds(uint256 amountLength);
 
     /// @notice Emitted when attempting to create a stream with start time greater than a segment milestone.
     error SablierV2Pro__StartTimeGreaterThanMilestone(uint256 startTime, uint256 segmentMilestone);

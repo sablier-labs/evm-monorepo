@@ -126,7 +126,7 @@ contract SablierV2Pro is
         emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
     }
 
-    /// Using memory instead of calldata for avoiding "Stack too deep error".
+    /// Using memory instead of calldata for avoiding "Stack too deep" error.
     /// @inheritdoc ISablierV2Pro
     function create(
         address sender,
@@ -309,7 +309,7 @@ contract SablierV2Pro is
         // Checks: the variables that represent a segment lenght is bounded between zero and five.
         // it's enough to only check amountLength because all arrays are equal to each other.
         if (amountsLength == 0 || amountsLength > 5) {
-            revert SablierV2Pro__SegmentsLengthIsOutOfBounds(amountsLength);
+            revert SablierV2Pro__SegmentVariablesLengthIsOutOfBounds(amountsLength);
         }
 
         checkVariables(
