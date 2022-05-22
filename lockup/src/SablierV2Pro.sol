@@ -410,7 +410,7 @@ contract SablierV2Pro is
         }
 
         // Checks: the variables that represent a segment lenght is bounded between zero and five.
-        // it's enough to only check amountLength because all arrays are equal to each other.
+        // it's enough to only check amountsLength because all arrays are equal to each other.
         if (amountsLength == 0) {
             revert SablierV2Pro__SegmentVariablesLengthIsOutOfBounds(amountsLength);
         }
