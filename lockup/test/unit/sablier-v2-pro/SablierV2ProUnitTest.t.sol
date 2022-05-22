@@ -129,6 +129,14 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         );
     }
 
+    /// @dev Helper function to return a dynamic array from a single number.
+    function fixedSizeToDynamic(uint256 toReturn) public pure returns (uint256[] memory result) {
+        uint256[] memory aux = new uint256[](1);
+        aux[0] = toReturn;
+
+        result = aux;
+    }
+
     /// @dev Helper function to return a dynamic array from a fixed size array.
     function fixedSizeToDynamic(uint256[2] memory toReturn) public pure returns (uint256[] memory result) {
         uint256[] memory aux = new uint256[](2);
@@ -138,10 +146,15 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         result = aux;
     }
 
-    /// @dev Helper function to return a dynamic array from a single number.
-    function fixedSizeToDynamic(uint256 toReturn) public pure returns (uint256[] memory result) {
-        uint256[] memory aux = new uint256[](1);
-        aux[0] = toReturn;
+    /// @dev Helper function to return a dynamic array from a fixed size array.
+    function fixedSizeToDynamic(uint256[6] memory toReturn) public pure returns (uint256[] memory result) {
+        uint256[] memory aux = new uint256[](6);
+        aux[0] = toReturn[0];
+        aux[1] = toReturn[1];
+        aux[2] = toReturn[2];
+        aux[3] = toReturn[3];
+        aux[4] = toReturn[4];
+        aux[5] = toReturn[5];
 
         result = aux;
     }

@@ -306,13 +306,13 @@ contract SablierV2Pro is
             revert SablierV2Pro__SegmentVariablesLengthIsNotEqual(amountsLength, exponentsLength, milestonesLength);
         }
 
-        // Checks: the variables that represent a segment lenght is not zero.
-        // it's enough to only check amountLength because all arrays are equal.
-        if (amountsLength == 0) {
-            revert SablierV2Pro__SegmentsLengthIsZero(amountsLength);
+        // Checks: the variables that represent a segment lenght is bounded between zero and five.
+        // it's enough to only check amountLength because all arrays are equal to each other.
+        if (amountsLength == 0 || amountsLength > 5) {
+            revert SablierV2Pro__SegmentsLengthIsOutOfBounds(amountsLength);
         }
 
-        checkSegments(
+        checkVariables(
             segmentAmounts,
             segmentExponents,
             segmentMilestones,
@@ -402,11 +402,11 @@ contract SablierV2Pro is
         }
     }
 
-    /// @dev This function checks segments elements:
+    /// @dev This function checks segment variables:
     /// amounts cumulated == `depositAmount`,
-    /// 0 < exponent <= 2,
+    /// 1 <= exponent <= 3,
     /// startTime <= previousMilestone < milestone <= stopTime.
-    function checkSegments(
+    function checkVariables(
         uint256[] memory segmentAmounts,
         uint256[] memory segmentExponents,
         uint256[] memory segmentMilestones,
@@ -441,13 +441,10 @@ contract SablierV2Pro is
             previousMilestone = milestone;
 
             exponent = segmentExponents[i];
-            // Checks: the exponent is not zero.
-            if (exponent == 0) {
-                revert SablierV2Pro__SegmentExponentIsZero(segmentExponents[i]);
-            }
-            // Checks: the exponent is not greater than two.
-            if (exponent > 2) {
-                revert SablierV2Pro__SegmentExponentGreaterThanTwo(segmentExponents[i]);
+
+            // Checks: the exponent is not out of bounds.
+            if (exponent < 1 || exponent > 3) {
+                revert SablierV2Pro__SegmentExponentIsOutOfBounds(segmentExponents[i]);
             }
 
             unchecked {
