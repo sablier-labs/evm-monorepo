@@ -297,7 +297,7 @@ contract SablierV2Pro is
             revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
         }
 
-        uint256 length = checkSegmentLength(segmentAmounts, segmentExponents, segmentMilestones);
+        uint256 length = checkArraysLength(segmentAmounts, segmentExponents, segmentMilestones);
 
         checkSegmentVariables(
             segmentAmounts,
@@ -392,7 +392,7 @@ contract SablierV2Pro is
     /// @dev This function checks arrays length:
     /// segmentAmounts.length == segmentExponents.length == segmentMilestones.length,
     /// length != 0 && length < 5.
-    function checkSegmentLength(
+    function checkArraysLength(
         uint256[] memory segmentAmounts,
         uint256[] memory segmentExponents,
         uint256[] memory segmentMilestones
