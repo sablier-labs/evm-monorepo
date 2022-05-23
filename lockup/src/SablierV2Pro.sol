@@ -418,6 +418,7 @@ contract SablierV2Pro is
             revert SablierV2Pro__SegmentVariablesLengthIsOutOfBounds(amountsLength);
         }
 
+        // You can pass any variable length because they are all equal to each other.
         length = amountsLength;
     }
 

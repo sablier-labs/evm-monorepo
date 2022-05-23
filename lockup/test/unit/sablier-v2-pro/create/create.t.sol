@@ -98,7 +98,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
     }
 
     /// @dev When the length of segment exponents is not equal to other segment variables length, it should revert.
-    function testCannotCreate__SegmentExponentsIsNotEqual() external {
+    function testCannotCreate__SegmentExponentsLengthIsNotEqual() external {
         uint256 exponent = DEFAULT_SEGMENT_EXPONENT;
         uint256[] memory segmentExponents = fixedSizeToDynamic(exponent);
         vm.expectRevert(
@@ -124,7 +124,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
     }
 
     /// @dev When the length of segment milestones is not equal to other segment variables length, it should revert.
-    function testCannotCreate__LengthOfVariablesIsNotEqualMilestones() external {
+    function testCannotCreate__SegmentMilestonesLengthIsNotEqual() external {
         uint256 milestone = DEFAULT_SEGMENT_MILESTONE;
         uint256[] memory segmentMilestones = fixedSizeToDynamic(milestone);
         vm.expectRevert(
