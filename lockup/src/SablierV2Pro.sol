@@ -391,7 +391,8 @@ contract SablierV2Pro is
 
     /// @dev This function checks arrays length:
     /// segmentAmounts.length == segmentExponents.length == segmentMilestones.length,
-    /// length != 0 && length < 5.
+    /// 0 < length <= 5,
+    /// @return length The length of the arrays.
     function checkArraysLength(
         uint256[] memory segmentAmounts,
         uint256[] memory segmentExponents,
@@ -424,7 +425,7 @@ contract SablierV2Pro is
 
     /// @dev This function checks segment variables:
     /// amounts cumulated == `depositAmount`,
-    /// 1 < exponent < 3,
+    /// 1 <= exponent <= 3,
     /// startTime <= previousMilestone < milestone <= stopTime.
     function checkSegmentVariables(
         uint256[] memory segmentAmounts,
