@@ -73,7 +73,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the length of segment amounts is not equal to other segment variables length, it should revert.
     function testCannotCreate__SegmentAmountsLengthIsNotEqual() external {
-        uint256 amount = DEFAULT_SEGMENT_AMOUNT1;
+        uint256 amount = DEFAULT_SEGMENT_AMOUNT_1;
         uint256[] memory segmentAmounts = fixedSizeToDynamic(amount);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -99,7 +99,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the length of segment exponents is not equal to other segment variables length, it should revert.
     function testCannotCreate__SegmentExponentsLengthIsNotEqual() external {
-        uint256 exponent = DEFAULT_SEGMENT_EXPONENT;
+        uint256 exponent = DEFAULT_SEGMENT_EXPONENT_1;
         uint256[] memory segmentExponents = fixedSizeToDynamic(exponent);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -125,7 +125,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the length of segment milestones is not equal to other segment variables length, it should revert.
     function testCannotCreate__SegmentMilestonesLengthIsNotEqual() external {
-        uint256 milestone = DEFAULT_SEGMENT_MILESTONE;
+        uint256 milestone = DEFAULT_SEGMENT_MILESTONE_1;
         uint256[] memory segmentMilestones = fixedSizeToDynamic(milestone);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -178,32 +178,32 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
     function testCannotCreate__VariablesLengthIsGreaterThanFive() external {
         uint256[] memory segmentAmounts = fixedSizeToDynamic(
             [
-                DEFAULT_SEGMENT_AMOUNT1,
-                DEFAULT_SEGMENT_AMOUNT1,
-                DEFAULT_SEGMENT_AMOUNT1,
-                DEFAULT_SEGMENT_AMOUNT1,
-                DEFAULT_SEGMENT_AMOUNT1,
-                DEFAULT_SEGMENT_AMOUNT1
+                DEFAULT_SEGMENT_AMOUNT_1,
+                DEFAULT_SEGMENT_AMOUNT_1,
+                DEFAULT_SEGMENT_AMOUNT_1,
+                DEFAULT_SEGMENT_AMOUNT_1,
+                DEFAULT_SEGMENT_AMOUNT_1,
+                DEFAULT_SEGMENT_AMOUNT_1
             ]
         );
         uint256[] memory segmentExponents = fixedSizeToDynamic(
             [
-                DEFAULT_SEGMENT_EXPONENT,
-                DEFAULT_SEGMENT_EXPONENT,
-                DEFAULT_SEGMENT_EXPONENT,
-                DEFAULT_SEGMENT_EXPONENT,
-                DEFAULT_SEGMENT_EXPONENT,
-                DEFAULT_SEGMENT_EXPONENT
+                DEFAULT_SEGMENT_EXPONENT_1,
+                DEFAULT_SEGMENT_EXPONENT_1,
+                DEFAULT_SEGMENT_EXPONENT_1,
+                DEFAULT_SEGMENT_EXPONENT_1,
+                DEFAULT_SEGMENT_EXPONENT_1,
+                DEFAULT_SEGMENT_EXPONENT_1
             ]
         );
         uint256[] memory segmentMilestones = fixedSizeToDynamic(
             [
-                DEFAULT_SEGMENT_MILESTONE,
-                DEFAULT_SEGMENT_MILESTONE + 1 seconds,
-                DEFAULT_SEGMENT_MILESTONE + 2 seconds,
-                DEFAULT_SEGMENT_MILESTONE + 3 seconds,
-                DEFAULT_SEGMENT_MILESTONE + 4 seconds,
-                DEFAULT_STOP_TIME
+                DEFAULT_SEGMENT_MILESTONE_1,
+                DEFAULT_SEGMENT_MILESTONE_1 + 1 seconds,
+                DEFAULT_SEGMENT_MILESTONE_1 + 2 seconds,
+                DEFAULT_SEGMENT_MILESTONE_1 + 3 seconds,
+                DEFAULT_SEGMENT_MILESTONE_1 + 4 seconds,
+                DEFAULT_SEGMENT_MILESTONE_2
             ]
         );
         vm.expectRevert(
@@ -254,7 +254,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
     /// @dev When the last milestone is greater than stop time, it should revert.
     function testCannotCreate__MilestoneGreaterThanStopTime() external {
         uint256 lastMilestone = stream.stopTime + 1;
-        uint256[] memory segmentMilestones = fixedSizeToDynamic([DEFAULT_SEGMENT_MILESTONE, lastMilestone]);
+        uint256[] memory segmentMilestones = fixedSizeToDynamic([DEFAULT_SEGMENT_MILESTONE_1, lastMilestone]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Pro.SablierV2Pro__MilestoneGreaterThanStopTime.selector,
@@ -278,8 +278,8 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the previous milestone is equal or greater than milestone, it should revert.
     function testCannotCreate__PreviousMilestoneIsEqualOrGreaterThanMilestone() external {
-        uint256 previousMilestone = DEFAULT_SEGMENT_MILESTONE;
-        uint256 milestone = DEFAULT_SEGMENT_MILESTONE;
+        uint256 previousMilestone = DEFAULT_SEGMENT_MILESTONE_1;
+        uint256 milestone = DEFAULT_SEGMENT_MILESTONE_1;
         uint256[] memory segmentMilestones = fixedSizeToDynamic([previousMilestone, milestone]);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -305,7 +305,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
     /// @dev When the exponent is not greater than one, it should revert.
     function testCannotCreate__ExponentIsZero() external {
         uint256 exponentZero = 0;
-        uint256[] memory segmentExponents = fixedSizeToDynamic([exponentZero, DEFAULT_SEGMENT_EXPONENT]);
+        uint256[] memory segmentExponents = fixedSizeToDynamic([exponentZero, DEFAULT_SEGMENT_EXPONENT_1]);
         vm.expectRevert(
             abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentExponentIsOutOfBounds.selector, exponentZero)
         );
@@ -326,7 +326,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
     ///@dev When the exponent is greater than three, it should revert.
     function testCannotCreate__ExponentGreaterThanThree() external {
         uint256 exponentFour = 4;
-        uint256[] memory segmentExponents = fixedSizeToDynamic([exponentFour, DEFAULT_SEGMENT_EXPONENT]);
+        uint256[] memory segmentExponents = fixedSizeToDynamic([exponentFour, DEFAULT_SEGMENT_EXPONENT_1]);
         vm.expectRevert(
             abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentExponentIsOutOfBounds.selector, exponentFour)
         );
@@ -346,8 +346,8 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When amount cumulated is not equal to deposit amount, it should revert.
     function testCannotCreate__DepositIsNotEqualToSegmentAmounts() external {
-        uint256[] memory segmentAmounts = fixedSizeToDynamic([DEFAULT_SEGMENT_AMOUNT1, DEFAULT_SEGMENT_AMOUNT1]);
-        uint256 cumulativeAmount = DEFAULT_SEGMENT_AMOUNT1 + DEFAULT_SEGMENT_AMOUNT1;
+        uint256[] memory segmentAmounts = fixedSizeToDynamic([DEFAULT_SEGMENT_AMOUNT_1, DEFAULT_SEGMENT_AMOUNT_1]);
+        uint256 cumulativeAmount = DEFAULT_SEGMENT_AMOUNT_1 + DEFAULT_SEGMENT_AMOUNT_1;
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Pro.SablierV2Pro__DepositIsNotEqualToSegmentAmounts.selector,

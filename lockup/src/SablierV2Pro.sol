@@ -361,6 +361,7 @@ contract SablierV2Pro is
             UD60x18 previousAmount
         )
     {
+        // You can pass any variable length because they are all equal to each other.
         uint256 length = stream.segmentAmounts.length;
         uint256 previousMilestone = stream.startTime;
         uint256 milestone;
@@ -459,6 +460,7 @@ contract SablierV2Pro is
             if (previousMilestone >= milestone) {
                 revert SablierV2Pro__PreviousMilestoneIsEqualOrGreaterThanMilestone(previousMilestone, milestone);
             }
+
             previousMilestone = milestone;
 
             exponent = segmentExponents[i];

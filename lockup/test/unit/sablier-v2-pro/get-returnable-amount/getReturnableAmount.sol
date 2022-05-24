@@ -54,7 +54,7 @@ contract SablierV2Pro__GetReturnableAmount__UnitTest is SablierV2ProUnitTest {
     function testGetReturnableAmount__WithdrawableAmountNotZero__WithWithdrawals() external {
         vm.warp(stream.startTime + DEFAULT_TIME_OFFSET + 2500 seconds);
         sablierV2Pro.withdraw(streamId, DEFAULT_WITHDRAW_AMOUNT);
-        uint256 expectedReturnableAmount = stream.depositAmount - DEFAULT_WITHDRAW_AMOUNT - bn(3750);
+        uint256 expectedReturnableAmount = stream.depositAmount - DEFAULT_WITHDRAW_AMOUNT - bn(1875);
         uint256 actualReturnableAmount = sablierV2Pro.getReturnableAmount(streamId);
         assertEq(expectedReturnableAmount, actualReturnableAmount);
     }

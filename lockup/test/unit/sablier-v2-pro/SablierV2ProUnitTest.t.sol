@@ -31,15 +31,14 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// CONSTANTS ///
 
-    uint256 internal immutable DEFAULT_SEGMENT_AMOUNT1 = bn(2_500);
-    uint256 internal immutable DEFAULT_SEGMENT_AMOUNT2 = bn(7_500);
-    uint256 internal constant DEFAULT_SEGMENT_EXPONENT = 1;
-    uint256 internal constant DEFAULT_SEGMENT_MILESTONE = 5100 seconds;
-    uint256 internal constant DEFAULT_TIME_OFFSET = 5000 seconds;
+    uint256 internal immutable DEFAULT_SEGMENT_AMOUNT_1 = bn(2_500);
+    uint256 internal immutable DEFAULT_SEGMENT_AMOUNT_2 = bn(7_500);
+    uint256 internal constant DEFAULT_SEGMENT_EXPONENT_1 = 1;
+    uint256 internal constant DEFAULT_SEGMENT_EXPONENT_2 = 2;
+    uint256 internal constant DEFAULT_SEGMENT_MILESTONE_1 = 5_100 seconds;
+    uint256 internal constant DEFAULT_SEGMENT_MILESTONE_2 = 10_100 seconds;
+    uint256 internal constant DEFAULT_TIME_OFFSET = 5_000 seconds;
     uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT = bn(2500);
-
-    /// Variables to change for a exponent != 1:
-    /// DEFAULT_SEGMENT_EXPONENT = 2, DEFAULT_TIME_OFFSET = 2500, DEFAULT_WITHDRAW_AMOUNT = bn(625).
 
     /// OTHER TESTING VARIABLES ///
 
@@ -51,13 +50,13 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
         uint256[] memory DEFAULT_SEGMENT_AMOUNTS = fixedSizeToDynamic(
-            [DEFAULT_SEGMENT_AMOUNT1, DEFAULT_SEGMENT_AMOUNT2]
+            [DEFAULT_SEGMENT_AMOUNT_1, DEFAULT_SEGMENT_AMOUNT_2]
         );
         uint256[] memory DEFAULT_SEGMENT_EXPONENTS = fixedSizeToDynamic(
-            [DEFAULT_SEGMENT_EXPONENT, DEFAULT_SEGMENT_EXPONENT]
+            [DEFAULT_SEGMENT_EXPONENT_1, DEFAULT_SEGMENT_EXPONENT_2]
         );
         uint256[] memory DEFAULT_SEGMENT_MILESTONES = fixedSizeToDynamic(
-            [DEFAULT_SEGMENT_MILESTONE, DEFAULT_STOP_TIME]
+            [DEFAULT_SEGMENT_MILESTONE_1, DEFAULT_SEGMENT_MILESTONE_2]
         );
 
         // Create the default stream to be used across many tests.

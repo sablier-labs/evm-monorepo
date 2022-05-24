@@ -93,4 +93,31 @@ contract SablierV2Pro__GetWithdrawableAmount__UnitTest is SablierV2ProUnitTest {
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
         assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
     }
+
+    /// @dev When the previous amount is greater than zero and exponent is greater than 1, it should
+    /// return the correct withdrawable amount.
+    function testGetWithdrawableAmount__PreviousAmountGreaterThanZero__ExponentGreaterThanOne__NoWithdrawals()
+        external
+    {
+        uint256 timeOffset = 7500 seconds;
+        uint256 withdrawAmount = bn(4375);
+        vm.warp(stream.startTime + timeOffset);
+        uint256 expectedWithdrawableAmount = withdrawAmount;
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+    }
+
+    /// @dev When the previous amount is greater than zero and exponent is greater than 1, it should
+    /// return the correct withdrawable amount.
+    function testGetWithdrawableAmount__PreviousAmountGreaterThanZero__ExponentGreaterThanOne_WithWithdrawals()
+        external
+    {
+        uint256 timeOffset = 7500 seconds;
+        uint256 withdrawAmount = bn(4375);
+        vm.warp(stream.startTime + timeOffset);
+        sablierV2Pro.withdraw(streamId, withdrawAmount);
+        uint256 expectedWithdrawableAmount = 0;
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+    }
 }
