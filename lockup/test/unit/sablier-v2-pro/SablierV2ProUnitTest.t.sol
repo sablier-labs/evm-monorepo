@@ -89,6 +89,22 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// NON-CONSTANT FUNCTIONS ///
 
+    /// @dev Helper function to create a pro stream.
+    function createDefaultStream() internal returns (uint256 streamId) {
+        streamId = sablierV2Pro.create(
+            stream.sender,
+            stream.recipient,
+            stream.token,
+            stream.depositAmount,
+            stream.startTime,
+            stream.stopTime,
+            stream.segmentAmounts,
+            stream.segmentExponents,
+            stream.segmentMilestones,
+            stream.cancelable
+        );
+    }
+
     /// @dev Helper function to compare two `Stream` structs.
     function assertEq(ISablierV2Pro.Stream memory a, ISablierV2Pro.Stream memory b) internal {
         assertEq(a.depositAmount, b.depositAmount);
@@ -113,24 +129,8 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         }
     }
 
-    /// @dev Helper function to create a pro stream.
-    function createDefaultStream() internal returns (uint256 streamId) {
-        streamId = sablierV2Pro.create(
-            stream.sender,
-            stream.recipient,
-            stream.token,
-            stream.depositAmount,
-            stream.startTime,
-            stream.stopTime,
-            stream.segmentAmounts,
-            stream.segmentExponents,
-            stream.segmentMilestones,
-            stream.cancelable
-        );
-    }
-
     /// @dev Helper function to return a dynamic array from a single number.
-    function fixedSizeToDynamic(uint256 toReturn) public pure returns (uint256[] memory result) {
+    function fixedSizeToDynamic(uint256 toReturn) internal pure returns (uint256[] memory result) {
         uint256[] memory aux = new uint256[](1);
         aux[0] = toReturn;
 
@@ -138,7 +138,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     }
 
     /// @dev Helper function to return a dynamic array from a fixed size array.
-    function fixedSizeToDynamic(uint256[2] memory toReturn) public pure returns (uint256[] memory result) {
+    function fixedSizeToDynamic(uint256[2] memory toReturn) internal pure returns (uint256[] memory result) {
         uint256[] memory aux = new uint256[](2);
         aux[0] = toReturn[0];
         aux[1] = toReturn[1];
@@ -147,7 +147,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     }
 
     /// @dev Helper function to return a dynamic array from a fixed size array.
-    function fixedSizeToDynamic(uint256[6] memory toReturn) public pure returns (uint256[] memory result) {
+    function fixedSizeToDynamic(uint256[6] memory toReturn) internal pure returns (uint256[] memory result) {
         uint256[] memory aux = new uint256[](6);
         aux[0] = toReturn[0];
         aux[1] = toReturn[1];

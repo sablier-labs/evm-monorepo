@@ -68,19 +68,6 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
 
     /// NON-CONSTANT FUNCTIONS ///
 
-    /// @dev Helper function to compare two `Stream` structs.
-    function assertEq(ISablierV2Cliff.Stream memory a, ISablierV2Cliff.Stream memory b) internal {
-        assertEq(a.depositAmount, b.depositAmount);
-        assertEq(a.cancelable, b.cancelable);
-        assertEq(a.recipient, b.recipient);
-        assertEq(a.sender, b.sender);
-        assertEq(a.startTime, b.startTime);
-        assertEq(a.cliffTime, b.cliffTime);
-        assertEq(a.stopTime, b.stopTime);
-        assertEq(a.token, b.token);
-        assertEq(a.withdrawnAmount, b.withdrawnAmount);
-    }
-
     /// @dev Helper function to create a default stream.
     function createDefaultStream() internal returns (uint256 streamId) {
         streamId = sablierV2Cliff.create(
@@ -93,5 +80,18 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
             stream.stopTime,
             stream.cancelable
         );
+    }
+
+    /// @dev Helper function to compare two `Stream` structs.
+    function assertEq(ISablierV2Cliff.Stream memory a, ISablierV2Cliff.Stream memory b) internal {
+        assertEq(a.depositAmount, b.depositAmount);
+        assertEq(a.cancelable, b.cancelable);
+        assertEq(a.recipient, b.recipient);
+        assertEq(a.sender, b.sender);
+        assertEq(a.startTime, b.startTime);
+        assertEq(a.cliffTime, b.cliffTime);
+        assertEq(a.stopTime, b.stopTime);
+        assertEq(a.token, b.token);
+        assertEq(a.withdrawnAmount, b.withdrawnAmount);
     }
 }
