@@ -92,7 +92,6 @@ contract SablierV2Pro is
 
             // Define the common variables used in the calculations below.
             SD59x18 currentSegmentAmount;
-            uint256 currentSegmentMilestone = stream.startTime;
             SD59x18 elapsedSegmentTime;
             SD59x18 exponent;
             SD59x18 totalSegmentTime;
@@ -101,6 +100,8 @@ contract SablierV2Pro is
             // If there's more than one segment, we have to iterate over all of them
             uint256 length = stream.segmentMilestones.length;
             if (length > 1) {
+                uint256 currentSegmentMilestone = stream.startTime;
+
                 // Sum up the amounts found in preceding segments.
                 uint256 index = 0;
                 while (currentSegmentMilestone < currentTime) {
@@ -132,12 +133,12 @@ contract SablierV2Pro is
                     totalSegmentTime = toSD59x18(int256(currentSegmentMilestone - stream.startTime));
                 }
             }
-            // If there's only segment, consider the start time of stream the first segment milestone, and the stop time
-            // of the stream as the last segment milestone.
+            // If there's only segment, consider the start time of stream as the first segment milestone, and the stop
+            // time of the stream as the last segment milestone.
             else {
-                exponent = stream.segmentExponents[0];
                 currentSegmentAmount = SD59x18.wrap(int256(stream.segmentAmounts[0]));
-                elapsedSegmentTime = toSD59x18(int256(currentTime - currentSegmentMilestone));
+                elapsedSegmentTime = toSD59x18(int256(currentTime - stream.startTime));
+                exponent = stream.segmentExponents[0];
                 totalSegmentTime = toSD59x18(int256(stream.stopTime - stream.startTime));
             }
 
@@ -193,7 +194,6 @@ contract SablierV2Pro is
         IERC20 token,
         uint256 depositAmount,
         uint256 startTime,
-        uint256 stopTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
@@ -208,7 +208,6 @@ contract SablierV2Pro is
             token,
             depositAmount,
             startTime,
-            stopTime,
             segmentAmounts,
             segmentExponents,
             segmentMilestones,
@@ -224,7 +223,6 @@ contract SablierV2Pro is
         IERC20 token,
         uint256 depositAmount,
         uint256 startTime,
-        uint256 stopTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
@@ -249,7 +247,6 @@ contract SablierV2Pro is
             token,
             depositAmount,
             startTime,
-            stopTime,
             segmentAmounts,
             segmentExponents,
             segmentMilestones,
@@ -431,7 +428,6 @@ contract SablierV2Pro is
         IERC20 token,
         uint256 depositAmount,
         uint256 startTime,
-        uint256 stopTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
@@ -452,13 +448,14 @@ contract SablierV2Pro is
             revert SablierV2__DepositAmountZero();
         }
 
+        // Checks: segments arrays lengths match.
+        uint256 length = checkSegmentArraysLength(segmentAmounts, segmentExponents, segmentMilestones);
+
         // Checks: the start time is not greater than the stop time.
+        uint256 stopTime = segmentMilestones[length - 1];
         if (startTime > stopTime) {
             revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
         }
-
-        // Checks: segments arrays lengths match.
-        uint256 length = checkSegmentArraysLength(segmentAmounts, segmentExponents, segmentMilestones);
 
         // Checks: soundness of segments variables.
         checkSegmentVariables(

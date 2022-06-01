@@ -97,7 +97,8 @@ interface ISablierV2Pro is ISablierV2 {
 
     /// NON-CONSTANT FUNCTIONS ///
 
-    /// @notice Creates a new stream funded by `msg.sender`.
+    /// @notice Creates a new stream funded by `msg.sender`. The `stopTime` is given by the last element in the
+    /// `segmentMilestones` array.
     ///
     /// @dev Emits a {CreateStream} event.
     ///
@@ -119,7 +120,6 @@ interface ISablierV2Pro is ISablierV2 {
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param depositAmount The total amount of money to be streamed.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
-    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
     /// @param segmentAmounts The array of amounts used to compose the custom emission curve.
     /// @param segmentExponents The array of exponents used to compose the custom emission curve.
     /// @param segmentMilestones The array of milestones used to compose the custom emission curve.
@@ -131,14 +131,14 @@ interface ISablierV2Pro is ISablierV2 {
         IERC20 token,
         uint256 depositAmount,
         uint256 startTime,
-        uint256 stopTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a new stream funded by `from`.
+    /// @notice Creates a new stream funded by `from`. The `stopTime` is given by the last element in the
+    /// `segmentMilestones` array.
     ///
     /// @dev Emits a {CreateStream} event and an {Authorize} event.
     ///
@@ -162,7 +162,6 @@ interface ISablierV2Pro is ISablierV2 {
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param depositAmount The amount of money to be streamed.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
-    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
     /// @param segmentAmounts The array of amounts used to compose the custom emission curve.
     /// @param segmentExponents The array of exponents used to compose the custom emission curve.
     /// @param segmentMilestones The array of milestones used to compose the custom emission curve.
@@ -175,7 +174,6 @@ interface ISablierV2Pro is ISablierV2 {
         IERC20 token,
         uint256 depositAmount,
         uint256 startTime,
-        uint256 stopTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
