@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
-import { UD60x18, toUD60x18 } from "@prb/math/UD60x18.sol";
+import { SCALE, SD59x18, toSD59x18, ZERO } from "@prb/math/SD59x18.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Pro } from "./interfaces/ISablierV2Pro.sol";
@@ -12,10 +12,18 @@ import { SablierV2 } from "./SablierV2.sol";
 /// @title SablierV2Pro
 /// @author Sablier Labs Ltd.
 contract SablierV2Pro is
-    SablierV2, // two dependencies
-    ISablierV2Pro // one dependency
+    ISablierV2Pro, // one dependency
+    SablierV2 // two dependencies
 {
     using SafeERC20 for IERC20;
+
+    /// CONSTANTS ///
+
+    /// @notice The maximum number of segments allowed in a stream.
+    SD59x18 public constant MAX_EXPONENT = SD59x18.wrap(10e18);
+
+    /// @notice The maximum number of segments allowed in a stream.
+    uint256 public constant MAX_SEGMENT_ARRAY_LENGTH = 200;
 
     /// INTERNAL STORAGE ///
 
@@ -82,12 +90,64 @@ contract SablierV2Pro is
                 return stream.depositAmount - stream.withdrawnAmount;
             }
 
-            // In all other cases, calculate how much the recipient can withdraw.
-            (UD60x18 quotient, UD60x18 amount, UD60x18 previousAmount) = getElements(stream, currentTime);
-            UD60x18 streamedAmount = quotient.mul(amount);
-            streamedAmount = streamedAmount.add(previousAmount);
-            UD60x18 withdrawnAmount = UD60x18.wrap(stream.withdrawnAmount);
-            withdrawableAmount = UD60x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount));
+            // Define the common variables used in the calculations below.
+            SD59x18 currentSegmentAmount;
+            uint256 currentSegmentMilestone = stream.startTime;
+            SD59x18 elapsedSegmentTime;
+            SD59x18 exponent;
+            SD59x18 totalSegmentTime;
+            uint256 sum;
+
+            // If there's more than one segment, we have to iterate over all of them
+            uint256 length = stream.segmentMilestones.length;
+            if (length > 1) {
+                // Sum up the amounts found in preceding segments.
+                uint256 index = 0;
+                while (currentSegmentMilestone < currentTime) {
+                    currentSegmentMilestone = stream.segmentMilestones[index];
+                    sum += stream.segmentAmounts[index];
+                    index += 1;
+                }
+
+                // After the loop exits, the current segment is found at index `index - 1`, and the previous segment is
+                // found at index `index - 2`.
+                currentSegmentAmount = SD59x18.wrap(int256(stream.segmentAmounts[index - 1]));
+                currentSegmentMilestone = stream.segmentMilestones[index - 1];
+                exponent = stream.segmentExponents[index - 1];
+
+                // If the current segment is at an index of greater than or equal to 2, take the difference between
+                // the current segment milestone and the previous segment milestone.
+                if (index > 1) {
+                    uint256 previousSegmentMilestone = stream.segmentMilestones[index - 2];
+                    elapsedSegmentTime = toSD59x18(int256(currentTime - previousSegmentMilestone));
+
+                    // Calculate the total time between the current segment milestone and the previous segment
+                    // milestone.
+                    totalSegmentTime = toSD59x18(int256(currentSegmentMilestone - previousSegmentMilestone));
+                }
+                // If the current segment is at index 1, take the difference between the current segment milestone and
+                // the start time of the stream.
+                else {
+                    elapsedSegmentTime = toSD59x18(int256(currentTime - stream.startTime));
+                    totalSegmentTime = toSD59x18(int256(currentSegmentMilestone - stream.startTime));
+                }
+            }
+            // If there's only segment, consider the start time of stream the first segment milestone, and the stop time
+            // of the stream as the last segment milestone.
+            else {
+                exponent = stream.segmentExponents[0];
+                currentSegmentAmount = SD59x18.wrap(int256(stream.segmentAmounts[0]));
+                elapsedSegmentTime = toSD59x18(int256(currentTime - currentSegmentMilestone));
+                totalSegmentTime = toSD59x18(int256(stream.stopTime - stream.startTime));
+            }
+
+            // Calculate the streamed amount.
+            SD59x18 quotient = elapsedSegmentTime.div(totalSegmentTime);
+            SD59x18 multiplier = quotient.pow(exponent);
+            SD59x18 proRataAmount = multiplier.mul(currentSegmentAmount);
+            SD59x18 streamedAmount = SD59x18.wrap(int256(sum)).add(proRataAmount);
+            SD59x18 withdrawnAmount = SD59x18.wrap(int256(stream.withdrawnAmount));
+            withdrawableAmount = uint256(SD59x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount)));
         }
     }
 
@@ -126,7 +186,6 @@ contract SablierV2Pro is
         emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
     }
 
-    /// Using memory instead of calldata for avoiding "Stack too deep" error.
     /// @inheritdoc ISablierV2Pro
     function create(
         address sender,
@@ -136,7 +195,7 @@ contract SablierV2Pro is
         uint256 startTime,
         uint256 stopTime,
         uint256[] memory segmentAmounts,
-        uint256[] memory segmentExponents,
+        SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId) {
@@ -167,7 +226,7 @@ contract SablierV2Pro is
         uint256 startTime,
         uint256 stopTime,
         uint256[] memory segmentAmounts,
-        uint256[] memory segmentExponents,
+        SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId) {
@@ -261,6 +320,107 @@ contract SablierV2Pro is
         emit Withdraw(streamId, stream.recipient, amount);
     }
 
+    /// INTERNAL CONSTANT FUNCTIONS ///
+
+    /// @dev Checks that the segment arrays lengths match. The lengths must be equal and less than or equal to
+    /// the maximum array length permitted in Sablier.
+    /// @return length The length of the arrays.
+    function checkSegmentArraysLength(
+        uint256[] memory segmentAmounts,
+        SD59x18[] memory segmentExponents,
+        uint256[] memory segmentMilestones
+    ) internal pure returns (uint256 length) {
+        uint256 amountsLength = segmentAmounts.length;
+        uint256 exponentsLength = segmentExponents.length;
+        uint256 milestonesLength = segmentMilestones.length;
+
+        // Compare the amounts array length to the exponents array length.
+        if (amountsLength != exponentsLength) {
+            revert SablierV2Pro__SegmentArraysLengthsUnequal(amountsLength, exponentsLength, milestonesLength);
+        }
+
+        // Compare the amounts array length to the milestones array length.
+        if (amountsLength != milestonesLength) {
+            revert SablierV2Pro__SegmentArraysLengthsUnequal(amountsLength, exponentsLength, milestonesLength);
+        }
+
+        // Check that the amounts array length is not zero.
+        if (amountsLength == 0) {
+            revert SablierV2Pro__SegmentArraysLengthZero();
+        }
+
+        // Check that the amounts array length is not greater than the maximum array length permitted by Sablier.
+        if (amountsLength > MAX_SEGMENT_ARRAY_LENGTH) {
+            revert SablierV2Pro__SegmentArraysLengthOutOfBounds(amountsLength);
+        }
+
+        // We can pass any variable length because they are all equal to each other.
+        length = amountsLength;
+    }
+
+    /// @dev Checks that:
+    /// 1. The milestones are bounded by the start time and the stop time.
+    /// 2. The milestones are ordered chronologically.
+    /// 3. The exponents are within the bounds permitted by Sablier.
+    /// 4. The deposit amount is equal to the segment amounts summed up.
+    function checkSegmentVariables(
+        uint256 depositAmount,
+        uint256 startTime,
+        uint256 stopTime,
+        uint256[] memory segmentAmounts,
+        SD59x18[] memory segmentExponents,
+        uint256[] memory segmentMilestones,
+        uint256 length
+    ) internal pure {
+        // Check that the start time is not greater than the first milestone.
+        if (startTime > segmentMilestones[0]) {
+            revert SablierV2Pro__StartTimeGreaterThanFirstMilestone(startTime, segmentMilestones[0]);
+        }
+
+        // Check that the last milestone is not greater than the stop time.
+        if (segmentMilestones[length - 1] > stopTime) {
+            revert SablierV2Pro__LastMilestoneGreaterThanStopTime(segmentMilestones[length - 1], stopTime);
+        }
+
+        // Define the variables needed in the for loop below.
+        uint256 currentMilestone;
+        SD59x18 exponent;
+        uint256 previousMilestone;
+        uint256 segmentAmountsSum;
+
+        // Iterate over the amounts, the milestones and the exponents.
+        uint256 index;
+        for (index = 0; index < length; ) {
+            // Add the current segment amount to the sum.
+            segmentAmountsSum = segmentAmountsSum + segmentAmounts[index];
+
+            // Check that the previous milestone is not equal or greater than the current milestone.
+            currentMilestone = segmentMilestones[index];
+            if (previousMilestone >= currentMilestone) {
+                revert SablierV2Pro__UnorderedMilestones(index, previousMilestone, currentMilestone);
+            }
+
+            // Set the current milestone to be the previous milestone of the next iteration.
+            previousMilestone = currentMilestone;
+
+            // Check that the exponent is not out of bounds.
+            exponent = segmentExponents[index];
+            if (exponent.gt(MAX_EXPONENT)) {
+                revert SablierV2Pro__SegmentExponentOutOfBounds(exponent);
+            }
+
+            // Increment the for loop iterator.
+            unchecked {
+                index += 1;
+            }
+        }
+
+        // Check that the deposit amount is equal to the segment amounts sum.
+        if (depositAmount != segmentAmountsSum) {
+            revert SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(depositAmount, segmentAmountsSum);
+        }
+    }
+
     /// INTERNAL NON-CONSTANT FUNCTIONS ///
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -273,7 +433,7 @@ contract SablierV2Pro is
         uint256 startTime,
         uint256 stopTime,
         uint256[] memory segmentAmounts,
-        uint256[] memory segmentExponents,
+        SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
         bool cancelable
     ) internal returns (uint256 streamId) {
@@ -297,16 +457,18 @@ contract SablierV2Pro is
             revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
         }
 
-        uint256 length = checkArraysLength(segmentAmounts, segmentExponents, segmentMilestones);
+        // Checks: segments arrays lengths match.
+        uint256 length = checkSegmentArraysLength(segmentAmounts, segmentExponents, segmentMilestones);
 
+        // Checks: soundness of segments variables.
         checkSegmentVariables(
+            depositAmount,
+            startTime,
+            stopTime,
             segmentAmounts,
             segmentExponents,
             segmentMilestones,
-            length,
-            depositAmount,
-            startTime,
-            stopTime
+            length
         );
 
         // Effects: create and store the stream.
@@ -347,140 +509,5 @@ contract SablierV2Pro is
             segmentMilestones,
             cancelable
         );
-    }
-
-    /// HELPER FUNCTIONS ///
-
-    /// @dev This function returns the elements for calculating withdrawable amount.
-    function getElements(Stream memory stream, uint256 currentTime)
-        internal
-        pure
-        returns (
-            UD60x18 powerQuotient,
-            UD60x18 amount,
-            UD60x18 previousAmount
-        )
-    {
-        // You can pass any variable length because they are all equal to each other.
-        uint256 length = stream.segmentAmounts.length;
-        uint256 previousMilestone = stream.startTime;
-        uint256 milestone;
-        uint256 exponent;
-
-        uint256 index = 0;
-        while (previousMilestone < currentTime && index < length) {
-            milestone = stream.segmentMilestones[index];
-            exponent = stream.segmentExponents[index];
-            // This order matters.
-            previousAmount = previousAmount.add(amount);
-            amount = UD60x18.wrap(stream.segmentAmounts[index]);
-
-            if (milestone >= currentTime) {
-                UD60x18 elapsedTime = toUD60x18(currentTime - previousMilestone);
-                UD60x18 totalTime = toUD60x18(milestone - previousMilestone);
-                UD60x18 quotient = elapsedTime.div(totalTime);
-                powerQuotient = quotient.powu(exponent);
-            }
-
-            previousMilestone = milestone;
-
-            unchecked {
-                index += 1;
-            }
-        }
-    }
-
-    /// @dev This function checks arrays length:
-    /// segmentAmounts.length == segmentExponents.length == segmentMilestones.length,
-    /// 0 < length <= 5,
-    /// @return length The length of the arrays.
-    function checkArraysLength(
-        uint256[] memory segmentAmounts,
-        uint256[] memory segmentExponents,
-        uint256[] memory segmentMilestones
-    ) internal pure returns (uint256 length) {
-        uint256 amountsLength = segmentAmounts.length;
-        uint256 exponentsLength = segmentExponents.length;
-        uint256 milestonesLength = segmentMilestones.length;
-
-        // Checks: the length of variables that represent a segment is equal.
-        if (amountsLength != exponentsLength) {
-            revert SablierV2Pro__SegmentVariablesLengthIsNotEqual(amountsLength, exponentsLength, milestonesLength);
-        }
-        if (amountsLength != milestonesLength) {
-            revert SablierV2Pro__SegmentVariablesLengthIsNotEqual(amountsLength, exponentsLength, milestonesLength);
-        }
-
-        // Checks: the variables that represent a segment lenght is bounded between zero and five.
-        // it's enough to only check amountsLength because all arrays are equal to each other.
-        if (amountsLength == 0) {
-            revert SablierV2Pro__SegmentVariablesLengthIsOutOfBounds(amountsLength);
-        }
-        if (amountsLength > 5) {
-            revert SablierV2Pro__SegmentVariablesLengthIsOutOfBounds(amountsLength);
-        }
-
-        // You can pass any variable length because they are all equal to each other.
-        length = amountsLength;
-    }
-
-    /// @dev This function checks segment variables:
-    /// amounts cumulated == `depositAmount`,
-    /// 1 <= exponent <= 3,
-    /// startTime <= previousMilestone < milestone <= stopTime.
-    function checkSegmentVariables(
-        uint256[] memory segmentAmounts,
-        uint256[] memory segmentExponents,
-        uint256[] memory segmentMilestones,
-        uint256 length,
-        uint256 depositAmount,
-        uint256 startTime,
-        uint256 stopTime
-    ) internal pure {
-        // Checks: the start time is not greater than the first milestone.
-        if (startTime > segmentMilestones[0]) {
-            revert SablierV2Pro__StartTimeGreaterThanMilestone(startTime, segmentMilestones[0]);
-        }
-
-        // Checks: the last milestone is not greater than stop time.
-        if (segmentMilestones[length - 1] > stopTime) {
-            revert SablierV2Pro__MilestoneGreaterThanStopTime(segmentMilestones[length - 1], stopTime);
-        }
-
-        UD60x18 cumulativeAmount;
-        uint256 milestone;
-        uint256 previousMilestone;
-        uint256 exponent;
-        for (uint256 i = 0; i < length; ) {
-            cumulativeAmount = cumulativeAmount.add(UD60x18.wrap(segmentAmounts[i]));
-
-            milestone = segmentMilestones[i];
-
-            // Checks: the previous milestone is not equal or greater than milestone.
-            if (previousMilestone >= milestone) {
-                revert SablierV2Pro__PreviousMilestoneIsEqualOrGreaterThanMilestone(previousMilestone, milestone);
-            }
-
-            previousMilestone = milestone;
-
-            exponent = segmentExponents[i];
-
-            // Checks: the exponent is not out of bounds.
-            if (exponent < 1) {
-                revert SablierV2Pro__SegmentExponentIsOutOfBounds(segmentExponents[i]);
-            }
-            if (exponent > 3) {
-                revert SablierV2Pro__SegmentExponentIsOutOfBounds(segmentExponents[i]);
-            }
-
-            unchecked {
-                i += 1;
-            }
-        }
-
-        // Checks: amounts cumulated is equal to deposit amount.
-        if (depositAmount != UD60x18.unwrap(cumulativeAmount)) {
-            revert SablierV2Pro__DepositIsNotEqualToSegmentAmounts(depositAmount, cumulativeAmount);
-        }
     }
 }

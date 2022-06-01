@@ -4,6 +4,8 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { NonStandardERC20 } from "@prb/contracts/token/erc20/NonStandardERC20.sol";
+import { SD59x18 } from "@prb/math/SD59x18.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { DSTest } from "ds-test/test.sol";
 import { Vm } from "forge-std/Vm.sol";
@@ -83,14 +85,34 @@ abstract contract SablierV2UnitTest is DSTest {
 
     /// CONSTANT FUNCTIONS ///
 
-    /// @dev Helper function that multiplies the `amount` by `10^18`.
+    /// @dev Helper function that multiplies the `amount` by `10^18` and returns a `uint256.`
     function bn(uint256 amount) internal pure returns (uint256 result) {
         result = bn(amount, 18);
     }
 
-    /// @dev Helper function that multiplies the `amount` by `10^decimals`.
+    /// @dev Helper function that multiplies the `amount` by `10^decimals` and returns a `uint256.`
     function bn(uint256 amount, uint256 decimals) internal pure returns (uint256 result) {
         result = amount * 10**decimals;
+    }
+
+    /// @dev Helper function that multiplies the `amount` by `10^18` and returns an `SD59x18`.
+    function sd59x18(uint256 amount) internal pure returns (SD59x18 result) {
+        result = SD59x18.wrap(int256(bn(amount, 18)));
+    }
+
+    /// @dev Helper function that multiplies the `amount` by `10^decimals` and returns an `SD59x18`.
+    function sd59x18(uint256 amount, uint256 decimals) internal pure returns (SD59x18 result) {
+        result = SD59x18.wrap(int256(bn(amount, decimals)));
+    }
+
+    /// @dev Helper function that multiplies the `amount` by `10^18` and returns an `UD60x18`.
+    function ud60x18(uint256 amount) internal pure returns (UD60x18 result) {
+        result = UD60x18.wrap(bn(amount, 18));
+    }
+
+    /// @dev Helper function that multiplies the `amount` by `10^decimals` and returns an `UD60x18`.
+    function ud60x18(uint256 amount, uint256 decimals) internal pure returns (UD60x18 result) {
+        result = UD60x18.wrap(bn(amount, decimals));
     }
 
     /// NON-CONSTANT FUNCTIONS ///

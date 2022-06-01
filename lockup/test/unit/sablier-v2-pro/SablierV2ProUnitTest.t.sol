@@ -5,6 +5,7 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ISablierV2Pro } from "@sablier/v2-core/interfaces/ISablierV2Pro.sol";
 import { SablierV2Pro } from "@sablier/v2-core/SablierV2Pro.sol";
+import { SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { SablierV2UnitTest } from "../SablierV2UnitTest.t.sol";
 
@@ -24,23 +25,21 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         uint256 startTime,
         uint256 stopTime,
         uint256[] segmentAmounts,
-        uint256[] segmentExponents,
+        SD59x18[] segmentExponents,
         uint256[] segmentMilestones,
         bool cancelable
     );
 
     /// CONSTANTS ///
 
-    uint256 internal immutable DEFAULT_SEGMENT_AMOUNT_1 = bn(2_500);
-    uint256 internal immutable DEFAULT_SEGMENT_AMOUNT_2 = bn(7_500);
-    uint256 internal constant DEFAULT_SEGMENT_EXPONENT_1 = 1;
-    uint256 internal constant DEFAULT_SEGMENT_EXPONENT_2 = 2;
-    uint256 internal constant DEFAULT_SEGMENT_MILESTONE_1 = 5_100 seconds;
-    uint256 internal constant DEFAULT_SEGMENT_MILESTONE_2 = 10_100 seconds;
+    uint256[] internal DEFAULT_SEGMENT_AMOUNTS = [bn(2_500), bn(7_500)];
+    SD59x18[] internal DEFAULT_SEGMENT_EXPONENTS = [sd59x18(1), sd59x18(2)];
+    uint256[] internal DEFAULT_SEGMENT_MILESTONES = [5_100 seconds, 10_100 seconds];
     uint256 internal constant DEFAULT_TIME_OFFSET = 5_000 seconds;
-    uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT = bn(2500);
+    uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT = bn(2_500);
+    SD59x18 internal constant MAX_EXPONENT = SD59x18.wrap(10e18);
 
-    /// OTHER TESTING VARIABLES ///
+    /// TESTING VARIABLES ///
 
     SablierV2Pro internal sablierV2Pro = new SablierV2Pro();
     ISablierV2Pro.Stream internal stream;
@@ -49,16 +48,6 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        uint256[] memory DEFAULT_SEGMENT_AMOUNTS = fixedSizeToDynamic(
-            [DEFAULT_SEGMENT_AMOUNT_1, DEFAULT_SEGMENT_AMOUNT_2]
-        );
-        uint256[] memory DEFAULT_SEGMENT_EXPONENTS = fixedSizeToDynamic(
-            [DEFAULT_SEGMENT_EXPONENT_1, DEFAULT_SEGMENT_EXPONENT_2]
-        );
-        uint256[] memory DEFAULT_SEGMENT_MILESTONES = fixedSizeToDynamic(
-            [DEFAULT_SEGMENT_MILESTONE_1, DEFAULT_SEGMENT_MILESTONE_2]
-        );
-
         // Create the default stream to be used across many tests.
         stream = ISablierV2Pro.Stream({
             cancelable: true,
@@ -88,22 +77,6 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// NON-CONSTANT FUNCTIONS ///
 
-    /// @dev Helper function to create a pro stream.
-    function createDefaultStream() internal returns (uint256 streamId) {
-        streamId = sablierV2Pro.create(
-            stream.sender,
-            stream.recipient,
-            stream.token,
-            stream.depositAmount,
-            stream.startTime,
-            stream.stopTime,
-            stream.segmentAmounts,
-            stream.segmentExponents,
-            stream.segmentMilestones,
-            stream.cancelable
-        );
-    }
-
     /// @dev Helper function to compare two `Stream` structs.
     function assertEq(ISablierV2Pro.Stream memory a, ISablierV2Pro.Stream memory b) internal {
         assertEq(a.depositAmount, b.depositAmount);
@@ -121,40 +94,41 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// @dev Helper function to compare two uint256 arrays.
     function assertEq(uint256[] memory a, uint256[] memory b) internal {
-        require(a.length == b.length, "LENGTH_MISMATCH");
+        if (a.length != b.length) {
+            emit log("Error: a.length == b.length not satisifed");
+            fail();
+        }
 
         for (uint256 i = 0; i < a.length; i++) {
             assertEq(a[i], b[i]);
         }
     }
 
-    /// @dev Helper function to return a dynamic array from a single number.
-    function fixedSizeToDynamic(uint256 toReturn) internal pure returns (uint256[] memory result) {
-        uint256[] memory aux = new uint256[](1);
-        aux[0] = toReturn;
+    /// @dev Helper function to compare two SD59x18 arrays.
+    function assertEq(SD59x18[] memory a, SD59x18[] memory b) internal {
+        if (a.length != b.length) {
+            emit log("Error: a.length == b.length not satisifed");
+            fail();
+        }
 
-        result = aux;
+        for (uint256 i = 0; i < a.length; i++) {
+            assertEq(SD59x18.unwrap(a[i]), SD59x18.unwrap(b[i]));
+        }
     }
 
-    /// @dev Helper function to return a dynamic array from a fixed size array.
-    function fixedSizeToDynamic(uint256[2] memory toReturn) internal pure returns (uint256[] memory result) {
-        uint256[] memory aux = new uint256[](2);
-        aux[0] = toReturn[0];
-        aux[1] = toReturn[1];
-
-        result = aux;
-    }
-
-    /// @dev Helper function to return a dynamic array from a fixed size array.
-    function fixedSizeToDynamic(uint256[6] memory toReturn) internal pure returns (uint256[] memory result) {
-        uint256[] memory aux = new uint256[](6);
-        aux[0] = toReturn[0];
-        aux[1] = toReturn[1];
-        aux[2] = toReturn[2];
-        aux[3] = toReturn[3];
-        aux[4] = toReturn[4];
-        aux[5] = toReturn[5];
-
-        result = aux;
+    /// @dev Helper function to create a pro stream.
+    function createDefaultStream() internal returns (uint256 streamId) {
+        streamId = sablierV2Pro.create(
+            stream.sender,
+            stream.recipient,
+            stream.token,
+            stream.depositAmount,
+            stream.startTime,
+            stream.stopTime,
+            stream.segmentAmounts,
+            stream.segmentExponents,
+            stream.segmentMilestones,
+            stream.cancelable
+        );
     }
 }

@@ -31,7 +31,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
     uint256 internal constant DEFAULT_TIME_OFFSET = 100 seconds;
     uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT = bn(100);
 
-    /// OTHER TESTING VARIABLES ///
+    /// TESTING VARIABLES ///
 
     SablierV2Linear internal sablierV2Linear = new SablierV2Linear();
     ISablierV2Linear.Stream internal stream;
@@ -66,6 +66,18 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
 
     /// NON-CONSTANT FUNCTIONS ///
 
+    /// @dev Helper function to compare two `Stream` structs.
+    function assertEq(ISablierV2Linear.Stream memory a, ISablierV2Linear.Stream memory b) internal {
+        assertEq(a.depositAmount, b.depositAmount);
+        assertEq(a.cancelable, b.cancelable);
+        assertEq(a.recipient, b.recipient);
+        assertEq(a.sender, b.sender);
+        assertEq(a.startTime, b.startTime);
+        assertEq(a.stopTime, b.stopTime);
+        assertEq(a.token, b.token);
+        assertEq(a.withdrawnAmount, b.withdrawnAmount);
+    }
+
     /// @dev Helper function to create a linear stream.
     function createDefaultStream() internal returns (uint256 streamId) {
         streamId = sablierV2Linear.create(
@@ -77,17 +89,5 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
             stream.stopTime,
             stream.cancelable
         );
-    }
-
-    /// @dev Helper function to compare two `Stream` structs.
-    function assertEq(ISablierV2Linear.Stream memory a, ISablierV2Linear.Stream memory b) internal {
-        assertEq(a.depositAmount, b.depositAmount);
-        assertEq(a.cancelable, b.cancelable);
-        assertEq(a.recipient, b.recipient);
-        assertEq(a.sender, b.sender);
-        assertEq(a.startTime, b.startTime);
-        assertEq(a.stopTime, b.stopTime);
-        assertEq(a.token, b.token);
-        assertEq(a.withdrawnAmount, b.withdrawnAmount);
     }
 }

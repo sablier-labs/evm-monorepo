@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ISablierV2 } from "./ISablierV2.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
+import { SD59x18 } from "@prb/math/SD59x18.sol";
 
 /// @title ISablierV2Pro
 /// @author Sablier Labs Ltd
@@ -11,30 +11,34 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 interface ISablierV2Pro is ISablierV2 {
     /// CUSTOM ERRORS ///
 
-    /// @notice Emitted when attempting to create a stream with segment variables size is not equal.
-    error SablierV2Pro__SegmentVariablesLengthIsNotEqual(
+    /// @notice Emitted when attempting to create a stream with a deposit amount that is not equal to the segment
+    /// amounts summed together.
+    error SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(uint256 depositAmount, uint256 sum);
+
+    /// @notice Emitted when attempting to create a stream with a milestone greater than the stop time.
+    error SablierV2Pro__LastMilestoneGreaterThanStopTime(uint256 milestone, uint256 stopTime);
+
+    /// @notice Emitted when attempting to create a stream with unequal segment variables lengths.
+    error SablierV2Pro__SegmentArraysLengthsUnequal(
         uint256 amountLength,
         uint256 exponentLength,
         uint256 milestoneLength
     );
 
-    /// @notice Emitted when attempting to create a stream with segment size is out of bounds .
-    error SablierV2Pro__SegmentVariablesLengthIsOutOfBounds(uint256 length);
+    /// @notice Emitted when attempting to create a stream with zero segments.
+    error SablierV2Pro__SegmentArraysLengthZero();
+
+    /// @notice Emitted when attempting to create a stream with an out of bounds segments variables length.
+    error SablierV2Pro__SegmentArraysLengthOutOfBounds(uint256 length);
+
+    /// @notice Emitted when attempting to create a stream with an out of bounds exponent.
+    error SablierV2Pro__SegmentExponentOutOfBounds(SD59x18 exponent);
 
     /// @notice Emitted when attempting to create a stream with start time greater than a segment milestone.
-    error SablierV2Pro__StartTimeGreaterThanMilestone(uint256 startTime, uint256 segmentMilestone);
+    error SablierV2Pro__StartTimeGreaterThanFirstMilestone(uint256 startTime, uint256 segmentMilestone);
 
-    /// @notice Emitted when attempting to create a stream with a milestone greater than stop time.
-    error SablierV2Pro__MilestoneGreaterThanStopTime(uint256 milestone, uint256 stopTime);
-
-    /// @notice Emitted when attempting to create a stream with a previous milestone greater than milestone.
-    error SablierV2Pro__PreviousMilestoneIsEqualOrGreaterThanMilestone(uint256 previousMilestonene, uint256 milestone);
-
-    /// @notice Emitted when attempting to create a stream with an exponent is out bounds.
-    error SablierV2Pro__SegmentExponentIsOutOfBounds(uint256 exponent);
-
-    /// @notice Emitted when attempting to create a stream with a deposit amount not equal segement amounts cumulated.
-    error SablierV2Pro__DepositIsNotEqualToSegmentAmounts(uint256 depositAmount, UD60x18 cumulativeAmount);
+    /// @notice Emitted when attempting to create a stream with unordered milestones.
+    error SablierV2Pro__UnorderedMilestones(uint256 index, uint256 previousMilestonene, uint256 milestone);
 
     /// EVENTS ///
 
@@ -59,7 +63,7 @@ interface ISablierV2Pro is ISablierV2 {
         uint256 startTime,
         uint256 stopTime,
         uint256[] segmentAmounts,
-        uint256[] segmentExponents,
+        SD59x18[] segmentExponents,
         uint256[] segmentMilestones,
         bool cancelable
     );
@@ -69,15 +73,15 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Pro stream struct.
     /// @dev Based on the streaming function $f(x) = x^{exponent}$, where x is the elapsed time divided by
     /// the total time.
-    /// @member segmentAmounts The total amount of tokens to be streamed.
-    /// @member segmentExponents The exponent in the streaming function.
-    /// @member segmentMilestones The unix timestamp in seconds for when the segment ends.
+    /// @member segmentAmounts The amounts of tokens to be streamed in each segment.
+    /// @member segmentExponents The exponents in the streaming function.
+    /// @member segmentMilestones The unix timestamps in seconds for when each segment ends.
     /// @dev The members are arranged like this to save gas via tight variable packing.
     struct Stream {
-        uint256[] segmentAmounts;
-        uint256[] segmentExponents;
-        uint256[] segmentMilestones;
         uint256 depositAmount;
+        uint256[] segmentAmounts;
+        SD59x18[] segmentExponents;
+        uint256[] segmentMilestones;
         uint256 startTime;
         uint256 stopTime;
         uint256 withdrawnAmount;
@@ -103,7 +107,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `depositAmount` cannot be zero.
     /// - `startTime` cannot be greater than `stopTime`.
     /// - `segmentAmounts` must be non-empty and not greater than five elements.
-    /// - `segmentAmounts` cumulated must be equal to 'depositAmount'.
+    /// - `segmentAmounts` summed up must be equal to 'depositAmount'.
     /// - `segmentExponents` must be non-empty and not greater than five elements.
     /// - `segmentExponents` must be bounded between one and three.
     /// - `segmentMilestones` must be non-empty and not greater than five elements.
@@ -129,7 +133,7 @@ interface ISablierV2Pro is ISablierV2 {
         uint256 startTime,
         uint256 stopTime,
         uint256[] memory segmentAmounts,
-        uint256[] memory segmentExponents,
+        SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId);
@@ -145,7 +149,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `depositAmount` cannot be zero.
     /// - `startTime` cannot be greater than `stopTime`.
     /// - `segmentAmounts` must be non-empty and not greater than five elements.
-    /// - `segmentAmounts` cumulated must be equal to 'depositAmount'.
+    /// - `segmentAmounts` summed up must be equal to 'depositAmount'.
     /// - `segmentExponents` must be non-empty and not greater than five elements.
     /// - `segmentExponents` must be bounded between one and three.
     /// - `segmentMilestones` must be non-empty and not greater than five elements.
@@ -173,7 +177,7 @@ interface ISablierV2Pro is ISablierV2 {
         uint256 startTime,
         uint256 stopTime,
         uint256[] memory segmentAmounts,
-        uint256[] memory segmentExponents,
+        SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId);

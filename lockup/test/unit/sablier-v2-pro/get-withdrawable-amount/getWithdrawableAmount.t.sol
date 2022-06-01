@@ -109,7 +109,7 @@ contract SablierV2Pro__GetWithdrawableAmount__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the previous amount is greater than zero and exponent is greater than 1, it should
     /// return the correct withdrawable amount.
-    function testGetWithdrawableAmount__PreviousAmountGreaterThanZero__ExponentGreaterThanOne_WithWithdrawals()
+    function testGetWithdrawableAmount__PreviousAmountGreaterThanZero__ExponentGreaterThanOne__WithWithdrawals()
         external
     {
         uint256 timeOffset = 7500 seconds;
