@@ -17,8 +17,7 @@ contract SablierV2Cliff__Withdraw__UnitTest is SablierV2CliffUnitTest {
         streamId = createDefaultStream();
 
         // Make the recipient the `msg.sender` in this test suite.
-        vm.stopPrank();
-        vm.startPrank(users.recipient);
+        changePrank(users.recipient);
     }
 
     /// @dev When the stream does not exist, it should revert.
@@ -32,8 +31,7 @@ contract SablierV2Cliff__Withdraw__UnitTest is SablierV2CliffUnitTest {
     /// @dev When the stream does not exist, it should revert.
     function testCannotWithdraw__Unauthorized() external {
         // Make Eve the `msg.sender` in this test case.
-        vm.stopPrank();
-        vm.startPrank(users.eve);
+        changePrank(users.eve);
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, streamId, users.eve));
@@ -44,8 +42,7 @@ contract SablierV2Cliff__Withdraw__UnitTest is SablierV2CliffUnitTest {
     /// @dev When the caller is the sender, it should make the withdrawal.
     function testWithdraw__CallerSender() external {
         // Make the sender the `msg.sender` in this test case.
-        vm.stopPrank();
-        vm.startPrank(users.sender);
+        changePrank(users.sender);
 
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);

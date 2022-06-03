@@ -27,8 +27,7 @@ contract SablierV2Linear__Renounce__UnitTest is SablierV2LinearUnitTest {
     /// @dev When the stream does not exist, it should revert.
     function testCannotRenounce__Unauthorized() external {
         // Make Eve the `msg.sender` in this test case.
-        vm.stopPrank();
-        vm.startPrank(users.eve);
+        changePrank(users.eve);
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, streamId, users.eve));

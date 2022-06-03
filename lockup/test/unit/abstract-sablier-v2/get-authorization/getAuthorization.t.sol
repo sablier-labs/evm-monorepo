@@ -3,8 +3,6 @@ pragma solidity >=0.8.13;
 
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 
-import { stdError } from "forge-std/Test.sol";
-
 import { AbstractSablierV2UnitTest } from "../AbstractSablierV2UnitTest.t.sol";
 
 contract AbstractSablierV2__GetAuthorization__UnitTest is AbstractSablierV2UnitTest {

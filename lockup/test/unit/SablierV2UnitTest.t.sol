@@ -6,8 +6,7 @@ import { NonStandardERC20 } from "@prb/contracts/token/erc20/NonStandardERC20.so
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { DSTest } from "ds-test/test.sol";
-import { Vm } from "forge-std/Vm.sol";
+import { Test } from "forge-std/Test.sol";
 
 import { GodModeERC20 } from "../shared/GodModeERC20.t.sol";
 
@@ -15,7 +14,7 @@ import { GodModeERC20 } from "../shared/GodModeERC20.t.sol";
 /// @author Sablier Labs Ltd.
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
-abstract contract SablierV2UnitTest is DSTest {
+abstract contract SablierV2UnitTest is Test {
     /// EVENTS ///
 
     event Cancel(uint256 indexed streamId, address indexed recipient, uint256 withdrawAmount, uint256 returnAmount);
@@ -49,7 +48,6 @@ abstract contract SablierV2UnitTest is DSTest {
     bytes32 internal nextUser = keccak256(abi.encodePacked("user address"));
     NonStandardERC20 internal nonStandardToken = new NonStandardERC20("Stablecoin", "USD", 18);
     GodModeERC20 internal usd = new GodModeERC20("Stablecoin", "USD", 18);
-    Vm internal vm = Vm(HEVM_ADDRESS);
     Users internal users;
 
     /// CONSTRUCTOR ///
@@ -103,11 +101,6 @@ abstract contract SablierV2UnitTest is DSTest {
     }
 
     /// NON-CONSTANT FUNCTIONS ///
-
-    /// @dev Helper function to compare two booleans,
-    function assertEq(bool a, bool b) internal {
-        assertTrue(a == b);
-    }
 
     /// @dev Helper function to compare two `IERC20` addresses.
     function assertEq(IERC20 a, IERC20 b) internal {

@@ -18,8 +18,7 @@ contract AbstractSablierV2__IncreaseAuthorization__UnitTest is AbstractSablierV2
     /// @dev When the sender is the zero address, it should revert.
     function testCannotIncreaseAuthorization__SenderZeroAddress() external {
         // Make the zero address the `msg.sender` in this test case.
-        vm.stopPrank();
-        vm.startPrank(address(0));
+        changePrank(address(0));
 
         vm.expectRevert(ISablierV2.SablierV2__AuthorizeSenderZeroAddress.selector);
         uint256 authorization = DEPOSIT_AMOUNT;

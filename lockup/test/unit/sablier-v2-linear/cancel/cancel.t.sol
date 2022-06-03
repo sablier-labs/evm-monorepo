@@ -27,8 +27,7 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
     /// @dev When the stream does not exist, it should revert.
     function testCannotCancel__Unauthorized() external {
         // Make Eve the `msg.sender` in this test case.
-        vm.stopPrank();
-        vm.startPrank(users.eve);
+        changePrank(users.eve);
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, streamId, users.eve));
@@ -38,8 +37,7 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
     /// @dev When caller is the recipient, it should make the withdrawal.
     function testCancel__CallerRecipient() external {
         // Make the recipient the `msg.sender` in this test case.
-        vm.stopPrank();
-        vm.startPrank(users.recipient);
+        changePrank(users.recipient);
 
         // Run the test.
         sablierV2Linear.cancel(streamId);
