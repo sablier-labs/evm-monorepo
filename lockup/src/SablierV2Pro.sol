@@ -19,8 +19,8 @@ contract SablierV2Pro is
 
     /// CONSTANTS ///
 
-    /// @notice The maximum number of segments allowed in a stream.
-    SD59x18 public constant MAX_EXPONENT = SD59x18.wrap(10e18);
+    /// @notice The maximum value an exponent can have is 1.
+    SD59x18 public constant MAX_EXPONENT = SCALE;
 
     /// @notice The maximum number of segments allowed in a stream.
     uint256 public constant MAX_SEGMENT_ARRAY_LENGTH = 200;
@@ -97,7 +97,7 @@ contract SablierV2Pro is
             SD59x18 totalSegmentTime;
             uint256 sum;
 
-            // If there's more than one segment, we have to iterate over all of them
+            // If there's more than one segment, we have to iterate over all of them.
             uint256 length = stream.segmentMilestones.length;
             if (length > 1) {
                 uint256 currentSegmentMilestone = stream.startTime;
@@ -133,8 +133,7 @@ contract SablierV2Pro is
                     totalSegmentTime = toSD59x18(int256(currentSegmentMilestone - stream.startTime));
                 }
             }
-            // If there's only segment, consider the start time of stream as the first segment milestone, and the stop
-            // time of the stream as the last segment milestone.
+            // Otherwise, if there's only segment, we consider the start time of stream as the first segment milestone.
             else {
                 currentSegmentAmount = SD59x18.wrap(int256(stream.segmentAmounts[0]));
                 elapsedSegmentTime = toSD59x18(int256(currentTime - stream.startTime));
@@ -191,8 +190,8 @@ contract SablierV2Pro is
     function create(
         address sender,
         address recipient,
-        IERC20 token,
         uint256 depositAmount,
+        IERC20 token,
         uint256 startTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
@@ -205,8 +204,8 @@ contract SablierV2Pro is
             from,
             sender,
             recipient,
-            token,
             depositAmount,
+            token,
             startTime,
             segmentAmounts,
             segmentExponents,
@@ -220,8 +219,8 @@ contract SablierV2Pro is
         address from,
         address sender,
         address recipient,
-        IERC20 token,
         uint256 depositAmount,
+        IERC20 token,
         uint256 startTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
@@ -244,8 +243,8 @@ contract SablierV2Pro is
             from,
             sender,
             recipient,
-            token,
             depositAmount,
+            token,
             startTime,
             segmentAmounts,
             segmentExponents,
@@ -331,16 +330,6 @@ contract SablierV2Pro is
         uint256 exponentsLength = segmentExponents.length;
         uint256 milestonesLength = segmentMilestones.length;
 
-        // Compare the amounts array length to the exponents array length.
-        if (amountsLength != exponentsLength) {
-            revert SablierV2Pro__SegmentArraysLengthsUnequal(amountsLength, exponentsLength, milestonesLength);
-        }
-
-        // Compare the amounts array length to the milestones array length.
-        if (amountsLength != milestonesLength) {
-            revert SablierV2Pro__SegmentArraysLengthsUnequal(amountsLength, exponentsLength, milestonesLength);
-        }
-
         // Check that the amounts array length is not zero.
         if (amountsLength == 0) {
             revert SablierV2Pro__SegmentArraysLengthZero();
@@ -351,32 +340,36 @@ contract SablierV2Pro is
             revert SablierV2Pro__SegmentArraysLengthOutOfBounds(amountsLength);
         }
 
+        // Compare the amounts array length to the exponents array length.
+        if (amountsLength != exponentsLength) {
+            revert SablierV2Pro__SegmentArraysLengthsNotEqual(amountsLength, exponentsLength, milestonesLength);
+        }
+
+        // Compare the amounts array length to the milestones array length.
+        if (amountsLength != milestonesLength) {
+            revert SablierV2Pro__SegmentArraysLengthsNotEqual(amountsLength, exponentsLength, milestonesLength);
+        }
+
         // We can pass any variable length because they are all equal to each other.
         length = amountsLength;
     }
 
     /// @dev Checks that:
-    /// 1. The milestones are bounded by the start time and the stop time.
+    /// 1. The first milestone is greater than or equal to the start time.
     /// 2. The milestones are ordered chronologically.
     /// 3. The exponents are within the bounds permitted by Sablier.
     /// 4. The deposit amount is equal to the segment amounts summed up.
-    function checkSegmentVariables(
+    function checkSegmentsSoundness(
         uint256 depositAmount,
         uint256 startTime,
-        uint256 stopTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
         uint256 length
     ) internal pure {
-        // Check that the start time is not greater than the first milestone.
+        // Check that the start time is less than or equal to the first milestone.
         if (startTime > segmentMilestones[0]) {
             revert SablierV2Pro__StartTimeGreaterThanFirstMilestone(startTime, segmentMilestones[0]);
-        }
-
-        // Check that the last milestone is not greater than the stop time.
-        if (segmentMilestones[length - 1] > stopTime) {
-            revert SablierV2Pro__LastMilestoneGreaterThanStopTime(segmentMilestones[length - 1], stopTime);
         }
 
         // Define the variables needed in the for loop below.
@@ -391,20 +384,20 @@ contract SablierV2Pro is
             // Add the current segment amount to the sum.
             segmentAmountsSum = segmentAmountsSum + segmentAmounts[index];
 
-            // Check that the previous milestone is not equal or greater than the current milestone.
+            // Check that the previous milestone is less than the current milestone.
             currentMilestone = segmentMilestones[index];
             if (previousMilestone >= currentMilestone) {
-                revert SablierV2Pro__UnorderedMilestones(index, previousMilestone, currentMilestone);
+                revert SablierV2Pro__SegmentMilestonesNotOrdered(index, previousMilestone, currentMilestone);
             }
-
-            // Set the current milestone to be the previous milestone of the next iteration.
-            previousMilestone = currentMilestone;
 
             // Check that the exponent is not out of bounds.
             exponent = segmentExponents[index];
             if (exponent.gt(MAX_EXPONENT)) {
                 revert SablierV2Pro__SegmentExponentOutOfBounds(exponent);
             }
+
+            // Make the current milestone the previous milestone of the next iteration.
+            previousMilestone = currentMilestone;
 
             // Increment the for loop iterator.
             unchecked {
@@ -425,8 +418,8 @@ contract SablierV2Pro is
         address from,
         address sender,
         address recipient,
-        IERC20 token,
         uint256 depositAmount,
+        IERC20 token,
         uint256 startTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
@@ -458,15 +451,7 @@ contract SablierV2Pro is
         }
 
         // Checks: soundness of segments variables.
-        checkSegmentVariables(
-            depositAmount,
-            startTime,
-            stopTime,
-            segmentAmounts,
-            segmentExponents,
-            segmentMilestones,
-            length
-        );
+        checkSegmentsSoundness(depositAmount, startTime, segmentAmounts, segmentExponents, segmentMilestones, length);
 
         // Effects: create and store the stream.
         streamId = nextStreamId;
@@ -497,8 +482,8 @@ contract SablierV2Pro is
             streamId,
             sender,
             recipient,
-            token,
             depositAmount,
+            token,
             startTime,
             stopTime,
             segmentAmounts,

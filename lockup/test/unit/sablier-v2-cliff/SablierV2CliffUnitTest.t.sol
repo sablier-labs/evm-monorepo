@@ -1,4 +1,3 @@
-/* solhint-disable var-name-mixedcase */
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
@@ -58,6 +57,10 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
         vm.prank(users.sender);
         usd.approve(address(sablierV2Cliff), type(uint256).max);
 
+        // Approve the SablierV2Pro contract to spend non-standard tokens from the `sender` account.
+        vm.prank(users.sender);
+        nonStandardToken.approve(address(sablierV2Cliff), type(uint256).max);
+
         // Approve the SablierV2Cliff contract to spend $USD from the `funder` account.
         vm.prank(users.funder);
         usd.approve(address(sablierV2Cliff), type(uint256).max);
@@ -70,8 +73,8 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
 
     /// @dev Helper function to compare two `Stream` structs.
     function assertEq(ISablierV2Cliff.Stream memory a, ISablierV2Cliff.Stream memory b) internal {
-        assertEq(a.depositAmount, b.depositAmount);
         assertEq(a.cancelable, b.cancelable);
+        assertEq(a.depositAmount, b.depositAmount);
         assertEq(a.recipient, b.recipient);
         assertEq(a.sender, b.sender);
         assertEq(a.startTime, b.startTime);

@@ -7,10 +7,6 @@ import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Cliff } from "@sablier/v2-core/interfaces/ISablierV2Cliff.sol";
 import { SablierV2Cliff } from "@sablier/v2-core/SablierV2Cliff.sol";
 
-import { DSTest } from "ds-test/Test.sol";
-import { stdError } from "forge-std/Test.sol";
-import { Vm } from "forge-std/Vm.sol";
-
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
 contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
@@ -66,7 +62,7 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
     }
 
     /// @dev When the start time is equal to the stop time, it should create the stream.
-    function testCreate__StartTimeEqualStopTime() external {
+    function testCreate__StartTimeEqualToStopTime() external {
         uint256 cliffTime = stream.startTime;
         uint256 stopTime = stream.startTime;
         uint256 streamId = sablierV2Cliff.create(
@@ -162,8 +158,9 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
         );
     }
 
-    /// @dev When the start time is the equal to the stop time, it should create the stream.
-    function testCreate__StopTimeEqualToStartTimeAndCliffTime() external {
+    /// @dev When the cliff time is the equal to the stop time, it should create the stream.
+    /// TODO: fix this
+    function testCreate__CliffTimeEqualToStopTime() external {
         uint256 stopTime = stream.startTime;
         uint256 cliffTime = stream.startTime;
         uint256 streamId = sablierV2Cliff.nextStreamId();
@@ -207,8 +204,6 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
 
     /// @dev When the token is missing the return value, it should create the stream.
     function testCreate__TokenMissingReturnValue() external {
-        nonStandardToken.mint(users.sender, DEFAULT_DEPOSIT_AMOUNT);
-        nonStandardToken.approve(address(sablierV2Cliff), DEFAULT_DEPOSIT_AMOUNT);
         IERC20 token = IERC20(address(nonStandardToken));
 
         uint256 streamId = sablierV2Cliff.nextStreamId();

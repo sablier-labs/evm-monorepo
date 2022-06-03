@@ -1,4 +1,3 @@
-/* solhint-disable var-name-mixedcase */
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
@@ -24,8 +23,6 @@ abstract contract SablierV2UnitTest is DSTest {
     event Renounce(uint256 indexed streamId);
 
     event Withdraw(uint256 indexed streamId, address indexed recipient, uint256 amount);
-
-    /// CONSTANTS ///
 
     /// CONSTANTS ///
 
@@ -95,24 +92,14 @@ abstract contract SablierV2UnitTest is DSTest {
         result = amount * 10**decimals;
     }
 
-    /// @dev Helper function that multiplies the `amount` by `10^18` and returns an `SD59x18`.
-    function sd59x18(uint256 amount) internal pure returns (SD59x18 result) {
-        result = SD59x18.wrap(int256(bn(amount, 18)));
+    /// @dev Helper function to convert an int256 number to type `SD59x18`.
+    function sd59x18(int256 number) internal pure returns (SD59x18 result) {
+        result = SD59x18.wrap(number);
     }
 
-    /// @dev Helper function that multiplies the `amount` by `10^decimals` and returns an `SD59x18`.
-    function sd59x18(uint256 amount, uint256 decimals) internal pure returns (SD59x18 result) {
-        result = SD59x18.wrap(int256(bn(amount, decimals)));
-    }
-
-    /// @dev Helper function that multiplies the `amount` by `10^18` and returns an `UD60x18`.
-    function ud60x18(uint256 amount) internal pure returns (UD60x18 result) {
-        result = UD60x18.wrap(bn(amount, 18));
-    }
-
-    /// @dev Helper function that multiplies the `amount` by `10^decimals` and returns an `UD60x18`.
-    function ud60x18(uint256 amount, uint256 decimals) internal pure returns (UD60x18 result) {
-        result = UD60x18.wrap(bn(amount, decimals));
+    /// @dev Helper function to convert a uint256 number to type `UD60x18`.
+    function ud60x18(uint256 number) internal pure returns (UD60x18 result) {
+        result = UD60x18.wrap(number);
     }
 
     /// NON-CONSTANT FUNCTIONS ///
@@ -131,6 +118,7 @@ abstract contract SablierV2UnitTest is DSTest {
     function fundUser(address payable user) internal {
         vm.deal(user, 100 ether);
         usd.mint(user, bn(1_000_000));
+        nonStandardToken.mint(user, bn(1_000_000));
     }
 
     /// @dev Converts bytes32 to address.

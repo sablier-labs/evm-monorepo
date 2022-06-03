@@ -11,15 +11,15 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 interface ISablierV2Pro is ISablierV2 {
     /// CUSTOM ERRORS ///
 
-    /// @notice Emitted when attempting to create a stream with a deposit amount that is not equal to the segment
-    /// amounts summed together.
-    error SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(uint256 depositAmount, uint256 sum);
+    /// @notice Emitted when attempting to create a stream with a deposit amount that does not qual the segment
+    /// amounts sum.
+    error SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(uint256 depositAmount, uint256 segmentAmountsSum);
 
     /// @notice Emitted when attempting to create a stream with a milestone greater than the stop time.
     error SablierV2Pro__LastMilestoneGreaterThanStopTime(uint256 milestone, uint256 stopTime);
 
     /// @notice Emitted when attempting to create a stream with unequal segment variables lengths.
-    error SablierV2Pro__SegmentArraysLengthsUnequal(
+    error SablierV2Pro__SegmentArraysLengthsNotEqual(
         uint256 amountLength,
         uint256 exponentLength,
         uint256 milestoneLength
@@ -34,11 +34,11 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Emitted when attempting to create a stream with an out of bounds exponent.
     error SablierV2Pro__SegmentExponentOutOfBounds(SD59x18 exponent);
 
+    /// @notice Emitted when attempting to create a stream with segment milestones which are not ordered.
+    error SablierV2Pro__SegmentMilestonesNotOrdered(uint256 index, uint256 previousMilestonene, uint256 milestone);
+
     /// @notice Emitted when attempting to create a stream with start time greater than a segment milestone.
     error SablierV2Pro__StartTimeGreaterThanFirstMilestone(uint256 startTime, uint256 segmentMilestone);
-
-    /// @notice Emitted when attempting to create a stream with unordered milestones.
-    error SablierV2Pro__UnorderedMilestones(uint256 index, uint256 previousMilestonene, uint256 milestone);
 
     /// EVENTS ///
 
@@ -46,8 +46,8 @@ interface ISablierV2Pro is ISablierV2 {
     /// @param streamId The id of the newly created stream.
     /// @param sender The address from which to stream the money.
     /// @param recipient The address toward which to stream the money.
-    /// @param token The address of the ERC-20 token to use for streaming.
     /// @param depositAmount The amount of money to be streamed.
+    /// @param token The address of the ERC-20 token to use for streaming.
     /// @param segmentAmounts The array of amounts used to compose the custom emission curve.
     /// @param segmentExponents The array of exponents used to compose the custom emission curve.
     /// @param segmentMilestones The array of milestones used to compose the custom emission curve.
@@ -58,8 +58,8 @@ interface ISablierV2Pro is ISablierV2 {
         uint256 indexed streamId,
         address indexed sender,
         address indexed recipient,
-        IERC20 token,
         uint256 depositAmount,
+        IERC20 token,
         uint256 startTime,
         uint256 stopTime,
         uint256[] segmentAmounts,
@@ -117,8 +117,8 @@ interface ISablierV2Pro is ISablierV2 {
     ///
     /// @param sender The address from which to stream the money.
     /// @param recipient The address toward which to stream the money.
-    /// @param token The address of the ERC-20 token to use for streaming.
     /// @param depositAmount The total amount of money to be streamed.
+    /// @param token The address of the ERC-20 token to use for streaming.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param segmentAmounts The array of amounts used to compose the custom emission curve.
     /// @param segmentExponents The array of exponents used to compose the custom emission curve.
@@ -128,8 +128,8 @@ interface ISablierV2Pro is ISablierV2 {
     function create(
         address sender,
         address recipient,
-        IERC20 token,
         uint256 depositAmount,
+        IERC20 token,
         uint256 startTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
@@ -159,8 +159,8 @@ interface ISablierV2Pro is ISablierV2 {
     /// @param from The address which funds the stream.
     /// @param sender The address from which to stream the money.
     /// @param recipient The address toward which to stream the money.
-    /// @param token The address of the ERC-20 token to use for streaming.
     /// @param depositAmount The amount of money to be streamed.
+    /// @param token The address of the ERC-20 token to use for streaming.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param segmentAmounts The array of amounts used to compose the custom emission curve.
     /// @param segmentExponents The array of exponents used to compose the custom emission curve.
@@ -171,8 +171,8 @@ interface ISablierV2Pro is ISablierV2 {
         address from,
         address sender,
         address recipient,
-        IERC20 token,
         uint256 depositAmount,
+        IERC20 token,
         uint256 startTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,

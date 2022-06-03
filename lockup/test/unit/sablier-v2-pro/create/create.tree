@@ -1,0 +1,41 @@
+create.t.sol
+├── when the recipient is the zero address
+│  └── it should revert
+└── when the recipient is not the zero address
+   ├── when the deposit amount is zero
+   │  └── it should revert
+   └── when the deposit amount is not zero
+      ├── when the segment arrays length is zero
+      │  └── it should revert
+      └── when the segment arrays length is not zero
+         ├── when the segment arrays lengths is out of bounds
+         │  └── it should revert
+         └── when the segment arrays lengths are within he permitted bounds
+            ├── when the segment arrays lengths are not equal
+            │  └── it should revert
+            └── when the segment arrays lengths are equal
+               ├── when the start time is greater than the stop time
+               │  └── it should revert
+               ├── when the start time is equal to the stop time
+               │  └── it should create the stream
+               └── when the start time is less than the stop time
+                  ├── when the segment amounts sum overflows
+                  │  └── it should revert
+                  └── when the segment amounts sum does not overflow
+                     ├── when the segment milestones are not ordered
+                     │  └── it should revert
+                     └── when the segment milestones are ordered
+                        ├── when a segment exponent is out of bounds
+                        │  └── it should revert
+                        └── when all segments exponents are within the permitted bounds
+                           ├── when the deposit amount is not equal to the segment amounts sum
+                           │  └── it should revert
+                           └── when the deposit amount equals the segment amounts sum
+                              ├── when the token is not a contract
+                              │  └── it should revert
+                              ├── when the token misses the return value
+                              │  └── it should create the stream
+                              └── when the token is ERC-20 compliant
+                                 ├── it should create the stream
+                                 ├── it should bump the next stream id
+                                 └── it should emit a CreateStream event

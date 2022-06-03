@@ -7,10 +7,6 @@ import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.sol";
 import { SablierV2Linear } from "@sablier/v2-core/SablierV2Linear.sol";
 
-import { DSTest } from "ds-test/test.sol";
-import { stdError } from "forge-std/Test.sol";
-import { Vm } from "forge-std/Vm.sol";
-
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
@@ -63,7 +59,7 @@ contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the start time is the equal to the stop time, it should create the stream.
-    function testCreate__StopTimeEqualToStartTime() external {
+    function testCreate__StartTimeEqualToStopTime() external {
         uint256 stopTime = stream.startTime;
         uint256 streamId = sablierV2Linear.nextStreamId();
         sablierV2Linear.create(
@@ -103,8 +99,6 @@ contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
 
     /// @dev When the token is missing the return value, it should create the stream.
     function testCreate__TokenMissingReturnValue() external {
-        nonStandardToken.mint(users.sender, DEFAULT_DEPOSIT_AMOUNT);
-        nonStandardToken.approve(address(sablierV2Linear), DEFAULT_DEPOSIT_AMOUNT);
         IERC20 token = IERC20(address(nonStandardToken));
 
         uint256 streamId = sablierV2Linear.nextStreamId();
