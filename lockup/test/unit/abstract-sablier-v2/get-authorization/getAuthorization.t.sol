@@ -17,7 +17,7 @@ contract AbstractSablierV2__GetAuthorization__UnitTest is AbstractSablierV2UnitT
 
     /// @dev When the authorization is not set, it should return the correct authorization.
     function testGetAuthorization__AuthorizationSet() external {
-        uint256 authorization = DEFAULT_DEPOSIT_AMOUNT;
+        uint256 authorization = DEPOSIT_AMOUNT;
         abstractSablierV2.increaseAuthorization(users.funder, authorization);
         uint256 expectedAuthorization = authorization;
         uint256 actualAuthorization = abstractSablierV2.getAuthorization(users.sender, users.funder);
@@ -26,7 +26,7 @@ contract AbstractSablierV2__GetAuthorization__UnitTest is AbstractSablierV2UnitT
 
     /// @dev When all checks pass, it should emit an Authorize event.
     function testDecreaseAuthorization__Event() external {
-        uint256 amount = DEFAULT_DEPOSIT_AMOUNT;
+        uint256 amount = DEPOSIT_AMOUNT;
         abstractSablierV2.increaseAuthorization(users.funder, amount);
         vm.expectEmit(true, true, false, true);
         emit Authorize(users.sender, users.funder, 0);

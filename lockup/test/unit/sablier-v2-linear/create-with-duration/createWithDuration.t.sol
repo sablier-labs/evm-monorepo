@@ -30,7 +30,7 @@ contract SablierV2Linear__CreateWithDuration__UnitTest is SablierV2LinearUnitTes
             stream.recipient,
             stream.depositAmount,
             stream.token,
-            DEFAULT_TOTAL_DURATION,
+            TOTAL_DURATION,
             stream.cancelable
         );
         ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);

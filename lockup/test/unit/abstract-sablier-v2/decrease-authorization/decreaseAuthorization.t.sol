@@ -16,7 +16,7 @@ contract AbstractSablierV2__DecreaseAuthorization__UnitTest is AbstractSablierV2
 
     /// @dev When all checks pass, it should increase the authorization.
     function testDecreaseAuthorization() external {
-        uint256 authorization = DEFAULT_DEPOSIT_AMOUNT;
+        uint256 authorization = DEPOSIT_AMOUNT;
         abstractSablierV2.increaseAuthorization(users.funder, authorization);
         abstractSablierV2.decreaseAuthorization(users.funder, authorization);
         uint256 expectedAuthorization = 0;
@@ -26,7 +26,7 @@ contract AbstractSablierV2__DecreaseAuthorization__UnitTest is AbstractSablierV2
 
     /// @dev When all checks pass, it should emit an Authorize event.
     function testDecreaseAuthorization__Event() external {
-        uint256 authorization = DEFAULT_DEPOSIT_AMOUNT;
+        uint256 authorization = DEPOSIT_AMOUNT;
         abstractSablierV2.increaseAuthorization(users.funder, authorization);
         vm.expectEmit(true, true, false, true);
         emit Authorize(users.sender, users.funder, 0);

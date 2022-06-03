@@ -22,7 +22,7 @@ contract AbstractSablierV2__IncreaseAuthorization__UnitTest is AbstractSablierV2
         vm.startPrank(address(0));
 
         vm.expectRevert(ISablierV2.SablierV2__AuthorizeSenderZeroAddress.selector);
-        uint256 authorization = DEFAULT_DEPOSIT_AMOUNT;
+        uint256 authorization = DEPOSIT_AMOUNT;
         abstractSablierV2.increaseAuthorization(users.funder, authorization);
     }
 
@@ -30,15 +30,15 @@ contract AbstractSablierV2__IncreaseAuthorization__UnitTest is AbstractSablierV2
     function testCannotIncreaseAuthorization__FunderZeroAddress() external {
         vm.expectRevert(ISablierV2.SablierV2__AuthorizeFunderZeroAddress.selector);
         address funder = address(0);
-        uint256 authorization = DEFAULT_DEPOSIT_AMOUNT;
+        uint256 authorization = DEPOSIT_AMOUNT;
         abstractSablierV2.increaseAuthorization(funder, authorization);
     }
 
     /// @dev When all checks pass, it should increase the authorization.
     function testIncreaseAuthorization() external {
-        uint256 authorization = DEFAULT_DEPOSIT_AMOUNT;
+        uint256 authorization = DEPOSIT_AMOUNT;
         abstractSablierV2.increaseAuthorization(users.funder, authorization);
-        uint256 expectedAuthorization = DEFAULT_DEPOSIT_AMOUNT;
+        uint256 expectedAuthorization = DEPOSIT_AMOUNT;
         uint256 actualAuthorization = abstractSablierV2.getAuthorization(users.sender, users.funder);
         assertEq(expectedAuthorization, actualAuthorization);
     }
@@ -46,7 +46,7 @@ contract AbstractSablierV2__IncreaseAuthorization__UnitTest is AbstractSablierV2
     /// @dev When all checks pass, it should emit an Authorize event.
     function testIncreaseAuthorization__Event() external {
         vm.expectEmit(true, true, false, true);
-        uint256 authorization = DEFAULT_DEPOSIT_AMOUNT;
+        uint256 authorization = DEPOSIT_AMOUNT;
         emit Authorize(users.sender, users.funder, authorization);
         abstractSablierV2.increaseAuthorization(users.funder, authorization);
     }

@@ -31,11 +31,11 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// CONSTANTS ///
 
-    uint256[] internal DEFAULT_SEGMENT_AMOUNTS = [bn(2_500), bn(7_500)];
-    SD59x18[] internal DEFAULT_SEGMENT_EXPONENTS = [sd59x18(1e17), sd59x18(5e17)];
-    uint256[] internal DEFAULT_SEGMENT_MILESTONES = [5_100 seconds, 10_100 seconds];
-    uint256 internal constant DEFAULT_TIME_OFFSET = 5_000 seconds;
-    uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT = bn(2_500);
+    uint256[] internal SEGMENT_AMOUNTS = [bn(2_500), bn(7_500)];
+    SD59x18[] internal SEGMENT_EXPONENTS = [sd59x18(1e17), sd59x18(5e17)];
+    uint256[] internal SEGMENT_MILESTONES = [5_100 seconds, 10_100 seconds];
+    uint256 internal constant TIME_OFFSET = 5_000 seconds;
+    uint256 internal immutable WITHDRAW_AMOUNT = bn(2_500);
 
     /// TESTING VARIABLES ///
 
@@ -49,14 +49,14 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         // Create the default stream to be used across many tests.
         stream = ISablierV2Pro.Stream({
             cancelable: true,
-            depositAmount: DEFAULT_DEPOSIT_AMOUNT,
+            depositAmount: DEPOSIT_AMOUNT,
             recipient: users.recipient,
-            segmentAmounts: DEFAULT_SEGMENT_AMOUNTS,
-            segmentExponents: DEFAULT_SEGMENT_EXPONENTS,
-            segmentMilestones: DEFAULT_SEGMENT_MILESTONES,
+            segmentAmounts: SEGMENT_AMOUNTS,
+            segmentExponents: SEGMENT_EXPONENTS,
+            segmentMilestones: SEGMENT_MILESTONES,
             sender: users.sender,
-            startTime: DEFAULT_START_TIME,
-            stopTime: DEFAULT_SEGMENT_MILESTONES[1],
+            startTime: START_TIME,
+            stopTime: SEGMENT_MILESTONES[1],
             token: usd,
             withdrawnAmount: 0
         });

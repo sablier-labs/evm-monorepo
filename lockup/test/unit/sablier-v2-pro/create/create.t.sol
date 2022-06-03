@@ -92,7 +92,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the deposit amount is zero, it should revert.
     function testCannotCreate__SegmentArraysLengthsNotEqual__SegmentExponents() external {
-        SD59x18[] memory segmentExponents = createDynamicArray(DEFAULT_SEGMENT_EXPONENTS[0]);
+        SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Pro.SablierV2Pro__SegmentArraysLengthsNotEqual.selector,
@@ -116,7 +116,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the deposit amount is zero, it should revert.
     function testCannotCreate__SegmentArraysLengthsNotEqual__SegmentMilestones() external {
-        uint256[] memory segmentMilestones = createDynamicArray(DEFAULT_SEGMENT_MILESTONES[0]);
+        uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Pro.SablierV2Pro__SegmentArraysLengthsNotEqual.selector,
@@ -163,9 +163,9 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the start time is equal to the stop time, it should create the stream.
     function testCreate__StartTimeEqualToStopTime() external {
-        uint256 depositAmount = DEFAULT_SEGMENT_AMOUNTS[0];
-        uint256[] memory segmentAmounts = createDynamicArray(DEFAULT_SEGMENT_AMOUNTS[0]);
-        SD59x18[] memory segmentExponents = createDynamicArray(DEFAULT_SEGMENT_EXPONENTS[0]);
+        uint256 depositAmount = SEGMENT_AMOUNTS[0];
+        uint256[] memory segmentAmounts = createDynamicArray(SEGMENT_AMOUNTS[0]);
+        SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         uint256[] memory segmentMilestones = createDynamicArray(stream.stopTime);
         uint256 streamId = sablierV2Pro.nextStreamId();
         sablierV2Pro.create(
@@ -211,10 +211,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the segment milestones are not ordered, it should revert.
     function testCannotCreate__SegmentMilestonesNotOrdered() external {
-        uint256[] memory segmentMilestones = createDynamicArray(
-            DEFAULT_SEGMENT_MILESTONES[1],
-            DEFAULT_SEGMENT_MILESTONES[0]
-        );
+        uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[1], SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Pro.SablierV2Pro__SegmentMilestonesNotOrdered.selector,
@@ -239,7 +236,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
     /// @dev When a segment exponent is out of bounds, it should revert.
     function testCannotCreate__SegmentExponentOutOfBounds() external {
         SD59x18 outOfBoundsExponent = sablierV2Pro.MAX_EXPONENT().uncheckedAdd(sd59x18(1));
-        SD59x18[] memory segmentExponents = createDynamicArray(DEFAULT_SEGMENT_EXPONENTS[0], outOfBoundsExponent);
+        SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0], outOfBoundsExponent);
         vm.expectRevert(
             abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentExponentOutOfBounds.selector, outOfBoundsExponent)
         );

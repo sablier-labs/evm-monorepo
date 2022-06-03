@@ -48,8 +48,8 @@ contract SablierV2Cliff__Withdraw__UnitTest is SablierV2CliffUnitTest {
         vm.startPrank(users.sender);
 
         // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
-        uint256 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
+        vm.warp(stream.startTime + TIME_OFFSET);
+        uint256 withdrawAmount = WITHDRAW_AMOUNT;
 
         // Run the test.
         sablierV2Cliff.withdraw(streamId, withdrawAmount);
@@ -115,19 +115,19 @@ contract SablierV2Cliff__Withdraw__UnitTest is SablierV2CliffUnitTest {
     /// @dev When the stream is ongoing, it should make the withdrawal.
     function testWithdraw__StreamOngoing() public {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
+        vm.warp(stream.startTime + TIME_OFFSET);
 
         // Run the test.
-        sablierV2Cliff.withdraw(streamId, DEFAULT_WITHDRAW_AMOUNT);
+        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT);
     }
 
     /// @dev When the stream is ongoing, it should update the withdrawn amount.
     function testWithdraw__StreamOngoing__UpdateWithdrawnAmount() public {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
+        vm.warp(stream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
+        uint256 withdrawnAmount = WITHDRAW_AMOUNT;
         uint256 expectedWithdrawnAmount = stream.withdrawnAmount + withdrawnAmount;
         sablierV2Cliff.withdraw(streamId, withdrawnAmount);
         ISablierV2Cliff.Stream memory stream = sablierV2Cliff.getStream(streamId);
@@ -138,11 +138,11 @@ contract SablierV2Cliff__Withdraw__UnitTest is SablierV2CliffUnitTest {
     /// @dev When the stream is ongoing, it should emit a Withdraw event.
     function testWithdraw__StreamOngoing__Event() public {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
+        vm.warp(stream.startTime + TIME_OFFSET);
 
         // Run the test.
         vm.expectEmit(true, true, false, true);
-        uint256 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
+        uint256 withdrawAmount = WITHDRAW_AMOUNT;
         emit Withdraw(streamId, stream.recipient, withdrawAmount);
         sablierV2Cliff.withdraw(streamId, withdrawAmount);
     }

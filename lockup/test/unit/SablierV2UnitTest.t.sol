@@ -26,14 +26,14 @@ abstract contract SablierV2UnitTest is DSTest {
 
     /// CONSTANTS ///
 
-    uint256 internal constant DEFAULT_CLIFF_DURATION = 2_500 seconds;
-    uint256 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
+    uint256 internal constant CLIFF_DURATION = 2_500 seconds;
+    uint256 internal constant TOTAL_DURATION = 10_000 seconds;
     uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
 
-    uint256 internal immutable DEFAULT_CLIFF_TIME;
-    uint256 internal immutable DEFAULT_DEPOSIT_AMOUNT;
-    uint256 internal immutable DEFAULT_START_TIME;
-    uint256 internal immutable DEFAULT_STOP_TIME;
+    uint256 internal immutable CLIFF_TIME;
+    uint256 internal immutable DEPOSIT_AMOUNT;
+    uint256 internal immutable START_TIME;
+    uint256 internal immutable STOP_TIME;
 
     /// STRUCTS ///
 
@@ -60,10 +60,10 @@ abstract contract SablierV2UnitTest is DSTest {
         vm.warp(STARTING_BLOCK_TIMESTAMP);
 
         // Initialize the default stream values.
-        DEFAULT_CLIFF_TIME = block.timestamp + DEFAULT_CLIFF_DURATION;
-        DEFAULT_DEPOSIT_AMOUNT = bn(10_000);
-        DEFAULT_START_TIME = block.timestamp;
-        DEFAULT_STOP_TIME = block.timestamp + DEFAULT_TOTAL_DURATION;
+        CLIFF_TIME = block.timestamp + CLIFF_DURATION;
+        DEPOSIT_AMOUNT = bn(10_000);
+        START_TIME = block.timestamp;
+        STOP_TIME = block.timestamp + TOTAL_DURATION;
 
         // Create 4 users for testing. Order matters.
         users = Users({ sender: getNextUser(), recipient: getNextUser(), funder: getNextUser(), eve: getNextUser() });

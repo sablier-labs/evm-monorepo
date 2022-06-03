@@ -28,8 +28,8 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
 
     /// CONSTANTS ///
 
-    uint256 internal constant DEFAULT_TIME_OFFSET = 2_600 seconds;
-    uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT = bn(2_600);
+    uint256 internal constant TIME_OFFSET = 2_600 seconds;
+    uint256 internal immutable WITHDRAW_AMOUNT = bn(2_600);
 
     /// TESTING VARIABLES ///
 
@@ -43,12 +43,12 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
         // Create the default stream to be used across many tests.
         stream = ISablierV2Cliff.Stream({
             cancelable: true,
-            cliffTime: DEFAULT_CLIFF_TIME,
-            depositAmount: DEFAULT_DEPOSIT_AMOUNT,
+            cliffTime: CLIFF_TIME,
+            depositAmount: DEPOSIT_AMOUNT,
             recipient: users.recipient,
             sender: users.sender,
-            startTime: DEFAULT_START_TIME,
-            stopTime: DEFAULT_STOP_TIME,
+            startTime: START_TIME,
+            stopTime: STOP_TIME,
             token: usd,
             withdrawnAmount: 0
         });

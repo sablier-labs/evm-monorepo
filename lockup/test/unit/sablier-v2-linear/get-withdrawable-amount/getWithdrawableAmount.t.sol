@@ -50,8 +50,8 @@ contract SablierV2Linear__GetWithdrawableAmount__UnitTest is SablierV2LinearUnit
     /// return the deposit amount minus the withdrawn amount.
     function testGetWithdrawableAmount__CurrentTimeGreaterThanStopTime__WithWithdrawals() external {
         vm.warp(stream.stopTime + 1 seconds);
-        sablierV2Linear.withdraw(streamId, DEFAULT_WITHDRAW_AMOUNT);
-        uint256 expectedWithdrawableAmount = stream.depositAmount - DEFAULT_WITHDRAW_AMOUNT;
+        sablierV2Linear.withdraw(streamId, WITHDRAW_AMOUNT);
+        uint256 expectedWithdrawableAmount = stream.depositAmount - WITHDRAW_AMOUNT;
         uint256 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
         assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
     }
@@ -69,8 +69,8 @@ contract SablierV2Linear__GetWithdrawableAmount__UnitTest is SablierV2LinearUnit
     /// return the deposit amount minus the withdrawn amount.
     function testGetWithdrawableAmount__CurrentTimeEqualToStopTime__WithWithdrawals() external {
         vm.warp(stream.stopTime);
-        sablierV2Linear.withdraw(streamId, DEFAULT_WITHDRAW_AMOUNT);
-        uint256 expectedWithdrawableAmount = stream.depositAmount - DEFAULT_WITHDRAW_AMOUNT;
+        sablierV2Linear.withdraw(streamId, WITHDRAW_AMOUNT);
+        uint256 expectedWithdrawableAmount = stream.depositAmount - WITHDRAW_AMOUNT;
         uint256 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
         assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
     }
@@ -78,8 +78,8 @@ contract SablierV2Linear__GetWithdrawableAmount__UnitTest is SablierV2LinearUnit
     /// @dev When the current time is less than the stop time and there have been no withdrawals, it should
     /// return the correct withdrawable amount.
     function testGetWithdrawableAmount__CurrentTimeLessThanStopTime__NoWithdrawals() external {
-        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
-        uint256 expectedWithdrawableAmount = DEFAULT_WITHDRAW_AMOUNT;
+        vm.warp(stream.startTime + TIME_OFFSET);
+        uint256 expectedWithdrawableAmount = WITHDRAW_AMOUNT;
         uint256 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
         assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
     }
@@ -87,8 +87,8 @@ contract SablierV2Linear__GetWithdrawableAmount__UnitTest is SablierV2LinearUnit
     /// @dev When the current time is less than the stop time and there have been withdrawals, it should
     /// return the correct withdrawable amount.
     function testGetWithdrawableAmount__CurrentTimeLessThanStopTime__WithWithdrawals() external {
-        vm.warp(stream.startTime + DEFAULT_TIME_OFFSET);
-        sablierV2Linear.withdraw(streamId, DEFAULT_WITHDRAW_AMOUNT);
+        vm.warp(stream.startTime + TIME_OFFSET);
+        sablierV2Linear.withdraw(streamId, WITHDRAW_AMOUNT);
         uint256 expectedWithdrawableAmount = 0;
         uint256 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
         assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);

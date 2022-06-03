@@ -27,8 +27,8 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
 
     /// CONSTANTS ///
 
-    uint256 internal constant DEFAULT_TIME_OFFSET = 100 seconds;
-    uint256 internal immutable DEFAULT_WITHDRAW_AMOUNT = bn(100);
+    uint256 internal constant TIME_OFFSET = 100 seconds;
+    uint256 internal immutable WITHDRAW_AMOUNT = bn(100);
 
     /// TESTING VARIABLES ///
 
@@ -42,11 +42,11 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         // Create the default stream to be used across many tests.
         stream = ISablierV2Linear.Stream({
             cancelable: true,
-            depositAmount: DEFAULT_DEPOSIT_AMOUNT,
+            depositAmount: DEPOSIT_AMOUNT,
             recipient: users.recipient,
             sender: users.sender,
-            startTime: DEFAULT_START_TIME,
-            stopTime: DEFAULT_STOP_TIME,
+            startTime: START_TIME,
+            stopTime: STOP_TIME,
             token: usd,
             withdrawnAmount: 0
         });
