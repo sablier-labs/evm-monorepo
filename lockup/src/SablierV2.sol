@@ -46,7 +46,51 @@ abstract contract SablierV2 is ISablierV2 {
         authorizeInternal(sender, funder, newAuthorization);
     }
 
-    /// INTERNAL FUNCTIONS ///
+    /// INTERNAL CONSTANT FUNCTIONS ///
+
+    /// @dev This function checks basic requiremenets for `create` function.
+    function checkBasicRequiremenets(
+        address sender,
+        address recipient,
+        uint256 depositAmount,
+        uint256 startTime,
+        uint256 stopTime
+    ) internal pure {
+        // Checks: the sender is not the zero address.
+        if (sender == address(0)) {
+            revert SablierV2__SenderZeroAddress();
+        }
+
+        // Checks: the recipient is not the zero address.
+        if (recipient == address(0)) {
+            revert SablierV2__RecipientZeroAddress();
+        }
+
+        // Checks: the deposit amount is not zero.
+        if (depositAmount == 0) {
+            revert SablierV2__DepositAmountZero();
+        }
+
+        // Checks: the start time is not greater than the stop time.
+        if (startTime > stopTime) {
+            revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
+        }
+    }
+
+    /// @dev This function checks if two lengths are equal to each other and greater than zero.
+    function checkLengths(uint256 lengthOne, uint256 lengthTwo) internal pure returns (uint256 length) {
+        if (lengthOne != lengthTwo) {
+            revert SablierV2__ArraysLengthNotEqual(lengthOne, lengthTwo);
+        }
+
+        if (lengthOne == 0) {
+            revert SablierV2__ArrayLengthZero();
+        }
+
+        length = lengthOne;
+    }
+
+    /// INTERNAL NON-CONSTANT FUNCTIONS ///
 
     /// @dev See the documentation for the public functions that call this internal function.
     function authorizeInternal(

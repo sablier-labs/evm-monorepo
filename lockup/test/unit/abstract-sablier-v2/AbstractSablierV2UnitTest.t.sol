@@ -1,3 +1,4 @@
+/* solhint-disable var-name-mixedcase */
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
@@ -34,6 +35,11 @@ contract AbstractSablierV2 is SablierV2 {
     }
 
     /// @inheritdoc ISablierV2
+    function cancelAll(uint256[] calldata streamIds) external pure override {
+        streamIds;
+    }
+
+    /// @inheritdoc ISablierV2
     function renounce(uint256 streamId) external pure override {
         streamId;
     }
@@ -42,6 +48,34 @@ contract AbstractSablierV2 is SablierV2 {
     function withdraw(uint256 streamId, uint256 amount) external pure override {
         streamId;
         amount;
+    }
+
+    /// @inheritdoc ISablierV2
+    function withdrawAll(uint256[] calldata streamIds, uint256[] calldata amounts) external pure override {
+        streamIds;
+        amounts;
+    }
+
+    /// @inheritdoc ISablierV2
+    function withdrawTo(
+        uint256 streamId,
+        uint256 amount,
+        address to
+    ) external pure override {
+        streamId;
+        amount;
+        to;
+    }
+
+    /// @inheritdoc ISablierV2
+    function withdrawAllTo(
+        uint256[] calldata streamIds,
+        uint256[] calldata amounts,
+        address to
+    ) external pure override {
+        streamIds;
+        amounts;
+        to;
     }
 }
 

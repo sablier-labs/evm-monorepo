@@ -154,36 +154,25 @@ contract SablierV2Pro is
     /// PUBLIC NON-CONSTANT FUNCTIONS ///
 
     /// @inheritdoc ISablierV2
-    function cancel(uint256 streamId) external streamExists(streamId) onlySenderOrRecipient(streamId) {
-        Stream memory stream = streams[streamId];
+    function cancel(uint256 streamId) external {
+        cancelInternal(streamId);
+    }
 
-        // Checks: the stream is cancelable.
-        if (!stream.cancelable) {
-            revert SablierV2__StreamNonCancelable(streamId);
+    /// @inheritdoc ISablierV2
+    function cancelAll(uint256[] calldata streamIds) external {
+        uint256 length = streamIds.length;
+
+        if (length == 0) {
+            revert SablierV2__ArrayLengthZero();
         }
 
-        // Calculate the pay and the return amounts.
-        uint256 withdrawAmount = getWithdrawableAmount(streamId);
-        uint256 returnAmount;
-        unchecked {
-            returnAmount = stream.depositAmount - stream.withdrawnAmount - withdrawAmount;
+        for (uint256 i = 0; i < length; ) {
+            cancelInternal(streamIds[i]);
+
+            unchecked {
+                i += 1;
+            }
         }
-
-        // Effects: delete the stream from storage.
-        delete streams[streamId];
-
-        // Interactions: withdraw the tokens to the recipient, if any.
-        if (withdrawAmount > 0) {
-            stream.token.safeTransfer(stream.recipient, withdrawAmount);
-        }
-
-        // Interactions: return the tokens to the sender, if any.
-        if (returnAmount > 0) {
-            stream.token.safeTransfer(stream.sender, returnAmount);
-        }
-
-        // Emit an event.
-        emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
     }
 
     /// @inheritdoc ISablierV2Pro
@@ -280,40 +269,75 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2
-    function withdraw(uint256 streamId, uint256 amount)
-        external
-        streamExists(streamId)
-        onlySenderOrRecipient(streamId)
-    {
-        // Checks: the amount cannot be zero.
-        if (amount == 0) {
-            revert SablierV2__WithdrawAmountZero(streamId);
+    function withdraw(uint256 streamId, uint256 amount) external {
+        address to = streams[streamId].recipient;
+
+        withdrawInternal(streamId, amount, to);
+    }
+
+    /// @inheritdoc ISablierV2
+    function withdrawAll(uint256[] calldata streamIds, uint256[] calldata amounts) external {
+        address to;
+        uint256 length = checkLengths(streamIds.length, amounts.length);
+
+        for (uint256 i = 0; i < length; ) {
+            to = streams[streamIds[i]].recipient;
+            withdrawInternal(streamIds[i], amounts[i], to);
+
+            unchecked {
+                i += 1;
+            }
+        }
+    }
+
+    /// @inheritdoc ISablierV2
+    function withdrawTo(
+        uint256 streamId,
+        uint256 amount,
+        address to
+    ) external streamExists(streamId) {
+        // Checks: the `msg.sender` is the recipient of the stream.
+        if (msg.sender != streams[streamId].recipient) {
+            revert SablierV2__Unauthorized(streamId, msg.sender);
         }
 
-        // Checks: the amount cannot be greater than what can be withdrawn.
-        uint256 withdrawableAmount = getWithdrawableAmount(streamId);
-        if (amount > withdrawableAmount) {
-            revert SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);
+        // Checks: the address that will receive the tokens is not zero.
+        if (to == address(0)) {
+            revert SablierV2__WithdrawZeroAddress();
         }
 
-        // Effects: update the withdrawn amount.
-        unchecked {
-            streams[streamId].withdrawnAmount += amount;
+        withdrawInternal(streamId, amount, to);
+    }
+
+    /// @inheritdoc ISablierV2
+    function withdrawAllTo(
+        uint256[] calldata streamIds,
+        uint256[] calldata amounts,
+        address to
+    ) external {
+        // Checks: the address that will receive the tokens is not zero.
+        if (to == address(0)) {
+            revert SablierV2__WithdrawZeroAddress();
         }
 
-        // Load the stream in memory, we will need it later.
-        Stream memory stream = streams[streamId];
+        uint256 length = checkLengths(streamIds.length, amounts.length);
 
-        // Effects: if this stream is done, save gas by deleting it from storage.
-        if (stream.depositAmount == stream.withdrawnAmount) {
-            delete streams[streamId];
+        for (uint256 i = 0; i < length; ) {
+            // Checks: `streamId` points to a stream that exists.
+            if (streams[streamIds[i]].sender == address(0)) {
+                revert SablierV2__StreamNonExistent(streamIds[i]);
+            }
+            // Checks: the `msg.sender` is the recipient of all the streams.
+            if (msg.sender != streams[streamIds[i]].recipient) {
+                revert SablierV2__Unauthorized(streamIds[i], msg.sender);
+            }
+
+            withdrawInternal(streamIds[i], amounts[i], to);
+
+            unchecked {
+                i += 1;
+            }
         }
-
-        // Interactions: perform the ERC-20 transfer.
-        stream.token.safeTransfer(stream.recipient, amount);
-
-        // Emit an event.
-        emit Withdraw(streamId, stream.recipient, amount);
     }
 
     /// INTERNAL CONSTANT FUNCTIONS ///
@@ -414,6 +438,39 @@ contract SablierV2Pro is
     /// INTERNAL NON-CONSTANT FUNCTIONS ///
 
     /// @dev See the documentation for the public functions that call this internal function.
+    function cancelInternal(uint256 streamId) internal streamExists(streamId) onlySenderOrRecipient(streamId) {
+        Stream memory stream = streams[streamId];
+
+        // Checks: the stream is cancelable.
+        if (!stream.cancelable) {
+            revert SablierV2__StreamNonCancelable(streamId);
+        }
+
+        // Calculate the pay and the return amounts.
+        uint256 withdrawAmount = getWithdrawableAmount(streamId);
+        uint256 returnAmount;
+        unchecked {
+            returnAmount = stream.depositAmount - stream.withdrawnAmount - withdrawAmount;
+        }
+
+        // Effects: delete the stream from storage.
+        delete streams[streamId];
+
+        // Interactions: withdraw the tokens to the recipient, if any.
+        if (withdrawAmount > 0) {
+            stream.token.safeTransfer(stream.recipient, withdrawAmount);
+        }
+
+        // Interactions: return the tokens to the sender, if any.
+        if (returnAmount > 0) {
+            stream.token.safeTransfer(stream.sender, returnAmount);
+        }
+
+        // Emit an event.
+        emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
+    }
+
+    /// @dev See the documentation for the public functions that call this internal function.
     function createInternal(
         address from,
         address sender,
@@ -426,29 +483,12 @@ contract SablierV2Pro is
         uint256[] memory segmentMilestones,
         bool cancelable
     ) internal returns (uint256 streamId) {
-        // Checks: the sender is not the zero address.
-        if (sender == address(0)) {
-            revert SablierV2__SenderZeroAddress();
-        }
-
-        // Checks: the recipient is not the zero address.
-        if (recipient == address(0)) {
-            revert SablierV2__RecipientZeroAddress();
-        }
-
-        // Checks: the deposit amount is not zero.
-        if (depositAmount == 0) {
-            revert SablierV2__DepositAmountZero();
-        }
-
         // Checks: segments arrays lengths match.
         uint256 length = checkSegmentArraysLength(segmentAmounts, segmentExponents, segmentMilestones);
 
-        // Checks: the start time is not greater than the stop time.
         uint256 stopTime = segmentMilestones[length - 1];
-        if (startTime > stopTime) {
-            revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
-        }
+        // Checks: requirements for `create` function.
+        checkBasicRequiremenets(sender, recipient, depositAmount, startTime, stopTime);
 
         // Checks: soundness of segments variables.
         checkSegmentsSoundness(depositAmount, startTime, segmentAmounts, segmentExponents, segmentMilestones, length);
@@ -491,5 +531,42 @@ contract SablierV2Pro is
             segmentMilestones,
             cancelable
         );
+    }
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function withdrawInternal(
+        uint256 streamId,
+        uint256 amount,
+        address to
+    ) internal streamExists(streamId) onlySenderOrRecipient(streamId) {
+        // Checks: the amount cannot be zero.
+        if (amount == 0) {
+            revert SablierV2__WithdrawAmountZero(streamId);
+        }
+
+        // Checks: the amount cannot be greater than what can be withdrawn.
+        uint256 withdrawableAmount = getWithdrawableAmount(streamId);
+        if (amount > withdrawableAmount) {
+            revert SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);
+        }
+
+        // Effects: update the withdrawn amount.
+        unchecked {
+            streams[streamId].withdrawnAmount += amount;
+        }
+
+        // Load the stream in memory, we will need it later.
+        Stream memory stream = streams[streamId];
+
+        // Effects: if this stream is done, save gas by deleting it from storage.
+        if (stream.depositAmount == stream.withdrawnAmount) {
+            delete streams[streamId];
+        }
+
+        // Interactions: perform the ERC-20 transfer.
+        stream.token.safeTransfer(to, amount);
+
+        // Emit an event.
+        emit Withdraw(streamId, to, amount);
     }
 }
