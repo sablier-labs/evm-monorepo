@@ -161,8 +161,7 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
     /// @dev When the cliff time is the equal to the stop time, it should create the stream.
     /// TODO: fix this
     function testCreate__CliffTimeEqualToStopTime() external {
-        uint256 stopTime = stream.startTime;
-        uint256 cliffTime = stream.startTime;
+        uint256 cliffTime = stream.stopTime;
         uint256 streamId = sablierV2Cliff.nextStreamId();
         sablierV2Cliff.create(
             stream.sender,
@@ -170,7 +169,7 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
             stream.depositAmount,
             stream.token,
             stream.startTime,
-            stopTime,
+            stream.stopTime,
             cliffTime,
             stream.cancelable
         );
@@ -181,7 +180,7 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
         assertEq(stream.token, createdStream.token);
         assertEq(stream.startTime, createdStream.startTime);
         assertEq(cliffTime, createdStream.cliffTime);
-        assertEq(stopTime, createdStream.stopTime);
+        assertEq(stream.stopTime, createdStream.stopTime);
         assertEq(stream.cancelable, createdStream.cancelable);
         assertEq(stream.withdrawnAmount, createdStream.withdrawnAmount);
     }
