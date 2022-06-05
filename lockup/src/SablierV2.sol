@@ -33,6 +33,31 @@ abstract contract SablierV2 is ISablierV2 {
     /// NON-CONSTANT FUNCTIONS ///
 
     /// @inheritdoc ISablierV2
+    function cancel(uint256 streamId) external {
+        cancelInternal(streamId);
+    }
+
+    /// @inheritdoc ISablierV2
+    function cancelAll(uint256[] calldata streamIds) external {
+        // Checks: `streamIds` is non-empty.
+        uint256 length = streamIds.length;
+        if (length == 0) {
+            revert SablierV2__StreamIdsArrayEmpty();
+        }
+
+        // Iterate over the provided array of stream ids and cancel each stream.
+        for (uint256 i = 0; i < length; ) {
+            // Effects: cancel the stream.
+            cancelInternal(streamIds[i]);
+
+            // Increment the for loop iterator.
+            unchecked {
+                i += 1;
+            }
+        }
+    }
+
+    /// @inheritdoc ISablierV2
     function decreaseAuthorization(address funder, uint256 amount) public virtual override {
         address sender = msg.sender;
         uint256 newAuthorization = authorizations[sender][funder] - amount;
@@ -77,19 +102,6 @@ abstract contract SablierV2 is ISablierV2 {
         }
     }
 
-    /// @dev This function checks if two lengths are equal to each other and greater than zero.
-    function checkLengths(uint256 lengthOne, uint256 lengthTwo) internal pure returns (uint256 length) {
-        if (lengthOne != lengthTwo) {
-            revert SablierV2__ArraysLengthNotEqual(lengthOne, lengthTwo);
-        }
-
-        if (lengthOne == 0) {
-            revert SablierV2__ArrayLengthZero();
-        }
-
-        length = lengthOne;
-    }
-
     /// INTERNAL NON-CONSTANT FUNCTIONS ///
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -114,4 +126,7 @@ abstract contract SablierV2 is ISablierV2 {
         // Emit an event.
         emit Authorize(sender, funder, amount);
     }
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function cancelInternal(uint256 streamId) internal virtual;
 }

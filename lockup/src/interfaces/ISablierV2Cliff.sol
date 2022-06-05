@@ -71,12 +71,12 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
-    /// - `sender` cannot be the zero address.
-    /// - `recipient` cannot be the zero address.
-    /// - `depositAmount` cannot be zero.
-    /// - `startTime` cannot be greater than `stopTime`.
-    /// - `startTime` cannot be greater than cliffTime`.
-    /// - `cliffTime` cannot be greater than `stopTime`.
+    /// - `sender` must not the zero address.
+    /// - `recipient` must not the zero address.
+    /// - `depositAmount` must not zero.
+    /// - `startTime` must not greater than `stopTime`.
+    /// - `startTime` must not greater than cliffTime`.
+    /// - `cliffTime` must not greater than `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param sender The address from which to stream the money with cliff.
@@ -105,10 +105,10 @@ interface ISablierV2Cliff is ISablierV2 {
     ///
     /// Requirements:
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
-    /// - `sender` cannot be the zero address.
-    /// - `recipient` cannot be the zero address.
-    /// - `depositAmount` cannot be zero.
-    /// - `startTime` cannot be greater than `stopTime`.
+    /// - `sender` must not the zero address.
+    /// - `recipient` must not the zero address.
+    /// - `depositAmount` must not zero.
+    /// - `startTime` must not greater than `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param from The address which funds the stream.

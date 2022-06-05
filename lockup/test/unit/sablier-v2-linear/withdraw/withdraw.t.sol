@@ -28,7 +28,7 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
         sablierV2Linear.withdraw(nonStreamId, withdrawAmount);
     }
 
-    /// @dev When the stream does not exist, it should revert.
+    /// @dev When the caller is an unauthorized third-party, it should revert.
     function testCannotWithdraw__Unauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);

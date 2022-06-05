@@ -103,10 +103,10 @@ interface ISablierV2Pro is ISablierV2 {
     /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
-    /// - `sender` cannot be the zero address.
-    /// - `recipient` cannot be the zero address.
-    /// - `depositAmount` cannot be zero.
-    /// - `startTime` cannot be greater than `stopTime`.
+    /// - `sender` must not the zero address.
+    /// - `recipient` must not the zero address.
+    /// - `depositAmount` must not zero.
+    /// - `startTime` must not greater than `stopTime`.
     /// - `segmentAmounts` must be non-empty and not greater than five elements.
     /// - `segmentAmounts` summed up must be equal to 'depositAmount'.
     /// - `segmentExponents` must be non-empty and not greater than five elements.
@@ -144,10 +144,10 @@ interface ISablierV2Pro is ISablierV2 {
     ///
     /// Requirements:
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
-    /// - `sender` cannot be the zero address.
-    /// - `recipient` cannot be the zero address.
-    /// - `depositAmount` cannot be zero.
-    /// - `startTime` cannot be greater than `stopTime`.
+    /// - `sender` must not the zero address.
+    /// - `recipient` must not the zero address.
+    /// - `depositAmount` must not zero.
+    /// - `startTime` must not greater than `stopTime`.
     /// - `segmentAmounts` must be non-empty and not greater than five elements.
     /// - `segmentAmounts` summed up must be equal to 'depositAmount'.
     /// - `segmentExponents` must be non-empty and not greater than five elements.
