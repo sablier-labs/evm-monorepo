@@ -131,10 +131,10 @@ contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
     /// @dev When all checks pass, it should bump the next stream id.
     function testCreate__NextStreamId() external {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
-        uint256 expectedNextStreamId = nextStreamId + 1;
         createDefaultStream();
         uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
-        assertEq(expectedNextStreamId, actualNextStreamId);
+        uint256 expectedNextStreamId = nextStreamId + 1;
+        assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
     /// @dev When all checks pass, it should emit a CreateStream event.

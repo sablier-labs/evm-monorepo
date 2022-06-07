@@ -236,10 +236,10 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
     /// @dev When all checks pass, it should bump the next stream id.
     function testCreate__NextStreamId() external {
         uint256 nextStreamId = sablierV2Cliff.nextStreamId();
-        uint256 expectedNextStreamId = nextStreamId + 1;
         createDefaultStream();
         uint256 actualNextStreamId = sablierV2Cliff.nextStreamId();
-        assertEq(expectedNextStreamId, actualNextStreamId);
+        uint256 expectedNextStreamId = nextStreamId + 1;
+        assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
     /// @dev When all checks pass, it should emit a CreateStream event.

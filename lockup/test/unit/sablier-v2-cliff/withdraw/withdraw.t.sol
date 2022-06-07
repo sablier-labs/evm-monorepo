@@ -92,9 +92,9 @@ contract SablierV2Cliff__Withdraw__UnitTest is SablierV2CliffUnitTest {
         // Run the test.
         uint256 withdrawAmount = stream.depositAmount;
         sablierV2Cliff.withdraw(streamId, withdrawAmount);
-        ISablierV2Cliff.Stream memory expectedStream;
         ISablierV2Cliff.Stream memory deletedStream = sablierV2Cliff.getStream(streamId);
-        assertEq(expectedStream, deletedStream);
+        ISablierV2Cliff.Stream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
     }
 
     /// @dev When the stream ended, it should emit a Withdraw event.
@@ -125,11 +125,11 @@ contract SablierV2Cliff__Withdraw__UnitTest is SablierV2CliffUnitTest {
 
         // Run the test.
         uint256 withdrawnAmount = WITHDRAW_AMOUNT;
-        uint256 expectedWithdrawnAmount = stream.withdrawnAmount + withdrawnAmount;
         sablierV2Cliff.withdraw(streamId, withdrawnAmount);
-        ISablierV2Cliff.Stream memory stream = sablierV2Cliff.getStream(streamId);
-        uint256 actualWithdrawnAmount = stream.withdrawnAmount;
-        assertEq(expectedWithdrawnAmount, actualWithdrawnAmount);
+        ISablierV2Cliff.Stream memory queriedStream = sablierV2Cliff.getStream(streamId);
+        uint256 actualWithdrawnAmount = queriedStream.withdrawnAmount;
+        uint256 expectedWithdrawnAmount = stream.withdrawnAmount + withdrawnAmount;
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
     /// @dev When the stream is ongoing, it should emit a Withdraw event.

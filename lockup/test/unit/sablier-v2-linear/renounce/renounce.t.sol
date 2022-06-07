@@ -58,8 +58,8 @@ contract SablierV2Linear__Renounce__UnitTest is SablierV2LinearUnitTest {
     /// @dev When all checks pass, it should make the stream non-cancelable.
     function testRenounce() external {
         sablierV2Linear.renounce(streamId);
-        ISablierV2Linear.Stream memory stream = sablierV2Linear.getStream(streamId);
-        assertEq(stream.cancelable, false);
+        ISablierV2Linear.Stream memory queriedStream = sablierV2Linear.getStream(streamId);
+        assertEq(queriedStream.cancelable, false);
     }
 
     /// @dev When all checks pass, it should emit a Renounce event.

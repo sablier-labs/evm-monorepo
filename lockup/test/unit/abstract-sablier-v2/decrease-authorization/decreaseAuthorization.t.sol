@@ -19,9 +19,9 @@ contract AbstractSablierV2__DecreaseAuthorization__UnitTest is AbstractSablierV2
         uint256 authorization = DEPOSIT_AMOUNT;
         abstractSablierV2.increaseAuthorization(users.funder, authorization);
         abstractSablierV2.decreaseAuthorization(users.funder, authorization);
-        uint256 expectedAuthorization = 0;
         uint256 actualAuthorization = abstractSablierV2.getAuthorization(users.sender, users.funder);
-        assertEq(expectedAuthorization, actualAuthorization);
+        uint256 expectedAuthorization = 0;
+        assertEq(actualAuthorization, expectedAuthorization);
     }
 
     /// @dev When all checks pass, it should emit an Authorize event.

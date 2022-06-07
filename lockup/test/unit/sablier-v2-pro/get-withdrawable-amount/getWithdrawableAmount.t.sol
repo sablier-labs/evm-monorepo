@@ -20,24 +20,24 @@ contract SablierV2Pro__GetWithdrawableAmount__BasicsUnitTest is SablierV2ProUnit
     /// @dev When the stream does not exist, it should return zero.
     function testGetWithdrawableAmount__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint256 expectedWithdrawableAmount = 0;
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(nonStreamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = 0;
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the start time is greater than the block timestamp, it should return zero.
     function testGetWithdrawableAmount__StartTimeGreaterThanBlockTimestamp() external {
         vm.warp(stream.startTime - 1 seconds);
-        uint256 expectedWithdrawableAmount = 0;
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = 0;
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the start time is equal to the block timestamp, it should return zero.
     function testGetWithdrawableAmount__StartTimeEqualToBlockTimestamp() external {
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
         uint256 expectedWithdrawableAmount = 0;
-        uint256 withdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, withdrawableAmount);
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the current time is greater than the stop time and there have been withdrawals, it should
@@ -46,18 +46,18 @@ contract SablierV2Pro__GetWithdrawableAmount__BasicsUnitTest is SablierV2ProUnit
         vm.warp(stream.stopTime + 1 seconds);
         uint256 withdrawAmount = bn(2_500);
         sablierV2Pro.withdraw(streamId, withdrawAmount);
-        uint256 expectedWithdrawableAmount = stream.depositAmount - withdrawAmount;
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = stream.depositAmount - withdrawAmount;
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the current time is greater than the stop time and there have been no withdrawals, it should
     /// return the deposit amount.
     function testGetWithdrawableAmount__CurrentTimeGreaterThanStopTime__NoWithdrawals() external {
         vm.warp(stream.stopTime + 1 seconds);
-        uint256 expectedWithdrawableAmount = stream.depositAmount;
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = stream.depositAmount;
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the current time is equal to the stop time and there have been withdrawals, it should
@@ -66,18 +66,18 @@ contract SablierV2Pro__GetWithdrawableAmount__BasicsUnitTest is SablierV2ProUnit
         vm.warp(stream.stopTime);
         uint256 withdrawAmount = bn(2_500);
         sablierV2Pro.withdraw(streamId, withdrawAmount);
-        uint256 expectedWithdrawableAmount = stream.depositAmount - withdrawAmount;
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = stream.depositAmount - withdrawAmount;
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the current time is equal to the stop time and there have been no withdrawals, it should
     /// return the deposit amount.
     function testGetWithdrawableAmount__CurrentTimeEqualToStopTime__NoWithdrawals() external {
         vm.warp(stream.stopTime);
-        uint256 expectedWithdrawableAmount = stream.depositAmount;
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = stream.depositAmount;
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 }
 
@@ -124,27 +124,27 @@ contract SablierV2Pro__GetWithdrawableAmount__SegmentsUnitTest is SablierV2ProUn
         );
 
         vm.warp(stream.startTime + 2_000 seconds); // 2,000 seconds is 20% of the stream duration.
-        uint256 expectedWithdrawableAmount = 4472.13595499957941e18; // ~10,000*0.2^{0.5}
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = 4472.13595499957941e18; // ~10,000*0.2^{0.5}
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When there are multiple segments and the current milestone is the 1st in the array,
     /// it should return the correct withdrawable amount.
     function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone__1st() external {
         vm.warp(stream.startTime + 500 seconds); // 500 seconds is 25% of the way in the first segment.
-        uint256 expectedWithdrawableAmount = 25.73721928961166e18; // ~2,000*0.25^{3.14}
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = 25.73721928961166e18; // ~2,000*0.25^{3.14}
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When there are multiple segments and the current milestone is the 2nd in the array,
     /// it should return the correct withdrawable amount.
     function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone__2nd() external {
         vm.warp(stream.startTime + 2_800 seconds); // 2,800 seconds is 10% of the way in the second segment.
-        uint256 expectedWithdrawableAmount = SEGMENT_AMOUNTS[0] + 2529.822128134703472e18; // 2nd term: ~8,000*0.1^{0.5}
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = SEGMENT_AMOUNTS[0] + 2529.822128134703472e18; // 2nd term: ~8,000*0.1^{0.5}
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When there are multiple segments and the current milestone is the 200th in the array,
@@ -183,9 +183,9 @@ contract SablierV2Pro__GetWithdrawableAmount__SegmentsUnitTest is SablierV2ProUn
             vm.warp(stream.stopTime - segmentDuration / 2);
 
             // The 3rd term is 50*0.5^e
-            uint256 expectedWithdrawableAmount = segmentAmount * (count - 1) + 7.59776116289564825e18;
             uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-            assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+            uint256 expectedWithdrawableAmount = segmentAmount * (count - 1) + 7.59776116289564825e18;
+            assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
         }
     }
 }

@@ -81,9 +81,9 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
 
         // Run the test.
         sablierV2Cliff.cancel(streamId);
-        ISablierV2Cliff.Stream memory expectedStream;
         ISablierV2Cliff.Stream memory deletedStream = sablierV2Cliff.getStream(streamId);
-        assertEq(expectedStream, deletedStream);
+        ISablierV2Cliff.Stream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
     }
 
     /// @dev When the stream ended, it should emit a Cancel event.
@@ -115,9 +115,9 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
 
         // Run the test.
         sablierV2Cliff.cancel(streamId);
-        ISablierV2Cliff.Stream memory expectedStream;
         ISablierV2Cliff.Stream memory deletedStream = sablierV2Cliff.getStream(streamId);
-        assertEq(expectedStream, deletedStream);
+        ISablierV2Cliff.Stream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
     }
 
     /// @dev When the stream is ongoing, it should emit a Cancel event.
