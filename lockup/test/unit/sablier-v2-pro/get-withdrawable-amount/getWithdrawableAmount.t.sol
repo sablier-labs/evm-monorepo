@@ -93,7 +93,18 @@ contract SablierV2Pro__GetWithdrawableAmount__SegmentsUnitTest is SablierV2ProUn
         streamId = createDefaultStream();
     }
 
-    /// @dev When there is one segment, it should return the correct withdrawable amount.
+    /// @dev When there have been withdrawals, it should return the correct withdrawable amount.
+    function testGetWithdrawableAmount__WithWithdrawals() external {
+        vm.warp(stream.startTime + 500 seconds); // 500 seconds is 25% of the way in the first segment.
+        uint256 withdrawAmount = bn(5);
+        sablierV2Pro.withdraw(streamId, withdrawAmount);
+        uint256 expectedWithdrawableAmount = 25.73721928961166e18 - withdrawAmount; // 1st term: ~2,000*0.25^{3.14}
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+    }
+
+    /// @dev When there is one segment and there haven't been withdrawals, it should return the correct withdrawable
+    /// amount.
     function testGetWithdrawableAmount__OneSegment() external {
         uint256 depositAmount = SEGMENT_AMOUNTS[0] + SEGMENT_AMOUNTS[1];
         uint256[] memory segmentAmounts = createDynamicArray(depositAmount);

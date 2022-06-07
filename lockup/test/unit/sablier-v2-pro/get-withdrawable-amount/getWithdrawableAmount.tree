@@ -19,7 +19,7 @@ getWithdrawableAmount.t.sol
       │     └── it should return the deposit amount minus the withdrawn amount
       └── when the current time is less than the stop time
          ├── when there have been withdrawals
-         │  └── it should ...
+         │  └── it should return the correct withdrawable amount
          └── when there haven't withdrawals
             ├── when there is one segment
             │  └── it should return the correct withdrawable amount
