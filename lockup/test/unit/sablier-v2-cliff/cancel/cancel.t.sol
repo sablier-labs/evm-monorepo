@@ -24,8 +24,8 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
         sablierV2Cliff.cancel(nonStreamId);
     }
 
-    /// @dev When the stream does not exist, it should revert.
-    function testCannotCancel__Unauthorized() external {
+    /// @dev When the caller is neither the sender nor the recipient, it should revert.
+    function testCannotCancel__CallerUnauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 

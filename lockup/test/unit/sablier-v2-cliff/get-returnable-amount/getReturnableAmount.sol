@@ -10,7 +10,7 @@ contract SablierV2Cliff__GetReturnableAmount__UnitTest is SablierV2CliffUnitTest
     function setUp() public override {
         super.setUp();
 
-        // Create the default stream, all tests need one.
+        // Create the default stream, all tests need it.
         streamId = createDefaultStream();
     }
 

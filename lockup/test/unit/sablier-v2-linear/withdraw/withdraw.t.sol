@@ -29,7 +29,7 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the caller is an unauthorized third-party, it should revert.
-    function testCannotWithdraw__Unauthorized() external {
+    function testCannotWithdraw__CallerUnauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 

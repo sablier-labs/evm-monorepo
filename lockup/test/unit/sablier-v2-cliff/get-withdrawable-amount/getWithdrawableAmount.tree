@@ -8,17 +8,17 @@ getWithdrawableAmount.t.sol
    │  └── it should return the correct withdrawable amount
    └── when the cliff time is less than the block timestamp
       ├── when the current time is greater than the stop time
-      │  ├── when there have been no withdrawals
+      │  ├── when there have been withdrawals
       │  │  └── it should return the deposit amount
-      │  └── when there have been withdrawals
+      │  └── when there haven't been withdrawals
       │     └── it should return the deposit amount minus the withdrawn amount
       ├── when the current time is equal to the stop time
-      │  ├── when there have been no withdrawals
+      │  ├── when there have been withdrawals
       │  │  └── it should return the deposit amount
-      │  └── when there have been withdrawals
+      │  └── when there haven't been withdrawals
       │     └── it should return the deposit amount minus the withdrawn amount
       └── when the current time is less than the stop time
-         ├── when there have been no withdrawals
+         ├── when there have been withdrawals
          │  └── it should return the correct withdrawable amount
-         └── when there have been withdrawals
+         └── when there haven't been withdrawals
             └── it should return the correct withdrawable amount

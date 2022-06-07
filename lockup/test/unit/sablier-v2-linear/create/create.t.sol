@@ -61,8 +61,7 @@ contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
     /// @dev When the start time is the equal to the stop time, it should create the stream.
     function testCreate__StartTimeEqualToStopTime() external {
         uint256 stopTime = stream.startTime;
-        uint256 streamId = sablierV2Linear.nextStreamId();
-        sablierV2Linear.create(
+        uint256 streamId = sablierV2Linear.create(
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -101,8 +100,7 @@ contract SablierV2Linear__Create__UnitTest is SablierV2LinearUnitTest {
     function testCreate__TokenMissingReturnValue() external {
         IERC20 token = IERC20(address(nonStandardToken));
 
-        uint256 streamId = sablierV2Linear.nextStreamId();
-        sablierV2Linear.create(
+        uint256 streamId = sablierV2Linear.create(
             stream.sender,
             stream.recipient,
             stream.depositAmount,

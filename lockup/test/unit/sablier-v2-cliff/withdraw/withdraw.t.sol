@@ -28,8 +28,8 @@ contract SablierV2Cliff__Withdraw__UnitTest is SablierV2CliffUnitTest {
         sablierV2Cliff.withdraw(nonStreamId, withdrawAmount);
     }
 
-    /// @dev When the stream does not exist, it should revert.
-    function testCannotWithdraw__Unauthorized() external {
+    /// @dev When the caller is neither the sender nor the recipient, it should revert.
+    function testCannotWithdraw__CallerUnauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 

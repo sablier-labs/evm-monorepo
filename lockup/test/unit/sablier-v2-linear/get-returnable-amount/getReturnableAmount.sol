@@ -10,7 +10,7 @@ contract SablierV2Linear__GetReturnableAmount__UnitTest is SablierV2LinearUnitTe
     function setUp() public override {
         super.setUp();
 
-        // Create the default stream, all tests need one.
+        // Create the default stream, all tests need it.
         streamId = createDefaultStream();
     }
 

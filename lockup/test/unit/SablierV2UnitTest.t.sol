@@ -54,8 +54,8 @@ abstract contract SablierV2UnitTest is Test {
     /// CONSTRUCTOR ///
 
     constructor() {
-        // By default the test EVM begins at time zero, but some of our tests need to warp back in time, so we
-        // change the default to something else (100 seconds into the future).
+        // By default the test EVM begins at time zero, but in some of our tests we need to warp back in time, so we
+        // have to change the default to something else (100 seconds into the future).
         vm.warp(STARTING_BLOCK_TIMESTAMP);
 
         // Initialize the default stream values.
@@ -64,7 +64,7 @@ abstract contract SablierV2UnitTest is Test {
         START_TIME = block.timestamp;
         STOP_TIME = block.timestamp + TOTAL_DURATION;
 
-        // Create 4 users for testing. Order matters.
+        // Create 5 users for testing. Order matters.
         users = Users({
             sender: getNextUser(),
             recipient: getNextUser(),

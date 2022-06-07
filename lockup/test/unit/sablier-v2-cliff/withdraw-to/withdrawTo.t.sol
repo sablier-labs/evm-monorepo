@@ -38,7 +38,7 @@ contract SablierV2Cliff__WithdrawTo__UnitTest is SablierV2CliffUnitTest {
     }
 
     /// @dev When the caller is the sender, it should revert.
-    function testCannotWithdrawTo__Unauthorized__Sender() external {
+    function testCannotWithdrawTo__CallerSender() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.sender);
 
@@ -50,7 +50,7 @@ contract SablierV2Cliff__WithdrawTo__UnitTest is SablierV2CliffUnitTest {
     }
 
     /// @dev When the caller is an unauthorized third-party, it should revert.
-    function testCannotWithdrawTo__Unauthorized__Eve() external {
+    function testCannotWithdrawTo__CallerUnauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 

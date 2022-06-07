@@ -24,8 +24,7 @@ contract SablierV2Linear__CreateWithDuration__UnitTest is SablierV2LinearUnitTes
 
     /// @dev When all checks pass, it should create the stream with duration.
     function testCreateWithDuration() external {
-        uint256 streamId = sablierV2Linear.nextStreamId();
-        sablierV2Linear.createWithDuration(
+        uint256 streamId = sablierV2Linear.createWithDuration(
             stream.sender,
             stream.recipient,
             stream.depositAmount,

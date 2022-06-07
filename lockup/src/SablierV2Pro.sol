@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
-import { SCALE, SD59x18, toSD59x18, ZERO } from "@prb/math/SD59x18.sol";
+import { fromSD59x18, SCALE, SD59x18, toSD59x18, ZERO } from "@prb/math/SD59x18.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Pro } from "./interfaces/ISablierV2Pro.sol";
@@ -20,7 +20,7 @@ contract SablierV2Pro is
     /// CONSTANTS ///
 
     /// @notice The maximum value an exponent can have is 1.
-    SD59x18 public constant MAX_EXPONENT = SCALE;
+    SD59x18 public constant MAX_EXPONENT = SD59x18.wrap(10e18);
 
     /// @notice The maximum number of segments allowed in a stream.
     uint256 public constant MAX_SEGMENT_ARRAY_LENGTH = 200;
@@ -31,14 +31,6 @@ contract SablierV2Pro is
     mapping(uint256 => Stream) internal streams;
 
     /// MODIFIERS ///
-
-    /// @dev Checks that `streamId` points to a stream that exists.
-    modifier streamExists(uint256 streamId) {
-        if (streams[streamId].sender == address(0)) {
-            revert SablierV2__StreamNonExistent(streamId);
-        }
-        _;
-    }
 
     /// @notice Checks that `msg.sender` is the recipient of the stream.
     modifier onlyRecipient(uint256 streamId) {
@@ -52,6 +44,14 @@ contract SablierV2Pro is
     modifier onlySenderOrRecipient(uint256 streamId) {
         if (msg.sender != streams[streamId].sender && msg.sender != streams[streamId].recipient) {
             revert SablierV2__Unauthorized(streamId, msg.sender);
+        }
+        _;
+    }
+
+    /// @dev Checks that `streamId` points to a stream that exists.
+    modifier streamExists(uint256 streamId) {
+        if (streams[streamId].sender == address(0)) {
+            revert SablierV2__StreamNonExistent(streamId);
         }
         _;
     }
@@ -100,38 +100,39 @@ contract SablierV2Pro is
 
             // Define the common variables used in the calculations below.
             SD59x18 currentSegmentAmount;
+            SD59x18 currentSegmentExponent;
             SD59x18 elapsedSegmentTime;
-            SD59x18 exponent;
             SD59x18 totalSegmentTime;
-            uint256 sum;
+            uint256 previousSegmentAmounts;
 
             // If there's more than one segment, we have to iterate over all of them.
             uint256 length = stream.segmentMilestones.length;
             if (length > 1) {
                 uint256 currentSegmentMilestone = stream.startTime;
 
-                // Sum up the amounts found in preceding segments.
-                uint256 index = 0;
+                // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
+                // amount such that we avoid adding an if statement in the while loop.
+                currentSegmentMilestone = stream.segmentMilestones[0];
+                uint256 index = 1;
                 while (currentSegmentMilestone < currentTime) {
+                    previousSegmentAmounts += stream.segmentAmounts[index - 1];
                     currentSegmentMilestone = stream.segmentMilestones[index];
-                    sum += stream.segmentAmounts[index];
                     index += 1;
                 }
 
-                // After the loop exits, the current segment is found at index `index - 1`, and the previous segment is
-                // found at index `index - 2`.
+                // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
+                // is found at `index - 2`.
                 currentSegmentAmount = SD59x18.wrap(int256(stream.segmentAmounts[index - 1]));
+                currentSegmentExponent = stream.segmentExponents[index - 1];
                 currentSegmentMilestone = stream.segmentMilestones[index - 1];
-                exponent = stream.segmentExponents[index - 1];
 
-                // If the current segment is at an index of greater than or equal to 2, take the difference between
-                // the current segment milestone and the previous segment milestone.
+                // If the current segment is at an index that is >= 2, take the difference between the current segment
+                // milestone and the previous segment milestone.
                 if (index > 1) {
                     uint256 previousSegmentMilestone = stream.segmentMilestones[index - 2];
                     elapsedSegmentTime = toSD59x18(int256(currentTime - previousSegmentMilestone));
 
-                    // Calculate the total time between the current segment milestone and the previous segment
-                    // milestone.
+                    // Calculate the time between the current segment milestone and the previous segment milestone.
                     totalSegmentTime = toSD59x18(int256(currentSegmentMilestone - previousSegmentMilestone));
                 }
                 // If the current segment is at index 1, take the difference between the current segment milestone and
@@ -141,19 +142,19 @@ contract SablierV2Pro is
                     totalSegmentTime = toSD59x18(int256(currentSegmentMilestone - stream.startTime));
                 }
             }
-            // Otherwise, if there's only segment, we consider the start time of stream as the first segment milestone.
+            // Otherwise, if there's only one segment, we use the start time of the stream in the calculations.
             else {
                 currentSegmentAmount = SD59x18.wrap(int256(stream.segmentAmounts[0]));
+                currentSegmentExponent = stream.segmentExponents[0];
                 elapsedSegmentTime = toSD59x18(int256(currentTime - stream.startTime));
-                exponent = stream.segmentExponents[0];
                 totalSegmentTime = toSD59x18(int256(stream.stopTime - stream.startTime));
             }
 
             // Calculate the streamed amount.
             SD59x18 quotient = elapsedSegmentTime.div(totalSegmentTime);
-            SD59x18 multiplier = quotient.pow(exponent);
+            SD59x18 multiplier = quotient.pow(currentSegmentExponent);
             SD59x18 proRataAmount = multiplier.mul(currentSegmentAmount);
-            SD59x18 streamedAmount = SD59x18.wrap(int256(sum)).add(proRataAmount);
+            SD59x18 streamedAmount = SD59x18.wrap(int256(previousSegmentAmounts)).add(proRataAmount);
             SD59x18 withdrawnAmount = SD59x18.wrap(int256(stream.withdrawnAmount));
             withdrawableAmount = uint256(SD59x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount)));
         }
