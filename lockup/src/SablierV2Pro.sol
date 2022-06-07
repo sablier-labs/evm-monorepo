@@ -108,11 +108,9 @@ contract SablierV2Pro is
             // If there's more than one segment, we have to iterate over all of them.
             uint256 length = stream.segmentMilestones.length;
             if (length > 1) {
-                uint256 currentSegmentMilestone = stream.startTime;
-
                 // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
                 // amount such that we avoid adding an if statement in the while loop.
-                currentSegmentMilestone = stream.segmentMilestones[0];
+                uint256 currentSegmentMilestone = stream.segmentMilestones[0];
                 uint256 index = 1;
                 while (currentSegmentMilestone < currentTime) {
                     previousSegmentAmounts += stream.segmentAmounts[index - 1];
