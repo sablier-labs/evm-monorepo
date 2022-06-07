@@ -37,6 +37,7 @@ abstract contract SablierV2UnitTest is Test {
     /// STRUCTS ///
 
     struct Users {
+        address payable alice;
         address payable eve;
         address payable funder;
         address payable recipient;
@@ -64,7 +65,13 @@ abstract contract SablierV2UnitTest is Test {
         STOP_TIME = block.timestamp + TOTAL_DURATION;
 
         // Create 4 users for testing. Order matters.
-        users = Users({ sender: getNextUser(), recipient: getNextUser(), funder: getNextUser(), eve: getNextUser() });
+        users = Users({
+            sender: getNextUser(),
+            recipient: getNextUser(),
+            funder: getNextUser(),
+            eve: getNextUser(),
+            alice: getNextUser()
+        });
         fundUser(users.sender);
         vm.label(users.sender, "Sender");
 
@@ -76,6 +83,9 @@ abstract contract SablierV2UnitTest is Test {
 
         fundUser(users.eve);
         vm.label(users.eve, "Eve");
+
+        fundUser(users.alice);
+        vm.label(users.alice, "Alice");
     }
 
     /// CONSTANT FUNCTIONS ///

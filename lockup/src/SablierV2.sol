@@ -33,6 +33,31 @@ abstract contract SablierV2 is ISablierV2 {
     /// NON-CONSTANT FUNCTIONS ///
 
     /// @inheritdoc ISablierV2
+    function cancel(uint256 streamId) external {
+        cancelInternal(streamId);
+    }
+
+    /// @inheritdoc ISablierV2
+    function cancelAll(uint256[] calldata streamIds) external {
+        // Checks: `streamIds` is non-empty.
+        uint256 length = streamIds.length;
+        if (length == 0) {
+            revert SablierV2__StreamIdsArrayEmpty();
+        }
+
+        // Iterate over the provided array of stream ids and cancel each stream.
+        for (uint256 i = 0; i < length; ) {
+            // Effects: cancel the stream.
+            cancelInternal(streamIds[i]);
+
+            // Increment the for loop iterator.
+            unchecked {
+                i += 1;
+            }
+        }
+    }
+
+    /// @inheritdoc ISablierV2
     function decreaseAuthorization(address funder, uint256 amount) public virtual override {
         address sender = msg.sender;
         uint256 newAuthorization = authorizations[sender][funder] - amount;
@@ -46,7 +71,38 @@ abstract contract SablierV2 is ISablierV2 {
         authorizeInternal(sender, funder, newAuthorization);
     }
 
-    /// INTERNAL FUNCTIONS ///
+    /// INTERNAL CONSTANT FUNCTIONS ///
+
+    /// @dev This function checks basic requiremenets for `create` function.
+    function checkBasicRequiremenets(
+        address sender,
+        address recipient,
+        uint256 depositAmount,
+        uint256 startTime,
+        uint256 stopTime
+    ) internal pure {
+        // Checks: the sender is not the zero address.
+        if (sender == address(0)) {
+            revert SablierV2__SenderZeroAddress();
+        }
+
+        // Checks: the recipient is not the zero address.
+        if (recipient == address(0)) {
+            revert SablierV2__RecipientZeroAddress();
+        }
+
+        // Checks: the deposit amount is not zero.
+        if (depositAmount == 0) {
+            revert SablierV2__DepositAmountZero();
+        }
+
+        // Checks: the start time is not greater than the stop time.
+        if (startTime > stopTime) {
+            revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
+        }
+    }
+
+    /// INTERNAL NON-CONSTANT FUNCTIONS ///
 
     /// @dev See the documentation for the public functions that call this internal function.
     function authorizeInternal(
@@ -70,4 +126,7 @@ abstract contract SablierV2 is ISablierV2 {
         // Emit an event.
         emit Authorize(sender, funder, amount);
     }
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function cancelInternal(uint256 streamId) internal virtual;
 }
