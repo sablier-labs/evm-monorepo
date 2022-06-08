@@ -107,11 +107,11 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `recipient` must not the zero address.
     /// - `depositAmount` must not zero.
     /// - `startTime` must not greater than `stopTime`.
-    /// - `segmentAmounts` must be non-empty and not greater than five elements.
+    /// - `segmentAmounts` must be non-empty and not greater than two hundred elements.
     /// - `segmentAmounts` summed up must be equal to 'depositAmount'.
-    /// - `segmentExponents` must be non-empty and not greater than five elements.
+    /// - `segmentExponents` must be non-empty and not greater than two hundred elements.
     /// - `segmentExponents` must be bounded between one and three.
-    /// - `segmentMilestones` must be non-empty and not greater than five elements.
+    /// - `segmentMilestones` must be non-empty and not greater than two hundred elements.
     /// - `segmentMilestones` must be bounded between 'startTime' and 'stopTime'.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
@@ -148,11 +148,11 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `recipient` must not the zero address.
     /// - `depositAmount` must not zero.
     /// - `startTime` must not greater than `stopTime`.
-    /// - `segmentAmounts` must be non-empty and not greater than five elements.
+    /// - `segmentAmounts` must be non-empty and not greater than two hundred elements.
     /// - `segmentAmounts` summed up must be equal to 'depositAmount'.
-    /// - `segmentExponents` must be non-empty and not greater than five elements.
+    /// - `segmentExponents` must be non-empty and not greater than two hundred elements.
     /// - `segmentExponents` must be bounded between one and three.
-    /// - `segmentMilestones` must be non-empty and not greater than five elements.
+    /// - `segmentMilestones` must be non-empty and not greater than two hundred elements.
     /// - `segmentMilestones` must be bounded between 'startTime' and 'stopTime'.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///

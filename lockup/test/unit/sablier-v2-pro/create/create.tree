@@ -10,7 +10,7 @@ create.t.sol
       └── when the segment arrays length is not zero
          ├── when the segment arrays lengths is out of bounds
          │  └── it should revert
-         └── when the segment arrays lengths are within he permitted bounds
+         └── when the segment arrays lengths are within the permitted bounds
             ├── when the segment arrays lengths are not equal
             │  └── it should revert
             └── when the segment arrays lengths are equal
