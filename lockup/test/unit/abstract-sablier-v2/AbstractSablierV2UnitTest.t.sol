@@ -15,15 +15,57 @@ contract AbstractSablierV2 is SablierV2 {
     /// CONSTANT FUNCTIONS ///
 
     /// @inheritdoc ISablierV2
+    function getDepositAmount(uint256 streamId) external pure override returns (uint256 depositAmount) {
+        streamId;
+        depositAmount;
+    }
+
+    /// @inheritdoc ISablierV2
+    function getRecipient(uint256 streamId) external pure override returns (address recipient) {
+        streamId;
+        recipient;
+    }
+
+    /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) external pure override returns (uint256 returnableAmount) {
         streamId;
         returnableAmount = 0;
     }
 
     /// @inheritdoc ISablierV2
+    function getSender(uint256 streamId) external pure returns (address sender) {
+        streamId;
+        sender;
+    }
+
+    /// @inheritdoc ISablierV2
+    function getStartTime(uint256 streamId) external pure override returns (uint256 startTime) {
+        streamId;
+        startTime;
+    }
+
+    /// @inheritdoc ISablierV2
+    function getStopTime(uint256 streamId) external pure override returns (uint256 stopTime) {
+        streamId;
+        stopTime;
+    }
+
+    /// @inheritdoc ISablierV2
     function getWithdrawableAmount(uint256 streamId) external pure override returns (uint256 withdrawableAmount) {
         streamId;
         withdrawableAmount = 0;
+    }
+
+    /// @inheritdoc ISablierV2
+    function getWithdrawnAmount(uint256 streamId) external pure override returns (uint256 withdrawnAmount) {
+        streamId;
+        withdrawnAmount;
+    }
+
+    /// @inheritdoc ISablierV2
+    function isCancelable(uint256 streamId) external pure returns (bool cancelable) {
+        streamId;
+        cancelable;
     }
 
     /// PUBLIC NON-CONSTANT FUNCTIONS ///

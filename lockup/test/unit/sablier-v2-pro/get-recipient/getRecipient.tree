@@ -1,0 +1,5 @@
+getRecipient.t.sol
+├── when the stream does not exist
+│  └── it should return zero
+└── when the stream exists
+   └── it should return the correct recipient

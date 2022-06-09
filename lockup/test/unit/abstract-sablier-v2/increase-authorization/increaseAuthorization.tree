@@ -8,5 +8,5 @@ increaseAuthorization.t.sol
       ├── when the funder is the zero address
       │  └── it should revert
       └── when the funder is not the zero address
-         ├── it should increase the authorization amount
+         ├── it should increase the authorization
          └── it should emit an Authorize event
