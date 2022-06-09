@@ -50,8 +50,8 @@ interface ISablierV2 {
     /// @notice Emitted when the caller is not authorized to perform some action.
     error SablierV2__Unauthorized(uint256 streamId, address caller);
 
-    /// @notice Emitted when attempting to withdraw from multiple streams and the length of the stream ids array does
-    /// not match the length of the amounts array.
+    /// @notice Emitted when attempting to withdraw from multiple streams and the count of the stream ids does
+    /// not match the count of the amounts.
     error SablierV2__WithdrawAllArraysNotEqual(uint256 streamIdsLength, uint256 amountsLength);
 
     /// @notice Emitted when attempting to withdraw more than can be withdrawn.

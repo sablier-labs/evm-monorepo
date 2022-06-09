@@ -18,18 +18,14 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Emitted when attempting to create a stream with a milestone greater than the stop time.
     error SablierV2Pro__LastMilestoneGreaterThanStopTime(uint256 milestone, uint256 stopTime);
 
-    /// @notice Emitted when attempting to create a stream with unequal segment variables lengths.
-    error SablierV2Pro__SegmentArraysLengthsNotEqual(
-        uint256 amountLength,
-        uint256 exponentLength,
-        uint256 milestoneLength
-    );
+    /// @notice Emitted when attempting to create a stream with segment counts that are not equal.
+    error SablierV2Pro__SegmentCountsNotEqual(uint256 amountLength, uint256 exponentLength, uint256 milestoneLength);
 
     /// @notice Emitted when attempting to create a stream with zero segments.
-    error SablierV2Pro__SegmentArraysLengthZero();
+    error SablierV2Pro__SegmentCountZero();
 
-    /// @notice Emitted when attempting to create a stream with an out of bounds segments variables length.
-    error SablierV2Pro__SegmentArraysLengthOutOfBounds(uint256 length);
+    /// @notice Emitted when attempting to create a stream with one or more out-of-bounds segment count.
+    error SablierV2Pro__SegmentCountOutOfBounds(uint256 count);
 
     /// @notice Emitted when attempting to create a stream with an out of bounds exponent.
     error SablierV2Pro__SegmentExponentOutOfBounds(SD59x18 exponent);

@@ -100,8 +100,14 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
             fail();
         }
 
-        for (uint256 i = 0; i < a.length; i++) {
-            assertEq(a[i], b[i]);
+        for (uint256 i = 0; i < a.length; ) {
+            if (a[i] != b[i]) {
+                emit log("Error: a[] == b[] not satisifed");
+                assertEq(a[i], b[i]);
+            }
+            unchecked {
+                i += 1;
+            }
         }
     }
 
@@ -112,8 +118,14 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
             fail();
         }
 
-        for (uint256 i = 0; i < a.length; i++) {
-            assertEq(SD59x18.unwrap(a[i]), SD59x18.unwrap(b[i]));
+        for (uint256 i = 0; i < a.length; ) {
+            if (a[i].neq(b[i])) {
+                emit log("Error: a[] == b[] not satisifed");
+                assertEq(SD59x18.unwrap(a[i]), SD59x18.unwrap(b[i]));
+            }
+            unchecked {
+                i += 1;
+            }
         }
     }
 
