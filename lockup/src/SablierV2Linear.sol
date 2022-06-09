@@ -228,19 +228,19 @@ contract SablierV2Linear is
     /// @inheritdoc ISablierV2
     function withdrawAll(uint256[] calldata streamIds, uint256[] calldata amounts) external {
         // Checks: `streamIds` is non-empty.
-        uint256 streamIdsLength = streamIds.length;
-        if (streamIdsLength == 0) {
+        uint256 streamIdsCount = streamIds.length;
+        if (streamIdsCount == 0) {
             revert SablierV2__StreamIdsArrayEmpty();
         }
 
-        // Checks: length of `streamIds` matches `amounts`.
-        uint256 amountsLength = amounts.length;
-        if (streamIdsLength != amountsLength) {
-            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsLength, amountsLength);
+        // Checks: count of `streamIds` matches `amounts`.
+        uint256 amountsCount = amounts.length;
+        if (streamIdsCount != amountsCount) {
+            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
-        for (uint256 i = 0; i < streamIdsLength; ) {
+        for (uint256 i = 0; i < streamIdsCount; ) {
             uint256 streamId = streamIds[i];
 
             // Checks: `streamId` points to a stream that exists.
@@ -289,19 +289,19 @@ contract SablierV2Linear is
         }
 
         // Checks: `streamIds` is non-empty.
-        uint256 streamIdsLength = streamIds.length;
-        if (streamIdsLength == 0) {
+        uint256 streamIdsCount = streamIds.length;
+        if (streamIdsCount == 0) {
             revert SablierV2__StreamIdsArrayEmpty();
         }
 
-        // Checks: length of `streamIds` matches `amounts`.
-        uint256 amountsLength = amounts.length;
-        if (streamIdsLength != amountsLength) {
-            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsLength, amountsLength);
+        // Checks: count of `streamIds` matches `amounts`.
+        uint256 amountsCount = amounts.length;
+        if (streamIdsCount != amountsCount) {
+            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
-        for (uint256 i = 0; i < streamIdsLength; ) {
+        for (uint256 i = 0; i < streamIdsCount; ) {
             uint256 streamId = streamIds[i];
 
             // Checks: `streamId` points to a stream that exists.

@@ -150,7 +150,7 @@ contract SablierV2Pro__GetWithdrawableAmount__SegmentsUnitTest is SablierV2ProUn
     /// @dev When there are multiple segments and the current milestone is the 200th in the array,
     /// it should return the correct withdrawable amount.
     function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone__200th() external {
-        uint256 count = sablierV2Pro.MAX_SEGMENT_ARRAY_LENGTH();
+        uint256 count = sablierV2Pro.MAX_SEGMENT_COUNT();
         uint256[] memory segmentAmounts = new uint256[](count);
         SD59x18[] memory segmentExponents = new SD59x18[](count);
         uint256[] memory segmentMilestones = new uint256[](count);

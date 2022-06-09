@@ -47,7 +47,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the deposit amount is zero, it should revert.
     function testCannotCreate__SegmentArraysLengthZero() external {
-        vm.expectRevert(ISablierV2Pro.SablierV2Pro__SegmentArraysLengthZero.selector);
+        vm.expectRevert(ISablierV2Pro.SablierV2Pro__SegmentCountZero.selector);
         uint256[] memory segmentAmounts;
         SD59x18[] memory segmentExponents;
         uint256[] memory segmentMilestones;
@@ -66,12 +66,12 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When the deposit amount is zero, it should revert.
     function testCannotCreate__SegmentArraysLengthOutOfBounds() external {
-        uint256 length = sablierV2Pro.MAX_SEGMENT_ARRAY_LENGTH() + 1;
+        uint256 segmentCount = sablierV2Pro.MAX_SEGMENT_COUNT() + 1;
         vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentArraysLengthOutOfBounds.selector, length)
+            abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentCountOutOfBounds.selector, segmentCount)
         );
-        uint256[] memory segmentAmounts = new uint256[](length);
-        for (uint256 i = 0; i < length; ) {
+        uint256[] memory segmentAmounts = new uint256[](segmentCount);
+        for (uint256 i = 0; i < segmentCount; ) {
             segmentAmounts[i] = i;
             unchecked {
                 i += 1;
@@ -95,7 +95,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2Pro.SablierV2Pro__SegmentArraysLengthsNotEqual.selector,
+                ISablierV2Pro.SablierV2Pro__SegmentCountsNotEqual.selector,
                 stream.segmentAmounts.length,
                 segmentExponents.length,
                 stream.segmentMilestones.length
@@ -119,7 +119,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
         uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2Pro.SablierV2Pro__SegmentArraysLengthsNotEqual.selector,
+                ISablierV2Pro.SablierV2Pro__SegmentCountsNotEqual.selector,
                 stream.segmentAmounts.length,
                 stream.segmentExponents.length,
                 segmentMilestones.length

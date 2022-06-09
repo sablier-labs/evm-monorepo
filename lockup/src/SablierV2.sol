@@ -40,13 +40,13 @@ abstract contract SablierV2 is ISablierV2 {
     /// @inheritdoc ISablierV2
     function cancelAll(uint256[] calldata streamIds) external {
         // Checks: `streamIds` is non-empty.
-        uint256 length = streamIds.length;
-        if (length == 0) {
+        uint256 count = streamIds.length;
+        if (count == 0) {
             revert SablierV2__StreamIdsArrayEmpty();
         }
 
         // Iterate over the provided array of stream ids and cancel each stream.
-        for (uint256 i = 0; i < length; ) {
+        for (uint256 i = 0; i < count; ) {
             // Effects: cancel the stream.
             cancelInternal(streamIds[i]);
 
