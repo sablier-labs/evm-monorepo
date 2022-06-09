@@ -24,8 +24,8 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
         sablierV2Cliff.cancel(nonStreamId);
     }
 
-    /// @dev When the stream does not exist, it should revert.
-    function testCannotCancel__Unauthorized() external {
+    /// @dev When the caller is neither the sender nor the recipient, it should revert.
+    function testCannotCancel__CallerUnauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 
@@ -81,9 +81,9 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
 
         // Run the test.
         sablierV2Cliff.cancel(streamId);
-        ISablierV2Cliff.Stream memory expectedStream;
         ISablierV2Cliff.Stream memory deletedStream = sablierV2Cliff.getStream(streamId);
-        assertEq(expectedStream, deletedStream);
+        ISablierV2Cliff.Stream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
     }
 
     /// @dev When the stream ended, it should emit a Cancel event.
@@ -115,9 +115,9 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
 
         // Run the test.
         sablierV2Cliff.cancel(streamId);
-        ISablierV2Cliff.Stream memory expectedStream;
         ISablierV2Cliff.Stream memory deletedStream = sablierV2Cliff.getStream(streamId);
-        assertEq(expectedStream, deletedStream);
+        ISablierV2Cliff.Stream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
     }
 
     /// @dev When the stream is ongoing, it should emit a Cancel event.

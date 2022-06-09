@@ -24,8 +24,8 @@ contract SablierV2Cliff__Renounce__UnitTest is SablierV2CliffUnitTest {
         sablierV2Cliff.renounce(nonStreamId);
     }
 
-    /// @dev When the stream does not exist, it should revert.
-    function testCannotRenounce__Unauthorized() external {
+    /// @dev When the caller is neither the sender nor the recipient, it should revert.
+    function testCannotRenounce__CallerUnauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 
@@ -59,8 +59,8 @@ contract SablierV2Cliff__Renounce__UnitTest is SablierV2CliffUnitTest {
     /// @dev When all checks pass, it should make the stream non-cancelable.
     function testRenounce() external {
         sablierV2Cliff.renounce(streamId);
-        ISablierV2Cliff.Stream memory stream = sablierV2Cliff.getStream(streamId);
-        assertEq(stream.cancelable, false);
+        ISablierV2Cliff.Stream memory queriedStream = sablierV2Cliff.getStream(streamId);
+        assertEq(queriedStream.cancelable, false);
     }
 
     /// @dev When all checks pass, it should emit a Renounce event.

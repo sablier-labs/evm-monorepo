@@ -159,11 +159,9 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
     }
 
     /// @dev When the cliff time is the equal to the stop time, it should create the stream.
-    /// TODO: fix this
     function testCreate__CliffTimeEqualToStopTime() external {
         uint256 cliffTime = stream.stopTime;
-        uint256 streamId = sablierV2Cliff.nextStreamId();
-        sablierV2Cliff.create(
+        uint256 streamId = sablierV2Cliff.create(
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -205,8 +203,7 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
     function testCreate__TokenMissingReturnValue() external {
         IERC20 token = IERC20(address(nonStandardToken));
 
-        uint256 streamId = sablierV2Cliff.nextStreamId();
-        sablierV2Cliff.create(
+        uint256 streamId = sablierV2Cliff.create(
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -239,10 +236,10 @@ contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
     /// @dev When all checks pass, it should bump the next stream id.
     function testCreate__NextStreamId() external {
         uint256 nextStreamId = sablierV2Cliff.nextStreamId();
-        uint256 expectedNextStreamId = nextStreamId + 1;
         createDefaultStream();
         uint256 actualNextStreamId = sablierV2Cliff.nextStreamId();
-        assertEq(expectedNextStreamId, actualNextStreamId);
+        uint256 expectedNextStreamId = nextStreamId + 1;
+        assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
     /// @dev When all checks pass, it should emit a CreateStream event.

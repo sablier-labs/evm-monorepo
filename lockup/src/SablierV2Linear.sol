@@ -23,14 +23,6 @@ contract SablierV2Linear is
 
     /// MODIFIERS ///
 
-    /// @dev Checks that `streamId` points to a stream that exists.
-    modifier streamExists(uint256 streamId) {
-        if (streams[streamId].sender == address(0)) {
-            revert SablierV2__StreamNonExistent(streamId);
-        }
-        _;
-    }
-
     /// @notice Checks that `msg.sender` is the recipient of the stream.
     modifier onlyRecipient(uint256 streamId) {
         if (msg.sender != streams[streamId].recipient) {
@@ -43,6 +35,14 @@ contract SablierV2Linear is
     modifier onlySenderOrRecipient(uint256 streamId) {
         if (msg.sender != streams[streamId].sender && msg.sender != streams[streamId].recipient) {
             revert SablierV2__Unauthorized(streamId, msg.sender);
+        }
+        _;
+    }
+
+    /// @dev Checks that `streamId` points to a stream that exists.
+    modifier streamExists(uint256 streamId) {
+        if (streams[streamId].sender == address(0)) {
+            revert SablierV2__StreamNonExistent(streamId);
         }
         _;
     }

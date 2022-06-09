@@ -40,8 +40,7 @@ contract SablierV2Cliff__CreateWithDuration__UnitTest is SablierV2CliffUnitTest 
 
     /// @dev When all checks pass, it should create the stream with duration.
     function testCreateWithDuration() external {
-        uint256 streamId = sablierV2Cliff.nextStreamId();
-        sablierV2Cliff.createWithDuration(
+        uint256 streamId = sablierV2Cliff.createWithDuration(
             stream.sender,
             stream.recipient,
             stream.depositAmount,

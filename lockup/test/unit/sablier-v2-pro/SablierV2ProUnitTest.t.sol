@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ISablierV2Pro } from "@sablier/v2-core/interfaces/ISablierV2Pro.sol";
 import { SablierV2Pro } from "@sablier/v2-core/SablierV2Pro.sol";
-import { SD59x18, SCALE } from "@prb/math/SD59x18.sol";
+import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { SablierV2UnitTest } from "../SablierV2UnitTest.t.sol";
 
@@ -31,11 +31,10 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// CONSTANTS ///
 
-    uint256[] internal SEGMENT_AMOUNTS = [bn(2_500), bn(7_500)];
-    SD59x18[] internal SEGMENT_EXPONENTS = [sd59x18(1e17), sd59x18(5e17)];
-    uint256[] internal SEGMENT_MILESTONES = [5_100 seconds, 10_100 seconds];
-    uint256 internal constant TIME_OFFSET = 5_000 seconds;
-    uint256 internal immutable WITHDRAW_AMOUNT = bn(2_500);
+    uint256[] internal SEGMENT_AMOUNTS = [bn(2_000), bn(8_000)];
+    SD59x18[] internal SEGMENT_EXPONENTS = [sd59x18(3.14e18), sd59x18(0.5e18)];
+    uint256[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];
+    uint256 internal constant TIME_OFFSET = 2_000 seconds;
 
     /// TESTING VARIABLES ///
 

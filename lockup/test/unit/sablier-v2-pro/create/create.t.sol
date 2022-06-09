@@ -5,7 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Pro } from "@sablier/v2-core/interfaces/ISablierV2Pro.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
-import { SD59x18 } from "@prb/math/SD59x18.sol";
+import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 import { stdError } from "forge-std/Test.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
@@ -167,8 +167,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
         uint256[] memory segmentAmounts = createDynamicArray(SEGMENT_AMOUNTS[0]);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         uint256[] memory segmentMilestones = createDynamicArray(stream.stopTime);
-        uint256 streamId = sablierV2Pro.nextStreamId();
-        sablierV2Pro.create(
+        uint256 streamId = sablierV2Pro.create(
             stream.sender,
             stream.recipient,
             depositAmount,
@@ -235,7 +234,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
 
     /// @dev When a segment exponent is out of bounds, it should revert.
     function testCannotCreate__SegmentExponentOutOfBounds() external {
-        SD59x18 outOfBoundsExponent = sablierV2Pro.MAX_EXPONENT().uncheckedAdd(sd59x18(1));
+        SD59x18 outOfBoundsExponent = sablierV2Pro.MAX_EXPONENT().uncheckedAdd(SCALE);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0], outOfBoundsExponent);
         vm.expectRevert(
             abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentExponentOutOfBounds.selector, outOfBoundsExponent)
@@ -297,8 +296,7 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
     function testCreate__TokenMissingReturnValue() external {
         IERC20 token = IERC20(address(nonStandardToken));
 
-        uint256 streamId = sablierV2Pro.nextStreamId();
-        sablierV2Pro.create(
+        uint256 streamId = sablierV2Pro.create(
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -331,10 +329,10 @@ contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
     /// @dev When all checks pass, it should bump the next stream id.
     function testCreate__NextStreamId() external {
         uint256 nextStreamId = sablierV2Pro.nextStreamId();
-        uint256 expectedNextStreamId = nextStreamId + 1;
         createDefaultStream();
         uint256 actualNextStreamId = sablierV2Pro.nextStreamId();
-        assertEq(expectedNextStreamId, actualNextStreamId);
+        uint256 expectedNextStreamId = nextStreamId + 1;
+        assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
     /// @dev When all checks pass, it should emit a CreateStream event.

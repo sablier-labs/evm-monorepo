@@ -29,7 +29,7 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the caller is an unauthorized third-party, it should revert.
-    function testCannotWithdraw__Unauthorized() external {
+    function testCannotWithdraw__CallerUnauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 
@@ -92,9 +92,9 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
         // Run the test.
         uint256 withdrawAmount = stream.depositAmount;
         sablierV2Linear.withdraw(streamId, withdrawAmount);
-        ISablierV2Linear.Stream memory expectedStream;
         ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
-        assertEq(expectedStream, deletedStream);
+        ISablierV2Linear.Stream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
     }
 
     /// @dev When the stream ended, it should emit a Withdraw event.
@@ -125,11 +125,11 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
 
         // Run the test.
         uint256 withdrawnAmount = WITHDRAW_AMOUNT;
-        uint256 expectedWithdrawnAmount = stream.withdrawnAmount + withdrawnAmount;
         sablierV2Linear.withdraw(streamId, withdrawnAmount);
-        ISablierV2Linear.Stream memory stream = sablierV2Linear.getStream(streamId);
-        uint256 actualWithdrawnAmount = stream.withdrawnAmount;
-        assertEq(expectedWithdrawnAmount, actualWithdrawnAmount);
+        ISablierV2Linear.Stream memory queriedStream = sablierV2Linear.getStream(streamId);
+        uint256 actualWithdrawnAmount = queriedStream.withdrawnAmount;
+        uint256 expectedWithdrawnAmount = stream.withdrawnAmount + withdrawnAmount;
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
     /// @dev When the stream is ongoing, it should emit a Withdraw event.

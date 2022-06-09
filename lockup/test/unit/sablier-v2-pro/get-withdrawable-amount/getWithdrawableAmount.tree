@@ -8,17 +8,23 @@ getWithdrawableAmount.t.sol
    │  └── it should return zero
    └── when the start time is less than the block timestamp
       ├── when the current time is greater than the stop time
-      │  ├── when there have been withdrawals
+      │  ├── when there haven't been withdrawals
       │  │  └── it should return the deposit amount
-      │  └── when there haven't been withdrawals
+      │  └── when there have been withdrawals
       │     └── it should return the deposit amount minus the withdrawn amount
       ├── when the current time is equal to the stop time
-      │  ├── when there have been withdrawals
+      │  ├── when there haven't been withdrawals
       │  │  └── it should return the deposit amount
-      │  └── when there haven't been withdrawals
+      │  └── when there have been withdrawals
       │     └── it should return the deposit amount minus the withdrawn amount
       └── when the current time is less than the stop time
          ├── when there have been withdrawals
          │  └── it should return the correct withdrawable amount
-         └── when there haven't been withdrawals
-            └── it should return the correct withdrawable amount
+         └── when there haven't withdrawals
+            ├── when there is one segment
+            │  └── it should return the correct withdrawable amount
+            └── when there are multiple segments
+               ├── when the current milestone is the 1st in the array
+               │  └── it should return the correct withdrawable amount
+               └── when the current milestone is not the 1st in the array
+                  └── it should return the correct withdrawable amount
