@@ -110,8 +110,8 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
 
     /// @dev When the stream is ongoing, it should delete the stream.
     function testCancel__StreamOngoing__DeleteStream() external {
-        // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
+        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        vm.warp(stream.startTime + TIME_OFFSET);
 
         // Run the test.
         sablierV2Cliff.cancel(streamId);
@@ -122,13 +122,13 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
 
     /// @dev When the stream is ongoing, it should emit a Cancel event.
     function testCancel__StreamOngoing__Event() public {
-        // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
+        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        vm.warp(stream.startTime + TIME_OFFSET);
 
         // Run the test.
+        uint256 withdrawAmount = WITHDRAW_AMOUNT;
+        uint256 returnAmount = stream.depositAmount - WITHDRAW_AMOUNT;
         vm.expectEmit(true, true, false, true);
-        uint256 withdrawAmount = stream.depositAmount;
-        uint256 returnAmount = 0;
         emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
         sablierV2Cliff.cancel(streamId);
     }
