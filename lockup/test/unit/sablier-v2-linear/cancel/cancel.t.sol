@@ -116,7 +116,7 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
         sablierV2Linear.cancel(streamId);
         ISablierV2Linear.Stream memory expectedStream;
         ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
-        assertEq(expectedStream, deletedStream);
+        assertEq(deletedStream, expectedStream);
     }
 
     /// @dev When the stream is ongoing, it should emit a Cancel event.
