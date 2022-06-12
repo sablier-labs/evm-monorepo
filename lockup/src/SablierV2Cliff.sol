@@ -50,6 +50,11 @@ contract SablierV2Cliff is
 
     /// CONSTANT FUNCTIONS ///
 
+    /// @inheritdoc ISablierV2Cliff
+    function getCliffTime(uint256 streamId) external view override returns (uint256 cliffTime) {
+        cliffTime = streams[streamId].cliffTime;
+    }
+
     /// @inheritdoc ISablierV2
     function getDepositAmount(uint256 streamId) external view override returns (uint256 depositAmount) {
         depositAmount = streams[streamId].depositAmount;

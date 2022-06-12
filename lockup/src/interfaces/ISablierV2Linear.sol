@@ -47,6 +47,9 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// CONSTANT FUNCTIONS ///
 
+    /// @notice Reads the stream struct.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return stream The stream struct.
     function getStream(uint256 streamId) external view returns (Stream memory stream);
 
     /// NON-CONSTANT FUNCTIONS ///
