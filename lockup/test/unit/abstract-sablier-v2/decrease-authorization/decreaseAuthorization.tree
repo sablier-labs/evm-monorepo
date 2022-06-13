@@ -2,6 +2,6 @@ decreaseAuthorization.t.sol
 ├── when the new authorization amount calculation underflows uint256
 │  └── it should revert
 └── when the new authorization amount calculation does not underflow uint256
-   ├── it should decrease the authorization amount
+   ├── it should decrease the authorization
    └── it should emit an Authorize event
 

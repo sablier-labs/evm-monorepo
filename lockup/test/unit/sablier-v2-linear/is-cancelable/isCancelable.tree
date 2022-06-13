@@ -1,0 +1,8 @@
+isCancelable.t.sol
+├── when the stream does not exist
+│  └── it should return false
+└── when the stream exists
+   ├── when the stream is cancelable
+   │  └── it should return true
+   └── when the stream not cancelable
+      └── it should return false

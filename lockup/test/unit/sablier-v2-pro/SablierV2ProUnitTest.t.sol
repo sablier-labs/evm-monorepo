@@ -96,13 +96,13 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     /// @dev Helper function to compare two uint256 arrays.
     function assertEq(uint256[] memory a, uint256[] memory b) internal {
         if (a.length != b.length) {
-            emit log("Error: a.length == b.length not satisifed");
+            emit log("Error: a.length == b.length not satisfied");
             fail();
         }
 
         for (uint256 i = 0; i < a.length; ) {
             if (a[i] != b[i]) {
-                emit log("Error: a[] == b[] not satisifed");
+                emit log("Error: a[] == b[] not satisfied");
                 assertEq(a[i], b[i]);
             }
             unchecked {
@@ -114,13 +114,13 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     /// @dev Helper function to compare two SD59x18 arrays.
     function assertEq(SD59x18[] memory a, SD59x18[] memory b) internal {
         if (a.length != b.length) {
-            emit log("Error: a.length == b.length not satisifed");
+            emit log("Error: a.length == b.length not satisfied");
             fail();
         }
 
         for (uint256 i = 0; i < a.length; ) {
             if (a[i].neq(b[i])) {
-                emit log("Error: a[] == b[] not satisifed");
+                emit log("Error: a[] == b[] not satisfied");
                 assertEq(SD59x18.unwrap(a[i]), SD59x18.unwrap(b[i]));
             }
             unchecked {

@@ -62,6 +62,14 @@ interface ISablierV2Cliff is ISablierV2 {
 
     /// CONSTANT FUNCTIONS ///
 
+    /// @notice Reads the cliff time of the stream.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return cliffTime The cliff time of the stream.
+    function getCliffTime(uint256 streamId) external view returns (uint256 cliffTime);
+
+    /// @notice Reads the stream struct.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return stream The stream struct.
     function getStream(uint256 streamId) external view returns (Stream memory stream);
 
     /// NON-CONSTANT FUNCTIONS ///

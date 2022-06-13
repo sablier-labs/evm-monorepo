@@ -73,14 +73,14 @@ interface ISablierV2 {
     /// @notice Emitted when an authorization to create streams is granted.
     /// @param sender The address of the would-be stream sender.
     /// @param funder The address of the stream funder.
-    /// @param amount The authorization that can be used for creating streams.
+    /// @param amount The authorization that can be used for creating streams, as an 18-decimal number.
     event Authorize(address indexed sender, address indexed funder, uint256 amount);
 
     /// @notice Emitted when a stream is canceled.
     /// @param streamId The id of the stream.
     /// @param recipient The address of the recipient.
-    /// @param withdrawAmount The amount of tokens withdrawn to the recipient.
-    /// @param returnAmount The amount of tokens returned to the sender.
+    /// @param withdrawAmount The amount of tokens withdrawn to the recipient, in units of the token's decimals.
+    /// @param returnAmount The amount of tokens returned to the sender, in units of the token's decimals.
     event Cancel(uint256 indexed streamId, address indexed recipient, uint256 withdrawAmount, uint256 returnAmount);
 
     /// @notice Emitted when a sender makes a stream non-cancelable.
@@ -90,25 +90,63 @@ interface ISablierV2 {
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The id of the stream.
     /// @param recipient The address of the recipient.
-    /// @param amount The amount of tokens withdrawn.
+    /// @param amount The amount of tokens withdrawn, in units of the token's decimals.
     event Withdraw(uint256 indexed streamId, address indexed recipient, uint256 amount);
 
     /// CONSTANT FUNCTIONS ///
 
-    /// @notice Rreturns the authorization amount that `sender` has given `funder` to create streams.
+    /// @notice Returns the authorization that `sender` has given `funder` to create streams.
     /// @param sender The address of the would-be stream sender.
     /// @param funder The address of the funder.
+    /// @return authorization The authorization that can be used for creating streams, as an 18-decimal number.
     function getAuthorization(address sender, address funder) external view returns (uint256 authorization);
+
+    /// @notice Reads the amount deposited in the stream.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return depositAmount The amount deposited in the stream, in units of the ERC-20 token's decimals.
+    function getDepositAmount(uint256 streamId) external view returns (uint256 depositAmount);
+
+    /// @notice Reads the recipient of the stream.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return recipient The recipient of the stream.
+    function getRecipient(uint256 streamId) external view returns (address recipient);
 
     /// @notice Calculates the amount that the sender would be returned if the stream was canceled.
     /// @param streamId The id of the stream to make the query for.
-    /// @return returnableAmount The amount of tokens that would be returned if the stream was canceled.
+    /// @return returnableAmount The amount of tokens that would be returned if the stream was canceled, in units of
+    /// the ERC-20 token's decimals.
     function getReturnableAmount(uint256 streamId) external view returns (uint256 returnableAmount);
+
+    /// @notice Reads the sender of the stream.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return sender The sender of the stream.
+    function getSender(uint256 streamId) external view returns (address sender);
+
+    /// @notice Reads the start time of the stream.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return startTime The start time of the stream.
+    function getStartTime(uint256 streamId) external view returns (uint256 startTime);
+
+    /// @notice Reads the stop time of the stream.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return stopTime The stop time of the stream.
+    function getStopTime(uint256 streamId) external view returns (uint256 stopTime);
 
     /// @notice Calculates the amount that the recipient can withdraw from the stream.
     /// @param streamId The id of the stream to make the query for.
-    /// @return withdrawableAmount The amount of tokens that can be withdrawn.
+    /// @return withdrawableAmount The amount of tokens that the recipient can withdraw from the stream, in units of
+    /// the ERC-20 token's decimals.
     function getWithdrawableAmount(uint256 streamId) external view returns (uint256 withdrawableAmount);
+
+    /// @notice Reads the amount withdrawn from the stream.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return withdrawnAmount The amount withdrawn from the stream, in units of the ERC-20 token's decimals.
+    function getWithdrawnAmount(uint256 streamId) external view returns (uint256 withdrawnAmount);
+
+    /// @notice Checks whether the stream is cancelable or not.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return cancelable Whether the stream is cancelable or not.
+    function isCancelable(uint256 streamId) external view returns (bool cancelable);
 
     /// NON-CONSTANT FUNCTIONS ///
 
@@ -126,7 +164,7 @@ interface ISablierV2 {
 
     /// @notice Cancels multiple streams and transfers any remaining amounts to the sender and the recipient.
     ///
-    /// @dev Emits a {Cancel} event.
+    /// @dev Emits multiple {Cancel} events.
     ///
     /// Requiremenets:
     /// - `streamIds` must be non-empty and each element must point to an existing stream.
@@ -145,7 +183,7 @@ interface ISablierV2 {
     /// - `funder` must have set an authorization to `msg.sender` of at least `amount`.
     ///
     /// @param funder The address of the stream funder.
-    /// @param amount The authorization to decrease for creating streams.
+    /// @param amount The authorization to decrease, as an 18-decimal number.
     function decreaseAuthorization(address funder, uint256 amount) external;
 
     /// @notice Increases the authorization to create streams given by `msg.sender` to `funder`.
@@ -157,8 +195,12 @@ interface ISablierV2 {
     /// - The updated authorization must not overflow uint256.
     ///
     /// @param funder The address of the stream funder.
-    /// @param amount The authorization that can be used for creating streams.
+    /// @param amount The authorization that can be used for creating streams, as an 18-decimal number.
     function increaseAuthorization(address funder, uint256 amount) external;
+
+    /// @notice Counter for stream ids.
+    /// @return The next stream id;
+    function nextStreamId() external view returns (uint256);
 
     /// @notice Makes the stream non-cancelable.
     ///
@@ -172,10 +214,6 @@ interface ISablierV2 {
     /// @param streamId The id of the stream to renounce.
     function renounce(uint256 streamId) external;
 
-    /// @notice Counter for stream ids.
-    /// @return The next stream id;
-    function nextStreamId() external view returns (uint256);
-
     /// @notice Withdraws tokens from the stream to the recipient's account.
     ///
     /// @dev Emits a {Withdraw} event.
@@ -186,7 +224,7 @@ interface ISablierV2 {
     /// - `amount` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamId The id of the stream to withdraw.
-    /// @param amount The amount to withdraw.
+    /// @param amount The amount to withdraw, in units of the ERC-20 token's decimals.
     function withdraw(uint256 streamId, uint256 amount) external;
 
     /// @notice Withdraws tokens from multiple streams to the recipient's account.
@@ -199,7 +237,7 @@ interface ISablierV2 {
     /// - `amounts` must be non-empty and each amount must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamIds The ids of the streams to withdraw.
-    /// @param amounts The amounts to withdraw.
+    /// @param amounts The amounts to withdraw, in units of the ERC-20 token's decimals.
     function withdrawAll(uint256[] calldata streamIds, uint256[] calldata amounts) external;
 
     /// @notice Withdraws tokens from multiple streams to the provided address `to`.
@@ -214,7 +252,7 @@ interface ISablierV2 {
     ///
     /// @param streamIds The ids of the streams to withdraw.
     /// @param to The address that will receive the withdrawn tokens.
-    /// @param amounts The amounts to withdraw.
+    /// @param amounts The amounts to withdraw, in units of the ERC-20 token's decimals.
     function withdrawAllTo(
         uint256[] calldata streamIds,
         address to,
@@ -233,7 +271,7 @@ interface ISablierV2 {
     ///
     /// @param streamId The id of the stream to withdraw.
     /// @param to The address that will receive the withdrawn tokens.
-    /// @param amount The amount to withdraw.
+    /// @param amount The amount to withdraw, in units of the ERC-20 token's decimals.
     function withdrawTo(
         uint256 streamId,
         address to,

@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
-import { fromSD59x18, SCALE, SD59x18, toSD59x18, ZERO } from "@prb/math/SD59x18.sol";
+import { SCALE, SD59x18, toSD59x18, ZERO } from "@prb/math/SD59x18.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Pro } from "./interfaces/ISablierV2Pro.sol";
@@ -59,6 +59,16 @@ contract SablierV2Pro is
     /// PUBLIC CONSTANT FUNCTIONS ///
 
     /// @inheritdoc ISablierV2
+    function getDepositAmount(uint256 streamId) external view override returns (uint256 depositAmount) {
+        depositAmount = streams[streamId].depositAmount;
+    }
+
+    /// @inheritdoc ISablierV2
+    function getRecipient(uint256 streamId) external view override returns (address recipient) {
+        recipient = streams[streamId].recipient;
+    }
+
+    /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) external view returns (uint256 returnableAmount) {
         // If the stream does not exist, return zero.
         Stream memory stream = streams[streamId];
@@ -70,6 +80,21 @@ contract SablierV2Pro is
             uint256 withdrawableAmount = getWithdrawableAmount(streamId);
             returnableAmount = stream.depositAmount - stream.withdrawnAmount - withdrawableAmount;
         }
+    }
+
+    /// @inheritdoc ISablierV2
+    function getSender(uint256 streamId) external view override returns (address sender) {
+        sender = streams[streamId].sender;
+    }
+
+    /// @inheritdoc ISablierV2
+    function getStartTime(uint256 streamId) external view override returns (uint256 startTime) {
+        startTime = streams[streamId].startTime;
+    }
+
+    /// @inheritdoc ISablierV2
+    function getStopTime(uint256 streamId) external view override returns (uint256 stopTime) {
+        stopTime = streams[streamId].stopTime;
     }
 
     /// @inheritdoc ISablierV2Pro
@@ -156,6 +181,16 @@ contract SablierV2Pro is
             SD59x18 withdrawnAmount = SD59x18.wrap(int256(stream.withdrawnAmount));
             withdrawableAmount = uint256(SD59x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount)));
         }
+    }
+
+    /// @inheritdoc ISablierV2
+    function getWithdrawnAmount(uint256 streamId) external view override returns (uint256 withdrawnAmount) {
+        withdrawnAmount = streams[streamId].withdrawnAmount;
+    }
+
+    /// @inheritdoc ISablierV2
+    function isCancelable(uint256 streamId) external view override returns (bool cancelable) {
+        cancelable = streams[streamId].cancelable;
     }
 
     /// PUBLIC NON-CONSTANT FUNCTIONS ///
