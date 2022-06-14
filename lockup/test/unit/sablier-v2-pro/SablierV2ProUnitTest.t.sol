@@ -97,40 +97,27 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         assertEq(a.withdrawnAmount, b.withdrawnAmount);
     }
 
-    /// @dev Helper function to compare two uint256 arrays.
-    function assertEq(uint256[] memory a, uint256[] memory b) internal {
-        if (a.length != b.length) {
-            emit log("Error: a.length == b.length not satisfied");
-            fail();
-        }
-
-        for (uint256 i = 0; i < a.length; ) {
-            if (a[i] != b[i]) {
-                emit log("Error: a[] == b[] not satisfied");
-                assertEq(a[i], b[i]);
-            }
-            unchecked {
-                i += 1;
-            }
-        }
-    }
-
     /// @dev Helper function to compare two SD59x18 arrays.
     function assertEq(SD59x18[] memory a, SD59x18[] memory b) internal {
-        if (a.length != b.length) {
-            emit log("Error: a.length == b.length not satisfied");
-            fail();
-        }
-
-        for (uint256 i = 0; i < a.length; ) {
-            if (a[i].neq(b[i])) {
-                emit log("Error: a[] == b[] not satisfied");
-                assertEq(SD59x18.unwrap(a[i]), SD59x18.unwrap(b[i]));
-            }
+        uint256 aLength = a.length;
+        int256[] memory aInt256 = new int256[](aLength);
+        for (uint256 i = 0; i < aLength; ) {
+            aInt256[i] = SD59x18.unwrap(a[i]);
             unchecked {
                 i += 1;
             }
         }
+
+        uint256 bLength = b.length;
+        int256[] memory bInt256 = new int256[](bLength);
+        for (uint256 i = 0; i < bLength; ) {
+            bInt256[i] = SD59x18.unwrap(b[i]);
+            unchecked {
+                i += 1;
+            }
+        }
+
+        assertEq(aInt256, bInt256);
     }
 
     /// @dev Helper function to create a pro stream.
