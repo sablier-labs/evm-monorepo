@@ -12,8 +12,8 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// @notice Emitted when a stream is created.
     /// @param streamId The id of the newly created stream.
-    /// @param sender The address from which to linearly stream the money.
-    /// @param recipient The address toward which to linearly stream the money.
+    /// @param sender The address from which to stream the money.
+    /// @param recipient The address toward which to stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
@@ -65,8 +65,8 @@ interface ISablierV2Linear is ISablierV2 {
     /// - `startTime` must not greater than `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
-    /// @param sender The address from which to linearly stream the money.
-    /// @param recipient The address toward which to linearly stream the money.
+    /// @param sender The address from which to stream the money.
+    /// @param recipient The address toward which to stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
@@ -96,8 +96,8 @@ interface ISablierV2Linear is ISablierV2 {
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param from The address which funds the stream.
-    /// @param sender The address from which to linearly stream the money.
-    /// @param recipient The address toward which to linearly stream the money.
+    /// @param sender The address from which to stream the money.
+    /// @param recipient The address toward which to stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
@@ -125,8 +125,8 @@ interface ISablierV2Linear is ISablierV2 {
     /// - The duration calculation cannot overflow uint256.
     ///
     /// @param from The address which funds the stream.
-    /// @param sender The address from which to linearly stream the money.
-    /// @param recipient The address toward which to linearly stream the money.
+    /// @param sender The address from which to stream the money.
+    /// @param recipient The address toward which to stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param duration The number of seconds for how long the stream will last.
@@ -150,8 +150,8 @@ interface ISablierV2Linear is ISablierV2 {
     /// Requirements:
     /// - The duration calculation cannot overflow uint256.
     ///
-    /// @param sender The address from which to linearly stream the money.
-    /// @param recipient The address toward which to linearly stream the money.
+    /// @param sender The address from which to stream the money.
+    /// @param recipient The address toward which to stream the money.
     /// @param depositAmount The amount of money to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param duration The number of seconds for how long the stream will last.

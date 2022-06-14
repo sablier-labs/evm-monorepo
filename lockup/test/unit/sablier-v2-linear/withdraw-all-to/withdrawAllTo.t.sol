@@ -167,7 +167,7 @@ contract SablierV2Linear__WithdrawAllTo__UnitTest is SablierV2LinearUnitTest {
         sablierV2Linear.withdrawAllTo(defaultStreamIds, toAlice, amounts);
     }
 
-    /// @dev When the amounts array has only greater than the withdrawable amount values, it should revert.
+    /// @dev When some amounts are greater than the withrawable amounts, it should revert.
     function testCannotWithdrawAllTo__SomeAmountsGreaterThanWithdrawableAmount() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);

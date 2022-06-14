@@ -1,12 +1,15 @@
 increaseAuthorization.t.sol
-├── when the new authorization amount calculation overflows uint256
+├── when the calculation overflows uint256
 │  └── it should revert
-└── when the new authorization amount calculation does not overflow uint256
+└── when the calculation does not overflow uint256
    ├── when the sender is the zero address
    │  └── it should revert
    └── when the sender is not the zero address
-      ├── when the funder is the zero address
-      │  └── it should revert
-      └── when the funder is not the zero address
-         ├── it should increase the authorization
-         └── it should emit an Authorize event
+      ├── when the amount is zero
+      │  └── it should not increase the authorization
+      └── when the amount is not zero
+         ├── when the current authorization is zero
+         │  └── it should increase the authorization
+         └── when the current authorization is not zero
+            ├── it should increase the authorization
+            └── it should emit an Authorize event

@@ -169,7 +169,7 @@ contract SablierV2Cliff__WithdrawAllTo__UnitTest is SablierV2CliffUnitTest {
         sablierV2Cliff.withdrawAllTo(defaultStreamIds, toAlice, amounts);
     }
 
-    /// @dev When the amounts array has only greater than the withdrawable amount values, it should revert.
+    /// @dev When some amounts are greater than the withrawable amounts, it should revert.
     function testCannotWithdrawAllTo__SomeAmountsGreaterThanWithdrawableAmount() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);

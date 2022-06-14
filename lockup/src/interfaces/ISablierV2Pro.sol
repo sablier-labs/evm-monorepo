@@ -106,12 +106,12 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `recipient` must not the zero address.
     /// - `depositAmount` must not zero.
     /// - `startTime` must not greater than `stopTime`.
-    /// - `segmentAmounts` must be non-empty and not greater than two hundred elements.
-    /// - `segmentAmounts` summed up must be equal to 'depositAmount'.
-    /// - `segmentExponents` must be non-empty and not greater than two hundred elements.
+    /// - `segmentAmounts` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
+    /// - `segmentAmounts` summed up must be equal to `depositAmount`.
+    /// - `segmentExponents` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
     /// - `segmentExponents` must be bounded between one and three.
-    /// - `segmentMilestones` must be non-empty and not greater than two hundred elements.
-    /// - `segmentMilestones` must be bounded between 'startTime' and 'stopTime'.
+    /// - `segmentMilestones` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
+    /// - `segmentMilestones` must be bounded between `startTime` and `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param sender The address from which to stream the money.
@@ -147,11 +147,11 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `recipient` must not the zero address.
     /// - `depositAmount` must not zero.
     /// - `startTime` must not greater than `stopTime`.
-    /// - `segmentAmounts` must be non-empty and not greater than two hundred elements.
+    /// - `segmentAmounts` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
     /// - `segmentAmounts` summed up must be equal to 'depositAmount'.
-    /// - `segmentExponents` must be non-empty and not greater than two hundred elements.
+    /// - `segmentExponents` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
     /// - `segmentExponents` must be bounded between one and three.
-    /// - `segmentMilestones` must be non-empty and not greater than two hundred elements.
+    /// - `segmentMilestones` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
     /// - `segmentMilestones` must be bounded between 'startTime' and 'stopTime'.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
