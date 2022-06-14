@@ -11,10 +11,10 @@ cancel.t.sol
       │  └── it should revert
       └── when the stream is cancelable
          ├── when the stream ended
-         │  ├── it cancels the stream
-         │  ├── it deletes the stream
-         │  └── it emits a Cancel event
+         │  ├── it should cancel the stream
+         │  ├── it should delete the stream
+         │  └── it should emit a Cancel event
          └── when the stream did not end
-            ├── it cancels the stream
-            ├── it deletes the stream
-            └── it emits a Cancel event
+            ├── it should cancel the stream
+            ├── it should delete the stream
+            └── it should emit a Cancel event
