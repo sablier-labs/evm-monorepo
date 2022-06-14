@@ -545,7 +545,7 @@ contract SablierV2Pro is
 
         uint256 stopTime = segmentMilestones[segmentCount - 1];
         // Checks: requirements for `create` function.
-        checkBasicRequiremenets(sender, recipient, depositAmount, startTime, stopTime);
+        checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
 
         // Checks: soundness of segments variables.
         checkSegmentsSoundness(
