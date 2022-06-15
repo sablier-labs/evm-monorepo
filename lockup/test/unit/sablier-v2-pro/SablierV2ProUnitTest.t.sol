@@ -68,6 +68,10 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         vm.prank(users.sender);
         nonStandardToken.approve(address(sablierV2Pro), type(uint256).max);
 
+        // Approve the SablierV2Pro contract to spend $USD from the `recipient` account.
+        vm.prank(users.recipient);
+        usd.approve(address(sablierV2Pro), type(uint256).max);
+
         // Approve the SablierV2Pro contract to spend $USD from the `funder` account.
         vm.prank(users.funder);
         usd.approve(address(sablierV2Pro), type(uint256).max);
@@ -142,39 +146,5 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
             stream.segmentMilestones,
             stream.cancelable
         );
-    }
-
-    /// @dev Helper function to create dynamical `uint256` arrays from a fixed number of elements.
-    function createDynamicArray(uint256 element0) internal pure returns (uint256[] memory dynamicalArray) {
-        dynamicalArray = new uint256[](1);
-        dynamicalArray[0] = element0;
-    }
-
-    /// @dev Helper function to create dynamical `uint256` arrays from a fixed number of elements.
-    function createDynamicArray(uint256 element0, uint256 element1)
-        internal
-        pure
-        returns (uint256[] memory dynamicalArray)
-    {
-        dynamicalArray = new uint256[](2);
-        dynamicalArray[0] = element0;
-        dynamicalArray[1] = element1;
-    }
-
-    /// @dev Helper function to create dynamical `SD59x18` arrays from a fixed number of elements.
-    function createDynamicArray(SD59x18 element0) internal pure returns (SD59x18[] memory dynamicalArray) {
-        dynamicalArray = new SD59x18[](1);
-        dynamicalArray[0] = element0;
-    }
-
-    /// @dev Helper function to create dynamical `SD59x18` arrays from a fixed number of elements.
-    function createDynamicArray(SD59x18 element0, SD59x18 element1)
-        internal
-        pure
-        returns (SD59x18[] memory dynamicalArray)
-    {
-        dynamicalArray = new SD59x18[](2);
-        dynamicalArray[0] = element0;
-        dynamicalArray[1] = element1;
     }
 }

@@ -6,7 +6,10 @@ withdrawTo.t.sol
     │  └── it should revert
     └── when the to address is not zero
       ├── when the caller is not the recipient
-      │  └── it should revert
+      │  ├── when the caller is the sender
+      │  │  └── it should revert
+      │  └── when the caller is an unauthorized third-party
+      │     └── it should revert
       └── when the caller is the recipient
           ├── when the withdraw amount is zero
           │  └── it should revert
@@ -15,7 +18,7 @@ withdrawTo.t.sol
             │  └── it should revert
             └── when the amount is less than or equal to the withdrawable amount
                ├── when the to address is the recipient
-               │  └── it make the withdrawal
+               │  └── it should make the withdrawal
                └── when the to address is a third-party
                     ├── when the stream ended
                     │  ├── it should withdraw everything

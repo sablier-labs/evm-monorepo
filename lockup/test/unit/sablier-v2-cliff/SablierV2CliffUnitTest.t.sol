@@ -57,12 +57,20 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
         vm.prank(users.sender);
         usd.approve(address(sablierV2Cliff), type(uint256).max);
 
-        // Approve the SablierV2Pro contract to spend non-standard tokens from the `sender` account.
+        // Approve the SablierV2Cliff contract to spend non-standard tokens from the `sender` account.
         vm.prank(users.sender);
         nonStandardToken.approve(address(sablierV2Cliff), type(uint256).max);
 
+        // Approve the SablierV2Cliff contract to spend $USD from the `recipient` account.
+        vm.prank(users.recipient);
+        usd.approve(address(sablierV2Cliff), type(uint256).max);
+
         // Approve the SablierV2Cliff contract to spend $USD from the `funder` account.
         vm.prank(users.funder);
+        usd.approve(address(sablierV2Cliff), type(uint256).max);
+
+        // Approve the SablierV2Cliff contract to spend $USD from the `eve` account.
+        vm.prank(users.eve);
         usd.approve(address(sablierV2Cliff), type(uint256).max);
 
         // Sets all subsequent calls' `msg.sender` to be `sender`.

@@ -34,7 +34,7 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
         sablierV2Linear.cancel(streamId);
     }
 
-    /// @dev When caller is the recipient, it should make the withdrawal.
+    /// @dev When caller is the recipient, it should cancel the stream.
     function testCancel__CallerRecipient() external {
         // Make the recipient the `msg.sender` in this test case.
         changePrank(users.recipient);
@@ -86,7 +86,7 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the stream ended, it should emit a Cancel event.
-    function testCancel__StreamEnded__Event() public {
+    function testCancel__StreamEnded__Event() external {
         // Warp to the end of the stream.
         vm.warp(stream.stopTime);
 
@@ -120,7 +120,7 @@ contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the stream is ongoing, it should emit a Cancel event.
-    function testCancel__StreamOngoing__Event() public {
+    function testCancel__StreamOngoing__Event() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 

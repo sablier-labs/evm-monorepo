@@ -87,7 +87,7 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
     }
 
     /// @dev When the stream ended, it should emit a Cancel event.
-    function testCancel__StreamEnded__Event() public {
+    function testCancel__StreamEnded__Event() external {
         // Warp to the end of the stream.
         vm.warp(stream.stopTime);
 
@@ -101,7 +101,7 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
 
     /// @dev When the stream is ongoing, it should cancel the stream.
     function testCancel__StreamOngoing() external {
-        // Warp to 2_600 seconds after the start time (26% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 
         // Run the test.
@@ -110,7 +110,7 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
 
     /// @dev When the stream is ongoing, it should delete the stream.
     function testCancel__StreamOngoing__DeleteStream() external {
-        // Warp to 2_600 seconds after the start time (26% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 
         // Run the test.
@@ -121,8 +121,8 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
     }
 
     /// @dev When the stream is ongoing, it should emit a Cancel event.
-    function testCancel__StreamOngoing__Event() public {
-        // Warp to 2_600 seconds after the start time (26% of the default stream duration).
+    function testCancel__StreamOngoing__Event() external {
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 
         // Run the test.

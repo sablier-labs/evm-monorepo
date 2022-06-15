@@ -53,14 +53,14 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the withdraw amount is zero, it should revert.
-    function testCannotWithdraw__WithdrawAmountZero() public {
+    function testCannotWithdraw__WithdrawAmountZero() external {
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__WithdrawAmountZero.selector, streamId));
         uint256 withdrawAmount = 0;
         sablierV2Linear.withdraw(streamId, withdrawAmount);
     }
 
     /// @dev When the amount is greater than the withdrawable amount, it should revert.
-    function testCannotWithdraw__WithdrawAmountGreaterThanWithdrawableAmount() public {
+    function testCannotWithdraw__WithdrawAmountGreaterThanWithdrawableAmount() external {
         uint256 withdrawAmountMaxUint256 = type(uint256).max;
         uint256 withdrawableAmount = 0;
         vm.expectRevert(
@@ -75,7 +75,7 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the stream ended, it should withdraw everything.
-    function testWithdraw__StreamEnded() public {
+    function testWithdraw__StreamEnded() external {
         // Warp to the end of the stream.
         vm.warp(stream.stopTime);
 
@@ -85,7 +85,7 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the stream ended, it should delete the stream.
-    function testWithdraw__StreamEnded__DeleteStream() public {
+    function testWithdraw__StreamEnded__DeleteStream() external {
         // Warp to the end of the stream.
         vm.warp(stream.stopTime);
 
@@ -98,19 +98,19 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the stream ended, it should emit a Withdraw event.
-    function testWithdraw__StreamEnded__Event() public {
+    function testWithdraw__StreamEnded__Event() external {
         // Warp to the end of the stream.
         vm.warp(stream.stopTime);
 
         // Run the test.
-        vm.expectEmit(true, true, false, true);
         uint256 withdrawAmount = stream.depositAmount;
+        vm.expectEmit(true, true, false, true);
         emit Withdraw(streamId, stream.recipient, withdrawAmount);
         sablierV2Linear.withdraw(streamId, withdrawAmount);
     }
 
     /// @dev When the stream is ongoing, it should make the withdrawal.
-    function testWithdraw__StreamOngoing() public {
+    function testWithdraw__StreamOngoing() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 
@@ -119,7 +119,7 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the stream is ongoing, it should update the withdrawn amount.
-    function testWithdraw__StreamOngoing__UpdateWithdrawnAmount() public {
+    function testWithdraw__StreamOngoing__UpdateWithdrawnAmount() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 
@@ -133,7 +133,7 @@ contract SablierV2Linear__Withdraw__UnitTest is SablierV2LinearUnitTest {
     }
 
     /// @dev When the stream is ongoing, it should emit a Withdraw event.
-    function testWithdraw__StreamOngoing__Event() public {
+    function testWithdraw__StreamOngoing__Event() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 

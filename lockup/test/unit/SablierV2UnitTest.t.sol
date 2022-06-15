@@ -26,8 +26,8 @@ abstract contract SablierV2UnitTest is Test {
     /// CONSTANTS ///
 
     uint256 internal constant CLIFF_DURATION = 2_500 seconds;
-    uint256 internal constant TOTAL_DURATION = 10_000 seconds;
     uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
+    uint256 internal constant TOTAL_DURATION = 10_000 seconds;
 
     uint256 internal immutable CLIFF_TIME;
     uint256 internal immutable DEPOSIT_AMOUNT;
@@ -115,6 +115,40 @@ abstract contract SablierV2UnitTest is Test {
     /// @dev Helper function to compare two `IERC20` addresses.
     function assertEq(IERC20 a, IERC20 b) internal {
         assertEq(address(a), address(b));
+    }
+
+    /// @dev Helper function to create dynamical `uint256` arrays from a fixed number of elements.
+    function createDynamicArray(uint256 element0) internal pure returns (uint256[] memory dynamicalArray) {
+        dynamicalArray = new uint256[](1);
+        dynamicalArray[0] = element0;
+    }
+
+    /// @dev Helper function to create dynamical `SD59x18` arrays from a fixed number of elements.
+    function createDynamicArray(SD59x18 element0) internal pure returns (SD59x18[] memory dynamicalArray) {
+        dynamicalArray = new SD59x18[](1);
+        dynamicalArray[0] = element0;
+    }
+
+    /// @dev Helper function to create dynamical `SD59x18` arrays from a fixed number of elements.
+    function createDynamicArray(SD59x18 element0, SD59x18 element1)
+        internal
+        pure
+        returns (SD59x18[] memory dynamicalArray)
+    {
+        dynamicalArray = new SD59x18[](2);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+    }
+
+    /// @dev Helper function to create dynamical `uint256` arrays from a fixed number of elements.
+    function createDynamicArray(uint256 element0, uint256 element1)
+        internal
+        pure
+        returns (uint256[] memory dynamicalArray)
+    {
+        dynamicalArray = new uint256[](2);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
     }
 
     /// @dev Give user 100 ETH and 1M USD.
