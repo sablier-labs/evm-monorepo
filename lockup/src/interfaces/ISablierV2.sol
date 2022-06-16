@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+
 /// @notice The common interface between all Sablier V2 streaming contracts.
 /// @author Sablier Labs Ltd.
 interface ISablierV2 {
@@ -22,6 +24,7 @@ interface ISablierV2 {
     error SablierV2__InsufficientAuthorization(
         address sender,
         address funder,
+        IERC20 token,
         uint256 authorization,
         uint256 depositAmount
     );
@@ -98,8 +101,14 @@ interface ISablierV2 {
     /// @notice Returns the authorization that `sender` has given `funder` to create streams.
     /// @param sender The address of the would-be stream sender.
     /// @param funder The address of the funder.
-    /// @return authorization The authorization that can be used for creating streams, as an 18-decimal number.
-    function getAuthorization(address sender, address funder) external view returns (uint256 authorization);
+    /// @param token The ERC-20 token for which to grant the authorization.
+    /// @return authorization The maximum amount that can be used for creating streams, in units of the token's
+    /// decimals.
+    function getAuthorization(
+        address sender,
+        address funder,
+        IERC20 token
+    ) external view returns (uint256 authorization);
 
     /// @notice Reads the amount deposited in the stream.
     /// @param streamId The id of the stream to make the query for.
@@ -174,7 +183,8 @@ interface ISablierV2 {
     /// @param streamIds The ids of the streams to cancel.
     function cancelAll(uint256[] calldata streamIds) external;
 
-    /// @notice Decreases the authorization given by `msg.sender` to `funder` to create streams.
+    /// @notice Decreases the authorization given by `msg.sender` to `funder` to create streams using their
+    /// `token` balance.
     ///
     /// @dev Emits an {Authorize} event indicating the updated authorization.
     ///
@@ -183,10 +193,16 @@ interface ISablierV2 {
     /// - `funder` must have set an authorization to `msg.sender` of at least `amount`.
     ///
     /// @param funder The address of the stream funder.
+    /// @param token The ERC-20 token for which to decrease the authorization.
     /// @param amount The authorization to decrease, as an 18-decimal number.
-    function decreaseAuthorization(address funder, uint256 amount) external;
+    function decreaseAuthorization(
+        address funder,
+        IERC20 token,
+        uint256 amount
+    ) external;
 
-    /// @notice Increases the authorization to create streams given by `msg.sender` to `funder`.
+    /// @notice Increases the authorization given by `msg.sender` to `funder` to create streams using their
+    /// `token` balance.
     ///
     /// @dev Emits an {Authorize} event indicating the updated authorization.
     ///
@@ -195,8 +211,13 @@ interface ISablierV2 {
     /// - The updated authorization must not overflow uint256.
     ///
     /// @param funder The address of the stream funder.
-    /// @param amount The authorization that can be used for creating streams, as an 18-decimal number.
-    function increaseAuthorization(address funder, uint256 amount) external;
+    /// @param token The ERC-20 token for which to increase the authorization.
+    /// @param amount The amount by which to increase the authorization, in units of the token's decimals.
+    function increaseAuthorization(
+        address funder,
+        IERC20 token,
+        uint256 amount
+    ) external;
 
     /// @notice Counter for stream ids.
     /// @return The next stream id;

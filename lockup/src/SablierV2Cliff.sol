@@ -213,9 +213,9 @@ contract SablierV2Cliff is
         }
 
         // Checks: the caller has sufficient authorization to create this stream on behalf of `from`.
-        uint256 authorization = authorizations[from][msg.sender];
+        uint256 authorization = authorizations[from][msg.sender][token];
         if (authorization < depositAmount) {
-            revert SablierV2__InsufficientAuthorization(from, msg.sender, authorization, depositAmount);
+            revert SablierV2__InsufficientAuthorization(from, msg.sender, token, authorization, depositAmount);
         }
 
         // Effects & Interactions: create the stream.
@@ -233,7 +233,7 @@ contract SablierV2Cliff is
 
         // Effects: decrease the authorization since this stream has consumed part of it.
         unchecked {
-            authorizeInternal(from, msg.sender, authorization - depositAmount);
+            authorizeInternal(from, msg.sender, token, authorization - depositAmount);
         }
     }
 
@@ -254,9 +254,9 @@ contract SablierV2Cliff is
         }
 
         // Checks: `msg.sender` has sufficient authorization to create this stream on behalf of `from`.
-        uint256 authorization = authorizations[from][msg.sender];
+        uint256 authorization = authorizations[from][msg.sender][token];
         if (authorization < depositAmount) {
-            revert SablierV2__InsufficientAuthorization(from, msg.sender, authorization, depositAmount);
+            revert SablierV2__InsufficientAuthorization(from, msg.sender, token, authorization, depositAmount);
         }
 
         // Effects & Interactions: create the stream.
@@ -277,7 +277,7 @@ contract SablierV2Cliff is
 
         // Effects: decrease the authorization since this stream has consumed part of it.
         unchecked {
-            authorizeInternal(from, msg.sender, authorization - depositAmount);
+            authorizeInternal(from, msg.sender, token, authorization - depositAmount);
         }
     }
 

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 
 /// @title SablierV2
@@ -15,7 +17,7 @@ abstract contract SablierV2 is ISablierV2 {
     /// INTERNAL STORAGE ///
 
     /// @dev Mapping from owners to creators to stream creation authorizations.
-    mapping(address => mapping(address => uint256)) internal authorizations;
+    mapping(address => mapping(address => mapping(IERC20 => uint256))) internal authorizations;
 
     /// CONSTRUCTOR ///
 
@@ -26,8 +28,12 @@ abstract contract SablierV2 is ISablierV2 {
     /// CONSTANT FUNCTIONS ///
 
     /// @inheritdoc ISablierV2
-    function getAuthorization(address sender, address funder) external view returns (uint256 authorization) {
-        return authorizations[sender][funder];
+    function getAuthorization(
+        address sender,
+        address funder,
+        IERC20 token
+    ) external view returns (uint256 authorization) {
+        return authorizations[sender][funder][token];
     }
 
     /// NON-CONSTANT FUNCTIONS ///
@@ -58,17 +64,25 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function decreaseAuthorization(address funder, uint256 amount) public virtual override {
+    function decreaseAuthorization(
+        address funder,
+        IERC20 token,
+        uint256 amount
+    ) public virtual override {
         address sender = msg.sender;
-        uint256 newAuthorization = authorizations[sender][funder] - amount;
-        authorizeInternal(sender, funder, newAuthorization);
+        uint256 newAuthorization = authorizations[sender][funder][token] - amount;
+        authorizeInternal(sender, funder, token, newAuthorization);
     }
 
     /// @inheritdoc ISablierV2
-    function increaseAuthorization(address funder, uint256 amount) public virtual override {
+    function increaseAuthorization(
+        address funder,
+        IERC20 token,
+        uint256 amount
+    ) public virtual override {
         address sender = msg.sender;
-        uint256 newAuthorization = authorizations[sender][funder] + amount;
-        authorizeInternal(sender, funder, newAuthorization);
+        uint256 newAuthorization = authorizations[sender][funder][token] + amount;
+        authorizeInternal(sender, funder, token, newAuthorization);
     }
 
     /// INTERNAL CONSTANT FUNCTIONS ///
@@ -108,6 +122,7 @@ abstract contract SablierV2 is ISablierV2 {
     function authorizeInternal(
         address sender,
         address funder,
+        IERC20 token,
         uint256 amount
     ) internal virtual {
         // Checks: the would-be stream sender is not the zero address.
@@ -115,13 +130,8 @@ abstract contract SablierV2 is ISablierV2 {
             revert SablierV2__AuthorizeSenderZeroAddress();
         }
 
-        // Checks: the funder is not the zero address.
-        if (funder == address(0)) {
-            revert SablierV2__AuthorizeFunderZeroAddress();
-        }
-
         // Effects: update the authorization for the given sender and funder pair.
-        authorizations[sender][funder] = amount;
+        authorizations[sender][funder][token] = amount;
 
         // Emit an event.
         emit Authorize(sender, funder, amount);

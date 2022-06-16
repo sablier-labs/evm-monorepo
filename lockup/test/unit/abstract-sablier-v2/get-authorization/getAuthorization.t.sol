@@ -8,7 +8,7 @@ import { AbstractSablierV2UnitTest } from "../AbstractSablierV2UnitTest.t.sol";
 contract AbstractSablierV2__GetAuthorization__UnitTest is AbstractSablierV2UnitTest {
     /// @dev When the authorization is not set, it should return zero.
     function testGetAuthorization__AuthorizationNotSet() external {
-        uint256 actualAuthorization = abstractSablierV2.getAuthorization(users.sender, users.funder);
+        uint256 actualAuthorization = abstractSablierV2.getAuthorization(users.sender, users.funder, usd);
         uint256 expectedAuthorization = 0;
         assertEq(actualAuthorization, expectedAuthorization);
     }
@@ -16,8 +16,8 @@ contract AbstractSablierV2__GetAuthorization__UnitTest is AbstractSablierV2UnitT
     /// @dev When the authorization is not set, it should return the correct authorization.
     function testGetAuthorization__AuthorizationSet() external {
         uint256 authorization = DEPOSIT_AMOUNT;
-        abstractSablierV2.increaseAuthorization(users.funder, authorization);
-        uint256 actualAuthorization = abstractSablierV2.getAuthorization(users.sender, users.funder);
+        abstractSablierV2.increaseAuthorization(users.funder, usd, authorization);
+        uint256 actualAuthorization = abstractSablierV2.getAuthorization(users.sender, users.funder, usd);
         uint256 expectedAuthorization = authorization;
         assertEq(actualAuthorization, expectedAuthorization);
     }
@@ -25,9 +25,9 @@ contract AbstractSablierV2__GetAuthorization__UnitTest is AbstractSablierV2UnitT
     /// @dev When all checks pass, it should emit an Authorize event.
     function testDecreaseAuthorization__Event() external {
         uint256 amount = DEPOSIT_AMOUNT;
-        abstractSablierV2.increaseAuthorization(users.funder, amount);
+        abstractSablierV2.increaseAuthorization(users.funder, usd, amount);
         vm.expectEmit(true, true, false, true);
         emit Authorize(users.sender, users.funder, 0);
-        abstractSablierV2.decreaseAuthorization(users.funder, amount);
+        abstractSablierV2.decreaseAuthorization(users.funder, usd, amount);
     }
 }
