@@ -34,7 +34,7 @@ contract SablierV2Cliff__Cancel__UnitTest is SablierV2CliffUnitTest {
         sablierV2Cliff.cancel(streamId);
     }
 
-    /// @dev When caller is the recipient, it should make the withdrawal.
+    /// @dev When caller is the recipient, it should cancel the stream.
     function testCancel__CallerRecipient() external {
         // Make the recipient the `msg.sender` in this test case.
         changePrank(users.recipient);
