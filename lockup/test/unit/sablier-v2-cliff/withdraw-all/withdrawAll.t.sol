@@ -135,7 +135,7 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
 
         // Run the test.
         uint256 withdrawableAmount = WITHDRAW_AMOUNT;
-        uint256 withdrawAmountMaxUint256 = type(uint256).max;
+        uint256 withdrawAmountMaxUint256 = MAX_UINT_256;
         uint256[] memory amounts = createDynamicArray(withdrawableAmount, withdrawAmountMaxUint256);
         vm.expectRevert(
             abi.encodeWithSelector(

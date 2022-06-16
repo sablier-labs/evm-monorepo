@@ -61,7 +61,7 @@ contract SablierV2Cliff__UnitTest__Withdraw is SablierV2CliffUnitTest {
 
     /// @dev When the amount is greater than the withdrawable amount, it should revert.
     function testCannotWithdraw__WithdrawAmountGreaterThanWithdrawableAmount() external {
-        uint256 withdrawAmountMaxUint256 = type(uint256).max;
+        uint256 withdrawAmountMaxUint256 = MAX_UINT_256;
         uint256 withdrawableAmount = 0;
         vm.expectRevert(
             abi.encodeWithSelector(

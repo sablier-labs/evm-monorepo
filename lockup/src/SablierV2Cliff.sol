@@ -169,33 +169,6 @@ contract SablierV2Cliff is
     }
 
     /// @inheritdoc ISablierV2Cliff
-    function createWithDuration(
-        address sender,
-        address recipient,
-        uint256 depositAmount,
-        IERC20 token,
-        uint256 cliffDuration,
-        uint256 totalDuration,
-        bool cancelable
-    ) external override returns (uint256 streamId) {
-        address from = msg.sender;
-        uint256 startTime = block.timestamp;
-        uint256 cliffTime = startTime + cliffDuration;
-        uint256 stopTime = startTime + totalDuration;
-        streamId = createInternal(
-            from,
-            sender,
-            recipient,
-            depositAmount,
-            token,
-            startTime,
-            cliffTime,
-            stopTime,
-            cancelable
-        );
-    }
-
-    /// @inheritdoc ISablierV2Cliff
     function createFrom(
         address from,
         address sender,
@@ -218,7 +191,12 @@ contract SablierV2Cliff is
             revert SablierV2__InsufficientAuthorization(from, msg.sender, token, authorization, depositAmount);
         }
 
-        // Effects & Interactions: create the stream.
+        // Effects: decrease the authorization since this stream consumes a part or all of it.
+        unchecked {
+            authorizeInternal(from, msg.sender, token, authorization - depositAmount);
+        }
+
+        // Checks, Effects and Interactions: create the stream.
         streamId = createInternal(
             from,
             sender,
@@ -230,11 +208,6 @@ contract SablierV2Cliff is
             stopTime,
             cancelable
         );
-
-        // Effects: decrease the authorization since this stream has consumed part of it.
-        unchecked {
-            authorizeInternal(from, msg.sender, token, authorization - depositAmount);
-        }
     }
 
     /// @inheritdoc ISablierV2Cliff
@@ -259,10 +232,23 @@ contract SablierV2Cliff is
             revert SablierV2__InsufficientAuthorization(from, msg.sender, token, authorization, depositAmount);
         }
 
-        // Effects & Interactions: create the stream.
+        // Effects: decrease the authorization since this stream consumes a part or all of it.
+        unchecked {
+            authorizeInternal(from, msg.sender, token, authorization - depositAmount);
+        }
+
+        // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
+        // `createInternal` function will nonetheless check that the stop time is greater than or equal to the
+        // cliff time, and that the cliff time is greater than or equal to the start time.
         uint256 startTime = block.timestamp;
-        uint256 cliffTime = startTime + cliffDuration;
-        uint256 stopTime = startTime + totalDuration;
+        uint256 cliffTime;
+        uint256 stopTime;
+        unchecked {
+            cliffTime = startTime + cliffDuration;
+            stopTime = startTime + totalDuration;
+        }
+
+        // Checks, Effects and Interactions: create the stream.
         streamId = createInternal(
             from,
             sender,
@@ -274,11 +260,43 @@ contract SablierV2Cliff is
             stopTime,
             cancelable
         );
+    }
 
-        // Effects: decrease the authorization since this stream has consumed part of it.
+    /// @inheritdoc ISablierV2Cliff
+    function createWithDuration(
+        address sender,
+        address recipient,
+        uint256 depositAmount,
+        IERC20 token,
+        uint256 cliffDuration,
+        uint256 totalDuration,
+        bool cancelable
+    ) external override returns (uint256 streamId) {
+        address from = msg.sender;
+        uint256 startTime = block.timestamp;
+
+        // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
+        // `createInternal` function will nonetheless check that the stop time is greater than or equal to the
+        // cliff time, and that the cliff time is greater than or equal to the start time.
+        uint256 cliffTime;
+        uint256 stopTime;
         unchecked {
-            authorizeInternal(from, msg.sender, token, authorization - depositAmount);
+            cliffTime = startTime + cliffDuration;
+            stopTime = startTime + totalDuration;
         }
+
+        // Checks, Effects and Interactions: Create the stream.
+        streamId = createInternal(
+            from,
+            sender,
+            recipient,
+            depositAmount,
+            token,
+            startTime,
+            cliffTime,
+            stopTime,
+            cancelable
+        );
     }
 
     /// @inheritdoc ISablierV2
@@ -340,7 +358,7 @@ contract SablierV2Cliff is
                 revert SablierV2__Unauthorized(streamId, msg.sender);
             }
 
-            // Effects & Interactions: withdraw from the stream.
+            // Effects and Interactions: withdraw from the stream.
             withdrawInternal(streamId, streams[streamId].recipient, amounts[i]);
 
             // Increment the for loop iterator.
@@ -401,7 +419,7 @@ contract SablierV2Cliff is
                 revert SablierV2__Unauthorized(streamId, msg.sender);
             }
 
-            // Effects & Interactions: withdraw from the stream.
+            // Effects and Interactions: withdraw from the stream.
             withdrawInternal(streamId, to, amounts[i]);
 
             // Increment the for loop iterator.
@@ -458,15 +476,15 @@ contract SablierV2Cliff is
         uint256 stopTime,
         bool cancelable
     ) internal returns (uint256 streamId) {
-        // Checks: requirements for `create` function.
+        // Checks: the common requirements for the `create` function arguments.
         checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
 
-        // Checks: the start time is not greater than the cliff time.
+        // Checks: the cliff time is greater than or equal to the start time.
         if (startTime > cliffTime) {
             revert SablierV2Cliff__StartTimeGreaterThanCliffTime(startTime, cliffTime);
         }
 
-        // Checks: the cliff time is not greater than the stop time.
+        // Checks: the stop time is greater than or equal to the cliff time.
         if (cliffTime > stopTime) {
             revert SablierV2Cliff__CliffTimeGreaterThanStopTime(cliffTime, stopTime);
         }

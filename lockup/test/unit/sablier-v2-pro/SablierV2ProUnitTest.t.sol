@@ -62,19 +62,19 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
         // Approve the SablierV2Pro contract to spend $USD from the `sender` account.
         vm.prank(users.sender);
-        usd.approve(address(sablierV2Pro), type(uint256).max);
+        usd.approve(address(sablierV2Pro), MAX_UINT_256);
 
         // Approve the SablierV2Pro contract to spend non-standard tokens from the `sender` account.
         vm.prank(users.sender);
-        nonStandardToken.approve(address(sablierV2Pro), type(uint256).max);
+        nonStandardToken.approve(address(sablierV2Pro), MAX_UINT_256);
 
         // Approve the SablierV2Pro contract to spend $USD from the `recipient` account.
         vm.prank(users.recipient);
-        usd.approve(address(sablierV2Pro), type(uint256).max);
+        usd.approve(address(sablierV2Pro), MAX_UINT_256);
 
         // Approve the SablierV2Pro contract to spend $USD from the `funder` account.
         vm.prank(users.funder);
-        usd.approve(address(sablierV2Pro), type(uint256).max);
+        usd.approve(address(sablierV2Pro), MAX_UINT_256);
 
         // Sets all subsequent calls' `msg.sender` to be `sender`.
         vm.startPrank(users.sender);

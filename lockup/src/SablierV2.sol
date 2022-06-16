@@ -87,7 +87,7 @@ abstract contract SablierV2 is ISablierV2 {
 
     /// INTERNAL CONSTANT FUNCTIONS ///
 
-    /// @dev This function checks basic requiremenets for `create` function.
+    /// @dev Checks basic requiremenets for the `create` function arguments.
     function checkCreateArguments(
         address sender,
         address recipient,
