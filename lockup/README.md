@@ -104,7 +104,3 @@ There are many other cool commands available in Foundry. Check out the [Foundry 
 ## Security
 
 For security concerns, please email [security@sablier.finance](mailto:security@sablier.finance). This repository is subject to the Sablier bug bounty program, per the terms defined [here](https://docs.sablier.finance/).
-
-## License
-
-[LGPL v3](./LICENSE.md) © Mainframe Group Inc.
