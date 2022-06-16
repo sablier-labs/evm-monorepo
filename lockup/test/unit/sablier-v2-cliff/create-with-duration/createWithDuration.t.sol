@@ -7,7 +7,7 @@ import { stdError } from "forge-std/Test.sol";
 
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
-contract SablierV2Cliff__CreateWithDuration__UnitTest is SablierV2CliffUnitTest {
+contract SablierV2Cliff__UnitTest__CreateWithDuration is SablierV2CliffUnitTest {
     /// @dev When the cliff duration calculation overflows uint256, it should revert.
     function testCannotCreateWithDuration__CliffDurationCalculationOverflow() external {
         vm.expectRevert(stdError.arithmeticError);

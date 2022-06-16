@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__GetReturnableAmount__UnitTest is SablierV2LinearUnitTest {
+contract SablierV2Linear__UnitTest__GetReturnableAmount is SablierV2LinearUnitTest {
     uint256 internal streamId;
 
     /// @dev A setup function invoked before each test case.

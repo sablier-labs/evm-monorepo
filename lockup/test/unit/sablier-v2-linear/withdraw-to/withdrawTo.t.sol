@@ -6,7 +6,7 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__WithdrawTo__UnitTest is SablierV2LinearUnitTest {
+contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
     uint256 internal streamId;
     address internal toAlice;
 

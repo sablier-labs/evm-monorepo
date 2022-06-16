@@ -6,7 +6,7 @@ import { ISablierV2Cliff } from "@sablier/v2-core/interfaces/ISablierV2Cliff.sol
 
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
-contract SablierV2Cliff__WithdrawAllTo__UnitTest is SablierV2CliffUnitTest {
+contract SablierV2Cliff__UnitTest__WithdrawAllTo is SablierV2CliffUnitTest {
     uint256[] internal defaultAmounts;
     uint256[] internal defaultStreamIds;
     address internal toAlice;

@@ -6,7 +6,7 @@ import { e, SD59x18 } from "@prb/math/SD59x18.sol";
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
 /// @dev Basic tests found in the SablierV2Linear and SablierV2Cliff contracts.
-contract SablierV2Pro__GetWithdrawableAmount__BasicsUnitTest is SablierV2ProUnitTest {
+contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUnitTest {
     uint256 internal streamId;
 
     /// @dev A setup function invoked before each test case.
@@ -82,7 +82,7 @@ contract SablierV2Pro__GetWithdrawableAmount__BasicsUnitTest is SablierV2ProUnit
 }
 
 /// @dev Wrapper contract for the case when the current time is less than the stop time.
-contract SablierV2Pro__GetWithdrawableAmount__SegmentsUnitTest is SablierV2ProUnitTest {
+contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2ProUnitTest {
     uint256 internal streamId;
 
     /// @dev A setup function invoked before each test case.

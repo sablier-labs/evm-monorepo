@@ -7,7 +7,7 @@ import { stdError } from "forge-std/Test.sol";
 
 import { AbstractSablierV2UnitTest } from "../AbstractSablierV2UnitTest.t.sol";
 
-contract AbstractSablierV2__DecreaseAuthorization__UnitTest is AbstractSablierV2UnitTest {
+contract AbstractSablierV2__UnitTest__DecreaseAuthorization is AbstractSablierV2UnitTest {
     /// @dev When the calculation underflows uint256, it should revert.
     function testCannotDecreaseAuthorization__Underflow() external {
         vm.expectRevert(stdError.arithmeticError);

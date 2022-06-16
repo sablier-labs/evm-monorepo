@@ -7,7 +7,7 @@ import { stdError } from "forge-std/Test.sol";
 
 import { AbstractSablierV2UnitTest } from "../AbstractSablierV2UnitTest.t.sol";
 
-contract AbstractSablierV2__IncreaseAuthorization__UnitTest is AbstractSablierV2UnitTest {
+contract AbstractSablierV2__UnitTest__IncreaseAuthorization is AbstractSablierV2UnitTest {
     /// @dev When the calculation overflows uint256, it should revert.
     function testCannotIncreaseAuthorization__Overflow() external {
         abstractSablierV2.increaseAuthorization(users.funder, usd, 1);

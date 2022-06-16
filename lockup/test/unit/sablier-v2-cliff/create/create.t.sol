@@ -9,7 +9,7 @@ import { SablierV2Cliff } from "@sablier/v2-core/SablierV2Cliff.sol";
 
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
-contract SablierV2Cliff__Create__UnitTest is SablierV2CliffUnitTest {
+contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
     /// @dev When the recipient is the zero address, it should revert.
     function testCannotCreate__RecipientZeroAddress() external {
         vm.expectRevert(ISablierV2.SablierV2__RecipientZeroAddress.selector);

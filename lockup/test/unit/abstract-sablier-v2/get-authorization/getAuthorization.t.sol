@@ -5,7 +5,7 @@ import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 
 import { AbstractSablierV2UnitTest } from "../AbstractSablierV2UnitTest.t.sol";
 
-contract AbstractSablierV2__GetAuthorization__UnitTest is AbstractSablierV2UnitTest {
+contract AbstractSablierV2__UnitTest__GetAuthorization is AbstractSablierV2UnitTest {
     /// @dev When the authorization is not set, it should return zero.
     function testGetAuthorization__AuthorizationNotSet() external {
         uint256 actualAuthorization = abstractSablierV2.getAuthorization(users.sender, users.funder, usd);

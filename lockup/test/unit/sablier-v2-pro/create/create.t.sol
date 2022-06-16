@@ -10,7 +10,7 @@ import { stdError } from "forge-std/Test.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__Create__UnitTest is SablierV2ProUnitTest {
+contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
     /// @dev When the recipient is the zero address, it should revert.
     function testCannotCreate__RecipientZeroAddress() external {
         vm.expectRevert(ISablierV2.SablierV2__RecipientZeroAddress.selector);

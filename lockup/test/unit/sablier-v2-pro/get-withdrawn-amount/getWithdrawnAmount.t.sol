@@ -3,8 +3,8 @@ pragma solidity >=0.8.13;
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__GetWithdrawnAmount__UnitTest is SablierV2ProUnitTest {
-    uint256 streamId;
+contract SablierV2Pro__UnitTest__GetWithdrawnAmount is SablierV2ProUnitTest {
+    uint256 internal streamId;
 
     /// @dev A setup function invoked before each test case.
     function setUp() public override {

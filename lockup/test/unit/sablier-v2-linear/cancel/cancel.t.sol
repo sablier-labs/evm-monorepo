@@ -6,7 +6,7 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__Cancel__UnitTest is SablierV2LinearUnitTest {
+contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
     uint256 internal streamId;
 
     /// @dev A setup function invoked before each test case.

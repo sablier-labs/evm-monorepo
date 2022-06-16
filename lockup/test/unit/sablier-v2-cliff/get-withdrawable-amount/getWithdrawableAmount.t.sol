@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
-contract SablierV2Cliff__GetWithdrawableAmount__UnitTest is SablierV2CliffUnitTest {
+contract SablierV2Cliff__UnitTest__GetWithdrawableAmount is SablierV2CliffUnitTest {
     uint256 internal streamId;
 
     /// @dev A setup function invoked before each test case.

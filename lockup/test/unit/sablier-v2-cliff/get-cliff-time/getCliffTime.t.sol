@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
-contract SablierV2Cliff__CliffTime__UnitTest is SablierV2CliffUnitTest {
+contract SablierV2Cliff__UnitTest__GetCliffTime is SablierV2CliffUnitTest {
     /// @dev When the stream does not exist, it should return zero.
     function testGetCliffTime__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
