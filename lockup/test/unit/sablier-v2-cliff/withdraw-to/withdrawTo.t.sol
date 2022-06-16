@@ -145,8 +145,8 @@ contract SablierV2Cliff__UnitTest__WithdrawTo is SablierV2CliffUnitTest {
         // Run the test.
         uint256 withdrawnAmount = WITHDRAW_AMOUNT;
         sablierV2Cliff.withdrawTo(streamId, toAlice, withdrawnAmount);
-        ISablierV2Cliff.Stream memory queriedStream = sablierV2Cliff.getStream(streamId);
-        uint256 actualWithdrawnAmount = queriedStream.withdrawnAmount;
+        ISablierV2Cliff.Stream memory actualStream = sablierV2Cliff.getStream(streamId);
+        uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
         uint256 expectedWithdrawnAmount = stream.withdrawnAmount + withdrawnAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
