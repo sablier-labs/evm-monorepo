@@ -3,6 +3,7 @@
 [default]
 auto_detect_solc = false
 libs = ["lib"]
+gas_reports = ["*"]
 optimizer = true
 optimizer_runs = 800
 out = "out"
