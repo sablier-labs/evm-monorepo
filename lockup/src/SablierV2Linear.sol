@@ -153,21 +153,6 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2Linear
-    function createWithDuration(
-        address sender,
-        address recipient,
-        uint256 depositAmount,
-        IERC20 token,
-        uint256 duration,
-        bool cancelable
-    ) external override returns (uint256 streamId) {
-        address from = msg.sender;
-        uint256 startTime = block.timestamp;
-        uint256 stopTime = startTime + duration;
-        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
-    }
-
-    /// @inheritdoc ISablierV2Linear
     function createFrom(
         address from,
         address sender,
@@ -189,13 +174,13 @@ contract SablierV2Linear is
             revert SablierV2__InsufficientAuthorization(from, msg.sender, token, authorization, depositAmount);
         }
 
-        // Effects & Interactions: create the stream.
-        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
-
-        // Effects: decrease the authorization since this stream has consumed part of it.
+        // Effects: decrease the authorization since this stream consumes a part of all of it.
         unchecked {
             authorizeInternal(from, msg.sender, token, authorization - depositAmount);
         }
+
+        // Checks, Effects and Interactions: create the stream.
+        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
     }
 
     /// @inheritdoc ISablierV2Linear
@@ -219,15 +204,44 @@ contract SablierV2Linear is
             revert SablierV2__InsufficientAuthorization(from, msg.sender, token, authorization, depositAmount);
         }
 
-        // Effects & Interactions: create the stream.
+        // Calculate the stop time. It is fine to use unchecked arithmetic because the `createInternal` function will
+        // nonetheless check that the stop time is greater than or equal to the start time.
         uint256 startTime = block.timestamp;
-        uint256 stopTime = startTime + duration;
-        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        uint256 stopTime;
+        unchecked {
+            stopTime = startTime + duration;
+        }
 
-        // Effects: decrease the authorization since this stream has consumed part of it.
+        // Effects: decrease the authorization since this stream consumes a part or all of it.
         unchecked {
             authorizeInternal(from, msg.sender, token, authorization - depositAmount);
         }
+
+        // Checks, Effects and Interactions: create the stream.
+        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+    }
+
+    /// @inheritdoc ISablierV2Linear
+    function createWithDuration(
+        address sender,
+        address recipient,
+        uint256 depositAmount,
+        IERC20 token,
+        uint256 duration,
+        bool cancelable
+    ) external override returns (uint256 streamId) {
+        address from = msg.sender;
+        uint256 startTime = block.timestamp;
+        uint256 stopTime;
+
+        // Calculate the stop time. It is fine to use unchecked arithmetic because the `createInternal` function will
+        // nonetheless check that the stop time is greater than or equal to the start time.
+        unchecked {
+            stopTime = startTime + duration;
+        }
+
+        // Checks, Effects and Interactions: create the stream.
+        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
     }
 
     /// @inheritdoc ISablierV2
@@ -289,7 +303,7 @@ contract SablierV2Linear is
                 revert SablierV2__Unauthorized(streamId, msg.sender);
             }
 
-            // Effects & Interactions: withdraw from the stream.
+            // Effects and Interactions: withdraw from the stream.
             withdrawInternal(streamId, streams[streamId].recipient, amounts[i]);
 
             // Increment the for loop iterator.
@@ -350,7 +364,7 @@ contract SablierV2Linear is
                 revert SablierV2__Unauthorized(streamId, msg.sender);
             }
 
-            // Effects & Interactions: withdraw from the stream.
+            // Effects and Interactions: withdraw from the stream.
             withdrawInternal(streamId, to, amounts[i]);
 
             // Increment the for loop iterator.
@@ -406,7 +420,7 @@ contract SablierV2Linear is
         uint256 stopTime,
         bool cancelable
     ) internal returns (uint256 streamId) {
-        // Checks: requirements for `create` function.
+        // Checks: the common requirements for the `create` function arguments.
         checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
 
         // Effects: create and store the stream.

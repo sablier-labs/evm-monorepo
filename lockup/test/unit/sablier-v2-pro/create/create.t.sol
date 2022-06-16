@@ -193,7 +193,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
 
     /// @dev When the segment amounts sum overflows, it should revert.
     function testCannotCreate__SegmentAmountsSumOverflow() external {
-        uint256[] memory segmentAmounts = createDynamicArray(type(uint256).max, 1);
+        uint256[] memory segmentAmounts = createDynamicArray(MAX_UINT_256, 1);
         vm.expectRevert(stdError.arithmeticError);
         sablierV2Pro.create(
             stream.sender,

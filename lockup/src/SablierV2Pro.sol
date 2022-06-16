@@ -208,7 +208,6 @@ contract SablierV2Pro is
         bool cancelable
     ) external returns (uint256 streamId) {
         address from = msg.sender;
-
         streamId = createInternal(
             from,
             sender,
@@ -247,7 +246,12 @@ contract SablierV2Pro is
             revert SablierV2__InsufficientAuthorization(from, msg.sender, token, authorization, depositAmount);
         }
 
-        // Effects & Interactions: create the stream.
+        // Effects: decrease the authorization since this stream consumes a part of all of it.
+        unchecked {
+            authorizeInternal(from, msg.sender, token, authorization - depositAmount);
+        }
+
+        // Checks, Effects and Interactions: create the stream.
         streamId = createInternal(
             from,
             sender,
@@ -260,11 +264,6 @@ contract SablierV2Pro is
             segmentMilestones,
             cancelable
         );
-
-        // Effects: decrease the authorization since this stream has consumed part of it.
-        unchecked {
-            authorizeInternal(from, msg.sender, token, authorization - depositAmount);
-        }
     }
 
     /// @inheritdoc ISablierV2
@@ -326,7 +325,7 @@ contract SablierV2Pro is
                 revert SablierV2__Unauthorized(streamId, msg.sender);
             }
 
-            // Effects & Interactions: withdraw from the stream.
+            // Effects and Interactions: withdraw from the stream.
             withdrawInternal(streamId, streams[streamId].recipient, amounts[i]);
 
             // Increment the for loop iterator.
@@ -387,7 +386,7 @@ contract SablierV2Pro is
                 revert SablierV2__Unauthorized(streamId, msg.sender);
             }
 
-            // Effects & Interactions: withdraw from the stream.
+            // Effects and Interactions: withdraw from the stream.
             withdrawInternal(streamId, to, amounts[i]);
 
             // Increment the for loop iterator.
@@ -544,7 +543,7 @@ contract SablierV2Pro is
         uint256 segmentCount = checkSegmentCount(segmentAmounts, segmentExponents, segmentMilestones);
 
         uint256 stopTime = segmentMilestones[segmentCount - 1];
-        // Checks: requirements for `create` function.
+        // Checks: the common requirements for the `create` function arguments.
         checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
 
         // Checks: soundness of segments variables.

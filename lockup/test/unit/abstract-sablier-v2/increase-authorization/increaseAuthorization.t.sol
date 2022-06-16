@@ -12,7 +12,7 @@ contract AbstractSablierV2__UnitTest__IncreaseAuthorization is AbstractSablierV2
     function testCannotIncreaseAuthorization__Overflow() external {
         abstractSablierV2.increaseAuthorization(users.funder, usd, 1);
         vm.expectRevert(stdError.arithmeticError);
-        abstractSablierV2.increaseAuthorization(users.funder, usd, type(uint256).max);
+        abstractSablierV2.increaseAuthorization(users.funder, usd, MAX_UINT_256);
     }
 
     /// @dev When the sender is the zero address, it should revert.
@@ -48,7 +48,7 @@ contract AbstractSablierV2__UnitTest__IncreaseAuthorization is AbstractSablierV2
         external
     {
         // Bound the two inputs to max uint256.
-        vm.assume(firstAmount <= type(uint256).max - secondAmount);
+        vm.assume(firstAmount <= MAX_UINT_256 - secondAmount);
         abstractSablierV2.increaseAuthorization(users.funder, usd, firstAmount);
 
         // Run the test.
@@ -63,7 +63,7 @@ contract AbstractSablierV2__UnitTest__IncreaseAuthorization is AbstractSablierV2
         external
     {
         // Bound the two inputs to max uint256.
-        vm.assume(firstAmount <= type(uint256).max - secondAmount);
+        vm.assume(firstAmount <= MAX_UINT_256 - secondAmount);
         abstractSablierV2.increaseAuthorization(users.funder, usd, firstAmount);
 
         // Run the test.
