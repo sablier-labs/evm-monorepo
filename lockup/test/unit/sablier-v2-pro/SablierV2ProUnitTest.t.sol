@@ -31,6 +31,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// CONSTANTS ///
 
+    uint256 internal constant MAX_SEGMENT_COUNT = 200;
     uint256[] internal SEGMENT_AMOUNTS = [bn(2_000), bn(8_000)];
     SD59x18[] internal SEGMENT_EXPONENTS = [sd59x18(3.14e18), sd59x18(0.5e18)];
     uint256[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];
@@ -38,7 +39,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// TESTING VARIABLES ///
 
-    SablierV2Pro internal sablierV2Pro = new SablierV2Pro();
+    SablierV2Pro internal sablierV2Pro = new SablierV2Pro(MAX_SEGMENT_COUNT);
     ISablierV2Pro.Stream internal stream;
 
     // SETUP FUNCTION ///

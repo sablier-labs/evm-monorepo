@@ -23,7 +23,7 @@ contract SablierV2Pro is
     SD59x18 public constant MAX_EXPONENT = SD59x18.wrap(10e18);
 
     /// @notice The maximum number of segments allowed in a stream.
-    uint256 public constant MAX_SEGMENT_COUNT = 200;
+    uint256 public immutable MAX_SEGMENT_COUNT;
 
     /// INTERNAL STORAGE ///
 
@@ -54,6 +54,12 @@ contract SablierV2Pro is
             revert SablierV2__StreamNonExistent(streamId);
         }
         _;
+    }
+
+    /// CONSTRUCTOR ///
+
+    constructor(uint256 _MAX_SEGMENT_COUNT) {
+        MAX_SEGMENT_COUNT = _MAX_SEGMENT_COUNT;
     }
 
     /// PUBLIC CONSTANT FUNCTIONS ///
@@ -406,7 +412,7 @@ contract SablierV2Pro is
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones
-    ) internal pure returns (uint256 segmentCount) {
+    ) internal view returns (uint256 segmentCount) {
         uint256 amountsCount = segmentAmounts.length;
         uint256 exponentsCount = segmentExponents.length;
         uint256 milestonesCount = segmentMilestones.length;
