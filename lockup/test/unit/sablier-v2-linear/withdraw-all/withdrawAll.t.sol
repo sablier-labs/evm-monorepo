@@ -26,14 +26,6 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
         changePrank(users.recipient);
     }
 
-    /// @dev When the stream ids array is empty, it should revert.
-    function testCannotWithdrawAll__StreamIdsArrayEmpty() external {
-        uint256[] memory streamIds;
-        uint256[] memory amounts;
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamIdsArrayEmpty.selector));
-        sablierV2Linear.withdrawAll(streamIds, amounts);
-    }
-
     /// @dev When the array counts are not equal, it should revert.
     function testCannotWithdrawAll__WithdrawAllArraysNotEqual() external {
         uint256[] memory streamIds = new uint256[](2);
