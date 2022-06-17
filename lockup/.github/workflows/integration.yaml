@@ -1,0 +1,51 @@
+name: "Continuous Integration"
+
+on:
+  pull_request:
+    branches:
+      - "main"
+  push:
+    branches:
+      - "main"
+
+jobs:
+  integration:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "onbjerg/foundry-toolchain@v1"
+        with:
+          version: "nightly"
+
+      - name: "Install Node.js"
+        uses: "actions/setup-node@v3"
+        with:
+          cache: "yarn"
+          node-version: "16"
+
+      - name: "Install the Node.Js dependencies"
+        run: "yarn install --immutable"
+
+      - name: "Lint the contracts"
+        run: "yarn lint"
+
+      - name: "Add lint summary"
+        run: |
+          echo "## Lint results" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Show the Foundry config"
+        run: "forge config"
+
+      - name: "Run the tests"
+        run: "forge test"
+
+      - name: "Add test summary"
+        run: |
+          echo "## Test results" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
