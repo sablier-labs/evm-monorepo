@@ -43,6 +43,18 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
             stream.cancelable
         );
         ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
-        assertEq(stream, createdStream);
+        uint256 expectedStartTime = block.timestamp;
+        uint256 expectedStopTime;
+        unchecked {
+            expectedStopTime = block.timestamp + totalDuration;
+        }
+        assertEq(stream.sender, createdStream.sender);
+        assertEq(stream.recipient, createdStream.recipient);
+        assertEq(stream.depositAmount, createdStream.depositAmount);
+        assertEq(stream.token, createdStream.token);
+        assertEq(expectedStartTime, createdStream.startTime);
+        assertEq(expectedStopTime, createdStream.stopTime);
+        assertEq(stream.cancelable, createdStream.cancelable);
+        assertEq(stream.withdrawnAmount, createdStream.withdrawnAmount);
     }
 }
