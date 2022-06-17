@@ -139,18 +139,8 @@ interface ISablierV2Pro is ISablierV2 {
     /// @dev Emits a {CreateStream} event and an {Authorize} event.
     ///
     /// Requirements:
+    /// - All from `create`.
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
-    /// - `sender` must not the zero address.
-    /// - `recipient` must not the zero address.
-    /// - `depositAmount` must not zero.
-    /// - `startTime` must not greater than `stopTime`.
-    /// - `segmentAmounts` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
-    /// - `segmentAmounts` summed up must be equal to 'depositAmount'.
-    /// - `segmentExponents` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
-    /// - `segmentExponents` must be bounded between one and three.
-    /// - `segmentMilestones` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
-    /// - `segmentMilestones` must be bounded between 'startTime' and 'stopTime'.
-    /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param from The address which funds the stream.
     /// @param sender The address from which to stream the money.
@@ -183,7 +173,6 @@ interface ISablierV2Pro is ISablierV2 {
     ///
     /// Requirements:
     /// - All from `create`.
-    /// - The duration calculation cannot overflow uint256.
     ///
     /// @param sender The address from which to stream the money.
     /// @param recipient The address toward which to stream the money.

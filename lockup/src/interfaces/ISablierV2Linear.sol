@@ -56,7 +56,7 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// @notice Creates a new stream funded by `msg.sender`.
     ///
-    /// @dev Emits a {CreateStream} event and an {Approve} event.
+    /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
     /// - `sender` must not the zero address.
@@ -85,15 +85,11 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// @notice Creates a new stream funded by `from`.
     ///
-    /// @dev Emits a {CreateStream} event.
+    /// @dev Emits a {CreateStream} event and an {Authorize} event.
     ///
     /// Requirements:
+    /// - All from `create`.
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
-    /// - `sender` must not the zero address.
-    /// - `recipient` must not the zero address.
-    /// - `depositAmount` must not zero.
-    /// - `startTime` must not greater than `stopTime`.
-    /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param from The address which funds the stream.
     /// @param sender The address from which to stream the money.
@@ -118,12 +114,10 @@ interface ISablierV2Linear is ISablierV2 {
     /// @notice Creates a stream funded by `from` and sets the start time to `block.timestamp` and the stop
     /// time to `block.timestamp + duration`.
     ///
-    /// @dev Emits a {CreateStream} event and an {Approve} event.
+    /// @dev Emits a {CreateStream} event and an {Authorize} event.
     ///
     /// Requirements:
     /// - All from `createFrom`.
-    /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
-    /// - The duration calculation cannot overflow uint256.
     ///
     /// @param from The address which funds the stream.
     /// @param sender The address from which to stream the money.
@@ -150,7 +144,6 @@ interface ISablierV2Linear is ISablierV2 {
     ///
     /// Requirements:
     /// - All from `create`.
-    /// - The duration calculation cannot overflow uint256.
     ///
     /// @param sender The address from which to stream the money.
     /// @param recipient The address toward which to stream the money.

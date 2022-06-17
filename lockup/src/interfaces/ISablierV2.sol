@@ -187,7 +187,7 @@ interface ISablierV2 {
     ///
     /// Requirements:
     /// - `funder` must not be the zero address.
-    /// - `funder` must have set an authorization to `msg.sender` of at least `amount`.
+    /// - `funder` must have an authorization from `msg.sender` of at least `amount`.
     ///
     /// @param funder The address of the stream funder.
     /// @param token The ERC-20 token for which to decrease the authorization.
@@ -205,7 +205,7 @@ interface ISablierV2 {
     ///
     /// Requirements:
     /// - `funder` must not be the zero address.
-    /// - The updated authorization must not overflow uint256.
+    /// - The authorization calculations must not overflow uint256.
     ///
     /// @param funder The address of the stream funder.
     /// @param token The ERC-20 token for which to increase the authorization.

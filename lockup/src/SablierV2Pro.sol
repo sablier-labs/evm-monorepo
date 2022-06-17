@@ -590,7 +590,7 @@ contract SablierV2Pro is
         // Checks: the common requirements for the `create` function arguments.
         checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
 
-        // Checks: soundness of segments variables.
+        // Checks: requirements of segments variables.
         checkSegments(depositAmount, startTime, segmentAmounts, segmentExponents, segmentMilestones, segmentCount);
 
         // Effects: create and store the stream.
