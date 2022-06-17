@@ -141,12 +141,13 @@ interface ISablierV2Cliff is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a stream funded by `from`. Sets the start time to `block.timestamp` and the stop
+    /// @notice Creates a stream funded by `from` and sets the start time to `block.timestamp` and the stop
     /// time to `block.timestamp + duration`.
     ///
     /// @dev Emits a {CreateStream} event and an {Authorize} event.
     ///
     /// Requirements:
+    /// - All from `createFrom`.
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
     /// - The duration calculation cannot overflow uint256.
     ///
@@ -170,11 +171,12 @@ interface ISablierV2Cliff is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a stream funded by `msg.sender`. Sets the start time to `block.timestamp` and the stop
+    /// @notice Creates a stream funded by `msg.sender` and sets the start time to `block.timestamp` and the stop
     ///
     /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
+    /// - All from `create`.
     /// - The cliff duration calculation cannot overflow uint256.
     /// - The total duration calculation cannot overflow uint256.
     ///

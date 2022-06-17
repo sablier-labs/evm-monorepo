@@ -9,7 +9,8 @@ import { stdError } from "forge-std/Test.sol";
 import { SablierV2CliffUnitTest } from "../SablierV2CliffUnitTest.t.sol";
 
 contract SablierV2Cliff__UnitTest__CreateWithDuration is SablierV2CliffUnitTest {
-    /// @dev When the cliff duration calculation overflows uint256, it should revert.
+    /// @dev When the cliff duration calculation overflows uint256, it should revert due to
+    /// the start time being greater than the stop time
     function testCannotCreateWithDuration__CliffDurationCalculationOverflow(uint256 cliffDuration) external {
         vm.assume(cliffDuration > MAX_UINT_256 - block.timestamp);
         uint256 totalDuration = cliffDuration;

@@ -15,17 +15,14 @@ interface ISablierV2Pro is ISablierV2 {
     /// amounts sum.
     error SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(uint256 depositAmount, uint256 segmentAmountsSum);
 
-    /// @notice Emitted when attempting to create a stream with a milestone greater than the stop time.
-    error SablierV2Pro__LastMilestoneGreaterThanStopTime(uint256 milestone, uint256 stopTime);
-
     /// @notice Emitted when attempting to create a stream with segment counts that are not equal.
     error SablierV2Pro__SegmentCountsNotEqual(uint256 amountLength, uint256 exponentLength, uint256 milestoneLength);
 
-    /// @notice Emitted when attempting to create a stream with zero segments.
-    error SablierV2Pro__SegmentCountZero();
-
     /// @notice Emitted when attempting to create a stream with one or more out-of-bounds segment count.
     error SablierV2Pro__SegmentCountOutOfBounds(uint256 count);
+
+    /// @notice Emitted when attempting to create a stream with zero segments.
+    error SablierV2Pro__SegmentCountZero();
 
     /// @notice Emitted when attempting to create a stream with an out of bounds exponent.
     error SablierV2Pro__SegmentExponentOutOfBounds(SD59x18 exponent);
@@ -33,7 +30,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Emitted when attempting to create a stream with segment milestones which are not ordered.
     error SablierV2Pro__SegmentMilestonesNotOrdered(uint256 index, uint256 previousMilestonene, uint256 milestone);
 
-    /// @notice Emitted when attempting to create a stream with start time greater than a segment milestone.
+    /// @notice Emitted when attempting to create a stream with the start time greater than the first segment milestone.
     error SablierV2Pro__StartTimeGreaterThanFirstMilestone(uint256 startTime, uint256 segmentMilestone);
 
     /// EVENTS ///
@@ -96,7 +93,7 @@ interface ISablierV2Pro is ISablierV2 {
 
     /// NON-CONSTANT FUNCTIONS ///
 
-    /// @notice Creates a new stream funded by `msg.sender`. The `stopTime` is given by the last element in the
+    /// @notice Creates a new stream funded by `msg.sender`. The `stopTime` is implied by the last element in the
     /// `segmentMilestones` array.
     ///
     /// @dev Emits a {CreateStream} event.
@@ -136,7 +133,7 @@ interface ISablierV2Pro is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a new stream funded by `from`. The `stopTime` is given by the last element in the
+    /// @notice Creates a new stream funded by `from`. The `stopTime` is implied by the last element in the
     /// `segmentMilestones` array.
     ///
     /// @dev Emits a {CreateStream} event and an {Authorize} event.
@@ -176,6 +173,35 @@ interface ISablierV2Pro is ISablierV2 {
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones,
+        bool cancelable
+    ) external returns (uint256 streamId);
+
+    /// @notice Creates a stream funded by `msg.sender`. Sets the start time to `block.timestamp` and the stop
+    /// time to `block.timestamp + sum(segmentDeltas)`.
+    ///
+    /// @dev Emits a {CreateStream} event.
+    ///
+    /// Requirements:
+    /// - All from `create`.
+    /// - The duration calculation cannot overflow uint256.
+    ///
+    /// @param sender The address from which to stream the money.
+    /// @param recipient The address toward which to stream the money.
+    /// @param depositAmount The amount of money to be streamed.
+    /// @param token The address of the ERC-20 token to use for streaming.
+    /// @param segmentAmounts The array of amounts used to compose the custom emission curve.
+    /// @param segmentExponents The array of exponents used to compose the custom emission curve.
+    /// @param segmentDeltas The array of differences between the milestones used to compose the custom emission curve.
+    /// @param cancelable Whether the stream is cancelable or not.
+    /// @return streamId The id of the newly created stream.
+    function createWithDuration(
+        address sender,
+        address recipient,
+        uint256 depositAmount,
+        IERC20 token,
+        uint256[] memory segmentAmounts,
+        SD59x18[] memory segmentExponents,
+        uint256[] memory segmentDeltas,
         bool cancelable
     ) external returns (uint256 streamId);
 }

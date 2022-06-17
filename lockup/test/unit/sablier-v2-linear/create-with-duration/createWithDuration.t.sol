@@ -7,7 +7,8 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTest {
-    /// @dev When the total duration calculation overflows uint256, it should revert.
+    /// @dev When the total duration calculation overflows uint256, it should revert due to
+    /// the start time being greater than the stop time.
     function testCannotCreateWithDuration__TotalDurationCalculationOverflow(uint256 totalDuration) external {
         vm.assume(totalDuration > MAX_UINT_256 - block.timestamp);
         uint256 stopTime;

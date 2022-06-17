@@ -118,19 +118,19 @@ abstract contract SablierV2UnitTest is Test {
         assertEq(address(a), address(b));
     }
 
-    /// @dev Helper function to create dynamical `uint256` arrays from a fixed number of elements.
+    /// @dev Helper function to create a dynamical `uint256` array with 1 element.
     function createDynamicArray(uint256 element0) internal pure returns (uint256[] memory dynamicalArray) {
         dynamicalArray = new uint256[](1);
         dynamicalArray[0] = element0;
     }
 
-    /// @dev Helper function to create dynamical `SD59x18` arrays from a fixed number of elements.
+    /// @dev Helper function to create a dynamical `SD59x18` array with 1 element.
     function createDynamicArray(SD59x18 element0) internal pure returns (SD59x18[] memory dynamicalArray) {
         dynamicalArray = new SD59x18[](1);
         dynamicalArray[0] = element0;
     }
 
-    /// @dev Helper function to create dynamical `SD59x18` arrays from a fixed number of elements.
+    /// @dev Helper function to create a dynamical `SD59x18` array with 2 elements.
     function createDynamicArray(SD59x18 element0, SD59x18 element1)
         internal
         pure
@@ -141,7 +141,7 @@ abstract contract SablierV2UnitTest is Test {
         dynamicalArray[1] = element1;
     }
 
-    /// @dev Helper function to create dynamical `uint256` arrays from a fixed number of elements.
+    /// @dev Helper function to create a dynamical `uint256` array with 2 elements.
     function createDynamicArray(uint256 element0, uint256 element1)
         internal
         pure
@@ -150,6 +150,30 @@ abstract contract SablierV2UnitTest is Test {
         dynamicalArray = new uint256[](2);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
+    }
+
+    /// @dev Helper function to create a dynamical `uint256` array with 3 elements.
+    function createDynamicArray(
+        uint256 element0,
+        uint256 element1,
+        uint256 element2
+    ) internal pure returns (uint256[] memory dynamicalArray) {
+        dynamicalArray = new uint256[](3);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+        dynamicalArray[2] = element2;
+    }
+
+    /// @dev Helper function to create a dynamical `SD59x18` array with 3 elements.
+    function createDynamicArray(
+        SD59x18 element0,
+        SD59x18 element1,
+        SD59x18 element2
+    ) internal pure returns (SD59x18[] memory dynamicalArray) {
+        dynamicalArray = new SD59x18[](3);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+        dynamicalArray[2] = element2;
     }
 
     /// @dev Give user 100 ETH and 1M USD.
