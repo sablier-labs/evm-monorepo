@@ -58,8 +58,8 @@ contract SablierV2Pro is
 
     /// CONSTRUCTOR ///
 
-    constructor(uint256 _MAX_SEGMENT_COUNT) {
-        MAX_SEGMENT_COUNT = _MAX_SEGMENT_COUNT;
+    constructor(uint256 maxSegmentCount) {
+        MAX_SEGMENT_COUNT = maxSegmentCount;
     }
 
     /// PUBLIC CONSTANT FUNCTIONS ///
