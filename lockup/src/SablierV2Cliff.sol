@@ -407,7 +407,7 @@ contract SablierV2Cliff is
         bool cancelable
     ) internal returns (uint256 streamId) {
         // Checks: the common requirements for the `create` function arguments.
-        checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
+        checkCreateArguments(funder, sender, recipient, depositAmount, startTime, stopTime);
 
         // Checks: the cliff time is greater than or equal to the start time.
         if (startTime > cliffTime) {

@@ -560,7 +560,7 @@ contract SablierV2Pro is
         uint256 stopTime = segmentMilestones[segmentCount - 1];
 
         // Checks: the common requirements for the `create` function arguments.
-        checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
+        checkCreateArguments(funder, sender, recipient, depositAmount, startTime, stopTime);
 
         // Checks: requirements of segments variables.
         checkSegments(depositAmount, startTime, segmentAmounts, segmentExponents, segmentMilestones, segmentCount);

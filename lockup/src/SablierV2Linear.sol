@@ -149,11 +149,6 @@ contract SablierV2Linear is
         uint256 stopTime,
         bool cancelable
     ) external returns (uint256 streamId) {
-        // Checks: the funder is not the zero address.
-        if (funder == address(0)) {
-            revert SablierV2__FunderZeroAddress();
-        }
-
         // If the `funder` is not the `msg.sender`, we have to perform some authorization checks.
         if (funder != msg.sender) {
             // Checks: the caller has sufficient authorization to create this stream on behalf of `funder`.
@@ -182,11 +177,6 @@ contract SablierV2Linear is
         uint256 duration,
         bool cancelable
     ) external returns (uint256 streamId) {
-        // Checks: the funder is not the zero address.
-        if (funder == address(0)) {
-            revert SablierV2__FunderZeroAddress();
-        }
-
         // If the `funder` is not the `msg.sender`, we have to perform some authorization checks.
         if (funder != msg.sender) {
             // Checks: `msg.sender` has sufficient authorization to create this stream on behalf of `funder`.
@@ -376,7 +366,7 @@ contract SablierV2Linear is
         bool cancelable
     ) internal returns (uint256 streamId) {
         // Checks: the common requirements for the `create` function arguments.
-        checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
+        checkCreateArguments(funder, sender, recipient, depositAmount, startTime, stopTime);
 
         // Effects: create and store the stream.
         streamId = nextStreamId;

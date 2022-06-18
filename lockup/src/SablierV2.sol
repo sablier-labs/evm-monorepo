@@ -108,12 +108,18 @@ abstract contract SablierV2 is ISablierV2 {
 
     /// @dev Checks the basic requiremenets for the `create` function.
     function checkCreateArguments(
+        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
         uint256 startTime,
         uint256 stopTime
     ) internal pure {
+        // Checks: the funder is not the zero address.
+        if (funder == address(0)) {
+            revert SablierV2__FunderZeroAddress();
+        }
+
         // Checks: the sender is not the zero address.
         if (sender == address(0)) {
             revert SablierV2__SenderZeroAddress();
