@@ -124,7 +124,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When the segment milestone calculations do not overflow uint256, it should create the stream with duration.
+    /// @dev When all checks pass, it should create the stream with duration.
     function testCreateWithDuration() external {
         uint256 streamId = sablierV2Pro.createWithDuration(
             stream.sender,
