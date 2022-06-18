@@ -272,6 +272,52 @@ contract SablierV2Pro is
         );
     }
 
+    /// @inheritdoc ISablierV2Pro
+    function createWithDuration(
+        address sender,
+        address recipient,
+        uint256 depositAmount,
+        IERC20 token,
+        uint256[] memory segmentAmounts,
+        SD59x18[] memory segmentExponents,
+        uint256[] memory segmentDeltas,
+        bool cancelable
+    ) external override returns (uint256 streamId) {
+        address from = msg.sender;
+        uint256 startTime = block.timestamp;
+
+        // Check that the segment delta count is not greater than the maximum segment count permitted in Sablier.
+        uint256 deltaCount = segmentDeltas.length;
+        if (deltaCount > MAX_SEGMENT_COUNT) {
+            revert SablierV2Pro__SegmentCountOutOfBounds(deltaCount);
+        }
+
+        // Calculate the segment milestones. It is fine to use unchecked arithmetic because the `createInternal`
+        // function will nonetheless check the segments.
+        uint256[] memory segmentMilestones = new uint256[](deltaCount);
+        unchecked {
+            segmentMilestones[0] = startTime + segmentDeltas[0];
+            for (uint256 i = 1; i < deltaCount; ) {
+                segmentMilestones[i] = segmentMilestones[i - 1] + segmentDeltas[i];
+                i += 1;
+            }
+        }
+
+        // Checks, Effects and Interactions: create the stream.
+        streamId = createInternal(
+            from,
+            sender,
+            recipient,
+            depositAmount,
+            token,
+            startTime,
+            segmentAmounts,
+            segmentExponents,
+            segmentMilestones,
+            cancelable
+        );
+    }
+
     /// @inheritdoc ISablierV2
     function renounce(uint256 streamId) external streamExists(streamId) {
         Stream memory stream = streams[streamId];
@@ -307,9 +353,9 @@ contract SablierV2Pro is
     function withdrawAll(uint256[] calldata streamIds, uint256[] calldata amounts) external {
         // Checks: count of `streamIds` matches count of `amounts`.
         uint256 streamIdsCount = streamIds.length;
-        uint256 amountsCount = amounts.length;
-        if (streamIdsCount != amountsCount) {
-            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
+        uint256 amountCount = amounts.length;
+        if (streamIdsCount != amountCount) {
+            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountCount);
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
@@ -363,9 +409,9 @@ contract SablierV2Pro is
 
         // Checks: count of `streamIds` matches `amounts`.
         uint256 streamIdsCount = streamIds.length;
-        uint256 amountsCount = amounts.length;
-        if (streamIdsCount != amountsCount) {
-            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
+        uint256 amountCount = amounts.length;
+        if (streamIdsCount != amountCount) {
+            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountCount);
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
@@ -397,45 +443,45 @@ contract SablierV2Pro is
     /// @dev Checks that the counts of segments match. The counts must be equal and less than or equal to
     /// the maximum segment count permitted in Sablier.
     /// @return segmentCount The count of the segments.
-    function checkSegmentCount(
+    function checkSegmentCounts(
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones
     ) internal view returns (uint256 segmentCount) {
-        uint256 amountsCount = segmentAmounts.length;
-        uint256 exponentsCount = segmentExponents.length;
-        uint256 milestonesCount = segmentMilestones.length;
+        uint256 amountCount = segmentAmounts.length;
+        uint256 exponentCount = segmentExponents.length;
+        uint256 milestoneCount = segmentMilestones.length;
 
         // Check that the amount count is not zero.
-        if (amountsCount == 0) {
+        if (amountCount == 0) {
             revert SablierV2Pro__SegmentCountZero();
         }
 
-        // Check that the amount count is not greater than the maximum segment count permitted by Sablier.
-        if (amountsCount > MAX_SEGMENT_COUNT) {
-            revert SablierV2Pro__SegmentCountOutOfBounds(amountsCount);
+        // Check that the amount count is not greater than the maximum segment count permitted in Sablier.
+        if (amountCount > MAX_SEGMENT_COUNT) {
+            revert SablierV2Pro__SegmentCountOutOfBounds(amountCount);
         }
 
         // Compare the amount count to the exponent count.
-        if (amountsCount != exponentsCount) {
-            revert SablierV2Pro__SegmentCountsNotEqual(amountsCount, exponentsCount, milestonesCount);
+        if (amountCount != exponentCount) {
+            revert SablierV2Pro__SegmentCountsNotEqual(amountCount, exponentCount, milestoneCount);
         }
 
         // Compare the amount count to the milestone count.
-        if (amountsCount != milestonesCount) {
-            revert SablierV2Pro__SegmentCountsNotEqual(amountsCount, exponentsCount, milestonesCount);
+        if (amountCount != milestoneCount) {
+            revert SablierV2Pro__SegmentCountsNotEqual(amountCount, exponentCount, milestoneCount);
         }
 
         // We can pass any count because they are all equal to each other.
-        segmentCount = amountsCount;
+        segmentCount = amountCount;
     }
 
     /// @dev Checks that:
     /// 1. The first milestone is greater than or equal to the start time.
     /// 2. The milestones are ordered chronologically.
-    /// 3. The exponents are within the bounds permitted by Sablier.
+    /// 3. The exponents are within the bounds permitted in Sablier.
     /// 4. The deposit amount is equal to the segment amounts summed up.
-    function checkSegmentsSoundness(
+    function checkSegments(
         uint256 depositAmount,
         uint256 startTime,
         uint256[] memory segmentAmounts,
@@ -443,7 +489,7 @@ contract SablierV2Pro is
         uint256[] memory segmentMilestones,
         uint256 segmentCount
     ) internal pure {
-        // Check that the start time is less than or equal to the first milestone.
+        // Check that The first milestone is greater than or equal to the start time.
         if (startTime > segmentMilestones[0]) {
             revert SablierV2Pro__StartTimeGreaterThanFirstMilestone(startTime, segmentMilestones[0]);
         }
@@ -454,7 +500,7 @@ contract SablierV2Pro is
         uint256 previousMilestone;
         uint256 segmentAmountsSum;
 
-        // Iterate over the amounts, the milestones and the exponents.
+        // Iterate over the amounts, the exponents and the milestones.
         uint256 index;
         for (index = 0; index < segmentCount; ) {
             // Add the current segment amount to the sum.
@@ -535,22 +581,17 @@ contract SablierV2Pro is
         uint256[] memory segmentMilestones,
         bool cancelable
     ) internal returns (uint256 streamId) {
-        // Checks: segments count match.
-        uint256 segmentCount = checkSegmentCount(segmentAmounts, segmentExponents, segmentMilestones);
+        // Checks: segment counts match.
+        uint256 segmentCount = checkSegmentCounts(segmentAmounts, segmentExponents, segmentMilestones);
 
+        // Imply the stop time from the last segment milestone.
         uint256 stopTime = segmentMilestones[segmentCount - 1];
+
         // Checks: the common requirements for the `create` function arguments.
         checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
 
-        // Checks: soundness of segments variables.
-        checkSegmentsSoundness(
-            depositAmount,
-            startTime,
-            segmentAmounts,
-            segmentExponents,
-            segmentMilestones,
-            segmentCount
-        );
+        // Checks: requirements of segments variables.
+        checkSegments(depositAmount, startTime, segmentAmounts, segmentExponents, segmentMilestones, segmentCount);
 
         // Effects: create and store the stream.
         streamId = nextStreamId;

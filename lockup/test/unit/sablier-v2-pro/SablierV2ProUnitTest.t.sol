@@ -35,6 +35,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     uint256[] internal SEGMENT_AMOUNTS = [bn(2_000), bn(8_000)];
     SD59x18[] internal SEGMENT_EXPONENTS = [sd59x18(3.14e18), sd59x18(0.5e18)];
     uint256[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];
+    uint256[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
     uint256 internal constant TIME_OFFSET = 2_000 seconds;
 
     /// TESTING VARIABLES ///

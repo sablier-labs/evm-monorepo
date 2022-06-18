@@ -45,8 +45,8 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When the deposit amount is zero, it should revert.
-    function testCannotCreate__SegmentArraysLengthZero() external {
+    /// @dev When the segment count is zero, it should revert.
+    function testCannotCreate__SegmentCountZero() external {
         vm.expectRevert(ISablierV2Pro.SablierV2Pro__SegmentCountZero.selector);
         uint256[] memory segmentAmounts;
         SD59x18[] memory segmentExponents;
@@ -64,8 +64,8 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When the deposit amount is zero, it should revert.
-    function testCannotCreate__SegmentArraysLengthOutOfBounds() external {
+    /// @dev When one of the segment counts is out of bounds, it should revert.
+    function testCannotCreate__SegmentCountOfBounds() external {
         uint256 segmentCount = sablierV2Pro.MAX_SEGMENT_COUNT() + 1;
         vm.expectRevert(
             abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentCountOutOfBounds.selector, segmentCount)
@@ -90,8 +90,8 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When the deposit amount is zero, it should revert.
-    function testCannotCreate__SegmentArraysLengthsNotEqual__SegmentExponents() external {
+    /// @dev When the segment counts are not equal, it should revert.
+    function testCannotCreate__SegmentCountsNotEqual__SegmentExponents() external {
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -114,7 +114,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When the deposit amount is zero, it should revert.
+    /// @dev When the segment counts are not equal, it should revert.
     function testCannotCreate__SegmentArraysLengthsNotEqual__SegmentMilestones() external {
         uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[0]);
         vm.expectRevert(

@@ -112,12 +112,8 @@ interface ISablierV2Cliff is ISablierV2 {
     /// @dev Emits a {CreateStream} event and an {Authorize} event.
     ///
     /// Requirements:
+    /// - All from `create`.
     /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
-    /// - `sender` must not the zero address.
-    /// - `recipient` must not the zero address.
-    /// - `depositAmount` must not zero.
-    /// - `startTime` must not greater than `stopTime`.
-    /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param from The address which funds the stream.
     /// @param sender The address from which to stream the money with a cliff.
@@ -141,14 +137,13 @@ interface ISablierV2Cliff is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a stream funded by `from`. Sets the start time to `block.timestamp` and the stop
+    /// @notice Creates a stream funded by `from` and sets the start time to `block.timestamp` and the stop
     /// time to `block.timestamp + duration`.
     ///
     /// @dev Emits a {CreateStream} event and an {Authorize} event.
     ///
     /// Requirements:
-    /// - `from` must have allowed `msg.sender` to create a stream worth `depositAmount` tokens.
-    /// - The duration calculation cannot overflow uint256.
+    /// - All from `createFrom`.
     ///
     /// @param from The address which funds the stream.
     /// @param sender The address from which to stream the money with cliff.
@@ -170,13 +165,12 @@ interface ISablierV2Cliff is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a stream funded by `msg.sender`. Sets the start time to `block.timestamp` and the stop
+    /// @notice Creates a stream funded by `msg.sender` and sets the start time to `block.timestamp` and the stop
     ///
     /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
-    /// - The cliff duration calculation cannot overflow uint256.
-    /// - The total duration calculation cannot overflow uint256.
+    /// - All from `create`.
     ///
     /// @param sender The address from which to stream the money.
     /// @param recipient The address toward which to stream the money.

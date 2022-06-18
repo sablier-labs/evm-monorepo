@@ -1,6 +1,6 @@
 createWithDuration.t.sol
 ├── when the cliff duration calculation overflows uint256
-│  └── it should revert
+│  └── it should revert due to the start time being greater than the calculated stop time
 └── when the cliff duration calculation does not overflow uint256
    ├── when the total duration calculation overflows uint256
    │   └── it should revert
