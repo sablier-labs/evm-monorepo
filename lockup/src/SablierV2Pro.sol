@@ -447,7 +447,7 @@ contract SablierV2Pro is
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint256[] memory segmentMilestones
-    ) internal pure returns (uint256 segmentCount) {
+    ) internal view returns (uint256 segmentCount) {
         uint256 amountCount = segmentAmounts.length;
         uint256 exponentCount = segmentExponents.length;
         uint256 milestoneCount = segmentMilestones.length;
