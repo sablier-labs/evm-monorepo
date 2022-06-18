@@ -113,6 +113,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
 
         streamId = sablierV2Pro.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             depositAmount,
             stream.token,
@@ -170,6 +171,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
 
             // Create the 200-segment stream.
             streamId = sablierV2Pro.create(
+                stream.sender,
                 stream.sender,
                 stream.recipient,
                 stream.depositAmount,

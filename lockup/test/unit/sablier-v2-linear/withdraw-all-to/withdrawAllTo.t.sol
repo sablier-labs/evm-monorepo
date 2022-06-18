@@ -106,6 +106,7 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         changePrank(users.recipient);
         uint256 reversedStreamId = sablierV2Linear.create(
             users.recipient,
+            users.recipient,
             stream.sender,
             stream.depositAmount,
             stream.token,
@@ -133,6 +134,7 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         // Create a stream with Eve as the recipient.
         changePrank(users.sender);
         uint256 streamIdEve = sablierV2Linear.create(
+            stream.sender,
             stream.sender,
             users.eve,
             stream.depositAmount,
@@ -280,8 +282,10 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
     /// ended streams and update the withdrawn amounts.
     function testWithdrawAllTo__ThirdParty__SomeStreamsEndedSomeStreamsOngoing() external {
         // Create the ended stream.
+        changePrank(stream.sender);
         uint256 earlyStopTime = stream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Linear.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -290,6 +294,7 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
             earlyStopTime,
             stream.cancelable
         );
+        changePrank(stream.recipient);
 
         // Use the first default stream as the ongoing stream.
         uint256 ongoingStreamId = defaultStreamIds[0];
@@ -317,8 +322,10 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
     /// @dev When some streams are ended and some streams are ongoing, it should emit Withdraw events.
     function testWithdrawAllTo__ThirdParty__SomeStreamsEndedSomeStreamsOngoing__Events() external {
         // Create the ended stream.
+        changePrank(stream.sender);
         uint256 earlyStopTime = stream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Linear.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -327,6 +334,7 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
             earlyStopTime,
             stream.cancelable
         );
+        changePrank(stream.recipient);
 
         // Use the first default stream as the ongoing stream.
         uint256 ongoingStreamId = defaultStreamIds[0];

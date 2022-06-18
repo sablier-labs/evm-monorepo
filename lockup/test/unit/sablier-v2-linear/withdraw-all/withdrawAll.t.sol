@@ -85,6 +85,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
         // Create a stream with Eve as the sender.
         uint256 streamIdEve = sablierV2Linear.create(
             users.eve,
+            users.eve,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -227,8 +228,10 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
     /// ended streams and update the withdrawn amounts.
     function testWithdrawAll__SomeStreamsEndedSomeStreamsOngoing() external {
         // Create the ended stream.
+        changePrank(stream.sender);
         uint256 earlyStopTime = stream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Linear.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -237,6 +240,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
             earlyStopTime,
             stream.cancelable
         );
+        changePrank(stream.recipient);
 
         // Use the first default stream as the ongoing stream.
         uint256 ongoingStreamId = defaultStreamIds[0];
@@ -264,8 +268,10 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
     /// @dev When some streams are ended and some streams are ongoing, it should emit Withdraw events.
     function testWithdrawAll__SomeStreamsEndedSomeStreamsOngoing__Events() external {
         // Create the ended stream.
+        changePrank(stream.sender);
         uint256 earlyStopTime = stream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Linear.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -274,6 +280,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
             earlyStopTime,
             stream.cancelable
         );
+        changePrank(stream.recipient);
 
         // Use the first default stream as the ongoing stream.
         uint256 ongoingStreamId = defaultStreamIds[0];

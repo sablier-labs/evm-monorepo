@@ -140,21 +140,7 @@ contract SablierV2Linear is
 
     /// @inheritdoc ISablierV2Linear
     function create(
-        address sender,
-        address recipient,
-        uint256 depositAmount,
-        IERC20 token,
-        uint256 startTime,
-        uint256 stopTime,
-        bool cancelable
-    ) external returns (uint256 streamId) {
-        address from = msg.sender;
-        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
-    }
-
-    /// @inheritdoc ISablierV2Linear
-    function createFrom(
-        address from,
+        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -164,84 +150,67 @@ contract SablierV2Linear is
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks: the funder is not the zero address.
-        if (from == address(0)) {
-            revert SablierV2__FromZeroAddress();
+        if (funder == address(0)) {
+            revert SablierV2__FunderZeroAddress();
         }
 
-        // Checks: the caller has sufficient authorization to create this stream on behalf of `from`.
-        uint256 authorization = authorizations[from][msg.sender][token];
-        if (authorization < depositAmount) {
-            revert SablierV2__InsufficientAuthorization(from, msg.sender, token, authorization, depositAmount);
-        }
+        // If the `funder` is not the `msg.sender`, we have to perform some authorization checks.
+        if (funder != msg.sender) {
+            // Checks: the caller has sufficient authorization to create this stream on behalf of `funder`.
+            uint256 authorization = authorizations[funder][msg.sender][token];
+            if (authorization < depositAmount) {
+                revert SablierV2__InsufficientAuthorization(funder, msg.sender, token, authorization, depositAmount);
+            }
 
-        // Effects: decrease the authorization since this stream consumes a part of all of it.
-        unchecked {
-            authorizeInternal(from, msg.sender, token, authorization - depositAmount);
-        }
-
-        // Checks, Effects and Interactions: create the stream.
-        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
-    }
-
-    /// @inheritdoc ISablierV2Linear
-    function createFromWithDuration(
-        address from,
-        address sender,
-        address recipient,
-        uint256 depositAmount,
-        IERC20 token,
-        uint256 duration,
-        bool cancelable
-    ) external returns (uint256 streamId) {
-        // Checks: the funder is not the zero address.
-        if (from == address(0)) {
-            revert SablierV2__FromZeroAddress();
-        }
-
-        // Checks: `msg.sender` has sufficient authorization to create this stream on behalf of `from`.
-        uint256 authorization = authorizations[from][msg.sender][token];
-        if (authorization < depositAmount) {
-            revert SablierV2__InsufficientAuthorization(from, msg.sender, token, authorization, depositAmount);
-        }
-
-        // Calculate the stop time. It is fine to use unchecked arithmetic because the `createInternal` function will
-        // nonetheless check that the stop time is greater than or equal to the start time.
-        uint256 startTime = block.timestamp;
-        uint256 stopTime;
-        unchecked {
-            stopTime = startTime + duration;
-        }
-
-        // Effects: decrease the authorization since this stream consumes a part or all of it.
-        unchecked {
-            authorizeInternal(from, msg.sender, token, authorization - depositAmount);
+            // Effects: decrease the authorization since this stream consumes a part of all of it.
+            unchecked {
+                authorizeInternal(funder, msg.sender, token, authorization - depositAmount);
+            }
         }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        streamId = createInternal(funder, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
     }
 
     /// @inheritdoc ISablierV2Linear
     function createWithDuration(
+        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
         IERC20 token,
         uint256 duration,
         bool cancelable
-    ) external override returns (uint256 streamId) {
-        address from = msg.sender;
-        uint256 startTime = block.timestamp;
-        uint256 stopTime;
+    ) external returns (uint256 streamId) {
+        // Checks: the funder is not the zero address.
+        if (funder == address(0)) {
+            revert SablierV2__FunderZeroAddress();
+        }
+
+        // If the `funder` is not the `msg.sender`, we have to perform some authorization checks.
+        if (funder != msg.sender) {
+            // Checks: `msg.sender` has sufficient authorization to create this stream on behalf of `funder`.
+            uint256 authorization = authorizations[funder][msg.sender][token];
+            if (authorization < depositAmount) {
+                revert SablierV2__InsufficientAuthorization(funder, msg.sender, token, authorization, depositAmount);
+            }
+
+            // Effects: decrease the authorization since this stream consumes a part or all of it.
+            unchecked {
+                authorizeInternal(funder, msg.sender, token, authorization - depositAmount);
+            }
+        }
 
         // Calculate the stop time. It is fine to use unchecked arithmetic because the `createInternal` function will
         // nonetheless check that the stop time is greater than or equal to the start time.
+        uint256 startTime = block.timestamp;
+        uint256 stopTime;
         unchecked {
             stopTime = startTime + duration;
         }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = createInternal(from, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        streamId = createInternal(funder, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
     }
 
     /// @inheritdoc ISablierV2
@@ -253,7 +222,7 @@ contract SablierV2Linear is
             revert SablierV2__Unauthorized(streamId, msg.sender);
         }
 
-        // Checks: the stream is not already non-cancelable.
+        // Checks: the stream is cancelable.
         if (!stream.cancelable) {
             revert SablierV2__RenounceNonCancelableStream(streamId);
         }
@@ -298,7 +267,7 @@ contract SablierV2Linear is
                     revert SablierV2__Unauthorized(streamId, msg.sender);
                 }
 
-                // Effects and Interactions: withdraw from the stream.
+                // Checks, Effects and Interactions: make the withdrawal.
                 withdrawInternal(streamId, streams[streamId].recipient, amounts[i]);
             }
 
@@ -320,6 +289,7 @@ contract SablierV2Linear is
             revert SablierV2__WithdrawZeroAddress();
         }
 
+        // Checks, Effects and Interactions: make the withdrawal.
         withdrawInternal(streamId, to, amount);
     }
 
@@ -353,7 +323,7 @@ contract SablierV2Linear is
                     revert SablierV2__Unauthorized(streamId, msg.sender);
                 }
 
-                // Effects and Interactions: withdraw from the stream.
+                // Checks, Effects and Interactions: make the withdrawal.
                 withdrawInternal(streamId, to, amounts[i]);
             }
 
@@ -396,7 +366,7 @@ contract SablierV2Linear is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function createInternal(
-        address from,
+        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -428,10 +398,10 @@ contract SablierV2Linear is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        token.safeTransferFrom(from, address(this), depositAmount);
+        token.safeTransferFrom(funder, address(this), depositAmount);
 
         // Emit an event.
-        emit CreateStream(streamId, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        emit CreateStream(streamId, funder, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -456,7 +426,7 @@ contract SablierV2Linear is
             streams[streamId].withdrawnAmount += amount;
         }
 
-        // Load the stream in memory, we will need it later.
+        // Load the stream in memory, we will need it below.
         Stream memory stream = streams[streamId];
 
         // Effects: if this stream is done, save gas by deleting it from storage.

@@ -16,7 +16,8 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     /// EVENTS ///
 
     event CreateStream(
-        uint256 indexed streamId,
+        uint256 streamId,
+        address indexed funder,
         address indexed sender,
         address indexed recipient,
         uint256 depositAmount,
@@ -125,6 +126,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     /// @dev Helper function to create a pro stream.
     function createDefaultStream() internal returns (uint256 streamId) {
         streamId = sablierV2Pro.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,

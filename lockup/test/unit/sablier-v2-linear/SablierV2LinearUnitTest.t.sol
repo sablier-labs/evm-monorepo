@@ -15,7 +15,8 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
     /// EVENTS ///
 
     event CreateStream(
-        uint256 indexed streamId,
+        uint256 streamId,
+        address indexed funder,
         address indexed sender,
         address indexed recipient,
         uint256 depositAmount,
@@ -92,6 +93,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
     /// @dev Helper function to create a default stream.
     function createDefaultStream() internal returns (uint256 streamId) {
         streamId = sablierV2Linear.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,

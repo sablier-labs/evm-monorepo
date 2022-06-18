@@ -16,6 +16,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         address recipient = address(0);
         sablierV2Cliff.create(
             stream.sender,
+            stream.sender,
             recipient,
             stream.depositAmount,
             stream.token,
@@ -31,6 +32,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         vm.expectRevert(ISablierV2.SablierV2__DepositAmountZero.selector);
         uint256 depositAmount = 0;
         sablierV2Cliff.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             depositAmount,
@@ -51,6 +53,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         );
         sablierV2Cliff.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -66,6 +69,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         uint256 cliffTime = stream.startTime;
         uint256 stopTime = stream.startTime;
         uint256 streamId = sablierV2Cliff.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -100,6 +104,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         );
         sablierV2Cliff.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -114,6 +119,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
     function testCreate__CliffTimeEqualStopTime() external {
         uint256 cliffTime = stream.stopTime;
         uint256 streamId = sablierV2Cliff.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -148,6 +154,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         );
         sablierV2Cliff.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -162,6 +169,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
     function testCreate__CliffTimeEqualToStopTime() external {
         uint256 cliffTime = stream.stopTime;
         uint256 streamId = sablierV2Cliff.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -189,6 +197,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         IERC20 token = IERC20(address(6174));
         sablierV2Cliff.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             token,
@@ -204,6 +213,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         IERC20 token = IERC20(address(nonStandardToken));
 
         uint256 streamId = sablierV2Cliff.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -248,6 +258,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         vm.expectEmit(true, true, true, true);
         emit CreateStream(
             streamId,
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,

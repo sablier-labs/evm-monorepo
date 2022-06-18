@@ -17,6 +17,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         address recipient = address(0);
         sablierV2Pro.create(
             stream.sender,
+            stream.sender,
             recipient,
             stream.depositAmount,
             stream.token,
@@ -33,6 +34,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         vm.expectRevert(ISablierV2.SablierV2__DepositAmountZero.selector);
         uint256 depositAmount = 0;
         sablierV2Pro.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             depositAmount,
@@ -52,6 +54,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         SD59x18[] memory segmentExponents;
         uint256[] memory segmentMilestones;
         sablierV2Pro.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -79,6 +82,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         }
         sablierV2Pro.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -102,6 +106,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             )
         );
         sablierV2Pro.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -127,6 +132,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
         sablierV2Pro.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -150,6 +156,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
         sablierV2Pro.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -168,6 +175,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         uint256[] memory segmentMilestones = createDynamicArray(stream.stopTime);
         uint256 streamId = sablierV2Pro.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             depositAmount,
@@ -197,6 +205,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         vm.expectRevert(stdError.arithmeticError);
         sablierV2Pro.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -221,6 +230,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
         sablierV2Pro.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -240,6 +250,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentExponentOutOfBounds.selector, outOfBoundsExponent)
         );
         sablierV2Pro.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -264,6 +275,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
         sablierV2Pro.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             depositAmount,
             stream.token,
@@ -281,6 +293,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         IERC20 token = IERC20(address(6174));
         sablierV2Pro.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             token,
@@ -297,6 +310,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         IERC20 token = IERC20(address(nonStandardToken));
 
         uint256 streamId = sablierV2Pro.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -341,6 +355,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         vm.expectEmit(true, true, true, true);
         emit CreateStream(
             streamId,
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
