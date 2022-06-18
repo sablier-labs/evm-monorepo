@@ -37,14 +37,6 @@ contract SablierV2Cliff__UnitTest__WithdrawAllTo is SablierV2CliffUnitTest {
         sablierV2Cliff.withdrawAllTo(defaultStreamIds, toZero, defaultAmounts);
     }
 
-    /// @dev When the stream ids array is empty, it should revert.
-    function testCannotWithdrawAllTo__StreamIdsArrayEmpty() external {
-        uint256[] memory streamIds;
-        uint256[] memory amounts;
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamIdsArrayEmpty.selector));
-        sablierV2Cliff.withdrawAllTo(streamIds, toAlice, amounts);
-    }
-
     /// @dev When the array counts are not equal, it should revert.
     function testCannotWithdrawAllTo__WithdrawAllArraysNotEqual() external {
         uint256[] memory streamIds = new uint256[](2);

@@ -33,7 +33,7 @@ abstract contract SablierV2 is ISablierV2 {
         address funder,
         IERC20 token
     ) external view returns (uint256 authorization) {
-        return authorizations[sender][funder][token];
+        authorization = authorizations[sender][funder][token];
     }
 
     /// NON-CONSTANT FUNCTIONS ///
@@ -45,13 +45,8 @@ abstract contract SablierV2 is ISablierV2 {
 
     /// @inheritdoc ISablierV2
     function cancelAll(uint256[] calldata streamIds) external {
-        // Checks: `streamIds` is non-empty.
-        uint256 count = streamIds.length;
-        if (count == 0) {
-            revert SablierV2__StreamIdsArrayEmpty();
-        }
-
         // Iterate over the provided array of stream ids and cancel each stream.
+        uint256 count = streamIds.length;
         for (uint256 i = 0; i < count; ) {
             // Effects: cancel the stream.
             cancelInternal(streamIds[i]);

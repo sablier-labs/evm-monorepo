@@ -18,13 +18,6 @@ contract SablierV2Cliff__UnitTest__CancelAll is SablierV2CliffUnitTest {
         defaultStreamIds.push(createDefaultStream());
     }
 
-    /// @dev When the stream ids array length is zero, it should revert.
-    function testCannotCancelAll__StreamIdsArrayEmpty() external {
-        uint256[] memory streamIds;
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamIdsArrayEmpty.selector));
-        sablierV2Cliff.cancelAll(streamIds);
-    }
-
     /// @dev When the stream ids array points only to non existing streams, it should revert.
     function testCannotCancelAll__OnlyNonExistentStreams() external {
         uint256 nonStreamId = 1729;

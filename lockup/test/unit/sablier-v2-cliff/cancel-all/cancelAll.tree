@@ -1,34 +1,30 @@
 cancelAll.t.sol
-├── when the stream ids array is empty
+├── when the stream ids array points only to non existing streams
 │  └── it should revert
-└── when the stream ids array is not empty
-   ├── when the stream ids array points only to non existing streams
-   │  └── it should revert
-   ├── when the stream ids array points to some non existing streams
-   │  └── it should revert
-   └── when the stream ids array points only to existing streams
-      ├── when the caller is neither the sender nor the recipient of any stream
+├── when the stream ids array points to some non existing streams
+│  └── it should revert
+└── when the stream ids array points only to existing streams
+  ├── when the caller is neither the sender nor the recipient of any stream
+  │  └── it should revert
+  ├── when the caller is neither the sender nor the recipient of some of the streams
+  │  └── it should revert
+  ├── when the caller is the recipient of all the streams
+  │  └── it should cancel the streams
+  └── when the caller is the sender of all the streams
+      ├── when all streams are non-cancelable
       │  └── it should revert
-      ├── when the caller is neither the sender nor the recipient of some of the streams
+      ├── when some of the streams are non-cancelable
       │  └── it should revert
-      ├── when the caller is the recipient of all the streams
-      │  └── it should cancel the streams
-      └── when the caller is the sender of all the streams
-         ├── when all streams are non-cancelable
-         │  └── it should revert
-         ├── when some of the streams are non-cancelable
-         │  └── it should revert
-         └── when all streams are cancelable
-            ├── when all streams are ended
-            │  ├── it should cancel the streams
-            │  ├── it should delete all the streams
-            │  └── it should emit multiple Cancel events
-            ├── when all streams are ongoing
-            │  ├── it should cancel the streams
-            │  ├── it should delete all the streams
-            │  └── it should emit multiple Cancel events
-            └── when some of the streams are ended and some are ongoing
-               ├── it should cancel the streams
-               ├── it should delete all the streams
-               └── it should emit multiple Cancel events
-
+      └── when all streams are cancelable
+        ├── when all streams are ended
+        │  ├── it should cancel the streams
+        │  ├── it should delete all the streams
+        │  └── it should emit multiple Cancel events
+        ├── when all streams are ongoing
+        │  ├── it should cancel the streams
+        │  ├── it should delete all the streams
+        │  └── it should emit multiple Cancel events
+        └── when some of the streams are ended and some are ongoing
+            ├── it should cancel the streams
+            ├── it should delete all the streams
+            └── it should emit multiple Cancel events

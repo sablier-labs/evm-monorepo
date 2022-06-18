@@ -41,9 +41,6 @@ interface ISablierV2 {
     /// @notice Emitted when attempting to create a stream with the start time greater than the stop time.
     error SablierV2__StartTimeGreaterThanStopTime(uint256 startTime, uint256 stopTime);
 
-    /// @notice Emitted when attempting to withdraw from or cancel multiple streams with an empty array of stream ids.
-    error SablierV2__StreamIdsArrayEmpty();
-
     /// @notice Emitted when attempting to cancel a stream that is already non-cancelable.
     error SablierV2__StreamNonCancelable(uint256 streamId);
 
@@ -176,9 +173,9 @@ interface ISablierV2 {
     /// @dev Emits multiple {Cancel} events.
     ///
     /// Requiremenets:
-    /// - `streamIds` must be non-empty and each element must point to an existing stream.
+    /// - Each stream id in `streamIds` must point to an existing stream.
     /// - `msg.sender` must be either the sender or recipient of every stream.
-    /// - The stream must be cancelable.
+    /// - Each stream must be cancelable.
     ///
     /// @param streamIds The ids of the streams to cancel.
     function cancelAll(uint256[] calldata streamIds) external;
@@ -220,7 +217,7 @@ interface ISablierV2 {
     ) external;
 
     /// @notice Counter for stream ids.
-    /// @return The next stream id;
+    /// @return The next stream id.
     function nextStreamId() external view returns (uint256);
 
     /// @notice Makes the stream non-cancelable.
@@ -253,9 +250,10 @@ interface ISablierV2 {
     /// @dev Emits multiple {Withdraw} event.
     ///
     /// Requirements:
+    /// - The count of `streamIds` must match the count of `amounts`.
     /// - `msg.sender` must be either the sender or recipient of every stream.
-    /// - `streamIds` must be non-empty and each stream id must point to an existing stream.
-    /// - `amounts` must be non-empty and each amount must not be zero and must not exceed the withdrawable amount.
+    /// - Each stream id in `streamIds` must point to an existing stream.
+    /// - Each amount in `amounts` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamIds The ids of the streams to withdraw.
     /// @param amounts The amounts to withdraw, in units of the ERC-20 token's decimals.
@@ -266,10 +264,11 @@ interface ISablierV2 {
     /// @dev Emits multiple {Withdraw} event.
     ///
     /// Requirements:
-    /// - `streamIds` must be non-empty and each stream id must point to an existing stream.
     /// - `to` must not be the zero address.
+    /// - The count of `streamIds` must match the count of `amounts`.
+    /// - Each stream id in `streamIds` must point to an existing stream.
     /// - `msg.sender` must be the recipient of every stream.
-    /// - `amounts` must be non-empty and each amount must not be zero and must not exceed the withdrawable amount.
+    /// - Each amount in `amounts` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamIds The ids of the streams to withdraw.
     /// @param to The address that will receive the withdrawn tokens.
