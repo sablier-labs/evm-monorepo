@@ -91,16 +91,7 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
     /// @dev When all streams are non-cancelable, it should do nothing.
     function testCannotCancelAll__AllStreamsNonCancelable() external {
         // Create the non-cancelable stream.
-        bool cancelable = false;
-        uint256 nonCancelableStreamId = sablierV2Linear.create(
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.stopTime,
-            cancelable
-        );
+        uint256 nonCancelableStreamId = createNonCancelableStream();
 
         // Run the test.
         uint256[] memory nonCancelableStreamIds = createDynamicArray(nonCancelableStreamId);
@@ -110,16 +101,7 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
     /// @dev When some streams are non-cancelable, it should cancel and delete the cancelable streams.
     function testCannotCancelAll__SomeStreamsNonCancelable() external {
         // Create the non-cancelable stream.
-        bool cancelable = false;
-        uint256 nonCancelableStreamId = sablierV2Linear.create(
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.stopTime,
-            cancelable
-        );
+        uint256 nonCancelableStreamId = createNonCancelableStream();
 
         // Run the test.
         uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonCancelableStreamId);

@@ -22,18 +22,8 @@ contract SablierV2Cliff__UnitTest__IsCancelable is SablierV2CliffUnitTest {
 
     /// @dev When the stream is not cancelable, it should return true.
     function testIsCancelable__NonCancelableStream() external {
-        bool cancelable = false;
-        uint256 streamId = sablierV2Cliff.create(
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.cliffTime,
-            stream.stopTime,
-            cancelable
-        );
-        bool actualCancelable = sablierV2Cliff.isCancelable(streamId);
+        uint256 nonCancelableStreamId = createNonCancelableStream();
+        bool actualCancelable = sablierV2Cliff.isCancelable(nonCancelableStreamId);
         bool expectedCancelable = false;
         assertEq(actualCancelable, expectedCancelable);
     }

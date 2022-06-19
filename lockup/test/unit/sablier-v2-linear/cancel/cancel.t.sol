@@ -49,16 +49,7 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
     /// @dev When the stream is non-cancelable, it should revert.
     function testCannotCancel__StreamNonCancelable() external {
         // Create the non-cancelable stream.
-        bool cancelable = false;
-        uint256 nonCancelableStreamId = sablierV2Linear.create(
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.stopTime,
-            cancelable
-        );
+        uint256 nonCancelableStreamId = createNonCancelableStream();
 
         // Run the test.
         vm.expectRevert(

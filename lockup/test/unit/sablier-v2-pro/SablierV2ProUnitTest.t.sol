@@ -136,4 +136,20 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
             stream.cancelable
         );
     }
+
+    /// @dev Helper function to create a non-cancelable stream.
+    function createNonCancelableStream() internal returns (uint256 nonCancelableStreamId) {
+        bool cancelable = false;
+        nonCancelableStreamId = sablierV2Pro.create(
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
+            stream.segmentAmounts,
+            stream.segmentExponents,
+            stream.segmentMilestones,
+            cancelable
+        );
+    }
 }

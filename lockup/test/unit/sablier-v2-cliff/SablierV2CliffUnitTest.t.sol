@@ -105,4 +105,19 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
             stream.cancelable
         );
     }
+
+    /// @dev Helper function to create a non-cancelable stream.
+    function createNonCancelableStream() internal returns (uint256 nonCancelableStreamId) {
+        bool cancelable = false;
+        nonCancelableStreamId = sablierV2Cliff.create(
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
+            stream.cliffTime,
+            stream.stopTime,
+            cancelable
+        );
+    }
 }

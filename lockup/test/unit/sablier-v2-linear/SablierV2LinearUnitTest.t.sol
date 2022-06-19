@@ -89,7 +89,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         assertEq(a.withdrawnAmount, b.withdrawnAmount);
     }
 
-    /// @dev Helper function to create a linear stream.
+    /// @dev Helper function to create a default stream.
     function createDefaultStream() internal returns (uint256 streamId) {
         streamId = sablierV2Linear.create(
             stream.sender,
@@ -99,6 +99,20 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
             stream.startTime,
             stream.stopTime,
             stream.cancelable
+        );
+    }
+
+    /// @dev Helper function to create a non-cancelable stream.
+    function createNonCancelableStream() internal returns (uint256 nonCancelableStreamId) {
+        bool cancelable = false;
+        nonCancelableStreamId = sablierV2Linear.create(
+            stream.sender,
+            stream.recipient,
+            stream.depositAmount,
+            stream.token,
+            stream.startTime,
+            stream.stopTime,
+            cancelable
         );
     }
 }

@@ -22,17 +22,8 @@ contract SablierV2Linear__UnitTest__IsCancelable is SablierV2LinearUnitTest {
 
     /// @dev When the stream is not cancelable, it should return true.
     function testIsCancelable__NonCancelableStream() external {
-        bool cancelable = false;
-        uint256 streamId = sablierV2Linear.create(
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.stopTime,
-            cancelable
-        );
-        bool actualCancelable = sablierV2Linear.isCancelable(streamId);
+        uint256 nonCancelableStreamId = createNonCancelableStream();
+        bool actualCancelable = sablierV2Linear.isCancelable(nonCancelableStreamId);
         bool expectedCancelable = false;
         assertEq(actualCancelable, expectedCancelable);
     }
