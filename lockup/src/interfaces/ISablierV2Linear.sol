@@ -61,8 +61,8 @@ interface ISablierV2Linear is ISablierV2 {
     /// Requirements:
     /// - `sender` must not the zero address.
     /// - `recipient` must not the zero address.
-    /// - `depositAmount` must not zero.
-    /// - `startTime` must not greater than `stopTime`.
+    /// - `depositAmount` must not be zero.
+    /// - `startTime` must not be greater than `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
     /// @param sender The address from which to stream the money.

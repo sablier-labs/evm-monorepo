@@ -94,18 +94,8 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
         sablierV2Linear.withdrawTo(streamId, toRecipient, WITHDRAW_AMOUNT);
     }
 
-    /// @dev When the stream ended, it should withdraw everything.
+    /// @dev When the stream ended, it should make the withdrawal and delete the stream.
     function testWithdrawTo__ThirdParty__StreamEnded() external {
-        // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
-
-        // Run the test.
-        uint256 withdrawAmount = stream.depositAmount;
-        sablierV2Linear.withdrawTo(streamId, toAlice, withdrawAmount);
-    }
-
-    /// @dev When the stream ended, it should delete the stream.
-    function testWithdrawTo__ThirdParty__StreamEnded__DeleteStream() external {
         // Warp to the end of the stream.
         vm.warp(stream.stopTime);
 
@@ -129,17 +119,8 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
         sablierV2Linear.withdrawTo(streamId, toAlice, withdrawAmount);
     }
 
-    /// @dev When the stream is ongoing, it should make the withdrawal.
+    /// @dev When the stream is ongoing, it should make the withdrawal and update the withdrawn amount.
     function testWithdrawTo__ThirdParty__StreamOngoing() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
-
-        // Run the test.
-        sablierV2Linear.withdrawTo(streamId, toAlice, WITHDRAW_AMOUNT);
-    }
-
-    /// @dev When the stream is ongoing, it should update the withdrawn amount.
-    function testWithdrawTo__ThirdParty__StreamOngoing__UpdateWithdrawnAmount() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 

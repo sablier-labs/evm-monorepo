@@ -5,16 +5,14 @@ cancel.t.sol
    ├── when the caller is neither the sender nor the recipient
    │  └── it should revert
    ├── when the caller is the recipient
-   │  └── it should cancel the stream
+   │  └── it should cancel and delete the stream
    └── when the stream is the sender
       ├── when the stream is non-cancelable
       │  └── it should revert
       └── when the stream is cancelable
          ├── when the stream ended
-         │  ├── it should cancel the stream
-         │  ├── it should delete the stream
+         │  ├── it should cancel and delete the stream
          │  └── it should emit a Cancel event
          └── when the stream did not end
-            ├── it should cancel the stream
-            ├── it should delete the stream
+            ├── it should cancel and delete the stream
             └── it should emit a Cancel event

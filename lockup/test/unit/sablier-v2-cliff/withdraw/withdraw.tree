@@ -14,10 +14,8 @@ withdraw.t.sol
          │  └── it should revert
          └── when the amount is less than or equal to the withdrawable amount
             ├── when the stream ended
-            │  ├── it should withdraw everything
-            │  ├── it should delete the stream
+            │  ├── it should make the withdrawal and delete the stream
             │  └── it should emit a Withdraw event
             └── when the stream did not end
-               ├── it should make the withdrawal
-               ├── it should update the withdrawn amount
+               ├── it should make the withdrawal and update the withdrawn amount
                └── it should emit a Withdraw event

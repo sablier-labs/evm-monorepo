@@ -74,18 +74,8 @@ contract SablierV2Cliff__UnitTest__Withdraw is SablierV2CliffUnitTest {
         sablierV2Cliff.withdraw(streamId, withdrawAmountMaxUint256);
     }
 
-    /// @dev When the stream ended, it should withdraw everything.
+    /// @dev When the stream ended, it should cancel and delete the stream.
     function testWithdraw__StreamEnded() external {
-        // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
-
-        // Run the test.
-        uint256 withdrawAmount = stream.depositAmount;
-        sablierV2Cliff.withdraw(streamId, withdrawAmount);
-    }
-
-    /// @dev When the stream ended, it should delete the stream.
-    function testWithdraw__StreamEnded__DeleteStream() external {
         // Warp to the end of the stream.
         vm.warp(stream.stopTime);
 
@@ -109,26 +99,16 @@ contract SablierV2Cliff__UnitTest__Withdraw is SablierV2CliffUnitTest {
         sablierV2Cliff.withdraw(streamId, withdrawAmount);
     }
 
-    /// @dev When the stream is ongoing, it should make the withdrawal.
+    /// @dev When the stream is ongoing, it should make the withdrawal and update the withdrawn amount.
     function testWithdraw__StreamOngoing() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 
         // Run the test.
         sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT);
-    }
-
-    /// @dev When the stream is ongoing, it should update the withdrawn amount.
-    function testWithdraw__StreamOngoing__UpdateWithdrawnAmount() external {
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
-
-        // Run the test.
-        uint256 withdrawnAmount = WITHDRAW_AMOUNT;
-        sablierV2Cliff.withdraw(streamId, withdrawnAmount);
         ISablierV2Cliff.Stream memory actualStream = sablierV2Cliff.getStream(streamId);
         uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
-        uint256 expectedWithdrawnAmount = stream.withdrawnAmount + withdrawnAmount;
+        uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 

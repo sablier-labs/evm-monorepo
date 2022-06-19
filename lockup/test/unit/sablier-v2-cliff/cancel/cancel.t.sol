@@ -34,13 +34,16 @@ contract SablierV2Cliff__UnitTest__Cancel is SablierV2CliffUnitTest {
         sablierV2Cliff.cancel(streamId);
     }
 
-    /// @dev When caller is the recipient, it should cancel the stream.
+    /// @dev When caller is the recipient, it should cancel and delete the stream.
     function testCancel__CallerRecipient() external {
         // Make the recipient the `msg.sender` in this test case.
         changePrank(users.recipient);
 
         // Run the test.
         sablierV2Cliff.cancel(streamId);
+        ISablierV2Cliff.Stream memory deletedStream = sablierV2Cliff.getStream(streamId);
+        ISablierV2Cliff.Stream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
     }
 
     /// @dev When the stream is non-cancelable, it should revert.
@@ -65,17 +68,8 @@ contract SablierV2Cliff__UnitTest__Cancel is SablierV2CliffUnitTest {
         sablierV2Cliff.cancel(nonCancelableStreamId);
     }
 
-    /// @dev When the stream ended, it should cancel the stream.
+    /// @dev When the stream ended, it should cancel and delete the stream.
     function testCancel__StreamEnded() external {
-        // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
-
-        // Run the test.
-        sablierV2Cliff.cancel(streamId);
-    }
-
-    /// @dev When the stream ended, it should delete the stream.
-    function testCancel__StreamEnded__DeleteStream() external {
         // Warp to the end of the stream.
         vm.warp(stream.stopTime);
 
@@ -99,17 +93,8 @@ contract SablierV2Cliff__UnitTest__Cancel is SablierV2CliffUnitTest {
         sablierV2Cliff.cancel(streamId);
     }
 
-    /// @dev When the stream is ongoing, it should cancel the stream.
+    /// @dev When the stream is ongoing, it should cancel and delete the stream.
     function testCancel__StreamOngoing() external {
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
-
-        // Run the test.
-        sablierV2Cliff.cancel(streamId);
-    }
-
-    /// @dev When the stream is ongoing, it should delete the stream.
-    function testCancel__StreamOngoing__DeleteStream() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 

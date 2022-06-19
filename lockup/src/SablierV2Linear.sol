@@ -56,7 +56,7 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2
-    function getRecipient(uint256 streamId) external view override returns (address recipient) {
+    function getRecipient(uint256 streamId) public view override(ISablierV2, SablierV2) returns (address recipient) {
         recipient = streams[streamId].recipient;
     }
 
@@ -75,7 +75,7 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2
-    function getSender(uint256 streamId) external view override returns (address sender) {
+    function getSender(uint256 streamId) public view override(ISablierV2, SablierV2) returns (address sender) {
         sender = streams[streamId].sender;
     }
 
@@ -132,7 +132,7 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2
-    function isCancelable(uint256 streamId) external view override returns (bool cancelable) {
+    function isCancelable(uint256 streamId) public view override(ISablierV2, SablierV2) returns (bool cancelable) {
         cancelable = streams[streamId].cancelable;
     }
 
@@ -285,21 +285,22 @@ contract SablierV2Linear is
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
+        address sender;
+        uint256 streamId;
         for (uint256 i = 0; i < streamIdsCount; ) {
-            uint256 streamId = streamIds[i];
+            streamId = streamIds[i];
 
-            // Checks: `streamId` points to a stream that exists.
-            if (streams[streamId].sender == address(0)) {
-                revert SablierV2__StreamNonExistent(streamId);
+            // If the `streamId` points to a stream that does not exist, skip it.
+            sender = streams[streamId].sender;
+            if (sender != address(0)) {
+                // Checks: the `msg.sender` is either the sender or the recipient of the stream.
+                if (msg.sender != sender && msg.sender != streams[streamId].recipient) {
+                    revert SablierV2__Unauthorized(streamId, msg.sender);
+                }
+
+                // Effects and Interactions: withdraw from the stream.
+                withdrawInternal(streamId, streams[streamId].recipient, amounts[i]);
             }
-
-            // Checks: the `msg.sender` is either the sender or the recipient of the stream.
-            if (msg.sender != streams[streamId].sender && msg.sender != streams[streamId].recipient) {
-                revert SablierV2__Unauthorized(streamId, msg.sender);
-            }
-
-            // Effects and Interactions: withdraw from the stream.
-            withdrawInternal(streamId, streams[streamId].recipient, amounts[i]);
 
             // Increment the for loop iterator.
             unchecked {
@@ -341,21 +342,20 @@ contract SablierV2Linear is
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
+        uint256 streamId;
         for (uint256 i = 0; i < streamIdsCount; ) {
-            uint256 streamId = streamIds[i];
+            streamId = streamIds[i];
 
-            // Checks: `streamId` points to a stream that exists.
-            if (streams[streamId].sender == address(0)) {
-                revert SablierV2__StreamNonExistent(streamId);
+            // If the `streamId` points to a stream that does not exist, skip it.
+            if (streams[streamId].sender != address(0)) {
+                // Checks: the `msg.sender` is the recipient of the stream.
+                if (msg.sender != streams[streamId].recipient) {
+                    revert SablierV2__Unauthorized(streamId, msg.sender);
+                }
+
+                // Effects and Interactions: withdraw from the stream.
+                withdrawInternal(streamId, to, amounts[i]);
             }
-
-            // Checks: the `msg.sender` is the recipient of the stream.
-            if (msg.sender != streams[streamId].recipient) {
-                revert SablierV2__Unauthorized(streamId, msg.sender);
-            }
-
-            // Effects and Interactions: withdraw from the stream.
-            withdrawInternal(streamId, to, amounts[i]);
 
             // Increment the for loop iterator.
             unchecked {
@@ -367,13 +367,8 @@ contract SablierV2Linear is
     /// INTERNAL NON-CONSTANT FUNCTIONS ///
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function cancelInternal(uint256 streamId) internal override streamExists(streamId) onlySenderOrRecipient(streamId) {
+    function cancelInternal(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
         Stream memory stream = streams[streamId];
-
-        // Checks: the stream is cancelable.
-        if (!stream.cancelable) {
-            revert SablierV2__StreamNonCancelable(streamId);
-        }
 
         // Calculate the withdraw and the return amounts.
         uint256 withdrawAmount = getWithdrawableAmount(streamId);
@@ -445,12 +440,12 @@ contract SablierV2Linear is
         address to,
         uint256 amount
     ) internal {
-        // Checks: the amount must not zero.
+        // Checks: the amount must not be zero.
         if (amount == 0) {
             revert SablierV2__WithdrawAmountZero(streamId);
         }
 
-        // Checks: the amount must not greater than what can be withdrawn.
+        // Checks: the amount must not be greater than what can be withdrawn.
         uint256 withdrawableAmount = getWithdrawableAmount(streamId);
         if (amount > withdrawableAmount) {
             revert SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);

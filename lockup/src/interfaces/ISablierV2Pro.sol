@@ -101,8 +101,8 @@ interface ISablierV2Pro is ISablierV2 {
     /// Requirements:
     /// - `sender` must not the zero address.
     /// - `recipient` must not the zero address.
-    /// - `depositAmount` must not zero.
-    /// - `startTime` must not greater than `stopTime`.
+    /// - `depositAmount` must not be zero.
+    /// - `startTime` must not be greater than `stopTime`.
     /// - `segmentAmounts` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
     /// - `segmentAmounts` summed up must be equal to `depositAmount`.
     /// - `segmentExponents` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.

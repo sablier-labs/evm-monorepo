@@ -18,20 +18,22 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         defaultStreamIds.push(createDefaultStream());
     }
 
-    /// @dev When the stream ids array points only to non existing streams, it should revert.
+    /// @dev When the stream ids array points only to non existent streams, it should do nothing.
     function testCannotCancelAll__OnlyNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = createDynamicArray(nonStreamId);
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
         sablierV2Linear.cancelAll(streamIds);
     }
 
-    /// @dev When the stream ids array points to some non existing streams, it should revert.
+    /// @dev When the stream ids array points to some non existent streams, it should cancel and delete the
+    /// existing streams.
     function testCannotCancelAll__SomeNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonStreamId);
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
         sablierV2Linear.cancelAll(streamIds);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(defaultStreamIds[0]);
+        ISablierV2Linear.Stream memory expectedStream;
+        assertEq(actualStream, expectedStream);
     }
 
     /// @dev When the caller is neither the sender nor the recipient of any stream, it should revert.
@@ -70,16 +72,23 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         sablierV2Linear.cancelAll(streamIds);
     }
 
-    /// @dev When the caller is the recipient of all the streams, it should cancel the streams.
+    /// @dev When the caller is the recipient of all streams, it should cancel and delete the streams.
     function testCancelAll__CallerRecipient__AllStreams() external {
         // Make the recipient the `msg.sender` in this test case.
         changePrank(users.recipient);
 
         // Run the test.
         sablierV2Linear.cancelAll(defaultStreamIds);
+
+        ISablierV2Linear.Stream memory actualStream0 = sablierV2Linear.getStream(defaultStreamIds[0]);
+        ISablierV2Linear.Stream memory actualStream1 = sablierV2Linear.getStream(defaultStreamIds[1]);
+        ISablierV2Linear.Stream memory expectedStream;
+
+        assertEq(actualStream0, expectedStream);
+        assertEq(actualStream1, expectedStream);
     }
 
-    /// @dev When all streams are non-cancelable, it should revert.
+    /// @dev When all streams are non-cancelable, it should do nothing.
     function testCannotCancelAll__AllStreamsNonCancelable() external {
         // Create the non-cancelable stream.
         bool cancelable = false;
@@ -95,14 +104,11 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
 
         // Run the test.
         uint256[] memory nonCancelableStreamIds = createDynamicArray(nonCancelableStreamId);
-        vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonCancelable.selector, nonCancelableStreamId)
-        );
         sablierV2Linear.cancelAll(nonCancelableStreamIds);
     }
 
-    /// @dev When some streams are non-cancelable, it should revert.
-    function testCannotCancelAll__SomeNonCancelableStreams() external {
+    /// @dev When some streams are non-cancelable, it should cancel and delete the cancelable streams.
+    function testCannotCancelAll__SomeStreamsNonCancelable() external {
         // Create the non-cancelable stream.
         bool cancelable = false;
         uint256 nonCancelableStreamId = sablierV2Linear.create(
@@ -117,23 +123,14 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
 
         // Run the test.
         uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonCancelableStreamId);
-        vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonCancelable.selector, nonCancelableStreamId)
-        );
         sablierV2Linear.cancelAll(streamIds);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(defaultStreamIds[0]);
+        ISablierV2Linear.Stream memory expectedStream;
+        assertEq(actualStream, expectedStream);
     }
 
-    /// @dev When all streams are ended, it should cancel the streams.
+    /// @dev When all streams are ended, it should cancel and delete the streams.
     function testCancelAll__AllStreamsEnded() external {
-        // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
-
-        // Run the test.
-        sablierV2Linear.cancelAll(defaultStreamIds);
-    }
-
-    /// @dev When all streams are ended, it should delete the streams.
-    function testCancelAll__AllStreamsEnded__DeleteStreams() external {
         // Warp to the end of the stream.
         vm.warp(stream.stopTime);
 
@@ -164,17 +161,8 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         sablierV2Linear.cancelAll(streamIds);
     }
 
-    /// @dev When all streams are ongoing, it should cancel the streams.
+    /// @dev When all streams are ongoing, it should cancel and delete the streams.
     function testCancelAll__AllStreamsOngoing() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
-
-        // Run the test.
-        sablierV2Linear.cancelAll(defaultStreamIds);
-    }
-
-    /// @dev When all streams are ongoing, it should delete the streams.
-    function testCancelAll__AllStreamsOngoing__DeleteStreams() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 
@@ -204,33 +192,8 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         sablierV2Linear.cancelAll(defaultStreamIds);
     }
 
-    /// @dev When some of the streams are ended and some are ongoing, it should cancel the streams.
+    /// @dev When some of the streams are ended and some are ongoing, it should cancel and delete the streams.
     function testCancelAll__SomeStreamsEndedSomeStreamsOngoing() external {
-        // Create the ended stream.
-        uint256 earlyStopTime = stream.startTime + TIME_OFFSET;
-        uint256 endedStreamId = sablierV2Linear.create(
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            earlyStopTime,
-            stream.cancelable
-        );
-
-        // Use the first default stream as the ongoing stream.
-        uint256 ongoingStreamId = defaultStreamIds[0];
-
-        // Warp to the end of the early stream.
-        vm.warp(earlyStopTime);
-
-        // Run the test.
-        uint256[] memory streamIds = createDynamicArray(endedStreamId, ongoingStreamId);
-        sablierV2Linear.cancelAll(streamIds);
-    }
-
-    /// @dev When some of the streams are ended and some are ongoing, it should delete the streams.
-    function testCancelAll__SomeStreamsEndedSomeStreamsOngoing__DeleteStreams() external {
         // Create the ended stream.
         uint256 earlyStopTime = stream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Linear.create(

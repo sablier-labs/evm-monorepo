@@ -36,20 +36,44 @@ abstract contract SablierV2 is ISablierV2 {
         authorization = authorizations[sender][funder][token];
     }
 
+    /// @inheritdoc ISablierV2
+    function getRecipient(uint256 streamId) public view virtual override returns (address recipient);
+
+    /// @inheritdoc ISablierV2
+    function getSender(uint256 streamId) public view virtual override returns (address sender);
+
+    /// @inheritdoc ISablierV2
+    function isCancelable(uint256 streamId) public view virtual override returns (bool cancelable);
+
     /// NON-CONSTANT FUNCTIONS ///
 
     /// @inheritdoc ISablierV2
     function cancel(uint256 streamId) external {
+        // Checks: the `streamId` points to an existing stream.
+        if (getSender(streamId) == address(0)) {
+            revert SablierV2__StreamNonExistent(streamId);
+        }
+
+        // Checks: the stream is cancelable.
+        if (!isCancelable(streamId)) {
+            revert SablierV2__StreamNonCancelable(streamId);
+        }
+
         cancelInternal(streamId);
     }
 
     /// @inheritdoc ISablierV2
     function cancelAll(uint256[] calldata streamIds) external {
-        // Iterate over the provided array of stream ids and cancel each stream.
+        // Iterate over the provided array of stream ids and cancel each stream that exists and is cancelable.
         uint256 count = streamIds.length;
+        uint256 streamId;
         for (uint256 i = 0; i < count; ) {
-            // Effects: cancel the stream.
-            cancelInternal(streamIds[i]);
+            streamId = streamIds[i];
+
+            // Cancel the stream only if the `streamId` points to a stream that exists and is cancelable.
+            if (getSender(streamId) != address(0) && isCancelable(streamId)) {
+                cancelInternal(streamId);
+            }
 
             // Increment the for loop iterator.
             unchecked {
@@ -82,7 +106,7 @@ abstract contract SablierV2 is ISablierV2 {
 
     /// INTERNAL CONSTANT FUNCTIONS ///
 
-    /// @dev Checks basic requiremenets for the `create` function arguments.
+    /// @dev Checks the basic requiremenets for the `create` function.
     function checkCreateArguments(
         address sender,
         address recipient,

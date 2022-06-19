@@ -34,13 +34,16 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         sablierV2Linear.cancel(streamId);
     }
 
-    /// @dev When caller is the recipient, it should cancel the stream.
+    /// @dev When caller is the recipient, it should cancel and delete the stream.
     function testCancel__CallerRecipient() external {
         // Make the recipient the `msg.sender` in this test case.
         changePrank(users.recipient);
 
         // Run the test.
         sablierV2Linear.cancel(streamId);
+        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
+        ISablierV2Linear.Stream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
     }
 
     /// @dev When the stream is non-cancelable, it should revert.
@@ -64,17 +67,8 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         sablierV2Linear.cancel(nonCancelableStreamId);
     }
 
-    /// @dev When the stream ended, it should cancel the stream.
+    /// @dev When the stream ended, it should cancel and delete the stream.
     function testCancel__StreamEnded() external {
-        // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
-
-        // Run the test.
-        sablierV2Linear.cancel(streamId);
-    }
-
-    /// @dev When the stream ended, it should delete the stream.
-    function testCancel__StreamEnded__DeleteStream() external {
         // Warp to the end of the stream.
         vm.warp(stream.stopTime);
 
@@ -98,17 +92,8 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         sablierV2Linear.cancel(streamId);
     }
 
-    /// @dev When the stream is ongoing, it should cancel the stream.
+    /// @dev When the stream is ongoing, it should cancel and delete the stream.
     function testCancel__StreamOngoing() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
-
-        // Run the test.
-        sablierV2Linear.cancel(streamId);
-    }
-
-    /// @dev When the stream is ongoing, it should delete the stream.
-    function testCancel__StreamOngoing__DeleteStream() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(stream.startTime + TIME_OFFSET);
 

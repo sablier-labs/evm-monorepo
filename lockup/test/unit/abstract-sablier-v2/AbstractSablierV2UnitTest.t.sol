@@ -21,7 +21,7 @@ contract AbstractSablierV2 is SablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function getRecipient(uint256 streamId) external pure override returns (address recipient) {
+    function getRecipient(uint256 streamId) public pure override returns (address recipient) {
         streamId;
         recipient;
     }
@@ -33,7 +33,7 @@ contract AbstractSablierV2 is SablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function getSender(uint256 streamId) external pure returns (address sender) {
+    function getSender(uint256 streamId) public pure override returns (address sender) {
         streamId;
         sender;
     }
@@ -63,7 +63,7 @@ contract AbstractSablierV2 is SablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function isCancelable(uint256 streamId) external pure returns (bool cancelable) {
+    function isCancelable(uint256 streamId) public pure override returns (bool cancelable) {
         streamId;
         cancelable;
     }
