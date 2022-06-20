@@ -144,6 +144,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         bool cancelable = false;
         nonCancelableStreamId = sablierV2Pro.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
