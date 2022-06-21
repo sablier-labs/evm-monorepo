@@ -14,11 +14,6 @@ abstract contract SablierV2 is ISablierV2 {
     /// @inheritdoc ISablierV2
     uint256 public override nextStreamId;
 
-    /// INTERNAL STORAGE ///
-
-    /// @dev Mapping from owners to creators to stream creation authorizations.
-    mapping(address => mapping(address => mapping(IERC20 => uint256))) internal authorizations;
-
     /// CONSTRUCTOR ///
 
     constructor() {
@@ -26,15 +21,6 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// CONSTANT FUNCTIONS ///
-
-    /// @inheritdoc ISablierV2
-    function getAuthorization(
-        address sender,
-        address funder,
-        IERC20 token
-    ) external view returns (uint256 authorization) {
-        authorization = authorizations[sender][funder][token];
-    }
 
     /// @inheritdoc ISablierV2
     function getRecipient(uint256 streamId) public view virtual override returns (address recipient);
@@ -82,28 +68,6 @@ abstract contract SablierV2 is ISablierV2 {
         }
     }
 
-    /// @inheritdoc ISablierV2
-    function decreaseAuthorization(
-        address funder,
-        IERC20 token,
-        uint256 amount
-    ) public virtual override {
-        address sender = msg.sender;
-        uint256 newAuthorization = authorizations[sender][funder][token] - amount;
-        authorizeInternal(sender, funder, token, newAuthorization);
-    }
-
-    /// @inheritdoc ISablierV2
-    function increaseAuthorization(
-        address funder,
-        IERC20 token,
-        uint256 amount
-    ) public virtual override {
-        address sender = msg.sender;
-        uint256 newAuthorization = authorizations[sender][funder][token] + amount;
-        authorizeInternal(sender, funder, token, newAuthorization);
-    }
-
     /// INTERNAL CONSTANT FUNCTIONS ///
 
     /// @dev Checks the basic requiremenets for the `create` function.
@@ -142,25 +106,6 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// INTERNAL NON-CONSTANT FUNCTIONS ///
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function authorizeInternal(
-        address sender,
-        address funder,
-        IERC20 token,
-        uint256 amount
-    ) internal virtual {
-        // Checks: the would-be stream sender is not the zero address.
-        if (sender == address(0)) {
-            revert SablierV2__AuthorizeSenderZeroAddress();
-        }
-
-        // Effects: update the authorization for the given sender and funder pair.
-        authorizations[sender][funder][token] = amount;
-
-        // Emit an event.
-        emit Authorize(sender, funder, amount);
-    }
 
     /// @dev See the documentation for the public functions that call this internal function.
     function cancelInternal(uint256 streamId) internal virtual;

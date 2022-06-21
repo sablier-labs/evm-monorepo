@@ -160,20 +160,6 @@ contract SablierV2Cliff is
             revert SablierV2__FunderZeroAddress();
         }
 
-        // If the `funder` is not the `msg.sender`, we have to perform some authorization checks.
-        if (funder != msg.sender) {
-            // Checks: the caller has sufficient authorization to create this stream on behalf of `funder`.
-            uint256 authorization = authorizations[funder][msg.sender][token];
-            if (authorization < depositAmount) {
-                revert SablierV2__InsufficientAuthorization(funder, msg.sender, token, authorization, depositAmount);
-            }
-
-            // Effects: decrease the authorization since this stream consumes a part or all of it.
-            unchecked {
-                authorizeInternal(funder, msg.sender, token, authorization - depositAmount);
-            }
-        }
-
         // Checks, Effects and Interactions: create the stream.
         streamId = createInternal(
             funder,
@@ -202,20 +188,6 @@ contract SablierV2Cliff is
         // Checks: the funder is not the zero address.
         if (funder == address(0)) {
             revert SablierV2__FunderZeroAddress();
-        }
-
-        // If the `funder` is not the `msg.sender`, we have to perform some authorization checks.
-        if (funder != msg.sender) {
-            // Checks: `msg.sender` has sufficient authorization to create this stream on behalf of `funder`.
-            uint256 authorization = authorizations[funder][msg.sender][token];
-            if (authorization < depositAmount) {
-                revert SablierV2__InsufficientAuthorization(funder, msg.sender, token, authorization, depositAmount);
-            }
-
-            // Effects: decrease the authorization since this stream consumes a part or all of it.
-            unchecked {
-                authorizeInternal(funder, msg.sender, token, authorization - depositAmount);
-            }
         }
 
         // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
