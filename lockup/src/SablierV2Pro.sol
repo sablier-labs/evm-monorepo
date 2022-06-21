@@ -203,7 +203,6 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2Pro
     function create(
-        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -214,14 +213,8 @@ contract SablierV2Pro is
         uint256[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId) {
-        // Checks: the funder is not the zero address.
-        if (funder == address(0)) {
-            revert SablierV2__FunderZeroAddress();
-        }
-
         // Checks, Effects and Interactions: create the stream.
         streamId = createInternal(
-            funder,
             sender,
             recipient,
             depositAmount,
@@ -236,7 +229,6 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2Pro
     function createWithDuration(
-        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -267,7 +259,6 @@ contract SablierV2Pro is
 
         // Checks, Effects and Interactions: create the stream.
         streamId = createInternal(
-            funder,
             sender,
             recipient,
             depositAmount,
@@ -528,7 +519,6 @@ contract SablierV2Pro is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function createInternal(
-        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -546,7 +536,7 @@ contract SablierV2Pro is
         uint256 stopTime = segmentMilestones[segmentCount - 1];
 
         // Checks: the common requirements for the `create` function arguments.
-        checkCreateArguments(funder, sender, recipient, depositAmount, startTime, stopTime);
+        checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
 
         // Checks: requirements of segments variables.
         checkSegments(depositAmount, startTime, segmentAmounts, segmentExponents, segmentMilestones, segmentCount);
@@ -573,12 +563,12 @@ contract SablierV2Pro is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        token.safeTransferFrom(funder, address(this), depositAmount);
+        token.safeTransferFrom(msg.sender, address(this), depositAmount);
 
         // Emit an event.
         emit CreateStream(
             streamId,
-            funder,
+            msg.sender,
             sender,
             recipient,
             depositAmount,

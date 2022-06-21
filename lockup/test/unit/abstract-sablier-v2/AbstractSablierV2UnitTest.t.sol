@@ -121,10 +121,6 @@ contract AbstractSablierV2 is SablierV2 {
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
 abstract contract AbstractSablierV2UnitTest is SablierV2UnitTest {
-    /// EVENTS ///
-
-    event Authorize(address indexed sender, address indexed funder, uint256 amount);
-
     /// TESTING VARIABLES ///
 
     AbstractSablierV2 internal abstractSablierV2 = new AbstractSablierV2();

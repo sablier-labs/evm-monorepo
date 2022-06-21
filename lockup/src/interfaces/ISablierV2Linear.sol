@@ -56,23 +56,19 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// NON-CONSTANT FUNCTIONS ///
 
-    /// @notice Creates a new stream funded by `funder`.
+    /// @notice Creates a new stream funded by `msg.sender`.
     ///
-    /// @dev Emits a {CreateStream} event. If `funder` is not the same as `msg.sender`, it also emits an
-    /// {Authorize} event.
+    /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
     /// - `sender` must not be the zero address.
     /// - `recipient` must not be the zero address.
     /// - `depositAmount` must not be zero.
     /// - `startTime` must not be greater than `stopTime`.
-    /// - `funder` must have allowed this contract to spend `depositAmount` tokens.
-    /// - If `funder` is not the same as `msg.sender`, `funder` must have allowed `msg.sender` to create a
-    /// stream worth `depositAmount` tokens.
+    /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
-    /// @param funder The address which funds the stream.
     /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
-    /// It doesn't have to be the same as `funder`.
+    /// It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address toward which to stream the tokens.
     /// @param depositAmount The amount of tokens to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
@@ -81,7 +77,6 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param cancelable Whether the stream is cancelable or not.
     /// @return streamId The id of the newly created stream.
     function create(
-        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -91,18 +86,16 @@ interface ISablierV2Linear is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a stream funded by `funder` and sets the start time to `block.timestamp` and the stop
+    /// @notice Creates a stream funded by `msg.sender` and sets the start time to `block.timestamp` and the stop
     /// time to `block.timestamp + duration`.
     ///
-    /// @dev Emits a {CreateStream} event. If `funder` is not the same as `msg.sender`, it also emits an
-    /// {Authorize} event.
+    /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
     /// - All from `create`.
     ///
-    /// @param funder The address which funds the stream.
     /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
-    /// It doesn't have to be the same as `funder`.
+    /// It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address toward which to stream the tokens.
     /// @param depositAmount The amount of tokens to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
@@ -110,7 +103,6 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param cancelable Whether the stream is cancelable or not.
     /// @return streamId The id of the newly created stream.
     function createWithDuration(
-        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,

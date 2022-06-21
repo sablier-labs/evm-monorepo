@@ -29,7 +29,6 @@ contract SablierV2Cliff__UnitTest__CreateWithDuration is SablierV2CliffUnitTest 
         );
         sablierV2Cliff.createWithDuration(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -59,7 +58,6 @@ contract SablierV2Cliff__UnitTest__CreateWithDuration is SablierV2CliffUnitTest 
         );
         sablierV2Cliff.createWithDuration(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -80,7 +78,6 @@ contract SablierV2Cliff__UnitTest__CreateWithDuration is SablierV2CliffUnitTest 
             stopTime = block.timestamp + totalDuration;
         }
         uint256 streamId = sablierV2Cliff.createWithDuration(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
