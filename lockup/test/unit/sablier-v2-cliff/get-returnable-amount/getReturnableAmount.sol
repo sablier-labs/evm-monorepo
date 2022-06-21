@@ -34,9 +34,9 @@ contract SablierV2Cliff__UnitTest__GetReturnableAmount is SablierV2CliffUnitTest
     /// correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountZero__WithWithdrawals() external {
         vm.warp(daiStream.startTime + TIME_OFFSET);
-        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT);
+        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT_DAI);
         uint256 actualReturnableAmount = sablierV2Cliff.getReturnableAmount(streamId);
-        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT;
+        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
@@ -45,7 +45,7 @@ contract SablierV2Cliff__UnitTest__GetReturnableAmount is SablierV2CliffUnitTest
     function testGetReturnableAmount__WithdrawableAmountNotZero__NoWithdrawals() external {
         vm.warp(daiStream.startTime + TIME_OFFSET);
         uint256 actualReturnableAmount = sablierV2Cliff.getReturnableAmount(streamId);
-        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT;
+        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
@@ -53,9 +53,9 @@ contract SablierV2Cliff__UnitTest__GetReturnableAmount is SablierV2CliffUnitTest
     /// correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountNotZero__WithWithdrawals() external {
         vm.warp(daiStream.startTime + TIME_OFFSET + 1 seconds);
-        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT);
+        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT_DAI);
         uint256 actualReturnableAmount = sablierV2Cliff.getReturnableAmount(streamId);
-        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT - bn(1, 18);
+        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI - bn(1, 18);
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 }

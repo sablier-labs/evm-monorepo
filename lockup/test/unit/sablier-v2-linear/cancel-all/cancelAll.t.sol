@@ -166,8 +166,8 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawAmount = WITHDRAW_AMOUNT;
-        uint256 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT;
+        uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
+        uint256 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
         vm.expectEmit(true, true, false, true);
         emit Cancel(defaultStreamIds[0], daiStream.recipient, withdrawAmount, returnAmount);
         vm.expectEmit(true, true, false, true);
@@ -232,8 +232,8 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         // Run the test.
         uint256 endedWithdrawAmount = daiStream.depositAmount;
         uint256 endedReturnAmount = 0;
-        uint256 ongoingWithdrawAmount = WITHDRAW_AMOUNT;
-        uint256 ongoingReturnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT;
+        uint256 ongoingWithdrawAmount = WITHDRAW_AMOUNT_DAI;
+        uint256 ongoingReturnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
 
         vm.expectEmit(true, true, false, true);
         emit Cancel(endedStreamId, daiStream.recipient, endedWithdrawAmount, endedReturnAmount);

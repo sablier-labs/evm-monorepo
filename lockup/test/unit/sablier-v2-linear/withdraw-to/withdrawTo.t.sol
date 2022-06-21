@@ -91,7 +91,7 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
 
         // Run the test.
         address toRecipient = daiStream.recipient;
-        sablierV2Linear.withdrawTo(streamId, toRecipient, WITHDRAW_AMOUNT);
+        sablierV2Linear.withdrawTo(streamId, toRecipient, WITHDRAW_AMOUNT_DAI);
     }
 
     /// @dev When the stream ended, it should make the withdrawal and delete the stream.
@@ -125,7 +125,7 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawnAmount = WITHDRAW_AMOUNT;
+        uint256 withdrawnAmount = WITHDRAW_AMOUNT_DAI;
         sablierV2Linear.withdrawTo(streamId, toAlice, withdrawnAmount);
         ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
         uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
@@ -139,7 +139,7 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawAmount = WITHDRAW_AMOUNT;
+        uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
         vm.expectEmit(true, true, false, true);
         emit Withdraw(streamId, toAlice, withdrawAmount);
         sablierV2Linear.withdrawTo(streamId, toAlice, withdrawAmount);

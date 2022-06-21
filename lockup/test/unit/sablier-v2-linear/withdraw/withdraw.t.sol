@@ -46,7 +46,7 @@ contract SablierV2Linear__UnitTest__Withdraw is SablierV2LinearUnitTest {
 
         // Warp to 100 seconds after the start time (1% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
-        uint256 withdrawAmount = WITHDRAW_AMOUNT;
+        uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
 
         // Run the test.
         sablierV2Linear.withdraw(streamId, withdrawAmount);
@@ -105,7 +105,7 @@ contract SablierV2Linear__UnitTest__Withdraw is SablierV2LinearUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawnAmount = WITHDRAW_AMOUNT;
+        uint256 withdrawnAmount = WITHDRAW_AMOUNT_DAI;
         sablierV2Linear.withdraw(streamId, withdrawnAmount);
         ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
         uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
@@ -119,7 +119,7 @@ contract SablierV2Linear__UnitTest__Withdraw is SablierV2LinearUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawAmount = WITHDRAW_AMOUNT;
+        uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
         vm.expectEmit(true, true, false, true);
         emit Withdraw(streamId, daiStream.recipient, withdrawAmount);
         sablierV2Linear.withdraw(streamId, withdrawAmount);

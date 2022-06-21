@@ -90,7 +90,7 @@ contract SablierV2Cliff__UnitTest__WithdrawTo is SablierV2CliffUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        sablierV2Cliff.withdrawTo(streamId, toAlice, WITHDRAW_AMOUNT);
+        sablierV2Cliff.withdrawTo(streamId, toAlice, WITHDRAW_AMOUNT_DAI);
     }
 
     /// @dev When the stream ended, it should make the withdrawal and delete the stream.
@@ -124,10 +124,10 @@ contract SablierV2Cliff__UnitTest__WithdrawTo is SablierV2CliffUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        sablierV2Cliff.withdrawTo(streamId, toAlice, WITHDRAW_AMOUNT);
+        sablierV2Cliff.withdrawTo(streamId, toAlice, WITHDRAW_AMOUNT_DAI);
         ISablierV2Cliff.Stream memory actualStream = sablierV2Cliff.getStream(streamId);
         uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
-        uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT;
+        uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
@@ -137,7 +137,7 @@ contract SablierV2Cliff__UnitTest__WithdrawTo is SablierV2CliffUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawAmount = WITHDRAW_AMOUNT;
+        uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
         vm.expectEmit(true, true, false, true);
         emit Withdraw(streamId, toAlice, withdrawAmount);
         sablierV2Cliff.withdrawTo(streamId, toAlice, withdrawAmount);

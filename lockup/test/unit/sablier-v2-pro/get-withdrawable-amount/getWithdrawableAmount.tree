@@ -22,9 +22,18 @@ getWithdrawableAmount.t.sol
          │  └── it should return the correct withdrawable amount
          └── when there haven't withdrawals
             ├── when there is one segment
-            │  └── it should return the correct withdrawable amount
+            │  ├── when the token has 6 decimals
+            │  │   └── it should return the correct withdrawable amount
+            │  └── when the token has 18 decimals
+            │      └── it should return the correct withdrawable amount
             └── when there are multiple segments
                ├── when the current milestone is the 1st in the array
-               │  └── it should return the correct withdrawable amount
+               │  ├── when the token has 6 decimals
+               │  │  └── it should return the correct withdrawable amount
+               │  └── when the token has 18 decimals
+               │     └── it should return the correct withdrawable amount
                └── when the current milestone is not the 1st in the array
-                  └── it should return the correct withdrawable amount
+                  ├── when the token has 6 decimals
+                  │  └── it should return the correct withdrawable amount
+                  └── when the token has 18 decimals
+                      └── it should return the correct withdrawable amount

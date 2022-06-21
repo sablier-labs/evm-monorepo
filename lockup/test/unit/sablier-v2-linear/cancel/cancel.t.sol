@@ -101,8 +101,8 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawAmount = WITHDRAW_AMOUNT;
-        uint256 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT;
+        uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
+        uint256 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
         vm.expectEmit(true, true, false, true);
         emit Cancel(streamId, daiStream.recipient, withdrawAmount, returnAmount);
         sablierV2Linear.cancel(streamId);

@@ -115,32 +115,6 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         );
     }
 
-    /// @dev When the cliff time is equal to the stop time, it should create the stream.
-    function testCreate__CliffTimeEqualStopTime() external {
-        uint256 cliffTime = daiStream.stopTime;
-        uint256 streamId = sablierV2Cliff.create(
-            daiStream.sender,
-            daiStream.sender,
-            daiStream.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            daiStream.startTime,
-            cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
-        );
-        ISablierV2Cliff.Stream memory createdStream = sablierV2Cliff.getStream(streamId);
-        assertEq(daiStream.sender, createdStream.sender);
-        assertEq(daiStream.recipient, createdStream.recipient);
-        assertEq(daiStream.depositAmount, createdStream.depositAmount);
-        assertEq(daiStream.token, createdStream.token);
-        assertEq(daiStream.startTime, createdStream.startTime);
-        assertEq(cliffTime, createdStream.cliffTime);
-        assertEq(daiStream.stopTime, createdStream.stopTime);
-        assertEq(daiStream.cancelable, createdStream.cancelable);
-        assertEq(daiStream.withdrawnAmount, createdStream.withdrawnAmount);
-    }
-
     /// @dev When the cliff time is greater than the stop time, is should revert.
     function testCannotCreate__CliffTimeGreaterThanStopTime() external {
         uint256 cliffTime = daiStream.stopTime;
@@ -165,7 +139,7 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         );
     }
 
-    /// @dev When the cliff time is the equal to the stop time, it should create the stream.
+    /// @dev When the cliff time is equal to the stop time, it should create the stream.
     function testCreate__CliffTimeEqualToStopTime() external {
         uint256 cliffTime = daiStream.stopTime;
         uint256 streamId = sablierV2Cliff.create(
@@ -175,20 +149,20 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
-            daiStream.stopTime,
             cliffTime,
+            daiStream.stopTime,
             daiStream.cancelable
         );
-        ISablierV2Cliff.Stream memory createdStream = sablierV2Cliff.getStream(streamId);
-        assertEq(daiStream.sender, createdStream.sender);
-        assertEq(daiStream.recipient, createdStream.recipient);
-        assertEq(daiStream.depositAmount, createdStream.depositAmount);
-        assertEq(daiStream.token, createdStream.token);
-        assertEq(daiStream.startTime, createdStream.startTime);
-        assertEq(cliffTime, createdStream.cliffTime);
-        assertEq(daiStream.stopTime, createdStream.stopTime);
-        assertEq(daiStream.cancelable, createdStream.cancelable);
-        assertEq(daiStream.withdrawnAmount, createdStream.withdrawnAmount);
+        ISablierV2Cliff.Stream memory actualStream = sablierV2Cliff.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, daiStream.depositAmount);
+        assertEq(actualStream.token, daiStream.token);
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.cliffTime, cliffTime);
+        assertEq(actualStream.stopTime, daiStream.stopTime);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
     /// @dev When the token is not a contract, it should revert.
