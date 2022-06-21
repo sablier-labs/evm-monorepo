@@ -28,14 +28,14 @@ contract SablierV2Cliff__UnitTest__CreateWithDuration is SablierV2CliffUnitTest 
             )
         );
         sablierV2Cliff.createWithDuration(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
             cliffDuration,
             totalDuration,
-            stream.cancelable
+            daiStream.cancelable
         );
     }
 
@@ -58,14 +58,14 @@ contract SablierV2Cliff__UnitTest__CreateWithDuration is SablierV2CliffUnitTest 
             )
         );
         sablierV2Cliff.createWithDuration(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
             cliffDuration,
             totalDuration,
-            stream.cancelable
+            daiStream.cancelable
         );
     }
 
@@ -80,24 +80,24 @@ contract SablierV2Cliff__UnitTest__CreateWithDuration is SablierV2CliffUnitTest 
             stopTime = block.timestamp + totalDuration;
         }
         uint256 streamId = sablierV2Cliff.createWithDuration(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
             cliffDuration,
             totalDuration,
-            stream.cancelable
+            daiStream.cancelable
         );
-        ISablierV2Cliff.Stream memory createdStream = sablierV2Cliff.getStream(streamId);
-        assertEq(stream.sender, createdStream.sender);
-        assertEq(stream.recipient, createdStream.recipient);
-        assertEq(stream.depositAmount, createdStream.depositAmount);
-        assertEq(stream.token, createdStream.token);
-        assertEq(stream.startTime, createdStream.startTime);
-        assertEq(cliffTime, createdStream.cliffTime);
-        assertEq(stopTime, createdStream.stopTime);
-        assertEq(stream.cancelable, createdStream.cancelable);
-        assertEq(stream.withdrawnAmount, createdStream.withdrawnAmount);
+        ISablierV2Cliff.Stream memory actualStream = sablierV2Cliff.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, daiStream.depositAmount);
+        assertEq(actualStream.token, daiStream.token);
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.cliffTime, cliffTime);
+        assertEq(actualStream.stopTime, stopTime);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 }

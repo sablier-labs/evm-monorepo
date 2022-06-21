@@ -14,7 +14,7 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultStream();
+        streamId = createDefaultDaiStream();
     }
 
     /// @dev When the stream does not exist, it should revert.
@@ -48,20 +48,20 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
 
     /// @dev When the stream is non-cancelable, it should revert.
     function testCannotCancel__StreamNonCancelable() external {
-        // Create the non-cancelable stream.
-        uint256 nonCancelableStreamId = createNonCancelableStream();
+        // Create the non-cancelable daiStream.
+        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonCancelable.selector, nonCancelableStreamId)
+            abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonCancelable.selector, nonCancelableDaiStreamId)
         );
-        sablierV2Linear.cancel(nonCancelableStreamId);
+        sablierV2Linear.cancel(nonCancelableDaiStreamId);
     }
 
     /// @dev When the stream ended, it should cancel and delete the stream.
     function testCancel__StreamEnded() external {
         // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
+        vm.warp(daiStream.stopTime);
 
         // Run the test.
         sablierV2Linear.cancel(streamId);
@@ -73,20 +73,20 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
     /// @dev When the stream ended, it should emit a Cancel event.
     function testCancel__StreamEnded__Event() external {
         // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
+        vm.warp(daiStream.stopTime);
 
         // Run the test.
-        uint256 withdrawAmount = stream.depositAmount;
+        uint256 withdrawAmount = daiStream.depositAmount;
         uint256 returnAmount = 0;
         vm.expectEmit(true, true, false, true);
-        emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(streamId, daiStream.recipient, withdrawAmount, returnAmount);
         sablierV2Linear.cancel(streamId);
     }
 
     /// @dev When the stream is ongoing, it should cancel and delete the stream.
     function testCancel__StreamOngoing() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
         sablierV2Linear.cancel(streamId);
@@ -98,13 +98,13 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
     /// @dev When the stream is ongoing, it should emit a Cancel event.
     function testCancel__StreamOngoing__Event() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
         uint256 withdrawAmount = WITHDRAW_AMOUNT;
-        uint256 returnAmount = stream.depositAmount - WITHDRAW_AMOUNT;
+        uint256 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT;
         vm.expectEmit(true, true, false, true);
-        emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(streamId, daiStream.recipient, withdrawAmount, returnAmount);
         sablierV2Linear.cancel(streamId);
     }
 }

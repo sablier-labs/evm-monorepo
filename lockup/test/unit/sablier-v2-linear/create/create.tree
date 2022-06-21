@@ -15,6 +15,11 @@ create.t.sol
          ├── when the token misses the return value
          │  └── it should create the stream
          └── when the token is ERC-20 compliant
-            ├── it should create the stream
-            ├── it should bump the next stream id
-            └── it should emit a CreateStream event
+            ├── when the token has 6 decimals
+            │  ├── it should create the stream
+            │  ├── it should bump the next stream id
+            │  └── it should emit a CreateStream event
+            └── when the token has 18 decimals
+               ├── it should create the stream
+               ├── it should bump the next stream id
+               └── it should emit a CreateStream event

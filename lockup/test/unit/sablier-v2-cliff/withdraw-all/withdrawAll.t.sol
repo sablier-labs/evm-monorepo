@@ -19,8 +19,8 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
         defaultAmounts.push(WITHDRAW_AMOUNT);
 
         // Create the default streams, since most tests need them.
-        defaultStreamIds.push(createDefaultStream());
-        defaultStreamIds.push(createDefaultStream());
+        defaultStreamIds.push(createDefaultDaiStream());
+        defaultStreamIds.push(createDefaultDaiStream());
 
         // Make the recipient the `msg.sender` in this test suite.
         changePrank(users.recipient);
@@ -55,7 +55,7 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
         uint256[] memory streamIds = createDynamicArray(nonStreamId, defaultStreamIds[0]);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
         sablierV2Cliff.withdrawAll(streamIds, defaultAmounts);
@@ -86,17 +86,17 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
         uint256 eveStreamId = sablierV2Cliff.create(
             users.eve,
             users.eve,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.cliffTime,
-            stream.stopTime,
-            stream.cancelable
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.cliffTime,
+            daiStream.stopTime,
+            daiStream.cancelable
         );
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
         uint256[] memory streamIds = createDynamicArray(eveStreamId, defaultStreamIds[0]);
@@ -113,7 +113,7 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
         changePrank(users.sender);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
         sablierV2Cliff.withdrawAll(defaultStreamIds, defaultAmounts);
@@ -132,7 +132,7 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
     /// @dev When some amounts are zero, it should revert.
     function testCannotWithdrawAll__SomeAmountsZero() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
         uint256[] memory amounts = createDynamicArray(WITHDRAW_AMOUNT, 0);
@@ -143,7 +143,7 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
     /// @dev When some amounts are greater than the withrawable amounts, it should revert.
     function testCannotWithdrawAll__SomeAmountsGreaterThanWithdrawableAmount() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
         uint256 withdrawableAmount = WITHDRAW_AMOUNT;
@@ -163,10 +163,10 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
     /// @dev When all streams are ended, it should make the withdrawals and delete the streams.
     function testWithdrawAll__AllStreamsEnded() external {
         // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
+        vm.warp(daiStream.stopTime);
 
         // Run the test.
-        uint256[] memory amounts = createDynamicArray(stream.depositAmount, stream.depositAmount);
+        uint256[] memory amounts = createDynamicArray(daiStream.depositAmount, daiStream.depositAmount);
         sablierV2Cliff.withdrawAll(defaultStreamIds, amounts);
 
         ISablierV2Cliff.Stream memory actualStream0 = sablierV2Cliff.getStream(defaultStreamIds[0]);
@@ -180,14 +180,14 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
     /// @dev When all streams are ended, it should emit multiple Withdraw events.
     function testWithdrawAll__AllStreamsEnded__Events() external {
         // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
+        vm.warp(daiStream.stopTime);
 
         // Run the test.
-        uint256 withdrawAmount = stream.depositAmount;
+        uint256 withdrawAmount = daiStream.depositAmount;
         vm.expectEmit(true, true, false, true);
-        emit Withdraw(defaultStreamIds[0], stream.recipient, withdrawAmount);
+        emit Withdraw(defaultStreamIds[0], daiStream.recipient, withdrawAmount);
         vm.expectEmit(true, true, false, true);
-        emit Withdraw(defaultStreamIds[1], stream.recipient, withdrawAmount);
+        emit Withdraw(defaultStreamIds[1], daiStream.recipient, withdrawAmount);
         uint256[] memory amounts = createDynamicArray(withdrawAmount, withdrawAmount);
         sablierV2Cliff.withdrawAll(defaultStreamIds, amounts);
     }
@@ -195,7 +195,7 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
     /// @dev When all streams are ongoing, it should make the withdrawals and update the withdrawn amounts.
     function testWithdrawAll__AllStreamsOngoing() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
         sablierV2Cliff.withdrawAll(defaultStreamIds, defaultAmounts);
@@ -214,44 +214,44 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
     /// @dev When all streams are ongoing, it should emit multiple Withdraw events.
     function testWithdrawAll__AllStreamsOngoing__Events() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
         uint256 withdrawAmount = WITHDRAW_AMOUNT;
         vm.expectEmit(true, true, false, true);
-        emit Withdraw(defaultStreamIds[0], stream.recipient, withdrawAmount);
+        emit Withdraw(defaultStreamIds[0], daiStream.recipient, withdrawAmount);
         vm.expectEmit(true, true, false, true);
-        emit Withdraw(defaultStreamIds[1], stream.recipient, withdrawAmount);
+        emit Withdraw(defaultStreamIds[1], daiStream.recipient, withdrawAmount);
         sablierV2Cliff.withdrawAll(defaultStreamIds, defaultAmounts);
     }
 
     /// @dev When some streams are ended and some streams are ongoing, it should make the withdrawals, delete the
     /// ended streams and update the withdrawn amounts.
     function testWithdrawAll__SomeStreamsEndedSomeStreamsOngoing() external {
-        // Create the ended stream.
-        changePrank(stream.sender);
-        uint256 earlyStopTime = stream.startTime + TIME_OFFSET;
+        // Create the ended daiStream.
+        changePrank(daiStream.sender);
+        uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Cliff.create(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.cliffTime,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.cliffTime,
             earlyStopTime,
-            stream.cancelable
+            daiStream.cancelable
         );
-        changePrank(stream.recipient);
+        changePrank(daiStream.recipient);
 
-        // Use the first default stream as the ongoing stream.
+        // Use the first default stream as the ongoing daiStream.
         uint256 ongoingStreamId = defaultStreamIds[0];
 
-        // Warp to the end of the early stream.
+        // Warp to the end of the early daiStream.
         vm.warp(earlyStopTime);
 
         // Run the test.
-        uint256 endedWithdrawAmount = stream.depositAmount;
+        uint256 endedWithdrawAmount = daiStream.depositAmount;
         uint256 ongoingWithdrawAmount = WITHDRAW_AMOUNT;
         uint256[] memory streamIds = createDynamicArray(endedStreamId, ongoingStreamId);
         uint256[] memory amounts = createDynamicArray(endedWithdrawAmount, ongoingWithdrawAmount);
@@ -269,36 +269,36 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
 
     /// @dev When some streams are ended and some streams are ongoing, it should emit Withdraw events.
     function testWithdrawAll__SomeStreamsEndedSomeStreamsOngoing__Events() external {
-        // Create the ended stream.
-        changePrank(stream.sender);
-        uint256 earlyStopTime = stream.startTime + TIME_OFFSET;
+        // Create the ended daiStream.
+        changePrank(daiStream.sender);
+        uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Cliff.create(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.cliffTime,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.cliffTime,
             earlyStopTime,
-            stream.cancelable
+            daiStream.cancelable
         );
-        changePrank(stream.recipient);
+        changePrank(daiStream.recipient);
 
-        // Use the first default stream as the ongoing stream.
+        // Use the first default stream as the ongoing daiStream.
         uint256 ongoingStreamId = defaultStreamIds[0];
 
-        // Warp to the end of the early stream.
+        // Warp to the end of the early daiStream.
         vm.warp(earlyStopTime);
 
         // Run the test.
-        uint256 endedWithdrawAmount = stream.depositAmount;
+        uint256 endedWithdrawAmount = daiStream.depositAmount;
         uint256 ongoingWithdrawAmount = WITHDRAW_AMOUNT;
 
         vm.expectEmit(true, true, false, true);
-        emit Withdraw(endedStreamId, stream.recipient, endedWithdrawAmount);
+        emit Withdraw(endedStreamId, daiStream.recipient, endedWithdrawAmount);
         vm.expectEmit(true, true, false, true);
-        emit Withdraw(ongoingStreamId, stream.recipient, ongoingWithdrawAmount);
+        emit Withdraw(ongoingStreamId, daiStream.recipient, ongoingWithdrawAmount);
 
         uint256[] memory streamIds = createDynamicArray(endedStreamId, ongoingStreamId);
         uint256[] memory amounts = createDynamicArray(endedWithdrawAmount, ongoingWithdrawAmount);

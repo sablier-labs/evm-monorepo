@@ -31,7 +31,8 @@ abstract contract SablierV2UnitTest is Test {
     uint256 internal constant TOTAL_DURATION = 10_000 seconds;
 
     uint256 internal immutable CLIFF_TIME;
-    uint256 internal immutable DEPOSIT_AMOUNT;
+    uint256 internal immutable DEPOSIT_AMOUNT_DAI;
+    uint256 internal immutable DEPOSIT_AMOUNT_USDC;
     uint256 internal immutable START_TIME;
     uint256 internal immutable STOP_TIME;
 
@@ -49,7 +50,8 @@ abstract contract SablierV2UnitTest is Test {
 
     bytes32 internal nextUser = keccak256(abi.encodePacked("user address"));
     NonStandardERC20 internal nonStandardToken = new NonStandardERC20("Stablecoin", "USD", 18);
-    GodModeERC20 internal usd = new GodModeERC20("Stablecoin", "USD", 18);
+    GodModeERC20 internal dai = new GodModeERC20("Dai Stablecoin", "DAI", 18);
+    GodModeERC20 internal usdc = new GodModeERC20("USD Coin", "USDC", 6);
     Users internal users;
 
     /// CONSTRUCTOR ///
@@ -61,7 +63,8 @@ abstract contract SablierV2UnitTest is Test {
 
         // Initialize the default stream values.
         CLIFF_TIME = block.timestamp + CLIFF_DURATION;
-        DEPOSIT_AMOUNT = bn(10_000);
+        DEPOSIT_AMOUNT_DAI = bn(10_000, 18);
+        DEPOSIT_AMOUNT_USDC = bn(10_000, 6);
         START_TIME = block.timestamp;
         STOP_TIME = block.timestamp + TOTAL_DURATION;
 
@@ -179,8 +182,9 @@ abstract contract SablierV2UnitTest is Test {
     /// @dev Give user 100 ETH and 1M USD.
     function fundUser(address payable user) internal {
         vm.deal(user, 100 ether);
-        usd.mint(user, bn(1_000_000));
-        nonStandardToken.mint(user, bn(1_000_000));
+        dai.mint(user, bn(1_000_000, 18));
+        usdc.mint(user, bn(1_000_000, 6));
+        nonStandardToken.mint(user, bn(1_000_000, 18));
     }
 
     /// @dev Converts bytes32 to address.

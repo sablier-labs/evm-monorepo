@@ -23,13 +23,13 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
             )
         );
         sablierV2Linear.createWithDuration(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
             totalDuration,
-            stream.cancelable
+            daiStream.cancelable
         );
     }
 
@@ -37,27 +37,27 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
     function testCreateWithDuration(uint256 totalDuration) external {
         vm.assume(totalDuration <= MAX_UINT_256 - block.timestamp);
         uint256 streamId = sablierV2Linear.createWithDuration(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
             totalDuration,
-            stream.cancelable
+            daiStream.cancelable
         );
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
         uint256 expectedStartTime = block.timestamp;
         uint256 expectedStopTime;
         unchecked {
             expectedStopTime = block.timestamp + totalDuration;
         }
-        assertEq(stream.sender, createdStream.sender);
-        assertEq(stream.recipient, createdStream.recipient);
-        assertEq(stream.depositAmount, createdStream.depositAmount);
-        assertEq(stream.token, createdStream.token);
-        assertEq(expectedStartTime, createdStream.startTime);
-        assertEq(expectedStopTime, createdStream.stopTime);
-        assertEq(stream.cancelable, createdStream.cancelable);
-        assertEq(stream.withdrawnAmount, createdStream.withdrawnAmount);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, daiStream.depositAmount);
+        assertEq(actualStream.token, daiStream.token);
+        assertEq(actualStream.startTime, expectedStartTime);
+        assertEq(actualStream.stopTime, expectedStopTime);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 }

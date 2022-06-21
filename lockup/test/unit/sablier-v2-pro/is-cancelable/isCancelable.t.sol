@@ -14,7 +14,7 @@ contract SablierV2Pro__UnitTest__IsCancelable is SablierV2ProUnitTest {
 
     /// @dev When the stream is cancelable, it should return false.
     function testIsCancelable__CancelableStream() external {
-        uint256 streamId = createDefaultStream();
+        uint256 streamId = createDefaultDaiStream();
         bool actualCancelable = sablierV2Pro.isCancelable(streamId);
         bool expectedCancelable = true;
         assertEq(actualCancelable, expectedCancelable);
@@ -22,8 +22,8 @@ contract SablierV2Pro__UnitTest__IsCancelable is SablierV2ProUnitTest {
 
     /// @dev When the stream is not cancelable, it should return true.
     function testIsCancelable__NonCancelableStream() external {
-        uint256 nonCancelableStreamId = createNonCancelableStream();
-        bool actualCancelable = sablierV2Pro.isCancelable(nonCancelableStreamId);
+        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
+        bool actualCancelable = sablierV2Pro.isCancelable(nonCancelableDaiStreamId);
         bool expectedCancelable = false;
         assertEq(actualCancelable, expectedCancelable);
     }

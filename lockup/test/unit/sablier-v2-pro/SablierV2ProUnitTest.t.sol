@@ -33,54 +33,77 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     /// CONSTANTS ///
 
     uint256 internal constant MAX_SEGMENT_COUNT = 200;
-    uint256[] internal SEGMENT_AMOUNTS = [bn(2_000), bn(8_000)];
+    uint256[] internal SEGMENT_AMOUNTS_DAI = [bn(2_000, 18), bn(8_000, 18)];
+    uint256[] internal SEGMENT_AMOUNTS_USDC = [bn(2_000, 6), bn(8_000, 6)];
+    uint256[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
     SD59x18[] internal SEGMENT_EXPONENTS = [sd59x18(3.14e18), sd59x18(0.5e18)];
     uint256[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];
-    uint256[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
     uint256 internal constant TIME_OFFSET = 2_000 seconds;
 
     /// TESTING VARIABLES ///
 
     SablierV2Pro internal sablierV2Pro = new SablierV2Pro(MAX_SEGMENT_COUNT);
-    ISablierV2Pro.Stream internal stream;
+    ISablierV2Pro.Stream internal daiStream;
+    ISablierV2Pro.Stream internal usdcStream;
 
     // SETUP FUNCTION ///
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        // Create the default stream to be used across many tests.
-        stream = ISablierV2Pro.Stream({
+        // Create the default streams to be used across the tests.
+        daiStream = ISablierV2Pro.Stream({
             cancelable: true,
-            depositAmount: DEPOSIT_AMOUNT,
+            depositAmount: DEPOSIT_AMOUNT_DAI,
             recipient: users.recipient,
-            segmentAmounts: SEGMENT_AMOUNTS,
+            segmentAmounts: SEGMENT_AMOUNTS_DAI,
             segmentExponents: SEGMENT_EXPONENTS,
             segmentMilestones: SEGMENT_MILESTONES,
             sender: users.sender,
             startTime: START_TIME,
             stopTime: SEGMENT_MILESTONES[1],
-            token: usd,
+            token: dai,
+            withdrawnAmount: 0
+        });
+        usdcStream = ISablierV2Pro.Stream({
+            cancelable: true,
+            depositAmount: DEPOSIT_AMOUNT_USDC,
+            recipient: users.recipient,
+            segmentAmounts: SEGMENT_AMOUNTS_USDC,
+            segmentExponents: SEGMENT_EXPONENTS,
+            segmentMilestones: SEGMENT_MILESTONES,
+            sender: users.sender,
+            startTime: START_TIME,
+            stopTime: SEGMENT_MILESTONES[1],
+            token: usdc,
             withdrawnAmount: 0
         });
 
-        // Approve the SablierV2Pro contract to spend $USD from the `sender` account.
-        vm.prank(users.sender);
-        usd.approve(address(sablierV2Pro), MAX_UINT_256);
-
-        // Approve the SablierV2Pro contract to spend non-standard tokens from the `sender` account.
-        vm.prank(users.sender);
+        // Approve the SablierV2Cliff contract to spend tokens from the sender.
+        vm.startPrank(users.sender);
+        dai.approve(address(sablierV2Pro), MAX_UINT_256);
+        usdc.approve(address(sablierV2Pro), MAX_UINT_256);
         nonStandardToken.approve(address(sablierV2Pro), MAX_UINT_256);
 
-        // Approve the SablierV2Pro contract to spend $USD from the `recipient` account.
-        vm.prank(users.recipient);
-        usd.approve(address(sablierV2Pro), MAX_UINT_256);
+        // Approve the SablierV2Cliff contract to spend tokens from the recipient.
+        changePrank(users.recipient);
+        dai.approve(address(sablierV2Pro), MAX_UINT_256);
+        usdc.approve(address(sablierV2Pro), MAX_UINT_256);
+        nonStandardToken.approve(address(sablierV2Pro), MAX_UINT_256);
 
-        // Approve the SablierV2Pro contract to spend $USD from the `funder` account.
-        vm.prank(users.funder);
-        usd.approve(address(sablierV2Pro), MAX_UINT_256);
+        // Approve the SablierV2Cliff contract to spend tokens from the funder.
+        changePrank(users.funder);
+        dai.approve(address(sablierV2Pro), MAX_UINT_256);
+        usdc.approve(address(sablierV2Pro), MAX_UINT_256);
+        nonStandardToken.approve(address(sablierV2Pro), MAX_UINT_256);
+
+        // Approve the SablierV2Cliff contract to spend tokens from eve.
+        changePrank(users.eve);
+        dai.approve(address(sablierV2Pro), MAX_UINT_256);
+        usdc.approve(address(sablierV2Pro), MAX_UINT_256);
+        nonStandardToken.approve(address(sablierV2Pro), MAX_UINT_256);
 
         // Sets all subsequent calls' `msg.sender` to be `sender`.
-        vm.startPrank(users.sender);
+        changePrank(users.sender);
     }
 
     /// NON-CONSTANT FUNCTIONS ///
@@ -123,35 +146,51 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         assertEq(aInt256, bInt256);
     }
 
-    /// @dev Helper function to create a pro stream.
-    function createDefaultStream() internal returns (uint256 streamId) {
-        streamId = sablierV2Pro.create(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.segmentAmounts,
-            stream.segmentExponents,
-            stream.segmentMilestones,
-            stream.cancelable
+    /// @dev Helper function to create a default stream with $DAI used as streaming currency.
+    function createDefaultDaiStream() internal returns (uint256 daiStreamId) {
+        daiStreamId = sablierV2Pro.create(
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.segmentAmounts,
+            daiStream.segmentExponents,
+            daiStream.segmentMilestones,
+            daiStream.cancelable
+        );
+    }
+
+    /// @dev Helper function to create a default stream with $USDC used as streaming currency.
+    function createDefaultUsdcStream() internal returns (uint256 usdcStreamId) {
+        usdcStreamId = sablierV2Pro.create(
+            usdcStream.sender,
+            usdcStream.sender,
+            usdcStream.recipient,
+            usdcStream.depositAmount,
+            usdcStream.token,
+            usdcStream.startTime,
+            usdcStream.segmentAmounts,
+            usdcStream.segmentExponents,
+            usdcStream.segmentMilestones,
+            usdcStream.cancelable
         );
     }
 
     /// @dev Helper function to create a non-cancelable stream.
-    function createNonCancelableStream() internal returns (uint256 nonCancelableStreamId) {
+    function createNonCancelableDaiStream() internal returns (uint256 nonCancelableDaiStreamId) {
         bool cancelable = false;
-        nonCancelableStreamId = sablierV2Pro.create(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.segmentAmounts,
-            stream.segmentExponents,
-            stream.segmentMilestones,
+        nonCancelableDaiStreamId = sablierV2Pro.create(
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.segmentAmounts,
+            daiStream.segmentExponents,
+            daiStream.segmentMilestones,
             cancelable
         );
     }
