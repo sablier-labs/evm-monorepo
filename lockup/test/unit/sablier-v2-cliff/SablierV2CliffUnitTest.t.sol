@@ -15,7 +15,8 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
     /// EVENTS ///
 
     event CreateStream(
-        uint256 indexed streamId,
+        uint256 streamId,
+        address indexed funder,
         address indexed sender,
         address indexed recipient,
         uint256 depositAmount,
@@ -96,6 +97,7 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
     function createDefaultStream() internal returns (uint256 streamId) {
         streamId = sablierV2Cliff.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -110,6 +112,7 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
     function createNonCancelableStream() internal returns (uint256 nonCancelableStreamId) {
         bool cancelable = false;
         nonCancelableStreamId = sablierV2Cliff.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,

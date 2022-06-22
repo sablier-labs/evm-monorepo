@@ -56,6 +56,7 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         // Create a stream with Eve as the sender.
         uint256 streamIdEve = sablierV2Linear.create(
             users.eve,
+            users.eve,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -180,6 +181,7 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         uint256 earlyStopTime = stream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Linear.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -211,6 +213,7 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         // Create the ended stream.
         uint256 earlyStopTime = stream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Linear.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,

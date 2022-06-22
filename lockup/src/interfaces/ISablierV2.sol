@@ -18,7 +18,7 @@ interface ISablierV2 {
     error SablierV2__DepositAmountZero();
 
     /// @notice Emitted when attempting to create a stream on behalf of the zero address.
-    error SablierV2__FromZeroAddress();
+    error SablierV2__FunderZeroAddress();
 
     /// @notice Emitted when the funder does not have sufficient authorization to create a stream.
     error SablierV2__InsufficientAuthorization(

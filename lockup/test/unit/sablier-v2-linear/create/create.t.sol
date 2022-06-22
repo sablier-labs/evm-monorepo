@@ -16,6 +16,7 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         address recipient = address(0);
         sablierV2Linear.create(
             stream.sender,
+            stream.sender,
             recipient,
             stream.depositAmount,
             stream.token,
@@ -30,6 +31,7 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         vm.expectRevert(ISablierV2.SablierV2__DepositAmountZero.selector);
         uint256 depositAmount = 0;
         sablierV2Linear.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             depositAmount,
@@ -49,6 +51,7 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         );
         sablierV2Linear.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -62,6 +65,7 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
     function testCreate__StartTimeEqualToStopTime() external {
         uint256 stopTime = stream.startTime;
         uint256 streamId = sablierV2Linear.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -87,6 +91,7 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         IERC20 token = IERC20(address(6174));
         sablierV2Linear.create(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             token,
@@ -101,6 +106,7 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         IERC20 token = IERC20(address(nonStandardToken));
 
         uint256 streamId = sablierV2Linear.create(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -143,6 +149,7 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         vm.expectEmit(true, true, true, true);
         emit CreateStream(
             streamId,
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,

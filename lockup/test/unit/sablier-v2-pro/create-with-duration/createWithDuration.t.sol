@@ -23,6 +23,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         }
         sablierV2Pro.createWithDuration(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -49,6 +50,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
             )
         );
         sablierV2Pro.createWithDuration(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -80,6 +82,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
             )
         );
         sablierV2Pro.createWithDuration(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
@@ -114,6 +117,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         );
         sablierV2Pro.createWithDuration(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -127,6 +131,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
     /// @dev When all checks pass, it should create the stream with duration.
     function testCreateWithDuration() external {
         uint256 streamId = sablierV2Pro.createWithDuration(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,

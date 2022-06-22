@@ -24,6 +24,7 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
         );
         sablierV2Linear.createWithDuration(
             stream.sender,
+            stream.sender,
             stream.recipient,
             stream.depositAmount,
             stream.token,
@@ -36,6 +37,7 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
     function testCreateWithDuration(uint256 totalDuration) external {
         vm.assume(totalDuration <= MAX_UINT_256 - block.timestamp);
         uint256 streamId = sablierV2Linear.createWithDuration(
+            stream.sender,
             stream.sender,
             stream.recipient,
             stream.depositAmount,
