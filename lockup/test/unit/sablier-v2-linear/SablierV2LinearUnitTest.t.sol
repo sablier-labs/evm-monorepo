@@ -76,6 +76,12 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         usdc.approve(address(sablierV2Linear), MAX_UINT_256);
         nonStandardToken.approve(address(sablierV2Linear), MAX_UINT_256);
 
+        // Approve the SablierV2Cliff contract to spend tokens from Alice.
+        changePrank(users.alice);
+        dai.approve(address(sablierV2Linear), MAX_UINT_256);
+        usdc.approve(address(sablierV2Linear), MAX_UINT_256);
+        nonStandardToken.approve(address(sablierV2Linear), MAX_UINT_256);
+
         // Approve the SablierV2Cliff contract to spend tokens from Eve.
         changePrank(users.eve);
         dai.approve(address(sablierV2Linear), MAX_UINT_256);
