@@ -88,6 +88,21 @@ interface ISablierV2Pro is ISablierV2 {
 
     /// CONSTANT FUNCTIONS ///
 
+    /// @notice Reads the segment amounts used to compose the custom emission curve.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return segmentAmounts The segment amounts used to composde the custom emission curve.
+    function getSegmentAmounts(uint256 streamId) external view returns (uint256[] memory segmentAmounts);
+
+    /// @notice Reads the segment exponents used to compose the custom emission curve.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return segmentExponents The segment exponents used to composde the custom emission curve.
+    function getSegmentExponents(uint256 streamId) external view returns (SD59x18[] memory segmentExponents);
+
+    /// @notice Reads the segment milestones used to compose the custom emission curve.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return segmentMilestones The segment milestones used to composde the custom emission curve.
+    function getSegmentMilestones(uint256 streamId) external view returns (uint256[] memory segmentMilestones);
+
     /// @notice Reads the stream struct.
     /// @param streamId The id of the stream to make the query for.
     /// @return stream The stream struct.
@@ -119,9 +134,9 @@ interface ISablierV2Pro is ISablierV2 {
     /// @param depositAmount The total amount of tokens to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
-    /// @param segmentAmounts The array of amounts used to compose the custom emission curve.
-    /// @param segmentExponents The array of exponents used to compose the custom emission curve.
-    /// @param segmentMilestones The array of milestones used to compose the custom emission curve.
+    /// @param segmentAmounts The amounts used to compose the custom emission curve.
+    /// @param segmentExponents The exponents used to compose the custom emission curve.
+    /// @param segmentMilestones The milestones used to compose the custom emission curve.
     /// @param cancelable Whether the stream will be cancelable or not.
     /// @return streamId The id of the newly created stream.
     function create(
@@ -149,9 +164,9 @@ interface ISablierV2Pro is ISablierV2 {
     /// @param recipient The address toward which to stream the tokens.
     /// @param depositAmount The amount of tokens to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param segmentAmounts The array of amounts used to compose the custom emission curve.
-    /// @param segmentExponents The array of exponents used to compose the custom emission curve.
-    /// @param segmentDeltas The array of differences between the milestones used to compose the custom emission curve.
+    /// @param segmentAmounts The amounts used to compose the custom emission curve.
+    /// @param segmentExponents The exponents used to compose the custom emission curve.
+    /// @param segmentDeltas The differences between the milestones used to compose the custom emission curve.
     /// @param cancelable Whether the stream is cancelable or not.
     /// @return streamId The id of the newly created stream.
     function createWithDuration(
