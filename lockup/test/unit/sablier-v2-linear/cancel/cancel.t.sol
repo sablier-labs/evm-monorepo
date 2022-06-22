@@ -7,14 +7,14 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
-    uint256 internal streamId;
+    uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultDaiStream();
+        daiStreamId = createDefaultDaiStream();
     }
 
     /// @dev When the stream does not exist, it should revert.
@@ -30,8 +30,8 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         changePrank(users.eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, streamId, users.eve));
-        sablierV2Linear.cancel(streamId);
+        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
+        sablierV2Linear.cancel(daiStreamId);
     }
 
     /// @dev When caller is the recipient, it should cancel and delete the stream.
@@ -40,8 +40,8 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         changePrank(users.recipient);
 
         // Run the test.
-        sablierV2Linear.cancel(streamId);
-        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
+        sablierV2Linear.cancel(daiStreamId);
+        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
         ISablierV2Linear.Stream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -64,8 +64,8 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         vm.warp(daiStream.stopTime);
 
         // Run the test.
-        sablierV2Linear.cancel(streamId);
-        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
+        sablierV2Linear.cancel(daiStreamId);
+        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
         ISablierV2Linear.Stream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -79,8 +79,8 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         vm.expectEmit(true, true, false, true);
         uint256 withdrawAmount = daiStream.depositAmount;
         uint256 returnAmount = 0;
-        emit Cancel(streamId, daiStream.recipient, withdrawAmount, returnAmount);
-        sablierV2Linear.cancel(streamId);
+        emit Cancel(daiStreamId, daiStream.recipient, withdrawAmount, returnAmount);
+        sablierV2Linear.cancel(daiStreamId);
     }
 
     /// @dev When the stream is ongoing, it should cancel and delete the stream.
@@ -89,8 +89,8 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        sablierV2Linear.cancel(streamId);
-        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
+        sablierV2Linear.cancel(daiStreamId);
+        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
         ISablierV2Linear.Stream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -104,7 +104,7 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
         uint256 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
         vm.expectEmit(true, true, false, true);
-        emit Cancel(streamId, daiStream.recipient, withdrawAmount, returnAmount);
-        sablierV2Linear.cancel(streamId);
+        emit Cancel(daiStreamId, daiStream.recipient, withdrawAmount, returnAmount);
+        sablierV2Linear.cancel(daiStreamId);
     }
 }

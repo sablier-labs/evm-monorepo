@@ -7,14 +7,14 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__UnitTest__Renounce is SablierV2LinearUnitTest {
-    uint256 internal streamId;
+    uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultDaiStream();
+        daiStreamId = createDefaultDaiStream();
     }
 
     /// @dev When the stream does not exist, it should revert.
@@ -30,8 +30,8 @@ contract SablierV2Linear__UnitTest__Renounce is SablierV2LinearUnitTest {
         changePrank(users.eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, streamId, users.eve));
-        sablierV2Linear.renounce(streamId);
+        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
+        sablierV2Linear.renounce(daiStreamId);
     }
 
     /// @dev When the stream is already non-cancelable, it should revert.
@@ -48,15 +48,15 @@ contract SablierV2Linear__UnitTest__Renounce is SablierV2LinearUnitTest {
 
     /// @dev When all checks pass, it should make the stream non-cancelable.
     function testRenounce() external {
-        sablierV2Linear.renounce(streamId);
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        sablierV2Linear.renounce(daiStreamId);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         assertEq(actualStream.cancelable, false);
     }
 
     /// @dev When all checks pass, it should emit a Renounce event.
     function testRenounce__Event() external {
         vm.expectEmit(true, false, false, false);
-        emit Renounce(streamId);
-        sablierV2Linear.renounce(streamId);
+        emit Renounce(daiStreamId);
+        sablierV2Linear.renounce(daiStreamId);
     }
 }

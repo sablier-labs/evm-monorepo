@@ -15,8 +15,8 @@ contract SablierV2Pro__UnitTest__GetSegmentExponents is SablierV2ProUnitTest {
 
     /// @dev When the stream exists, it should return the correct segment amounts.
     function testGetSegmentExponents() external {
-        uint256 streamId = createDefaultDaiStream();
-        SD59x18[] memory actualSegmentExponents = sablierV2Pro.getSegmentExponents(streamId);
+        uint256 daiStreamId = createDefaultDaiStream();
+        SD59x18[] memory actualSegmentExponents = sablierV2Pro.getSegmentExponents(daiStreamId);
         SD59x18[] memory expectedSegmentExponents = daiStream.segmentExponents;
         assertEq(actualSegmentExponents, expectedSegmentExponents);
     }

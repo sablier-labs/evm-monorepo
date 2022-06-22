@@ -14,8 +14,8 @@ contract SablierV2Pro__UnitTest__GetSegmentMilestones is SablierV2ProUnitTest {
 
     /// @dev When the stream exists, it should return the correct segment milestones.
     function testGetSegmentMilestones() external {
-        uint256 streamId = createDefaultDaiStream();
-        uint256[] memory actualSegmentMilestones = sablierV2Pro.getSegmentMilestones(streamId);
+        uint256 daiStreamId = createDefaultDaiStream();
+        uint256[] memory actualSegmentMilestones = sablierV2Pro.getSegmentMilestones(daiStreamId);
         uint256[] memory expectedSegmentMilestones = daiStream.segmentMilestones;
         assertEq(actualSegmentMilestones, expectedSegmentMilestones);
     }

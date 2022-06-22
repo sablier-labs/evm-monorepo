@@ -14,8 +14,8 @@ contract SablierV2Linear__UnitTest__GetCliffTime is SablierV2LinearUnitTest {
 
     /// @dev When the stream exists, it should return the correct cliff time.
     function testGetCliffTime() external {
-        uint256 streamId = createDefaultDaiStream();
-        uint256 actualCliffTime = sablierV2Linear.getCliffTime(streamId);
+        uint256 daiStreamId = createDefaultDaiStream();
+        uint256 actualCliffTime = sablierV2Linear.getCliffTime(daiStreamId);
         uint256 expectedCliffTime = daiStream.cliffTime;
         assertEq(actualCliffTime, expectedCliffTime);
     }

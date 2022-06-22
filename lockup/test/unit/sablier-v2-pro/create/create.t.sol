@@ -167,7 +167,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         uint256[] memory segmentAmounts = createDynamicArray(SEGMENT_AMOUNTS_DAI[0]);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         uint256[] memory segmentMilestones = createDynamicArray(daiStream.stopTime);
-        uint256 streamId = sablierV2Pro.create(
+        uint256 daiStreamId = sablierV2Pro.create(
             daiStream.sender,
             daiStream.recipient,
             depositAmount,
@@ -296,7 +296,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
     function testCreate__TokenMissingReturnValue() external {
         IERC20 token = IERC20(address(nonStandardToken));
 
-        uint256 streamId = sablierV2Pro.create(
+        uint256 daiStreamId = sablierV2Pro.create(
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -321,8 +321,8 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
 
     /// @dev When all checks pass and the token has 6 decimals, it should create the stream.
     function testCreate__6Decimals() external {
-        uint256 streamId = createDefaultUsdcStream();
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        uint256 usdcStreamId = createDefaultUsdcStream();
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(usdcStreamId);
         ISablierV2Pro.Stream memory expectedStream = usdcStream;
         assertEq(actualStream, expectedStream);
     }
@@ -338,11 +338,11 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
 
     /// @dev When all checks pass and the token has 6 decimals, it should emit a CreateStream event.
     function testCreate__6Decimals__Event() external {
-        uint256 streamId = sablierV2Pro.nextStreamId();
+        uint256 usdcStreamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);
         address funder = usdcStream.sender;
         emit CreateStream(
-            streamId,
+            usdcStreamId,
             funder,
             usdcStream.sender,
             usdcStream.recipient,
@@ -361,8 +361,8 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
     /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
     /// it should create the stream.
     function testCreate__18Decimals__CallerSender() external {
-        uint256 streamId = createDefaultDaiStream();
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        uint256 daiStreamId = createDefaultDaiStream();
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         ISablierV2Pro.Stream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
@@ -380,11 +380,11 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
     /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
     /// it should emit a CreateStream event.
     function testCreate__18Decimals__CallerSender__Event() external {
-        uint256 streamId = sablierV2Pro.nextStreamId();
+        uint256 daiStreamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);
         address funder = daiStream.sender;
         emit CreateStream(
-            streamId,
+            daiStreamId,
             funder,
             daiStream.sender,
             daiStream.recipient,
@@ -405,10 +405,10 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
     function testCreate__18Decimals__CallerNotSender() external {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
-        uint256 streamId = createDefaultDaiStream();
+        uint256 daiStreamId = createDefaultDaiStream();
 
         // Run the test.
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         ISablierV2Pro.Stream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
@@ -435,11 +435,11 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         changePrank(users.alice);
 
         // Run the test.
-        uint256 streamId = sablierV2Pro.nextStreamId();
+        uint256 daiStreamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);
         address funder = users.alice;
         emit CreateStream(
-            streamId,
+            daiStreamId,
             funder,
             daiStream.sender,
             daiStream.recipient,

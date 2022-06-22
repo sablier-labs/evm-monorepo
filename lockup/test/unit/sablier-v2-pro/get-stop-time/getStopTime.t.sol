@@ -14,8 +14,8 @@ contract SablierV2Pro__UnitTest__StopTime is SablierV2ProUnitTest {
 
     /// @dev When the stream exists, it should return the correct stop time.
     function testGetStopTime() external {
-        uint256 streamId = createDefaultDaiStream();
-        uint256 actualStopTime = sablierV2Pro.getStopTime(streamId);
+        uint256 daiStreamId = createDefaultDaiStream();
+        uint256 actualStopTime = sablierV2Pro.getStopTime(daiStreamId);
         uint256 expectedStopTime = daiStream.stopTime;
         assertEq(actualStopTime, expectedStopTime);
     }

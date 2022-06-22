@@ -14,8 +14,8 @@ contract SablierV2Pro__UnitTest__GetSegmentAmounts is SablierV2ProUnitTest {
 
     /// @dev When the stream exists, it should return the correct segment amounts.
     function testGetSegmentAmounts() external {
-        uint256 streamId = createDefaultDaiStream();
-        uint256[] memory actualSegmentAmounts = sablierV2Pro.getSegmentAmounts(streamId);
+        uint256 daiStreamId = createDefaultDaiStream();
+        uint256[] memory actualSegmentAmounts = sablierV2Pro.getSegmentAmounts(daiStreamId);
         uint256[] memory expectedSegmentAmounts = daiStream.segmentAmounts;
         assertEq(actualSegmentAmounts, expectedSegmentAmounts);
     }

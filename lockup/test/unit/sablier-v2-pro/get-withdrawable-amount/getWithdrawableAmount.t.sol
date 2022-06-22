@@ -7,14 +7,14 @@ import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
 /// @dev Basic tests also found in the SablierV2Linear contract.
 contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUnitTest {
-    uint256 internal streamId;
+    uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
-        // Create the default stream, all tests need it.
-        streamId = createDefaultDaiStream();
+        // Create the default dai stream, since most tests need it.
+        daiStreamId = createDefaultDaiStream();
     }
 
     /// @dev When the stream does not exist, it should return zero.
@@ -28,14 +28,14 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUn
     /// @dev When the start time is greater than the block timestamp, it should return zero.
     function testGetWithdrawableAmount__StartTimeGreaterThanBlockTimestamp() external {
         vm.warp(daiStream.startTime - 1 seconds);
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the start time is equal to the block timestamp, it should return zero.
     function testGetWithdrawableAmount__StartTimeEqualToBlockTimestamp() external {
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -45,8 +45,8 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUn
     function testGetWithdrawableAmount__CurrentTimeGreaterThanStopTime__WithWithdrawals() external {
         vm.warp(daiStream.stopTime + 1 seconds);
         uint256 withdrawAmount = bn(2_500, 18);
-        sablierV2Pro.withdraw(streamId, withdrawAmount);
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        sablierV2Pro.withdraw(daiStreamId, withdrawAmount);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = daiStream.depositAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -55,7 +55,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUn
     /// return the deposit amount.
     function testGetWithdrawableAmount__CurrentTimeGreaterThanStopTime__NoWithdrawals() external {
         vm.warp(daiStream.stopTime + 1 seconds);
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = daiStream.depositAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -65,8 +65,8 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUn
     function testGetWithdrawableAmount__CurrentTimeEqualToStopTime__WithWithdrawals() external {
         vm.warp(daiStream.stopTime);
         uint256 withdrawAmount = bn(2_500, 18);
-        sablierV2Pro.withdraw(streamId, withdrawAmount);
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        sablierV2Pro.withdraw(daiStreamId, withdrawAmount);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = daiStream.depositAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -75,7 +75,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUn
     /// return the deposit amount.
     function testGetWithdrawableAmount__CurrentTimeEqualToStopTime__NoWithdrawals() external {
         vm.warp(daiStream.stopTime);
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = daiStream.depositAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -84,38 +84,38 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUn
     function testGetWithdrawableAmount__WithWithdrawals() external {
         vm.warp(daiStream.startTime + 500 seconds); // 500 seconds is 25% of the way in the first segment.
         uint256 withdrawAmount = bn(5, 18);
-        sablierV2Pro.withdraw(streamId, withdrawAmount);
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        sablierV2Pro.withdraw(daiStreamId, withdrawAmount);
         uint256 expectedWithdrawableAmount = 25.73721928961166e18 - withdrawAmount; // 1st term: ~2,000*0.25^{3.14}
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
+        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
     }
 }
 
 /// @dev Wrapper contract for the case when the current time is less than the stop time and when
 /// there have been no withdrawals.
 contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2ProUnitTest {
-    uint256 internal streamId;
+    uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
         // Create the default stream, most tests need it.
-        streamId = createDefaultDaiStream();
+        daiStreamId = createDefaultDaiStream();
     }
 
     /// @dev When there haven't been withdrawals, there is one segment and the token has 6 decimals, it should
     /// return the correct withdrawable amount.
     function testGetWithdrawableAmount__OneSegment__6Decimals() external {
-        uint256 daiDepositAmount = SEGMENT_AMOUNTS_USDC[0] + SEGMENT_AMOUNTS_USDC[1];
-        uint256[] memory segmentAmounts = createDynamicArray(daiDepositAmount);
+        uint256 usdcDepositAmount = SEGMENT_AMOUNTS_USDC[0] + SEGMENT_AMOUNTS_USDC[1];
+        uint256[] memory segmentAmounts = createDynamicArray(usdcDepositAmount);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[1]);
         uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[1]);
 
-        streamId = sablierV2Pro.create(
+        daiStreamId = sablierV2Pro.create(
             usdcStream.sender,
             usdcStream.recipient,
-            daiDepositAmount,
+            usdcDepositAmount,
             usdcStream.token,
             usdcStream.startTime,
             segmentAmounts,
@@ -125,7 +125,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
         );
 
         vm.warp(usdcStream.startTime + 2_000 seconds); // 2,000 seconds is 20% of the stream duration.
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = 4472.135955e6; // ~10,000*0.2^{0.5}
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -133,15 +133,15 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
     /// @dev When there haven't been withdrawals, there is one segment and the token has 18 decimals, it should
     /// return the correct withdrawable amount.
     function testGetWithdrawableAmount__OneSegment__18Decimals() external {
-        uint256 usdcDepositAmount = SEGMENT_AMOUNTS_DAI[0] + SEGMENT_AMOUNTS_DAI[1];
-        uint256[] memory segmentAmounts = createDynamicArray(usdcDepositAmount);
+        uint256 daiDepositAmount = SEGMENT_AMOUNTS_DAI[0] + SEGMENT_AMOUNTS_DAI[1];
+        uint256[] memory segmentAmounts = createDynamicArray(daiDepositAmount);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[1]);
         uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[1]);
 
-        streamId = sablierV2Pro.create(
+        daiStreamId = sablierV2Pro.create(
             daiStream.sender,
             daiStream.recipient,
-            usdcDepositAmount,
+            daiDepositAmount,
             daiStream.token,
             daiStream.startTime,
             segmentAmounts,
@@ -151,7 +151,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
         );
 
         vm.warp(daiStream.startTime + 2_000 seconds); // 2,000 seconds is 20% of the stream duration.
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = 4472.13595499957941e18; // ~10,000*0.2^{0.5}
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -223,7 +223,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
     /// has 18 decimals, it should return the correct withdrawable amount.
     function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone__1stInArray__18Decimals() external {
         vm.warp(daiStream.startTime + 500 seconds); // 500 seconds is 25% of the way in the first segment.
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = 25.73721928961166e18; // ~2,000*0.25^{3.14}
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -232,7 +232,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
     /// has 18 decimals, it should return the correct withdrawable amount.
     function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone__2ndInArray__18Decimals() external {
         vm.warp(daiStream.startTime + 2_800 seconds); // 2,800 seconds is 10% of the way in the second segment.
-        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+        uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         // 2nd term: ~8,000*0.1^{0.5}
         uint256 expectedWithdrawableAmount = SEGMENT_AMOUNTS_DAI[0] + 2529.822128134703472e18;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -260,7 +260,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
             }
 
             // Create the 200-segment stream.
-            streamId = sablierV2Pro.create(
+            daiStreamId = sablierV2Pro.create(
                 daiStream.sender,
                 daiStream.recipient,
                 daiStream.depositAmount,
@@ -273,7 +273,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
             );
             vm.warp(daiStream.stopTime - segmentDuration / 2);
 
-            uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
+            uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
             // 3rd term: 50*0.5^e
             uint256 expectedWithdrawableAmount = segmentAmount * (count - 1) + 7.59776116289564825e18;
             assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);

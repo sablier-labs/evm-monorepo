@@ -14,8 +14,8 @@ contract SablierV2Pro__UnitTest__GetRecipient is SablierV2ProUnitTest {
 
     /// @dev When the stream exists, it should return the correct recipient.
     function testGetRecipient() external {
-        uint256 streamId = createDefaultDaiStream();
-        address actualRecipient = sablierV2Pro.getRecipient(streamId);
+        uint256 daiStreamId = createDefaultDaiStream();
+        address actualRecipient = sablierV2Pro.getRecipient(daiStreamId);
         address expectedRecipient = daiStream.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }

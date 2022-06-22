@@ -75,7 +75,7 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
             cliffTime = block.timestamp + cliffDuration;
             stopTime = block.timestamp + totalDuration;
         }
-        uint256 streamId = sablierV2Linear.createWithDuration(
+        uint256 daiStreamId = sablierV2Linear.createWithDuration(
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -84,7 +84,7 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
             totalDuration,
             daiStream.cancelable
         );
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.recipient, daiStream.recipient);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);

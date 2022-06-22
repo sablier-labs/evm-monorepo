@@ -14,8 +14,8 @@ contract SablierV2Pro__UnitTest__StartTime is SablierV2ProUnitTest {
 
     /// @dev When the stream exists, it should return the correct start time.
     function testGetStartTime() external {
-        uint256 streamId = createDefaultDaiStream();
-        uint256 actualStartTime = sablierV2Pro.getStartTime(streamId);
+        uint256 daiStreamId = createDefaultDaiStream();
+        uint256 actualStartTime = sablierV2Pro.getStartTime(daiStreamId);
         uint256 expectedStartTime = daiStream.startTime;
         assertEq(actualStartTime, expectedStartTime);
     }
