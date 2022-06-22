@@ -7,19 +7,19 @@ withdrawAll.t.sol
    ├── when the stream ids array points to some non existent streams
    │  └── it should make the withdrawals for the existing streams
    └── when the stream ids array points only to existing streams
-       ├── when the caller is neither the sender nor the recipient of any stream
-       │  └── it should revert
-       ├── when the caller is neither the sender nor the recipient of some of the streams
-       │  └── it should revert
-       ├── when the caller is the sender of all streams
-       │  └── it should make the withdrawals and update the withdrawn amounts
-       └── when the caller is the recipient of all streams
+     ├── when the caller is neither the sender nor the recipient of any stream
+     │  └── it should revert
+     ├── when the caller is neither the sender nor the recipient of some of the streams
+     │  └── it should revert
+     ├── when the caller is the sender of all streams
+     │  └── it should make the withdrawals and update the withdrawn amounts
+     └── when the caller is the recipient of all streams
          ├── when some amounts are zero
          │  └── it should revert
          └── when all amounts are not zero
-             ├── when some amounts are greater than the withrawable amounts
-             │  └── it should revert
-             └── when all amounts are less than or equal to the withdrawable amounts
+           ├── when some amounts are greater than the withrawable amounts
+           │  └── it should revert
+           └── when all amounts are less than or equal to the withdrawable amounts
                ├── when all streams are ended
                │  ├── it should make the withdrawals and delete the streams
                │  └── it should emit multiple Withdraw events
@@ -27,5 +27,5 @@ withdrawAll.t.sol
                │  ├── it should make the withdrawals and update the withdrawn amounts
                │  └── it should emit multiple Withdraw events
                └── when some streams are ended and some streams are ongoing
-                   ├── it should make the withdrawals, delete the ended streams and update the withdrawn amounts
-                   └── it should emit multiple Withdraw events
+                 ├── it should make the withdrawals, delete the ended streams and update the withdrawn amounts
+                 └── it should emit multiple Withdraw events

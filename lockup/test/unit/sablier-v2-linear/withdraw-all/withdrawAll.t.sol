@@ -54,7 +54,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = createDynamicArray(nonStreamId, defaultStreamIds[0]);
 
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
@@ -89,11 +89,12 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
+            daiStream.cliffTime,
             daiStream.stopTime,
             daiStream.cancelable
         );
 
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
@@ -104,13 +105,13 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
         sablierV2Linear.withdrawAll(streamIds, defaultAmounts);
     }
 
-    /// @dev When the caller is the sender of all streams, it should make the withdrawals and update the
-    /// withdrawn amounts.
-    function testWithdrawAll__CallerSender__AllStreams() external {
+    /// @dev When the caller is the sender of all streams, it should make the withdrawals and update the withdrawn
+    /// amounts.
+    function testWithdrawAll__CallerSender() external {
         // Make the sender the `msg.sender` in this test case.
         changePrank(users.sender);
 
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
@@ -120,8 +121,8 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
 
         uint256 actualWithdrawnAmount0 = queriedStream0.withdrawnAmount;
         uint256 actualWithdrawnAmount1 = queriedStream1.withdrawnAmount;
-        uint256 expectedWithdrawnAmount0 = daiStream.withdrawnAmount + WITHDRAW_AMOUNT_DAI;
-        uint256 expectedWithdrawnAmount1 = daiStream.withdrawnAmount + WITHDRAW_AMOUNT_DAI;
+        uint256 expectedWithdrawnAmount0 = WITHDRAW_AMOUNT_DAI;
+        uint256 expectedWithdrawnAmount1 = WITHDRAW_AMOUNT_DAI;
 
         assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0);
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1);
@@ -129,7 +130,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
 
     /// @dev When some amounts are zero, it should revert.
     function testCannotWithdrawAll__SomeAmountsZero() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
@@ -140,7 +141,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
 
     /// @dev When some amounts are greater than the withrawable amounts, it should revert.
     function testCannotWithdrawAll__SomeAmountsGreaterThanWithdrawableAmount() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
@@ -192,7 +193,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
 
     /// @dev When all streams are ongoing, it should make the withdrawals and update the withdrawn amounts.
     function testWithdrawAll__AllStreamsOngoing() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
@@ -202,8 +203,8 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
 
         uint256 actualWithdrawnAmount0 = queriedStream0.withdrawnAmount;
         uint256 actualWithdrawnAmount1 = queriedStream1.withdrawnAmount;
-        uint256 expectedWithdrawnAmount0 = daiStream.withdrawnAmount + WITHDRAW_AMOUNT_DAI;
-        uint256 expectedWithdrawnAmount1 = daiStream.withdrawnAmount + WITHDRAW_AMOUNT_DAI;
+        uint256 expectedWithdrawnAmount0 = WITHDRAW_AMOUNT_DAI;
+        uint256 expectedWithdrawnAmount1 = WITHDRAW_AMOUNT_DAI;
 
         assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0);
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1);
@@ -211,7 +212,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
 
     /// @dev When all streams are ongoing, it should emit multiple Withdraw events.
     function testWithdrawAll__AllStreamsOngoing__Events() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
@@ -235,6 +236,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
+            daiStream.cliffTime,
             earlyStopTime,
             daiStream.cancelable
         );
@@ -259,7 +261,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
 
         ISablierV2Linear.Stream memory queriedStream1 = sablierV2Linear.getStream(ongoingStreamId);
         uint256 actualWithdrawnAmount1 = queriedStream1.withdrawnAmount;
-        uint256 expectedWithdrawnAmount1 = daiStream.withdrawnAmount + WITHDRAW_AMOUNT_DAI;
+        uint256 expectedWithdrawnAmount1 = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1);
     }
 
@@ -274,6 +276,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
+            daiStream.cliffTime,
             earlyStopTime,
             daiStream.cancelable
         );

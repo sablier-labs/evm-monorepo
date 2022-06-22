@@ -24,7 +24,7 @@ contract SablierV2Linear__UnitTest__Renounce is SablierV2LinearUnitTest {
         sablierV2Linear.renounce(nonStreamId);
     }
 
-    /// @dev When the caller is not authorized, it should revert.
+    /// @dev When the caller is neither the sender nor the recipient, it should revert.
     function testCannotRenounce__CallerUnauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
@@ -36,7 +36,7 @@ contract SablierV2Linear__UnitTest__Renounce is SablierV2LinearUnitTest {
 
     /// @dev When the stream is already non-cancelable, it should revert.
     function testCannotRenounce__NonCancelabeStream() external {
-        // Create the non-cancelable daiStream.
+        // Create the non-cancelable stream.
         uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
 
         // Run the test.

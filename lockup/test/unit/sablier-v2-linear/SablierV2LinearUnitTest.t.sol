@@ -22,15 +22,16 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         uint256 depositAmount,
         IERC20 token,
         uint256 startTime,
+        uint256 cliffTime,
         uint256 stopTime,
         bool cancelable
     );
 
     /// CONSTANTS ///
 
-    uint256 internal constant TIME_OFFSET = 100 seconds;
-    uint256 internal immutable WITHDRAW_AMOUNT_DAI = bn(100, 18);
-    uint256 internal immutable WITHDRAW_AMOUNT_USDC = bn(100, 6);
+    uint256 internal constant TIME_OFFSET = 2_600 seconds;
+    uint256 internal immutable WITHDRAW_AMOUNT_DAI = bn(2_600, 18);
+    uint256 internal immutable WITHDRAW_AMOUNT_USDC = bn(2_600, 6);
 
     /// TESTING VARIABLES ///
 
@@ -45,6 +46,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         // Create the default streams to be used across the tests.
         daiStream = ISablierV2Linear.Stream({
             cancelable: true,
+            cliffTime: CLIFF_TIME,
             depositAmount: DEPOSIT_AMOUNT_DAI,
             recipient: users.recipient,
             sender: users.sender,
@@ -55,6 +57,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         });
         usdcStream = ISablierV2Linear.Stream({
             cancelable: true,
+            cliffTime: CLIFF_TIME,
             depositAmount: DEPOSIT_AMOUNT_USDC,
             recipient: users.recipient,
             sender: users.sender,
@@ -64,25 +67,25 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
             withdrawnAmount: 0
         });
 
-        // Approve the SablierV2Cliff contract to spend tokens from the sender.
+        // Approve the SablierV2Linear contract to spend tokens from the sender.
         vm.startPrank(users.sender);
         dai.approve(address(sablierV2Linear), MAX_UINT_256);
         usdc.approve(address(sablierV2Linear), MAX_UINT_256);
         nonStandardToken.approve(address(sablierV2Linear), MAX_UINT_256);
 
-        // Approve the SablierV2Cliff contract to spend tokens from the recipient.
+        // Approve the SablierV2Linear contract to spend tokens from the recipient.
         changePrank(users.recipient);
         dai.approve(address(sablierV2Linear), MAX_UINT_256);
         usdc.approve(address(sablierV2Linear), MAX_UINT_256);
         nonStandardToken.approve(address(sablierV2Linear), MAX_UINT_256);
 
-        // Approve the SablierV2Cliff contract to spend tokens from Alice.
+        // Approve the SablierV2Linear contract to spend tokens from Alice.
         changePrank(users.alice);
         dai.approve(address(sablierV2Linear), MAX_UINT_256);
         usdc.approve(address(sablierV2Linear), MAX_UINT_256);
         nonStandardToken.approve(address(sablierV2Linear), MAX_UINT_256);
 
-        // Approve the SablierV2Cliff contract to spend tokens from Eve.
+        // Approve the SablierV2Linear contract to spend tokens from Eve.
         changePrank(users.eve);
         dai.approve(address(sablierV2Linear), MAX_UINT_256);
         usdc.approve(address(sablierV2Linear), MAX_UINT_256);
@@ -101,6 +104,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         assertEq(a.recipient, b.recipient);
         assertEq(a.sender, b.sender);
         assertEq(a.startTime, b.startTime);
+        assertEq(a.cliffTime, b.cliffTime);
         assertEq(a.stopTime, b.stopTime);
         assertEq(a.token, b.token);
         assertEq(a.withdrawnAmount, b.withdrawnAmount);
@@ -114,6 +118,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
+            daiStream.cliffTime,
             daiStream.stopTime,
             daiStream.cancelable
         );
@@ -127,12 +132,13 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
             usdcStream.depositAmount,
             usdcStream.token,
             usdcStream.startTime,
+            usdcStream.cliffTime,
             usdcStream.stopTime,
             usdcStream.cancelable
         );
     }
 
-    /// @dev Helper function to create a non-cancelable daiStream.
+    /// @dev Helper function to create a non-cancelable stream with $DAI used as streaming currency.
     function createNonCancelableDaiStream() internal returns (uint256 nonCancelableDaiStreamId) {
         bool cancelable = false;
         nonCancelableDaiStreamId = sablierV2Linear.create(
@@ -141,6 +147,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
+            daiStream.cliffTime,
             daiStream.stopTime,
             cancelable
         );
