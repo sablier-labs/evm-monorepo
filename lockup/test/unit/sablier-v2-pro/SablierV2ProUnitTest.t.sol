@@ -78,25 +78,25 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
             withdrawnAmount: 0
         });
 
-        // Approve the SablierV2Linear contract to spend tokens from the sender.
+        // Approve the SablierV2Pro contract to spend tokens from the sender.
         vm.startPrank(users.sender);
         dai.approve(address(sablierV2Pro), MAX_UINT_256);
         usdc.approve(address(sablierV2Pro), MAX_UINT_256);
         nonStandardToken.approve(address(sablierV2Pro), MAX_UINT_256);
 
-        // Approve the SablierV2Linear contract to spend tokens from the recipient.
+        // Approve the SablierV2Pro contract to spend tokens from the recipient.
         changePrank(users.recipient);
         dai.approve(address(sablierV2Pro), MAX_UINT_256);
         usdc.approve(address(sablierV2Pro), MAX_UINT_256);
         nonStandardToken.approve(address(sablierV2Pro), MAX_UINT_256);
 
-        // Approve the SablierV2Linear contract to spend tokens from Alice.
+        // Approve the SablierV2Pro contract to spend tokens from Alice.
         changePrank(users.alice);
         dai.approve(address(sablierV2Pro), MAX_UINT_256);
         usdc.approve(address(sablierV2Pro), MAX_UINT_256);
         nonStandardToken.approve(address(sablierV2Pro), MAX_UINT_256);
 
-        // Approve the SablierV2Linear contract to spend tokens from Eve.
+        // Approve the SablierV2Pro contract to spend tokens from Eve.
         changePrank(users.eve);
         dai.approve(address(sablierV2Pro), MAX_UINT_256);
         usdc.approve(address(sablierV2Pro), MAX_UINT_256);

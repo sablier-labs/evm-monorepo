@@ -255,9 +255,9 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
         uint256[] memory amounts = createDynamicArray(endedWithdrawAmount, ongoingWithdrawAmount);
         sablierV2Linear.withdrawAll(streamIds, amounts);
 
-        ISablierV2Linear.Stream memory actualStream0 = sablierV2Linear.getStream(endedStreamId);
+        ISablierV2Linear.Stream memory createdStream0 = sablierV2Linear.getStream(endedStreamId);
         ISablierV2Linear.Stream memory expectedStream0;
-        assertEq(actualStream0, expectedStream0);
+        assertEq(createdStream0, expectedStream0);
 
         ISablierV2Linear.Stream memory queriedStream1 = sablierV2Linear.getStream(ongoingStreamId);
         uint256 actualWithdrawnAmount1 = queriedStream1.withdrawnAmount;

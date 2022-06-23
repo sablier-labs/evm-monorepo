@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-/// @notice The common interface between all Sablier V2 streaming contracts.
-/// @author Sablier Labs Ltd.
-
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ISablierV2 } from "./ISablierV2.sol";
 
@@ -113,7 +110,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// @notice Creates a stream funded by `msg.sender` and sets the start time to `block.timestamp` and the stop
     /// time to `block.timestamp + duration`.
     ///
-    /// @dev Emits a {CreateStream} event and an {Authorize} event.
+    /// @dev Emits a {CreateStream} event.
     ///
     /// Requirements:
     /// - All from `create`.

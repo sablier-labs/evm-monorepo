@@ -136,8 +136,8 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
             SEGMENT_DELTAS,
             daiStream.cancelable
         );
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        ISablierV2Pro.Stream memory createdStream = sablierV2Pro.getStream(streamId);
         ISablierV2Pro.Stream memory expectedStream = daiStream;
-        assertEq(actualStream, expectedStream);
+        assertEq(createdStream, expectedStream);
     }
 }

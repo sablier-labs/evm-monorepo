@@ -85,9 +85,9 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUn
         vm.warp(daiStream.startTime + 500 seconds); // 500 seconds is 25% of the way in the first segment.
         uint256 withdrawAmount = bn(5, 18);
         sablierV2Pro.withdraw(streamId, withdrawAmount);
-        uint256 expectedWithdrawableAmount = 25.73721928961166e18 - withdrawAmount; // 1st term: ~2,000*0.25^{3.14}
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = 25.73721928961166e18 - withdrawAmount; // 1st term: ~2,000*0.25^{3.14}
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 }
 

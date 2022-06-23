@@ -4,8 +4,6 @@ pragma solidity >=0.8.13;
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.sol";
 
-import { stdError } from "forge-std/Test.sol";
-
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTest {
