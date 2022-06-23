@@ -14,6 +14,24 @@ abstract contract SablierV2 is ISablierV2 {
     /// @inheritdoc ISablierV2
     uint256 public override nextStreamId;
 
+    /// MODIFIERS ///
+
+    /// @notice Checks that `msg.sender` is either the sender or the recipient of the stream.
+    modifier onlySenderOrRecipient(uint256 streamId) {
+        if (msg.sender != getSender(streamId) && msg.sender != getRecipient(streamId)) {
+            revert SablierV2__Unauthorized(streamId, msg.sender);
+        }
+        _;
+    }
+
+    /// @dev Checks that `streamId` points to a stream that exists.
+    modifier streamExists(uint256 streamId) {
+        if (getSender(streamId) == address(0)) {
+            revert SablierV2__StreamNonExistent(streamId);
+        }
+        _;
+    }
+
     /// CONSTRUCTOR ///
 
     constructor() {
@@ -68,6 +86,111 @@ abstract contract SablierV2 is ISablierV2 {
         }
     }
 
+    /// @inheritdoc ISablierV2
+    function withdraw(uint256 streamId, uint256 amount)
+        external
+        streamExists(streamId)
+        onlySenderOrRecipient(streamId)
+    {
+        address to = getRecipient(streamId);
+        withdrawInternal(streamId, to, amount);
+    }
+
+    /// @inheritdoc ISablierV2
+    function withdrawAll(uint256[] calldata streamIds, uint256[] calldata amounts) external {
+        // Checks: count of `streamIds` matches count of `amounts`.
+        uint256 streamIdsCount = streamIds.length;
+        uint256 amountsCount = amounts.length;
+        if (streamIdsCount != amountsCount) {
+            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
+        }
+
+        // Iterate over the provided array of stream ids and withdraw from each stream.
+        address recipient;
+        address sender;
+        uint256 streamId;
+        for (uint256 i = 0; i < streamIdsCount; ) {
+            streamId = streamIds[i];
+
+            // If the `streamId` points to a stream that does not exist, skip it.
+            recipient = getRecipient(streamId);
+            sender = getSender(streamId);
+            if (sender != address(0)) {
+                // Checks: the `msg.sender` is either the sender or the recipient of the stream.
+                if (msg.sender != sender && msg.sender != recipient) {
+                    revert SablierV2__Unauthorized(streamId, msg.sender);
+                }
+
+                // Effects and Interactions: withdraw from the stream.
+                withdrawInternal(streamId, recipient, amounts[i]);
+            }
+
+            // Increment the for loop iterator.
+            unchecked {
+                i += 1;
+            }
+        }
+    }
+
+    /// @inheritdoc ISablierV2
+    function withdrawAllTo(
+        uint256[] calldata streamIds,
+        address to,
+        uint256[] calldata amounts
+    ) external {
+        // Checks: the provided address to withdraw to is not zero.
+        if (to == address(0)) {
+            revert SablierV2__WithdrawZeroAddress();
+        }
+
+        // Checks: count of `streamIds` matches `amounts`.
+        uint256 streamIdsCount = streamIds.length;
+        uint256 amountsCount = amounts.length;
+        if (streamIdsCount != amountsCount) {
+            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
+        }
+
+        // Iterate over the provided array of stream ids and withdraw from each stream.
+        uint256 streamId;
+        for (uint256 i = 0; i < streamIdsCount; ) {
+            streamId = streamIds[i];
+
+            // If the `streamId` points to a stream that does not exist, skip it.
+            if (getSender(streamId) != address(0)) {
+                // Checks: the `msg.sender` is the recipient of the stream.
+                if (msg.sender != getRecipient(streamId)) {
+                    revert SablierV2__Unauthorized(streamId, msg.sender);
+                }
+
+                // Effects and Interactions: withdraw from the stream.
+                withdrawInternal(streamId, to, amounts[i]);
+            }
+
+            // Increment the for loop iterator.
+            unchecked {
+                i += 1;
+            }
+        }
+    }
+
+    /// @inheritdoc ISablierV2
+    function withdrawTo(
+        uint256 streamId,
+        address to,
+        uint256 amount
+    ) external streamExists(streamId) {
+        // Checks: the `msg.sender` is the recipient of the stream.
+        if (msg.sender != getRecipient(streamId)) {
+            revert SablierV2__Unauthorized(streamId, msg.sender);
+        }
+
+        // Checks: the provided address to withdraw to is not zero.
+        if (to == address(0)) {
+            revert SablierV2__WithdrawZeroAddress();
+        }
+        withdrawInternal(streamId, to, amount);
+    }
+
     /// INTERNAL CONSTANT FUNCTIONS ///
 
     /// @dev Checks the basic requiremenets for the `create` function.
@@ -103,4 +226,11 @@ abstract contract SablierV2 is ISablierV2 {
 
     /// @dev See the documentation for the public functions that call this internal function.
     function cancelInternal(uint256 streamId) internal virtual;
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function withdrawInternal(
+        uint256 streamId,
+        address to,
+        uint256 amount
+    ) internal virtual;
 }
