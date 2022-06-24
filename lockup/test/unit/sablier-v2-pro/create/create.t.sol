@@ -178,17 +178,17 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             segmentMilestones,
             daiStream.cancelable
         );
-        ISablierV2Pro.Stream memory createdStream = sablierV2Pro.getStream(streamId);
-        assertEq(createdStream.sender, daiStream.sender);
-        assertEq(createdStream.recipient, daiStream.recipient);
-        assertEq(createdStream.depositAmount, depositAmount);
-        assertEq(createdStream.token, daiStream.token);
-        assertEq(createdStream.startTime, daiStream.startTime);
-        assertEq(createdStream.segmentAmounts, segmentAmounts);
-        assertEq(createdStream.segmentExponents, segmentExponents);
-        assertEq(createdStream.segmentMilestones, segmentMilestones);
-        assertEq(createdStream.cancelable, daiStream.cancelable);
-        assertEq(createdStream.withdrawnAmount, daiStream.withdrawnAmount);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, depositAmount);
+        assertEq(actualStream.token, daiStream.token);
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.segmentAmounts, segmentAmounts);
+        assertEq(actualStream.segmentExponents, segmentExponents);
+        assertEq(actualStream.segmentMilestones, segmentMilestones);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
     /// @dev When the segment amounts sum overflows, it should revert.
@@ -308,23 +308,23 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
 
-        ISablierV2Pro.Stream memory createdStream = sablierV2Pro.getStream(streamId);
-        assertEq(createdStream.sender, daiStream.sender);
-        assertEq(createdStream.recipient, daiStream.recipient);
-        assertEq(createdStream.depositAmount, daiStream.depositAmount);
-        assertEq(address(createdStream.token), address(nonStandardToken));
-        assertEq(createdStream.startTime, daiStream.startTime);
-        assertEq(createdStream.stopTime, daiStream.stopTime);
-        assertEq(createdStream.cancelable, daiStream.cancelable);
-        assertEq(createdStream.withdrawnAmount, daiStream.withdrawnAmount);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, daiStream.depositAmount);
+        assertEq(address(actualStream.token), address(nonStandardToken));
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.stopTime, daiStream.stopTime);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
     /// @dev When all checks pass and the token has 6 decimals, it should create the stream.
     function testCreate__6Decimals() external {
         uint256 streamId = createDefaultUsdcStream();
-        ISablierV2Pro.Stream memory createdStream = sablierV2Pro.getStream(streamId);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
         ISablierV2Pro.Stream memory expectedStream = usdcStream;
-        assertEq(createdStream, expectedStream);
+        assertEq(actualStream, expectedStream);
     }
 
     /// @dev When all checks pass and the token has 6 decimals, it should bump the next stream id.
@@ -362,9 +362,9 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
     /// it should create the stream.
     function testCreate__18Decimals__CallerSender() external {
         uint256 streamId = createDefaultDaiStream();
-        ISablierV2Pro.Stream memory createdStream = sablierV2Pro.getStream(streamId);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
         ISablierV2Pro.Stream memory expectedStream = daiStream;
-        assertEq(createdStream, expectedStream);
+        assertEq(actualStream, expectedStream);
     }
 
     /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
@@ -408,9 +408,9 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         uint256 streamId = createDefaultDaiStream();
 
         // Run the test.
-        ISablierV2Pro.Stream memory createdStream = sablierV2Pro.getStream(streamId);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
         ISablierV2Pro.Stream memory expectedStream = daiStream;
-        assertEq(createdStream, expectedStream);
+        assertEq(actualStream, expectedStream);
     }
 
     /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,

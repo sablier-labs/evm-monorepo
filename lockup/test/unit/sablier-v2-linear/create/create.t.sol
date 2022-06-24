@@ -75,16 +75,16 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
             stopTime,
             daiStream.cancelable
         );
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
-        assertEq(createdStream.sender, daiStream.sender);
-        assertEq(createdStream.recipient, daiStream.recipient);
-        assertEq(createdStream.depositAmount, daiStream.depositAmount);
-        assertEq(createdStream.token, daiStream.token);
-        assertEq(createdStream.startTime, daiStream.startTime);
-        assertEq(createdStream.cliffTime, cliffTime);
-        assertEq(createdStream.stopTime, stopTime);
-        assertEq(createdStream.cancelable, daiStream.cancelable);
-        assertEq(createdStream.withdrawnAmount, daiStream.withdrawnAmount);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, daiStream.depositAmount);
+        assertEq(actualStream.token, daiStream.token);
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.cliffTime, cliffTime);
+        assertEq(actualStream.stopTime, stopTime);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
     /// @dev When the start time is greater than the cliff time, is should revert.
@@ -146,16 +146,16 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
             daiStream.stopTime,
             daiStream.cancelable
         );
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
-        assertEq(createdStream.sender, daiStream.sender);
-        assertEq(createdStream.recipient, daiStream.recipient);
-        assertEq(createdStream.depositAmount, daiStream.depositAmount);
-        assertEq(createdStream.token, daiStream.token);
-        assertEq(createdStream.startTime, daiStream.startTime);
-        assertEq(createdStream.cliffTime, cliffTime);
-        assertEq(createdStream.stopTime, daiStream.stopTime);
-        assertEq(createdStream.cancelable, daiStream.cancelable);
-        assertEq(createdStream.withdrawnAmount, daiStream.withdrawnAmount);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, daiStream.depositAmount);
+        assertEq(actualStream.token, daiStream.token);
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.cliffTime, cliffTime);
+        assertEq(actualStream.stopTime, daiStream.stopTime);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
     /// @dev When the token is not a contract, it should revert.
@@ -189,24 +189,24 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
             daiStream.cancelable
         );
 
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
-        assertEq(createdStream.sender, daiStream.sender);
-        assertEq(createdStream.recipient, daiStream.recipient);
-        assertEq(createdStream.depositAmount, daiStream.depositAmount);
-        assertEq(address(createdStream.token), address(nonStandardToken));
-        assertEq(createdStream.startTime, daiStream.startTime);
-        assertEq(createdStream.cliffTime, daiStream.cliffTime);
-        assertEq(createdStream.stopTime, daiStream.stopTime);
-        assertEq(createdStream.cancelable, daiStream.cancelable);
-        assertEq(createdStream.withdrawnAmount, daiStream.withdrawnAmount);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, daiStream.depositAmount);
+        assertEq(address(actualStream.token), address(nonStandardToken));
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.cliffTime, daiStream.cliffTime);
+        assertEq(actualStream.stopTime, daiStream.stopTime);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
     /// @dev When all checks pass and the token has 6 decimals, it should create the stream.
     function testCreate__6Decimals() external {
         uint256 streamId = createDefaultUsdcStream();
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
         ISablierV2Linear.Stream memory expectedStream = usdcStream;
-        assertEq(createdStream, expectedStream);
+        assertEq(actualStream, expectedStream);
     }
 
     /// @dev When all checks pass and the token has 6 decimals, it should bump the next stream id.
@@ -242,8 +242,8 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
     /// it should create the stream.
     function testCreate__18Decimals__CallerSender() external {
         uint256 streamId = createDefaultDaiStream();
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
-        assertEq(createdStream, daiStream);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        assertEq(actualStream, daiStream);
     }
 
     /// @dev When all checks pass and the token has 18 decimals and the caller is the sender of the stream,
@@ -285,9 +285,9 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         uint256 streamId = createDefaultDaiStream();
 
         // Run the test.
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
         ISablierV2Linear.Stream memory expectedStream = daiStream;
-        assertEq(createdStream, expectedStream);
+        assertEq(actualStream, expectedStream);
     }
 
     /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,
