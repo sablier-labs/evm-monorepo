@@ -8,9 +8,7 @@ import { SablierV2 } from "@sablier/v2-core/SablierV2.sol";
 import { SablierV2UnitTest } from "../SablierV2UnitTest.t.sol";
 
 contract AbstractSablierV2 is SablierV2 {
-    constructor() SablierV2() {
-        // solhint-disable-previous-line no-empty-blocks
-    }
+    constructor() SablierV2() {}
 
     /// CONSTANT FUNCTIONS ///
 

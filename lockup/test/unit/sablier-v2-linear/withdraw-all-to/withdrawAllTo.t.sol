@@ -1,3 +1,4 @@
+// solhint-disable max-line-length
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
@@ -6,7 +7,7 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
+contract SablierV2Linear__WithdrawAllTo is SablierV2LinearUnitTest {
     uint256[] internal defaultAmounts;
     uint256[] internal defaultStreamIds;
     address internal toAlice;
@@ -29,16 +30,22 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         // Make Alice the address that will receive the tokens.
         toAlice = users.alice;
     }
+}
 
-    /// @dev When the to address is zero, it should revert.
-    function testCannotWithdrawAllTo__ToZeroAddress() external {
+contract SablierV2Linear__WithdrawAllTo__ToZeroAddress is SablierV2Linear__WithdrawAllTo {
+    /// @dev it should revert.
+    function testCannotWithdrawAllTo() external {
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__WithdrawZeroAddress.selector));
         address toZero = address(0);
         sablierV2Linear.withdrawAllTo(defaultStreamIds, toZero, defaultAmounts);
     }
+}
 
-    /// @dev When the array counts are not equal, it should revert.
-    function testCannotWithdrawAllTo__WithdrawAllArraysNotEqual() external {
+contract ToNonZeroAddress {}
+
+contract SablierV2Linear__WithdrawAllTo__ArraysNotEqual is SablierV2Linear__WithdrawAllTo, ToNonZeroAddress {
+    /// @dev it should revert.
+    function testCannotWithdrawAllTo() external {
         uint256[] memory streamIds = new uint256[](2);
         uint256[] memory amounts = new uint256[](1);
         vm.expectRevert(
@@ -50,18 +57,31 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         );
         sablierV2Linear.withdrawAllTo(streamIds, toAlice, amounts);
     }
+}
 
-    /// @dev When the stream ids array points only to non existent streams, it should do nothing.
+contract ArraysEqual {}
+
+contract SablierV2Linear__WithdrawAllTo__OnlyNonExistentStreams is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual
+{
+    /// @dev it should do nothing.
     function testCannotWithdrawAllTo__OnlyNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory nonStreamIds = createDynamicArray(nonStreamId);
         uint256[] memory amounts = createDynamicArray(WITHDRAW_AMOUNT_DAI);
         sablierV2Linear.withdrawAllTo(nonStreamIds, toAlice, amounts);
     }
+}
 
-    /// @dev When the stream ids array points to some non existent streams, it should make the withdrawals for
-    /// the existing streams.
-    function testCannotWithdrawAllTo__SomeNonExistentStreams() external {
+contract SablierV2Linear__WithdrawAllTo__SomeNonExistentStreams is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual
+{
+    /// @dev it should make the withdrawals for the existent streams.
+    function testCannotWithdrawAllTo() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = createDynamicArray(nonStreamId, defaultStreamIds[0]);
 
@@ -75,9 +95,18 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
+}
 
-    /// @dev When the caller is the sender for all streams, it should revert.
-    function testCannotWithdrawAllTo__CallerUnauthorized__AllStreams__Sender() external {
+contract OnlyExistentStreams {}
+
+contract SablierV2Linear__WithdrawAllTo__CallerSenderAllStreams is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual,
+    OnlyExistentStreams
+{
+    /// @dev it should revert.
+    function testCannotWithdrawAllTo() external {
         // Make the sender the `msg.sender` in this test case.
         changePrank(users.sender);
 
@@ -87,9 +116,16 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         );
         sablierV2Linear.withdrawAllTo(defaultStreamIds, toAlice, defaultAmounts);
     }
+}
 
-    /// @dev When the caller is an unauthorized third-party for all streams, it should revert.
-    function testCannotWithdrawAllTo__CallerUnauthorized__AllStreams__Eve() external {
+contract SablierV2Linear__WithdrawAllTo__CallerThirdPartyAllStreams is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual,
+    OnlyExistentStreams
+{
+    /// @dev it should revert.
+    function testCannotWithdrawAllTo() external {
         // Make the sender the `msg.sender` in this test case.
         changePrank(users.sender);
 
@@ -99,9 +135,16 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         );
         sablierV2Linear.withdrawAllTo(defaultStreamIds, toAlice, defaultAmounts);
     }
+}
 
-    /// @dev When the caller is the sender for some of the streams, it should revert.
-    function testCannotWithdrawAllTo__CallerUnauthorized__SomeStreams__Sender() external {
+contract SablierV2Linear__WithdrawAllTo__CallerSenderSomeStreams is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual,
+    OnlyExistentStreams
+{
+    /// @dev it should revert.
+    function testCannotWithdrawAllTo() external {
         // Create a stream with the sender as the recipient (reversing their roles).
         changePrank(users.recipient);
         uint256 reversedStreamId = sablierV2Linear.create(
@@ -128,9 +171,16 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         );
         sablierV2Linear.withdrawAllTo(streamIds, toAlice, defaultAmounts);
     }
+}
 
-    /// @dev When the caller is an unauthorized third-party for some of the streams, it should revert.
-    function testCannotWithdrawAllTo__CallerUnauthorized__SomeStreams__ThirdParty() external {
+contract SablierV2Linear__WithdrawAllTo__CallerThirdPartySomeStreams is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual,
+    OnlyExistentStreams
+{
+    /// @dev it should revert.
+    function testCannotWithdrawAllTo() external {
         // Create a stream with Eve as the recipient.
         changePrank(users.sender);
         uint256 eveStreamId = sablierV2Linear.create(
@@ -157,9 +207,19 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         );
         sablierV2Linear.withdrawAllTo(streamIds, toAlice, defaultAmounts);
     }
+}
 
-    /// @dev When some amounts are zero, it should revert.
-    function testCannotWithdrawAllTo__SomeAmountsZero() external {
+contract CallerRecipient {}
+
+contract SablierV2Linear__WithdrawAllTo__SomeAmountsZero is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual,
+    OnlyExistentStreams,
+    CallerRecipient
+{
+    /// @dev it should revert.
+    function testCannotWithdrawAllTo() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
@@ -168,9 +228,17 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__WithdrawAmountZero.selector, defaultStreamIds[1]));
         sablierV2Linear.withdrawAllTo(defaultStreamIds, toAlice, amounts);
     }
+}
 
-    /// @dev When some amounts are greater than the withrawable amounts, it should revert.
-    function testCannotWithdrawAllTo__SomeAmountsGreaterThanWithdrawableAmount() external {
+contract SablierV2Linear__WithdrawAllTo__SomeAmountsGreaterThanWithdrawableAmounts is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual,
+    OnlyExistentStreams,
+    CallerRecipient
+{
+    /// @dev it should revert.
+    function testCannotWithdrawAllTo() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
@@ -188,9 +256,20 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         );
         sablierV2Linear.withdrawAllTo(defaultStreamIds, toAlice, amounts);
     }
+}
 
-    /// @dev When the to address is the recipient, it should make the withdrawals and update the withdrawn amounts.
-    function testWithdrawAllTo__Recipient() external {
+contract AllAmountsLessThanOrEqualToWithdrawableAmounts {}
+
+contract SablierV2Linear__WithdrawAllTo__ToRecipient is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual,
+    OnlyExistentStreams,
+    CallerRecipient,
+    AllAmountsLessThanOrEqualToWithdrawableAmounts
+{
+    /// @dev it should make the withdrawals and update the withdrawn amounts.
+    function testWithdrawAllTo() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
@@ -208,9 +287,21 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0);
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1);
     }
+}
 
-    /// @dev When all streams are ended, it should make the withdrawals and delete the streams.
-    function testWithdrawAllTo__ThirdParty__AllStreamsEnded() external {
+contract ToThirdParty {}
+
+contract SablierV2Linear__WithdrawAllTo__AllStreamsEnded is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual,
+    OnlyExistentStreams,
+    CallerRecipient,
+    AllAmountsLessThanOrEqualToWithdrawableAmounts,
+    ToThirdParty
+{
+    /// @dev it should make the withdrawals and delete the streams.
+    function testWithdrawAllTo() external {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 
@@ -226,8 +317,8 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         assertEq(actualStream1, expectedStream);
     }
 
-    /// @dev When all streams are ended, it should emit multiple Withdraw events.
-    function testWithdrawAllTo__ThirdParty__AllStreamsEnded__Events() external {
+    /// @dev it should emit multiple Withdraw events.
+    function testWithdrawAllTo__Events() external {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 
@@ -242,9 +333,19 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         uint256[] memory amounts = createDynamicArray(withdrawAmount, withdrawAmount);
         sablierV2Linear.withdrawAllTo(defaultStreamIds, toAlice, amounts);
     }
+}
 
-    /// @dev When all streams are ongoing, it should make the withdrawals and update the withdrawn amounts.
-    function testWithdrawAllTo__ThirdParty__AllStreamsOngoing() external {
+contract SablierV2Linear__WithdrawAllTo__AllStreamsOngoing is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual,
+    OnlyExistentStreams,
+    CallerRecipient,
+    AllAmountsLessThanOrEqualToWithdrawableAmounts,
+    ToThirdParty
+{
+    /// @dev it should make the withdrawals and update the withdrawn amounts.
+    function testWithdrawAllTo() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
@@ -262,8 +363,8 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1);
     }
 
-    /// @dev When all streams are ongoing, it should emit multiple Withdraw events.
-    function testWithdrawAllTo__ThirdParty__AllStreamsOngoing__Events() external {
+    /// @dev it should emit multiple Withdraw events.
+    function testWithdrawAllTo__Events() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
@@ -277,14 +378,23 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
 
         sablierV2Linear.withdrawAllTo(defaultStreamIds, toAlice, defaultAmounts);
     }
+}
 
-    /// @dev When some streams are ended and some streams are ongoing, it should make the withdrawals, delete the
-    /// ended streams and update the withdrawn amounts
-    function testWithdrawAllTo__ThirdParty__SomeStreamsEndedSomeStreamsOngoing() external {
-        // Create the ended daiStream.
+contract SablierV2Linear__WithdrawAllTo__SomeStreamsEndedSomeStreamsOngoing is
+    SablierV2Linear__WithdrawAllTo,
+    ToNonZeroAddress,
+    ArraysEqual,
+    OnlyExistentStreams,
+    CallerRecipient,
+    AllAmountsLessThanOrEqualToWithdrawableAmounts,
+    ToThirdParty
+{
+    /// @dev it should make the withdrawals, delete the ended streams and update the withdrawn amounts
+    function testWithdrawAllTo() external {
+        // Create the ended dai stream.
         changePrank(daiStream.sender);
         uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
-        uint256 endedStreamId = sablierV2Linear.create(
+        uint256 endedDaiStreamId = sablierV2Linear.create(
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -305,13 +415,13 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         // Run the test.
         uint256 endedWithdrawAmount = daiStream.depositAmount;
         uint256 ongoingWithdrawAmount = WITHDRAW_AMOUNT_DAI;
-        uint256[] memory streamIds = createDynamicArray(endedStreamId, ongoingStreamId);
+        uint256[] memory streamIds = createDynamicArray(endedDaiStreamId, ongoingStreamId);
         uint256[] memory amounts = createDynamicArray(endedWithdrawAmount, ongoingWithdrawAmount);
         sablierV2Linear.withdrawAllTo(streamIds, toAlice, amounts);
 
-        ISablierV2Linear.Stream memory createdStream0 = sablierV2Linear.getStream(endedStreamId);
+        ISablierV2Linear.Stream memory actualStream0 = sablierV2Linear.getStream(endedDaiStreamId);
         ISablierV2Linear.Stream memory expectedStream0;
-        assertEq(createdStream0, expectedStream0);
+        assertEq(actualStream0, expectedStream0);
 
         ISablierV2Linear.Stream memory queriedStream1 = sablierV2Linear.getStream(ongoingStreamId);
         uint256 actualWithdrawnAmount1 = queriedStream1.withdrawnAmount;
@@ -319,12 +429,12 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1);
     }
 
-    /// @dev When some streams are ended and some streams are ongoing, it should emit Withdraw events.
-    function testWithdrawAllTo__ThirdParty__SomeStreamsEndedSomeStreamsOngoing__Events() external {
-        // Create the ended daiStream.
+    /// @dev it should emit Withdraw events.
+    function testWithdrawAllTo__Events() external {
+        // Create the ended dai stream.
         changePrank(daiStream.sender);
         uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
-        uint256 endedStreamId = sablierV2Linear.create(
+        uint256 endedDaiStreamId = sablierV2Linear.create(
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -347,11 +457,11 @@ contract SablierV2Linear__UnitTest__WithdrawAllTo is SablierV2LinearUnitTest {
         uint256 ongoingWithdrawAmount = WITHDRAW_AMOUNT_DAI;
 
         vm.expectEmit(true, true, false, true);
-        emit Withdraw(endedStreamId, toAlice, endedWithdrawAmount);
+        emit Withdraw(endedDaiStreamId, toAlice, endedWithdrawAmount);
         vm.expectEmit(true, true, false, true);
         emit Withdraw(ongoingStreamId, toAlice, ongoingWithdrawAmount);
 
-        uint256[] memory streamIds = createDynamicArray(endedStreamId, ongoingStreamId);
+        uint256[] memory streamIds = createDynamicArray(endedDaiStreamId, ongoingStreamId);
         uint256[] memory amounts = createDynamicArray(endedWithdrawAmount, ongoingWithdrawAmount);
         sablierV2Linear.withdrawAllTo(streamIds, toAlice, amounts);
     }

@@ -5,8 +5,8 @@ withdrawAll.t.sol
    ├── when the stream ids array points only to non existent streams
    │  └── it should do nothing
    ├── when the stream ids array points to some non existent streams
-   │  └── it should make the withdrawals for the existing streams
-   └── when the stream ids array points only to existing streams
+   │  └── it should make the withdrawals for the existent streams
+   └── when the stream ids array points only to existent streams
      ├── when the caller is neither the sender nor the recipient of any stream
      │  └── it should revert
      ├── when the caller is neither the sender nor the recipient of some of the streams

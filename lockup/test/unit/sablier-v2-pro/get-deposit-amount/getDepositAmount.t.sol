@@ -3,16 +3,20 @@ pragma solidity >=0.8.13;
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__UnitTest__GetDepositAmount is SablierV2ProUnitTest {
-    /// @dev When the stream does not exist, it should return zero.
-    function testGetDepositAmount__StreamNonExistent() external {
+contract SablierV2Pro__GetDepositAmount__StreamNonExistent is SablierV2ProUnitTest {
+    /// @dev it should return zero.
+    function testGetDepositAmount() external {
         uint256 nonStreamId = 1729;
         uint256 actualDepositAmount = sablierV2Pro.getDepositAmount(nonStreamId);
         uint256 expectedDepositAmount = 0;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
+}
 
-    /// @dev When the stream exists, it should the correct deposit amount..
+contract StreamExistent {}
+
+contract SablierV2Pro__GetDepositAmount is SablierV2ProUnitTest, StreamExistent {
+    /// @dev it should the correct deposit amount.
     function testGetDepositAmount() external {
         uint256 daiStreamId = createDefaultDaiStream();
         uint256 actualDepositAmount = sablierV2Pro.getDepositAmount(daiStreamId);

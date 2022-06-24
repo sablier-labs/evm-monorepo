@@ -10,9 +10,9 @@ import { stdError } from "forge-std/Test.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
-    /// @dev When the recipient is the zero address, it should revert.
-    function testCannotCreate__RecipientZeroAddress() external {
+contract SablierV2Pro__Create__RecipientZeroAddress is SablierV2ProUnitTest {
+    /// @dev it should revert.
+    function testCannotCreate() external {
         vm.expectRevert(ISablierV2.SablierV2__RecipientZeroAddress.selector);
         address recipient = address(0);
         sablierV2Pro.create(
@@ -27,9 +27,13 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When the deposit amount is zero, it should revert.
-    function testCannotCreate__DepositAmountZero() external {
+contract RecipientNonZeroAddress {}
+
+contract SablierV2Pro__Create__DepositAmountZero is SablierV2ProUnitTest, RecipientNonZeroAddress {
+    /// @dev it should revert.
+    function testCannotCreate() external {
         vm.expectRevert(ISablierV2.SablierV2__DepositAmountZero.selector);
         uint256 depositAmount = 0;
         sablierV2Pro.create(
@@ -44,9 +48,13 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When the segment count is zero, it should revert.
-    function testCannotCreate__SegmentCountZero() external {
+contract DepositAmountNotZero {}
+
+contract SablierV2Pro__Create__SegmentCountZero is SablierV2ProUnitTest, RecipientNonZeroAddress, DepositAmountNotZero {
+    /// @dev it should revert.
+    function testCannotCreate() external {
         vm.expectRevert(ISablierV2Pro.SablierV2Pro__SegmentCountZero.selector);
         uint256[] memory segmentAmounts;
         SD59x18[] memory segmentExponents;
@@ -63,9 +71,18 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When one of the segment counts is out of bounds, it should revert.
-    function testCannotCreate__SegmentCountOfBounds() external {
+contract SegmentCountNotZero {}
+
+contract SablierV2Pro__Create__SegmentCountOutOfBounds is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero
+{
+    /// @dev it should revert.
+    function testCannotCreate() external {
         uint256 segmentCount = sablierV2Pro.MAX_SEGMENT_COUNT() + 1;
         vm.expectRevert(
             abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentCountOutOfBounds.selector, segmentCount)
@@ -89,9 +106,19 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When the segment counts are not equal, it should revert.
-    function testCannotCreate__SegmentCountsNotEqual__SegmentExponents() external {
+contract SegmentCountWithinBounds {}
+
+contract SablierV2Pro__Create__SegmentCountsNotEqual__SegmentExponentsNotEqual is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds
+{
+    /// @dev it should revert.
+    function testCannotCreate() external {
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -113,9 +140,17 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When the segment counts are not equal, it should revert.
-    function testCannotCreate__SegmentArraysLengthsNotEqual__SegmentMilestones() external {
+contract SablierV2Pro__Create__SegmentCountsNotEqual__SegmentMilestonesNotEqual is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds
+{
+    /// @dev it should revert.
+    function testCannotCreate() external {
         uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -137,9 +172,20 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When the start time is greater than the stop time, it should revert.
-    function testCannotCreate__StartTimeGreaterThanFirstMilestone() external {
+contract SegmentCountsEqual {}
+
+contract SablierV2Pro__Create__StartTimeGreaterThanFirstMilestone is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds,
+    SegmentCountsEqual
+{
+    /// @dev it should revert.
+    function testCannotCreate() external {
         uint256 startTime = daiStream.segmentMilestones[0] + 1;
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -160,9 +206,18 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When the start time is equal to the stop time, it should create the stream.
-    function testCreate__StartTimeEqualToStopTime() external {
+contract SablierV2Pro__Create__StartTimeEqualToStopTime is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds,
+    SegmentCountsEqual
+{
+    /// @dev it should create the stream.
+    function testCreate() external {
         uint256 depositAmount = SEGMENT_AMOUNTS_DAI[0];
         uint256[] memory segmentAmounts = createDynamicArray(SEGMENT_AMOUNTS_DAI[0]);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
@@ -178,7 +233,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             segmentMilestones,
             daiStream.cancelable
         );
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.recipient, daiStream.recipient);
         assertEq(actualStream.depositAmount, depositAmount);
@@ -190,6 +245,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         assertEq(actualStream.cancelable, daiStream.cancelable);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
+}
 
     /// @dev When the segment amounts sum overflows, it should revert.
     function testCannotCreate__SegmentAmountsSumOverflow() external {
@@ -207,9 +263,22 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When the segment milestones are not ordered, it should revert.
-    function testCannotCreate__SegmentMilestonesNotOrdered() external {
+contract SegmentAmountsSumDoesNotOverflow {}
+
+contract SablierV2Pro__Create__SegmentMilestonesNotOrdered is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds,
+    SegmentCountsEqual,
+    StartTimeLessThanStopTime,
+    SegmentAmountsSumDoesNotOverflow
+{
+    /// @dev it should revert.
+    function testCannotCreate() external {
         uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[1], SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -231,9 +300,23 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When a segment exponent is out of bounds, it should revert.
-    function testCannotCreate__SegmentExponentOutOfBounds() external {
+contract SegmentMilestonesOrdered {}
+
+contract SablierV2Pro__Create__SegmentExponentsOutOfBounds is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds,
+    SegmentCountsEqual,
+    StartTimeLessThanStopTime,
+    SegmentAmountsSumDoesNotOverflow,
+    SegmentMilestonesOrdered
+{
+    /// @dev it should revert.
+    function testCannotCreate() external {
         SD59x18 outOfBoundsExponent = sablierV2Pro.MAX_EXPONENT().uncheckedAdd(SCALE);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0], outOfBoundsExponent);
         vm.expectRevert(
@@ -251,9 +334,24 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When the deposit amount is not equal to the segment amounts sum, it should revert.
-    function testCannotCreate__DepositAmountNotEqualtoSegmentAmountsSum() external {
+contract SegmentExponentsWithinBounds {}
+
+contract SablierV2Pro__Create__DepositAmountNotEqualtoSegmentAmountsSum is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds,
+    SegmentCountsEqual,
+    StartTimeLessThanStopTime,
+    SegmentAmountsSumDoesNotOverflow,
+    SegmentMilestonesOrdered,
+    SegmentExponentsWithinBounds
+{
+    /// @dev it should revert.
+    function testCannotCreate() external {
         uint256 depositAmount = daiStream.depositAmount + 1;
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -274,8 +372,24 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When the token is not a contract, it should revert.
+contract DepositAmountEqualtoSegmentAmountsSum {}
+
+contract SablierV2Pro__Create__TokenNotContract is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds,
+    SegmentCountsEqual,
+    StartTimeLessThanStopTime,
+    SegmentAmountsSumDoesNotOverflow,
+    SegmentMilestonesOrdered,
+    SegmentExponentsWithinBounds,
+    DepositAmountEqualtoSegmentAmountsSum
+{
+    /// @dev it should revert.
     function testCannotCreate__TokenNotContract() external {
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(6174)));
         IERC20 token = IERC20(address(6174));
@@ -291,9 +405,23 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When the token is missing the return value, it should create the stream.
-    function testCreate__TokenMissingReturnValue() external {
+contract SablierV2Pro__Create__TokenMissingReturnValue is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds,
+    SegmentCountsEqual,
+    StartTimeLessThanStopTime,
+    SegmentAmountsSumDoesNotOverflow,
+    SegmentMilestonesOrdered,
+    SegmentExponentsWithinBounds,
+    DepositAmountEqualtoSegmentAmountsSum
+{
+    /// @dev it should create the stream.
+    function testCreate() external {
         IERC20 token = IERC20(address(nonStandardToken));
 
         uint256 daiStreamId = sablierV2Pro.create(
@@ -308,7 +436,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
 
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.recipient, daiStream.recipient);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
@@ -318,17 +446,34 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         assertEq(actualStream.cancelable, daiStream.cancelable);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
+}
 
-    /// @dev When all checks pass and the token has 6 decimals, it should create the stream.
-    function testCreate__6Decimals() external {
+contract TokenERC20Compliant {}
+
+contract SablierV2Pro__Create__Token6Decimals is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds,
+    SegmentCountsEqual,
+    StartTimeLessThanStopTime,
+    SegmentAmountsSumDoesNotOverflow,
+    SegmentMilestonesOrdered,
+    SegmentExponentsWithinBounds,
+    DepositAmountEqualtoSegmentAmountsSum,
+    TokenERC20Compliant
+{
+    /// @dev it should create the stream.
+    function testCreate() external {
         uint256 usdcStreamId = createDefaultUsdcStream();
         ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(usdcStreamId);
         ISablierV2Pro.Stream memory expectedStream = usdcStream;
         assertEq(actualStream, expectedStream);
     }
 
-    /// @dev When all checks pass and the token has 6 decimals, it should bump the next stream id.
-    function testCreate__6Decimals__NextStreamId() external {
+    /// @dev it should bump the next stream id.
+    function testCreate__NextStreamId() external {
         uint256 nextStreamId = sablierV2Pro.nextStreamId();
         createDefaultUsdcStream();
         uint256 actualNextStreamId = sablierV2Pro.nextStreamId();
@@ -336,8 +481,8 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
-    /// @dev When all checks pass and the token has 6 decimals, it should emit a CreateStream event.
-    function testCreate__6Decimals__Event() external {
+    /// @dev it should emit a CreateStream event.
+    function testCreate__Event() external {
         uint256 usdcStreamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);
         address funder = usdcStream.sender;
@@ -357,19 +502,35 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
         createDefaultUsdcStream();
     }
+}
 
-    /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
-    /// it should create the stream.
-    function testCreate__18Decimals__CallerSender() external {
+contract Token18Decimals {}
+
+contract SablierV2Pro__Create__CallerSender is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds,
+    SegmentCountsEqual,
+    StartTimeLessThanStopTime,
+    SegmentAmountsSumDoesNotOverflow,
+    SegmentMilestonesOrdered,
+    SegmentExponentsWithinBounds,
+    DepositAmountEqualtoSegmentAmountsSum,
+    TokenERC20Compliant,
+    Token18Decimals
+{
+    /// @dev it should create the stream.
+    function testCreate() external {
         uint256 daiStreamId = createDefaultDaiStream();
         ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         ISablierV2Pro.Stream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
 
-    /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
-    /// it should bump the next stream id.
-    function testCreate__18Decimals__CallerSender__NextStreamId() external {
+    /// @dev it should bump the next stream id.
+    function testCreate__NextStreamId() external {
         uint256 nextStreamId = sablierV2Pro.nextStreamId();
         createDefaultDaiStream();
         uint256 actualNextStreamId = sablierV2Pro.nextStreamId();
@@ -377,9 +538,8 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
-    /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
-    /// it should emit a CreateStream event.
-    function testCreate__18Decimals__CallerSender__Event() external {
+    /// @dev it should emit a CreateStream event.
+    function testCreate__Event() external {
         uint256 daiStreamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);
         address funder = daiStream.sender;
@@ -399,10 +559,25 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
         createDefaultDaiStream();
     }
+}
 
-    /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,
-    /// it should create the stream.
-    function testCreate__18Decimals__CallerNotSender() external {
+contract SablierV2Pro__Create__CallerNotSender is
+    SablierV2ProUnitTest,
+    RecipientNonZeroAddress,
+    DepositAmountNotZero,
+    SegmentCountNotZero,
+    SegmentCountWithinBounds,
+    SegmentCountsEqual,
+    StartTimeLessThanStopTime,
+    SegmentAmountsSumDoesNotOverflow,
+    SegmentMilestonesOrdered,
+    SegmentExponentsWithinBounds,
+    DepositAmountEqualtoSegmentAmountsSum,
+    TokenERC20Compliant,
+    Token18Decimals
+{
+    /// @dev it should create the stream.
+    function testCreate() external {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
         uint256 daiStreamId = createDefaultDaiStream();
@@ -413,9 +588,8 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         assertEq(actualStream, expectedStream);
     }
 
-    /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,
-    /// it should bump the next stream id.
-    function testCreate__18Decimals__CallerNotSender__NextStreamId() external {
+    /// @dev it should bump the next stream id.
+    function testCreate__NextStreamId() external {
         uint256 nextStreamId = sablierV2Pro.nextStreamId();
 
         // Make Alice the funder of the stream.
@@ -428,9 +602,8 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
-    /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,
-    /// it should emit a CreateStream event.
-    function testCreate__18Decimals__CallerNotSender__Event() external {
+    /// @dev it should emit a CreateStream event.
+    function testCreate__Event() external {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
 

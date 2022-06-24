@@ -11,8 +11,11 @@ create.t.sol
          ├── when one of the segment counts is out of bounds
          │  └── it should revert
          └── when all segment counts are within the permitted bounds
-            ├── when the segment couns are not equal
-            │  └── it should revert
+            ├── when the segment counts are not equal
+            │  ├── when the segment exponents are not equal
+            │  │  └── it should revert
+            │  └── when the segment milestones are not equal
+            │     └── it should revert
             └── when the segment counts are equal
                ├── when the start time is greater than the stop time
                │  └── it should revert
@@ -30,7 +33,7 @@ create.t.sol
                         └── when all segments exponents are within the permitted bounds
                            ├── when the deposit amount is not equal to the segment amounts sum
                            │  └── it should revert
-                           └── when the deposit amount equals the segment amounts sum
+                           └── when the deposit amount is equal to the segment amounts sum
                               ├── when the token is not a contract
                               │  └── it should revert
                               ├── when the token misses the return value
@@ -41,11 +44,11 @@ create.t.sol
                                  │  ├── it should bump the next stream id
                                  │  └── it should emit a CreateStream event
                                  └── when the token has 18 decimals
-                                   ├── when the caller is not the same as the sender of the stream
-                                   │  ├── it should create the stream
-                                   │  ├── it should bump the next stream id
-                                   │  └── it should emit a CreateStream event
-                                   └── when the caller is the same as the sender of the stream
-                                     ├── it should create the stream
-                                     ├── it should bump the next stream id
-                                     └── it should emit a CreateStream event
+                                    ├── when the caller is not the same as the sender of the stream
+                                    │  ├── it should create the stream
+                                    │  ├── it should bump the next stream id
+                                    │  └── it should emit a CreateStream event
+                                    └── when the caller is the same as the sender of the stream
+                                       ├── it should create the stream
+                                       ├── it should bump the next stream id
+                                       └── it should emit a CreateStream event

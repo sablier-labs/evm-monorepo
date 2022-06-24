@@ -1,3 +1,4 @@
+// solhint-disable max-line-length
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
@@ -6,9 +7,8 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTest {
-    /// @dev When the cliff duration calculation overflows uint256, it should revert due to
-    /// the start time being greater than the stop time
+contract SablierV2Linear__CreateWithDuration__CliffDurationCalculationOverflows is SablierV2LinearUnitTest {
+    /// @dev it should revert due to the start time being greater than the stop time.
     function testCannotCreateWithDuration__CliffDurationCalculationOverflow(uint256 cliffDuration) external {
         vm.assume(cliffDuration > UINT256_MAX - block.timestamp);
         uint256 totalDuration = cliffDuration;
@@ -35,6 +35,7 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
             daiStream.cancelable
         );
     }
+}
 
     /// @dev When the total duration calculation overflows uint256, it should revert.
     function testCannotCreateWithDuration__TotalDurationCalculationOverflow(
@@ -64,8 +65,16 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
             daiStream.cancelable
         );
     }
+}
 
-    /// @dev When all checks pass, it should create the stream with duration.
+contract TotalDurationCalculationDoesNotOverflow {}
+
+contract SablierV2Linear__CreateWithDuration is
+    SablierV2LinearUnitTest,
+    CliffDurationCalculationDoesNotOverflow,
+    TotalDurationCalculationDoesNotOverflow
+{
+    /// @dev it should create the stream with duration.
     function testCreateWithDuration(uint256 cliffDuration, uint256 totalDuration) external {
         vm.assume(cliffDuration <= totalDuration);
         vm.assume(totalDuration <= UINT256_MAX - block.timestamp);

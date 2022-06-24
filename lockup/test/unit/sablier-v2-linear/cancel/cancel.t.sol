@@ -6,7 +6,7 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
+contract SablierV2Linear__Cancel is SablierV2LinearUnitTest {
     uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.
@@ -16,16 +16,22 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         // Create the default stream, since most tests need it.
         daiStreamId = createDefaultDaiStream();
     }
+}
 
-    /// @dev When the stream does not exist, it should revert.
-    function testCannotCancel__StreamNonExistent() external {
+contract SablierV2Linear__Cancel__StreamNonExistent is SablierV2Linear__Cancel {
+    /// @dev it should revert.
+    function testCannotCancel() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
         sablierV2Linear.cancel(nonStreamId);
     }
+}
 
-    /// @dev When the caller is neither the sender nor the recipient, it should revert.
-    function testCannotCancel__CallerUnauthorized() external {
+contract StreamExistent {}
+
+contract SablierV2Linear__Cancel__CallerUnauthorized is SablierV2Linear__Cancel, StreamExistent {
+    /// @dev it should revert.
+    function testCannotCancel() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 
@@ -33,8 +39,10 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
         sablierV2Linear.cancel(daiStreamId);
     }
+}
 
-    /// @dev When caller is the recipient, it should cancel and delete the stream.
+contract SablierV2Linear__Cancel__CallerRecipient is SablierV2Linear__Cancel, StreamExistent {
+    /// @dev it should cancel and delete the stream.
     function testCancel__CallerRecipient() external {
         // Make the recipient the `msg.sender` in this test case.
         changePrank(users.recipient);
@@ -45,8 +53,12 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         ISablierV2Linear.Stream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
+}
 
-    /// @dev When the stream is non-cancelable, it should revert.
+contract CallerSender {}
+
+contract SablierV2Linear__Cancel__StreamNonCancelable is SablierV2Linear__Cancel, StreamExistent, CallerSender {
+    /// @dev it should revert.
     function testCannotCancel__StreamNonCancelable() external {
         // Create the non-cancelable stream.
         uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
@@ -57,9 +69,18 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         );
         sablierV2Linear.cancel(nonCancelableDaiStreamId);
     }
+}
 
-    /// @dev When the stream ended, it should cancel and delete the stream.
-    function testCancel__StreamEnded() external {
+contract StreamCancelable {}
+
+contract SablierV2Linear__Cancel__StreamEnded is
+    SablierV2Linear__Cancel,
+    StreamExistent,
+    CallerSender,
+    StreamCancelable
+{
+    /// @dev it should cancel and delete the stream.
+    function testCancel() external {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 
@@ -70,8 +91,8 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         assertEq(deletedStream, expectedStream);
     }
 
-    /// @dev When the stream ended, it should emit a Cancel event.
-    function testCancel__StreamEnded__Event() external {
+    /// @dev it should emit a Cancel event.
+    function testCancel__Event() external {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 
@@ -82,8 +103,15 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         emit Cancel(daiStreamId, daiStream.recipient, withdrawAmount, returnAmount);
         sablierV2Linear.cancel(daiStreamId);
     }
+}
 
-    /// @dev When the stream is ongoing, it should cancel and delete the stream.
+contract SablierV2Linear__Cancel__StreamOngoing is
+    SablierV2Linear__Cancel,
+    StreamExistent,
+    CallerSender,
+    StreamCancelable
+{
+    /// @dev it should cancel and delete the stream.
     function testCancel__StreamOngoing() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
@@ -95,7 +123,7 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         assertEq(deletedStream, expectedStream);
     }
 
-    /// @dev When the stream is ongoing, it should emit a Cancel event.
+    /// @dev it should emit a Cancel event.
     function testCancel__StreamOngoing__Event() external {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
