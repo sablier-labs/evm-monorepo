@@ -190,7 +190,7 @@ contract SablierV2Linear is
         Stream memory stream = streams[streamId];
 
         // Checks: the caller is the sender of the stream.
-        if (msg.sender != streams[streamId].sender) {
+        if (msg.sender != stream.sender) {
             revert SablierV2__Unauthorized(streamId, msg.sender);
         }
 
