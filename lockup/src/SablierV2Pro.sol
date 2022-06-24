@@ -219,20 +219,6 @@ contract SablierV2Pro is
             revert SablierV2__FunderZeroAddress();
         }
 
-        // If the `funder` is not the `msg.sender`, we have to perform some authorization checks.
-        if (funder != msg.sender) {
-            // Checks: the caller has sufficient authorization to create this stream on behalf of `funder`.
-            uint256 authorization = authorizations[funder][msg.sender][token];
-            if (authorization < depositAmount) {
-                revert SablierV2__InsufficientAuthorization(funder, msg.sender, token, authorization, depositAmount);
-            }
-
-            // Effects: decrease the authorization since this stream consumes a part of all of it.
-            unchecked {
-                authorizeInternal(funder, msg.sender, token, authorization - depositAmount);
-            }
-        }
-
         // Checks, Effects and Interactions: create the stream.
         streamId = createInternal(
             funder,

@@ -149,20 +149,6 @@ contract SablierV2Linear is
         uint256 stopTime,
         bool cancelable
     ) external returns (uint256 streamId) {
-        // If the `funder` is not the `msg.sender`, we have to perform some authorization checks.
-        if (funder != msg.sender) {
-            // Checks: the caller has sufficient authorization to create this stream on behalf of `funder`.
-            uint256 authorization = authorizations[funder][msg.sender][token];
-            if (authorization < depositAmount) {
-                revert SablierV2__InsufficientAuthorization(funder, msg.sender, token, authorization, depositAmount);
-            }
-
-            // Effects: decrease the authorization since this stream consumes a part of all of it.
-            unchecked {
-                authorizeInternal(funder, msg.sender, token, authorization - depositAmount);
-            }
-        }
-
         // Checks, Effects and Interactions: create the stream.
         streamId = createInternal(funder, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
     }
@@ -177,20 +163,6 @@ contract SablierV2Linear is
         uint256 duration,
         bool cancelable
     ) external returns (uint256 streamId) {
-        // If the `funder` is not the `msg.sender`, we have to perform some authorization checks.
-        if (funder != msg.sender) {
-            // Checks: `msg.sender` has sufficient authorization to create this stream on behalf of `funder`.
-            uint256 authorization = authorizations[funder][msg.sender][token];
-            if (authorization < depositAmount) {
-                revert SablierV2__InsufficientAuthorization(funder, msg.sender, token, authorization, depositAmount);
-            }
-
-            // Effects: decrease the authorization since this stream consumes a part or all of it.
-            unchecked {
-                authorizeInternal(funder, msg.sender, token, authorization - depositAmount);
-            }
-        }
-
         // Calculate the stop time. It is fine to use unchecked arithmetic because the `createInternal` function will
         // nonetheless check that the stop time is greater than or equal to the start time.
         uint256 startTime = block.timestamp;
