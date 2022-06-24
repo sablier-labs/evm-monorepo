@@ -3,6 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
+/// @title ISablierV2
 /// @notice The common interface between all Sablier V2 streaming contracts.
 /// @author Sablier Labs Ltd.
 interface ISablierV2 {
