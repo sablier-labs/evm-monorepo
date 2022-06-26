@@ -85,7 +85,6 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
         // Create a stream with Eve as the sender.
         uint256 eveStreamId = sablierV2Cliff.create(
             users.eve,
-            users.eve,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -233,7 +232,6 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
         uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Cliff.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -273,7 +271,6 @@ contract SablierV2Cliff__UnitTest__WithdrawAll is SablierV2CliffUnitTest {
         changePrank(daiStream.sender);
         uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Cliff.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,

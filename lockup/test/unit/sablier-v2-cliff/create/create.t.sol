@@ -16,7 +16,6 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         address recipient = address(0);
         sablierV2Cliff.create(
             daiStream.sender,
-            daiStream.sender,
             recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -32,7 +31,6 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         vm.expectRevert(ISablierV2.SablierV2__DepositAmountZero.selector);
         uint256 depositAmount = 0;
         sablierV2Cliff.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             depositAmount,
@@ -53,7 +51,6 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         );
         sablierV2Cliff.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -69,7 +66,6 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         uint256 cliffTime = daiStream.startTime;
         uint256 stopTime = daiStream.startTime;
         uint256 streamId = sablierV2Cliff.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -104,7 +100,6 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         );
         sablierV2Cliff.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -128,7 +123,6 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         );
         sablierV2Cliff.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -143,7 +137,6 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
     function testCreate__CliffTimeEqualToStopTime() external {
         uint256 cliffTime = daiStream.stopTime;
         uint256 streamId = sablierV2Cliff.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -171,7 +164,6 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         IERC20 token = IERC20(address(6174));
         sablierV2Cliff.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             token,
@@ -187,7 +179,6 @@ contract SablierV2Cliff__UnitTest__Create is SablierV2CliffUnitTest {
         IERC20 token = IERC20(address(nonStandardToken));
 
         uint256 streamId = sablierV2Cliff.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,

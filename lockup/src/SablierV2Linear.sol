@@ -140,7 +140,6 @@ contract SablierV2Linear is
 
     /// @inheritdoc ISablierV2Linear
     function create(
-        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -150,12 +149,11 @@ contract SablierV2Linear is
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
-        streamId = createInternal(funder, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        streamId = createInternal(sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
     }
 
     /// @inheritdoc ISablierV2Linear
     function createWithDuration(
-        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -172,7 +170,7 @@ contract SablierV2Linear is
         }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = createInternal(funder, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        streamId = createInternal(sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
     }
 
     /// @inheritdoc ISablierV2
@@ -328,7 +326,6 @@ contract SablierV2Linear is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function createInternal(
-        address funder,
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -338,7 +335,7 @@ contract SablierV2Linear is
         bool cancelable
     ) internal returns (uint256 streamId) {
         // Checks: the common requirements for the `create` function arguments.
-        checkCreateArguments(funder, sender, recipient, depositAmount, startTime, stopTime);
+        checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
 
         // Effects: create and store the stream.
         streamId = nextStreamId;
@@ -360,10 +357,20 @@ contract SablierV2Linear is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        token.safeTransferFrom(funder, address(this), depositAmount);
+        token.safeTransferFrom(msg.sender, address(this), depositAmount);
 
         // Emit an event.
-        emit CreateStream(streamId, funder, sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        emit CreateStream(
+            streamId,
+            msg.sender,
+            sender,
+            recipient,
+            depositAmount,
+            token,
+            startTime,
+            stopTime,
+            cancelable
+        );
     }
 
     /// @dev See the documentation for the public functions that call this internal function.

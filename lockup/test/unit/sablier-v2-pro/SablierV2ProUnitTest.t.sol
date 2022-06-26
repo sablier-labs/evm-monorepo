@@ -90,13 +90,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         usdc.approve(address(sablierV2Pro), MAX_UINT_256);
         nonStandardToken.approve(address(sablierV2Pro), MAX_UINT_256);
 
-        // Approve the SablierV2Cliff contract to spend tokens from the funder.
-        changePrank(users.funder);
-        dai.approve(address(sablierV2Pro), MAX_UINT_256);
-        usdc.approve(address(sablierV2Pro), MAX_UINT_256);
-        nonStandardToken.approve(address(sablierV2Pro), MAX_UINT_256);
-
-        // Approve the SablierV2Cliff contract to spend tokens from eve.
+        // Approve the SablierV2Cliff contract to spend tokens from Eve.
         changePrank(users.eve);
         dai.approve(address(sablierV2Pro), MAX_UINT_256);
         usdc.approve(address(sablierV2Pro), MAX_UINT_256);
@@ -150,7 +144,6 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     function createDefaultDaiStream() internal returns (uint256 daiStreamId) {
         daiStreamId = sablierV2Pro.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -165,7 +158,6 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     /// @dev Helper function to create a default stream with $USDC used as streaming currency.
     function createDefaultUsdcStream() internal returns (uint256 usdcStreamId) {
         usdcStreamId = sablierV2Pro.create(
-            usdcStream.sender,
             usdcStream.sender,
             usdcStream.recipient,
             usdcStream.depositAmount,
@@ -182,7 +174,6 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     function createNonCancelableDaiStream() internal returns (uint256 nonCancelableDaiStreamId) {
         bool cancelable = false;
         nonCancelableDaiStreamId = sablierV2Pro.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,

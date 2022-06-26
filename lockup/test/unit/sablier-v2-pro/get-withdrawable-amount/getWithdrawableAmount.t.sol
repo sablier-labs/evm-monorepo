@@ -114,7 +114,6 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
 
         streamId = sablierV2Pro.create(
             usdcStream.sender,
-            usdcStream.sender,
             usdcStream.recipient,
             daiDepositAmount,
             usdcStream.token,
@@ -140,7 +139,6 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
         uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[1]);
 
         streamId = sablierV2Pro.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             usdcDepositAmount,
@@ -203,7 +201,6 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
             // Create the 200-segment stream.
             uint256 usdcStreamId = sablierV2Pro.create(
                 usdcStream.sender,
-                usdcStream.sender,
                 usdcStream.recipient,
                 usdcStream.depositAmount,
                 usdcStream.token,
@@ -264,7 +261,6 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Segments is SablierV2Pro
 
             // Create the 200-segment stream.
             streamId = sablierV2Pro.create(
-                daiStream.sender,
                 daiStream.sender,
                 daiStream.recipient,
                 daiStream.depositAmount,

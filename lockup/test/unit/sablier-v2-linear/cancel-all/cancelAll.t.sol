@@ -54,8 +54,7 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         changePrank(users.eve);
 
         // Create a stream with Eve as the sender.
-        uint256 streamIdEve = sablierV2Linear.create(
-            users.eve,
+        uint256 eveStreamId = sablierV2Linear.create(
             users.eve,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -66,7 +65,7 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         );
 
         // Run the test.
-        uint256[] memory streamIds = createDynamicArray(streamIdEve, defaultStreamIds[0]);
+        uint256[] memory streamIds = createDynamicArray(eveStreamId, defaultStreamIds[0]);
         vm.expectRevert(
             abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.eve)
         );
@@ -181,7 +180,6 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Linear.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -213,7 +211,6 @@ contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
         // Create the ended daiStream.
         uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
         uint256 endedStreamId = sablierV2Linear.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,

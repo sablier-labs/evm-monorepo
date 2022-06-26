@@ -17,7 +17,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         address recipient = address(0);
         sablierV2Pro.create(
             daiStream.sender,
-            daiStream.sender,
             recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -34,7 +33,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         vm.expectRevert(ISablierV2.SablierV2__DepositAmountZero.selector);
         uint256 depositAmount = 0;
         sablierV2Pro.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             depositAmount,
@@ -54,7 +52,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         SD59x18[] memory segmentExponents;
         uint256[] memory segmentMilestones;
         sablierV2Pro.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -82,7 +79,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         }
         sablierV2Pro.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -106,7 +102,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             )
         );
         sablierV2Pro.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -132,7 +127,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
         sablierV2Pro.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -156,7 +150,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
         sablierV2Pro.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -175,7 +168,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         uint256[] memory segmentMilestones = createDynamicArray(daiStream.stopTime);
         uint256 streamId = sablierV2Pro.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             depositAmount,
@@ -205,7 +197,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         vm.expectRevert(stdError.arithmeticError);
         sablierV2Pro.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -230,7 +221,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
         sablierV2Pro.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             daiStream.token,
@@ -250,7 +240,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentExponentOutOfBounds.selector, outOfBoundsExponent)
         );
         sablierV2Pro.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -275,7 +264,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
         sablierV2Pro.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             depositAmount,
             daiStream.token,
@@ -293,7 +281,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         IERC20 token = IERC20(address(6174));
         sablierV2Pro.create(
             daiStream.sender,
-            daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
             token,
@@ -310,7 +297,6 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         IERC20 token = IERC20(address(nonStandardToken));
 
         uint256 streamId = sablierV2Pro.create(
-            daiStream.sender,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
