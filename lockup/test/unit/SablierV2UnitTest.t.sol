@@ -94,11 +94,6 @@ abstract contract SablierV2UnitTest is Test {
 
     /// CONSTANT FUNCTIONS ///
 
-    /// @dev Helper function that multiplies the `amount` by `10^18` and returns a `uint256.`
-    function bn(uint256 amount) internal pure returns (uint256 result) {
-        result = bn(amount, 18);
-    }
-
     /// @dev Helper function that multiplies the `amount` by `10^decimals` and returns a `uint256.`
     function bn(uint256 amount, uint256 decimals) internal pure returns (uint256 result) {
         result = amount * 10**decimals;
