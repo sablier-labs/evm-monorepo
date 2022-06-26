@@ -10,4 +10,4 @@ createWithDuration.t.sol
    │  └── when the segment milestones are not ordered
    │     └── it should revert
    └── when the segment milestone calculations do not overflow uint256
-     └── it should create the stream with duration
+      └── it should create the stream with duration

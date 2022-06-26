@@ -6,11 +6,20 @@ import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Linear
 /// @author Sablier Labs Ltd
-/// @notice Creates linear streams whose streaming function is $f(x) = x$.
+/// @notice Creates streams whose streaming function is $f(x) = x$ after a cliff period, where x is the
+/// elapsed time divided by the total duration of the stream.
 interface ISablierV2Linear is ISablierV2 {
+    /// CUSTOM ERRORS ///
+
+    /// @notice Emitted when attempting to create a stream with a start time greater than cliff time;
+    error SablierV2Linear__StartTimeGreaterThanCliffTime(uint256 startTime, uint256 cliffTime);
+
+    /// @notice Emitted when attempting to create a stream with a cliff time greater than stop time;
+    error SablierV2Linear__CliffTimeGreaterThanStopTime(uint256 cliffTime, uint256 stopTime);
+
     /// EVENTS ///
 
-    /// @notice Emitted when a stream is created.
+    /// @notice Emitted when a linear stream is created.
     /// @param streamId The id of the newly created stream.
     /// @param funder The address which funded the stream.
     /// @param sender The address from which to stream the tokens, which has the ability to cancel the stream.
@@ -18,8 +27,9 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param depositAmount The amount of tokens to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
+    /// @param cliffTime The unix timestamp in seconds for when the cliff period will end.
     /// @param stopTime The unix timestamp in seconds for when the stream will stop.
-    /// @param cancelable Whether the stream is cancelable or not.
+    /// @param cancelable Whether the stream will be cancelable or not.
     event CreateStream(
         uint256 streamId,
         address indexed funder,
@@ -28,6 +38,7 @@ interface ISablierV2Linear is ISablierV2 {
         uint256 depositAmount,
         IERC20 token,
         uint256 startTime,
+        uint256 cliffTime,
         uint256 stopTime,
         bool cancelable
     );
@@ -37,6 +48,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// @notice Linear stream struct.
     /// @dev The members are arranged like this to save gas via tight variable packing.
     struct Stream {
+        uint256 cliffTime;
         uint256 depositAmount;
         uint256 startTime;
         uint256 stopTime;
@@ -48,6 +60,11 @@ interface ISablierV2Linear is ISablierV2 {
     }
 
     /// CONSTANT FUNCTIONS ///
+
+    /// @notice Reads the cliff time of the stream.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return cliffTime The cliff time of the stream.
+    function getCliffTime(uint256 streamId) external view returns (uint256 cliffTime);
 
     /// @notice Reads the stream struct.
     /// @param streamId The id of the stream to make the query for.
@@ -65,16 +82,19 @@ interface ISablierV2Linear is ISablierV2 {
     /// - `recipient` must not be the zero address.
     /// - `depositAmount` must not be zero.
     /// - `startTime` must not be greater than `stopTime`.
+    /// - `startTime` must not be greater than cliffTime`.
+    /// - `cliffTime` must not be greater than `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
-    /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
-    /// It doesn't have to be the same as `msg.sender`.
+    /// @param sender The address from which to stream the tokens with a cliff period, which will have the ability to
+    /// cancel the stream. It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address toward which to stream the tokens.
     /// @param depositAmount The amount of tokens to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
+    /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
     /// @param stopTime The unix timestamp in seconds for when the stream will stop.
-    /// @param cancelable Whether the stream is cancelable or not.
+    /// @param cancelable Whether the stream will be cancelable or not.
     /// @return streamId The id of the newly created stream.
     function create(
         address sender,
@@ -82,6 +102,7 @@ interface ISablierV2Linear is ISablierV2 {
         uint256 depositAmount,
         IERC20 token,
         uint256 startTime,
+        uint256 cliffTime,
         uint256 stopTime,
         bool cancelable
     ) external returns (uint256 streamId);
@@ -94,20 +115,22 @@ interface ISablierV2Linear is ISablierV2 {
     /// Requirements:
     /// - All from `create`.
     ///
-    /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
-    /// It doesn't have to be the same as `msg.sender`.
+    /// @param sender The address from which to stream the tokens with a cliff period, which will have the ability to
+    /// cancel the stream. It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address toward which to stream the tokens.
     /// @param depositAmount The amount of tokens to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param duration The number of seconds for how long the stream will last.
-    /// @param cancelable Whether the stream is cancelable or not.
+    /// @param cliffDuration The number of seconds for how long the cliff period will last.
+    /// @param totalDuration The total number of seconds for how long the stream will last.
+    /// @param cancelable Whether the stream will be cancelable or not.
     /// @return streamId The id of the newly created stream.
     function createWithDuration(
         address sender,
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 duration,
+        uint256 cliffDuration,
+        uint256 totalDuration,
         bool cancelable
     ) external returns (uint256 streamId);
 }

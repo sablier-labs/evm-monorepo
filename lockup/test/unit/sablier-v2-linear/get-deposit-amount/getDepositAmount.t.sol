@@ -12,7 +12,7 @@ contract SablierV2Linear__UnitTest__GetDepositAmount is SablierV2LinearUnitTest 
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
 
-    /// @dev When the stream exists, it should return the correct deposit amount.
+    /// @dev When the stream exists, it should the correct deposit amount.
     function testGetDepositAmount() external {
         uint256 streamId = createDefaultDaiStream();
         uint256 actualDepositAmount = sablierV2Linear.getDepositAmount(streamId);

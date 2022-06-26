@@ -24,7 +24,7 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         sablierV2Linear.cancel(nonStreamId);
     }
 
-    /// @dev When the caller is not authorized, it should revert.
+    /// @dev When the caller is neither the sender nor the recipient, it should revert.
     function testCannotCancel__CallerUnauthorized() external {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
@@ -48,7 +48,7 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
 
     /// @dev When the stream is non-cancelable, it should revert.
     function testCannotCancel__StreamNonCancelable() external {
-        // Create the non-cancelable daiStream.
+        // Create the non-cancelable stream.
         uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
 
         // Run the test.
@@ -76,28 +76,28 @@ contract SablierV2Linear__UnitTest__Cancel is SablierV2LinearUnitTest {
         vm.warp(daiStream.stopTime);
 
         // Run the test.
+        vm.expectEmit(true, true, false, true);
         uint256 withdrawAmount = daiStream.depositAmount;
         uint256 returnAmount = 0;
-        vm.expectEmit(true, true, false, true);
         emit Cancel(streamId, daiStream.recipient, withdrawAmount, returnAmount);
         sablierV2Linear.cancel(streamId);
     }
 
     /// @dev When the stream is ongoing, it should cancel and delete the stream.
     function testCancel__StreamOngoing() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
         sablierV2Linear.cancel(streamId);
-        ISablierV2Linear.Stream memory expectedStream;
         ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
+        ISablierV2Linear.Stream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
 
     /// @dev When the stream is ongoing, it should emit a Cancel event.
     function testCancel__StreamOngoing__Event() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.

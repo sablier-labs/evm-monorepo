@@ -5,7 +5,7 @@ import { e, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-/// @dev Basic tests found in the SablierV2Linear and SablierV2Cliff contracts.
+/// @dev Basic tests also found in the SablierV2Linear contract.
 contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUnitTest {
     uint256 internal streamId;
 
@@ -85,9 +85,9 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount__Basics is SablierV2ProUn
         vm.warp(daiStream.startTime + 500 seconds); // 500 seconds is 25% of the way in the first segment.
         uint256 withdrawAmount = bn(5, 18);
         sablierV2Pro.withdraw(streamId, withdrawAmount);
-        uint256 expectedWithdrawableAmount = 25.73721928961166e18 - withdrawAmount; // 1st term: ~2,000*0.25^{3.14}
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(streamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+        uint256 expectedWithdrawableAmount = 25.73721928961166e18 - withdrawAmount; // 1st term: ~2,000*0.25^{3.14}
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 }
 

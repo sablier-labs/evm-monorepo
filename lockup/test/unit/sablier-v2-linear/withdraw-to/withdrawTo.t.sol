@@ -35,9 +35,9 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
     /// @dev When the to address is zero, it should revert.
     function testCannotWithdrawTo__ToZeroAddress() external {
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__WithdrawZeroAddress.selector));
-        address zero = address(0);
+        address toZero = address(0);
         uint256 withdrawAmount = 0;
-        sablierV2Linear.withdrawTo(streamId, zero, withdrawAmount);
+        sablierV2Linear.withdrawTo(streamId, toZero, withdrawAmount);
     }
 
     /// @dev When the caller is the sender, it should revert.
@@ -86,12 +86,11 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
 
     /// @dev When the to address is the recipient, it should make the withdrawal.
     function testWithdrawTo__Recipient() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        address toRecipient = daiStream.recipient;
-        sablierV2Linear.withdrawTo(streamId, toRecipient, WITHDRAW_AMOUNT_DAI);
+        sablierV2Linear.withdrawTo(streamId, toAlice, WITHDRAW_AMOUNT_DAI);
     }
 
     /// @dev When the stream ended, it should make the withdrawal and delete the stream.
@@ -121,21 +120,20 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
 
     /// @dev When the stream is ongoing, it should make the withdrawal and update the withdrawn amount.
     function testWithdrawTo__ThirdParty__StreamOngoing() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawnAmount = WITHDRAW_AMOUNT_DAI;
-        sablierV2Linear.withdrawTo(streamId, toAlice, withdrawnAmount);
+        sablierV2Linear.withdrawTo(streamId, toAlice, WITHDRAW_AMOUNT_DAI);
         ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
         uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
-        uint256 expectedWithdrawnAmount = daiStream.withdrawnAmount + withdrawnAmount;
+        uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
     /// @dev When the stream is ongoing, it should emit a Withdraw event.
     function testWithdrawTo__ThirdParty__StreamOngoing__Event() external {
-        // Warp to 100 seconds after the start time (1% of the default stream duration).
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.

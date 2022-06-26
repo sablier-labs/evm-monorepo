@@ -178,17 +178,17 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             segmentMilestones,
             daiStream.cancelable
         );
-        ISablierV2Pro.Stream memory createdStream = sablierV2Pro.getStream(streamId);
-        assertEq(daiStream.sender, createdStream.sender);
-        assertEq(daiStream.recipient, createdStream.recipient);
-        assertEq(depositAmount, createdStream.depositAmount);
-        assertEq(daiStream.token, createdStream.token);
-        assertEq(daiStream.startTime, createdStream.startTime);
-        assertEq(segmentAmounts, createdStream.segmentAmounts);
-        assertEq(segmentExponents, createdStream.segmentExponents);
-        assertEq(segmentMilestones, createdStream.segmentMilestones);
-        assertEq(daiStream.cancelable, createdStream.cancelable);
-        assertEq(daiStream.withdrawnAmount, createdStream.withdrawnAmount);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, depositAmount);
+        assertEq(actualStream.token, daiStream.token);
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.segmentAmounts, segmentAmounts);
+        assertEq(actualStream.segmentExponents, segmentExponents);
+        assertEq(actualStream.segmentMilestones, segmentMilestones);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
     /// @dev When the segment amounts sum overflows, it should revert.
@@ -308,15 +308,15 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
 
-        ISablierV2Pro.Stream memory createdStream = sablierV2Pro.getStream(streamId);
-        assertEq(daiStream.sender, createdStream.sender);
-        assertEq(daiStream.recipient, createdStream.recipient);
-        assertEq(daiStream.depositAmount, createdStream.depositAmount);
-        assertEq(address(nonStandardToken), address(createdStream.token));
-        assertEq(daiStream.startTime, createdStream.startTime);
-        assertEq(daiStream.stopTime, createdStream.stopTime);
-        assertEq(daiStream.cancelable, createdStream.cancelable);
-        assertEq(daiStream.withdrawnAmount, createdStream.withdrawnAmount);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, daiStream.depositAmount);
+        assertEq(address(actualStream.token), address(nonStandardToken));
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.stopTime, daiStream.stopTime);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
     /// @dev When all checks pass and the token has 6 decimals, it should create the stream.

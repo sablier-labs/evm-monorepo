@@ -12,8 +12,8 @@ import { SablierV2 } from "./SablierV2.sol";
 /// @title SablierV2Linear
 /// @author Sablier Labs Ltd.
 contract SablierV2Linear is
-    SablierV2, // two dependencies
-    ISablierV2Linear // one dependency
+    ISablierV2Linear, // one dependency
+    SablierV2 // one dependency
 {
     using SafeERC20 for IERC20;
 
@@ -49,6 +49,11 @@ contract SablierV2Linear is
     }
 
     /// CONSTANT FUNCTIONS ///
+
+    /// @inheritdoc ISablierV2Linear
+    function getCliffTime(uint256 streamId) external view override returns (uint256 cliffTime) {
+        cliffTime = streams[streamId].cliffTime;
+    }
 
     /// @inheritdoc ISablierV2
     function getDepositAmount(uint256 streamId) external view override returns (uint256 depositAmount) {
@@ -102,9 +107,11 @@ contract SablierV2Linear is
             return 0;
         }
 
-        // If the start time is greater than or equal to the block timestamp, return zero.
+        // If the cliff time is greater than the block timestamp, return zero. Because the cliff time is
+        // always greater than the start time, this also checks whether the start time is greater than
+        // the block timestamp.
         uint256 currentTime = block.timestamp;
-        if (stream.startTime >= currentTime) {
+        if (stream.cliffTime > currentTime) {
             return 0;
         }
 
@@ -145,11 +152,12 @@ contract SablierV2Linear is
         uint256 depositAmount,
         IERC20 token,
         uint256 startTime,
+        uint256 cliffTime,
         uint256 stopTime,
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
-        streamId = createInternal(sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        streamId = createInternal(sender, recipient, depositAmount, token, startTime, cliffTime, stopTime, cancelable);
     }
 
     /// @inheritdoc ISablierV2Linear
@@ -158,19 +166,23 @@ contract SablierV2Linear is
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 duration,
+        uint256 cliffDuration,
+        uint256 totalDuration,
         bool cancelable
     ) external returns (uint256 streamId) {
-        // Calculate the stop time. It is fine to use unchecked arithmetic because the `createInternal` function will
-        // nonetheless check that the stop time is greater than or equal to the start time.
+        // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
+        // `createInternal` function will nonetheless check that the stop time is greater than or equal to the
+        // cliff time, and that the cliff time is greater than or equal to the start time.
         uint256 startTime = block.timestamp;
+        uint256 cliffTime;
         uint256 stopTime;
         unchecked {
-            stopTime = startTime + duration;
+            cliffTime = startTime + cliffDuration;
+            stopTime = startTime + totalDuration;
         }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = createInternal(sender, recipient, depositAmount, token, startTime, stopTime, cancelable);
+        streamId = createInternal(sender, recipient, depositAmount, token, startTime, cliffTime, stopTime, cancelable);
     }
 
     /// @inheritdoc ISablierV2
@@ -264,7 +276,7 @@ contract SablierV2Linear is
             revert SablierV2__WithdrawZeroAddress();
         }
 
-        // Checks: count of `streamIds` matches count of `amounts`.
+        // Checks: count of `streamIds` matches `amounts`.
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
         if (streamIdsCount != amountsCount) {
@@ -331,16 +343,28 @@ contract SablierV2Linear is
         uint256 depositAmount,
         IERC20 token,
         uint256 startTime,
+        uint256 cliffTime,
         uint256 stopTime,
         bool cancelable
     ) internal returns (uint256 streamId) {
         // Checks: the common requirements for the `create` function arguments.
         checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
 
+        // Checks: the cliff time is greater than or equal to the start time.
+        if (startTime > cliffTime) {
+            revert SablierV2Linear__StartTimeGreaterThanCliffTime(startTime, cliffTime);
+        }
+
+        // Checks: the stop time is greater than or equal to the cliff time.
+        if (cliffTime > stopTime) {
+            revert SablierV2Linear__CliffTimeGreaterThanStopTime(cliffTime, stopTime);
+        }
+
         // Effects: create and store the stream.
         streamId = nextStreamId;
         streams[streamId] = Stream({
             cancelable: cancelable,
+            cliffTime: cliffTime,
             depositAmount: depositAmount,
             recipient: recipient,
             sender: sender,
@@ -368,6 +392,7 @@ contract SablierV2Linear is
             depositAmount,
             token,
             startTime,
+            cliffTime,
             stopTime,
             cancelable
         );

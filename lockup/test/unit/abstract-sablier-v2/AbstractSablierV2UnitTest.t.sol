@@ -116,7 +116,7 @@ contract AbstractSablierV2 is SablierV2 {
     }
 }
 
-/// @title AbstractSablierV2LinearUnitTest
+/// @title AbstractSablierV2UnitTest
 /// @author Sablier Labs Ltd.
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.

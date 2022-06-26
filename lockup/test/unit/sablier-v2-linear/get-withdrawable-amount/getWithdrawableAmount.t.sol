@@ -22,18 +22,19 @@ contract SablierV2Linear__UnitTest__GetWithdrawableAmount is SablierV2LinearUnit
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    /// @dev When the start time is greater than the block timestamp, it should return zero.
-    function testGetWithdrawableAmount__StartTimeGreaterThanBlockTimestamp() external {
-        vm.warp(daiStream.startTime - 1 seconds);
+    /// @dev When the cliff time is greater than the block timestamp, it should return zero.
+    function testGetWithdrawableAmount__CliffTimeGreaterThanBlockTimestamp() external {
+        vm.warp(daiStream.cliffTime - 1 seconds);
         uint256 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    /// @dev When the start time is equal to the block timestamp, it should return zero.
-    function testGetWithdrawableAmount__StartTimeEqualToBlockTimestamp() external {
+    /// @dev When the cliff time is equal to the block timestamp, it should return the correct withdrawable amount.
+    function testGetWithdrawableAmount__CliffTimeEqualToBlockTimestamp() external {
+        vm.warp(daiStream.cliffTime);
         uint256 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
-        uint256 expectedWithdrawableAmount = 0;
+        uint256 expectedWithdrawableAmount = WITHDRAW_AMOUNT_DAI - bn(100, 18);
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
@@ -75,7 +76,7 @@ contract SablierV2Linear__UnitTest__GetWithdrawableAmount is SablierV2LinearUnit
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    /// @dev When the current time is less than the stop time there have been withdrawals, it should
+    /// @dev When the current time is less than the stop time and there have been withdrawals, it should
     /// return the correct withdrawable amount.
     function testGetWithdrawableAmount__CurrentTimeLessThanStopTime__WithWithdrawals() external {
         vm.warp(daiStream.startTime + TIME_OFFSET);

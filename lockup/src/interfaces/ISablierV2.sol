@@ -9,17 +9,8 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 interface ISablierV2 {
     /// CUSTOM ERRORS ///
 
-    /// @notice Emitted when attempting to approve the zero address as a would-be stream sender.
-    error SablierV2__AuthorizeSenderZeroAddress();
-
-    /// @notice Emitted when attempting to approve the zero address as a stream funder.
-    error SablierV2__AuthorizeFunderZeroAddress();
-
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
     error SablierV2__DepositAmountZero();
-
-    /// @notice Emitted when attempting to create a stream on behalf of the zero address.
-    error SablierV2__FunderZeroAddress();
 
     /// @notice Emitted when attempting to create a stream with recipient as the zero address.
     error SablierV2__RecipientZeroAddress();
