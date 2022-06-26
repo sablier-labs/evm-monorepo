@@ -11,7 +11,7 @@ contract SablierV2Cliff__UnitTest__GetWithdrawableAmount is SablierV2CliffUnitTe
         super.setUp();
 
         // Create the default stream, all tests need it.
-        streamId = createDefaultStream();
+        streamId = createDefaultDaiStream();
     }
 
     /// @dev When the stream does not exist, it should return zero.
@@ -24,7 +24,7 @@ contract SablierV2Cliff__UnitTest__GetWithdrawableAmount is SablierV2CliffUnitTe
 
     /// @dev When the cliff time is greater than the block timestamp, it should return zero.
     function testGetWithdrawableAmount__CliffTimeGreaterThanBlockTimestamp() external {
-        vm.warp(stream.cliffTime - 1 seconds);
+        vm.warp(daiStream.cliffTime - 1 seconds);
         uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -32,66 +32,76 @@ contract SablierV2Cliff__UnitTest__GetWithdrawableAmount is SablierV2CliffUnitTe
 
     /// @dev When the cliff time is equal to the block timestamp, it should return the correct withdrawable amount.
     function testGetWithdrawableAmount__CliffTimeEqualToBlockTimestamp() external {
-        vm.warp(stream.cliffTime);
+        vm.warp(daiStream.cliffTime);
         uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
-        uint256 expectedWithdrawableAmount = WITHDRAW_AMOUNT - bn(100);
+        uint256 expectedWithdrawableAmount = WITHDRAW_AMOUNT_DAI - bn(100, 18);
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the current time is greater than the stop time and there have been withdrawals, it should
     /// return the deposit amount minus the withdrawn amount.
     function testGetWithdrawableAmount__CurrentTimeGreaterThanStopTime__WithWithdrawals() external {
-        vm.warp(stream.stopTime + 1 seconds);
-        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT);
+        vm.warp(daiStream.stopTime + 1 seconds);
+        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT_DAI);
         uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
-        uint256 expectedWithdrawableAmount = stream.depositAmount - WITHDRAW_AMOUNT;
+        uint256 expectedWithdrawableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the current time is greater than the stop time and there have been no withdrawals, it should
     /// return the deposit amount.
     function testGetWithdrawableAmount__CurrentTimeGreaterThanStopTime__NoWithdrawals() external {
-        vm.warp(stream.stopTime + 1 seconds);
+        vm.warp(daiStream.stopTime + 1 seconds);
         uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
-        uint256 expectedWithdrawableAmount = stream.depositAmount;
+        uint256 expectedWithdrawableAmount = daiStream.depositAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the current time is equal to the stop time and there have been withdrawals, it should
     /// return the deposit amount minus the withdrawn amount.
     function testGetWithdrawableAmount__CurrentTimeEqualToStopTime__WithWithdrawals() external {
-        vm.warp(stream.stopTime);
-        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT);
+        vm.warp(daiStream.stopTime);
+        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT_DAI);
         uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
-        uint256 expectedWithdrawableAmount = stream.depositAmount - WITHDRAW_AMOUNT;
+        uint256 expectedWithdrawableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the current time is equal to the stop time and there have been no withdrawals, it should
     /// return the deposit amount.
     function testGetWithdrawableAmount__CurrentTimeEqualToStopTime__NoWithdrawals() external {
-        vm.warp(stream.stopTime);
+        vm.warp(daiStream.stopTime);
         uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
-        uint256 expectedWithdrawableAmount = stream.depositAmount;
+        uint256 expectedWithdrawableAmount = daiStream.depositAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev When the current time is less than the stop time and there have been withdrawals, it should
     /// return the correct withdrawable amount.
     function testGetWithdrawableAmount__CurrentTimeLessThanStopTime__WithWithdrawals() external {
-        vm.warp(stream.startTime + TIME_OFFSET);
-        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
+        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT_DAI);
         uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    /// @dev When the current time is less than the stop time and there have been no withdrawals, it should
-    /// return the correct withdrawable amount.
-    function testGetWithdrawableAmount__CurrentTimeLessThanStopTime__NoWithdrawals() external {
-        vm.warp(stream.startTime + TIME_OFFSET);
+    /// @dev When the current time is less than the stop time, there have been no withdrawals and the token
+    /// has 6 decimals, it should return the correct withdrawable amount.
+    function testGetWithdrawableAmount__CurrentTimeLessThanStopTime__NoWithdrawals__6Decimals() external {
+        streamId = createDefaultUsdcStream();
+        vm.warp(usdcStream.startTime + TIME_OFFSET);
         uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
-        uint256 expectedWithdrawableAmount = WITHDRAW_AMOUNT;
+        uint256 expectedWithdrawableAmount = WITHDRAW_AMOUNT_USDC;
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+    }
+
+    /// @dev When the current time is less than the stop time, there have been no withdrawals and the token
+    /// has 18 decimals, it should return the correct withdrawable amount.
+    function testGetWithdrawableAmount__CurrentTimeLessThanStopTime__NoWithdrawals__18Decimals() external {
+        vm.warp(daiStream.startTime + TIME_OFFSET);
+        uint256 actualWithdrawableAmount = sablierV2Cliff.getWithdrawableAmount(streamId);
+        uint256 expectedWithdrawableAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 }

@@ -30,52 +30,69 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
     /// CONSTANTS ///
 
     uint256 internal constant TIME_OFFSET = 2_600 seconds;
-    uint256 internal immutable WITHDRAW_AMOUNT = bn(2_600);
+    uint256 internal immutable WITHDRAW_AMOUNT_DAI = bn(2_600, 18);
+    uint256 internal immutable WITHDRAW_AMOUNT_USDC = bn(2_600, 6);
 
     /// TESTING VARIABLES ///
 
     SablierV2Cliff internal sablierV2Cliff = new SablierV2Cliff();
-    ISablierV2Cliff.Stream internal stream;
+    ISablierV2Cliff.Stream internal daiStream;
+    ISablierV2Cliff.Stream internal usdcStream;
 
     // SETUP FUNCTION ///
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        // Create the default stream to be used across many tests.
-        stream = ISablierV2Cliff.Stream({
+        // Create the default streams to be used across the tests.
+        daiStream = ISablierV2Cliff.Stream({
             cancelable: true,
             cliffTime: CLIFF_TIME,
-            depositAmount: DEPOSIT_AMOUNT,
+            depositAmount: DEPOSIT_AMOUNT_DAI,
             recipient: users.recipient,
             sender: users.sender,
             startTime: START_TIME,
             stopTime: STOP_TIME,
-            token: usd,
+            token: dai,
+            withdrawnAmount: 0
+        });
+        usdcStream = ISablierV2Cliff.Stream({
+            cancelable: true,
+            cliffTime: CLIFF_TIME,
+            depositAmount: DEPOSIT_AMOUNT_USDC,
+            recipient: users.recipient,
+            sender: users.sender,
+            startTime: START_TIME,
+            stopTime: STOP_TIME,
+            token: usdc,
             withdrawnAmount: 0
         });
 
-        // Approve the SablierV2Cliff contract to spend $USD from the `sender` account.
-        vm.prank(users.sender);
-        usd.approve(address(sablierV2Cliff), MAX_UINT_256);
-
-        // Approve the SablierV2Cliff contract to spend non-standard tokens from the `sender` account.
-        vm.prank(users.sender);
+        // Approve the SablierV2Cliff contract to spend tokens from the sender.
+        vm.startPrank(users.sender);
+        dai.approve(address(sablierV2Cliff), MAX_UINT_256);
+        usdc.approve(address(sablierV2Cliff), MAX_UINT_256);
         nonStandardToken.approve(address(sablierV2Cliff), MAX_UINT_256);
 
-        // Approve the SablierV2Cliff contract to spend $USD from the `recipient` account.
-        vm.prank(users.recipient);
-        usd.approve(address(sablierV2Cliff), MAX_UINT_256);
+        // Approve the SablierV2Cliff contract to spend tokens from the recipient.
+        changePrank(users.recipient);
+        dai.approve(address(sablierV2Cliff), MAX_UINT_256);
+        usdc.approve(address(sablierV2Cliff), MAX_UINT_256);
+        nonStandardToken.approve(address(sablierV2Cliff), MAX_UINT_256);
 
-        // Approve the SablierV2Cliff contract to spend $USD from the `funder` account.
-        vm.prank(users.funder);
-        usd.approve(address(sablierV2Cliff), MAX_UINT_256);
+        // Approve the SablierV2Cliff contract to spend tokens from the funder.
+        changePrank(users.funder);
+        dai.approve(address(sablierV2Cliff), MAX_UINT_256);
+        usdc.approve(address(sablierV2Cliff), MAX_UINT_256);
+        nonStandardToken.approve(address(sablierV2Cliff), MAX_UINT_256);
 
-        // Approve the SablierV2Cliff contract to spend $USD from the `eve` account.
-        vm.prank(users.eve);
-        usd.approve(address(sablierV2Cliff), MAX_UINT_256);
+        // Approve the SablierV2Cliff contract to spend tokens from eve.
+        changePrank(users.eve);
+        dai.approve(address(sablierV2Cliff), MAX_UINT_256);
+        usdc.approve(address(sablierV2Cliff), MAX_UINT_256);
+        nonStandardToken.approve(address(sablierV2Cliff), MAX_UINT_256);
 
         // Sets all subsequent calls' `msg.sender` to be `sender`.
-        vm.startPrank(users.sender);
+        changePrank(users.sender);
     }
 
     /// NON-CONSTANT FUNCTIONS ///
@@ -93,33 +110,48 @@ abstract contract SablierV2CliffUnitTest is SablierV2UnitTest {
         assertEq(a.withdrawnAmount, b.withdrawnAmount);
     }
 
-    /// @dev Helper function to create a default stream.
-    function createDefaultStream() internal returns (uint256 streamId) {
-        streamId = sablierV2Cliff.create(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.cliffTime,
-            stream.stopTime,
-            stream.cancelable
+    /// @dev Helper function to create a default stream with $DAI used as streaming currency.
+    function createDefaultDaiStream() internal returns (uint256 daiStreamId) {
+        daiStreamId = sablierV2Cliff.create(
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.cliffTime,
+            daiStream.stopTime,
+            daiStream.cancelable
         );
     }
 
-    /// @dev Helper function to create a non-cancelable stream.
-    function createNonCancelableStream() internal returns (uint256 nonCancelableStreamId) {
+    /// @dev Helper function to create a default stream with $USDC used as streaming currency.
+    function createDefaultUsdcStream() internal returns (uint256 usdcStreamId) {
+        usdcStreamId = sablierV2Cliff.create(
+            usdcStream.sender,
+            usdcStream.sender,
+            usdcStream.recipient,
+            usdcStream.depositAmount,
+            usdcStream.token,
+            usdcStream.startTime,
+            usdcStream.cliffTime,
+            usdcStream.stopTime,
+            usdcStream.cancelable
+        );
+    }
+
+    /// @dev Helper function to create a non-cancelable stream with $DAI used as streaming currency.
+    function createNonCancelableDaiStream() internal returns (uint256 nonCancelableDaiStreamId) {
         bool cancelable = false;
-        nonCancelableStreamId = sablierV2Cliff.create(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.startTime,
-            stream.cliffTime,
-            stream.stopTime,
+        nonCancelableDaiStreamId = sablierV2Cliff.create(
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.cliffTime,
+            daiStream.stopTime,
             cancelable
         );
     }

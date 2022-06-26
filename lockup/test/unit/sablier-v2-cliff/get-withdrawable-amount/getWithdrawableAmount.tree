@@ -21,4 +21,7 @@ getWithdrawableAmount.t.sol
          ├── when there have been withdrawals
          │  └── it should return the correct withdrawable amount
          └── when there haven't been withdrawals
-            └── it should return the correct withdrawable amount
+            ├── when the token has 6 decimals
+            │  └── it should return the correct withdrawable amount
+            └── when the token has 18 decimals
+               └── it should return the correct withdrawable amount

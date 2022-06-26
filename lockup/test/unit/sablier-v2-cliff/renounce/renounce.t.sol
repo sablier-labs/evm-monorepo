@@ -14,7 +14,7 @@ contract SablierV2Cliff__UnitTest__Renounce is SablierV2CliffUnitTest {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultStream();
+        streamId = createDefaultDaiStream();
     }
 
     /// @dev When the stream does not exist, it should revert.
@@ -37,13 +37,13 @@ contract SablierV2Cliff__UnitTest__Renounce is SablierV2CliffUnitTest {
     /// @dev When the stream is already non-cancelable, it should revert.
     function testCannotRenounce__NonCancelabeStream() external {
         // Create the non-cancelable stream.
-        uint256 nonCancelableStreamId = createNonCancelableStream();
+        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2.SablierV2__RenounceNonCancelableStream.selector, nonCancelableStreamId)
+            abi.encodeWithSelector(ISablierV2.SablierV2__RenounceNonCancelableStream.selector, nonCancelableDaiStreamId)
         );
-        sablierV2Cliff.renounce(nonCancelableStreamId);
+        sablierV2Cliff.renounce(nonCancelableDaiStreamId);
     }
 
     /// @dev When all checks pass, it should make the stream non-cancelable.

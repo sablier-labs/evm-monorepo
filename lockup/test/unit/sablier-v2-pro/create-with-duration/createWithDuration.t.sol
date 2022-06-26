@@ -22,15 +22,15 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
             }
         }
         sablierV2Pro.createWithDuration(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.segmentAmounts,
-            stream.segmentExponents,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.segmentAmounts,
+            daiStream.segmentExponents,
             segmentDeltas,
-            stream.cancelable
+            daiStream.cancelable
         );
     }
 
@@ -45,20 +45,20 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2.SablierV2__StartTimeGreaterThanStopTime.selector,
-                stream.startTime,
+                daiStream.startTime,
                 stopTime
             )
         );
         sablierV2Pro.createWithDuration(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.segmentAmounts,
-            stream.segmentExponents,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.segmentAmounts,
+            daiStream.segmentExponents,
             segmentDeltas,
-            stream.cancelable
+            daiStream.cancelable
         );
     }
 
@@ -82,15 +82,15 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
             )
         );
         sablierV2Pro.createWithDuration(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.segmentAmounts,
-            stream.segmentExponents,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.segmentAmounts,
+            daiStream.segmentExponents,
             segmentDeltas,
-            stream.cancelable
+            daiStream.cancelable
         );
     }
 
@@ -98,7 +98,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
     /// it should revert.
     function testCannotCreateWithDuration__MilestonesCalculationOverflow__SegmentMilestonesNotOrdered() external {
         uint256 startTime = block.timestamp;
-        uint256[] memory segmentAmounts = createDynamicArray(0, SEGMENT_AMOUNTS[0], SEGMENT_AMOUNTS[1]);
+        uint256[] memory segmentAmounts = createDynamicArray(0, SEGMENT_AMOUNTS_DAI[0], SEGMENT_AMOUNTS_DAI[1]);
         SD59x18[] memory segmentExponents = createDynamicArray(SCALE, SEGMENT_EXPONENTS[0], SEGMENT_EXPONENTS[1]);
         uint256[] memory segmentDeltas = createDynamicArray(1, MAX_UINT_256, 1);
         uint256[] memory segmentMilestones = new uint256[](3);
@@ -116,32 +116,33 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
             )
         );
         sablierV2Pro.createWithDuration(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
             segmentAmounts,
             segmentExponents,
             segmentDeltas,
-            stream.cancelable
+            daiStream.cancelable
         );
     }
 
     /// @dev When all checks pass, it should create the stream with duration.
     function testCreateWithDuration() external {
         uint256 streamId = sablierV2Pro.createWithDuration(
-            stream.sender,
-            stream.sender,
-            stream.recipient,
-            stream.depositAmount,
-            stream.token,
-            stream.segmentAmounts,
-            stream.segmentExponents,
+            daiStream.sender,
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.segmentAmounts,
+            daiStream.segmentExponents,
             SEGMENT_DELTAS,
-            stream.cancelable
+            daiStream.cancelable
         );
-        ISablierV2Pro.Stream memory createdStream = sablierV2Pro.getStream(streamId);
-        assertEq(stream, createdStream);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        ISablierV2Pro.Stream memory expectedStream = daiStream;
+        assertEq(actualStream, expectedStream);
     }
 }

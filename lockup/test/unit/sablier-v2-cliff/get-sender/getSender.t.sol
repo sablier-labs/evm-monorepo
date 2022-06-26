@@ -14,9 +14,9 @@ contract SablierV2Cliff__UnitTest__GetSender is SablierV2CliffUnitTest {
 
     /// @dev When the stream exists, it should return the correct sender.
     function testGetSender() external {
-        uint256 streamId = createDefaultStream();
+        uint256 streamId = createDefaultDaiStream();
         address actualSender = sablierV2Cliff.getSender(streamId);
-        address expectedSender = stream.sender;
+        address expectedSender = daiStream.sender;
         assertEq(actualSender, expectedSender);
     }
 }

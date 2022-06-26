@@ -11,7 +11,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawnAmount is SablierV2ProUnitTest {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultStream();
+        streamId = createDefaultDaiStream();
 
         // Make the recipient the `msg.sender` in this test suite.
         changePrank(users.recipient);
@@ -34,8 +34,8 @@ contract SablierV2Pro__UnitTest__GetWithdrawnAmount is SablierV2ProUnitTest {
 
     /// @dev When there have been withdrawals, it should return the correct withdrawn amount.
     function testGetWithdrawnAmount__WithWithdrawals() external {
-        vm.warp(stream.stopTime);
-        uint256 withdrawAmount = bn(100);
+        vm.warp(daiStream.stopTime);
+        uint256 withdrawAmount = bn(100, 18);
         sablierV2Pro.withdraw(streamId, withdrawAmount);
         uint256 actualDepositAmount = sablierV2Pro.getWithdrawnAmount(streamId);
         uint256 expectedDepositAmount = withdrawAmount;

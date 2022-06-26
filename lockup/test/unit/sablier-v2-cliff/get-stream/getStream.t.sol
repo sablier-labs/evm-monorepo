@@ -16,9 +16,9 @@ contract SablierV2Cliff__UnitTest__GetStream is SablierV2CliffUnitTest {
 
     /// @dev When the stream exists, it should return the stream struct.
     function testGetStream() external {
-        uint256 streamId = createDefaultStream();
+        uint256 streamId = createDefaultDaiStream();
         ISablierV2Cliff.Stream memory actualStream = sablierV2Cliff.getStream(streamId);
-        ISablierV2Cliff.Stream memory expectedStream = stream;
+        ISablierV2Cliff.Stream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
 }

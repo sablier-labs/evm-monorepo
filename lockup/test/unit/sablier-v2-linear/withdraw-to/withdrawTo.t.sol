@@ -15,7 +15,7 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultStream();
+        streamId = createDefaultDaiStream();
 
         // Make the recipient the `msg.sender` in this test suite.
         changePrank(users.recipient);
@@ -87,20 +87,20 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
     /// @dev When the to address is the recipient, it should make the withdrawal.
     function testWithdrawTo__Recipient() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        address toRecipient = stream.recipient;
-        sablierV2Linear.withdrawTo(streamId, toRecipient, WITHDRAW_AMOUNT);
+        address toRecipient = daiStream.recipient;
+        sablierV2Linear.withdrawTo(streamId, toRecipient, WITHDRAW_AMOUNT_DAI);
     }
 
     /// @dev When the stream ended, it should make the withdrawal and delete the stream.
     function testWithdrawTo__ThirdParty__StreamEnded() external {
         // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
+        vm.warp(daiStream.stopTime);
 
         // Run the test.
-        uint256 withdrawAmount = stream.depositAmount;
+        uint256 withdrawAmount = daiStream.depositAmount;
         sablierV2Linear.withdrawTo(streamId, toAlice, withdrawAmount);
         ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(streamId);
         ISablierV2Linear.Stream memory expectedStream;
@@ -110,11 +110,11 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
     /// @dev When the stream ended, it should emit a Withdraw event.
     function testWithdrawTo__ThirdParty__StreamEnded__Event() external {
         // Warp to the end of the stream.
-        vm.warp(stream.stopTime);
+        vm.warp(daiStream.stopTime);
 
         // Run the test.
         vm.expectEmit(true, true, false, true);
-        uint256 withdrawAmount = stream.depositAmount;
+        uint256 withdrawAmount = daiStream.depositAmount;
         emit Withdraw(streamId, toAlice, withdrawAmount);
         sablierV2Linear.withdrawTo(streamId, toAlice, withdrawAmount);
     }
@@ -122,24 +122,24 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
     /// @dev When the stream is ongoing, it should make the withdrawal and update the withdrawn amount.
     function testWithdrawTo__ThirdParty__StreamOngoing() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawnAmount = WITHDRAW_AMOUNT;
+        uint256 withdrawnAmount = WITHDRAW_AMOUNT_DAI;
         sablierV2Linear.withdrawTo(streamId, toAlice, withdrawnAmount);
         ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
         uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
-        uint256 expectedWithdrawnAmount = stream.withdrawnAmount + withdrawnAmount;
+        uint256 expectedWithdrawnAmount = daiStream.withdrawnAmount + withdrawnAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
     /// @dev When the stream is ongoing, it should emit a Withdraw event.
     function testWithdrawTo__ThirdParty__StreamOngoing__Event() external {
         // Warp to 100 seconds after the start time (1% of the default stream duration).
-        vm.warp(stream.startTime + TIME_OFFSET);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawAmount = WITHDRAW_AMOUNT;
+        uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
         vm.expectEmit(true, true, false, true);
         emit Withdraw(streamId, toAlice, withdrawAmount);
         sablierV2Linear.withdrawTo(streamId, toAlice, withdrawAmount);

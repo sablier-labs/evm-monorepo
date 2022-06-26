@@ -11,7 +11,7 @@ contract SablierV2Cliff__UnitTest__GetWithdrawnAmount is SablierV2CliffUnitTest 
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        streamId = createDefaultStream();
+        streamId = createDefaultDaiStream();
 
         // Make the recipient the `msg.sender` in this test suite.
         changePrank(users.recipient);
@@ -34,10 +34,10 @@ contract SablierV2Cliff__UnitTest__GetWithdrawnAmount is SablierV2CliffUnitTest 
 
     /// @dev When there have been withdrawals, it should return the correct withdrawn amount.
     function testGetWithdrawnAmount__WithWithdrawals() external {
-        vm.warp(stream.startTime + TIME_OFFSET);
-        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT);
+        vm.warp(daiStream.startTime + TIME_OFFSET);
+        sablierV2Cliff.withdraw(streamId, WITHDRAW_AMOUNT_DAI);
         uint256 actualDepositAmount = sablierV2Cliff.getWithdrawnAmount(streamId);
-        uint256 expectedDepositAmount = WITHDRAW_AMOUNT;
+        uint256 expectedDepositAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
 }
