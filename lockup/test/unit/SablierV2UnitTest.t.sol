@@ -98,7 +98,7 @@ abstract contract SablierV2UnitTest is Test {
         result = UD60x18.wrap(number);
     }
 
-    /// NON-CONSTANT FUNCTIONS ///
+    /// INTERNAL NON-CONSTANT FUNCTIONS ///
 
     /// @dev Helper function to compare two `IERC20` addresses.
     function assertEq(IERC20 a, IERC20 b) internal {
@@ -163,7 +163,7 @@ abstract contract SablierV2UnitTest is Test {
         dynamicalArray[2] = element2;
     }
 
-    /// @dev Give user 100 ETH and 1M USD.
+    /// @dev Give each user 100 ETH, 1M DAI, 1M USDC and 1M non-standard tokens.
     function fundUser(address payable user) internal {
         vm.deal(user, 100 ether);
         dai.mint(user, bn(1_000_000, 18));
