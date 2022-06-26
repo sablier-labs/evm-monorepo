@@ -252,8 +252,8 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When a segment exponent is out of bounds, it should revert.
-    function testCannotCreate__DepositAmountNotEqualSegmentAmountsSum() external {
+    /// @dev When the deposit amount is not equal to the segment amounts sum, it should revert.
+    function testCannotCreate__DepositAmountNotEqualtoSegmentAmountsSum() external {
         uint256 depositAmount = daiStream.depositAmount + 1;
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -340,9 +340,10 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
     function testCreate__6Decimals__Event() external {
         uint256 streamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);
+        address funder = usdcStream.sender;
         emit CreateStream(
             streamId,
-            usdcStream.sender,
+            funder,
             usdcStream.sender,
             usdcStream.recipient,
             usdcStream.depositAmount,
@@ -357,16 +358,18 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         createDefaultUsdcStream();
     }
 
-    /// @dev When all checks pass and the token has 18 decimals, it should create the stream.
-    function testCreate__18Decimals() external {
+    /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
+    /// it should create the stream.
+    function testCreate__18Decimals__CallerSender() external {
         uint256 streamId = createDefaultDaiStream();
         ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
         ISablierV2Pro.Stream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
 
-    /// @dev When all checks pass and the token has 18 decimals, it should bump the next stream id.
-    function testCreate__18Decimals__NextStreamId() external {
+    /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
+    /// it should bump the next stream id.
+    function testCreate__18Decimals__CallerSender__NextStreamId() external {
         uint256 nextStreamId = sablierV2Pro.nextStreamId();
         createDefaultDaiStream();
         uint256 actualNextStreamId = sablierV2Pro.nextStreamId();
@@ -374,13 +377,70 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
-    /// @dev When all checks pass and the token has 18 decimals, it should emit a CreateStream event.
-    function testCreate__18Decimals__Event() external {
+    /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
+    /// it should emit a CreateStream event.
+    function testCreate__18Decimals__CallerSender__Event() external {
         uint256 streamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);
+        address funder = daiStream.sender;
         emit CreateStream(
             streamId,
+            funder,
             daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.stopTime,
+            daiStream.segmentAmounts,
+            daiStream.segmentExponents,
+            daiStream.segmentMilestones,
+            daiStream.cancelable
+        );
+        createDefaultDaiStream();
+    }
+
+    /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,
+    /// it should create the stream.
+    function testCreate__18Decimals__CallerNotSender() external {
+        // Make Alice the funder of the stream.
+        changePrank(users.alice);
+        uint256 streamId = createDefaultDaiStream();
+
+        // Run the test.
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        ISablierV2Pro.Stream memory expectedStream = daiStream;
+        assertEq(actualStream, expectedStream);
+    }
+
+    /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,
+    /// it should bump the next stream id.
+    function testCreate__18Decimals__CallerNotSender__NextStreamId() external {
+        uint256 nextStreamId = sablierV2Pro.nextStreamId();
+
+        // Make Alice the funder of the stream.
+        changePrank(users.alice);
+        createDefaultDaiStream();
+
+        // Run the test.
+        uint256 actualNextStreamId = sablierV2Pro.nextStreamId();
+        uint256 expectedNextStreamId = nextStreamId + 1;
+        assertEq(actualNextStreamId, expectedNextStreamId);
+    }
+
+    /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,
+    /// it should emit a CreateStream event.
+    function testCreate__18Decimals__CallerNotSender__Event() external {
+        // Make Alice the funder of the stream.
+        changePrank(users.alice);
+
+        // Run the test.
+        uint256 streamId = sablierV2Pro.nextStreamId();
+        vm.expectEmit(true, true, true, true);
+        address funder = users.alice;
+        emit CreateStream(
+            streamId,
+            funder,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,

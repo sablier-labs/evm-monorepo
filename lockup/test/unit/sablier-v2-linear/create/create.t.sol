@@ -58,7 +58,7 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         );
     }
 
-    /// @dev When the start time is the equal to the stop time, it should create the stream.
+    /// @dev When the start time is equal to the stop time, it should create the stream.
     function testCreate__StartTimeEqualToStopTime() external {
         uint256 stopTime = daiStream.startTime;
         uint256 streamId = sablierV2Linear.create(
@@ -70,15 +70,15 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
             stopTime,
             daiStream.cancelable
         );
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
-        assertEq(daiStream.sender, createdStream.sender);
-        assertEq(daiStream.recipient, createdStream.recipient);
-        assertEq(daiStream.depositAmount, createdStream.depositAmount);
-        assertEq(daiStream.token, createdStream.token);
-        assertEq(daiStream.startTime, createdStream.startTime);
-        assertEq(stopTime, createdStream.stopTime);
-        assertEq(daiStream.cancelable, createdStream.cancelable);
-        assertEq(daiStream.withdrawnAmount, createdStream.withdrawnAmount);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, daiStream.depositAmount);
+        assertEq(actualStream.token, daiStream.token);
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.stopTime, stopTime);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
     /// @dev When the token is not a contract, it should revert.
@@ -110,15 +110,15 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
             daiStream.cancelable
         );
 
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
-        assertEq(daiStream.sender, createdStream.sender);
-        assertEq(daiStream.recipient, createdStream.recipient);
-        assertEq(daiStream.depositAmount, createdStream.depositAmount);
-        assertEq(address(nonStandardToken), address(createdStream.token));
-        assertEq(daiStream.startTime, createdStream.startTime);
-        assertEq(daiStream.stopTime, createdStream.stopTime);
-        assertEq(daiStream.cancelable, createdStream.cancelable);
-        assertEq(daiStream.withdrawnAmount, createdStream.withdrawnAmount);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        assertEq(actualStream.sender, daiStream.sender);
+        assertEq(actualStream.recipient, daiStream.recipient);
+        assertEq(actualStream.depositAmount, daiStream.depositAmount);
+        assertEq(address(actualStream.token), address(nonStandardToken));
+        assertEq(actualStream.startTime, daiStream.startTime);
+        assertEq(actualStream.stopTime, daiStream.stopTime);
+        assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
     /// @dev When all checks pass and the token has 6 decimals, it should create the stream.
@@ -142,9 +142,10 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
     function testCreate__6Decimals__Event() external {
         uint256 streamId = sablierV2Linear.nextStreamId();
         vm.expectEmit(true, true, true, true);
+        address funder = usdcStream.sender;
         emit CreateStream(
             streamId,
-            usdcStream.sender,
+            funder,
             usdcStream.sender,
             usdcStream.recipient,
             usdcStream.depositAmount,
@@ -156,15 +157,17 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         createDefaultUsdcStream();
     }
 
-    /// @dev When all checks pass and the token has 18 decimals, it should create the stream.
-    function testCreate__18Decimals() external {
+    /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
+    /// it should create the stream.
+    function testCreate__18Decimals__CallerSender() external {
         uint256 streamId = createDefaultDaiStream();
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(streamId);
-        assertEq(daiStream, createdStream);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        assertEq(daiStream, actualStream);
     }
 
-    /// @dev When all checks pass and the token has 18 decimals, it should bump the next stream id.
-    function testCreate__18Decimals__NextStreamId() external {
+    /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,\
+    /// it should bump the next stream id.
+    function testCreate__18Decimals__CallerSender__NextStreamId() external {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
         createDefaultDaiStream();
         uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
@@ -172,13 +175,67 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
-    /// @dev When all checks pass and the token has 18 decimals, it should emit a CreateStream event.
-    function testCreate__18Decimals__Event() external {
+    /// @dev When all checks pass, the token has 18 decimals and the caller is the sender of the stream,
+    /// it should emit a CreateStream event.
+    function testCreate__18Decimals__CallerSender__Event() external {
         uint256 streamId = sablierV2Linear.nextStreamId();
         vm.expectEmit(true, true, true, true);
+        address funder = daiStream.sender;
         emit CreateStream(
             streamId,
+            funder,
             daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.stopTime,
+            daiStream.cancelable
+        );
+        createDefaultDaiStream();
+    }
+
+    /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,
+    /// it should create the stream.
+    function testCreate__18Decimals__CallerNotSender() external {
+        // Make Alice the funder of the stream.
+        changePrank(users.alice);
+        uint256 streamId = createDefaultDaiStream();
+
+        // Run the test.
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        ISablierV2Linear.Stream memory expectedStream = daiStream;
+        assertEq(actualStream, expectedStream);
+    }
+
+    /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,
+    /// it should bump the next stream id.
+    function testCreate__18Decimals__CallerNotSender__NextStreamId() external {
+        uint256 nextStreamId = sablierV2Linear.nextStreamId();
+
+        // Make Alice the funder of the stream.
+        changePrank(users.alice);
+        createDefaultDaiStream();
+
+        // Run the test.
+        uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
+        uint256 expectedNextStreamId = nextStreamId + 1;
+        assertEq(actualNextStreamId, expectedNextStreamId);
+    }
+
+    /// @dev When all checks pass, the token has 18 decimals and the caller is not the sender of the stream,
+    /// it should emit a CreateStream event.
+    function testCreate__18Decimals__CallerNotSender__Event() external {
+        // Make Alice the funder of the stream.
+        changePrank(users.alice);
+
+        // Run the test.
+        uint256 streamId = sablierV2Linear.nextStreamId();
+        vm.expectEmit(true, true, true, true);
+        address funder = users.alice;
+        emit CreateStream(
+            streamId,
+            funder,
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
