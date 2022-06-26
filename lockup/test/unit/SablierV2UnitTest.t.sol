@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { ERC20GodMode } from "@prb/contracts/token/erc20/ERC20GodMode.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { NonStandardERC20 } from "@prb/contracts/token/erc20/NonStandardERC20.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
@@ -8,9 +9,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Test } from "forge-std/Test.sol";
 
-import { GodModeERC20 } from "../shared/GodModeERC20.t.sol";
-
-/// @title GodModeERC20
+/// @title SablierV2UnitTest
 /// @author Sablier Labs Ltd.
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
@@ -49,8 +48,8 @@ abstract contract SablierV2UnitTest is Test {
 
     bytes32 internal nextUser = keccak256(abi.encodePacked("user address"));
     NonStandardERC20 internal nonStandardToken = new NonStandardERC20("Stablecoin", "USD", 18);
-    GodModeERC20 internal dai = new GodModeERC20("Dai Stablecoin", "DAI", 18);
-    GodModeERC20 internal usdc = new GodModeERC20("USD Coin", "USDC", 6);
+    ERC20GodMode internal dai = new ERC20GodMode("Dai Stablecoin", "DAI", 18);
+    ERC20GodMode internal usdc = new ERC20GodMode("USD Coin", "USDC", 6);
     Users internal users;
 
     /// CONSTRUCTOR ///
