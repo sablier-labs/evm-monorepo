@@ -19,7 +19,7 @@ contract SablierV2Pro is
 
     /// CONSTANTS ///
 
-    /// @notice The maximum value an exponent can have is 1.
+    /// @notice The maximum value an exponent can have is 10.
     SD59x18 public constant MAX_EXPONENT = SD59x18.wrap(10e18);
 
     /// @notice The maximum number of segments allowed in a stream.
@@ -91,6 +91,26 @@ contract SablierV2Pro is
     /// @inheritdoc ISablierV2
     function getSender(uint256 streamId) public view override(ISablierV2, SablierV2) returns (address sender) {
         sender = streams[streamId].sender;
+    }
+
+    /// @inheritdoc ISablierV2Pro
+    function getSegmentAmounts(uint256 streamId) external view override returns (uint256[] memory segmentAmounts) {
+        segmentAmounts = streams[streamId].segmentAmounts;
+    }
+
+    /// @inheritdoc ISablierV2Pro
+    function getSegmentExponents(uint256 streamId) external view override returns (SD59x18[] memory segmentExponents) {
+        segmentExponents = streams[streamId].segmentExponents;
+    }
+
+    /// @inheritdoc ISablierV2Pro
+    function getSegmentMilestones(uint256 streamId)
+        external
+        view
+        override
+        returns (uint256[] memory segmentMilestones)
+    {
+        segmentMilestones = streams[streamId].segmentMilestones;
     }
 
     /// @inheritdoc ISablierV2

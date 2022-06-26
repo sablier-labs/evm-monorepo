@@ -1,0 +1,5 @@
+getSegmentMilestones.t.sol
+├── when the stream does not exist
+│  └── it should return an empty array
+└── when the stream exists
+   └── it should return the correct segment milestones
