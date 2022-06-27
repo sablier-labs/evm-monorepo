@@ -47,6 +47,13 @@ Then, follow the example given in `.env.example` to create a `.env` file with th
 
 Now you can start making changes.
 
+### Syntax Highlighting
+
+You will need the following VSCode extensions:
+
+- [vscode-solidity](https://marketplace.visualstudio.com/items?itemName=JuanBlanco.solidity)
+- [vscode-tree-language](https://marketplace.visualstudio.com/items?itemName=CTC.vscode-tree-extension)
+
 ## Commands
 
 ### Bindings
