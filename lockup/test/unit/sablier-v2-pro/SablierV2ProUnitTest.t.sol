@@ -125,25 +125,13 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// @dev Helper function to compare two SD59x18 arrays.
     function assertEq(SD59x18[] memory a, SD59x18[] memory b) internal {
-        uint256 aLength = a.length;
-        int256[] memory aInt256 = new int256[](aLength);
-        for (uint256 i = 0; i < aLength; ) {
-            aInt256[i] = SD59x18.unwrap(a[i]);
-            unchecked {
-                i += 1;
-            }
+        int256[] memory castedA;
+        int256[] memory castedB;
+        assembly {
+            castedA := a
+            castedB := b
         }
-
-        uint256 bLength = b.length;
-        int256[] memory bInt256 = new int256[](bLength);
-        for (uint256 i = 0; i < bLength; ) {
-            bInt256[i] = SD59x18.unwrap(b[i]);
-            unchecked {
-                i += 1;
-            }
-        }
-
-        assertEq(aInt256, bInt256);
+        assertEq(castedA, castedB);
     }
 
     /// @dev Helper function to create a default stream with $DAI used as streaming currency.
