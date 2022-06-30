@@ -64,6 +64,14 @@ Generate Rust bindings:
 $ forge bind
 ```
 
+### Build
+
+Build the contracts:
+
+```sh
+$ forge build
+```
+
 ### Clean
 
 Delete the build artifacts and cache directories:
@@ -106,7 +114,7 @@ $ forge test
 
 ### Other
 
-There are many other cool commands available in Foundry. Check out the [Foundry Book](https://book.getfoundry.sh/)!
+There are many other commands available in Foundry. Check out the [Foundry Book](https://book.getfoundry.sh/)!
 
 ## Security
 

@@ -1,5 +1,8 @@
 name: "Continuous Integration"
 
+env:
+  FOUNDRY_PROFILE: ci
+
 on:
   pull_request:
     branches:
@@ -44,6 +47,11 @@ jobs:
 
       - name: "Run the tests"
         run: "forge test"
+
+      - name: "Build the contracts"
+        run: |
+          forge --version
+          forge build --sizes
 
       - name: "Add test summary"
         run: |
