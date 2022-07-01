@@ -1,4 +1,4 @@
-# Sablier V2 Core [![Foundry](https://img.shields.io/badge/maintained%20with-foundry-FFDB1C.svg)](https://getfoundry.sh/) [![Styled with Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io) [![Commitizen Friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+# Sablier V2 Core ![Github Actions](https://github.com/sablierhq/v2-core/workflows/integration/badge.svg) [![Foundry](https://img.shields.io/badge/maintained%20with-foundry-FFDB1C.svg)](https://getfoundry.sh/) [![Styled with Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
 
 Core smart contracts of the Sablier V2 money streaming protocol. In-depth documentation is available at [docs.sablier.finance](https://docs.sablier.finance).
 
@@ -56,13 +56,7 @@ You will need the following VSCode extensions:
 
 ## Commands
 
-### Bindings
-
-Generate Rust bindings:
-
-```sh
-$ forge bind
-```
+Here's a list of the most frequently needed commands.
 
 ### Build
 
@@ -86,6 +80,14 @@ Compile the contracts:
 
 ```sh
 $ forge build
+```
+
+### Format
+
+Format the contracts with Prettier:
+
+```sh
+$ yarn prettier
 ```
 
 ### Gas Usage
@@ -119,3 +121,7 @@ There are many other commands available in Foundry. Check out the [Foundry Book]
 ## Security
 
 For security concerns, please email [security@sablier.finance](mailto:security@sablier.finance). This repository is subject to the Sablier bug bounty program, per the terms defined [here](https://docs.sablier.finance/).
+
+## License
+
+[LPGL v3.0](./LICENSE.md) © Sablier Labs Ltd
