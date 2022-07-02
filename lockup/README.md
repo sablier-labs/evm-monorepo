@@ -1,4 +1,13 @@
-# Sablier V2 Core ![Github Actions](https://github.com/sablierhq/v2-core/workflows/integration/badge.svg) [![Foundry](https://img.shields.io/badge/maintained%20with-foundry-FFDB1C.svg)](https://getfoundry.sh/) [![Styled with Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
+# Sablier V2 Core [![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry] [![Styled with Prettier][prettier-badge]][prettier] [![License: LGPL v3][license-badge]][license]
+
+[gha]: https://github.com/sablierhq/v2-core/actions
+[gha-badge]: https://github.com/sablierhq/v2-core/actions/workflows/integration.yml/badge.svg
+[foundry]: https://getfoundry.sh/
+[foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
+[prettier]: https://prettier.io
+[prettier-badge]: https://img.shields.io/badge/Code_Style-Prettier-ff69b4.svg
+[license]: https://www.gnu.org/licenses/lgpl-3.0
+[license-badge]: https://img.shields.io/badge/License-LGPL_v3-blue.svg
 
 Core smart contracts of the Sablier V2 money streaming protocol. In-depth documentation is available at [docs.sablier.finance](https://docs.sablier.finance).
 
