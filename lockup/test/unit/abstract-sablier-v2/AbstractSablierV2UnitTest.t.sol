@@ -75,44 +75,20 @@ contract AbstractSablierV2 is SablierV2 {
         streamId;
     }
 
-    /// @inheritdoc ISablierV2
-    function withdraw(uint256 streamId, uint256 amount) external pure override {
-        streamId;
-        amount;
-    }
-
-    /// @inheritdoc ISablierV2
-    function withdrawAll(uint256[] calldata streamIds, uint256[] calldata amounts) external pure override {
-        streamIds;
-        amounts;
-    }
-
-    /// @inheritdoc ISablierV2
-    function withdrawTo(
-        uint256 streamId,
-        address to,
-        uint256 amount
-    ) external pure override {
-        streamId;
-        to;
-        amount;
-    }
-
-    /// @inheritdoc ISablierV2
-    function withdrawAllTo(
-        uint256[] calldata streamIds,
-        address to,
-        uint256[] calldata amounts
-    ) external pure override {
-        streamIds;
-        to;
-        amounts;
-    }
-
     /// INTERNAL NON-CONSTANT FUNCTIONS ///
 
     function cancelInternal(uint256 streamId) internal pure override {
         streamId;
+    }
+
+    function withdrawInternal(
+        uint256 streamId,
+        address to,
+        uint256 amount
+    ) internal pure override {
+        streamId;
+        to;
+        amount;
     }
 }
 
