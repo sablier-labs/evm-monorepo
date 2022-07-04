@@ -25,7 +25,6 @@ abstract contract SablierV2UnitTest is Test {
     /// CONSTANTS ///
 
     uint256 internal constant CLIFF_DURATION = 2_500 seconds;
-    uint256 internal constant MAX_UINT_256 = type(uint256).max;
     uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
     uint256 internal constant TOTAL_DURATION = 10_000 seconds;
 

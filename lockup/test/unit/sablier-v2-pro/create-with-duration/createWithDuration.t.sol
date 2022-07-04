@@ -39,7 +39,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         external
     {
         uint256 startTime = block.timestamp;
-        uint256[] memory segmentDeltas = createDynamicArray(1, MAX_UINT_256 - startTime);
+        uint256[] memory segmentDeltas = createDynamicArray(1, UINT256_MAX - startTime);
         uint256 stopTime = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -66,7 +66,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         external
     {
         uint256 startTime = block.timestamp;
-        uint256[] memory segmentDeltas = createDynamicArray(MAX_UINT_256, 1);
+        uint256[] memory segmentDeltas = createDynamicArray(UINT256_MAX, 1);
         uint256[] memory segmentMilestones = new uint256[](2);
         unchecked {
             segmentMilestones[0] = startTime + segmentDeltas[0];
@@ -97,7 +97,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         uint256 startTime = block.timestamp;
         uint256[] memory segmentAmounts = createDynamicArray(0, SEGMENT_AMOUNTS_DAI[0], SEGMENT_AMOUNTS_DAI[1]);
         SD59x18[] memory segmentExponents = createDynamicArray(SCALE, SEGMENT_EXPONENTS[0], SEGMENT_EXPONENTS[1]);
-        uint256[] memory segmentDeltas = createDynamicArray(1, MAX_UINT_256, 1);
+        uint256[] memory segmentDeltas = createDynamicArray(1, UINT256_MAX, 1);
         uint256[] memory segmentMilestones = new uint256[](3);
         unchecked {
             segmentMilestones[0] = startTime + segmentDeltas[0];

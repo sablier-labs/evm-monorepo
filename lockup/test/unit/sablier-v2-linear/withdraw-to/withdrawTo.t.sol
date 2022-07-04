@@ -71,7 +71,7 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
 
     /// @dev When the amount is greater than the withdrawable amount, it should revert.
     function testCannotWithdrawTo__WithdrawAmountGreaterThanWithdrawableAmount() external {
-        uint256 withdrawAmountMaxUint256 = MAX_UINT_256;
+        uint256 withdrawAmountMaxUint256 = UINT256_MAX;
         uint256 withdrawableAmount = 0;
         vm.expectRevert(
             abi.encodeWithSelector(

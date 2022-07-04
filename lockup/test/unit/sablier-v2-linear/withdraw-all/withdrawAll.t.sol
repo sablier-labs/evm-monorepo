@@ -146,7 +146,7 @@ contract SablierV2Linear__UnitTest__WithdrawAll is SablierV2LinearUnitTest {
 
         // Run the test.
         uint256 withdrawableAmount = WITHDRAW_AMOUNT_DAI;
-        uint256 withdrawAmountMaxUint256 = MAX_UINT_256;
+        uint256 withdrawAmountMaxUint256 = UINT256_MAX;
         uint256[] memory amounts = createDynamicArray(withdrawableAmount, withdrawAmountMaxUint256);
         vm.expectRevert(
             abi.encodeWithSelector(

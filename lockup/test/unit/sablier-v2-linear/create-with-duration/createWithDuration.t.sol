@@ -10,7 +10,7 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
     /// @dev When the cliff duration calculation overflows uint256, it should revert due to
     /// the start time being greater than the stop time
     function testCannotCreateWithDuration__CliffDurationCalculationOverflow(uint256 cliffDuration) external {
-        vm.assume(cliffDuration > MAX_UINT_256 - block.timestamp);
+        vm.assume(cliffDuration > UINT256_MAX - block.timestamp);
         uint256 totalDuration = cliffDuration;
         uint256 cliffTime;
         uint256 stopTime;
@@ -41,8 +41,8 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
         uint256 cliffDuration,
         uint256 totalDuration
     ) external {
-        vm.assume(cliffDuration <= MAX_UINT_256 - block.timestamp);
-        vm.assume(totalDuration > MAX_UINT_256 - block.timestamp);
+        vm.assume(cliffDuration <= UINT256_MAX - block.timestamp);
+        vm.assume(totalDuration > UINT256_MAX - block.timestamp);
         uint256 stopTime;
         unchecked {
             stopTime = block.timestamp + totalDuration;
@@ -68,7 +68,7 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
     /// @dev When all checks pass, it should create the stream with duration.
     function testCreateWithDuration(uint256 cliffDuration, uint256 totalDuration) external {
         vm.assume(cliffDuration <= totalDuration);
-        vm.assume(totalDuration <= MAX_UINT_256 - block.timestamp);
+        vm.assume(totalDuration <= UINT256_MAX - block.timestamp);
         uint256 cliffTime;
         uint256 stopTime;
         unchecked {
