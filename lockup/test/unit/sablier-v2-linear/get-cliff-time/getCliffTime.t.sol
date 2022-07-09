@@ -3,21 +3,21 @@ pragma solidity >=0.8.13;
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__GetCliffTime__StreamNonExistent is SablierV2LinearUnitTest {
+contract SablierV2Linear__UnitTest__GetCliffTime is SablierV2LinearUnitTest {
     /// @dev it should return zero.
-    function testGetCliffTime() external {
+    function testGetCliffTime__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         uint256 actualCliffTime = sablierV2Linear.getCliffTime(nonStreamId);
         uint256 expectedCliffTime = 0;
         assertEq(actualCliffTime, expectedCliffTime);
     }
-}
 
-contract StreamExistent {}
+    modifier StreamExistent() {
+        _;
+    }
 
-contract SablierV2Linear__GetCliffTime is SablierV2LinearUnitTest, StreamExistent {
     /// @dev it should return the correct cliff time.
-    function testGetCliffTime() external {
+    function testGetCliffTime() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
         uint256 actualCliffTime = sablierV2Linear.getCliffTime(daiStreamId);
         uint256 expectedCliffTime = daiStream.cliffTime;

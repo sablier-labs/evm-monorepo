@@ -10,9 +10,9 @@ import { SablierV2Linear } from "@sablier/v2-core/SablierV2Linear.sol";
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__Create__RecipientZeroAddress is SablierV2LinearUnitTest {
+contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
     /// @dev it should revert.
-    function testCannotCreate() external {
+    function testCannotCreate__RecipientZeroAddress() external {
         vm.expectRevert(ISablierV2.SablierV2__RecipientZeroAddress.selector);
         address recipient = address(0);
         sablierV2Linear.create(
@@ -26,13 +26,13 @@ contract SablierV2Linear__Create__RecipientZeroAddress is SablierV2LinearUnitTes
             daiStream.cancelable
         );
     }
-}
 
-contract RecipientNonZeroAddress {}
+    modifier RecipientNonZeroAddress() {
+        _;
+    }
 
-contract SablierV2Linear__Create__DepositAmountZero is SablierV2LinearUnitTest, RecipientNonZeroAddress {
     /// @dev it should revert.
-    function testCannotCreate() external {
+    function testCannotCreate__DepositAmountZero() external RecipientNonZeroAddress {
         vm.expectRevert(ISablierV2.SablierV2__DepositAmountZero.selector);
         uint256 depositAmount = 0;
         sablierV2Linear.create(
@@ -46,17 +46,13 @@ contract SablierV2Linear__Create__DepositAmountZero is SablierV2LinearUnitTest, 
             daiStream.cancelable
         );
     }
-}
 
-contract DepositAmountNotZero {}
+    modifier DepositAmountNotZero() {
+        _;
+    }
 
-contract SablierV2Linear__Create__StartTimeGreaterThanStopTime is
-    SablierV2LinearUnitTest,
-    RecipientNonZeroAddress,
-    DepositAmountNotZero
-{
     /// @dev it should revert.
-    function testCannotCreate() external {
+    function testCannotCreate__StartTimeGreaterThanStopTime() external RecipientNonZeroAddress DepositAmountNotZero {
         uint256 startTime = daiStream.stopTime;
         uint256 stopTime = daiStream.startTime;
         vm.expectRevert(
@@ -73,15 +69,9 @@ contract SablierV2Linear__Create__StartTimeGreaterThanStopTime is
             daiStream.cancelable
         );
     }
-}
 
-contract SablierV2Linear__Create__StartTimeEqualToStopTime is
-    SablierV2LinearUnitTest,
-    RecipientNonZeroAddress,
-    DepositAmountNotZero
-{
     /// @dev it should create the stream.
-    function testCreate() external {
+    function testCreate__StartTimeEqualToStopTime() external RecipientNonZeroAddress DepositAmountNotZero {
         uint256 cliffTime = daiStream.startTime;
         uint256 stopTime = daiStream.startTime;
         uint256 daiStreamId = sablierV2Linear.create(
@@ -105,18 +95,18 @@ contract SablierV2Linear__Create__StartTimeEqualToStopTime is
         assertEq(actualStream.cancelable, daiStream.cancelable);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
-}
 
-contract StartTimeLessThanStopTime {}
+    modifier StartTimeLessThanStopTime() {
+        _;
+    }
 
-contract SablierV2Linear__Create__StartTimeGreaterThanCliffTime is
-    SablierV2LinearUnitTest,
-    RecipientNonZeroAddress,
-    DepositAmountNotZero,
-    StartTimeLessThanStopTime
-{
     /// @dev it should revert.
-    function testCannotCreate__StartTimeGreaterThanCliffTime() external {
+    function testCannotCreate__StartTimeGreaterThanCliffTime()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+    {
         uint256 startTime = daiStream.cliffTime;
         uint256 cliffTime = daiStream.startTime;
         vm.expectRevert(
@@ -137,16 +127,14 @@ contract SablierV2Linear__Create__StartTimeGreaterThanCliffTime is
             daiStream.cancelable
         );
     }
-}
 
-contract SablierV2Linear__Create__StartTimeEqualToCliffTime is
-    SablierV2LinearUnitTest,
-    RecipientNonZeroAddress,
-    DepositAmountNotZero,
-    StartTimeLessThanStopTime
-{
     /// @dev it should create the stream.
-    function testCreate__CliffTimeEqualToStopTime() external {
+    function testCannotCreate__StartTimeEqualToCliffTime()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+    {
         uint256 cliffTime = daiStream.startTime;
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
@@ -169,13 +157,19 @@ contract SablierV2Linear__Create__StartTimeEqualToCliffTime is
         assertEq(actualStream.cancelable, daiStream.cancelable);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
-}
 
-contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero__StartTimeLessThanStopTime__CliffTimeGreaterThanStopTime is
-    SablierV2LinearUnitTest
-{
+    modifier StartTimeLessThanCliffTime() {
+        _;
+    }
+
     /// @dev it should revert.
-    function testCannotCreate__CliffTimeGreaterThanStopTime() external {
+    function testCannotCreate__CliffTimeGreaterThanStopTime()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+    {
         uint256 cliffTime = daiStream.stopTime;
         uint256 stopTime = daiStream.cliffTime;
         vm.expectRevert(
@@ -196,13 +190,15 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
             daiStream.cancelable
         );
     }
-}
 
-contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero__StartTimeLessThanStopTime__CliffTimeEqualToStopTime is
-    SablierV2LinearUnitTest
-{
     /// @dev it should create the stream.
-    function testCreate__CliffTimeEqualToStopTime() external {
+    function testCreate__CliffTimeEqualToStopTime()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+    {
         uint256 cliffTime = daiStream.stopTime;
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
@@ -225,13 +221,20 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
         assertEq(actualStream.cancelable, daiStream.cancelable);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
-}
 
-contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero__StartTimeLessThanStopTime__CliffTimeLessThanStopTime__TokenNotContract is
-    SablierV2LinearUnitTest
-{
+    modifier CliffLessThanStopTime() {
+        _;
+    }
+
     /// @dev it should revert.
-    function testCannotCreate__TokenNotContract() external {
+    function testCannotCreate__TokenNotContract()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+    {
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(6174)));
         IERC20 token = IERC20(address(6174));
         sablierV2Linear.create(
@@ -245,13 +248,21 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
             daiStream.cancelable
         );
     }
-}
 
-contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero__StartTimeLessThanStopTime__CliffTimeLessThanStopTime__TokenMissingReturnValue is
-    SablierV2LinearUnitTest
-{
+    modifier TokenContract() {
+        _;
+    }
+
     /// @dev it should create the stream.
-    function testCreate__TokenMissingReturnValue() external {
+    function testCreate__TokenMissingReturnValue()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+        TokenContract
+    {
         IERC20 token = IERC20(address(nonStandardToken));
 
         uint256 daiStreamId = sablierV2Linear.create(
@@ -276,13 +287,22 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
         assertEq(actualStream.cancelable, daiStream.cancelable);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
-}
 
-contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero__StartTimeLessThanStopTime__CliffTimeLessThanStopTime__TokenERC20Compliant__Token6Decimals is
-    SablierV2LinearUnitTest
-{
+    modifier TokenCompliant() {
+        _;
+    }
+
     /// @dev  it should create the stream.
-    function testCreate() external {
+    function testCreate__6Decimals()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+        TokenContract
+        TokenCompliant
+    {
         uint256 usdcStreamId = createDefaultUsdcStream();
         ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(usdcStreamId);
         ISablierV2Linear.Stream memory expectedStream = usdcStream;
@@ -290,7 +310,16 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
     }
 
     /// @dev it should bump the next stream id.
-    function testCreate__NextStreamId() external {
+    function testCreate__6Decimals__NextStreamId()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+        TokenContract
+        TokenCompliant
+    {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
         createDefaultUsdcStream();
         uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
@@ -299,7 +328,16 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
     }
 
     /// @dev it should emit a CreateStream event.
-    function testCreate__Event() external {
+    function testCreate__6Decimals__Event()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+        TokenContract
+        TokenCompliant
+    {
         uint256 usdcStreamId = sablierV2Linear.nextStreamId();
         vm.expectEmit(true, true, true, true);
         address funder = usdcStream.sender;
@@ -317,20 +355,34 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
         );
         createDefaultUsdcStream();
     }
-}
 
-contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero__StartTimeLessThanStopTime__CliffTimeLessThanStopTime__TokenERC20Compliant__Token18Decimals__CallerSender is
-    SablierV2LinearUnitTest
-{
     /// @dev it should create the stream.
-    function testCreate() external {
+    function testCreate__18Decimals__CallerSender()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+        TokenContract
+        TokenCompliant
+    {
         uint256 daiStreamId = createDefaultDaiStream();
         ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(daiStreamId);
         assertEq(daiStream, createdStream);
     }
 
     /// @dev it should bump the next stream id.
-    function testCreate__NextStreamId() external {
+    function testCreate__18Decimals__CallerSender__NextStreamId()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+        TokenContract
+        TokenCompliant
+    {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
         createDefaultDaiStream();
         uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
@@ -339,7 +391,16 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
     }
 
     /// @dev it should emit a CreateStream event.
-    function testCreate__Event() external {
+    function testCreate__18Decimals__CallerSender__Event()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+        TokenContract
+        TokenCompliant
+    {
         uint256 daiStreamId = sablierV2Linear.nextStreamId();
         vm.expectEmit(true, true, true, true);
         address funder = daiStream.sender;
@@ -357,13 +418,18 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
         );
         createDefaultDaiStream();
     }
-}
 
-contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero__StartTimeLessThanStopTime__CliffTimeLessThanStopTime__TokenERC20Compliant__Token18Decimals__CallerNotSender is
-    SablierV2LinearUnitTest
-{
     /// @dev it should create the stream.
-    function testCreate__18Decimals__CallerNotSender() external {
+    function testCreate__18Decimals__CallerNotSender()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+        TokenContract
+        TokenCompliant
+    {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
         uint256 daiStreamId = createDefaultDaiStream();
@@ -375,7 +441,16 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
     }
 
     /// @dev it should bump the next stream id.
-    function testCreate__18Decimals__CallerNotSender__NextStreamId() external {
+    function testCreate__18Decimals__CallerNotSender__NextStreamId()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+        TokenContract
+        TokenCompliant
+    {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
 
         // Make Alice the funder of the stream.
@@ -389,7 +464,16 @@ contract SablierV2Linear__Create__RecipientNonZeroAddress__DepositAmountNotZero_
     }
 
     /// @dev  it should emit a CreateStream event.
-    function testCreate__18Decimals__CallerNotSender__Event() external {
+    function testCreate__18Decimals__CallerNotSender__Event()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        StartTimeLessThanStopTime
+        StartTimeLessThanCliffTime
+        CliffLessThanStopTime
+        TokenContract
+        TokenCompliant
+    {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
 

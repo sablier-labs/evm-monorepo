@@ -7,7 +7,7 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
+contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
     uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.
@@ -20,23 +20,21 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
         // Make the recipient the `msg.sender` in this test suite.
         changePrank(users.recipient);
     }
-}
 
-contract SablierV2Linear__Withdraw__StreamNonExistent is SablierV2Linear__Withdraw {
     /// @dev it should revert.
-    function testCannotWithdraw() external {
+    function testCannotWithdraw__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
         uint256 withdrawAmount = 0;
         sablierV2Linear.withdraw(nonStreamId, withdrawAmount);
     }
-}
 
-contract StreamExistent {}
+    modifier StreamExistent() {
+        _;
+    }
 
-contract SablierV2Linear__Withdraw__CallerUnauthorized is SablierV2Linear__Withdraw, StreamExistent {
     /// @dev it should revert.
-    function testCannotWithdraw__CallerUnauthorized() external {
+    function testCannotWithdraw__CallerUnauthorized() external StreamExistent {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 
@@ -45,11 +43,9 @@ contract SablierV2Linear__Withdraw__CallerUnauthorized is SablierV2Linear__Withd
         uint256 withdrawAmount = 0;
         sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
     }
-}
 
-contract SablierV2Linear__Withdraw__CallerSender is SablierV2Linear__Withdraw, StreamExistent {
     /// @dev it should make the withdrawal.
-    function testWithdraw() external {
+    function testWithdraw() external StreamExistent {
         // Make the sender the `msg.sender` in this test case.
         changePrank(users.sender);
 
@@ -60,31 +56,22 @@ contract SablierV2Linear__Withdraw__CallerSender is SablierV2Linear__Withdraw, S
         // Run the test.
         sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
     }
-}
 
-contract CallerRecipient {}
+    modifier CallerRecipient() {
+        _;
+    }
 
-contract SablierV2Linear__Withdraw__StreamExistent__WithdrawAmountZero is
-    SablierV2Linear__Withdraw,
-    StreamExistent,
-    CallerRecipient
-{
     /// @dev it should revert.
-    function testCannotWithdraw__WithdrawAmountZero() external {
+    function testCannotWithdraw__WithdrawAmountZero() external StreamExistent CallerRecipient {
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__WithdrawAmountZero.selector, daiStreamId));
         uint256 withdrawAmount = 0;
         sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
     }
-}
 
-contract WithdrawAmountNotZero {}
+    modifier WithdrawAmountNotZero() {
+        _;
+    }
 
-contract SablierV2Linear__Withdraw__WithdrawAmountGreaterThanWithdrawableAmount is
-    SablierV2Linear__Withdraw,
-    StreamExistent,
-    CallerRecipient,
-    WithdrawAmountNotZero
-{
     /// @dev it should revert.
     function testCannotWithdraw__WithdrawAmountGreaterThanWithdrawableAmount() external {
         uint256 withdrawAmountMaxUint256 = UINT256_MAX;
@@ -99,19 +86,19 @@ contract SablierV2Linear__Withdraw__WithdrawAmountGreaterThanWithdrawableAmount 
         );
         sablierV2Linear.withdraw(daiStreamId, withdrawAmountMaxUint256);
     }
-}
 
-contract WithdrawAmountLessThanOrEqualToWithdrawableAmount {}
+    modifier WithdrawAmountLessThanOrEqualToWithdrawableAmount() {
+        _;
+    }
 
-contract SablierV2Linear__Withdraw__StreamEnded is
-    SablierV2Linear__Withdraw,
-    StreamExistent,
-    CallerRecipient,
-    WithdrawAmountNotZero,
-    WithdrawAmountLessThanOrEqualToWithdrawableAmount
-{
     /// @dev it should cancel and delete the stream.
-    function testWithdraw() external {
+    function testWithdraw__StreamEnded()
+        external
+        StreamExistent
+        CallerRecipient
+        WithdrawAmountNotZero
+        WithdrawAmountLessThanOrEqualToWithdrawableAmount
+    {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 
@@ -124,7 +111,13 @@ contract SablierV2Linear__Withdraw__StreamEnded is
     }
 
     /// @dev it should emit a Withdraw event.
-    function testWithdraw__Event() external {
+    function testWithdraw__StreamEnded__Event()
+        external
+        StreamExistent
+        CallerRecipient
+        WithdrawAmountNotZero
+        WithdrawAmountLessThanOrEqualToWithdrawableAmount
+    {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 
@@ -134,17 +127,15 @@ contract SablierV2Linear__Withdraw__StreamEnded is
         emit Withdraw(daiStreamId, daiStream.recipient, withdrawAmount);
         sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
     }
-}
 
-contract SablierV2Linear__Withdraw__StreamOngoing is
-    SablierV2Linear__Withdraw,
-    StreamExistent,
-    CallerRecipient,
-    WithdrawAmountNotZero,
-    WithdrawAmountLessThanOrEqualToWithdrawableAmount
-{
     /// @dev it should make the withdrawal and update the withdrawn amount.
-    function testWithdraw() external {
+    function testWithdraw__StreamOngoing()
+        external
+        StreamExistent
+        CallerRecipient
+        WithdrawAmountNotZero
+        WithdrawAmountLessThanOrEqualToWithdrawableAmount
+    {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
@@ -157,7 +148,13 @@ contract SablierV2Linear__Withdraw__StreamOngoing is
     }
 
     /// @dev it should emit a Withdraw event.
-    function testWithdraw__Event() external {
+    function testWithdraw__StreamOngoing__Event()
+        external
+        StreamExistent
+        CallerRecipient
+        WithdrawAmountNotZero
+        WithdrawAmountLessThanOrEqualToWithdrawableAmount
+    {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 

@@ -7,7 +7,7 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
+contract SablierV2Linear__UnitTest__CancelAll is SablierV2LinearUnitTest {
     uint256[] internal defaultStreamIds;
 
     /// @dev A setup function invoked before each test case.
@@ -18,20 +18,16 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         defaultStreamIds.push(createDefaultDaiStream());
         defaultStreamIds.push(createDefaultDaiStream());
     }
-}
 
-contract SablierV2Linear__CancelAll__OnlyNonExistentStreams is SablierV2Linear__CancelAll {
     /// @dev it should do nothing.
     function testCannotCancelAll__OnlyNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = createDynamicArray(nonStreamId);
         sablierV2Linear.cancelAll(streamIds);
     }
-}
 
-contract SablierV2Linear__CancelAll__SomeNonExistentStreams is SablierV2Linear__CancelAll {
     /// @dev it should cancel and delete the non existent streams.
-    function testCannotCancelAll() external {
+    function testCannotCancelAll__SomeNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonStreamId);
         sablierV2Linear.cancelAll(streamIds);
@@ -39,13 +35,13 @@ contract SablierV2Linear__CancelAll__SomeNonExistentStreams is SablierV2Linear__
         ISablierV2Linear.Stream memory expectedStream;
         assertEq(actualStream, expectedStream);
     }
-}
 
-contract OnlyExistentStreams {}
+    modifier OnlyExistentStreams() {
+        _;
+    }
 
-contract SablierV2Linear__CancelAll__CallerUnauthorizedAllStreams is SablierV2Linear__CancelAll, OnlyExistentStreams {
     /// @dev it should revert.
-    function testCannotCancelAll() external {
+    function testCannotCancelAll__CallerUnauthorizedAllStreams() external OnlyExistentStreams {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 
@@ -55,11 +51,9 @@ contract SablierV2Linear__CancelAll__CallerUnauthorizedAllStreams is SablierV2Li
         );
         sablierV2Linear.cancelAll(defaultStreamIds);
     }
-}
 
-contract SablierV2Linear__CancelAll__CallerUnauthorizedSomeStreams is SablierV2Linear__CancelAll, OnlyExistentStreams {
     /// @dev it should revert.
-    function testCannotCancelAll() external {
+    function testCannotCancelAll__CallerUnauthorizedSomeStreams() external OnlyExistentStreams {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 
@@ -82,11 +76,9 @@ contract SablierV2Linear__CancelAll__CallerUnauthorizedSomeStreams is SablierV2L
         );
         sablierV2Linear.cancelAll(streamIds);
     }
-}
 
-contract SablierV2Linear__CancelAll__CallerRecipientAllStreams is SablierV2Linear__CancelAll, OnlyExistentStreams {
     /// @dev it should cancel and delete the streams.
-    function testCancelAll() external {
+    function testCancelAll__CallerRecipientAllStreams() external OnlyExistentStreams {
         // Make the recipient the `msg.sender` in this test case.
         changePrank(users.recipient);
 
@@ -100,17 +92,13 @@ contract SablierV2Linear__CancelAll__CallerRecipientAllStreams is SablierV2Linea
         assertEq(actualStream0, expectedStream);
         assertEq(actualStream1, expectedStream);
     }
-}
 
-contract CallerSenderAllStreams {}
+    modifier CallerSenderAllStreams() {
+        _;
+    }
 
-contract SablierV2Linear__CancelAll__AllStreamsNonCancelable is
-    SablierV2Linear__CancelAll,
-    OnlyExistentStreams,
-    CallerSenderAllStreams
-{
     /// @dev it should do nothing.
-    function testCannotCancelAll__AllStreamsNonCancelable() external {
+    function testCannotCancelAll__AllStreamsNonCancelable() external OnlyExistentStreams CallerSenderAllStreams {
         // Create the non-cancelable stream.
         uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
 
@@ -118,15 +106,9 @@ contract SablierV2Linear__CancelAll__AllStreamsNonCancelable is
         uint256[] memory nonCancelableStreamIds = createDynamicArray(nonCancelableDaiStreamId);
         sablierV2Linear.cancelAll(nonCancelableStreamIds);
     }
-}
 
-contract SablierV2Linear__CancelAll__SomeStreamsNonCancelable is
-    SablierV2Linear__CancelAll,
-    OnlyExistentStreams,
-    CallerSenderAllStreams
-{
     /// @dev it should cancel and delete the cancelable streams.
-    function testCannotCancelAll__SomeStreamsNonCancelable() external {
+    function testCannotCancelAll__SomeStreamsNonCancelable() external OnlyExistentStreams CallerSenderAllStreams {
         // Create the non-cancelable stream.
         uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
 
@@ -137,18 +119,13 @@ contract SablierV2Linear__CancelAll__SomeStreamsNonCancelable is
         ISablierV2Linear.Stream memory expectedStream;
         assertEq(actualStream, expectedStream);
     }
-}
 
-contract AllStreamsCancelable {}
+    modifier AllStreamsCancelable() {
+        _;
+    }
 
-contract SablierV2Linear__CancelAll__AllStreamsEnded is
-    SablierV2Linear__CancelAll,
-    OnlyExistentStreams,
-    CallerSenderAllStreams,
-    AllStreamsCancelable
-{
     /// @dev it should cancel and delete the streams.
-    function testCancelAll() external {
+    function testCancelAll__AllStreamsEnded() external OnlyExistentStreams CallerSenderAllStreams AllStreamsCancelable {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 
@@ -164,7 +141,12 @@ contract SablierV2Linear__CancelAll__AllStreamsEnded is
     }
 
     /// @dev it should emit multiple Cancel events.
-    function testCancelAll__Events() external {
+    function testCancelAll__AllStreamsEnded__Events()
+        external
+        OnlyExistentStreams
+        CallerSenderAllStreams
+        AllStreamsCancelable
+    {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 
@@ -180,16 +162,14 @@ contract SablierV2Linear__CancelAll__AllStreamsEnded is
         uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], defaultStreamIds[1]);
         sablierV2Linear.cancelAll(streamIds);
     }
-}
 
-contract SablierV2Linear__CancelAll__AllStreamsOngoing is
-    SablierV2Linear__CancelAll,
-    OnlyExistentStreams,
-    CallerSenderAllStreams,
-    AllStreamsCancelable
-{
     /// @dev it should cancel and delete the streams.
-    function testCancelAll() external {
+    function testCancelAll__AllStreamsOngoing()
+        external
+        OnlyExistentStreams
+        CallerSenderAllStreams
+        AllStreamsCancelable
+    {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
@@ -205,7 +185,12 @@ contract SablierV2Linear__CancelAll__AllStreamsOngoing is
     }
 
     /// @dev it should emit multiple Cancel events.
-    function testCancelAll__Events() external {
+    function testCancelAll__AllStreamsOngoing__Events()
+        external
+        OnlyExistentStreams
+        CallerSenderAllStreams
+        AllStreamsCancelable
+    {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
@@ -220,16 +205,14 @@ contract SablierV2Linear__CancelAll__AllStreamsOngoing is
 
         sablierV2Linear.cancelAll(defaultStreamIds);
     }
-}
 
-contract SablierV2Linear__CancelAll__SomeStreamsEndedSomeStreamsOngoing is
-    SablierV2Linear__CancelAll,
-    OnlyExistentStreams,
-    CallerSenderAllStreams,
-    AllStreamsCancelable
-{
     /// @dev it should cancel and delete the streams.
-    function testCancelAll() external {
+    function testCancelAll__SomeStreamsEndedSomeStreamsOngoing()
+        external
+        OnlyExistentStreams
+        CallerSenderAllStreams
+        AllStreamsCancelable
+    {
         // Use the first default stream as the ongoing daiStream.
         uint256 ongoingStreamId = defaultStreamIds[0];
 
@@ -262,7 +245,12 @@ contract SablierV2Linear__CancelAll__SomeStreamsEndedSomeStreamsOngoing is
     }
 
     /// @dev it should emit multiple Cancel events.
-    function testCancelAll__Events() external {
+    function testCancelAll__SomeStreamsEndedSomeStreamsOngoing__Events()
+        external
+        OnlyExistentStreams
+        CallerSenderAllStreams
+        AllStreamsCancelable
+    {
         // Use the first default stream as the ongoing daiStream.
         uint256 ongoingStreamId = defaultStreamIds[0];
 
