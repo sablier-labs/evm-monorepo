@@ -101,18 +101,13 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount is SablierV2ProUnitTest {
         _;
     }
 
-    modifier Token6Decimals() {
-        _;
-    }
-
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount()
+    function testGetWithdrawableAmount__Token6Decimals()
         external
         StreamExistent
         CurrentTimeLessThanStopTime
         NoWithdrawals
         OneSegment
-        Token6Decimals
     {
         uint256 usdcDepositAmount = SEGMENT_AMOUNTS_USDC[0] + SEGMENT_AMOUNTS_USDC[1];
         uint256[] memory segmentAmounts = createDynamicArray(usdcDepositAmount);
@@ -178,12 +173,11 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount is SablierV2ProUnitTest {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__CurrentMilestone1st()
+    function testGetWithdrawableAmount__CurrentMilestone1st__Token6Decimals()
         external
         StreamExistent
         CurrentTimeLessThanStopTime
         NoWithdrawals
-        Token6Decimals
         MultipleSegments
     {
         uint256 usdcStreamId = createDefaultUsdcStream();
@@ -209,12 +203,11 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount is SablierV2ProUnitTest {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__CurrentMilestone2nd()
+    function testGetWithdrawableAmount__CurrentMilestone2nd__Token6Decimals()
         external
         StreamExistent
         CurrentTimeLessThanStopTime
         NoWithdrawals
-        Token6Decimals
         MultipleSegments
     {
         uint256 usdcStreamId = createDefaultUsdcStream();
@@ -242,12 +235,11 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount is SablierV2ProUnitTest {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__CurrentMilestone200th()
+    function testGetWithdrawableAmount__CurrentMilestone200th__Token6Decimals()
         external
         StreamExistent
         CurrentTimeLessThanStopTime
         NoWithdrawals
-        Token6Decimals
         MultipleSegments
     {
         uint256 count = sablierV2Pro.MAX_SEGMENT_COUNT();
