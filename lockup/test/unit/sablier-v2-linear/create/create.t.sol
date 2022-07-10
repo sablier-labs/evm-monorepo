@@ -356,8 +356,12 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         createDefaultUsdcStream();
     }
 
+    modifier Token18Decimals() {
+        _;
+    }
+
     /// @dev it should create the stream.
-    function testCreate__18Decimals__CallerSender()
+    function testCreate___CallerNotSender()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -366,14 +370,20 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
+        Token18Decimals
     {
+        // Make Alice the funder of the stream.
+        changePrank(users.alice);
         uint256 daiStreamId = createDefaultDaiStream();
-        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(daiStreamId);
-        assertEq(daiStream, createdStream);
+
+        // Run the test.
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
+        ISablierV2Linear.Stream memory expectedStream = daiStream;
+        assertEq(actualStream, expectedStream);
     }
 
     /// @dev it should bump the next stream id.
-    function testCreate__18Decimals__CallerSender__NextStreamId()
+    function testCreate__CallerNotSender__NextStreamId()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -382,16 +392,22 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
+        Token18Decimals
     {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
+
+        // Make Alice the funder of the stream.
+        changePrank(users.alice);
         createDefaultDaiStream();
+
+        // Run the test.
         uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
         uint256 expectedNextStreamId = nextStreamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
-    /// @dev it should emit a CreateStream event.
-    function testCreate__18Decimals__CallerSender__Event()
+    /// @dev  it should emit a CreateStream event.
+    function testCreate__CallerNotSender__Event()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -400,10 +416,15 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
+        Token18Decimals
     {
+        // Make Alice the funder of the stream.
+        changePrank(users.alice);
+
+        // Run the test.
         uint256 daiStreamId = sablierV2Linear.nextStreamId();
         vm.expectEmit(true, true, true, true);
-        address funder = daiStream.sender;
+        address funder = users.alice;
         emit CreateStream(
             daiStreamId,
             funder,
@@ -419,8 +440,12 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         createDefaultDaiStream();
     }
 
+    modifier CallerSender() {
+        _;
+    }
+
     /// @dev it should create the stream.
-    function testCreate__18Decimals__CallerNotSender()
+    function testCreate()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -429,19 +454,16 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
+        Token18Decimals
+        CallerSender
     {
-        // Make Alice the funder of the stream.
-        changePrank(users.alice);
         uint256 daiStreamId = createDefaultDaiStream();
-
-        // Run the test.
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
-        ISablierV2Linear.Stream memory expectedStream = daiStream;
-        assertEq(actualStream, expectedStream);
+        ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(daiStreamId);
+        assertEq(daiStream, createdStream);
     }
 
     /// @dev it should bump the next stream id.
-    function testCreate__18Decimals__CallerNotSender__NextStreamId()
+    function testCreate__NextStreamId()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -450,21 +472,18 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
+        Token18Decimals
+        CallerSender
     {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
-
-        // Make Alice the funder of the stream.
-        changePrank(users.alice);
         createDefaultDaiStream();
-
-        // Run the test.
         uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
         uint256 expectedNextStreamId = nextStreamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
-    /// @dev  it should emit a CreateStream event.
-    function testCreate__18Decimals__CallerNotSender__Event()
+    /// @dev it should emit a CreateStream event.
+    function testCreate__Event()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -473,14 +492,12 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
+        Token18Decimals
+        CallerSender
     {
-        // Make Alice the funder of the stream.
-        changePrank(users.alice);
-
-        // Run the test.
         uint256 daiStreamId = sablierV2Linear.nextStreamId();
         vm.expectEmit(true, true, true, true);
-        address funder = users.alice;
+        address funder = daiStream.sender;
         emit CreateStream(
             daiStreamId,
             funder,

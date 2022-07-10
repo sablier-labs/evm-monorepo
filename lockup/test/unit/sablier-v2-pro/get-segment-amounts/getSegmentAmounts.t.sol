@@ -3,21 +3,21 @@ pragma solidity >=0.8.13;
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__GetSegmentAmounts__StreamNonExistent is SablierV2ProUnitTest {
+contract SablierV2Pro__UnitTest__GetSegmentAmounts is SablierV2ProUnitTest {
     /// @dev it should return zero.
-    function testGetSegmentAmounts() external {
+    function testGetSegmentAmounts__StreamNonExistents() external {
         uint256 nonStreamId = 1729;
         uint256[] memory actualSegmentAmounts = sablierV2Pro.getSegmentAmounts(nonStreamId);
         uint256[] memory expectedSegmentAmounts;
         assertEq(actualSegmentAmounts, expectedSegmentAmounts);
     }
-}
 
-contract StreamExistent {}
+    modifier StreamExistent() {
+        _;
+    }
 
-contract SablierV2Pro__GetSegmentAmounts is SablierV2ProUnitTest, StreamExistent {
     /// @dev it should return the correct segment amounts.
-    function testGetSegmentAmounts() external {
+    function testGetSegmentAmounts() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
         uint256[] memory actualSegmentAmounts = sablierV2Pro.getSegmentAmounts(daiStreamId);
         uint256[] memory expectedSegmentAmounts = daiStream.segmentAmounts;

@@ -5,21 +5,21 @@ import { ISablierV2Pro } from "@sablier/v2-core/interfaces/ISablierV2Pro.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__GetStream__StreamNonExistent is SablierV2ProUnitTest {
+contract SablierV2Pro__UnitTest__GetStream is SablierV2ProUnitTest {
     /// @dev it should return a zeroed out stream struct.
-    function testGetStream() external {
+    function testGetStream__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(nonStreamId);
         ISablierV2Pro.Stream memory expectedStream;
         assertEq(actualStream, expectedStream);
     }
-}
 
-contract StreamExistent {}
+    modifier StreamExistent() {
+        _;
+    }
 
-contract SablierV2Pro__GetStream is SablierV2ProUnitTest, StreamExistent {
     /// @dev it should return the stream struct.
-    function testGetStream() external {
+    function testGetStream() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
         ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         ISablierV2Pro.Stream memory expectedStream = daiStream;
