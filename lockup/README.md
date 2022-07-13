@@ -45,6 +45,8 @@ You will need the following software on your machine:
 
 - [Git](https://git-scm.com/downloads)
 - [Foundry](https://github.com/foundry-rs/foundry)
+- [Node.Js](https://nodejs.org/en/download/)
+- [Yarn](https://yarnpkg.com/)
 
 In addition, familiarity with [Solidity](https://soliditylang.org/) is requisite.
 
