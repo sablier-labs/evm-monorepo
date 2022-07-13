@@ -1,6 +1,7 @@
 # directories
 .yarn/
 **/cache
+**/lib
 **/out
 **/node_modules
 
