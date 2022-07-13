@@ -11,19 +11,23 @@
 
 Core smart contracts of the Sablier V2 money streaming protocol. In-depth documentation is available at [docs.sablier.finance](https://docs.sablier.finance).
 
-## Usage
+## Install
 
 ### Foundry
 
-How to import the Sablier V2 smart contracts in a Foundry project:
+First, run the install step:
 
 ```sh
 forge install --no-commit sablierhq/v2-core
 ```
 
-### Hardhat
+Then, add the following line to your `remappings.txt` file:
 
-How to import the Sablier V2 smart contracts in a Hardhat project:
+```text
+@sablier/v2-core/=lib/v2-core/src/
+```
+
+### Hardhat
 
 ```sh
 yarn add @sablier/v2-core
@@ -52,7 +56,11 @@ Clone this repository including submodules:
 $ git clone --recurse-submodules -j8 git@github.com:sablierhq/v2-core.git
 ```
 
-Then, follow the example given in `.env.example` to create a `.env` file with the requisite environment variables.
+Then, inside the project's directory, run this to install the Node.js dependencies:
+
+```sh
+$ yarn install
+```
 
 Now you can start making changes.
 
