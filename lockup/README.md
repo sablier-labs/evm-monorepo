@@ -1,7 +1,7 @@
 # Sablier V2 Core [![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry] [![Styled with Prettier][prettier-badge]][prettier] [![License: LGPL v3][license-badge]][license]
 
 [gha]: https://github.com/sablierhq/v2-core/actions
-[gha-badge]: https://github.com/sablierhq/v2-core/actions/workflows/integration.yml/badge.svg
+[gha-badge]: https://github.com/sablierhq/v2-core/actions/workflows/ci.yml/badge.svg
 [foundry]: https://getfoundry.sh/
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 [prettier]: https://prettier.io
