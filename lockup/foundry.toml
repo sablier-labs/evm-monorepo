@@ -1,6 +1,6 @@
 # Full reference https://github.com/foundry-rs/foundry/tree/master/config
 
-[default]
+[profile.default]
 auto_detect_solc = false
 libs = ["lib"]
 gas_reports = ["*"]
@@ -13,5 +13,5 @@ src = "src"
 test = "test"
 tx_origin = "0x9aF2E2B7e57c1CD7C68C5C3796d8ea67e0018dB7"
 
-[ci]
+[profile.ci]
 verbosity = 4
