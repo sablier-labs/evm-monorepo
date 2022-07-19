@@ -3,8 +3,8 @@ pragma solidity >=0.8.13;
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__UnitTest__StopTime is SablierV2ProUnitTest {
-    /// @dev When the stream does not exist, it should return zero.
+contract SablierV2Pro__GetStopTime is SablierV2ProUnitTest {
+    /// @dev it should return zero.
     function testGetStopTime__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         uint256 actualStopTime = sablierV2Pro.getStopTime(nonStreamId);
@@ -12,10 +12,14 @@ contract SablierV2Pro__UnitTest__StopTime is SablierV2ProUnitTest {
         assertEq(actualStopTime, expectedStopTime);
     }
 
-    /// @dev When the stream exists, it should return the correct stop time.
-    function testGetStopTime() external {
-        uint256 streamId = createDefaultDaiStream();
-        uint256 actualStopTime = sablierV2Pro.getStopTime(streamId);
+    modifier StreamExistent() {
+        _;
+    }
+
+    /// @dev it should return the correct stop time.
+    function testGetStopTime() external StreamExistent {
+        uint256 daiStreamId = createDefaultDaiStream();
+        uint256 actualStopTime = sablierV2Pro.getStopTime(daiStreamId);
         uint256 expectedStopTime = daiStream.stopTime;
         assertEq(actualStopTime, expectedStopTime);
     }

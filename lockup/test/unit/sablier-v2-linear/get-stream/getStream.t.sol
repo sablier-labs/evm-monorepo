@@ -5,8 +5,8 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__UnitTest__GetStream is SablierV2LinearUnitTest {
-    /// @dev When the stream does not exist, it should return a zeroed out stream struct.
+contract SablierV2Linear__GetStream is SablierV2LinearUnitTest {
+    /// @dev it should return a zeroed out stream struct.
     function testGetStream__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(nonStreamId);
@@ -14,10 +14,14 @@ contract SablierV2Linear__UnitTest__GetStream is SablierV2LinearUnitTest {
         assertEq(actualStream, expectedStream);
     }
 
-    /// @dev When the stream exists, it should return the stream struct.
-    function testGetStream() external {
-        uint256 streamId = createDefaultDaiStream();
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+    modifier StreamExistent() {
+        _;
+    }
+
+    /// @dev it should return the stream struct.
+    function testGetStream() external StreamExistent {
+        uint256 daiStreamId = createDefaultDaiStream();
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         ISablierV2Linear.Stream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }

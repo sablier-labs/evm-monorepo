@@ -3,12 +3,13 @@ pragma solidity >=0.8.13;
 
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Pro } from "@sablier/v2-core/interfaces/ISablierV2Pro.sol";
+
 import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
-    /// @dev When the delta count is out of bounds, it should revert.
+contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
+    /// @dev it should revert.
     function testCannotCreateWithDuration__DeltaCountOutOfBounds() external {
         uint256 deltaCount = sablierV2Pro.MAX_SEGMENT_COUNT() + 1;
         vm.expectRevert(
@@ -33,10 +34,19 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When the milestone calculations overflow uint256 and the start time is greater than the calculated
-    /// stop time, it should revert.
-    function testCannotCreateWithDuration__MilestonesCalculationOverflow__StartTimeGreaterThanCalculatedStopTime()
+    modifier DeltaCountWithinBounds() {
+        _;
+    }
+
+    modifier MilestonesCalculationOverflows() {
+        _;
+    }
+
+    /// @dev it should revert.
+    function testCannotCreateWithDuration__StartTimeGreaterThanCalculatedStopTime()
         external
+        DeltaCountWithinBounds
+        MilestonesCalculationOverflows
     {
         uint256 startTime = block.timestamp;
         uint256[] memory segmentDeltas = createDynamicArray(1, UINT256_MAX - startTime);
@@ -60,10 +70,11 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When the milestone calculations overflow uint256 and the start time is greater than the calculated first
-    /// milestone, it should revert.
-    function testCannotCreateWithDuration__MilestonesCalculationOverflow__StartTimeGreaterThanCalculatedFirstMilestone()
+    /// @dev it should revert.
+    function testCannotCreateWithDuration__StartTimeGreaterThanCalculatedFirstMilestone()
         external
+        DeltaCountWithinBounds
+        MilestonesCalculationOverflows
     {
         uint256 startTime = block.timestamp;
         uint256[] memory segmentDeltas = createDynamicArray(UINT256_MAX, 1);
@@ -91,9 +102,12 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When the milestone calculations overflow uint256 and the segment milestones are not ordered,
-    /// it should revert.
-    function testCannotCreateWithDuration__MilestonesCalculationOverflow__SegmentMilestonesNotOrdered() external {
+    /// @dev it should revert.
+    function testCannotCreateWithDuration__SegmentMilestonesNotOrdered()
+        external
+        DeltaCountWithinBounds
+        MilestonesCalculationOverflows
+    {
         uint256 startTime = block.timestamp;
         uint256[] memory segmentAmounts = createDynamicArray(0, SEGMENT_AMOUNTS_DAI[0], SEGMENT_AMOUNTS_DAI[1]);
         SD59x18[] memory segmentExponents = createDynamicArray(SCALE, SEGMENT_EXPONENTS[0], SEGMENT_EXPONENTS[1]);
@@ -124,9 +138,13 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
         );
     }
 
-    /// @dev When all checks pass, it should create the stream with duration.
-    function testCreateWithDuration() external {
-        uint256 streamId = sablierV2Pro.createWithDuration(
+    modifier MilestonesCalculationDoesNotOverflow() {
+        _;
+    }
+
+    /// @dev it should create the stream with duration.
+    function testCreateWithDuration() external DeltaCountWithinBounds MilestonesCalculationDoesNotOverflow {
+        uint256 daiStreamId = sablierV2Pro.createWithDuration(
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -136,7 +154,7 @@ contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
             SEGMENT_DELTAS,
             daiStream.cancelable
         );
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(streamId);
+        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         ISablierV2Pro.Stream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }

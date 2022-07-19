@@ -3,8 +3,8 @@ pragma solidity >=0.8.13;
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__UnitTest__IsCancelable is SablierV2ProUnitTest {
-    /// @dev When the stream does not exist, it should return zero.
+contract SablierV2Pro__IsCancelable is SablierV2ProUnitTest {
+    /// @dev it should return zero.
     function testIsCancelable__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         bool actualCancelable = sablierV2Pro.isCancelable(nonStreamId);
@@ -12,16 +12,24 @@ contract SablierV2Pro__UnitTest__IsCancelable is SablierV2ProUnitTest {
         assertEq(actualCancelable, expectedCancelable);
     }
 
-    /// @dev When the stream is cancelable, it should return false.
-    function testIsCancelable__CancelableStream() external {
-        uint256 streamId = createDefaultDaiStream();
-        bool actualCancelable = sablierV2Pro.isCancelable(streamId);
+    modifier StreamExistent() {
+        _;
+    }
+
+    /// @dev it should return true.
+    function testIsCancelable__CancelableStream() external StreamExistent {
+        uint256 daiStreamId = createDefaultDaiStream();
+        bool actualCancelable = sablierV2Pro.isCancelable(daiStreamId);
         bool expectedCancelable = true;
         assertEq(actualCancelable, expectedCancelable);
     }
 
-    /// @dev When the stream is not cancelable, it should return true.
-    function testIsCancelable__NonCancelableStream() external {
+    modifier NonCancelableStream() {
+        _;
+    }
+
+    /// @dev it should return false.
+    function testIsCancelable() external StreamExistent NonCancelableStream {
         uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
         bool actualCancelable = sablierV2Pro.isCancelable(nonCancelableDaiStreamId);
         bool expectedCancelable = false;

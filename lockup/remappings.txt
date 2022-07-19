@@ -1,4 +1,4 @@
-@prb/contracts/=lib/prb-contracts/contracts/
+@prb/contracts/=lib/prb-contracts/src/
 @prb/math/=lib/prb-math/contracts/
 @sablier/v2-core/=src/
 forge-std/=lib/forge-std/src/

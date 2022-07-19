@@ -3,8 +3,8 @@ pragma solidity >=0.8.13;
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__UnitTest__GetRecipient is SablierV2LinearUnitTest {
-    /// @dev When the stream does not exist, it should return zero.
+contract SablierV2Linear__GetRecipient is SablierV2LinearUnitTest {
+    /// @dev it should return zero.
     function testGetRecipient__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         address actualRecipient = sablierV2Linear.getRecipient(nonStreamId);
@@ -12,10 +12,14 @@ contract SablierV2Linear__UnitTest__GetRecipient is SablierV2LinearUnitTest {
         assertEq(actualRecipient, expectedRecipient);
     }
 
-    /// @dev When the stream exists, it should return the correct recipient.
-    function testGetRecipient() external {
-        uint256 streamId = createDefaultDaiStream();
-        address actualRecipient = sablierV2Linear.getRecipient(streamId);
+    modifier StreamExistent() {
+        _;
+    }
+
+    /// @dev it should return the correct recipient.
+    function testGetRecipient() external StreamExistent {
+        uint256 daiStreamId = createDefaultDaiStream();
+        address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
         address expectedRecipient = daiStream.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }

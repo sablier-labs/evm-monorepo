@@ -10,17 +10,17 @@ getWithdrawableAmount.t.sol
       ├── when the current time is greater than the stop time
       │  ├── when there have been withdrawals
       │  │  └── it should return the deposit amount
-      │  └── when there haven't been withdrawals
+      │  └── when there have been no withdrawals
       │     └── it should return the deposit amount minus the withdrawn amount
       ├── when the current time is equal to the stop time
       │  ├── when there have been withdrawals
       │  │  └── it should return the deposit amount
-      │  └── when there haven't been withdrawals
+      │  └── when there have been no withdrawals
       │     └── it should return the deposit amount minus the withdrawn amount
       └── when the current time is less than the stop time
          ├── when there have been withdrawals
          │  └── it should return the correct withdrawable amount
-         └── when there haven't been withdrawals
+         └── when there have been no withdrawals
             ├── when the token has 6 decimals
             │  └── it should return the correct withdrawable amount
             └── when the token has 18 decimals

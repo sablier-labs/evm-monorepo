@@ -1,3 +1,4 @@
+// solhint-disable max-line-length
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
@@ -6,10 +7,9 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTest {
-    /// @dev When the cliff duration calculation overflows uint256, it should revert due to
-    /// the start time being greater than the stop time
-    function testCannotCreateWithDuration__CliffDurationCalculationOverflow(uint256 cliffDuration) external {
+contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
+    /// @dev it should revert due to the start time being greater than the stop time.
+    function testCannotCreateWithDuration__CliffDurationCalculationOverflows(uint256 cliffDuration) external {
         vm.assume(cliffDuration > UINT256_MAX - block.timestamp);
         uint256 totalDuration = cliffDuration;
         uint256 cliffTime;
@@ -36,11 +36,15 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
         );
     }
 
+    modifier CliffDurationCalculationDoesNotOverflow() {
+        _;
+    }
+
     /// @dev When the total duration calculation overflows uint256, it should revert.
-    function testCannotCreateWithDuration__TotalDurationCalculationOverflow(
+    function testCannotCreateWithDuration__TotalDurationCalculationOverflows(
         uint256 cliffDuration,
         uint256 totalDuration
-    ) external {
+    ) external CliffDurationCalculationDoesNotOverflow {
         vm.assume(cliffDuration <= UINT256_MAX - block.timestamp);
         vm.assume(totalDuration > UINT256_MAX - block.timestamp);
         uint256 stopTime;
@@ -65,8 +69,16 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
         );
     }
 
-    /// @dev When all checks pass, it should create the stream with duration.
-    function testCreateWithDuration(uint256 cliffDuration, uint256 totalDuration) external {
+    modifier TotalDurationCalculationDoesNotOverflow() {
+        _;
+    }
+
+    /// @dev it should create the stream with duration.
+    function testCreateWithDuration(uint256 cliffDuration, uint256 totalDuration)
+        external
+        CliffDurationCalculationDoesNotOverflow
+        TotalDurationCalculationDoesNotOverflow
+    {
         vm.assume(cliffDuration <= totalDuration);
         vm.assume(totalDuration <= UINT256_MAX - block.timestamp);
         uint256 cliffTime;
@@ -75,7 +87,7 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
             cliffTime = block.timestamp + cliffDuration;
             stopTime = block.timestamp + totalDuration;
         }
-        uint256 streamId = sablierV2Linear.createWithDuration(
+        uint256 daiStreamId = sablierV2Linear.createWithDuration(
             daiStream.sender,
             daiStream.recipient,
             daiStream.depositAmount,
@@ -84,7 +96,7 @@ contract SablierV2Linear__UnitTest__CreateWithDuration is SablierV2LinearUnitTes
             totalDuration,
             daiStream.cancelable
         );
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(streamId);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.recipient, daiStream.recipient);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
