@@ -3,6 +3,7 @@
 [profile.default]
 auto_detect_solc = false
 libs = ["lib"]
+fuzz_runs = 256
 gas_reports = ["*"]
 optimizer = true
 optimizer_runs = 800
@@ -14,4 +15,5 @@ test = "test"
 tx_origin = "0x9aF2E2B7e57c1CD7C68C5C3796d8ea67e0018dB7"
 
 [profile.ci]
+fuzz_runs = 10_000
 verbosity = 4
