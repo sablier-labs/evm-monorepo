@@ -82,8 +82,18 @@ contract SablierV2Linear__UnitTest__WithdrawTo is SablierV2LinearUnitTest {
         sablierV2Linear.withdrawTo(daiStreamId, toAlice, withdrawAmount);
     }
 
+    modifier WithdrawAmountNotZero() {
+        _;
+    }
+
     /// @dev When the amount is greater than the withdrawable amount, it should revert.
-    function testCannotWithdrawTo__WithdrawAmountGreaterThanWithdrawableAmount() external {
+    function testCannotWithdrawTo__WithdrawAmountGreaterThanWithdrawableAmount()
+        external
+        StreamExistent
+        ToNonZeroAddress
+        CallerRecipient
+        WithdrawAmountNotZero
+    {
         uint256 withdrawAmountMaxUint256 = UINT256_MAX;
         uint256 withdrawableAmount = 0;
         vm.expectRevert(

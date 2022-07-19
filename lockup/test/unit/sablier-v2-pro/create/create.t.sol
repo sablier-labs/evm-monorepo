@@ -242,8 +242,20 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
     }
 
+    modifier StartTimeLessThanStopTime() {
+        _;
+    }
+
     /// @dev When the segment amounts sum overflows, it should revert.
-    function testCannotCreate__SegmentAmountsSumOverflow() external {
+    function testCannotCreate__SegmentAmountsSumOverflow()
+        external
+        RecipientNonZeroAddress
+        DepositAmountNotZero
+        SegmentCountNotZero
+        SegmentCountWithinBounds
+        SegmentCountsEqual
+        StartTimeLessThanStopTime
+    {
         uint256[] memory segmentAmounts = createDynamicArray(UINT256_MAX, 1);
         vm.expectRevert(stdError.arithmeticError);
         sablierV2Pro.create(
