@@ -356,10 +356,6 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         createDefaultUsdcStream();
     }
 
-    modifier Token18Decimals() {
-        _;
-    }
-
     /// @dev it should create the stream.
     function testCreate___Token18Decimals__CallerNotSender()
         external
@@ -370,7 +366,6 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
-        Token18Decimals
     {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
@@ -392,7 +387,6 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
-        Token18Decimals
     {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
 
@@ -416,7 +410,6 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
-        Token18Decimals
     {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
@@ -450,7 +443,6 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
-        Token18Decimals
     {
         uint256 daiStreamId = createDefaultDaiStream();
         ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(daiStreamId);
@@ -467,7 +459,6 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
-        Token18Decimals
     {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
         createDefaultDaiStream();
@@ -486,7 +477,6 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
         TokenCompliant
-        Token18Decimals
     {
         uint256 daiStreamId = sablierV2Linear.nextStreamId();
         vm.expectEmit(true, true, true, true);
