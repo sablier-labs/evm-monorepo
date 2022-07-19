@@ -8,7 +8,7 @@ import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__UnitTest__CreateWithDuration is SablierV2ProUnitTest {
+contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
     /// @dev it should revert.
     function testCannotCreateWithDuration__DeltaCountOutOfBounds() external {
         uint256 deltaCount = sablierV2Pro.MAX_SEGMENT_COUNT() + 1;

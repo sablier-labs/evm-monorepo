@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__UnitTest__GetRecipient is SablierV2LinearUnitTest {
+contract SablierV2Linear__GetRecipient is SablierV2LinearUnitTest {
     /// @dev it should return zero.
     function testGetRecipient__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__UnitTest__GetStartTime is SablierV2LinearUnitTest {
+contract SablierV2Linear__GetStartTime is SablierV2LinearUnitTest {
     /// @dev it should return zero.
     function testGetStartTime__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

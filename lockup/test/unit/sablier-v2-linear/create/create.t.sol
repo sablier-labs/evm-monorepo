@@ -10,7 +10,7 @@ import { SablierV2Linear } from "@sablier/v2-core/SablierV2Linear.sol";
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
+contract SablierV2Linear__Create is SablierV2LinearUnitTest {
     /// @dev it should revert.
     function testCannotCreate__RecipientZeroAddress() external {
         vm.expectRevert(ISablierV2.SablierV2__RecipientZeroAddress.selector);

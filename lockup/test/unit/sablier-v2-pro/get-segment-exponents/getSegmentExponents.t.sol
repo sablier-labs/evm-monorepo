@@ -5,7 +5,7 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__UnitTest__GetSegmentExponents is SablierV2ProUnitTest {
+contract SablierV2Pro__GetSegmentExponents is SablierV2ProUnitTest {
     /// @dev it should return zero.
     function testGetSegmentExponents__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

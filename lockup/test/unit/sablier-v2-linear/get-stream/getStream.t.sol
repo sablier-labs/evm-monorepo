@@ -5,7 +5,7 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__UnitTest__GetStream is SablierV2LinearUnitTest {
+contract SablierV2Linear__GetStream is SablierV2LinearUnitTest {
     /// @dev it should return a zeroed out stream struct.
     function testGetStream__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

@@ -5,7 +5,7 @@ import { E, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__UnitTest__GetWithdrawableAmount is SablierV2ProUnitTest {
+contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
     uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.

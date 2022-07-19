@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Pro__UnitTest__IsCancelable is SablierV2ProUnitTest {
+contract SablierV2Pro__IsCancelable is SablierV2ProUnitTest {
     /// @dev it should return zero.
     function testIsCancelable__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
