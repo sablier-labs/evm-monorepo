@@ -6,5 +6,6 @@
 	path = "lib/prb-math"
 	url = "https://github.com/paulrberg/prb-math"
 [submodule "lib/prb-contracts"]
+  branch = "refactor/foundry"
 	path = "lib/prb-contracts"
 	url = "https://github.com/paulrberg/prb-contracts"
