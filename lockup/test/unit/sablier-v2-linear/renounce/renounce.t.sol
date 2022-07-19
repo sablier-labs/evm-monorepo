@@ -29,7 +29,7 @@ contract SablierV2Linear__Renounce is SablierV2LinearUnitTest {
     }
 
     /// @dev it should revert.
-    function testCannotRenounce__CallerUnauthorized() external StreamExistent {
+    function testCannotRenounce__CallerNotSender() external StreamExistent {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 

@@ -29,7 +29,7 @@ contract SablierV2Linear__Cancel is SablierV2LinearUnitTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancel__CallerUnauthorized() external StreamExistent {
+    function testCannotCancel__CallerNotRecipient() external StreamExistent {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 

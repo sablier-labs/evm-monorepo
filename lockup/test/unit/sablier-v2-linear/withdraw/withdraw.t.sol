@@ -44,8 +44,12 @@ contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
         sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
     }
 
+    modifier CallerSender() {
+        _;
+    }
+
     /// @dev it should make the withdrawal.
-    function testWithdraw() external StreamExistent {
+    function testWithdraw() external StreamExistent CallerSender {
         // Make the sender the `msg.sender` in this test case.
         changePrank(users.sender);
 
