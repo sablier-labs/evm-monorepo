@@ -4,5 +4,5 @@ isCancelable.t.sol
 └── when the stream exists
    ├── when the stream is cancelable
    │  └── it should return true
-   └── when the stream not cancelable
+   └── when the stream is not cancelable
       └── it should return false

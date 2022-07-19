@@ -24,8 +24,12 @@ contract SablierV2Linear__IsCancelable is SablierV2LinearUnitTest {
         assertEq(actualCancelable, expectedCancelable);
     }
 
+    modifier NonCancelableStream() {
+        _;
+    }
+
     /// @dev it should return false.
-    function testIsCancelables__NonCancelableStream() external StreamExistent {
+    function testIsCancelable() external StreamExistent NonCancelableStream {
         uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
         bool actualCancelable = sablierV2Linear.isCancelable(nonCancelableDaiStreamId);
         bool expectedCancelable = false;
