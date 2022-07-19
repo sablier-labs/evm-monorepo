@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { ERC20GodMode } from "@prb/contracts/token/erc20/ERC20GodMode.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { NonStandardERC20 } from "@prb/contracts/token/erc20/NonStandardERC20.sol";
+import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
@@ -46,7 +46,7 @@ abstract contract SablierV2UnitTest is Test {
     /// STORAGE ///
 
     bytes32 internal nextUser = keccak256(abi.encodePacked("user address"));
-    NonStandardERC20 internal nonStandardToken = new NonStandardERC20("Stablecoin", "USD", 18);
+    NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Stablecoin", "USD", 18);
     ERC20GodMode internal dai = new ERC20GodMode("Dai Stablecoin", "DAI", 18);
     ERC20GodMode internal usdc = new ERC20GodMode("USD Coin", "USDC", 6);
     Users internal users;
@@ -167,7 +167,7 @@ abstract contract SablierV2UnitTest is Test {
         vm.deal(user, 100 ether);
         dai.mint(user, bn(1_000_000, 18));
         usdc.mint(user, bn(1_000_000, 6));
-        nonStandardToken.mint(user, bn(1_000_000, 18));
+        nonCompliantToken.mint(user, bn(1_000_000, 18));
     }
 
     /// @dev Converts bytes32 to address.

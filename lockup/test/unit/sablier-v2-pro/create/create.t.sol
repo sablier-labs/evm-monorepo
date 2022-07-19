@@ -420,7 +420,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         DepositAmountEqualtoSegmentAmountsSum
         TokenContract
     {
-        IERC20 token = IERC20(address(nonStandardToken));
+        IERC20 token = IERC20(address(nonCompliantToken));
 
         uint256 daiStreamId = sablierV2Pro.create(
             daiStream.sender,
@@ -438,7 +438,7 @@ contract SablierV2Pro__UnitTest__Create is SablierV2ProUnitTest {
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.recipient, daiStream.recipient);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
-        assertEq(address(actualStream.token), address(nonStandardToken));
+        assertEq(address(actualStream.token), address(nonCompliantToken));
         assertEq(actualStream.startTime, daiStream.startTime);
         assertEq(actualStream.stopTime, daiStream.stopTime);
         assertEq(actualStream.cancelable, daiStream.cancelable);

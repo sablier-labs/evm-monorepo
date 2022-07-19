@@ -263,7 +263,7 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         CliffLessThanStopTime
         TokenContract
     {
-        IERC20 token = IERC20(address(nonStandardToken));
+        IERC20 token = IERC20(address(nonCompliantToken));
 
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
@@ -280,7 +280,7 @@ contract SablierV2Linear__UnitTest__Create is SablierV2LinearUnitTest {
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.recipient, daiStream.recipient);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
-        assertEq(address(actualStream.token), address(nonStandardToken));
+        assertEq(address(actualStream.token), address(nonCompliantToken));
         assertEq(actualStream.startTime, daiStream.startTime);
         assertEq(actualStream.cliffTime, daiStream.cliffTime);
         assertEq(actualStream.stopTime, daiStream.stopTime);
