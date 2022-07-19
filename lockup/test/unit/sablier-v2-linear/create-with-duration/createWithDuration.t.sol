@@ -41,7 +41,7 @@ contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
     }
 
     /// @dev When the total duration calculation overflows uint256, it should revert.
-    function testCannotCreateWithDuration__TotalDurationCalculationOverflow(
+    function testCannotCreateWithDuration__TotalDurationCalculationOverflows(
         uint256 cliffDuration,
         uint256 totalDuration
     ) external CliffDurationCalculationDoesNotOverflow {

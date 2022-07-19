@@ -247,7 +247,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
     }
 
     /// @dev When the segment amounts sum overflows, it should revert.
-    function testCannotCreate__SegmentAmountsSumOverflow()
+    function testCannotCreate__SegmentAmountsSumOverflows()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
