@@ -10,7 +10,9 @@ import { SablierV2UnitTest } from "../SablierV2UnitTest.t.sol";
 contract AbstractSablierV2 is SablierV2 {
     constructor() SablierV2() {}
 
-    /// CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                           CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
     function getDepositAmount(uint256 streamId) external pure override returns (uint256 depositAmount) {
@@ -66,14 +68,18 @@ contract AbstractSablierV2 is SablierV2 {
         cancelable;
     }
 
-    /// PUBLIC NON-CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                      PUBLIC NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
     function renounce(uint256 streamId) external pure override {
         streamId;
     }
 
-    /// INTERNAL NON-CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                     INTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function cancelInternal(uint256 streamId) internal pure override {
         streamId;
@@ -95,11 +101,7 @@ contract AbstractSablierV2 is SablierV2 {
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
 abstract contract AbstractSablierV2UnitTest is SablierV2UnitTest {
-    /// TESTING VARIABLES ///
-
     AbstractSablierV2 internal abstractSablierV2 = new AbstractSablierV2();
-
-    // SETUP FUNCTION ///
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {

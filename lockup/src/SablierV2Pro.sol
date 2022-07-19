@@ -17,7 +17,9 @@ contract SablierV2Pro is
 {
     using SafeERC20 for IERC20;
 
-    /// CONSTANTS ///
+    /*//////////////////////////////////////////////////////////////
+                                CONSTANTS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice The maximum value an exponent can have is 10.
     SD59x18 public constant MAX_EXPONENT = SD59x18.wrap(10e18);
@@ -25,18 +27,24 @@ contract SablierV2Pro is
     /// @notice The maximum number of segments allowed in a stream.
     uint256 public immutable MAX_SEGMENT_COUNT;
 
-    /// INTERNAL STORAGE ///
+    /*//////////////////////////////////////////////////////////////
+                            INTERNAL STORAGE
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 pro streams mapped by unsigned integers.
     mapping(uint256 => Stream) internal streams;
 
-    /// CONSTRUCTOR ///
+    /*//////////////////////////////////////////////////////////////
+                               CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
 
     constructor(uint256 maxSegmentCount) {
         MAX_SEGMENT_COUNT = maxSegmentCount;
     }
 
-    /// PUBLIC CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                        PUBLIC CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
     function getDepositAmount(uint256 streamId) external view override returns (uint256 depositAmount) {
@@ -193,7 +201,9 @@ contract SablierV2Pro is
         cancelable = streams[streamId].cancelable;
     }
 
-    /// PUBLIC NON-CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                      PUBLIC NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Pro
     function create(
@@ -286,7 +296,9 @@ contract SablierV2Pro is
         emit Renounce(streamId);
     }
 
-    /// INTERNAL CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                       INTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev Checks that the counts of segments match. The counts must be equal and less than or equal to
     /// the maximum segment count permitted in Sablier.
@@ -381,7 +393,9 @@ contract SablierV2Pro is
         }
     }
 
-    /// INTERNAL NON-CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                     INTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the public functions that call this internal function.
     function cancelInternal(uint256 streamId) internal override onlySenderOrRecipient(streamId) {

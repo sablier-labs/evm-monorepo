@@ -14,7 +14,9 @@ import { Test } from "forge-std/Test.sol";
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
 abstract contract SablierV2UnitTest is Test {
-    /// EVENTS ///
+    /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+    //////////////////////////////////////////////////////////////*/
 
     event Cancel(uint256 indexed streamId, address indexed recipient, uint256 withdrawAmount, uint256 returnAmount);
 
@@ -22,7 +24,9 @@ abstract contract SablierV2UnitTest is Test {
 
     event Withdraw(uint256 indexed streamId, address indexed recipient, uint256 amount);
 
-    /// CONSTANTS ///
+    /*//////////////////////////////////////////////////////////////
+                                CONSTANTS
+    //////////////////////////////////////////////////////////////*/
 
     uint256 internal constant CLIFF_DURATION = 2_500 seconds;
     uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
@@ -34,7 +38,9 @@ abstract contract SablierV2UnitTest is Test {
     uint256 internal immutable START_TIME;
     uint256 internal immutable STOP_TIME;
 
-    /// STRUCTS ///
+    /*//////////////////////////////////////////////////////////////
+                                 STRUCTS
+    //////////////////////////////////////////////////////////////*/
 
     struct Users {
         address payable alice;
@@ -43,7 +49,9 @@ abstract contract SablierV2UnitTest is Test {
         address payable sender;
     }
 
-    /// STORAGE ///
+    /*//////////////////////////////////////////////////////////////
+                                 STORAGE
+    //////////////////////////////////////////////////////////////*/
 
     bytes32 internal nextUser = keccak256(abi.encodePacked("user address"));
     NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Stablecoin", "USD", 18);
@@ -51,7 +59,9 @@ abstract contract SablierV2UnitTest is Test {
     ERC20GodMode internal usdc = new ERC20GodMode("USD Coin", "USDC", 6);
     Users internal users;
 
-    /// CONSTRUCTOR ///
+    /*//////////////////////////////////////////////////////////////
+                               CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
 
     constructor() {
         // By default the test EVM begins at time zero, but in some of our tests we need to warp back in time, so we
@@ -80,7 +90,9 @@ abstract contract SablierV2UnitTest is Test {
         vm.label(users.alice, "Alice");
     }
 
-    /// CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                       INTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev Helper function that multiplies the `amount` by `10^decimals` and returns a `uint256.`
     function bn(uint256 amount, uint256 decimals) internal pure returns (uint256 result) {
@@ -97,7 +109,9 @@ abstract contract SablierV2UnitTest is Test {
         result = UD60x18.wrap(number);
     }
 
-    /// INTERNAL NON-CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                     INTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev Helper function to compare two `IERC20` addresses.
     function assertEq(IERC20 a, IERC20 b) internal {

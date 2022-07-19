@@ -17,12 +17,16 @@ contract SablierV2Linear is
 {
     using SafeERC20 for IERC20;
 
-    /// INTERNAL STORAGE ///
+    /*//////////////////////////////////////////////////////////////
+                            INTERNAL STORAGE
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 linear streams mapped by unsigned integers.
     mapping(uint256 => Stream) internal streams;
 
-    /// CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                           CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Linear
     function getCliffTime(uint256 streamId) external view override returns (uint256 cliffTime) {
@@ -117,7 +121,9 @@ contract SablierV2Linear is
         cancelable = streams[streamId].cancelable;
     }
 
-    /// NON-CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                         NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Linear
     function create(
@@ -180,7 +186,9 @@ contract SablierV2Linear is
         emit Renounce(streamId);
     }
 
-    /// INTERNAL NON-CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                     INTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the public functions that call this internal function.
     function cancelInternal(uint256 streamId) internal override onlySenderOrRecipient(streamId) {

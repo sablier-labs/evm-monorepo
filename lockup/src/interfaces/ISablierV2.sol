@@ -7,7 +7,9 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 /// @notice The common interface between all Sablier V2 streaming contracts.
 /// @author Sablier Labs Ltd.
 interface ISablierV2 {
-    /// CUSTOM ERRORS ///
+    /*//////////////////////////////////////////////////////////////
+                              CUSTOM ERRORS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
     error SablierV2__DepositAmountZero();
@@ -51,7 +53,9 @@ interface ISablierV2 {
     /// @notice Emitted when attempting to withdraw to a zero address.
     error SablierV2__WithdrawZeroAddress();
 
-    /// EVENTS ///
+    /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when a stream is canceled.
     /// @param streamId The id of the stream.
@@ -70,7 +74,9 @@ interface ISablierV2 {
     /// @param amount The amount of tokens withdrawn, in units of the token's decimals.
     event Withdraw(uint256 indexed streamId, address indexed recipient, uint256 amount);
 
-    /// CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                           CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Reads the amount deposited in the stream.
     /// @param streamId The id of the stream to make the query for.
@@ -119,7 +125,9 @@ interface ISablierV2 {
     /// @return cancelable Whether the stream is cancelable or not.
     function isCancelable(uint256 streamId) external view returns (bool cancelable);
 
-    /// NON-CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                         NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Cancels the stream and transfers any remaining amounts to the sender and the recipient.
     ///

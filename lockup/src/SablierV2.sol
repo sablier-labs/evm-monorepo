@@ -9,12 +9,16 @@ import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 /// @author Sablier Labs Ltd.
 /// @notice Abstract contract implementing common logic.
 abstract contract SablierV2 is ISablierV2 {
-    /// PUBLIC STORAGE ///
+    /*//////////////////////////////////////////////////////////////
+                             PUBLIC STORAGE
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
     uint256 public override nextStreamId;
 
-    /// MODIFIERS ///
+    /*//////////////////////////////////////////////////////////////
+                                MODIFIERS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Checks that `msg.sender` is either the sender or the recipient of the stream.
     modifier onlySenderOrRecipient(uint256 streamId) {
@@ -32,13 +36,17 @@ abstract contract SablierV2 is ISablierV2 {
         _;
     }
 
-    /// CONSTRUCTOR ///
+    /*//////////////////////////////////////////////////////////////
+                               CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
 
     constructor() {
         nextStreamId = 1;
     }
 
-    /// CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                           CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
     function getRecipient(uint256 streamId) public view virtual override returns (address recipient);
@@ -49,7 +57,9 @@ abstract contract SablierV2 is ISablierV2 {
     /// @inheritdoc ISablierV2
     function isCancelable(uint256 streamId) public view virtual override returns (bool cancelable);
 
-    /// NON-CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                         NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
     function cancel(uint256 streamId) external {
@@ -191,7 +201,9 @@ abstract contract SablierV2 is ISablierV2 {
         withdrawInternal(streamId, to, amount);
     }
 
-    /// INTERNAL CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                       INTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev Checks the basic requiremenets for the `create` function.
     function checkCreateArguments(
@@ -222,7 +234,9 @@ abstract contract SablierV2 is ISablierV2 {
         }
     }
 
-    /// INTERNAL NON-CONSTANT FUNCTIONS ///
+    /*//////////////////////////////////////////////////////////////
+                     INTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the public functions that call this internal function.
     function cancelInternal(uint256 streamId) internal virtual;
