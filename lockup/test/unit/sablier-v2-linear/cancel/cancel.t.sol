@@ -87,7 +87,7 @@ contract SablierV2Linear__Cancel is SablierV2LinearUnitTest {
     }
 
     /// @dev it should emit a Cancel event.
-    function testCancel__Event() external StreamExistent CallerAuthorized CallerSender StreamCancelable {
+    function testCancel__StreamEnded__Event() external StreamExistent CallerAuthorized CallerSender StreamCancelable {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 

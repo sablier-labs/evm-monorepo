@@ -293,7 +293,7 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
     }
 
     /// @dev  it should create the stream.
-    function testCreate__6Decimals()
+    function testCreate__Token6Decimals()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -310,7 +310,7 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
     }
 
     /// @dev it should bump the next stream id.
-    function testCreate__6Decimals__NextStreamId()
+    function testCreate__Token6Decimals__NextStreamId()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -328,7 +328,7 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
     }
 
     /// @dev it should emit a CreateStream event.
-    function testCreate__6Decimals__Event()
+    function testCreate__Token6Decimals__Event()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -361,7 +361,7 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
     }
 
     /// @dev it should create the stream.
-    function testCreate___CallerNotSender()
+    function testCreate___Token18Decimals__CallerNotSender()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -383,7 +383,7 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
     }
 
     /// @dev it should bump the next stream id.
-    function testCreate__CallerNotSender__NextStreamId()
+    function testCreate__Token18Decimals__CallerNotSender__NextStreamId()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -407,7 +407,7 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
     }
 
     /// @dev  it should emit a CreateStream event.
-    function testCreate__CallerNotSender__Event()
+    function testCreate__Token18Decimals__CallerNotSender__Event()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -440,12 +440,8 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         createDefaultDaiStream();
     }
 
-    modifier CallerSender() {
-        _;
-    }
-
     /// @dev it should create the stream.
-    function testCreate()
+    function testCreate__Token18Decimals__CallerSender()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -455,7 +451,6 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         TokenContract
         TokenCompliant
         Token18Decimals
-        CallerSender
     {
         uint256 daiStreamId = createDefaultDaiStream();
         ISablierV2Linear.Stream memory createdStream = sablierV2Linear.getStream(daiStreamId);
@@ -463,7 +458,7 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
     }
 
     /// @dev it should bump the next stream id.
-    function testCreate__NextStreamId()
+    function testCreate__Token18Decimals__CallerSender__NextStreamId()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -473,7 +468,6 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         TokenContract
         TokenCompliant
         Token18Decimals
-        CallerSender
     {
         uint256 nextStreamId = sablierV2Linear.nextStreamId();
         createDefaultDaiStream();
@@ -483,7 +477,7 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
     }
 
     /// @dev it should emit a CreateStream event.
-    function testCreate__Event()
+    function testCreate__Token18Decimals__CallerSender__Event()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -493,7 +487,6 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         TokenContract
         TokenCompliant
         Token18Decimals
-        CallerSender
     {
         uint256 daiStreamId = sablierV2Linear.nextStreamId();
         vm.expectEmit(true, true, true, true);
