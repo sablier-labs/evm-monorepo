@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { e, SD59x18 } from "@prb/math/SD59x18.sol";
+import { E, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
@@ -250,7 +250,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount is SablierV2ProUnitTest {
         unchecked {
             // Generate 200 segments that each have the same amount, same exponent and are evenly spread apart.
             uint256 segmentAmount = usdcStream.depositAmount / count;
-            SD59x18 segmentExponent = e();
+            SD59x18 segmentExponent = E;
             uint256 totalDuration = usdcStream.stopTime - usdcStream.startTime;
             uint256 segmentDuration = totalDuration / count;
             for (uint256 i = 0; i < count; ) {
@@ -298,7 +298,7 @@ contract SablierV2Pro__UnitTest__GetWithdrawableAmount is SablierV2ProUnitTest {
         unchecked {
             // Generate 200 segments that each have the same amount, same exponent and are evenly spread apart.
             uint256 segmentAmount = daiStream.depositAmount / count;
-            SD59x18 segmentExponent = e();
+            SD59x18 segmentExponent = E;
             uint256 totalDuration = daiStream.stopTime - daiStream.startTime;
             uint256 segmentDuration = totalDuration / count;
             for (uint256 i = 0; i < count; ) {
