@@ -114,7 +114,7 @@ contract SablierV2Linear__WithdrawAll is SablierV2LinearUnitTest {
     }
 
     /// @dev it should make the withdrawals and update the withdrawn amounts.
-    function testWithdrawAll__CallerSender() external ArraysEqual OnlyExistentStreams {
+    function testWithdrawAll__CallerSenderAllStreams() external ArraysEqual OnlyExistentStreams {
         // Make the sender the `msg.sender` in this test case.
         changePrank(users.sender);
 

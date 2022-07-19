@@ -176,7 +176,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreate()
+    function testCannotCreate__StartTimeGreaterThanFirstMilestone()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -542,12 +542,8 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         createDefaultUsdcStream();
     }
 
-    modifier Token18Decimals() {
-        _;
-    }
-
     /// @dev it should create the stream.
-    function testCreate__CallerNotSender()
+    function testCreate__Token18Decimals__CallerNotSender()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -561,7 +557,6 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         DepositAmountEqualtoSegmentAmountsSum
         TokenContract
         TokenCompliant
-        Token18Decimals
     {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
@@ -574,7 +569,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
     }
 
     /// @dev it should bump the next stream id.
-    function testCreate__CallerNotSender__NextStreamId()
+    function testCreate__Token18Decimals__CallerNotSender__NextStreamId()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -588,7 +583,6 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         DepositAmountEqualtoSegmentAmountsSum
         TokenContract
         TokenCompliant
-        Token18Decimals
     {
         uint256 nextStreamId = sablierV2Pro.nextStreamId();
 
@@ -603,7 +597,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
     }
 
     /// @dev it should emit a CreateStream event.
-    function testCreate__CallerNotSender__Event() external {
+    function testCreate__Token18Decimals__CallerNotSender__Event() external {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
 
@@ -628,12 +622,8 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         createDefaultDaiStream();
     }
 
-    modifier CallerSender() {
-        _;
-    }
-
     /// @dev it should create the stream.
-    function testCreate()
+    function testCreate__Token18Decimals__CallerSender()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -647,8 +637,6 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         DepositAmountEqualtoSegmentAmountsSum
         TokenContract
         TokenCompliant
-        Token18Decimals
-        CallerSender
     {
         uint256 daiStreamId = createDefaultDaiStream();
         ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
@@ -657,7 +645,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
     }
 
     /// @dev it should bump the next stream id.
-    function testCreate__NextStreamId()
+    function testCreate__Token18Decimals__CallerSender__NextStreamId()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -671,8 +659,6 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         DepositAmountEqualtoSegmentAmountsSum
         TokenContract
         TokenCompliant
-        Token18Decimals
-        CallerSender
     {
         uint256 nextStreamId = sablierV2Pro.nextStreamId();
         createDefaultDaiStream();
@@ -682,7 +668,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
     }
 
     /// @dev it should emit a CreateStream event.
-    function testCreate__Event()
+    function testCreate__Token18Decimals__CallerSender__Event()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
@@ -696,8 +682,6 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         DepositAmountEqualtoSegmentAmountsSum
         TokenContract
         TokenCompliant
-        Token18Decimals
-        CallerSender
     {
         uint256 daiStreamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);

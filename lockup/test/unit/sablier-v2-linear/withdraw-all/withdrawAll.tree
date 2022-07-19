@@ -27,5 +27,5 @@ withdrawAll.t.sol
                │  ├── it should make the withdrawals and update the withdrawn amounts
                │  └── it should emit multiple Withdraw events
                └── when some streams are ended and some streams are ongoing
-                 ├── it should make the withdrawals, delete the ended streams and update the withdrawn amounts
-                 └── it should emit multiple Withdraw events
+                  ├── it should make the withdrawals, delete the ended streams and update the withdrawn amounts
+                  └── it should emit multiple Withdraw events
