@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
+import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
-contract SablierV2Linear__GetReturnableAmount is SablierV2LinearUnitTest {
+contract SablierV2Pro__GetReturnableAmount is SablierV2ProUnitTest {
     uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.
@@ -17,7 +17,7 @@ contract SablierV2Linear__GetReturnableAmount is SablierV2LinearUnitTest {
     /// @dev it should return zero.
     function testGetReturnableAmount__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(nonStreamId);
+        uint256 actualReturnableAmount = sablierV2Pro.getReturnableAmount(nonStreamId);
         uint256 expectedReturnableAmount = 0;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
@@ -28,7 +28,7 @@ contract SablierV2Linear__GetReturnableAmount is SablierV2LinearUnitTest {
 
     /// @dev it should return the deposit amount.
     function testGetReturnableAmount__WithdrawableAmountZero__NoWithdrawals() external StreamExistent {
-        uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(daiStreamId);
+        uint256 actualReturnableAmount = sablierV2Pro.getReturnableAmount(daiStreamId);
         uint256 expectedReturnableAmount = daiStream.depositAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
@@ -36,26 +36,27 @@ contract SablierV2Linear__GetReturnableAmount is SablierV2LinearUnitTest {
     /// @dev it should return the correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountZero__WithWithdrawals() external StreamExistent {
         vm.warp(daiStream.startTime + TIME_OFFSET);
-        sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
-        uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(daiStreamId);
-        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
+        sablierV2Pro.withdraw(daiStreamId, SEGMENT_AMOUNTS_DAI[0]);
+        uint256 actualReturnableAmount = sablierV2Pro.getReturnableAmount(daiStreamId);
+        uint256 expectedReturnableAmount = daiStream.depositAmount - SEGMENT_AMOUNTS_DAI[0];
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
     /// @dev it should return the correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountNotZero__NoWithdrawals() external StreamExistent {
         vm.warp(daiStream.startTime + TIME_OFFSET);
-        uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(daiStreamId);
-        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
+        uint256 actualReturnableAmount = sablierV2Pro.getReturnableAmount(daiStreamId);
+        uint256 expectedReturnableAmount = daiStream.depositAmount - SEGMENT_AMOUNTS_DAI[0];
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
     /// @dev it should return the correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountNotZero__WithWithdrawals() external StreamExistent {
         vm.warp(daiStream.startTime + TIME_OFFSET + 1 seconds);
-        sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
-        uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(daiStreamId);
-        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI - bn(1, 18);
+        sablierV2Pro.withdraw(daiStreamId, SEGMENT_AMOUNTS_DAI[0]);
+        uint256 actualReturnableAmount = sablierV2Pro.getReturnableAmount(daiStreamId);
+        // TIME_OFFSET + 1 seconds is 0.0125% of the way in the second segment => ~8_000*0.000125^{0.5}
+        uint256 expectedReturnableAmount = daiStream.depositAmount - SEGMENT_AMOUNTS_DAI[0] - 89442719099991584e3;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 }
