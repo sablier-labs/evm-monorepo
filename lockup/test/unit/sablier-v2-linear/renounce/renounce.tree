@@ -1,4 +1,4 @@
-cancel.t.sol
+renounce.t.sol
 ├── when the stream does not exist
 │  └── it should revert
 └── when the stream exists
