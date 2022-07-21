@@ -9,9 +9,9 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 /// @author Sablier Labs Ltd
 /// @notice Creates streams with custom emission curves.
 interface ISablierV2Pro is ISablierV2 {
-    /*//////////////////////////////////////////////////////////////
-                              CUSTOM ERRORS
-    //////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CUSTOM ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when attempting to create a stream with a deposit amount that does not qual the segment
     /// amounts sum.
@@ -35,9 +35,9 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Emitted when attempting to create a stream with the start time greater than the first segment milestone.
     error SablierV2Pro__StartTimeGreaterThanFirstMilestone(uint256 startTime, uint256 segmentMilestone);
 
-    /*//////////////////////////////////////////////////////////////
-                                 EVENTS
-    //////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////////////////
+                                       EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when a pro stream is created.
     /// @param streamId The id of the newly created stream.
@@ -67,9 +67,9 @@ interface ISablierV2Pro is ISablierV2 {
         bool cancelable
     );
 
-    /*//////////////////////////////////////////////////////////////
-                                 STRUCTS
-    //////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////////////////
+                                       STRUCTS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Pro stream struct.
     /// @dev Based on the streaming function $f(x) = x^{exponent}$, where x is the elapsed time divided by
@@ -92,9 +92,9 @@ interface ISablierV2Pro is ISablierV2 {
         bool cancelable;
     }
 
-    /*//////////////////////////////////////////////////////////////
-                           CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////////////////
+                                 CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Reads the segment amounts used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
@@ -116,9 +116,9 @@ interface ISablierV2Pro is ISablierV2 {
     /// @return stream The stream struct.
     function getStream(uint256 streamId) external view returns (Stream memory stream);
 
-    /*//////////////////////////////////////////////////////////////
-                         NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////////////////
+                               NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates a new stream funded by `msg.sender`. The `stopTime` is implied by the last element in the
     /// `segmentMilestones` array.

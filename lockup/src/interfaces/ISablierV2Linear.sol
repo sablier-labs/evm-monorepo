@@ -9,9 +9,9 @@ import { ISablierV2 } from "./ISablierV2.sol";
 /// @notice Creates streams whose streaming function is $f(x) = x$ after a cliff period, where x is the
 /// elapsed time divided by the total duration of the stream.
 interface ISablierV2Linear is ISablierV2 {
-    /*//////////////////////////////////////////////////////////////
-                              CUSTOM ERRORS
-    //////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CUSTOM ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when attempting to create a stream with a start time greater than cliff time;
     error SablierV2Linear__StartTimeGreaterThanCliffTime(uint256 startTime, uint256 cliffTime);
@@ -19,9 +19,9 @@ interface ISablierV2Linear is ISablierV2 {
     /// @notice Emitted when attempting to create a stream with a cliff time greater than stop time;
     error SablierV2Linear__CliffTimeGreaterThanStopTime(uint256 cliffTime, uint256 stopTime);
 
-    /*//////////////////////////////////////////////////////////////
-                                 EVENTS
-    //////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////////////////
+                                       EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when a linear stream is created.
     /// @param streamId The id of the newly created stream.
@@ -47,9 +47,9 @@ interface ISablierV2Linear is ISablierV2 {
         bool cancelable
     );
 
-    /*//////////////////////////////////////////////////////////////
-                                 STRUCTS
-    //////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////////////////
+                                       STRUCTS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Linear stream struct.
     /// @dev The members are arranged like this to save gas via tight variable packing.
@@ -65,9 +65,9 @@ interface ISablierV2Linear is ISablierV2 {
         bool cancelable;
     }
 
-    /*//////////////////////////////////////////////////////////////
-                           CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////////////////
+                                 CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Reads the cliff time of the stream.
     /// @param streamId The id of the stream to make the query for.
@@ -79,9 +79,9 @@ interface ISablierV2Linear is ISablierV2 {
     /// @return stream The stream struct.
     function getStream(uint256 streamId) external view returns (Stream memory stream);
 
-    /*//////////////////////////////////////////////////////////////
-                         NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////////////////
+                               NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates a new stream funded by `msg.sender`.
     ///
