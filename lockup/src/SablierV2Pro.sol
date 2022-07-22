@@ -277,15 +277,13 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2
     function renounce(uint256 streamId) external streamExists(streamId) {
-        Stream memory stream = streams[streamId];
-
         // Checks: the caller is the sender of the stream.
-        if (msg.sender != stream.sender) {
+        if (msg.sender != streams[streamId].sender) {
             revert SablierV2__Unauthorized(streamId, msg.sender);
         }
 
         // Checks: the stream is cancelable.
-        if (!stream.cancelable) {
+        if (!streams[streamId].cancelable) {
             revert SablierV2__RenounceNonCancelableStream(streamId);
         }
 
