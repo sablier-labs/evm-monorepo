@@ -59,14 +59,13 @@ contract SablierV2Pro is
     /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) external view returns (uint256 returnableAmount) {
         // If the stream does not exist, return zero.
-        Stream memory stream = streams[streamId];
-        if (stream.sender == address(0)) {
+        if (streams[streamId].sender == address(0)) {
             return 0;
         }
 
         unchecked {
             uint256 withdrawableAmount = getWithdrawableAmount(streamId);
-            returnableAmount = stream.depositAmount - stream.withdrawnAmount - withdrawableAmount;
+            returnableAmount = streams[streamId].depositAmount - streams[streamId].withdrawnAmount - withdrawableAmount;
         }
     }
 
@@ -113,22 +112,21 @@ contract SablierV2Pro is
     /// @inheritdoc ISablierV2
     function getWithdrawableAmount(uint256 streamId) public view returns (uint256 withdrawableAmount) {
         // If the stream does not exist, return zero.
-        Stream memory stream = streams[streamId];
-        if (stream.sender == address(0)) {
+        if (streams[streamId].sender == address(0)) {
             return 0;
         }
 
         // If the start time is greater than or equal to the block timestamp, return zero.
         uint256 currentTime = block.timestamp;
-        if (stream.startTime >= currentTime) {
+        if (streams[streamId].startTime >= currentTime) {
             return 0;
         }
 
         unchecked {
             // If the current time is greater than or equal to the stop time, return the deposit minus
             // the withdrawn amount.
-            if (currentTime >= stream.stopTime) {
-                return stream.depositAmount - stream.withdrawnAmount;
+            if (currentTime >= streams[streamId].stopTime) {
+                return streams[streamId].depositAmount - streams[streamId].withdrawnAmount;
             }
 
             // Define the common variables used in the calculations below.
@@ -139,28 +137,28 @@ contract SablierV2Pro is
             uint256 previousSegmentAmounts;
 
             // If there's more than one segment, we have to iterate over all of them.
-            uint256 segmentCount = stream.segmentAmounts.length;
+            uint256 segmentCount = streams[streamId].segmentAmounts.length;
             if (segmentCount > 1) {
                 // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
                 // amount such that we avoid adding an if statement in the while loop.
-                uint256 currentSegmentMilestone = stream.segmentMilestones[0];
+                uint256 currentSegmentMilestone = streams[streamId].segmentMilestones[0];
                 uint256 index = 1;
                 while (currentSegmentMilestone < currentTime) {
-                    previousSegmentAmounts += stream.segmentAmounts[index - 1];
-                    currentSegmentMilestone = stream.segmentMilestones[index];
+                    previousSegmentAmounts += streams[streamId].segmentAmounts[index - 1];
+                    currentSegmentMilestone = streams[streamId].segmentMilestones[index];
                     index += 1;
                 }
 
                 // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
                 // is found at `index - 2`.
-                currentSegmentAmount = SD59x18.wrap(int256(stream.segmentAmounts[index - 1]));
-                currentSegmentExponent = stream.segmentExponents[index - 1];
-                currentSegmentMilestone = stream.segmentMilestones[index - 1];
+                currentSegmentAmount = SD59x18.wrap(int256(streams[streamId].segmentAmounts[index - 1]));
+                currentSegmentExponent = streams[streamId].segmentExponents[index - 1];
+                currentSegmentMilestone = streams[streamId].segmentMilestones[index - 1];
 
                 // If the current segment is at an index that is >= 2, take the difference between the current segment
                 // milestone and the previous segment milestone.
                 if (index > 1) {
-                    uint256 previousSegmentMilestone = stream.segmentMilestones[index - 2];
+                    uint256 previousSegmentMilestone = streams[streamId].segmentMilestones[index - 2];
                     elapsedSegmentTime = toSD59x18(int256(currentTime - previousSegmentMilestone));
 
                     // Calculate the time between the current segment milestone and the previous segment milestone.
@@ -169,16 +167,16 @@ contract SablierV2Pro is
                 // If the current segment is at index 1, take the difference between the current segment milestone and
                 // the start time of the stream.
                 else {
-                    elapsedSegmentTime = toSD59x18(int256(currentTime - stream.startTime));
-                    totalSegmentTime = toSD59x18(int256(currentSegmentMilestone - stream.startTime));
+                    elapsedSegmentTime = toSD59x18(int256(currentTime - streams[streamId].startTime));
+                    totalSegmentTime = toSD59x18(int256(currentSegmentMilestone - streams[streamId].startTime));
                 }
             }
             // Otherwise, if there's only one segment, we use the start time of the stream in the calculations.
             else {
-                currentSegmentAmount = SD59x18.wrap(int256(stream.segmentAmounts[0]));
-                currentSegmentExponent = stream.segmentExponents[0];
-                elapsedSegmentTime = toSD59x18(int256(currentTime - stream.startTime));
-                totalSegmentTime = toSD59x18(int256(stream.stopTime - stream.startTime));
+                currentSegmentAmount = SD59x18.wrap(int256(streams[streamId].segmentAmounts[0]));
+                currentSegmentExponent = streams[streamId].segmentExponents[0];
+                elapsedSegmentTime = toSD59x18(int256(currentTime - streams[streamId].startTime));
+                totalSegmentTime = toSD59x18(int256(streams[streamId].stopTime - streams[streamId].startTime));
             }
 
             // Calculate the streamed amount.
@@ -186,7 +184,7 @@ contract SablierV2Pro is
             SD59x18 multiplier = quotient.pow(currentSegmentExponent);
             SD59x18 proRataAmount = multiplier.mul(currentSegmentAmount);
             SD59x18 streamedAmount = SD59x18.wrap(int256(previousSegmentAmounts)).add(proRataAmount);
-            SD59x18 withdrawnAmount = SD59x18.wrap(int256(stream.withdrawnAmount));
+            SD59x18 withdrawnAmount = SD59x18.wrap(int256(streams[streamId].withdrawnAmount));
             withdrawableAmount = uint256(SD59x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount)));
         }
     }

@@ -46,14 +46,13 @@ contract SablierV2Linear is
     /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) public view returns (uint256 returnableAmount) {
         // If the stream does not exist, return zero.
-        Stream memory stream = streams[streamId];
-        if (stream.sender == address(0)) {
+        if (streams[streamId].sender == address(0)) {
             return 0;
         }
 
         unchecked {
             uint256 withdrawableAmount = getWithdrawableAmount(streamId);
-            returnableAmount = stream.depositAmount - stream.withdrawnAmount - withdrawableAmount;
+            returnableAmount = streams[streamId].depositAmount - streams[streamId].withdrawnAmount - withdrawableAmount;
         }
     }
 
@@ -80,8 +79,7 @@ contract SablierV2Linear is
     /// @inheritdoc ISablierV2
     function getWithdrawableAmount(uint256 streamId) public view returns (uint256 withdrawableAmount) {
         // If the stream does not exist, return zero.
-        Stream memory stream = streams[streamId];
-        if (stream.sender == address(0)) {
+        if (streams[streamId].sender == address(0)) {
             return 0;
         }
 
@@ -89,24 +87,24 @@ contract SablierV2Linear is
         // always greater than the start time, this also checks whether the start time is greater than
         // the block timestamp.
         uint256 currentTime = block.timestamp;
-        if (stream.cliffTime > currentTime) {
+        if (streams[streamId].cliffTime > currentTime) {
             return 0;
         }
 
         unchecked {
             // If the current time is greater than or equal to the stop time, return the deposit minus
             // the withdrawn amount.
-            if (currentTime >= stream.stopTime) {
-                return stream.depositAmount - stream.withdrawnAmount;
+            if (currentTime >= streams[streamId].stopTime) {
+                return streams[streamId].depositAmount - streams[streamId].withdrawnAmount;
             }
 
             // In all other cases, calculate how much the recipient can withdraw.
-            UD60x18 elapsedTime = toUD60x18(currentTime - stream.startTime);
-            UD60x18 totalTime = toUD60x18(stream.stopTime - stream.startTime);
+            UD60x18 elapsedTime = toUD60x18(currentTime - streams[streamId].startTime);
+            UD60x18 totalTime = toUD60x18(streams[streamId].stopTime - streams[streamId].startTime);
             UD60x18 quotient = elapsedTime.div(totalTime);
-            UD60x18 depositAmount = UD60x18.wrap(stream.depositAmount);
+            UD60x18 depositAmount = UD60x18.wrap(streams[streamId].depositAmount);
             UD60x18 streamedAmount = quotient.mul(depositAmount);
-            UD60x18 withdrawnAmount = UD60x18.wrap(stream.withdrawnAmount);
+            UD60x18 withdrawnAmount = UD60x18.wrap(streams[streamId].withdrawnAmount);
             withdrawableAmount = UD60x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount));
         }
     }
