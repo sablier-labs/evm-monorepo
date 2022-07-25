@@ -96,6 +96,20 @@ abstract contract SablierV2 is ISablierV2 {
         }
     }
 
+    function renounce(uint256 streamId) external streamExists(streamId) {
+        // Checks: the caller is the sender of the stream.
+        if (msg.sender != getSender(streamId)) {
+            revert SablierV2__Unauthorized(streamId, msg.sender);
+        }
+
+        // Checks: the stream is cancelable.
+        if (!isCancelable(streamId)) {
+            revert SablierV2__RenounceNonCancelableStream(streamId);
+        }
+
+        renounceInternal(streamId);
+    }
+
     /// @inheritdoc ISablierV2
     function withdraw(uint256 streamId, uint256 amount)
         external
@@ -240,6 +254,9 @@ abstract contract SablierV2 is ISablierV2 {
 
     /// @dev See the documentation for the public functions that call this internal function.
     function cancelInternal(uint256 streamId) internal virtual;
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function renounceInternal(uint256 streamId) internal virtual;
 
     /// @dev See the documentation for the public functions that call this internal function.
     function withdrawInternal(

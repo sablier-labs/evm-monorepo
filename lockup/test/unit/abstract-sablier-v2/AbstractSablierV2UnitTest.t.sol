@@ -71,19 +71,14 @@ contract AbstractSablierV2 is SablierV2 {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            PUBLIC NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierV2
-    function renounce(uint256 streamId) external pure override {
-        streamId;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     function cancelInternal(uint256 streamId) internal pure override {
+        streamId;
+    }
+
+    function renounceInternal(uint256 streamId) internal pure override {
         streamId;
     }
 

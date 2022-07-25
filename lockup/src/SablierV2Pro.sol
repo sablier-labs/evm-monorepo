@@ -273,25 +273,6 @@ contract SablierV2Pro is
         );
     }
 
-    /// @inheritdoc ISablierV2
-    function renounce(uint256 streamId) external streamExists(streamId) {
-        // Checks: the caller is the sender of the stream.
-        if (msg.sender != streams[streamId].sender) {
-            revert SablierV2__Unauthorized(streamId, msg.sender);
-        }
-
-        // Checks: the stream is cancelable.
-        if (!streams[streamId].cancelable) {
-            revert SablierV2__RenounceNonCancelableStream(streamId);
-        }
-
-        // Effects: make the stream non-cancelable.
-        streams[streamId].cancelable = false;
-
-        // Emit an event.
-        emit Renounce(streamId);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -484,6 +465,15 @@ contract SablierV2Pro is
             segmentMilestones,
             cancelable
         );
+    }
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function renounceInternal(uint256 streamId) internal override {
+        // Effects: make the stream non-cancelable.
+        streams[streamId].cancelable = false;
+
+        // Emit an event.
+        emit Renounce(streamId);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
