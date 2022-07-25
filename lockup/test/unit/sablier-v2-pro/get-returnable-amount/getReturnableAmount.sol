@@ -55,8 +55,8 @@ contract SablierV2Pro__GetReturnableAmount is SablierV2ProUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET + 1 seconds);
         sablierV2Pro.withdraw(daiStreamId, SEGMENT_AMOUNTS_DAI[0]);
         uint256 actualReturnableAmount = sablierV2Pro.getReturnableAmount(daiStreamId);
-        // TIME_OFFSET + 1 seconds is 0.0125% of the way in the second segment => ~8_000*0.000125^{0.5}
-        uint256 expectedReturnableAmount = daiStream.depositAmount - SEGMENT_AMOUNTS_DAI[0] - 89442719099991584e3;
+        // TIME_OFFSET + 1 seconds is 0.0125% of the way in the second segment => ~8,000*0.000125^{0.5}
+        uint256 expectedReturnableAmount = daiStream.depositAmount - SEGMENT_AMOUNTS_DAI[0] - 89.442719099991584e18;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 }
