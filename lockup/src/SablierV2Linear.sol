@@ -44,7 +44,7 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2
-    function getReturnableAmount(uint256 streamId) public view returns (uint256 returnableAmount) {
+    function getReturnableAmount(uint256 streamId) external view returns (uint256 returnableAmount) {
         // If the stream does not exist, return zero.
         if (streams[streamId].sender == address(0)) {
             return 0;
