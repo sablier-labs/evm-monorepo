@@ -96,6 +96,7 @@ abstract contract SablierV2 is ISablierV2 {
         }
     }
 
+    /// @inheritdoc ISablierV2
     function renounce(uint256 streamId) external streamExists(streamId) {
         // Checks: the caller is the sender of the stream.
         if (msg.sender != getSender(streamId)) {
