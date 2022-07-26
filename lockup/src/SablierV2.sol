@@ -62,12 +62,7 @@ abstract contract SablierV2 is ISablierV2 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
-    function cancel(uint256 streamId) external {
-        // Checks: the `streamId` points to an existent stream.
-        if (getSender(streamId) == address(0)) {
-            revert SablierV2__StreamNonExistent(streamId);
-        }
-
+    function cancel(uint256 streamId) external streamExists(streamId) {
         // Checks: the stream is cancelable.
         if (!isCancelable(streamId)) {
             revert SablierV2__StreamNonCancelable(streamId);
