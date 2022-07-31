@@ -180,8 +180,8 @@ contract SablierV2Pro is
             }
 
             // Calculate the streamed amount.
-            SD59x18 quotient = elapsedSegmentTime.div(totalSegmentTime);
-            SD59x18 multiplier = quotient.pow(currentSegmentExponent);
+            SD59x18 elapsedTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
+            SD59x18 multiplier = elapsedTimePercentage.pow(currentSegmentExponent);
             SD59x18 proRataAmount = multiplier.mul(currentSegmentAmount);
             SD59x18 streamedAmount = SD59x18.wrap(int256(previousSegmentAmounts)).add(proRataAmount);
             SD59x18 withdrawnAmount = SD59x18.wrap(int256(streams[streamId].withdrawnAmount));

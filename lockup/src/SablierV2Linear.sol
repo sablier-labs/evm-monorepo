@@ -101,9 +101,9 @@ contract SablierV2Linear is
             // In all other cases, calculate how much the recipient can withdraw.
             UD60x18 elapsedTime = toUD60x18(currentTime - streams[streamId].startTime);
             UD60x18 totalTime = toUD60x18(streams[streamId].stopTime - streams[streamId].startTime);
-            UD60x18 quotient = elapsedTime.div(totalTime);
+            UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             UD60x18 depositAmount = UD60x18.wrap(streams[streamId].depositAmount);
-            UD60x18 streamedAmount = quotient.mul(depositAmount);
+            UD60x18 streamedAmount = elapsedTimePercentage.mul(depositAmount);
             UD60x18 withdrawnAmount = UD60x18.wrap(streams[streamId].withdrawnAmount);
             withdrawableAmount = UD60x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount));
         }
