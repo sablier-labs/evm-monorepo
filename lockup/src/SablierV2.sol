@@ -68,7 +68,7 @@ abstract contract SablierV2 is ISablierV2 {
             revert SablierV2__StreamNonCancelable(streamId);
         }
 
-        cancelInternal(streamId);
+        _cancel(streamId);
     }
 
     /// @inheritdoc ISablierV2
@@ -81,7 +81,7 @@ abstract contract SablierV2 is ISablierV2 {
 
             // Cancel the stream only if the `streamId` points to a stream that exists and is cancelable.
             if (getSender(streamId) != address(0) && isCancelable(streamId)) {
-                cancelInternal(streamId);
+                _cancel(streamId);
             }
 
             // Increment the for loop iterator.
@@ -103,7 +103,7 @@ abstract contract SablierV2 is ISablierV2 {
             revert SablierV2__RenounceNonCancelableStream(streamId);
         }
 
-        renounceInternal(streamId);
+        _renounce(streamId);
     }
 
     /// @inheritdoc ISablierV2
@@ -113,7 +113,7 @@ abstract contract SablierV2 is ISablierV2 {
         onlySenderOrRecipient(streamId)
     {
         address to = getRecipient(streamId);
-        withdrawInternal(streamId, to, amount);
+        _withdraw(streamId, to, amount);
     }
 
     /// @inheritdoc ISablierV2
@@ -142,7 +142,7 @@ abstract contract SablierV2 is ISablierV2 {
                 }
 
                 // Effects and Interactions: withdraw from the stream.
-                withdrawInternal(streamId, recipient, amounts[i]);
+                _withdraw(streamId, recipient, amounts[i]);
             }
 
             // Increment the for loop iterator.
@@ -183,7 +183,7 @@ abstract contract SablierV2 is ISablierV2 {
                 }
 
                 // Effects and Interactions: withdraw from the stream.
-                withdrawInternal(streamId, to, amounts[i]);
+                _withdraw(streamId, to, amounts[i]);
             }
 
             // Increment the for loop iterator.
@@ -208,7 +208,7 @@ abstract contract SablierV2 is ISablierV2 {
         if (to == address(0)) {
             revert SablierV2__WithdrawZeroAddress();
         }
-        withdrawInternal(streamId, to, amount);
+        _withdraw(streamId, to, amount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -216,7 +216,7 @@ abstract contract SablierV2 is ISablierV2 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks the basic requiremenets for the `create` function.
-    function checkCreateArguments(
+    function _checkCreateArguments(
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -249,13 +249,13 @@ abstract contract SablierV2 is ISablierV2 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function cancelInternal(uint256 streamId) internal virtual;
+    function _cancel(uint256 streamId) internal virtual;
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function renounceInternal(uint256 streamId) internal virtual;
+    function _renounce(uint256 streamId) internal virtual;
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function withdrawInternal(
+    function _withdraw(
         uint256 streamId,
         address to,
         uint256 amount

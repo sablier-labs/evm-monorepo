@@ -22,7 +22,7 @@ contract SablierV2Linear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 linear streams mapped by unsigned integers.
-    mapping(uint256 => Stream) internal streams;
+    mapping(uint256 => Stream) internal _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
@@ -30,56 +30,59 @@ contract SablierV2Linear is
 
     /// @inheritdoc ISablierV2Linear
     function getCliffTime(uint256 streamId) external view override returns (uint256 cliffTime) {
-        cliffTime = streams[streamId].cliffTime;
+        cliffTime = _streams[streamId].cliffTime;
     }
 
     /// @inheritdoc ISablierV2
     function getDepositAmount(uint256 streamId) external view override returns (uint256 depositAmount) {
-        depositAmount = streams[streamId].depositAmount;
+        depositAmount = _streams[streamId].depositAmount;
     }
 
     /// @inheritdoc ISablierV2
     function getRecipient(uint256 streamId) public view override(ISablierV2, SablierV2) returns (address recipient) {
-        recipient = streams[streamId].recipient;
+        recipient = _streams[streamId].recipient;
     }
 
     /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) external view returns (uint256 returnableAmount) {
         // If the stream does not exist, return zero.
-        if (streams[streamId].sender == address(0)) {
+        if (_streams[streamId].sender == address(0)) {
             return 0;
         }
 
         unchecked {
             uint256 withdrawableAmount = getWithdrawableAmount(streamId);
-            returnableAmount = streams[streamId].depositAmount - streams[streamId].withdrawnAmount - withdrawableAmount;
+            returnableAmount =
+                _streams[streamId].depositAmount -
+                _streams[streamId].withdrawnAmount -
+                withdrawableAmount;
         }
     }
 
     /// @inheritdoc ISablierV2
     function getSender(uint256 streamId) public view override(ISablierV2, SablierV2) returns (address sender) {
-        sender = streams[streamId].sender;
+        sender = _streams[streamId].sender;
     }
 
     /// @inheritdoc ISablierV2
     function getStartTime(uint256 streamId) external view override returns (uint256 startTime) {
-        startTime = streams[streamId].startTime;
+        startTime = _streams[streamId].startTime;
     }
 
     /// @inheritdoc ISablierV2
     function getStopTime(uint256 streamId) external view override returns (uint256 stopTime) {
-        stopTime = streams[streamId].stopTime;
+        stopTime = _streams[streamId].stopTime;
     }
 
     /// @inheritdoc ISablierV2Linear
     function getStream(uint256 streamId) external view override returns (Stream memory stream) {
-        stream = streams[streamId];
+        stream = _streams[streamId];
     }
 
     /// @inheritdoc ISablierV2
     function getWithdrawableAmount(uint256 streamId) public view returns (uint256 withdrawableAmount) {
         // If the stream does not exist, return zero.
-        if (streams[streamId].sender == address(0)) {
+        if (_streams[streamId].sender == address(0)) {
             return 0;
         }
 
@@ -87,36 +90,36 @@ contract SablierV2Linear is
         // always greater than the start time, this also checks whether the start time is greater than
         // the block timestamp.
         uint256 currentTime = block.timestamp;
-        if (streams[streamId].cliffTime > currentTime) {
+        if (_streams[streamId].cliffTime > currentTime) {
             return 0;
         }
 
         unchecked {
             // If the current time is greater than or equal to the stop time, return the deposit minus
             // the withdrawn amount.
-            if (currentTime >= streams[streamId].stopTime) {
-                return streams[streamId].depositAmount - streams[streamId].withdrawnAmount;
+            if (currentTime >= _streams[streamId].stopTime) {
+                return _streams[streamId].depositAmount - _streams[streamId].withdrawnAmount;
             }
 
             // In all other cases, calculate how much the recipient can withdraw.
-            UD60x18 elapsedTime = toUD60x18(currentTime - streams[streamId].startTime);
-            UD60x18 totalTime = toUD60x18(streams[streamId].stopTime - streams[streamId].startTime);
+            UD60x18 elapsedTime = toUD60x18(currentTime - _streams[streamId].startTime);
+            UD60x18 totalTime = toUD60x18(_streams[streamId].stopTime - _streams[streamId].startTime);
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-            UD60x18 depositAmount = UD60x18.wrap(streams[streamId].depositAmount);
+            UD60x18 depositAmount = UD60x18.wrap(_streams[streamId].depositAmount);
             UD60x18 streamedAmount = elapsedTimePercentage.mul(depositAmount);
-            UD60x18 withdrawnAmount = UD60x18.wrap(streams[streamId].withdrawnAmount);
+            UD60x18 withdrawnAmount = UD60x18.wrap(_streams[streamId].withdrawnAmount);
             withdrawableAmount = UD60x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount));
         }
     }
 
     /// @inheritdoc ISablierV2
     function getWithdrawnAmount(uint256 streamId) external view override returns (uint256 withdrawnAmount) {
-        withdrawnAmount = streams[streamId].withdrawnAmount;
+        withdrawnAmount = _streams[streamId].withdrawnAmount;
     }
 
     /// @inheritdoc ISablierV2
     function isCancelable(uint256 streamId) public view override(ISablierV2, SablierV2) returns (bool cancelable) {
-        cancelable = streams[streamId].cancelable;
+        cancelable = _streams[streamId].cancelable;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -135,7 +138,7 @@ contract SablierV2Linear is
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
-        streamId = createInternal(sender, recipient, depositAmount, token, startTime, cliffTime, stopTime, cancelable);
+        streamId = _create(sender, recipient, depositAmount, token, startTime, cliffTime, stopTime, cancelable);
     }
 
     /// @inheritdoc ISablierV2Linear
@@ -149,7 +152,7 @@ contract SablierV2Linear is
         bool cancelable
     ) external returns (uint256 streamId) {
         // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
-        // `createInternal` function will nonetheless check that the stop time is greater than or equal to the
+        // `_create` function will nonetheless check that the stop time is greater than or equal to the
         // cliff time, and that the cliff time is greater than or equal to the start time.
         uint256 startTime = block.timestamp;
         uint256 cliffTime;
@@ -160,7 +163,7 @@ contract SablierV2Linear is
         }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = createInternal(sender, recipient, depositAmount, token, startTime, cliffTime, stopTime, cancelable);
+        streamId = _create(sender, recipient, depositAmount, token, startTime, cliffTime, stopTime, cancelable);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -168,8 +171,8 @@ contract SablierV2Linear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function cancelInternal(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
-        Stream memory stream = streams[streamId];
+    function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
+        Stream memory stream = _streams[streamId];
 
         // Calculate the withdraw and the return amounts.
         uint256 withdrawAmount = getWithdrawableAmount(streamId);
@@ -179,7 +182,7 @@ contract SablierV2Linear is
         }
 
         // Effects: delete the stream from storage.
-        delete streams[streamId];
+        delete _streams[streamId];
 
         // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
@@ -196,7 +199,7 @@ contract SablierV2Linear is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function createInternal(
+    function _create(
         address sender,
         address recipient,
         uint256 depositAmount,
@@ -207,7 +210,7 @@ contract SablierV2Linear is
         bool cancelable
     ) internal returns (uint256 streamId) {
         // Checks: the common requirements for the `create` function arguments.
-        checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
+        _checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
 
         // Checks: the cliff time is greater than or equal to the start time.
         if (startTime > cliffTime) {
@@ -221,7 +224,7 @@ contract SablierV2Linear is
 
         // Effects: create and store the stream.
         streamId = nextStreamId;
-        streams[streamId] = Stream({
+        _streams[streamId] = Stream({
             cancelable: cancelable,
             cliffTime: cliffTime,
             depositAmount: depositAmount,
@@ -258,16 +261,16 @@ contract SablierV2Linear is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function renounceInternal(uint256 streamId) internal override {
+    function _renounce(uint256 streamId) internal override {
         // Effects: make the stream non-cancelable.
-        streams[streamId].cancelable = false;
+        _streams[streamId].cancelable = false;
 
         // Emit an event.
         emit Renounce(streamId);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function withdrawInternal(
+    function _withdraw(
         uint256 streamId,
         address to,
         uint256 amount
@@ -285,15 +288,15 @@ contract SablierV2Linear is
 
         // Effects: update the withdrawn amount.
         unchecked {
-            streams[streamId].withdrawnAmount += amount;
+            _streams[streamId].withdrawnAmount += amount;
         }
 
         // Load the stream in memory, we will need it below.
-        Stream memory stream = streams[streamId];
+        Stream memory stream = _streams[streamId];
 
         // Effects: if this stream is done, save gas by deleting it from storage.
         if (stream.depositAmount == stream.withdrawnAmount) {
-            delete streams[streamId];
+            delete _streams[streamId];
         }
 
         // Interactions: perform the ERC-20 transfer.

@@ -74,15 +74,15 @@ contract AbstractSablierV2 is SablierV2 {
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function cancelInternal(uint256 streamId) internal pure override {
+    function _cancel(uint256 streamId) internal pure override {
         streamId;
     }
 
-    function renounceInternal(uint256 streamId) internal pure override {
+    function _renounce(uint256 streamId) internal pure override {
         streamId;
     }
 
-    function withdrawInternal(
+    function _withdraw(
         uint256 streamId,
         address to,
         uint256 amount
