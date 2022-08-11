@@ -9,7 +9,7 @@
 [license]: https://www.gnu.org/licenses/lgpl-3.0
 [license-badge]: https://img.shields.io/badge/License-LGPL_v3-blue.svg
 
-Core smart contracts of the Sablier V2 money streaming protocol. In-depth documentation is available at [docs.sablier.finance](https://docs.sablier.finance).
+Core smart contracts of the Sablier V2 token streaming protocol. In-depth documentation is available at [docs.sablier.finance](https://docs.sablier.finance).
 
 ## Install
 

@@ -1,6 +1,6 @@
 {
   "name": "@sablier/v2-core",
-  "description": "Core smart contracts for the Sablier V2 money streaming protocol",
+  "description": "Core smart contracts for the Sablier V2 token streaming protocol",
   "version": "1.0.0",
   "author": {
     "name": "Sablier Labs Ltd.",
