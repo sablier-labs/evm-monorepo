@@ -10,10 +10,38 @@ import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
 contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
     /// @dev it should revert.
-    function testCannotCreateWithDuration__DeltaCountOutOfBounds() external {
-        uint256 deltaCount = sablierV2Pro.MAX_SEGMENT_COUNT() + 1;
+    function testCannotCreateWithDuration__LoopCalculationOverflowsBlockGasLimit() external {
+        uint256[] memory segmentDeltas = new uint256[](1_000_000);
+        vm.expectRevert();
+        sablierV2Pro.createWithDuration(
+            daiStream.sender,
+            daiStream.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.segmentAmounts,
+            daiStream.segmentExponents,
+            segmentDeltas,
+            daiStream.cancelable
+        );
+    }
+
+    modifier LoopCalculationDoesNotOverflowBlockGasLimit() {
+        _;
+    }
+
+    /// @dev it should revert.
+    function testCannotCreateWithDuration__SegmentDeltaCountNotEqual()
+        external
+        LoopCalculationDoesNotOverflowBlockGasLimit
+    {
+        uint256 deltaCount = daiStream.segmentAmounts.length + 1;
         vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentCountOutOfBounds.selector, deltaCount)
+            abi.encodeWithSelector(
+                ISablierV2Pro.SablierV2Pro__SegmentCountsNotEqual.selector,
+                daiStream.segmentAmounts.length,
+                daiStream.segmentExponents.length,
+                deltaCount
+            )
         );
         uint256[] memory segmentDeltas = new uint256[](deltaCount);
         for (uint256 i = 0; i < deltaCount; ) {
@@ -34,7 +62,7 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
         );
     }
 
-    modifier DeltaCountWithinBounds() {
+    modifier SegmentDeltaEqual() {
         _;
     }
 
@@ -45,7 +73,8 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
     /// @dev it should revert.
     function testCannotCreateWithDuration__StartTimeGreaterThanCalculatedStopTime()
         external
-        DeltaCountWithinBounds
+        LoopCalculationDoesNotOverflowBlockGasLimit
+        SegmentDeltaEqual
         MilestonesCalculationOverflows
     {
         uint256 startTime = block.timestamp;
@@ -73,7 +102,8 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
     /// @dev it should revert.
     function testCannotCreateWithDuration__StartTimeGreaterThanCalculatedFirstMilestone()
         external
-        DeltaCountWithinBounds
+        LoopCalculationDoesNotOverflowBlockGasLimit
+        SegmentDeltaEqual
         MilestonesCalculationOverflows
     {
         uint256 startTime = block.timestamp;
@@ -105,7 +135,8 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
     /// @dev it should revert.
     function testCannotCreateWithDuration__SegmentMilestonesNotOrdered()
         external
-        DeltaCountWithinBounds
+        LoopCalculationDoesNotOverflowBlockGasLimit
+        SegmentDeltaEqual
         MilestonesCalculationOverflows
     {
         uint256 startTime = block.timestamp;
@@ -143,7 +174,12 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
     }
 
     /// @dev it should create the stream with duration.
-    function testCreateWithDuration() external DeltaCountWithinBounds MilestonesCalculationDoesNotOverflow {
+    function testCreateWithDuration()
+        external
+        LoopCalculationDoesNotOverflowBlockGasLimit
+        SegmentDeltaEqual
+        MilestonesCalculationDoesNotOverflow
+    {
         uint256 daiStreamId = sablierV2Pro.createWithDuration(
             daiStream.sender,
             daiStream.recipient,

@@ -1,13 +1,16 @@
 createWithDuration.t.sol
-├── when the delta count is out of bounds
+├── when the loop calculations overflow the block gas limit
 │  └── it should revert
-└── when the delta count is within bounds
-   ├── when the segment milestone calculations overflow uint256
-   │  ├── when the start time is greater than the calculated stop time
-   │  │  └── it should revert
-   │  ├── when the start time is greater than the calculated first segment milestone
-   │  │  └── it should revert
-   │  └── when the segment milestones are not ordered
-   │     └── it should revert
-   └── when the segment milestone calculations do not overflow uint256
-      └── it should create the stream with duration
+└── when the loop calculations do not overflow the block gas limit
+   ├── when the segment deltas count are not equal
+   │  └── it should revert
+   └── when the segment deltas count are equal
+      ├── when the segment milestone calculations overflow uint256
+      │  ├── when the start time is greater than the calculated stop time
+      │  │  └── it should revert
+      │  ├── when the start time is greater than the calculated first segment milestone
+      │  │  └── it should revert
+      │  └── when the segment milestones are not ordered
+      │     └── it should revert
+      └── when the segment milestone calculations do not overflow uint256
+         └── it should create the stream with duration

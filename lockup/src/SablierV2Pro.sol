@@ -244,12 +244,7 @@ contract SablierV2Pro is
         bool cancelable
     ) external override returns (uint256 streamId) {
         uint256 startTime = block.timestamp;
-
-        // Check that the segment delta count is not greater than the maximum segment count permitted in Sablier.
         uint256 deltaCount = segmentDeltas.length;
-        if (deltaCount > MAX_SEGMENT_COUNT) {
-            revert SablierV2Pro__SegmentCountOutOfBounds(deltaCount);
-        }
 
         // Calculate the segment milestones. It is fine to use unchecked arithmetic because the `_create`
         // function will nonetheless check the segments.
