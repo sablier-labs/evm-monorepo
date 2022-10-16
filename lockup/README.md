@@ -9,7 +9,8 @@
 [license]: https://www.gnu.org/licenses/lgpl-3.0
 [license-badge]: https://img.shields.io/badge/License-LGPL_v3-blue.svg
 
-Core smart contracts of the Sablier V2 token streaming protocol. In-depth documentation is available at [docs.sablier.finance](https://docs.sablier.finance).
+Core smart contracts of the Sablier V2 token streaming protocol. In-depth documentation is available at
+[docs.sablier.finance](https://docs.sablier.finance).
 
 ## Install
 
@@ -139,7 +140,8 @@ There are many other commands available in Foundry. Check out the [Foundry Book]
 
 ## Security
 
-For security concerns, please email [security@sablier.finance](mailto:security@sablier.finance). This repository is subject to the Sablier bug bounty program, per the terms defined [here](https://docs.sablier.finance/).
+For security concerns, please email [security@sablier.finance](mailto:security@sablier.finance). This repository is
+subject to the Sablier bug bounty program, per the terms defined [here](https://docs.sablier.finance/).
 
 ## License
 
