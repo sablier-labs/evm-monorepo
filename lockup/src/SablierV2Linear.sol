@@ -262,7 +262,7 @@ contract SablierV2Linear is
         });
 
         // Effects: mint the NFT for the recipient.
-        _safeMint(recipient, streamId);
+        _mint(recipient, streamId);
 
         // Effects: bump the next stream id.
         // We're using unchecked arithmetic here because this cannot realistically overflow, ever.

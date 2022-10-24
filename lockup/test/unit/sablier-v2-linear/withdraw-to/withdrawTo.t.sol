@@ -107,7 +107,7 @@ contract SablierV2Linear__WithdrawTo is SablierV2LinearUnitTest {
         CallerRecipient
     {
         // Transfer the stream to Alice.
-        sablierV2Linear.safeTransferFrom(users.recipient, users.alice, daiStreamId);
+        sablierV2Linear.transferFrom(users.recipient, users.alice, daiStreamId);
 
         // Run the test.
         vm.expectRevert(

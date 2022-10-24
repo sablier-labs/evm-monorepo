@@ -239,8 +239,8 @@ contract SablierV2Linear__WithdrawAllTo is SablierV2LinearUnitTest {
         CallerRecipientAllStreams
     {
         // Transfer the streams to eve.
-        sablierV2Linear.safeTransferFrom(users.recipient, users.eve, defaultStreamIds[0]);
-        sablierV2Linear.safeTransferFrom(users.recipient, users.eve, defaultStreamIds[1]);
+        sablierV2Linear.transferFrom(users.recipient, users.eve, defaultStreamIds[0]);
+        sablierV2Linear.transferFrom(users.recipient, users.eve, defaultStreamIds[1]);
 
         // Run the test.
         vm.expectRevert(
@@ -259,7 +259,7 @@ contract SablierV2Linear__WithdrawAllTo is SablierV2LinearUnitTest {
         CallerRecipientAllStreams
     {
         // Transfer one of the streams to eve.
-        sablierV2Linear.safeTransferFrom(users.recipient, users.eve, defaultStreamIds[0]);
+        sablierV2Linear.transferFrom(users.recipient, users.eve, defaultStreamIds[0]);
 
         // Run the test.
         vm.expectRevert(
