@@ -15,7 +15,7 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
         vm.expectRevert();
         sablierV2Pro.createWithDuration(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.segmentAmounts,
@@ -52,7 +52,7 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
         }
         sablierV2Pro.createWithDuration(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.segmentAmounts,
@@ -89,7 +89,7 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
         );
         sablierV2Pro.createWithDuration(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.segmentAmounts,
@@ -122,7 +122,7 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
         );
         sablierV2Pro.createWithDuration(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.segmentAmounts,
@@ -159,7 +159,7 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
         );
         sablierV2Pro.createWithDuration(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             segmentAmounts,
@@ -182,7 +182,7 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
     {
         uint256 daiStreamId = sablierV2Pro.createWithDuration(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.segmentAmounts,

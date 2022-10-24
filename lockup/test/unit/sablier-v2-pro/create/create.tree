@@ -5,7 +5,7 @@ create.t.sol
    ├── when the deposit amount is zero
    │  └── it should revert
    └── when the deposit amount is not zero
-      ├── when one of the segment count is zero
+      ├── when one of the segment counts is zero
       │  └── it should revert
       └── when all segment counts are not zero
          ├── when one of the segment counts is out of bounds

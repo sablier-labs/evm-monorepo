@@ -13,66 +13,135 @@ contract AbstractSablierV2 is SablierV2 {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                              PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2
-    function getDepositAmount(uint256 streamId) external pure override returns (uint256 depositAmount) {
-        streamId;
-        depositAmount;
+    function balanceOf(address owner) external pure returns (uint256) {
+        owner;
+        return 0;
     }
 
-    /// @inheritdoc ISablierV2
-    function getRecipient(uint256 streamId) public pure override returns (address recipient) {
-        streamId;
-        recipient;
+    function getApproved(uint256 tokenId) external pure returns (address) {
+        tokenId;
+        return address(0);
     }
 
-    /// @inheritdoc ISablierV2
-    function getReturnableAmount(uint256 streamId) external pure override returns (uint256 returnableAmount) {
+    function getDepositAmount(uint256 streamId) external pure override returns (uint256) {
         streamId;
-        returnableAmount = 0;
+        return 0;
     }
 
-    /// @inheritdoc ISablierV2
-    function getSender(uint256 streamId) public pure override returns (address sender) {
+    function getRecipient(uint256 streamId) public pure override returns (address) {
         streamId;
-        sender;
+        return address(0);
     }
 
-    /// @inheritdoc ISablierV2
-    function getStartTime(uint256 streamId) external pure override returns (uint256 startTime) {
+    function getReturnableAmount(uint256 streamId) external pure override returns (uint256) {
         streamId;
-        startTime;
+        return 0;
     }
 
-    /// @inheritdoc ISablierV2
-    function getStopTime(uint256 streamId) external pure override returns (uint256 stopTime) {
+    function getSender(uint256 streamId) public pure override returns (address) {
         streamId;
-        stopTime;
+        return address(0);
     }
 
-    /// @inheritdoc ISablierV2
-    function getWithdrawableAmount(uint256 streamId) external pure override returns (uint256 withdrawableAmount) {
+    function getStartTime(uint256 streamId) external pure override returns (uint256) {
         streamId;
-        withdrawableAmount = 0;
+        return 0;
     }
 
-    /// @inheritdoc ISablierV2
-    function getWithdrawnAmount(uint256 streamId) external pure override returns (uint256 withdrawnAmount) {
+    function getStopTime(uint256 streamId) external pure override returns (uint256) {
         streamId;
-        withdrawnAmount;
+        return 0;
     }
 
-    /// @inheritdoc ISablierV2
-    function isCancelable(uint256 streamId) public pure override returns (bool cancelable) {
+    function getWithdrawableAmount(uint256 streamId) external pure override returns (uint256) {
         streamId;
-        cancelable;
+        return 0;
+    }
+
+    function getWithdrawnAmount(uint256 streamId) external pure override returns (uint256) {
+        streamId;
+        return 0;
+    }
+
+    function isCancelable(uint256 streamId) public pure override returns (bool) {
+        streamId;
+        return true;
+    }
+
+    function isApprovedForAll(address owner, address operator) external pure returns (bool) {
+        owner;
+        operator;
+        return true;
+    }
+
+    function ownerOf(uint256 tokenId) external pure returns (address) {
+        tokenId;
+        return address(0);
+    }
+
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        interfaceId;
+        return true;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            PUBLIC NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function approve(address to, uint256 tokenId) external pure {
+        to;
+        tokenId;
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external pure {
+        from;
+        to;
+        tokenId;
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes calldata data
+    ) external pure {
+        from;
+        to;
+        tokenId;
+        data;
+    }
+
+    function setApprovalForAll(address operator, bool _approved) external pure {
+        operator;
+        _approved;
+    }
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external pure {
+        from;
+        to;
+        tokenId;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function _isApprovedOrOwner(address spender, uint256 streamId) internal pure override returns (bool) {
+        spender;
+        streamId;
+        return true;
+    }
 
     function _cancel(uint256 streamId) internal pure override {
         streamId;

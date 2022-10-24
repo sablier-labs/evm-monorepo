@@ -7,7 +7,7 @@ import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.s
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
-contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
+contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
     uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.
@@ -25,8 +25,8 @@ contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
     function testCannotWithdraw__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
-        uint256 withdrawAmount = 0;
-        sablierV2Linear.withdraw(nonStreamId, withdrawAmount);
+        uint256 withdrawAmountZero = 0;
+        sablierV2Linear.withdraw(nonStreamId, withdrawAmountZero);
     }
 
     modifier StreamExistent() {
@@ -44,21 +44,43 @@ contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
         sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
     }
 
-    modifier CallerSender() {
+    modifier CallerAuthorized() {
         _;
     }
 
-    /// @dev it should make the withdrawal.
-    function testWithdraw() external StreamExistent CallerSender {
+    /// @dev it should make the withdrawal and update the withdrawn amount.
+    function testWithdraw__CallerSender() external StreamExistent CallerAuthorized {
         // Make the sender the `msg.sender` in this test case.
         changePrank(users.sender);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
-        uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
 
         // Run the test.
-        sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
+        sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
+        uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
+        uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+    }
+
+    /// @dev it should make the withdrawal and update the withdrawn amount.
+    function testWithdraw__CallerApprovedOperator() external StreamExistent CallerAuthorized {
+        // Approve the operator to handle the stream.
+        sablierV2Linear.approve(users.operator, daiStreamId);
+
+        // Make the operator the `msg.sender` in this test case.
+        changePrank(users.operator);
+
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
+        vm.warp(daiStream.startTime + TIME_OFFSET);
+
+        // Run the test.
+        sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
+        uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
+        uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
     modifier CallerRecipient() {
@@ -66,10 +88,37 @@ contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
     }
 
     /// @dev it should revert.
-    function testCannotWithdraw__WithdrawAmountZero() external StreamExistent CallerRecipient {
+    function testCannotWithdraw__OriginalRecipientTransferredOwnership()
+        external
+        StreamExistent
+        CallerAuthorized
+        CallerRecipient
+    {
+        // Transfer the stream to Alice.
+        sablierV2Linear.safeTransferFrom(users.recipient, users.alice, daiStreamId);
+
+        // Run the test.
+        vm.expectRevert(
+            abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, daiStreamId, users.recipient)
+        );
+        sablierV2Linear.withdraw(daiStreamId, daiStream.depositAmount);
+    }
+
+    modifier OriginalRecipient() {
+        _;
+    }
+
+    /// @dev it should revert.
+    function testCannotWithdraw__WithdrawAmountZero()
+        external
+        StreamExistent
+        CallerAuthorized
+        CallerRecipient
+        OriginalRecipient
+    {
         vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__WithdrawAmountZero.selector, daiStreamId));
-        uint256 withdrawAmount = 0;
-        sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
+        uint256 withdrawAmountZero = 0;
+        sablierV2Linear.withdraw(daiStreamId, withdrawAmountZero);
     }
 
     modifier WithdrawAmountNotZero() {
@@ -77,7 +126,14 @@ contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
     }
 
     /// @dev it should revert.
-    function testCannotWithdraw__WithdrawAmountGreaterThanWithdrawableAmount() external {
+    function testCannotWithdraw__WithdrawAmountGreaterThanWithdrawableAmount()
+        external
+        StreamExistent
+        CallerAuthorized
+        CallerRecipient
+        OriginalRecipient
+        WithdrawAmountNotZero
+    {
         uint256 withdrawAmountMaxUint256 = UINT256_MAX;
         uint256 withdrawableAmount = 0;
         vm.expectRevert(
@@ -95,11 +151,13 @@ contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
         _;
     }
 
-    /// @dev it should cancel and delete the stream.
+    /// @dev it should make the withdrawal and delete the stream and burn the NFT.
     function testWithdraw__StreamEnded()
         external
         StreamExistent
+        CallerAuthorized
         CallerRecipient
+        OriginalRecipient
         WithdrawAmountNotZero
         WithdrawAmountLessThanOrEqualToWithdrawableAmount
     {
@@ -107,18 +165,23 @@ contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
         vm.warp(daiStream.stopTime);
 
         // Run the test.
-        uint256 withdrawAmount = daiStream.depositAmount;
-        sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
+        sablierV2Linear.withdraw(daiStreamId, daiStream.depositAmount);
         ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
         ISablierV2Linear.Stream memory expectedStream;
         assertEq(deletedStream, expectedStream);
+
+        address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient, expectedRecipient);
     }
 
     /// @dev it should emit a Withdraw event.
     function testWithdraw__StreamEnded__Event()
         external
         StreamExistent
+        CallerAuthorized
         CallerRecipient
+        OriginalRecipient
         WithdrawAmountNotZero
         WithdrawAmountLessThanOrEqualToWithdrawableAmount
     {
@@ -127,16 +190,17 @@ contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
 
         // Run the test.
         vm.expectEmit(true, true, false, true);
-        uint256 withdrawAmount = daiStream.depositAmount;
-        emit Withdraw(daiStreamId, daiStream.recipient, withdrawAmount);
-        sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
+        emit Withdraw(daiStreamId, users.recipient, daiStream.depositAmount);
+        sablierV2Linear.withdraw(daiStreamId, daiStream.depositAmount);
     }
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
     function testWithdraw__StreamOngoing()
         external
         StreamExistent
+        CallerAuthorized
         CallerRecipient
+        OriginalRecipient
         WithdrawAmountNotZero
         WithdrawAmountLessThanOrEqualToWithdrawableAmount
     {
@@ -155,7 +219,9 @@ contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
     function testWithdraw__StreamOngoing__Event()
         external
         StreamExistent
+        CallerAuthorized
         CallerRecipient
+        OriginalRecipient
         WithdrawAmountNotZero
         WithdrawAmountLessThanOrEqualToWithdrawableAmount
     {
@@ -163,9 +229,8 @@ contract SablierV2Linear__Unit__Withdraw is SablierV2LinearUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
         vm.expectEmit(true, true, false, true);
-        emit Withdraw(daiStreamId, daiStream.recipient, withdrawAmount);
-        sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
+        emit Withdraw(daiStreamId, users.recipient, WITHDRAW_AMOUNT_DAI);
+        sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
     }
 }

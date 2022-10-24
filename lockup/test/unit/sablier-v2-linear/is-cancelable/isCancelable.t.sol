@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__IsCancelable is SablierV2LinearUnitTest {
-    /// @dev it should return zero.
+    /// @dev it should return false.
     function testIsCancelable__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         bool actualCancelable = sablierV2Linear.isCancelable(nonStreamId);

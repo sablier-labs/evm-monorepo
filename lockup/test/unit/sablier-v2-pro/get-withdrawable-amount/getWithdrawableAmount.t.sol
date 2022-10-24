@@ -111,7 +111,7 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
 
         daiStreamId = sablierV2Pro.create(
             usdcStream.sender,
-            usdcStream.recipient,
+            users.recipient,
             usdcDepositAmount,
             usdcStream.token,
             usdcStream.startTime,
@@ -141,7 +141,7 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
 
         daiStreamId = sablierV2Pro.create(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiDepositAmount,
             daiStream.token,
             daiStream.startTime,
@@ -241,7 +241,7 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
             // Create the 200-segment stream.
             uint256 usdcStreamId = sablierV2Pro.create(
                 usdcStream.sender,
-                usdcStream.recipient,
+                users.recipient,
                 usdcStream.depositAmount,
                 usdcStream.token,
                 usdcStream.startTime,
@@ -287,7 +287,7 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
             // Create the 200-segment stream.
             daiStreamId = sablierV2Pro.create(
                 daiStream.sender,
-                daiStream.recipient,
+                users.recipient,
                 daiStream.depositAmount,
                 daiStream.token,
                 daiStream.startTime,

@@ -20,7 +20,7 @@ contract SablierV2Linear__GetRecipient is SablierV2LinearUnitTest {
     function testGetRecipient() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = daiStream.recipient;
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }
 }

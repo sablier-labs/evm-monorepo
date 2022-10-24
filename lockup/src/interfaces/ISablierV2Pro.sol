@@ -2,8 +2,9 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { ISablierV2 } from "./ISablierV2.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
+
+import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Pro
 /// @author Sablier Labs Ltd
@@ -86,7 +87,6 @@ interface ISablierV2Pro is ISablierV2 {
         uint256 startTime;
         uint256 stopTime;
         uint256 withdrawnAmount;
-        address recipient;
         address sender;
         IERC20 token;
         bool cancelable;

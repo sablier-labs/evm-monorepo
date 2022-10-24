@@ -7,25 +7,32 @@ withdrawAll.t.sol
    ├── when the stream ids array points to some non existent streams
    │  └── it should make the withdrawals for the existent streams
    └── when the stream ids array points only to existent streams
-     ├── when the caller is neither the sender nor the recipient of any stream
+     ├── when the caller is not authorized for any stream
      │  └── it should revert
-     ├── when the caller is neither the sender nor the recipient of some of the streams
+     ├── when the caller is not authorized for some streams
      │  └── it should revert
      ├── when the caller is the sender of all streams
      │  └── it should make the withdrawals and update the withdrawn amounts
+     ├── when the caller is an approved operator of all streams
+     │  └── it should make the withdrawals and update the withdrawn amounts
      └── when the caller is the recipient of all streams
-         ├── when some amounts are zero
-         │  └── it should revert
-         └── when all amounts are not zero
-           ├── when some amounts are greater than the withrawable amounts
+        ├── when the original recipient transferred ownership of all streams
+        │  └── it should revert
+        ├── when the original recipient transferred ownership of some of the streams
+        │  └── it should revert
+        └── when the original recipient did not transfer ownership of any stream
+           ├── when some amounts are zero
            │  └── it should revert
-           └── when all amounts are less than or equal to the withdrawable amounts
-               ├── when all streams are ended
-               │  ├── it should make the withdrawals and delete the streams
-               │  └── it should emit multiple Withdraw events
-               ├── when all streams are ongoing
-               │  ├── it should make the withdrawals and update the withdrawn amounts
-               │  └── it should emit multiple Withdraw events
-               └── when some streams are ended and some streams are ongoing
-                  ├── it should make the withdrawals, delete the ended streams and update the withdrawn amounts
-                  └── it should emit multiple Withdraw events
+           └── when all amounts are not zero
+              ├── when some amounts are greater than the withrawable amounts
+              │  └── it should revert
+              └── when all amounts are less than or equal to the withdrawable amounts
+                 ├── when all streams are ended
+                 │  ├── it should make the withdrawals, delete the streams and burn the NFTs
+                 │  └── it should emit multiple Withdraw events
+                 ├── when all streams are ongoing
+                 │  ├── it should make the withdrawals and update the withdrawn amounts
+                 │  └── it should emit multiple Withdraw events
+                 └── when some streams are ended and some streams are ongoing
+                    ├── it should make the withdrawals, delete the ended streams and burn the NFTs, and update the withdrawn amounts
+                    └── it should emit multiple Withdraw events

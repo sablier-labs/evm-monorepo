@@ -17,6 +17,9 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         // Create the default streams, since most tests need them.
         defaultStreamIds.push(createDefaultDaiStream());
         defaultStreamIds.push(createDefaultDaiStream());
+
+        // Make the recipient the `msg.sender` in this test suite.
+        changePrank(users.recipient);
     }
 
     /// @dev it should do nothing.
@@ -26,7 +29,7 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         sablierV2Linear.cancelAll(streamIds);
     }
 
-    /// @dev it should cancel and delete the non existent streams.
+    /// @dev it should cancel and delete the existent streams and burn the NFTs.
     function testCannotCancelAll__SomeNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonStreamId);
@@ -34,14 +37,49 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(defaultStreamIds[0]);
         ISablierV2Linear.Stream memory expectedStream;
         assertEq(actualStream, expectedStream);
+
+        address actualRecipient = sablierV2Linear.getRecipient(defaultStreamIds[0]);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient, expectedRecipient);
     }
 
     modifier OnlyExistentStreams() {
         _;
     }
 
+    /// @dev it should do nothing.
+    function testCannotCancelAll__AllStreamsNonCancelable() external OnlyExistentStreams {
+        // Create the non-cancelable stream.
+        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
+
+        // Run the test.
+        uint256[] memory nonCancelableStreamIds = createDynamicArray(nonCancelableDaiStreamId);
+        sablierV2Linear.cancelAll(nonCancelableStreamIds);
+    }
+
+    /// @dev it should cancel and delete the cancelable streams and burn the NFTs.
+    function testCannotCancelAll__SomeStreamsNonCancelable() external OnlyExistentStreams {
+        // Create the non-cancelable stream.
+        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
+
+        // Run the test.
+        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonCancelableDaiStreamId);
+        sablierV2Linear.cancelAll(streamIds);
+        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(defaultStreamIds[0]);
+        ISablierV2Linear.Stream memory expectedStream;
+        assertEq(actualStream, expectedStream);
+
+        address actualRecipient = sablierV2Linear.getRecipient(defaultStreamIds[0]);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient, expectedRecipient);
+    }
+
+    modifier AllStreamsCancelable() {
+        _;
+    }
+
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedAllStreams() external OnlyExistentStreams {
+    function testCannotCancelAll__CallerUnauthorizedAllStreams() external OnlyExistentStreams AllStreamsCancelable {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 
@@ -53,14 +91,14 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedSomeStreams() external OnlyExistentStreams {
+    function testCannotCancelAll__CallerUnauthorizedSomeStreams() external OnlyExistentStreams AllStreamsCancelable {
         // Make Eve the `msg.sender` in this test case.
         changePrank(users.eve);
 
         // Create a stream with Eve as the sender.
         uint256 eveStreamId = sablierV2Linear.create(
             users.eve,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
@@ -77,10 +115,19 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         sablierV2Linear.cancelAll(streamIds);
     }
 
-    /// @dev it should cancel and delete the streams.
-    function testCancelAll__CallerRecipientAllStreams() external OnlyExistentStreams {
-        // Make the recipient the `msg.sender` in this test case.
-        changePrank(users.recipient);
+    modifier CallerAuthorizedAllStreams() {
+        _;
+    }
+
+    /// @dev it should cancel and delete the streams and burn the NFTs.
+    function testCancelAll__CallerSenderAllStreams()
+        external
+        OnlyExistentStreams
+        AllStreamsCancelable
+        CallerAuthorizedAllStreams
+    {
+        // Make the sender the `msg.sender` in this test case.
+        changePrank(users.sender);
 
         // Run the test.
         sablierV2Linear.cancelAll(defaultStreamIds);
@@ -88,44 +135,99 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         ISablierV2Linear.Stream memory actualStream0 = sablierV2Linear.getStream(defaultStreamIds[0]);
         ISablierV2Linear.Stream memory actualStream1 = sablierV2Linear.getStream(defaultStreamIds[1]);
         ISablierV2Linear.Stream memory expectedStream;
-
         assertEq(actualStream0, expectedStream);
         assertEq(actualStream1, expectedStream);
+
+        address actualRecipient0 = sablierV2Linear.getRecipient(defaultStreamIds[0]);
+        address actualRecipient1 = sablierV2Linear.getRecipient(defaultStreamIds[1]);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient0, expectedRecipient);
+        assertEq(actualRecipient1, expectedRecipient);
     }
 
-    modifier CallerSenderAllStreams() {
-        _;
-    }
+    /// @dev it should cancel and delete the streams and burn the NFTs.
+    function testCancelAll__CallerApprovedOperatorAllStreams()
+        external
+        OnlyExistentStreams
+        AllStreamsCancelable
+        CallerAuthorizedAllStreams
+    {
+        // Approve the operator for all streams.
+        sablierV2Linear.setApprovalForAll(users.operator, true);
 
-    /// @dev it should do nothing.
-    function testCannotCancelAll__AllStreamsNonCancelable() external OnlyExistentStreams CallerSenderAllStreams {
-        // Create the non-cancelable stream.
-        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
+        // Make the operator the `msg.sender` in this test case.
+        changePrank(users.operator);
 
         // Run the test.
-        uint256[] memory nonCancelableStreamIds = createDynamicArray(nonCancelableDaiStreamId);
-        sablierV2Linear.cancelAll(nonCancelableStreamIds);
-    }
+        sablierV2Linear.cancelAll(defaultStreamIds);
 
-    /// @dev it should cancel and delete the cancelable streams.
-    function testCannotCancelAll__SomeStreamsNonCancelable() external OnlyExistentStreams CallerSenderAllStreams {
-        // Create the non-cancelable stream.
-        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
-
-        // Run the test.
-        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonCancelableDaiStreamId);
-        sablierV2Linear.cancelAll(streamIds);
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(defaultStreamIds[0]);
+        ISablierV2Linear.Stream memory actualStream0 = sablierV2Linear.getStream(defaultStreamIds[0]);
+        ISablierV2Linear.Stream memory actualStream1 = sablierV2Linear.getStream(defaultStreamIds[1]);
         ISablierV2Linear.Stream memory expectedStream;
-        assertEq(actualStream, expectedStream);
+        assertEq(actualStream0, expectedStream);
+        assertEq(actualStream1, expectedStream);
+
+        address actualRecipient0 = sablierV2Linear.getRecipient(defaultStreamIds[0]);
+        address actualRecipient1 = sablierV2Linear.getRecipient(defaultStreamIds[1]);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient0, expectedRecipient);
+        assertEq(actualRecipient1, expectedRecipient);
     }
 
-    modifier AllStreamsCancelable() {
+    modifier CallerRecipientAllStreams() {
         _;
     }
 
-    /// @dev it should cancel and delete the streams.
-    function testCancelAll__AllStreamsEnded() external OnlyExistentStreams CallerSenderAllStreams AllStreamsCancelable {
+    /// @dev it should revert.
+    function testCannotCancelAll__OriginalRecipientTransferredOwnershipAllStreams()
+        external
+        OnlyExistentStreams
+        AllStreamsCancelable
+        CallerAuthorizedAllStreams
+        CallerRecipientAllStreams
+    {
+        // Transfer the streams to Alice.
+        sablierV2Linear.safeTransferFrom(users.recipient, users.alice, defaultStreamIds[0]);
+        sablierV2Linear.safeTransferFrom(users.recipient, users.alice, defaultStreamIds[1]);
+
+        // Run the test.
+        vm.expectRevert(
+            abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.recipient)
+        );
+        sablierV2Linear.cancelAll(defaultStreamIds);
+    }
+
+    /// @dev it should revert.
+    function testCannotCancelAll__OriginalRecipientTransferredOnwershipSomeStreams()
+        external
+        OnlyExistentStreams
+        AllStreamsCancelable
+        CallerAuthorizedAllStreams
+        CallerRecipientAllStreams
+    {
+        // Transfer one of the streams to eve.
+        sablierV2Linear.safeTransferFrom(users.recipient, users.alice, defaultStreamIds[0]);
+
+        // Run the test.
+        vm.expectRevert(
+            abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.recipient)
+        );
+        sablierV2Linear.cancelAll(defaultStreamIds);
+    }
+
+    modifier OriginalRecipientAllStreams() {
+        _;
+    }
+
+    /// @dev it should cancel and delete the streams and burn the NFTs.
+    function testCancelAll__AllStreamsEnded()
+        external
+        OnlyExistentStreams
+        AllStreamsCancelable
+        CallerAuthorizedAllStreams
+        CallerRecipientAllStreams
+        OriginalRecipientAllStreams
+    {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 
@@ -135,40 +237,48 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         ISablierV2Linear.Stream memory actualStream0 = sablierV2Linear.getStream(defaultStreamIds[0]);
         ISablierV2Linear.Stream memory actualStream1 = sablierV2Linear.getStream(defaultStreamIds[1]);
         ISablierV2Linear.Stream memory expectedStream;
-
         assertEq(actualStream0, expectedStream);
         assertEq(actualStream1, expectedStream);
+
+        address actualRecipient0 = sablierV2Linear.getRecipient(defaultStreamIds[0]);
+        address actualRecipient1 = sablierV2Linear.getRecipient(defaultStreamIds[1]);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient0, expectedRecipient);
+        assertEq(actualRecipient1, expectedRecipient);
     }
 
     /// @dev it should emit multiple Cancel events.
     function testCancelAll__AllStreamsEnded__Events()
         external
         OnlyExistentStreams
-        CallerSenderAllStreams
         AllStreamsCancelable
+        CallerAuthorizedAllStreams
+        CallerRecipientAllStreams
+        OriginalRecipientAllStreams
     {
         // Warp to the end of the stream.
         vm.warp(daiStream.stopTime);
 
         // Run the test.
-        uint256 withdrawAmount = daiStream.depositAmount;
         uint256 returnAmount = 0;
 
         vm.expectEmit(true, true, false, true);
-        emit Cancel(defaultStreamIds[0], daiStream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(defaultStreamIds[0], users.recipient, daiStream.depositAmount, returnAmount);
         vm.expectEmit(true, true, false, true);
-        emit Cancel(defaultStreamIds[1], daiStream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(defaultStreamIds[1], users.recipient, daiStream.depositAmount, returnAmount);
 
         uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], defaultStreamIds[1]);
         sablierV2Linear.cancelAll(streamIds);
     }
 
-    /// @dev it should cancel and delete the streams.
+    /// @dev it should cancel and delete the streams and burn the NFTs.
     function testCancelAll__AllStreamsOngoing()
         external
         OnlyExistentStreams
-        CallerSenderAllStreams
         AllStreamsCancelable
+        CallerAuthorizedAllStreams
+        CallerRecipientAllStreams
+        OriginalRecipientAllStreams
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
@@ -179,48 +289,56 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         ISablierV2Linear.Stream memory actualStream0 = sablierV2Linear.getStream(defaultStreamIds[0]);
         ISablierV2Linear.Stream memory actualStream1 = sablierV2Linear.getStream(defaultStreamIds[1]);
         ISablierV2Linear.Stream memory expectedStream;
-
         assertEq(actualStream0, expectedStream);
         assertEq(actualStream1, expectedStream);
+
+        address actualRecipient0 = sablierV2Linear.getRecipient(defaultStreamIds[0]);
+        address actualRecipient1 = sablierV2Linear.getRecipient(defaultStreamIds[1]);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient0, expectedRecipient);
+        assertEq(actualRecipient1, expectedRecipient);
     }
 
     /// @dev it should emit multiple Cancel events.
     function testCancelAll__AllStreamsOngoing__Events()
         external
         OnlyExistentStreams
-        CallerSenderAllStreams
         AllStreamsCancelable
+        CallerAuthorizedAllStreams
+        CallerRecipientAllStreams
+        OriginalRecipientAllStreams
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 withdrawAmount = WITHDRAW_AMOUNT_DAI;
         uint256 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
 
         vm.expectEmit(true, true, false, true);
-        emit Cancel(defaultStreamIds[0], daiStream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(defaultStreamIds[0], users.recipient, WITHDRAW_AMOUNT_DAI, returnAmount);
         vm.expectEmit(true, true, false, true);
-        emit Cancel(defaultStreamIds[1], daiStream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(defaultStreamIds[1], users.recipient, WITHDRAW_AMOUNT_DAI, returnAmount);
 
         sablierV2Linear.cancelAll(defaultStreamIds);
     }
 
-    /// @dev it should cancel and delete the streams.
+    /// @dev it should cancel and delete the streams and burn the NFTs.
     function testCancelAll__SomeStreamsEndedSomeStreamsOngoing()
         external
         OnlyExistentStreams
-        CallerSenderAllStreams
         AllStreamsCancelable
+        CallerAuthorizedAllStreams
+        CallerRecipientAllStreams
+        OriginalRecipientAllStreams
     {
-        // Use the first default stream as the ongoing daiStream.
+        // Use the first default stream as the ongoing DAI stream.
         uint256 ongoingStreamId = defaultStreamIds[0];
 
         // Create the ended dai stream.
         uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
         uint256 endedDaiStreamId = sablierV2Linear.create(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
@@ -239,26 +357,33 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         ISablierV2Linear.Stream memory deletedOngoingStream = sablierV2Linear.getStream(ongoingStreamId);
         ISablierV2Linear.Stream memory deletedEndedStream = sablierV2Linear.getStream(endedDaiStreamId);
         ISablierV2Linear.Stream memory expectedStream;
-
         assertEq(deletedOngoingStream, expectedStream);
         assertEq(deletedEndedStream, expectedStream);
+
+        address actualRecipient0 = sablierV2Linear.getRecipient(ongoingStreamId);
+        address actualRecipient1 = sablierV2Linear.getRecipient(endedDaiStreamId);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient0, expectedRecipient);
+        assertEq(actualRecipient1, expectedRecipient);
     }
 
     /// @dev it should emit multiple Cancel events.
     function testCancelAll__SomeStreamsEndedSomeStreamsOngoing__Events()
         external
         OnlyExistentStreams
-        CallerSenderAllStreams
         AllStreamsCancelable
+        CallerAuthorizedAllStreams
+        CallerRecipientAllStreams
+        OriginalRecipientAllStreams
     {
-        // Use the first default stream as the ongoing daiStream.
+        // Use the first default stream as the ongoing DAI stream.
         uint256 ongoingStreamId = defaultStreamIds[0];
 
         // Create the ended dai stream.
         uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
         uint256 endedDaiStreamId = sablierV2Linear.create(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
@@ -277,9 +402,9 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         uint256 ongoingReturnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
 
         vm.expectEmit(true, true, false, true);
-        emit Cancel(endedDaiStreamId, daiStream.recipient, endedWithdrawAmount, endedReturnAmount);
+        emit Cancel(endedDaiStreamId, users.recipient, endedWithdrawAmount, endedReturnAmount);
         vm.expectEmit(true, true, false, true);
-        emit Cancel(ongoingStreamId, daiStream.recipient, ongoingWithdrawAmount, ongoingReturnAmount);
+        emit Cancel(ongoingStreamId, users.recipient, ongoingWithdrawAmount, ongoingReturnAmount);
 
         uint256[] memory streamIds = createDynamicArray(endedDaiStreamId, ongoingStreamId);
         sablierV2Linear.cancelAll(streamIds);

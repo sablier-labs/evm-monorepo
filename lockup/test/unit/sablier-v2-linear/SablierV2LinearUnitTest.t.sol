@@ -56,7 +56,6 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
             cancelable: true,
             cliffTime: CLIFF_TIME,
             depositAmount: DEPOSIT_AMOUNT_DAI,
-            recipient: users.recipient,
             sender: users.sender,
             startTime: START_TIME,
             stopTime: STOP_TIME,
@@ -67,7 +66,6 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
             cancelable: true,
             cliffTime: CLIFF_TIME,
             depositAmount: DEPOSIT_AMOUNT_USDC,
-            recipient: users.recipient,
             sender: users.sender,
             startTime: START_TIME,
             stopTime: STOP_TIME,
@@ -111,7 +109,6 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
     function assertEq(ISablierV2Linear.Stream memory a, ISablierV2Linear.Stream memory b) internal {
         assertEq(a.cancelable, b.cancelable);
         assertEq(a.depositAmount, b.depositAmount);
-        assertEq(a.recipient, b.recipient);
         assertEq(a.sender, b.sender);
         assertEq(a.startTime, b.startTime);
         assertEq(a.cliffTime, b.cliffTime);
@@ -124,7 +121,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
     function createDefaultDaiStream() internal returns (uint256 daiStreamId) {
         daiStreamId = sablierV2Linear.create(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
@@ -138,7 +135,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
     function createDefaultUsdcStream() internal returns (uint256 usdcStreamId) {
         usdcStreamId = sablierV2Linear.create(
             usdcStream.sender,
-            usdcStream.recipient,
+            users.recipient,
             usdcStream.depositAmount,
             usdcStream.token,
             usdcStream.startTime,
@@ -153,7 +150,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         bool cancelable = false;
         nonCancelableDaiStreamId = sablierV2Linear.create(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,

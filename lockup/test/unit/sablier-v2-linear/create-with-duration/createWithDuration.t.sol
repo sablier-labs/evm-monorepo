@@ -27,7 +27,7 @@ contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
         );
         sablierV2Linear.createWithDuration(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             cliffDuration,
@@ -60,7 +60,7 @@ contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
         );
         sablierV2Linear.createWithDuration(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             cliffDuration,
@@ -89,16 +89,16 @@ contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
         }
         uint256 daiStreamId = sablierV2Linear.createWithDuration(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             cliffDuration,
             totalDuration,
             daiStream.cancelable
         );
+
         ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
-        assertEq(actualStream.recipient, daiStream.recipient);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
         assertEq(actualStream.token, daiStream.token);
         assertEq(actualStream.startTime, daiStream.startTime);
@@ -106,5 +106,8 @@ contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
         assertEq(actualStream.stopTime, stopTime);
         assertEq(actualStream.cancelable, daiStream.cancelable);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
+
+        address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
+        assertEq(actualRecipient, users.recipient);
     }
 }

@@ -62,7 +62,6 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         daiStream = ISablierV2Pro.Stream({
             cancelable: true,
             depositAmount: DEPOSIT_AMOUNT_DAI,
-            recipient: users.recipient,
             segmentAmounts: SEGMENT_AMOUNTS_DAI,
             segmentExponents: SEGMENT_EXPONENTS,
             segmentMilestones: SEGMENT_MILESTONES,
@@ -75,7 +74,6 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         usdcStream = ISablierV2Pro.Stream({
             cancelable: true,
             depositAmount: DEPOSIT_AMOUNT_USDC,
-            recipient: users.recipient,
             segmentAmounts: SEGMENT_AMOUNTS_USDC,
             segmentExponents: SEGMENT_EXPONENTS,
             segmentMilestones: SEGMENT_MILESTONES,
@@ -122,7 +120,6 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     function assertEq(ISablierV2Pro.Stream memory a, ISablierV2Pro.Stream memory b) internal {
         assertEq(a.cancelable, b.cancelable);
         assertEq(a.depositAmount, b.depositAmount);
-        assertEq(a.recipient, b.recipient);
         assertEq(a.sender, b.sender);
         assertEq(a.startTime, b.startTime);
         assertEq(a.stopTime, b.stopTime);
@@ -148,7 +145,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     function createDefaultDaiStream() internal returns (uint256 daiStreamId) {
         daiStreamId = sablierV2Pro.create(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,
@@ -163,7 +160,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     function createDefaultUsdcStream() internal returns (uint256 usdcStreamId) {
         usdcStreamId = sablierV2Pro.create(
             usdcStream.sender,
-            usdcStream.recipient,
+            users.recipient,
             usdcStream.depositAmount,
             usdcStream.token,
             usdcStream.startTime,
@@ -179,7 +176,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         bool cancelable = false;
         nonCancelableDaiStreamId = sablierV2Pro.create(
             daiStream.sender,
-            daiStream.recipient,
+            users.recipient,
             daiStream.depositAmount,
             daiStream.token,
             daiStream.startTime,

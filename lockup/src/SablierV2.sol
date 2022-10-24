@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 
 /// @title SablierV2
@@ -20,9 +18,10 @@ abstract contract SablierV2 is ISablierV2 {
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Checks that `msg.sender` is either the sender or the recipient of the stream.
-    modifier onlySenderOrRecipient(uint256 streamId) {
-        if (msg.sender != getSender(streamId) && msg.sender != getRecipient(streamId)) {
+    /// @notice Checks that `msg.sender` is the sender of the stream, an approved operator, or the owner of the
+    /// NFT (also known as the recipient of the stream).
+    modifier isAuthorizedForStream(uint256 streamId) {
+        if (msg.sender != getSender(streamId) && !_isApprovedOrOwner(msg.sender, streamId)) {
             revert SablierV2__Unauthorized(streamId, msg.sender);
         }
         _;
@@ -45,7 +44,7 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                              PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
@@ -58,7 +57,7 @@ abstract contract SablierV2 is ISablierV2 {
     function isCancelable(uint256 streamId) public view virtual override returns (bool cancelable);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                            PUBLIC NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
@@ -110,10 +109,10 @@ abstract contract SablierV2 is ISablierV2 {
     function withdraw(uint256 streamId, uint256 amount)
         external
         streamExists(streamId)
-        onlySenderOrRecipient(streamId)
+        isAuthorizedForStream(streamId)
     {
-        address to = getRecipient(streamId);
-        _withdraw(streamId, to, amount);
+        address recipient = getRecipient(streamId);
+        _withdraw(streamId, recipient, amount);
     }
 
     /// @inheritdoc ISablierV2
@@ -136,8 +135,9 @@ abstract contract SablierV2 is ISablierV2 {
             recipient = getRecipient(streamId);
             sender = getSender(streamId);
             if (sender != address(0)) {
-                // Checks: the `msg.sender` is either the sender or the recipient of the stream.
-                if (msg.sender != sender && msg.sender != recipient) {
+                // Checks: the `msg.sender` is the sender or the stream, an approved operator, or the owner of the NFT
+                // (a.k.a. the recipient of the stream).
+                if (msg.sender != sender && !_isApprovedOrOwner(msg.sender, streamId)) {
                     revert SablierV2__Unauthorized(streamId, msg.sender);
                 }
 
@@ -177,8 +177,9 @@ abstract contract SablierV2 is ISablierV2 {
 
             // If the `streamId` points to a stream that does not exist, skip it.
             if (getSender(streamId) != address(0)) {
-                // Checks: the `msg.sender` is the recipient of the stream.
-                if (msg.sender != getRecipient(streamId)) {
+                // Checks: the `msg.sender` is either an approved operator or the owner of the NFT (a.k.a. the recipient
+                // of the stream).
+                if (!_isApprovedOrOwner(msg.sender, streamId)) {
                     revert SablierV2__Unauthorized(streamId, msg.sender);
                 }
 
@@ -199,14 +200,15 @@ abstract contract SablierV2 is ISablierV2 {
         address to,
         uint256 amount
     ) external streamExists(streamId) {
-        // Checks: the `msg.sender` is the recipient of the stream.
-        if (msg.sender != getRecipient(streamId)) {
-            revert SablierV2__Unauthorized(streamId, msg.sender);
-        }
-
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
             revert SablierV2__WithdrawZeroAddress();
+        }
+
+        // Checks: the `msg.sender` is either an approved operator or the owner of the NFT (a.k.a. the recipient
+        // of the stream).
+        if (!_isApprovedOrOwner(msg.sender, streamId)) {
+            revert SablierV2__Unauthorized(streamId, msg.sender);
         }
         _withdraw(streamId, to, amount);
     }
@@ -215,7 +217,7 @@ abstract contract SablierV2 is ISablierV2 {
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks the basic requiremenets for the `create` function.
+    /// @dev Checks the basic requirements for the `create` function.
     function _checkCreateArguments(
         address sender,
         address recipient,
@@ -243,6 +245,11 @@ abstract contract SablierV2 is ISablierV2 {
             revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
         }
     }
+
+    /// @dev Checks whether the spender is authorized to interact with the stream.
+    /// @param spender The spender to make the query for.
+    /// @param streamId The id of the stream to make the query for.
+    function _isApprovedOrOwner(address spender, uint256 streamId) internal view virtual returns (bool approvedOrOwner);
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS

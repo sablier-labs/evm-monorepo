@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { UD60x18, toUD60x18 } from "@prb/math/UD60x18.sol";
@@ -13,7 +14,8 @@ import { SablierV2 } from "./SablierV2.sol";
 /// @author Sablier Labs Ltd.
 contract SablierV2Linear is
     ISablierV2Linear, // one dependency
-    SablierV2 // one dependency
+    SablierV2, // two dependencies
+    ERC721("Sablier V2 Linear NFT", "SAB-V2-LIN") // six dependencies
 {
     using SafeERC20 for IERC20;
 
@@ -25,7 +27,7 @@ contract SablierV2Linear is
     mapping(uint256 => Stream) internal _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                            PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Linear
@@ -40,7 +42,7 @@ contract SablierV2Linear is
 
     /// @inheritdoc ISablierV2
     function getRecipient(uint256 streamId) public view override(ISablierV2, SablierV2) returns (address recipient) {
-        recipient = _streams[streamId].recipient;
+        recipient = _ownerOf(streamId);
     }
 
     /// @inheritdoc ISablierV2
@@ -122,8 +124,13 @@ contract SablierV2Linear is
         cancelable = _streams[streamId].cancelable;
     }
 
+    /// @inheritdoc ERC721
+    function tokenURI(uint256 streamId) public view override streamExists(streamId) returns (string memory uri) {
+        uri = "";
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                            PUBLIC NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Linear
@@ -167,11 +174,25 @@ contract SablierV2Linear is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                           INTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc SablierV2
+    function _isApprovedOrOwner(address spender, uint256 streamId)
+        internal
+        view
+        override(ERC721, SablierV2)
+        returns (bool approvedOrOwner)
+    {
+        approvedOrOwner = ERC721._isApprovedOrOwner(spender, streamId);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
+    function _cancel(uint256 streamId) internal override isAuthorizedForStream(streamId) {
         Stream memory stream = _streams[streamId];
 
         // Calculate the withdraw and the return amounts.
@@ -181,12 +202,17 @@ contract SablierV2Linear is
             returnAmount = stream.depositAmount - stream.withdrawnAmount - withdrawAmount;
         }
 
+        address recipient = getRecipient(streamId);
+
         // Effects: delete the stream from storage.
         delete _streams[streamId];
 
+        // Effects: burn the NFT.
+        _burn(streamId);
+
         // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
-            stream.token.safeTransfer(stream.recipient, withdrawAmount);
+            stream.token.safeTransfer(recipient, withdrawAmount);
         }
 
         // Interactions: return the tokens to the sender, if any.
@@ -195,7 +221,7 @@ contract SablierV2Linear is
         }
 
         // Emit an event.
-        emit Cancel(streamId, stream.recipient, withdrawAmount, returnAmount);
+        emit Cancel(streamId, recipient, withdrawAmount, returnAmount);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -222,19 +248,21 @@ contract SablierV2Linear is
             revert SablierV2Linear__CliffTimeGreaterThanStopTime(cliffTime, stopTime);
         }
 
-        // Effects: create and store the stream.
+        // Effects: create the stream.
         streamId = nextStreamId;
         _streams[streamId] = Stream({
             cancelable: cancelable,
             cliffTime: cliffTime,
             depositAmount: depositAmount,
-            recipient: recipient,
             sender: sender,
             startTime: startTime,
             stopTime: stopTime,
             token: token,
             withdrawnAmount: 0
         });
+
+        // Effects: mint the NFT for the recipient.
+        _safeMint(recipient, streamId);
 
         // Effects: bump the next stream id.
         // We're using unchecked arithmetic here because this cannot realistically overflow, ever.
@@ -294,9 +322,10 @@ contract SablierV2Linear is
         // Load the stream in memory, we will need it below.
         Stream memory stream = _streams[streamId];
 
-        // Effects: if this stream is done, save gas by deleting it from storage.
+        // Effects: if this stream is done, delete it from storage and burn the NFT.
         if (stream.depositAmount == stream.withdrawnAmount) {
             delete _streams[streamId];
+            _burn(streamId);
         }
 
         // Interactions: perform the ERC-20 transfer.
