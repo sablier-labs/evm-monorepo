@@ -70,9 +70,9 @@ interface ISablierV2 is IERC721 {
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The id of the stream.
-    /// @param recipient The address of the recipient.
+    /// @param to The address that will receive the withdrawn tokens.
     /// @param amount The amount of tokens withdrawn, in units of the token's decimals.
-    event Withdraw(uint256 indexed streamId, address indexed recipient, uint256 amount);
+    event Withdraw(uint256 indexed streamId, address indexed to, uint256 amount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS

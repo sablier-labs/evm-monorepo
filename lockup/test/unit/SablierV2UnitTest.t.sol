@@ -22,7 +22,7 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
 
     event Renounce(uint256 indexed streamId);
 
-    event Withdraw(uint256 indexed streamId, address indexed recipient, uint256 amount);
+    event Withdraw(uint256 indexed streamId, address indexed to, uint256 amount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
