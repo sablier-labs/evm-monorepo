@@ -6,7 +6,7 @@ import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Pro } from "@sablier/v2-core/interfaces/ISablierV2Pro.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
-import { stdError } from "forge-std/Test.sol";
+import { stdError } from "forge-std/StdError.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 
