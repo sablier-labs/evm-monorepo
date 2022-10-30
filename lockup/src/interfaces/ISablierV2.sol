@@ -24,7 +24,7 @@ interface ISablierV2 is IERC721 {
     error SablierV2__SenderZeroAddress();
 
     /// @notice Emitted when attempting to create a stream with the start time greater than the stop time.
-    error SablierV2__StartTimeGreaterThanStopTime(uint256 startTime, uint256 stopTime);
+    error SablierV2__StartTimeGreaterThanStopTime(uint64 startTime, uint64 stopTime);
 
     /// @notice Emitted when attempting to cancel a stream that is already non-cancelable.
     error SablierV2__StreamNonCancelable(uint256 streamId);
@@ -102,12 +102,12 @@ interface ISablierV2 is IERC721 {
     /// @notice Reads the start time of the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return startTime The start time of the stream.
-    function getStartTime(uint256 streamId) external view returns (uint256 startTime);
+    function getStartTime(uint256 streamId) external view returns (uint64 startTime);
 
     /// @notice Reads the stop time of the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return stopTime The stop time of the stream.
-    function getStopTime(uint256 streamId) external view returns (uint256 stopTime);
+    function getStopTime(uint256 streamId) external view returns (uint64 stopTime);
 
     /// @notice Calculates the amount that the recipient can withdraw from the stream.
     /// @param streamId The id of the stream to make the query for.

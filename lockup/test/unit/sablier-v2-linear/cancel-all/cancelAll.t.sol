@@ -335,7 +335,7 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         uint256 ongoingStreamId = defaultStreamIds[0];
 
         // Create the ended dai stream.
-        uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
+        uint64 earlyStopTime = daiStream.startTime + TIME_OFFSET;
         uint256 endedDaiStreamId = sablierV2Linear.create(
             daiStream.sender,
             users.recipient,
@@ -380,7 +380,7 @@ contract SablierV2Linear__CancelAll is SablierV2LinearUnitTest {
         uint256 ongoingStreamId = defaultStreamIds[0];
 
         // Create the ended dai stream.
-        uint256 earlyStopTime = daiStream.startTime + TIME_OFFSET;
+        uint64 earlyStopTime = daiStream.startTime + TIME_OFFSET;
         uint256 endedDaiStreamId = sablierV2Linear.create(
             daiStream.sender,
             users.recipient,

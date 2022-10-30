@@ -3,7 +3,6 @@ pragma solidity >=0.8.13;
 
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { ISablierV2Pro } from "@sablier/v2-core/interfaces/ISablierV2Pro.sol";
-
 import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
@@ -11,7 +10,7 @@ import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
     /// @dev it should revert.
     function testCannotCreateWithDuration__LoopCalculationOverflowsBlockGasLimit() external {
-        uint256[] memory segmentDeltas = new uint256[](1_000_000);
+        uint64[] memory segmentDeltas = new uint64[](1_000_000);
         vm.expectRevert();
         sablierV2Pro.createWithDuration(
             daiStream.sender,
@@ -43,8 +42,8 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
                 deltaCount
             )
         );
-        uint256[] memory segmentDeltas = new uint256[](deltaCount);
-        for (uint256 i = 0; i < deltaCount; ) {
+        uint64[] memory segmentDeltas = new uint64[](deltaCount);
+        for (uint64 i = 0; i < deltaCount; ) {
             segmentDeltas[i] = i;
             unchecked {
                 i += 1;
@@ -77,9 +76,9 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
         SegmentDeltaEqual
         MilestonesCalculationOverflows
     {
-        uint256 startTime = block.timestamp;
-        uint256[] memory segmentDeltas = createDynamicArray(1, UINT256_MAX - startTime);
-        uint256 stopTime = 0;
+        uint64 startTime = uint64(block.timestamp);
+        uint64[] memory segmentDeltas = createDynamicUint64Array(uint64(1), UINT64_MAX - startTime);
+        uint64 stopTime = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2.SablierV2__StartTimeGreaterThanStopTime.selector,
@@ -106,9 +105,9 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
         SegmentDeltaEqual
         MilestonesCalculationOverflows
     {
-        uint256 startTime = block.timestamp;
-        uint256[] memory segmentDeltas = createDynamicArray(UINT256_MAX, 1);
-        uint256[] memory segmentMilestones = new uint256[](2);
+        uint64 startTime = uint64(block.timestamp);
+        uint64[] memory segmentDeltas = createDynamicUint64Array(UINT64_MAX, 1);
+        uint64[] memory segmentMilestones = new uint64[](2);
         unchecked {
             segmentMilestones[0] = startTime + segmentDeltas[0];
             segmentMilestones[1] = segmentMilestones[0] + segmentDeltas[1];
@@ -139,11 +138,11 @@ contract SablierV2Pro__CreateWithDuration is SablierV2ProUnitTest {
         SegmentDeltaEqual
         MilestonesCalculationOverflows
     {
-        uint256 startTime = block.timestamp;
+        uint64 startTime = uint64(block.timestamp);
         uint256[] memory segmentAmounts = createDynamicArray(0, SEGMENT_AMOUNTS_DAI[0], SEGMENT_AMOUNTS_DAI[1]);
         SD59x18[] memory segmentExponents = createDynamicArray(SCALE, SEGMENT_EXPONENTS[0], SEGMENT_EXPONENTS[1]);
-        uint256[] memory segmentDeltas = createDynamicArray(1, UINT256_MAX, 1);
-        uint256[] memory segmentMilestones = new uint256[](3);
+        uint64[] memory segmentDeltas = createDynamicUint64Array(uint64(1), UINT64_MAX, 1);
+        uint64[] memory segmentMilestones = new uint64[](3);
         unchecked {
             segmentMilestones[0] = startTime + segmentDeltas[0];
             segmentMilestones[1] = segmentMilestones[0] + segmentDeltas[1];

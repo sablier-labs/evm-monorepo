@@ -58,7 +58,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         vm.expectRevert(ISablierV2Pro.SablierV2Pro__SegmentCountZero.selector);
         uint256[] memory segmentAmounts;
         SD59x18[] memory segmentExponents;
-        uint256[] memory segmentMilestones;
+        uint64[] memory segmentMilestones;
         sablierV2Pro.create(
             daiStream.sender,
             users.recipient,
@@ -149,7 +149,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
     {
-        uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[0]);
+        uint64[] memory segmentMilestones = createDynamicUint64Array(SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Pro.SablierV2Pro__SegmentCountsNotEqual.selector,
@@ -184,7 +184,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         SegmentCountWithinBounds
         SegmentCountsEqual
     {
-        uint256 startTime = daiStream.segmentMilestones[0] + 1;
+        uint64 startTime = daiStream.segmentMilestones[0] + 1;
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Pro.SablierV2Pro__StartTimeGreaterThanFirstMilestone.selector,
@@ -217,7 +217,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         uint256 depositAmount = SEGMENT_AMOUNTS_DAI[0];
         uint256[] memory segmentAmounts = createDynamicArray(SEGMENT_AMOUNTS_DAI[0]);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
-        uint256[] memory segmentMilestones = createDynamicArray(daiStream.stopTime);
+        uint64[] memory segmentMilestones = createDynamicUint64Array(daiStream.stopTime);
 
         uint256 daiStreamId = sablierV2Pro.create(
             daiStream.sender,
@@ -238,7 +238,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         assertEq(actualStream.startTime, daiStream.startTime);
         assertEq(actualStream.segmentAmounts, segmentAmounts);
         assertEq(actualStream.segmentExponents, segmentExponents);
-        assertEq(actualStream.segmentMilestones, segmentMilestones);
+        assertEqUint64Array(actualStream.segmentMilestones, segmentMilestones);
         assertEq(actualStream.cancelable, daiStream.cancelable);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
 
@@ -290,7 +290,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
     {
-        uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[1], SEGMENT_MILESTONES[0]);
+        uint64[] memory segmentMilestones = createDynamicUint64Array(SEGMENT_MILESTONES[1], SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Pro.SablierV2Pro__SegmentMilestonesNotOrdered.selector,

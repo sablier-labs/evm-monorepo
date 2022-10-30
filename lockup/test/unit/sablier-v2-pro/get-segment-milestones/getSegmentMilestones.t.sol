@@ -7,9 +7,9 @@ contract SablierV2Pro__GetSegmentMilestones is SablierV2ProUnitTest {
     /// @dev it should return zero.
     function testGetSegmentMilestones__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint256[] memory actualSegmentMilestones = sablierV2Pro.getSegmentMilestones(nonStreamId);
-        uint256[] memory expectedSegmentMilestones;
-        assertEq(actualSegmentMilestones, expectedSegmentMilestones);
+        uint64[] memory actualSegmentMilestones = sablierV2Pro.getSegmentMilestones(nonStreamId);
+        uint64[] memory expectedSegmentMilestones;
+        assertEqUint64Array(actualSegmentMilestones, expectedSegmentMilestones);
     }
 
     modifier StreamExistent() {
@@ -19,8 +19,8 @@ contract SablierV2Pro__GetSegmentMilestones is SablierV2ProUnitTest {
     /// @dev it should return the correct segment milestones.
     function testGetSegmentMilestones() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
-        uint256[] memory actualSegmentMilestones = sablierV2Pro.getSegmentMilestones(daiStreamId);
-        uint256[] memory expectedSegmentMilestones = daiStream.segmentMilestones;
-        assertEq(actualSegmentMilestones, expectedSegmentMilestones);
+        uint64[] memory actualSegmentMilestones = sablierV2Pro.getSegmentMilestones(daiStreamId);
+        uint64[] memory expectedSegmentMilestones = daiStream.segmentMilestones;
+        assertEqUint64Array(actualSegmentMilestones, expectedSegmentMilestones);
     }
 }

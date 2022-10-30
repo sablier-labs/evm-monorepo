@@ -53,8 +53,8 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
 
     /// @dev it should revert.
     function testCannotCreate__StartTimeGreaterThanStopTime() external RecipientNonZeroAddress DepositAmountNotZero {
-        uint256 startTime = daiStream.stopTime;
-        uint256 stopTime = daiStream.startTime;
+        uint64 startTime = daiStream.stopTime;
+        uint64 stopTime = daiStream.startTime;
         vm.expectRevert(
             abi.encodeWithSelector(ISablierV2.SablierV2__StartTimeGreaterThanStopTime.selector, startTime, stopTime)
         );
@@ -72,8 +72,8 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
 
     /// @dev it should create the stream.
     function testCreate__StartTimeEqualToStopTime() external RecipientNonZeroAddress DepositAmountNotZero {
-        uint256 cliffTime = daiStream.startTime;
-        uint256 stopTime = daiStream.startTime;
+        uint64 cliffTime = daiStream.startTime;
+        uint64 stopTime = daiStream.startTime;
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
             users.recipient,
@@ -110,8 +110,8 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         DepositAmountNotZero
         StartTimeLessThanStopTime
     {
-        uint256 startTime = daiStream.cliffTime;
-        uint256 cliffTime = daiStream.startTime;
+        uint64 startTime = daiStream.cliffTime;
+        uint64 cliffTime = daiStream.startTime;
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Linear.SablierV2Linear__StartTimeGreaterThanCliffTime.selector,
@@ -138,7 +138,7 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         DepositAmountNotZero
         StartTimeLessThanStopTime
     {
-        uint256 cliffTime = daiStream.startTime;
+        uint64 cliffTime = daiStream.startTime;
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
             users.recipient,
@@ -176,8 +176,8 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
     {
-        uint256 cliffTime = daiStream.stopTime;
-        uint256 stopTime = daiStream.cliffTime;
+        uint64 cliffTime = daiStream.stopTime;
+        uint64 stopTime = daiStream.cliffTime;
         vm.expectRevert(
             abi.encodeWithSelector(
                 ISablierV2Linear.SablierV2Linear__CliffTimeGreaterThanStopTime.selector,
@@ -205,7 +205,7 @@ contract SablierV2Linear__Create is SablierV2LinearUnitTest {
         StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
     {
-        uint256 cliffTime = daiStream.stopTime;
+        uint64 cliffTime = daiStream.stopTime;
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
             users.recipient,

@@ -2,9 +2,9 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 import { ISablierV2Pro } from "@sablier/v2-core/interfaces/ISablierV2Pro.sol";
 import { SablierV2Pro } from "@sablier/v2-core/SablierV2Pro.sol";
-import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { SablierV2UnitTest } from "../SablierV2UnitTest.t.sol";
 
@@ -24,11 +24,11 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         address indexed recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 startTime,
-        uint256 stopTime,
+        uint64 startTime,
+        uint64 stopTime,
         uint256[] segmentAmounts,
         SD59x18[] segmentExponents,
-        uint256[] segmentMilestones,
+        uint64[] segmentMilestones,
         bool cancelable
     );
 
@@ -39,9 +39,9 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     uint256 internal constant MAX_SEGMENT_COUNT = 200;
     uint256[] internal SEGMENT_AMOUNTS_DAI = [bn(2_000, 18), bn(8_000, 18)];
     uint256[] internal SEGMENT_AMOUNTS_USDC = [bn(2_000, 6), bn(8_000, 6)];
-    uint256[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
+    uint64[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
     SD59x18[] internal SEGMENT_EXPONENTS = [sd59x18(3.14e18), sd59x18(0.5e18)];
-    uint256[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];
+    uint64[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];
     uint256 internal constant TIME_OFFSET = 2_000 seconds;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -121,11 +121,11 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
         assertEq(a.cancelable, b.cancelable);
         assertEq(a.depositAmount, b.depositAmount);
         assertEq(a.sender, b.sender);
-        assertEq(a.startTime, b.startTime);
-        assertEq(a.stopTime, b.stopTime);
+        assertEq(uint256(a.startTime), uint256(b.startTime));
+        assertEq(uint256(a.stopTime), uint256(b.stopTime));
         assertEq(a.segmentAmounts, b.segmentAmounts);
         assertEq(a.segmentExponents, b.segmentExponents);
-        assertEq(a.segmentMilestones, b.segmentMilestones);
+        assertEqUint64Array(a.segmentMilestones, b.segmentMilestones);
         assertEq(a.token, b.token);
         assertEq(a.withdrawnAmount, b.withdrawnAmount);
     }

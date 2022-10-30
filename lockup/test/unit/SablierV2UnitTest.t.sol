@@ -20,6 +20,8 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
 
     event Cancel(uint256 indexed streamId, address indexed recipient, uint256 withdrawAmount, uint256 returnAmount);
 
+    event LogNamedArray(string key, uint64[] value);
+
     event Renounce(uint256 indexed streamId);
 
     event Withdraw(uint256 indexed streamId, address indexed to, uint256 amount);
@@ -28,15 +30,17 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 internal constant CLIFF_DURATION = 2_500 seconds;
-    uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
-    uint256 internal constant TOTAL_DURATION = 10_000 seconds;
+    uint64 internal constant UINT64_MAX = type(uint64).max;
 
-    uint256 internal immutable CLIFF_TIME;
+    uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
+    uint64 internal constant CLIFF_DURATION = 2_500 seconds;
+    uint64 internal constant TOTAL_DURATION = 10_000 seconds;
+
     uint256 internal immutable DEPOSIT_AMOUNT_DAI;
     uint256 internal immutable DEPOSIT_AMOUNT_USDC;
-    uint256 internal immutable START_TIME;
-    uint256 internal immutable STOP_TIME;
+    uint64 internal immutable CLIFF_TIME;
+    uint64 internal immutable START_TIME;
+    uint64 internal immutable STOP_TIME;
 
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
@@ -70,11 +74,11 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
         vm.warp(STARTING_BLOCK_TIMESTAMP);
 
         // Initialize the default stream values.
-        CLIFF_TIME = block.timestamp + CLIFF_DURATION;
+        CLIFF_TIME = uint64(block.timestamp) + CLIFF_DURATION;
         DEPOSIT_AMOUNT_DAI = bn(10_000, 18);
         DEPOSIT_AMOUNT_USDC = bn(10_000, 6);
-        START_TIME = block.timestamp;
-        STOP_TIME = block.timestamp + TOTAL_DURATION;
+        START_TIME = uint64(block.timestamp);
+        STOP_TIME = uint64(block.timestamp) + TOTAL_DURATION;
 
         // Create 5 users for testing. Order matters.
         users = Users({
@@ -128,6 +132,16 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
         assertEq(address(a), address(b));
     }
 
+    /// @dev Helper function to compare two `uint64` arrays.
+    function assertEqUint64Array(uint64[] memory a, uint64[] memory b) internal {
+        if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
+            emit Log("Error: a == b not satisfied [uint64[]]");
+            emit LogNamedArray("  Expected", b);
+            emit LogNamedArray("    Actual", a);
+            fail();
+        }
+    }
+
     /// @dev Helper function to create a dynamical `uint256` array with 1 element.
     function createDynamicArray(uint256 element0) internal pure returns (uint256[] memory dynamicalArray) {
         dynamicalArray = new uint256[](1);
@@ -140,17 +154,6 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
         dynamicalArray[0] = element0;
     }
 
-    /// @dev Helper function to create a dynamical `SD59x18` array with 2 elements.
-    function createDynamicArray(SD59x18 element0, SD59x18 element1)
-        internal
-        pure
-        returns (SD59x18[] memory dynamicalArray)
-    {
-        dynamicalArray = new SD59x18[](2);
-        dynamicalArray[0] = element0;
-        dynamicalArray[1] = element1;
-    }
-
     /// @dev Helper function to create a dynamical `uint256` array with 2 elements.
     function createDynamicArray(uint256 element0, uint256 element1)
         internal
@@ -158,6 +161,17 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
         returns (uint256[] memory dynamicalArray)
     {
         dynamicalArray = new uint256[](2);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+    }
+
+    /// @dev Helper function to create a dynamical `SD59x18` array with 2 elements.
+    function createDynamicArray(SD59x18 element0, SD59x18 element1)
+        internal
+        pure
+        returns (SD59x18[] memory dynamicalArray)
+    {
+        dynamicalArray = new SD59x18[](2);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
     }
@@ -181,6 +195,35 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
         SD59x18 element2
     ) internal pure returns (SD59x18[] memory dynamicalArray) {
         dynamicalArray = new SD59x18[](3);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+        dynamicalArray[2] = element2;
+    }
+
+    /// @dev Helper function to create a dynamical `uint64` array with 1 element.
+    function createDynamicUint64Array(uint64 element0) internal pure returns (uint64[] memory dynamicalArray) {
+        dynamicalArray = new uint64[](1);
+        dynamicalArray[0] = element0;
+    }
+
+    /// @dev Helper function to create a dynamical `uint64` array with 2 elements.
+    function createDynamicUint64Array(uint64 element0, uint64 element1)
+        internal
+        pure
+        returns (uint64[] memory dynamicalArray)
+    {
+        dynamicalArray = new uint64[](2);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+    }
+
+    /// @dev Helper function to create a dynamical `uint64` array with 3 elements.
+    function createDynamicUint64Array(
+        uint64 element0,
+        uint64 element1,
+        uint64 element2
+    ) internal pure returns (uint64[] memory dynamicalArray) {
+        dynamicalArray = new uint64[](3);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
         dynamicalArray[2] = element2;

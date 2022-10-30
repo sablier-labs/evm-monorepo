@@ -23,9 +23,9 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         address indexed recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 startTime,
-        uint256 cliffTime,
-        uint256 stopTime,
+        uint64 startTime,
+        uint64 cliffTime,
+        uint64 stopTime,
         bool cancelable
     );
 
@@ -33,7 +33,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 internal constant TIME_OFFSET = 2_600 seconds;
+    uint64 internal constant TIME_OFFSET = 2_600 seconds;
     uint256 internal immutable WITHDRAW_AMOUNT_DAI = bn(2_600, 18);
     uint256 internal immutable WITHDRAW_AMOUNT_USDC = bn(2_600, 6);
 
@@ -111,8 +111,8 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         assertEq(a.depositAmount, b.depositAmount);
         assertEq(a.sender, b.sender);
         assertEq(a.startTime, b.startTime);
-        assertEq(a.cliffTime, b.cliffTime);
-        assertEq(a.stopTime, b.stopTime);
+        assertEq(uint256(a.cliffTime), uint256(b.cliffTime));
+        assertEq(uint256(a.stopTime), uint256(b.stopTime));
         assertEq(a.token, b.token);
         assertEq(a.withdrawnAmount, b.withdrawnAmount);
     }

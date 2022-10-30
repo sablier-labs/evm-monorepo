@@ -15,10 +15,10 @@ interface ISablierV2Linear is ISablierV2 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when attempting to create a stream with a start time greater than cliff time;
-    error SablierV2Linear__StartTimeGreaterThanCliffTime(uint256 startTime, uint256 cliffTime);
+    error SablierV2Linear__StartTimeGreaterThanCliffTime(uint64 startTime, uint64 cliffTime);
 
     /// @notice Emitted when attempting to create a stream with a cliff time greater than stop time;
-    error SablierV2Linear__CliffTimeGreaterThanStopTime(uint256 cliffTime, uint256 stopTime);
+    error SablierV2Linear__CliffTimeGreaterThanStopTime(uint64 cliffTime, uint64 stopTime);
 
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -42,9 +42,9 @@ interface ISablierV2Linear is ISablierV2 {
         address indexed recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 startTime,
-        uint256 cliffTime,
-        uint256 stopTime,
+        uint64 startTime,
+        uint64 cliffTime,
+        uint64 stopTime,
         bool cancelable
     );
 
@@ -55,14 +55,14 @@ interface ISablierV2Linear is ISablierV2 {
     /// @notice Linear stream struct.
     /// @dev The members are arranged like this to save gas via tight variable packing.
     struct Stream {
-        uint256 cliffTime;
         uint256 depositAmount;
-        uint256 startTime;
-        uint256 stopTime;
         uint256 withdrawnAmount;
-        address sender;
-        IERC20 token;
-        bool cancelable;
+        address sender; // ───┐
+        uint64 startTime; // ─┘
+        IERC20 token; // ─────┐
+        uint64 cliffTime; // ─┘
+        uint64 stopTime; // ─┐
+        bool cancelable; // ─┘
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// @notice Reads the cliff time of the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return cliffTime The cliff time of the stream.
-    function getCliffTime(uint256 streamId) external view returns (uint256 cliffTime);
+    function getCliffTime(uint256 streamId) external view returns (uint64 cliffTime);
 
     /// @notice Reads the stream struct.
     /// @param streamId The id of the stream to make the query for.
@@ -111,9 +111,9 @@ interface ISablierV2Linear is ISablierV2 {
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 startTime,
-        uint256 cliffTime,
-        uint256 stopTime,
+        uint64 startTime,
+        uint64 cliffTime,
+        uint64 stopTime,
         bool cancelable
     ) external returns (uint256 streamId);
 
@@ -139,8 +139,8 @@ interface ISablierV2Linear is ISablierV2 {
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 cliffDuration,
-        uint256 totalDuration,
+        uint64 cliffDuration,
+        uint64 totalDuration,
         bool cancelable
     ) external returns (uint256 streamId);
 }

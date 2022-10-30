@@ -46,12 +46,12 @@ contract AbstractSablierV2 is SablierV2 {
         return address(0);
     }
 
-    function getStartTime(uint256 streamId) external pure override returns (uint256) {
+    function getStartTime(uint256 streamId) external pure override returns (uint64) {
         streamId;
         return 0;
     }
 
-    function getStopTime(uint256 streamId) external pure override returns (uint256) {
+    function getStopTime(uint256 streamId) external pure override returns (uint64) {
         streamId;
         return 0;
     }

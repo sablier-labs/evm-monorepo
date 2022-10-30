@@ -107,7 +107,7 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
         uint256 usdcDepositAmount = SEGMENT_AMOUNTS_USDC[0] + SEGMENT_AMOUNTS_USDC[1];
         uint256[] memory segmentAmounts = createDynamicArray(usdcDepositAmount);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[1]);
-        uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[1]);
+        uint64[] memory segmentMilestones = createDynamicUint64Array(SEGMENT_MILESTONES[1]);
 
         daiStreamId = sablierV2Pro.create(
             usdcStream.sender,
@@ -137,7 +137,7 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
         uint256 daiDepositAmount = SEGMENT_AMOUNTS_DAI[0] + SEGMENT_AMOUNTS_DAI[1];
         uint256[] memory segmentAmounts = createDynamicArray(daiDepositAmount);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[1]);
-        uint256[] memory segmentMilestones = createDynamicArray(SEGMENT_MILESTONES[1]);
+        uint64[] memory segmentMilestones = createDynamicUint64Array(SEGMENT_MILESTONES[1]);
 
         daiStreamId = sablierV2Pro.create(
             daiStream.sender,
@@ -223,18 +223,18 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
         uint256 count = sablierV2Pro.MAX_SEGMENT_COUNT();
         uint256[] memory segmentAmounts = new uint256[](count);
         SD59x18[] memory segmentExponents = new SD59x18[](count);
-        uint256[] memory segmentMilestones = new uint256[](count);
+        uint64[] memory segmentMilestones = new uint64[](count);
 
         unchecked {
             // Generate 200 segments that each have the same amount, same exponent and are evenly spread apart.
             uint256 segmentAmount = usdcStream.depositAmount / count;
             SD59x18 segmentExponent = E;
-            uint256 totalDuration = usdcStream.stopTime - usdcStream.startTime;
-            uint256 segmentDuration = totalDuration / count;
+            uint64 totalDuration = usdcStream.stopTime - usdcStream.startTime;
+            uint64 segmentDuration = totalDuration / uint64(count);
             for (uint256 i = 0; i < count; ) {
                 segmentAmounts[i] = segmentAmount;
                 segmentExponents[i] = segmentExponent;
-                segmentMilestones[i] = usdcStream.startTime + segmentDuration * (i + 1);
+                segmentMilestones[i] = usdcStream.startTime + segmentDuration * (uint64(i) + 1);
                 i += 1;
             }
 
@@ -269,15 +269,15 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
         uint256 count = sablierV2Pro.MAX_SEGMENT_COUNT();
         uint256[] memory segmentAmounts = new uint256[](count);
         SD59x18[] memory segmentExponents = new SD59x18[](count);
-        uint256[] memory segmentMilestones = new uint256[](count);
+        uint64[] memory segmentMilestones = new uint64[](count);
 
         unchecked {
             // Generate 200 segments that each have the same amount, same exponent and are evenly spread apart.
             uint256 segmentAmount = daiStream.depositAmount / count;
             SD59x18 segmentExponent = E;
-            uint256 totalDuration = daiStream.stopTime - daiStream.startTime;
-            uint256 segmentDuration = totalDuration / count;
-            for (uint256 i = 0; i < count; ) {
+            uint64 totalDuration = daiStream.stopTime - daiStream.startTime;
+            uint64 segmentDuration = totalDuration / uint64(count);
+            for (uint64 i = 0; i < count; ) {
                 segmentAmounts[i] = segmentAmount;
                 segmentExponents[i] = segmentExponent;
                 segmentMilestones[i] = daiStream.startTime + segmentDuration * (i + 1);

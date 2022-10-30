@@ -90,22 +90,17 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2Pro
-    function getSegmentMilestones(uint256 streamId)
-        external
-        view
-        override
-        returns (uint256[] memory segmentMilestones)
-    {
+    function getSegmentMilestones(uint256 streamId) external view override returns (uint64[] memory segmentMilestones) {
         segmentMilestones = _streams[streamId].segmentMilestones;
     }
 
     /// @inheritdoc ISablierV2
-    function getStartTime(uint256 streamId) external view override returns (uint256 startTime) {
+    function getStartTime(uint256 streamId) external view override returns (uint64 startTime) {
         startTime = _streams[streamId].startTime;
     }
 
     /// @inheritdoc ISablierV2
-    function getStopTime(uint256 streamId) external view override returns (uint256 stopTime) {
+    function getStopTime(uint256 streamId) external view override returns (uint64 stopTime) {
         stopTime = _streams[streamId].stopTime;
     }
 
@@ -122,7 +117,8 @@ contract SablierV2Pro is
         }
 
         // If the start time is greater than or equal to the block timestamp, return zero.
-        uint256 currentTime = block.timestamp;
+        uint64 currentTime = uint64(block.timestamp);
+
         if (_streams[streamId].startTime >= currentTime) {
             return 0;
         }
@@ -146,7 +142,7 @@ contract SablierV2Pro is
             if (segmentCount > 1) {
                 // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
                 // amount such that we avoid adding an if statement in the while loop.
-                uint256 currentSegmentMilestone = _streams[streamId].segmentMilestones[0];
+                uint64 currentSegmentMilestone = _streams[streamId].segmentMilestones[0];
                 uint256 index = 1;
                 while (currentSegmentMilestone < currentTime) {
                     previousSegmentAmounts += _streams[streamId].segmentAmounts[index - 1];
@@ -163,25 +159,29 @@ contract SablierV2Pro is
                 // If the current segment is at an index that is >= 2, take the difference between the current segment
                 // milestone and the previous segment milestone.
                 if (index > 1) {
-                    uint256 previousSegmentMilestone = _streams[streamId].segmentMilestones[index - 2];
-                    elapsedSegmentTime = toSD59x18(int256(currentTime - previousSegmentMilestone));
+                    uint64 previousSegmentMilestone = _streams[streamId].segmentMilestones[index - 2];
+                    elapsedSegmentTime = toSD59x18(int256(uint256(currentTime - previousSegmentMilestone)));
 
                     // Calculate the time between the current segment milestone and the previous segment milestone.
-                    totalSegmentTime = toSD59x18(int256(currentSegmentMilestone - previousSegmentMilestone));
+                    totalSegmentTime = toSD59x18(int256(uint256(currentSegmentMilestone - previousSegmentMilestone)));
                 }
                 // If the current segment is at index 1, take the difference between the current segment milestone and
                 // the start time of the stream.
                 else {
-                    elapsedSegmentTime = toSD59x18(int256(currentTime - _streams[streamId].startTime));
-                    totalSegmentTime = toSD59x18(int256(currentSegmentMilestone - _streams[streamId].startTime));
+                    elapsedSegmentTime = toSD59x18(int256(uint256(currentTime - _streams[streamId].startTime)));
+                    totalSegmentTime = toSD59x18(
+                        int256(uint256(currentSegmentMilestone - _streams[streamId].startTime))
+                    );
                 }
             }
             // Otherwise, if there's only one segment, we use the start time of the stream in the calculations.
             else {
                 currentSegmentAmount = SD59x18.wrap(int256(_streams[streamId].segmentAmounts[0]));
                 currentSegmentExponent = _streams[streamId].segmentExponents[0];
-                elapsedSegmentTime = toSD59x18(int256(currentTime - _streams[streamId].startTime));
-                totalSegmentTime = toSD59x18(int256(_streams[streamId].stopTime - _streams[streamId].startTime));
+                elapsedSegmentTime = toSD59x18(int256(uint256(currentTime - _streams[streamId].startTime)));
+                totalSegmentTime = toSD59x18(
+                    int256(uint256(_streams[streamId].stopTime) - _streams[streamId].startTime)
+                );
             }
 
             // Calculate the streamed amount.
@@ -219,10 +219,10 @@ contract SablierV2Pro is
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 startTime,
+        uint64 startTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint256[] memory segmentMilestones,
+        uint64[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
@@ -247,15 +247,15 @@ contract SablierV2Pro is
         IERC20 token,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint256[] memory segmentDeltas,
+        uint64[] memory segmentDeltas,
         bool cancelable
     ) external override returns (uint256 streamId) {
-        uint256 startTime = block.timestamp;
+        uint64 startTime = uint64(block.timestamp);
         uint256 deltaCount = segmentDeltas.length;
 
         // Calculate the segment milestones. It is fine to use unchecked arithmetic because the `_create`
         // function will nonetheless check the segments.
-        uint256[] memory segmentMilestones = new uint256[](deltaCount);
+        uint64[] memory segmentMilestones = new uint64[](deltaCount);
         unchecked {
             segmentMilestones[0] = startTime + segmentDeltas[0];
             for (uint256 i = 1; i < deltaCount; ) {
@@ -288,7 +288,7 @@ contract SablierV2Pro is
     function _checkSegmentCounts(
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint256[] memory segmentMilestones
+        uint64[] memory segmentMilestones
     ) internal view returns (uint256 segmentCount) {
         uint256 amountCount = segmentAmounts.length;
         uint256 exponentCount = segmentExponents.length;
@@ -325,10 +325,10 @@ contract SablierV2Pro is
     /// 4. The deposit amount is equal to the segment amounts summed up.
     function _checkSegments(
         uint256 depositAmount,
-        uint256 startTime,
+        uint64 startTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint256[] memory segmentMilestones,
+        uint64[] memory segmentMilestones,
         uint256 segmentCount
     ) internal pure {
         // Check that The first milestone is greater than or equal to the start time.
@@ -337,9 +337,9 @@ contract SablierV2Pro is
         }
 
         // Define the variables needed in the for loop below.
-        uint256 currentMilestone;
+        uint64 currentMilestone;
         SD59x18 exponent;
-        uint256 previousMilestone;
+        uint64 previousMilestone;
         uint256 segmentAmountsSum;
 
         // Iterate over the amounts, the exponents and the milestones.
@@ -432,17 +432,17 @@ contract SablierV2Pro is
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 startTime,
+        uint64 startTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint256[] memory segmentMilestones,
+        uint64[] memory segmentMilestones,
         bool cancelable
     ) internal returns (uint256 streamId) {
         // Checks: segment counts match.
         uint256 segmentCount = _checkSegmentCounts(segmentAmounts, segmentExponents, segmentMilestones);
 
         // Imply the stop time from the last segment milestone.
-        uint256 stopTime = segmentMilestones[segmentCount - 1];
+        uint64 stopTime = segmentMilestones[segmentCount - 1];
 
         // Checks: the common requirements for the `create` function arguments.
         _checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);

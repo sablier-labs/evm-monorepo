@@ -31,7 +31,7 @@ contract SablierV2Linear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Linear
-    function getCliffTime(uint256 streamId) external view override returns (uint256 cliffTime) {
+    function getCliffTime(uint256 streamId) external view override returns (uint64 cliffTime) {
         cliffTime = _streams[streamId].cliffTime;
     }
 
@@ -67,12 +67,12 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2
-    function getStartTime(uint256 streamId) external view override returns (uint256 startTime) {
+    function getStartTime(uint256 streamId) external view override returns (uint64 startTime) {
         startTime = _streams[streamId].startTime;
     }
 
     /// @inheritdoc ISablierV2
-    function getStopTime(uint256 streamId) external view override returns (uint256 stopTime) {
+    function getStopTime(uint256 streamId) external view override returns (uint64 stopTime) {
         stopTime = _streams[streamId].stopTime;
     }
 
@@ -92,20 +92,23 @@ contract SablierV2Linear is
         // always greater than the start time, this also checks whether the start time is greater than
         // the block timestamp.
         uint256 currentTime = block.timestamp;
-        if (_streams[streamId].cliffTime > currentTime) {
+        uint256 cliffTime = uint256(_streams[streamId].cliffTime);
+        if (cliffTime > currentTime) {
             return 0;
         }
 
+        uint256 stopTime = uint256(_streams[streamId].stopTime);
         unchecked {
             // If the current time is greater than or equal to the stop time, return the deposit minus
             // the withdrawn amount.
-            if (currentTime >= _streams[streamId].stopTime) {
+            if (currentTime >= stopTime) {
                 return _streams[streamId].depositAmount - _streams[streamId].withdrawnAmount;
             }
 
             // In all other cases, calculate how much the recipient can withdraw.
-            UD60x18 elapsedTime = toUD60x18(currentTime - _streams[streamId].startTime);
-            UD60x18 totalTime = toUD60x18(_streams[streamId].stopTime - _streams[streamId].startTime);
+            uint256 startTime = uint256(_streams[streamId].startTime);
+            UD60x18 elapsedTime = toUD60x18(currentTime - startTime);
+            UD60x18 totalTime = toUD60x18(stopTime - startTime);
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             UD60x18 depositAmount = UD60x18.wrap(_streams[streamId].depositAmount);
             UD60x18 streamedAmount = elapsedTimePercentage.mul(depositAmount);
@@ -139,9 +142,9 @@ contract SablierV2Linear is
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 startTime,
-        uint256 cliffTime,
-        uint256 stopTime,
+        uint64 startTime,
+        uint64 cliffTime,
+        uint64 stopTime,
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
@@ -154,16 +157,16 @@ contract SablierV2Linear is
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 cliffDuration,
-        uint256 totalDuration,
+        uint64 cliffDuration,
+        uint64 totalDuration,
         bool cancelable
     ) external returns (uint256 streamId) {
         // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
         // `_create` function will nonetheless check that the stop time is greater than or equal to the
         // cliff time, and that the cliff time is greater than or equal to the start time.
-        uint256 startTime = block.timestamp;
-        uint256 cliffTime;
-        uint256 stopTime;
+        uint64 startTime = uint64(block.timestamp);
+        uint64 cliffTime;
+        uint64 stopTime;
         unchecked {
             cliffTime = startTime + cliffDuration;
             stopTime = startTime + totalDuration;
@@ -230,9 +233,9 @@ contract SablierV2Linear is
         address recipient,
         uint256 depositAmount,
         IERC20 token,
-        uint256 startTime,
-        uint256 cliffTime,
-        uint256 stopTime,
+        uint64 startTime,
+        uint64 cliffTime,
+        uint64 stopTime,
         bool cancelable
     ) internal returns (uint256 streamId) {
         // Checks: the common requirements for the `create` function arguments.

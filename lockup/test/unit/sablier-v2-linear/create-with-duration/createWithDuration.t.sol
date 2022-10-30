@@ -9,13 +9,13 @@ import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
 contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
     /// @dev it should revert due to the start time being greater than the stop time.
-    function testCannotCreateWithDuration__CliffDurationCalculationOverflows(uint256 cliffDuration) external {
-        vm.assume(cliffDuration > UINT256_MAX - block.timestamp);
-        uint256 totalDuration = cliffDuration;
-        uint256 cliffTime;
-        uint256 stopTime;
+    function testCannotCreateWithDuration__CliffDurationCalculationOverflows(uint64 cliffDuration) external {
+        vm.assume(cliffDuration > UINT64_MAX - block.timestamp);
+        uint64 totalDuration = cliffDuration;
+        uint64 cliffTime;
+        uint64 stopTime;
         unchecked {
-            cliffTime = block.timestamp + cliffDuration;
+            cliffTime = uint64(block.timestamp) + cliffDuration;
             stopTime = cliffTime;
         }
         vm.expectRevert(
@@ -41,15 +41,15 @@ contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
     }
 
     /// @dev When the total duration calculation overflows uint256, it should revert.
-    function testCannotCreateWithDuration__TotalDurationCalculationOverflows(
-        uint256 cliffDuration,
-        uint256 totalDuration
-    ) external CliffDurationCalculationDoesNotOverflow {
-        vm.assume(cliffDuration <= UINT256_MAX - block.timestamp);
-        vm.assume(totalDuration > UINT256_MAX - block.timestamp);
-        uint256 stopTime;
+    function testCannotCreateWithDuration__TotalDurationCalculationOverflows(uint64 cliffDuration, uint64 totalDuration)
+        external
+        CliffDurationCalculationDoesNotOverflow
+    {
+        vm.assume(cliffDuration <= UINT64_MAX - block.timestamp);
+        vm.assume(totalDuration > UINT64_MAX - block.timestamp);
+        uint64 stopTime;
         unchecked {
-            stopTime = block.timestamp + totalDuration;
+            stopTime = uint64(block.timestamp) + totalDuration;
         }
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -74,18 +74,18 @@ contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
     }
 
     /// @dev it should create the stream with duration.
-    function testCreateWithDuration(uint256 cliffDuration, uint256 totalDuration)
+    function testCreateWithDuration(uint64 cliffDuration, uint64 totalDuration)
         external
         CliffDurationCalculationDoesNotOverflow
         TotalDurationCalculationDoesNotOverflow
     {
         vm.assume(cliffDuration <= totalDuration);
-        vm.assume(totalDuration <= UINT256_MAX - block.timestamp);
-        uint256 cliffTime;
-        uint256 stopTime;
+        vm.assume(totalDuration <= UINT64_MAX - block.timestamp);
+        uint64 cliffTime;
+        uint64 stopTime;
         unchecked {
-            cliffTime = block.timestamp + cliffDuration;
-            stopTime = block.timestamp + totalDuration;
+            cliffTime = uint64(block.timestamp) + cliffDuration;
+            stopTime = uint64(block.timestamp) + totalDuration;
         }
         uint256 daiStreamId = sablierV2Linear.createWithDuration(
             daiStream.sender,

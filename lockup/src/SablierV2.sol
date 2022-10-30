@@ -222,8 +222,8 @@ abstract contract SablierV2 is ISablierV2 {
         address sender,
         address recipient,
         uint256 depositAmount,
-        uint256 startTime,
-        uint256 stopTime
+        uint64 startTime,
+        uint64 stopTime
     ) internal pure {
         // Checks: the sender is not the zero address.
         if (sender == address(0)) {
