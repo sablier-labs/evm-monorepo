@@ -31,6 +31,7 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint64 internal constant UINT64_MAX = type(uint64).max;
+    uint256 internal constant UINT256_MAX = type(uint256).max;
 
     uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
     uint64 internal constant CLIFF_DURATION = 2_500 seconds;
