@@ -135,7 +135,8 @@ interface ISablierV2 is IERC721 {
     ///
     /// Requiremenets:
     /// - `streamId` must point to an existent stream.
-    /// - `msg.sender` must be either the sender or recipient.
+    /// - `msg.sender` must be the sender of the stream, an approved operator, or the owner of the
+    /// NFT (also known as the recipient of the stream).
     /// - The stream must be cancelable.
     ///
     /// @param streamId The id of the stream to cancel.
@@ -147,7 +148,8 @@ interface ISablierV2 is IERC721 {
     ///
     /// Requiremenets:
     /// - Each stream id in `streamIds` must point to an existent stream.
-    /// - `msg.sender` must be either the sender or recipient of every stream.
+    /// - `msg.sender` must be the sender of the stream, an approved operator, or the owner of the
+    /// NFT (also known as the recipient of the stream) of every stream.
     /// - Each stream must be cancelable.
     ///
     /// @param streamIds The ids of the streams to cancel.
@@ -175,7 +177,8 @@ interface ISablierV2 is IERC721 {
     ///
     /// Requirements:
     /// - `streamId` must point to an existent stream.
-    /// - `msg.sender` must be either the sender or recipient.
+    /// - `msg.sender` must be the sender of the stream, an approved operator, or the owner of the
+    /// NFT (also known as the recipient of the stream).
     /// - `amount` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamId The id of the stream to withdraw.
@@ -188,7 +191,8 @@ interface ISablierV2 is IERC721 {
     ///
     /// Requirements:
     /// - The count of `streamIds` must match the count of `amounts`.
-    /// - `msg.sender` must be either the sender or recipient of every stream.
+    /// - `msg.sender` must be the sender of the stream, an approved operator, or the owner of the
+    /// NFT (also known as the recipient of the stream) of every stream.
     /// - Each stream id in `streamIds` must point to an existent stream.
     /// - Each amount in `amounts` must not be zero and must not exceed the withdrawable amount.
     ///
@@ -204,7 +208,8 @@ interface ISablierV2 is IERC721 {
     /// - `to` must not be the zero address.
     /// - The count of `streamIds` must match the count of `amounts`.
     /// - Each stream id in `streamIds` must point to an existent stream.
-    /// - `msg.sender` must be the recipient of every stream.
+    /// - `msg.sender` must be an approved operator, or the owner of the NFT (also known
+    /// as the recipient of the stream) of every stream.
     /// - Each amount in `amounts` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamIds The ids of the streams to withdraw.
@@ -223,7 +228,8 @@ interface ISablierV2 is IERC721 {
     /// Requirements:
     /// - `streamId` must point to an existent stream.
     /// - `to` must not be the zero address.
-    /// - `msg.sender` must be the recipient.
+    /// - `msg.sender` must be an approved operator, or the owner of the NFT (also known
+    /// as the recipient of the stream).
     /// - `amount` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamId The id of the stream to withdraw.
