@@ -83,7 +83,7 @@ interface ISablierV2Linear is ISablierV2 {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a new stream funded by `msg.sender`.
+    /// @notice Creates a new stream funded by `msg.sender` wrapped in a NFT.
     ///
     /// @dev Emits a {CreateStream} event.
     ///
@@ -117,8 +117,8 @@ interface ISablierV2Linear is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a stream funded by `msg.sender` and sets the start time to `block.timestamp` and the stop
-    /// time to `block.timestamp + duration`.
+    /// @notice Creates a stream funded by `msg.sender` wrapped in a NFT and sets the start time to `block.timestamp`
+    /// and the stop time to `block.timestamp + duration`.
     ///
     /// @dev Emits a {CreateStream} event.
     ///
