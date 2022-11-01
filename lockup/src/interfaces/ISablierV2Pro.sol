@@ -133,7 +133,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `segmentAmounts` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
     /// - `segmentAmounts` summed up must be equal to `depositAmount`.
     /// - `segmentExponents` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
-    /// - `segmentExponents` must be bounded between one and three.
+    /// - `segmentExponents` must be bounded between zero and ten.
     /// - `segmentMilestones` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
     /// - `segmentMilestones` must be bounded between `startTime` and `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
