@@ -375,10 +375,6 @@ contract SablierV2Pro is
         }
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @inheritdoc SablierV2
     function _isApprovedOrOwner(address spender, uint256 streamId)
         internal
