@@ -82,18 +82,12 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
 
         // Create 5 users for testing. Order matters.
         users = Users({
-            sender: mkaddr("Sender"),
-            recipient: mkaddr("Recipient"),
-            operator: mkaddr("Operator"),
-            eve: mkaddr("Eve"),
-            alice: mkaddr("Alice")
+            sender: mkaddrFunded("Sender"),
+            recipient: mkaddrFunded("Recipient"),
+            operator: mkaddrFunded("Operator"),
+            eve: mkaddrFunded("Eve"),
+            alice: mkaddrFunded("Alice")
         });
-
-        fundUser(users.sender);
-        fundUser(users.recipient);
-        fundUser(users.operator);
-        fundUser(users.eve);
-        fundUser(users.alice);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -224,17 +218,14 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
         dynamicalArray[2] = element2;
     }
 
-    /// @dev Give each user 100 ETH, 1M DAI, 1M USDC and 1M non-standard tokens.
-    function fundUser(address payable user) internal {
-        vm.deal(user, 100 ether);
-        dai.mint(user, 1_000_000e18);
-        usdc.mint(user, 1_000_000e6);
-        nonCompliantToken.mint(user, 1_000_000e18);
-    }
-
-    /// @dev Generates an address by hashing the name and labels the address.
-    function mkaddr(string memory name) internal returns (address payable addr) {
+    /// @dev Generates an address by hashing the name, labels the address and
+    /// funds it with 100 ETH, 1M DAI, 1M USDC and 1M non-standard tokens.
+    function mkaddrFunded(string memory name) internal returns (address payable addr) {
         addr = payable(address(uint160(uint256(keccak256(abi.encodePacked(name))))));
         vm.label(addr, name);
+        vm.deal(addr, 100 ether);
+        dai.mint(addr, 1_000_000e18);
+        usdc.mint(addr, 1_000_000e6);
+        nonCompliantToken.mint(addr, 1_000_000e18);
     }
 }
