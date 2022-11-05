@@ -48,7 +48,7 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
                                   TESTING VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    SablierV2Pro internal sablierV2Pro = new SablierV2Pro(MAX_SEGMENT_COUNT);
+    SablierV2Pro internal sablierV2Pro;
     ISablierV2Pro.Stream internal daiStream;
     ISablierV2Pro.Stream internal usdcStream;
 
@@ -58,6 +58,8 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
+        sablierV2Pro = new SablierV2Pro(MAX_SEGMENT_COUNT);
+
         // Create the default streams to be used across the tests.
         daiStream = ISablierV2Pro.Stream({
             cancelable: true,

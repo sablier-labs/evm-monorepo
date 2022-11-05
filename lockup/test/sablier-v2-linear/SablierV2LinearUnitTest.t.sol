@@ -41,7 +41,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
                                   TESTING VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    SablierV2Linear internal sablierV2Linear = new SablierV2Linear();
+    SablierV2Linear internal sablierV2Linear;
     ISablierV2Linear.Stream internal daiStream;
     ISablierV2Linear.Stream internal usdcStream;
 
@@ -51,6 +51,8 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
+        sablierV2Linear = new SablierV2Linear();
+
         // Create the default streams to be used across the tests.
         daiStream = ISablierV2Linear.Stream({
             cancelable: true,
