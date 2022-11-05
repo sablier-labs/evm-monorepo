@@ -86,29 +86,11 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
             withdrawnAmount: 0
         });
 
-        // Approve the SablierV2Pro contract to spend tokens from the sender.
-        vm.startPrank(users.sender);
-        dai.approve(address(sablierV2Pro), UINT256_MAX);
-        usdc.approve(address(sablierV2Pro), UINT256_MAX);
-        nonCompliantToken.approve(address(sablierV2Pro), UINT256_MAX);
-
-        // Approve the SablierV2Pro contract to spend tokens from the recipient.
-        changePrank(users.recipient);
-        dai.approve(address(sablierV2Pro), UINT256_MAX);
-        usdc.approve(address(sablierV2Pro), UINT256_MAX);
-        nonCompliantToken.approve(address(sablierV2Pro), UINT256_MAX);
-
-        // Approve the SablierV2Pro contract to spend tokens from Alice.
-        changePrank(users.alice);
-        dai.approve(address(sablierV2Pro), UINT256_MAX);
-        usdc.approve(address(sablierV2Pro), UINT256_MAX);
-        nonCompliantToken.approve(address(sablierV2Pro), UINT256_MAX);
-
-        // Approve the SablierV2Pro contract to spend tokens from Eve.
-        changePrank(users.eve);
-        dai.approve(address(sablierV2Pro), UINT256_MAX);
-        usdc.approve(address(sablierV2Pro), UINT256_MAX);
-        nonCompliantToken.approve(address(sablierV2Pro), UINT256_MAX);
+        // Approve the SablierV2Pro contract to spend tokens from the sender, recipient, Alice and Eve.
+        approveMax(users.sender, address(sablierV2Pro));
+        approveMax(users.recipient, address(sablierV2Pro));
+        approveMax(users.alice, address(sablierV2Pro));
+        approveMax(users.eve, address(sablierV2Pro));
 
         // Sets all subsequent calls' `msg.sender` to be `sender`.
         changePrank(users.sender);

@@ -75,29 +75,11 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
             withdrawnAmount: 0
         });
 
-        // Approve the SablierV2Linear contract to spend tokens from the sender.
-        vm.startPrank(users.sender);
-        dai.approve(address(sablierV2Linear), UINT256_MAX);
-        usdc.approve(address(sablierV2Linear), UINT256_MAX);
-        nonCompliantToken.approve(address(sablierV2Linear), UINT256_MAX);
-
-        // Approve the SablierV2Linear contract to spend tokens from the recipient.
-        changePrank(users.recipient);
-        dai.approve(address(sablierV2Linear), UINT256_MAX);
-        usdc.approve(address(sablierV2Linear), UINT256_MAX);
-        nonCompliantToken.approve(address(sablierV2Linear), UINT256_MAX);
-
-        // Approve the SablierV2Linear contract to spend tokens from Alice.
-        changePrank(users.alice);
-        dai.approve(address(sablierV2Linear), UINT256_MAX);
-        usdc.approve(address(sablierV2Linear), UINT256_MAX);
-        nonCompliantToken.approve(address(sablierV2Linear), UINT256_MAX);
-
-        // Approve the SablierV2Linear contract to spend tokens from Eve.
-        changePrank(users.eve);
-        dai.approve(address(sablierV2Linear), UINT256_MAX);
-        usdc.approve(address(sablierV2Linear), UINT256_MAX);
-        nonCompliantToken.approve(address(sablierV2Linear), UINT256_MAX);
+        // Approve the SablierV2Linear contract to spend tokens from the sender, recipient, Alice and Eve.
+        approveMax(users.sender, address(sablierV2Linear));
+        approveMax(users.recipient, address(sablierV2Linear));
+        approveMax(users.alice, address(sablierV2Linear));
+        approveMax(users.eve, address(sablierV2Linear));
 
         // Sets all subsequent calls' `msg.sender` to be `sender`.
         changePrank(users.sender);
@@ -112,7 +94,7 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
         assertEq(a.cancelable, b.cancelable);
         assertEq(a.depositAmount, b.depositAmount);
         assertEq(a.sender, b.sender);
-        assertEq(a.startTime, b.startTime);
+        assertEq(uint256(a.startTime), uint256(b.startTime));
         assertEq(uint256(a.cliffTime), uint256(b.cliffTime));
         assertEq(uint256(a.stopTime), uint256(b.stopTime));
         assertEq(a.token, b.token);

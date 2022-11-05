@@ -128,6 +128,14 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Helper function to approve `spender` the `UINT256_MAX` amount with `caller` as the `msg.sender`.
+    function approveMax(address caller, address spender) internal {
+        changePrank(caller);
+        dai.approve(spender, UINT256_MAX);
+        usdc.approve(spender, UINT256_MAX);
+        nonCompliantToken.approve(spender, UINT256_MAX);
+    }
+
     /// @dev Helper function to compare two `IERC20` addresses.
     function assertEq(IERC20 a, IERC20 b) internal {
         assertEq(address(a), address(b));
