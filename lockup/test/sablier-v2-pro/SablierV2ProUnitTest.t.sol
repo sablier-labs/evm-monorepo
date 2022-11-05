@@ -37,8 +37,8 @@ abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 internal constant MAX_SEGMENT_COUNT = 200;
-    uint256[] internal SEGMENT_AMOUNTS_DAI = [bn(2_000, 18), bn(8_000, 18)];
-    uint256[] internal SEGMENT_AMOUNTS_USDC = [bn(2_000, 6), bn(8_000, 6)];
+    uint256[] internal SEGMENT_AMOUNTS_DAI = [2_000e18, 8_000e18];
+    uint256[] internal SEGMENT_AMOUNTS_USDC = [2_000e6, 8_000e6];
     uint64[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
     SD59x18[] internal SEGMENT_EXPONENTS = [sd59x18(3.14e18), sd59x18(0.5e18)];
     uint64[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];

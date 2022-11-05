@@ -76,8 +76,8 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
 
         // Initialize the default stream values.
         CLIFF_TIME = uint64(block.timestamp) + CLIFF_DURATION;
-        DEPOSIT_AMOUNT_DAI = bn(10_000, 18);
-        DEPOSIT_AMOUNT_USDC = bn(10_000, 6);
+        DEPOSIT_AMOUNT_DAI = 10_000e18;
+        DEPOSIT_AMOUNT_USDC = 10_000e6;
         START_TIME = uint64(block.timestamp);
         STOP_TIME = uint64(block.timestamp) + TOTAL_DURATION;
 
@@ -108,11 +108,6 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
     /*//////////////////////////////////////////////////////////////////////////
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Helper function that multiplies the `amount` by `10^decimals` and returns a `uint256.`
-    function bn(uint256 amount, uint256 decimals) internal pure returns (uint256 result) {
-        result = amount * 10**decimals;
-    }
 
     /// @dev Helper function to convert an int256 number to type `SD59x18`.
     function sd59x18(int256 number) internal pure returns (SD59x18 result) {
@@ -241,9 +236,9 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
     /// @dev Give each user 100 ETH, 1M DAI, 1M USDC and 1M non-standard tokens.
     function fundUser(address payable user) internal {
         vm.deal(user, 100 ether);
-        dai.mint(user, bn(1_000_000, 18));
-        usdc.mint(user, bn(1_000_000, 6));
-        nonCompliantToken.mint(user, bn(1_000_000, 18));
+        dai.mint(user, 1_000_000e18);
+        usdc.mint(user, 1_000_000e6);
+        nonCompliantToken.mint(user, 1_000_000e18);
     }
 
     /// @dev Converts bytes32 to address.

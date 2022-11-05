@@ -34,8 +34,8 @@ abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint64 internal constant TIME_OFFSET = 2_600 seconds;
-    uint256 internal immutable WITHDRAW_AMOUNT_DAI = bn(2_600, 18);
-    uint256 internal immutable WITHDRAW_AMOUNT_USDC = bn(2_600, 6);
+    uint256 internal immutable WITHDRAW_AMOUNT_DAI = 2_600e18;
+    uint256 internal immutable WITHDRAW_AMOUNT_USDC = 2_600e6;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   TESTING VARIABLES

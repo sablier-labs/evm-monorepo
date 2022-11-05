@@ -39,7 +39,7 @@ contract SablierV2Linear__GetWithdrawableAmount is SablierV2LinearUnitTest {
     function testGetWithdrawableAmount__CliffTimeEqualToBlockTimestamp() external {
         vm.warp(daiStream.cliffTime);
         uint256 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(daiStreamId);
-        uint256 expectedWithdrawableAmount = WITHDRAW_AMOUNT_DAI - bn(100, 18);
+        uint256 expectedWithdrawableAmount = WITHDRAW_AMOUNT_DAI - 100e18;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 

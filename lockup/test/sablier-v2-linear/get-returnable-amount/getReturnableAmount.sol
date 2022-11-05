@@ -55,7 +55,7 @@ contract SablierV2Linear__GetReturnableAmount is SablierV2LinearUnitTest {
         vm.warp(daiStream.startTime + TIME_OFFSET + 1 seconds);
         sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
         uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(daiStreamId);
-        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI - bn(1, 18);
+        uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI - 1e18;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 }

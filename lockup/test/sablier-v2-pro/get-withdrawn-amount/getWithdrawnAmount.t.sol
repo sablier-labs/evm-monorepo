@@ -39,7 +39,7 @@ contract SablierV2Pro__GetWithdrawnAmount is SablierV2ProUnitTest {
     /// @dev it should return the correct withdrawn amount.
     function testGetWithdrawnAmount__WithWithdrawals() external StreamExistent {
         vm.warp(daiStream.stopTime);
-        uint256 withdrawAmount = bn(100, 18);
+        uint256 withdrawAmount = 100e18;
         sablierV2Pro.withdraw(daiStreamId, withdrawAmount);
         uint256 actualDepositAmount = sablierV2Pro.getWithdrawnAmount(daiStreamId);
         uint256 expectedDepositAmount = withdrawAmount;

@@ -46,7 +46,7 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
     /// @dev it should return the deposit amount minus the withdrawn amount.
     function testGetWithdrawableAmount__CurrentTimeGreaterThanStopTime__WithWithdrawals() external StreamExistent {
         vm.warp(daiStream.stopTime + 1 seconds);
-        uint256 withdrawAmount = bn(2_500, 18);
+        uint256 withdrawAmount = 2_500e18;
         sablierV2Pro.withdraw(daiStreamId, withdrawAmount);
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = daiStream.depositAmount - withdrawAmount;
@@ -64,7 +64,7 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
     /// @dev return the deposit amount minus the withdrawn amount.
     function testGetWithdrawableAmount__CurrentTimeEqualToStopTime__WithWithdrawals() external StreamExistent {
         vm.warp(daiStream.stopTime);
-        uint256 withdrawAmount = bn(2_500, 18);
+        uint256 withdrawAmount = 2_500e18;
         sablierV2Pro.withdraw(daiStreamId, withdrawAmount);
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
         uint256 expectedWithdrawableAmount = daiStream.depositAmount - withdrawAmount;
@@ -86,7 +86,7 @@ contract SablierV2Pro__GetWithdrawableAmount is SablierV2ProUnitTest {
     /// @dev it should return the correct withdrawable amount.
     function testGetWithdrawableAmount__WithWithdrawals() external StreamExistent CurrentTimeLessThanStopTime {
         vm.warp(daiStream.startTime + 500 seconds); // 500 seconds is 25% of the way in the first segment.
-        uint256 withdrawAmount = bn(5, 18);
+        uint256 withdrawAmount = 5e18;
         sablierV2Pro.withdraw(daiStreamId, withdrawAmount);
         uint256 expectedWithdrawableAmount = 25.73721928961166e18 - withdrawAmount; // 1st term: ~2,000*0.25^{3.14}
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
