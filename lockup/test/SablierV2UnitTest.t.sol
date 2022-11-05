@@ -83,26 +83,18 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
 
         // Create 5 users for testing. Order matters.
         users = Users({
-            sender: getNextUser(),
-            recipient: getNextUser(),
-            operator: getNextUser(),
-            eve: getNextUser(),
-            alice: getNextUser()
+            sender: mkaddr("Sender"),
+            recipient: mkaddr("Recipient"),
+            operator: mkaddr("Operator"),
+            eve: mkaddr("Eve"),
+            alice: mkaddr("Alice")
         });
+
         fundUser(users.sender);
-        vm.label(users.sender, "Sender");
-
         fundUser(users.recipient);
-        vm.label(users.recipient, "Recipient");
-
         fundUser(users.operator);
-        vm.label(users.operator, "Operator");
-
         fundUser(users.eve);
-        vm.label(users.eve, "Eve");
-
         fundUser(users.alice);
-        vm.label(users.alice, "Alice");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -241,10 +233,9 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
         nonCompliantToken.mint(user, 1_000_000e18);
     }
 
-    /// @dev Converts bytes32 to address.
-    function getNextUser() internal returns (address payable) {
-        address payable user = payable(address(uint160(uint256(nextUser))));
-        nextUser = keccak256(abi.encodePacked(nextUser));
-        return user;
+    /// @dev Generates an address by hashing the name and labels the address.
+    function mkaddr(string memory name) internal returns (address payable addr) {
+        addr = payable(address(uint160(uint256(keccak256(abi.encodePacked(name))))));
+        vm.label(addr, name);
     }
 }
