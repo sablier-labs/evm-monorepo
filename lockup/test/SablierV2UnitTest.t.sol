@@ -59,7 +59,6 @@ abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
                                  STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    bytes32 internal nextUser = keccak256(abi.encodePacked("user address"));
     NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Stablecoin", "USD", 18);
     ERC20GodMode internal dai = new ERC20GodMode("Dai Stablecoin", "DAI", 18);
     ERC20GodMode internal usdc = new ERC20GodMode("USD Coin", "USDC", 6);
