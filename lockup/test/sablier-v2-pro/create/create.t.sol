@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { DataTypes } from "@sablier/v2-core/libraries/DataTypes.sol";
+import { Errors } from "@sablier/v2-core/libraries/Errors.sol";
+import { Events } from "@sablier/v2-core/libraries/Events.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
-import { ISablierV2Pro } from "@sablier/v2-core/interfaces/ISablierV2Pro.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 import { stdError } from "forge-std/StdError.sol";
@@ -13,7 +14,7 @@ import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
 contract SablierV2Pro__Create is SablierV2ProUnitTest {
     /// @dev it should revert.
     function testCannotCreate__RecipientZeroAddress() external {
-        vm.expectRevert(ISablierV2.SablierV2__RecipientZeroAddress.selector);
+        vm.expectRevert(Errors.SablierV2__RecipientZeroAddress.selector);
         address recipient = address(0);
         sablierV2Pro.create(
             daiStream.sender,
@@ -34,7 +35,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
 
     /// @dev it should revert.
     function testCannotCreate__DepositAmountZero() external RecipientNonZeroAddress {
-        vm.expectRevert(ISablierV2.SablierV2__DepositAmountZero.selector);
+        vm.expectRevert(Errors.SablierV2__DepositAmountZero.selector);
         uint256 depositAmount = 0;
         sablierV2Pro.create(
             daiStream.sender,
@@ -55,7 +56,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
 
     /// @dev it should revert.
     function testCannotCreate__SegmentCountZero() external RecipientNonZeroAddress DepositAmountNotZero {
-        vm.expectRevert(ISablierV2Pro.SablierV2Pro__SegmentCountZero.selector);
+        vm.expectRevert(Errors.SablierV2Pro__SegmentCountZero.selector);
         uint256[] memory segmentAmounts;
         SD59x18[] memory segmentExponents;
         uint64[] memory segmentMilestones;
@@ -84,9 +85,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         SegmentCountNotZero
     {
         uint256 segmentCount = sablierV2Pro.MAX_SEGMENT_COUNT() + 1;
-        vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentCountOutOfBounds.selector, segmentCount)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Pro__SegmentCountOutOfBounds.selector, segmentCount));
         uint256[] memory segmentAmounts = new uint256[](segmentCount);
         for (uint256 i = 0; i < segmentCount; ) {
             segmentAmounts[i] = i;
@@ -122,7 +121,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2Pro.SablierV2Pro__SegmentCountsNotEqual.selector,
+                Errors.SablierV2Pro__SegmentCountsNotEqual.selector,
                 daiStream.segmentAmounts.length,
                 segmentExponents.length,
                 daiStream.segmentMilestones.length
@@ -152,7 +151,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         uint64[] memory segmentMilestones = createDynamicUint64Array(SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2Pro.SablierV2Pro__SegmentCountsNotEqual.selector,
+                Errors.SablierV2Pro__SegmentCountsNotEqual.selector,
                 daiStream.segmentAmounts.length,
                 daiStream.segmentExponents.length,
                 segmentMilestones.length
@@ -187,7 +186,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         uint64 startTime = daiStream.segmentMilestones[0] + 1;
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2Pro.SablierV2Pro__StartTimeGreaterThanFirstMilestone.selector,
+                Errors.SablierV2Pro__StartTimeGreaterThanFirstMilestone.selector,
                 startTime,
                 daiStream.segmentMilestones[0]
             )
@@ -231,7 +230,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
 
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
+        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.depositAmount, depositAmount);
         assertEq(actualStream.token, daiStream.token);
@@ -293,7 +292,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         uint64[] memory segmentMilestones = createDynamicUint64Array(SEGMENT_MILESTONES[1], SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2Pro.SablierV2Pro__SegmentMilestonesNotOrdered.selector,
+                Errors.SablierV2Pro__SegmentMilestonesNotOrdered.selector,
                 1,
                 segmentMilestones[0],
                 segmentMilestones[1]
@@ -331,7 +330,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         SD59x18 outOfBoundsExponent = sablierV2Pro.MAX_EXPONENT().uncheckedAdd(SCALE);
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0], outOfBoundsExponent);
         vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2Pro.SablierV2Pro__SegmentExponentOutOfBounds.selector, outOfBoundsExponent)
+            abi.encodeWithSelector(Errors.SablierV2Pro__SegmentExponentOutOfBounds.selector, outOfBoundsExponent)
         );
         sablierV2Pro.create(
             daiStream.sender,
@@ -366,7 +365,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         uint256 depositAmount = daiStream.depositAmount + 1;
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2Pro.SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum.selector,
+                Errors.SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum.selector,
                 depositAmount,
                 daiStream.depositAmount
             )
@@ -450,7 +449,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
             daiStream.cancelable
         );
 
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
+        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
         assertEq(address(actualStream.token), address(nonCompliantToken));
@@ -484,8 +483,8 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         TokenCompliant
     {
         uint256 usdcStreamId = createDefaultUsdcStream();
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(usdcStreamId);
-        ISablierV2Pro.Stream memory expectedStream = usdcStream;
+        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(usdcStreamId);
+        DataTypes.ProStream memory expectedStream = usdcStream;
         assertEq(actualStream, expectedStream);
     }
 
@@ -512,7 +511,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
-    /// @dev it should emit a CreateStream event.
+    /// @dev it should emit a CreateProStream event.
     function testCreate__Token6Decimals__Event()
         external
         RecipientNonZeroAddress
@@ -531,7 +530,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         uint256 usdcStreamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);
         address funder = usdcStream.sender;
-        emit CreateStream(
+        emit Events.CreateProStream(
             usdcStreamId,
             funder,
             usdcStream.sender,
@@ -569,8 +568,8 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         uint256 daiStreamId = createDefaultDaiStream();
 
         // Run the test.
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
-        ISablierV2Pro.Stream memory expectedStream = daiStream;
+        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
+        DataTypes.ProStream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
 
@@ -602,7 +601,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
-    /// @dev it should emit a CreateStream event.
+    /// @dev it should emit a CreateProStream event.
     function testCreate__Token18Decimals__CallerNotSender__Event() external {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
@@ -611,7 +610,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         uint256 daiStreamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);
         address funder = users.alice;
-        emit CreateStream(
+        emit Events.CreateProStream(
             daiStreamId,
             funder,
             daiStream.sender,
@@ -645,8 +644,8 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         TokenCompliant
     {
         uint256 daiStreamId = createDefaultDaiStream();
-        ISablierV2Pro.Stream memory actualStream = sablierV2Pro.getStream(daiStreamId);
-        ISablierV2Pro.Stream memory expectedStream = daiStream;
+        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
+        DataTypes.ProStream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
 
@@ -673,7 +672,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
 
-    /// @dev it should emit a CreateStream event.
+    /// @dev it should emit a CreateProStream event.
     function testCreate__Token18Decimals__CallerSender__Event()
         external
         RecipientNonZeroAddress
@@ -692,7 +691,7 @@ contract SablierV2Pro__Create is SablierV2ProUnitTest {
         uint256 daiStreamId = sablierV2Pro.nextStreamId();
         vm.expectEmit(true, true, true, true);
         address funder = daiStream.sender;
-        emit CreateStream(
+        emit Events.CreateProStream(
             daiStreamId,
             funder,
             daiStream.sender,

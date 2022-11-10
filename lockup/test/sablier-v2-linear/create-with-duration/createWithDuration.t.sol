@@ -1,9 +1,8 @@
-// solhint-disable max-line-length
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
-import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.sol";
+import { DataTypes } from "@sablier/v2-core/libraries/DataTypes.sol";
+import { Errors } from "@sablier/v2-core/libraries/Errors.sol";
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
@@ -19,11 +18,7 @@ contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
             stopTime = cliffTime;
         }
         vm.expectRevert(
-            abi.encodeWithSelector(
-                ISablierV2.SablierV2__StartTimeGreaterThanStopTime.selector,
-                block.timestamp,
-                stopTime
-            )
+            abi.encodeWithSelector(Errors.SablierV2__StartTimeGreaterThanStopTime.selector, block.timestamp, stopTime)
         );
         sablierV2Linear.createWithDuration(
             daiStream.sender,
@@ -52,11 +47,7 @@ contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
             stopTime = uint64(block.timestamp) + totalDuration;
         }
         vm.expectRevert(
-            abi.encodeWithSelector(
-                ISablierV2.SablierV2__StartTimeGreaterThanStopTime.selector,
-                block.timestamp,
-                stopTime
-            )
+            abi.encodeWithSelector(Errors.SablierV2__StartTimeGreaterThanStopTime.selector, block.timestamp, stopTime)
         );
         sablierV2Linear.createWithDuration(
             daiStream.sender,
@@ -97,7 +88,7 @@ contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
             daiStream.cancelable
         );
 
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
         assertEq(actualStream.token, daiStream.token);

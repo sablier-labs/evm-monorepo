@@ -3,6 +3,8 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
+import { DataTypes } from "../libraries/DataTypes.sol";
+
 import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Linear
@@ -10,61 +12,6 @@ import { ISablierV2 } from "./ISablierV2.sol";
 /// @notice Creates streams whose streaming function is $f(x) = x$ after a cliff period, where x is the
 /// elapsed time divided by the total duration of the stream.
 interface ISablierV2Linear is ISablierV2 {
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CUSTOM ERRORS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Emitted when attempting to create a stream with a start time greater than cliff time;
-    error SablierV2Linear__StartTimeGreaterThanCliffTime(uint64 startTime, uint64 cliffTime);
-
-    /// @notice Emitted when attempting to create a stream with a cliff time greater than stop time;
-    error SablierV2Linear__CliffTimeGreaterThanStopTime(uint64 cliffTime, uint64 stopTime);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                       EVENTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Emitted when a linear stream is created.
-    /// @param streamId The id of the newly created stream.
-    /// @param funder The address which funded the stream.
-    /// @param sender The address from which to stream the tokens, which has the ability to cancel the stream.
-    /// @param recipient The address toward which to stream the tokens.
-    /// @param depositAmount The amount of tokens to be streamed.
-    /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param startTime The unix timestamp in seconds for when the stream will start.
-    /// @param cliffTime The unix timestamp in seconds for when the cliff period will end.
-    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
-    /// @param cancelable Whether the stream will be cancelable or not.
-    event CreateStream(
-        uint256 streamId,
-        address indexed funder,
-        address indexed sender,
-        address indexed recipient,
-        uint256 depositAmount,
-        IERC20 token,
-        uint64 startTime,
-        uint64 cliffTime,
-        uint64 stopTime,
-        bool cancelable
-    );
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                       STRUCTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Linear stream struct.
-    /// @dev The members are arranged like this to save gas via tight variable packing.
-    struct Stream {
-        uint256 depositAmount;
-        uint256 withdrawnAmount;
-        address sender; // ───┐
-        uint64 startTime; // ─┘
-        IERC20 token; // ─────┐
-        uint64 cliffTime; // ─┘
-        uint64 stopTime; // ─┐
-        bool cancelable; // ─┘
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -77,7 +24,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// @notice Reads the stream struct.
     /// @param streamId The id of the stream to make the query for.
     /// @return stream The stream struct.
-    function getStream(uint256 streamId) external view returns (Stream memory stream);
+    function getStream(uint256 streamId) external view returns (DataTypes.LinearStream memory stream);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
@@ -85,7 +32,7 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// @notice Creates a new stream funded by `msg.sender` wrapped in a NFT.
     ///
-    /// @dev Emits a {CreateStream} event.
+    /// @dev Emits a {CreateLinearStream} event.
     ///
     /// Requirements:
     /// - `sender` must not be the zero address.
@@ -120,7 +67,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// @notice Creates a stream funded by `msg.sender` wrapped in a NFT and sets the start time to `block.timestamp`
     /// and the stop time to `block.timestamp + duration`.
     ///
-    /// @dev Emits a {CreateStream} event.
+    /// @dev Emits a {CreateLinearStream} event.
     ///
     /// Requirements:
     /// - All from `create`.

@@ -1,9 +1,9 @@
-// solhint-disable max-line-length
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
-import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.sol";
+import { DataTypes } from "@sablier/v2-core/libraries/DataTypes.sol";
+import { Errors } from "@sablier/v2-core/libraries/Errors.sol";
+import { Events } from "@sablier/v2-core/libraries/Events.sol";
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
@@ -24,7 +24,7 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
     /// @dev it should revert.
     function testCannotWithdraw__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonExistent.selector, nonStreamId));
         uint256 withdrawAmountZero = 0;
         sablierV2Linear.withdraw(nonStreamId, withdrawAmountZero);
     }
@@ -39,7 +39,7 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
         changePrank(users.eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
         uint256 withdrawAmount = 0;
         sablierV2Linear.withdraw(daiStreamId, withdrawAmount);
     }
@@ -58,7 +58,7 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
 
         // Run the test.
         sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
         uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
@@ -77,7 +77,7 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
 
         // Run the test.
         sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
         uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
@@ -98,9 +98,7 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
         sablierV2Linear.transferFrom(users.recipient, users.alice, daiStreamId);
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, daiStreamId, users.recipient)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.recipient));
         sablierV2Linear.withdraw(daiStreamId, daiStream.depositAmount);
     }
 
@@ -116,7 +114,7 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
         CallerRecipient
         OriginalRecipient
     {
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__WithdrawAmountZero.selector, daiStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__WithdrawAmountZero.selector, daiStreamId));
         uint256 withdrawAmountZero = 0;
         sablierV2Linear.withdraw(daiStreamId, withdrawAmountZero);
     }
@@ -138,7 +136,7 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
         uint256 withdrawableAmount = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISablierV2.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount.selector,
+                Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount.selector,
                 daiStreamId,
                 withdrawAmountMaxUint256,
                 withdrawableAmount
@@ -166,8 +164,8 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
 
         // Run the test.
         sablierV2Linear.withdraw(daiStreamId, daiStream.depositAmount);
-        ISablierV2Linear.Stream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
-        ISablierV2Linear.Stream memory expectedStream;
+        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
@@ -190,7 +188,7 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
 
         // Run the test.
         vm.expectEmit(true, true, false, true);
-        emit Withdraw(daiStreamId, users.recipient, daiStream.depositAmount);
+        emit Events.Withdraw(daiStreamId, users.recipient, daiStream.depositAmount);
         sablierV2Linear.withdraw(daiStreamId, daiStream.depositAmount);
     }
 
@@ -209,7 +207,7 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
 
         // Run the test.
         sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
         uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
@@ -230,7 +228,7 @@ contract SablierV2Linear__Withdraw is SablierV2LinearUnitTest {
 
         // Run the test.
         vm.expectEmit(true, true, false, true);
-        emit Withdraw(daiStreamId, users.recipient, WITHDRAW_AMOUNT_DAI);
+        emit Events.Withdraw(daiStreamId, users.recipient, WITHDRAW_AMOUNT_DAI);
         sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
     }
 }

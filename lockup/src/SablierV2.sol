@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { Errors } from "./libraries/Errors.sol";
+
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 
 /// @title SablierV2
@@ -22,7 +24,7 @@ abstract contract SablierV2 is ISablierV2 {
     /// NFT (also known as the recipient of the stream).
     modifier isAuthorizedForStream(uint256 streamId) {
         if (msg.sender != getSender(streamId) && !_isApprovedOrOwner(msg.sender, streamId)) {
-            revert SablierV2__Unauthorized(streamId, msg.sender);
+            revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
         }
         _;
     }
@@ -30,7 +32,7 @@ abstract contract SablierV2 is ISablierV2 {
     /// @dev Checks that `streamId` points to a stream that exists.
     modifier streamExists(uint256 streamId) {
         if (getSender(streamId) == address(0)) {
-            revert SablierV2__StreamNonExistent(streamId);
+            revert Errors.SablierV2__StreamNonExistent(streamId);
         }
         _;
     }
@@ -64,7 +66,7 @@ abstract contract SablierV2 is ISablierV2 {
     function cancel(uint256 streamId) external streamExists(streamId) {
         // Checks: the stream is cancelable.
         if (!isCancelable(streamId)) {
-            revert SablierV2__StreamNonCancelable(streamId);
+            revert Errors.SablierV2__StreamNonCancelable(streamId);
         }
 
         _cancel(streamId);
@@ -94,12 +96,12 @@ abstract contract SablierV2 is ISablierV2 {
     function renounce(uint256 streamId) external streamExists(streamId) {
         // Checks: the caller is the sender of the stream.
         if (msg.sender != getSender(streamId)) {
-            revert SablierV2__Unauthorized(streamId, msg.sender);
+            revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
         }
 
         // Checks: the stream is cancelable.
         if (!isCancelable(streamId)) {
-            revert SablierV2__RenounceNonCancelableStream(streamId);
+            revert Errors.SablierV2__RenounceNonCancelableStream(streamId);
         }
 
         _renounce(streamId);
@@ -121,7 +123,7 @@ abstract contract SablierV2 is ISablierV2 {
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
         if (streamIdsCount != amountsCount) {
-            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
+            revert Errors.SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
@@ -138,7 +140,7 @@ abstract contract SablierV2 is ISablierV2 {
                 // Checks: the `msg.sender` is the sender or the stream, an approved operator, or the owner of the NFT
                 // (a.k.a. the recipient of the stream).
                 if (msg.sender != sender && !_isApprovedOrOwner(msg.sender, streamId)) {
-                    revert SablierV2__Unauthorized(streamId, msg.sender);
+                    revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
                 }
 
                 // Effects and Interactions: withdraw from the stream.
@@ -160,14 +162,14 @@ abstract contract SablierV2 is ISablierV2 {
     ) external {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
-            revert SablierV2__WithdrawZeroAddress();
+            revert Errors.SablierV2__WithdrawZeroAddress();
         }
 
         // Checks: count of `streamIds` matches `amounts`.
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
         if (streamIdsCount != amountsCount) {
-            revert SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
+            revert Errors.SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
@@ -180,7 +182,7 @@ abstract contract SablierV2 is ISablierV2 {
                 // Checks: the `msg.sender` is either an approved operator or the owner of the NFT (a.k.a. the recipient
                 // of the stream).
                 if (!_isApprovedOrOwner(msg.sender, streamId)) {
-                    revert SablierV2__Unauthorized(streamId, msg.sender);
+                    revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
                 }
 
                 // Effects and Interactions: withdraw from the stream.
@@ -202,13 +204,13 @@ abstract contract SablierV2 is ISablierV2 {
     ) external streamExists(streamId) {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
-            revert SablierV2__WithdrawZeroAddress();
+            revert Errors.SablierV2__WithdrawZeroAddress();
         }
 
         // Checks: the `msg.sender` is either an approved operator or the owner of the NFT (a.k.a. the recipient
         // of the stream).
         if (!_isApprovedOrOwner(msg.sender, streamId)) {
-            revert SablierV2__Unauthorized(streamId, msg.sender);
+            revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
         }
         _withdraw(streamId, to, amount);
     }
@@ -227,22 +229,22 @@ abstract contract SablierV2 is ISablierV2 {
     ) internal pure {
         // Checks: the sender is not the zero address.
         if (sender == address(0)) {
-            revert SablierV2__SenderZeroAddress();
+            revert Errors.SablierV2__SenderZeroAddress();
         }
 
         // Checks: the recipient is not the zero address.
         if (recipient == address(0)) {
-            revert SablierV2__RecipientZeroAddress();
+            revert Errors.SablierV2__RecipientZeroAddress();
         }
 
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
-            revert SablierV2__DepositAmountZero();
+            revert Errors.SablierV2__DepositAmountZero();
         }
 
         // Checks: the start time is not greater than the stop time.
         if (startTime > stopTime) {
-            revert SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
+            revert Errors.SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
         }
     }
 

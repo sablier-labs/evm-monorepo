@@ -4,94 +4,14 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 
+import { DataTypes } from "../libraries/DataTypes.sol";
+
 import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Pro
 /// @author Sablier Labs Ltd
 /// @notice Creates streams with custom emission curves.
 interface ISablierV2Pro is ISablierV2 {
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CUSTOM ERRORS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Emitted when attempting to create a stream with a deposit amount that does not qual the segment
-    /// amounts sum.
-    error SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(uint256 depositAmount, uint256 segmentAmountsSum);
-
-    /// @notice Emitted when attempting to create a stream with segment counts that are not equal.
-    error SablierV2Pro__SegmentCountsNotEqual(uint256 amountLength, uint256 exponentLength, uint256 milestoneLength);
-
-    /// @notice Emitted when attempting to create a stream with one or more out-of-bounds segment count.
-    error SablierV2Pro__SegmentCountOutOfBounds(uint256 count);
-
-    /// @notice Emitted when attempting to create a stream with zero segments.
-    error SablierV2Pro__SegmentCountZero();
-
-    /// @notice Emitted when attempting to create a stream with an out of bounds exponent.
-    error SablierV2Pro__SegmentExponentOutOfBounds(SD59x18 exponent);
-
-    /// @notice Emitted when attempting to create a stream with segment milestones which are not ordered.
-    error SablierV2Pro__SegmentMilestonesNotOrdered(uint256 index, uint64 previousMilestonene, uint64 milestone);
-
-    /// @notice Emitted when attempting to create a stream with the start time greater than the first segment milestone.
-    error SablierV2Pro__StartTimeGreaterThanFirstMilestone(uint64 startTime, uint64 segmentMilestone);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                       EVENTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Emitted when a pro stream is created.
-    /// @param streamId The id of the newly created stream.
-    /// @param funder The address which funded the stream.
-    /// @param sender The address from which to stream the tokens, which has the ability to cancel the stream.
-    /// @param recipient The address toward which to stream the tokens.
-    /// @param depositAmount The amount of tokens to be streamed.
-    /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param startTime The unix timestamp in seconds for when the stream will start.
-    /// @param stopTime The calculated unix timestamp in seconds for when the stream will stop.
-    /// @param segmentAmounts The array of amounts used to compose the custom emission curve.
-    /// @param segmentExponents The array of exponents used to compose the custom emission curve.
-    /// @param segmentMilestones The array of milestones used to compose the custom emission curve.
-    /// @param cancelable Whether the stream will be cancelable or not.
-    event CreateStream(
-        uint256 streamId,
-        address indexed funder,
-        address indexed sender,
-        address indexed recipient,
-        uint256 depositAmount,
-        IERC20 token,
-        uint64 startTime,
-        uint64 stopTime,
-        uint256[] segmentAmounts,
-        SD59x18[] segmentExponents,
-        uint64[] segmentMilestones,
-        bool cancelable
-    );
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                       STRUCTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Pro stream struct.
-    /// @dev Based on the streaming function $f(x) = x^{exponent}$, where x is the elapsed time divided by
-    /// the total time.
-    /// @member segmentAmounts The amounts of tokens to be streamed in each segment.
-    /// @member segmentExponents The exponents in the streaming function.
-    /// @member segmentMilestones The unix timestamps in seconds for when each segment ends.
-    /// @dev The members are arranged like this to save gas via tight variable packing.
-    struct Stream {
-        uint256[] segmentAmounts;
-        SD59x18[] segmentExponents;
-        uint64[] segmentMilestones;
-        uint256 depositAmount;
-        uint256 withdrawnAmount;
-        address sender; // ───┐
-        uint64 startTime; // ─┘
-        IERC20 token; // ────┐
-        uint64 stopTime; //  │
-        bool cancelable; // ─┘
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -114,7 +34,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Reads the stream struct.
     /// @param streamId The id of the stream to make the query for.
     /// @return stream The stream struct.
-    function getStream(uint256 streamId) external view returns (Stream memory stream);
+    function getStream(uint256 streamId) external view returns (DataTypes.ProStream memory stream);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
@@ -123,7 +43,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Creates a new stream funded by `msg.sender` wrapped in a NFT. The `stopTime` is implied by
     /// the last element in the `segmentMilestones` array.
     ///
-    /// @dev Emits a {CreateStream} event.
+    /// @dev Emits a {CreateProStream} event.
     ///
     /// Requirements:
     /// - `sender` must not be the zero address.
@@ -164,7 +84,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Creates a stream funded by `msg.sender` wrapped in a NFT and sets the start time to `block.timestamp`
     ///  and the stop time to `block.timestamp + sum(segmentDeltas)`.
     ///
-    /// @dev Emits a {CreateStream} event.
+    /// @dev Emits a {CreateProStream} event.
     ///
     /// Requirements:
     /// - All from `create`.

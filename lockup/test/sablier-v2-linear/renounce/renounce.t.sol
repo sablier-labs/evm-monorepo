@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
-import { ISablierV2Linear } from "@sablier/v2-core/interfaces/ISablierV2Linear.sol";
+import { DataTypes } from "@sablier/v2-core/libraries/DataTypes.sol";
+import { Errors } from "@sablier/v2-core/libraries/Errors.sol";
+import { Events } from "@sablier/v2-core/libraries/Events.sol";
 
 import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
 
@@ -20,7 +21,7 @@ contract SablierV2Linear__Renounce is SablierV2LinearUnitTest {
     /// @dev it should revert.
     function testCannotRenounce__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__StreamNonExistent.selector, nonStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonExistent.selector, nonStreamId));
         sablierV2Linear.renounce(nonStreamId);
     }
 
@@ -34,7 +35,7 @@ contract SablierV2Linear__Renounce is SablierV2LinearUnitTest {
         changePrank(users.eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(ISablierV2.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
         sablierV2Linear.renounce(daiStreamId);
     }
 
@@ -49,7 +50,7 @@ contract SablierV2Linear__Renounce is SablierV2LinearUnitTest {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(ISablierV2.SablierV2__RenounceNonCancelableStream.selector, nonCancelableDaiStreamId)
+            abi.encodeWithSelector(Errors.SablierV2__RenounceNonCancelableStream.selector, nonCancelableDaiStreamId)
         );
         sablierV2Linear.renounce(nonCancelableDaiStreamId);
     }
@@ -57,14 +58,14 @@ contract SablierV2Linear__Renounce is SablierV2LinearUnitTest {
     /// @dev it should make the stream non-cancelable.
     function testRenounce() external StreamExistent CallerSender {
         sablierV2Linear.renounce(daiStreamId);
-        ISablierV2Linear.Stream memory actualStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         assertEq(actualStream.cancelable, false);
     }
 
     /// @dev it should emit a Renounce event.
     function testRenounce__Event() external {
         vm.expectEmit(true, false, false, false);
-        emit Renounce(daiStreamId);
+        emit Events.Renounce(daiStreamId);
         sablierV2Linear.renounce(daiStreamId);
     }
 }

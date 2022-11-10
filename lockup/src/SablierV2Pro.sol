@@ -6,6 +6,10 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SCALE, SD59x18, toSD59x18, ZERO } from "@prb/math/SD59x18.sol";
 
+import { DataTypes } from "./libraries/DataTypes.sol";
+import { Errors } from "./libraries/Errors.sol";
+import { Events } from "./libraries/Events.sol";
+
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Pro } from "./interfaces/ISablierV2Pro.sol";
 import { SablierV2 } from "./SablierV2.sol";
@@ -34,7 +38,7 @@ contract SablierV2Pro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 pro streams mapped by unsigned integers.
-    mapping(uint256 => Stream) internal _streams;
+    mapping(uint256 => DataTypes.ProStream) internal _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
@@ -105,7 +109,7 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2Pro
-    function getStream(uint256 streamId) external view returns (Stream memory stream) {
+    function getStream(uint256 streamId) external view returns (DataTypes.ProStream memory stream) {
         return _streams[streamId];
     }
 
@@ -296,22 +300,22 @@ contract SablierV2Pro is
 
         // Check that the amount count is not zero.
         if (amountCount == 0) {
-            revert SablierV2Pro__SegmentCountZero();
+            revert Errors.SablierV2Pro__SegmentCountZero();
         }
 
         // Check that the amount count is not greater than the maximum segment count permitted in Sablier.
         if (amountCount > MAX_SEGMENT_COUNT) {
-            revert SablierV2Pro__SegmentCountOutOfBounds(amountCount);
+            revert Errors.SablierV2Pro__SegmentCountOutOfBounds(amountCount);
         }
 
         // Compare the amount count to the exponent count.
         if (amountCount != exponentCount) {
-            revert SablierV2Pro__SegmentCountsNotEqual(amountCount, exponentCount, milestoneCount);
+            revert Errors.SablierV2Pro__SegmentCountsNotEqual(amountCount, exponentCount, milestoneCount);
         }
 
         // Compare the amount count to the milestone count.
         if (amountCount != milestoneCount) {
-            revert SablierV2Pro__SegmentCountsNotEqual(amountCount, exponentCount, milestoneCount);
+            revert Errors.SablierV2Pro__SegmentCountsNotEqual(amountCount, exponentCount, milestoneCount);
         }
 
         // We can pass any count because they are all equal to each other.
@@ -333,7 +337,7 @@ contract SablierV2Pro is
     ) internal pure {
         // Check that The first milestone is greater than or equal to the start time.
         if (startTime > segmentMilestones[0]) {
-            revert SablierV2Pro__StartTimeGreaterThanFirstMilestone(startTime, segmentMilestones[0]);
+            revert Errors.SablierV2Pro__StartTimeGreaterThanFirstMilestone(startTime, segmentMilestones[0]);
         }
 
         // Define the variables needed in the for loop below.
@@ -351,13 +355,13 @@ contract SablierV2Pro is
             // Check that the previous milestone is less than the current milestone.
             currentMilestone = segmentMilestones[index];
             if (previousMilestone >= currentMilestone) {
-                revert SablierV2Pro__SegmentMilestonesNotOrdered(index, previousMilestone, currentMilestone);
+                revert Errors.SablierV2Pro__SegmentMilestonesNotOrdered(index, previousMilestone, currentMilestone);
             }
 
             // Check that the exponent is not out of bounds.
             exponent = segmentExponents[index];
             if (exponent.gt(MAX_EXPONENT)) {
-                revert SablierV2Pro__SegmentExponentOutOfBounds(exponent);
+                revert Errors.SablierV2Pro__SegmentExponentOutOfBounds(exponent);
             }
 
             // Make the current milestone the previous milestone of the next iteration.
@@ -371,7 +375,7 @@ contract SablierV2Pro is
 
         // Check that the deposit amount is equal to the segment amounts sum.
         if (depositAmount != segmentAmountsSum) {
-            revert SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(depositAmount, segmentAmountsSum);
+            revert Errors.SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(depositAmount, segmentAmountsSum);
         }
     }
 
@@ -391,7 +395,7 @@ contract SablierV2Pro is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _cancel(uint256 streamId) internal override isAuthorizedForStream(streamId) {
-        Stream memory stream = _streams[streamId];
+        DataTypes.ProStream memory stream = _streams[streamId];
 
         // Calculate the withdraw and the return amounts.
         uint256 withdrawAmount = getWithdrawableAmount(streamId);
@@ -419,7 +423,7 @@ contract SablierV2Pro is
         }
 
         // Emit an event.
-        emit Cancel(streamId, recipient, withdrawAmount, returnAmount);
+        emit Events.Cancel(streamId, recipient, withdrawAmount, returnAmount);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -448,7 +452,7 @@ contract SablierV2Pro is
 
         // Effects: create the stream.
         streamId = nextStreamId;
-        _streams[streamId] = Stream({
+        _streams[streamId] = DataTypes.ProStream({
             cancelable: cancelable,
             depositAmount: depositAmount,
             segmentAmounts: segmentAmounts,
@@ -473,7 +477,7 @@ contract SablierV2Pro is
         token.safeTransferFrom(msg.sender, address(this), depositAmount);
 
         // Emit an event.
-        emit CreateStream(
+        emit Events.CreateProStream(
             streamId,
             msg.sender,
             sender,
@@ -495,7 +499,7 @@ contract SablierV2Pro is
         _streams[streamId].cancelable = false;
 
         // Emit an event.
-        emit Renounce(streamId);
+        emit Events.Renounce(streamId);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -506,13 +510,13 @@ contract SablierV2Pro is
     ) internal override {
         // Checks: the amount must not be zero.
         if (amount == 0) {
-            revert SablierV2__WithdrawAmountZero(streamId);
+            revert Errors.SablierV2__WithdrawAmountZero(streamId);
         }
 
         // Checks: the amount must not be greater than the withdrawable amount.
         uint256 withdrawableAmount = getWithdrawableAmount(streamId);
         if (amount > withdrawableAmount) {
-            revert SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);
+            revert Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);
         }
 
         // Effects: update the withdrawn amount.
@@ -521,7 +525,7 @@ contract SablierV2Pro is
         }
 
         // Load the stream in memory, we will need it below.
-        Stream memory stream = _streams[streamId];
+        DataTypes.ProStream memory stream = _streams[streamId];
 
         // Effects: if this stream is done, delete it from storage and burn the NFT.
         if (stream.depositAmount == stream.withdrawnAmount) {
@@ -533,6 +537,6 @@ contract SablierV2Pro is
         stream.token.safeTransfer(to, amount);
 
         // Emit an event.
-        emit Withdraw(streamId, to, amount);
+        emit Events.Withdraw(streamId, to, amount);
     }
 }
