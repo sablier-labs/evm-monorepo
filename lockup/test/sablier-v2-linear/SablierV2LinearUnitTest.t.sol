@@ -8,7 +8,6 @@ import { SablierV2Linear } from "@sablier/v2-core/SablierV2Linear.sol";
 import { SablierV2UnitTest } from "../SablierV2UnitTest.t.sol";
 
 /// @title SablierV2LinearUnitTest
-/// @author Sablier Labs Ltd.
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
 abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {

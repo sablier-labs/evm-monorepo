@@ -5,8 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 
 /// @title DataTypes
-/// @author Sablier Labs Ltd.
-/// @notice Library with data types used across the core.
+/// @notice Library with data types used across the core contracts.
 library DataTypes {
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS

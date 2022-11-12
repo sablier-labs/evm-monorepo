@@ -5,7 +5,6 @@ import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title ISablierV2
 /// @notice The common interface between all Sablier V2 streaming contracts.
-/// @author Sablier Labs Ltd.
 interface ISablierV2 is IERC721 {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS

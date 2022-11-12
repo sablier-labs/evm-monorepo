@@ -6,8 +6,8 @@ import { Errors } from "./libraries/Errors.sol";
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 
 /// @title SablierV2
-/// @author Sablier Labs Ltd.
-/// @notice Abstract contract implementing common logic.
+/// @notice
+/// @dev Abstract contract implementing common logic. Implements the ISablierV2 interface.
 abstract contract SablierV2 is ISablierV2 {
     /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE

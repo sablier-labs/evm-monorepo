@@ -8,7 +8,7 @@ import { DataTypes } from "../libraries/DataTypes.sol";
 import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Linear
-/// @author Sablier Labs Ltd
+///  Sablier Labs Ltd
 /// @notice Creates streams whose streaming function is $f(x) = x$ after a cliff period, where x is the
 /// elapsed time divided by the total duration of the stream.
 interface ISablierV2Linear is ISablierV2 {

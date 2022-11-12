@@ -10,7 +10,6 @@ import { StdCheats, StdUtils } from "forge-std/Components.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @title SablierV2UnitTest
-/// @author Sablier Labs Ltd.
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
 abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {

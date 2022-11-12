@@ -15,7 +15,7 @@ import { ISablierV2Pro } from "./interfaces/ISablierV2Pro.sol";
 import { SablierV2 } from "./SablierV2.sol";
 
 /// @title SablierV2Pro
-/// @author Sablier Labs Ltd.
+/// @dev This contract implements the ISablierV2Pro interface.
 contract SablierV2Pro is
     ISablierV2Pro, // one dependency
     SablierV2, // two dependencies

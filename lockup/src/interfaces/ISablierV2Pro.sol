@@ -9,7 +9,6 @@ import { DataTypes } from "../libraries/DataTypes.sol";
 import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Pro
-/// @author Sablier Labs Ltd
 /// @notice Creates streams with custom emission curves.
 interface ISablierV2Pro is ISablierV2 {
     /*//////////////////////////////////////////////////////////////////////////

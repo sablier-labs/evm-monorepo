@@ -9,7 +9,6 @@ import { SablierV2Pro } from "@sablier/v2-core/SablierV2Pro.sol";
 import { SablierV2UnitTest } from "../SablierV2UnitTest.t.sol";
 
 /// @title SablierV2ProUnitTest
-/// @author Sablier Labs Ltd.
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
 abstract contract SablierV2ProUnitTest is SablierV2UnitTest {
