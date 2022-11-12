@@ -9,9 +9,9 @@ import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC
 import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 import { stdError } from "forge-std/StdError.sol";
 
-import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
+import { SablierV2ProBaseTest } from "../SablierV2ProBaseTest.t.sol";
 
-contract SablierV2Pro__Create is SablierV2ProUnitTest {
+contract Create__Tests is SablierV2ProBaseTest {
     /// @dev it should revert.
     function testCannotCreate__RecipientZeroAddress() external {
         vm.expectRevert(Errors.SablierV2__RecipientZeroAddress.selector);

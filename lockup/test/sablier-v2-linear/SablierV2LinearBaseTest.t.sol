@@ -5,12 +5,12 @@ import { DataTypes } from "@sablier/v2-core/libraries/DataTypes.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SablierV2Linear } from "@sablier/v2-core/SablierV2Linear.sol";
 
-import { SablierV2UnitTest } from "../SablierV2UnitTest.t.sol";
+import { SablierV2BaseTest } from "../SablierV2BaseTest.t.sol";
 
-/// @title SablierV2LinearUnitTest
+/// @title SablierV2LinearBaseTest
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
-abstract contract SablierV2LinearUnitTest is SablierV2UnitTest {
+abstract contract SablierV2LinearBaseTest is SablierV2BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/

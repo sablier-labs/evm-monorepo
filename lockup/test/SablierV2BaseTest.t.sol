@@ -9,10 +9,10 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { StdCheats, StdUtils } from "forge-std/Components.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-/// @title SablierV2UnitTest
+/// @title SablierV2BaseTest
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
-abstract contract SablierV2UnitTest is PRBTest, StdCheats, StdUtils {
+abstract contract SablierV2BaseTest is PRBTest, StdCheats, StdUtils {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/

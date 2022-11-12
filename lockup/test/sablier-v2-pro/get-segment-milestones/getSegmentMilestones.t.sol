@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SablierV2ProUnitTest } from "../SablierV2ProUnitTest.t.sol";
+import { SablierV2ProBaseTest } from "../SablierV2ProBaseTest.t.sol";
 
-contract SablierV2Pro__GetSegmentMilestones is SablierV2ProUnitTest {
+contract GetSegmentMilestones__Tests is SablierV2ProBaseTest {
     /// @dev it should return zero.
     function testGetSegmentMilestones__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

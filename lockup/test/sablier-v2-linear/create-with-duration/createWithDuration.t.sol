@@ -4,9 +4,9 @@ pragma solidity >=0.8.13;
 import { DataTypes } from "@sablier/v2-core/libraries/DataTypes.sol";
 import { Errors } from "@sablier/v2-core/libraries/Errors.sol";
 
-import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
+import { SablierV2LinearBaseTest } from "../SablierV2LinearBaseTest.t.sol";
 
-contract SablierV2Linear__CreateWithDuration is SablierV2LinearUnitTest {
+contract CreateWithDuration__Tests is SablierV2LinearBaseTest {
     /// @dev it should revert due to the start time being greater than the stop time.
     function testCannotCreateWithDuration__CliffDurationCalculationOverflows(uint64 cliffDuration) external {
         vm.assume(cliffDuration > UINT64_MAX - block.timestamp);

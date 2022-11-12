@@ -5,7 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
 import { SablierV2 } from "@sablier/v2-core/SablierV2.sol";
 
-import { SablierV2UnitTest } from "../SablierV2UnitTest.t.sol";
+import { SablierV2BaseTest } from "../SablierV2BaseTest.t.sol";
 
 contract AbstractSablierV2 is SablierV2 {
     constructor() SablierV2() {
@@ -162,10 +162,10 @@ contract AbstractSablierV2 is SablierV2 {
     }
 }
 
-/// @title AbstractSablierV2UnitTest
+/// @title AbstractSablierV2BaseTest
 /// @notice Common contract members needed across Sablier V2 test contracts.
 /// @dev Strictly for test purposes.
-abstract contract AbstractSablierV2UnitTest is SablierV2UnitTest {
+abstract contract AbstractSablierV2BaseTest is SablierV2BaseTest {
     AbstractSablierV2 internal abstractSablierV2 = new AbstractSablierV2();
 
     /// @dev A setup function invoked before each test case.

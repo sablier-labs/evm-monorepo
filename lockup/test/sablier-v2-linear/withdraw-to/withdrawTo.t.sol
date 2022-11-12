@@ -5,9 +5,9 @@ import { DataTypes } from "@sablier/v2-core/libraries/DataTypes.sol";
 import { Errors } from "@sablier/v2-core/libraries/Errors.sol";
 import { Events } from "@sablier/v2-core/libraries/Events.sol";
 
-import { SablierV2LinearUnitTest } from "../SablierV2LinearUnitTest.t.sol";
+import { SablierV2LinearBaseTest } from "../SablierV2LinearBaseTest.t.sol";
 
-contract SablierV2Linear__WithdrawTo is SablierV2LinearUnitTest {
+contract WithdrawTo__Tests is SablierV2LinearBaseTest {
     uint256 internal daiStreamId;
     address internal toAlice;
 
