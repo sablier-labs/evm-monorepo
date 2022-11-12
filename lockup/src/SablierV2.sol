@@ -219,35 +219,6 @@ abstract contract SablierV2 is ISablierV2 {
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks the basic requirements for the `create` function.
-    function _checkCreateArguments(
-        address sender,
-        address recipient,
-        uint256 depositAmount,
-        uint64 startTime,
-        uint64 stopTime
-    ) internal pure {
-        // Checks: the sender is not the zero address.
-        if (sender == address(0)) {
-            revert Errors.SablierV2__SenderZeroAddress();
-        }
-
-        // Checks: the recipient is not the zero address.
-        if (recipient == address(0)) {
-            revert Errors.SablierV2__RecipientZeroAddress();
-        }
-
-        // Checks: the deposit amount is not zero.
-        if (depositAmount == 0) {
-            revert Errors.SablierV2__DepositAmountZero();
-        }
-
-        // Checks: the start time is not greater than the stop time.
-        if (startTime > stopTime) {
-            revert Errors.SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
-        }
-    }
-
     /// @dev Checks whether the spender is authorized to interact with the stream.
     /// @param spender The spender to make the query for.
     /// @param streamId The id of the stream to make the query for.

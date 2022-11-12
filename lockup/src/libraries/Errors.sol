@@ -82,7 +82,7 @@ library Errors {
     error SablierV2Pro__SegmentExponentOutOfBounds(SD59x18 exponent);
 
     /// @notice Emitted when attempting to create a stream with segment milestones which are not ordered.
-    error SablierV2Pro__SegmentMilestonesNotOrdered(uint256 index, uint64 previousMilestonene, uint64 milestone);
+    error SablierV2Pro__SegmentMilestonesNotOrdered(uint256 index, uint64 previousMilestone, uint64 milestone);
 
     /// @notice Emitted when attempting to create a stream with the start time greater than the first segment milestone.
     error SablierV2Pro__StartTimeGreaterThanFirstMilestone(uint64 startTime, uint64 segmentMilestone);

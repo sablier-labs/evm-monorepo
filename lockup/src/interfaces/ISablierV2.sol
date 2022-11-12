@@ -65,7 +65,7 @@ interface ISablierV2 is IERC721 {
     ///
     /// @dev Emits a {Cancel} event.
     ///
-    /// Requiremenets:
+    /// Requirements:
     /// - `streamId` must point to an existent stream.
     /// - `msg.sender` must be the sender of the stream, an approved operator, or the owner of the
     /// NFT (also known as the recipient of the stream).
@@ -78,7 +78,7 @@ interface ISablierV2 is IERC721 {
     ///
     /// @dev Emits multiple {Cancel} events.
     ///
-    /// Requiremenets:
+    /// Requirements:
     /// - Each stream id in `streamIds` must point to an existent stream.
     /// - `msg.sender` must be the sender of the stream, an approved operator, or the owner of the
     /// NFT (also known as the recipient of the stream) of every stream.
@@ -95,7 +95,7 @@ interface ISablierV2 is IERC721 {
     ///
     /// @dev Emits a {Renounce} event.
     ///
-    /// Requiremenets:
+    /// Requirements:
     /// - `streamId` must point to an existent stream.
     /// - `msg.sender` must be the sender.
     /// - The stream must not be already non-cancelable.
