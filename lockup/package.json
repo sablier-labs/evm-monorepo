@@ -1,10 +1,10 @@
 {
   "name": "@sablier/v2-core",
-  "description": "Core smart contracts for the Sablier V2 token streaming protocol",
+  "description": "Core smart contracts for the Sablier V2 cryptoasset streaming protocol",
   "version": "1.0.0",
   "author": {
     "name": "Sablier Labs Ltd.",
-    "url": "https://sablier.finance"
+    "url": "https://sablier.com"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.2.3",
