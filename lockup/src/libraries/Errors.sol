@@ -21,9 +21,6 @@ library Errors {
     /// @notice Emitted when attempting to create a stream with the sender as the zero address.
     error SablierV2__SenderZeroAddress();
 
-    /// @notice Emitted when attempting to create a stream with the start time greater than the stop time.
-    error SablierV2__StartTimeGreaterThanStopTime(uint64 startTime, uint64 stopTime);
-
     /// @notice Emitted when attempting to cancel a stream that is already non-cancelable.
     error SablierV2__StreamNonCancelable(uint256 streamId);
 

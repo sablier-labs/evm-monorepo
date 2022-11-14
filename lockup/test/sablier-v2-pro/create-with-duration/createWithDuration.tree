@@ -6,8 +6,6 @@ createWithDuration.t.sol
    │  └── it should revert
    └── when the segment deltas count are equal
       ├── when the segment milestone calculations overflow uint256
-      │  ├── when the start time is greater than the calculated stop time
-      │  │  └── it should revert
       │  ├── when the start time is greater than the calculated first segment milestone
       │  │  └── it should revert
       │  └── when the segment milestones are not ordered

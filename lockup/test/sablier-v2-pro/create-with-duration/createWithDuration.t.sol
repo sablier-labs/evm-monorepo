@@ -70,35 +70,6 @@ contract CreateWithDuration__Tests is SablierV2ProBaseTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithDuration__StartTimeGreaterThanCalculatedStopTime()
-        external
-        LoopCalculationDoesNotOverflowBlockGasLimit
-        SegmentDeltaEqual
-        MilestonesCalculationOverflows
-    {
-        uint64 startTime = uint64(block.timestamp);
-        uint64[] memory segmentDeltas = createDynamicUint64Array(uint64(1), UINT64_MAX - startTime);
-        uint64 stopTime = 0;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2__StartTimeGreaterThanStopTime.selector,
-                daiStream.startTime,
-                stopTime
-            )
-        );
-        sablierV2Pro.createWithDuration(
-            daiStream.sender,
-            users.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            daiStream.segmentAmounts,
-            daiStream.segmentExponents,
-            segmentDeltas,
-            daiStream.cancelable
-        );
-    }
-
-    /// @dev it should revert.
     function testCannotCreateWithDuration__StartTimeGreaterThanCalculatedFirstMilestone()
         external
         LoopCalculationDoesNotOverflowBlockGasLimit

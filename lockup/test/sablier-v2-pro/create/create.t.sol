@@ -174,81 +174,6 @@ contract Create__Tests is SablierV2ProBaseTest {
         _;
     }
 
-    /// @dev it should revert.
-    function testCannotCreate__StartTimeGreaterThanFirstMilestone()
-        external
-        RecipientNonZeroAddress
-        DepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountWithinBounds
-        SegmentCountsEqual
-    {
-        uint64 startTime = daiStream.segmentMilestones[0] + 1;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2Pro__StartTimeGreaterThanFirstMilestone.selector,
-                startTime,
-                daiStream.segmentMilestones[0]
-            )
-        );
-        sablierV2Pro.create(
-            daiStream.sender,
-            users.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            startTime,
-            daiStream.segmentAmounts,
-            daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
-        );
-    }
-
-    /// @dev it should create the stream.
-    function testCreate__StartTimeEqualToStopTime()
-        external
-        RecipientNonZeroAddress
-        DepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountWithinBounds
-        SegmentCountsEqual
-    {
-        uint256 depositAmount = SEGMENT_AMOUNTS_DAI[0];
-        uint256[] memory segmentAmounts = createDynamicArray(SEGMENT_AMOUNTS_DAI[0]);
-        SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
-        uint64[] memory segmentMilestones = createDynamicUint64Array(daiStream.stopTime);
-
-        uint256 daiStreamId = sablierV2Pro.create(
-            daiStream.sender,
-            users.recipient,
-            depositAmount,
-            daiStream.token,
-            daiStream.startTime,
-            segmentAmounts,
-            segmentExponents,
-            segmentMilestones,
-            daiStream.cancelable
-        );
-
-        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
-        assertEq(actualStream.sender, daiStream.sender);
-        assertEq(actualStream.depositAmount, depositAmount);
-        assertEq(actualStream.token, daiStream.token);
-        assertEq(actualStream.startTime, daiStream.startTime);
-        assertEq(actualStream.segmentAmounts, segmentAmounts);
-        assertEq(actualStream.segmentExponents, segmentExponents);
-        assertEqUint64Array(actualStream.segmentMilestones, segmentMilestones);
-        assertEq(actualStream.cancelable, daiStream.cancelable);
-        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
-
-        address actualRecipient = sablierV2Pro.getRecipient(daiStreamId);
-        assertEq(actualRecipient, users.recipient);
-    }
-
-    modifier StartTimeLessThanStopTime() {
-        _;
-    }
-
     /// @dev When the segment amounts sum overflows, it should revert.
     function testCannotCreate__SegmentAmountsSumOverflows()
         external
@@ -257,7 +182,6 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
     {
         uint256[] memory segmentAmounts = createDynamicArray(UINT256_MAX, 1);
         vm.expectRevert(stdError.arithmeticError);
@@ -286,7 +210,6 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
     {
         uint64[] memory segmentMilestones = createDynamicUint64Array(SEGMENT_MILESTONES[1], SEGMENT_MILESTONES[0]);
@@ -323,7 +246,6 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
     {
@@ -350,14 +272,13 @@ contract Create__Tests is SablierV2ProBaseTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreate__DepositAmountNotEqualtoSegmentAmountsSum()
+    function testCannotCreate__DepositAmountNotEqualToSegmentAmountsSum()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
@@ -383,7 +304,7 @@ contract Create__Tests is SablierV2ProBaseTest {
         );
     }
 
-    modifier DepositAmountEqualtoSegmentAmountsSum() {
+    modifier DepositAmountEqualToSegmentAmountsSum() {
         _;
     }
 
@@ -395,11 +316,10 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
-        DepositAmountEqualtoSegmentAmountsSum
+        DepositAmountEqualToSegmentAmountsSum
     {
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(6174)));
         IERC20 token = IERC20(address(6174));
@@ -428,11 +348,10 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
-        DepositAmountEqualtoSegmentAmountsSum
+        DepositAmountEqualToSegmentAmountsSum
         TokenContract
     {
         IERC20 token = IERC20(address(nonCompliantToken));
@@ -474,11 +393,10 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
-        DepositAmountEqualtoSegmentAmountsSum
+        DepositAmountEqualToSegmentAmountsSum
         TokenContract
         TokenCompliant
     {
@@ -496,11 +414,10 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
-        DepositAmountEqualtoSegmentAmountsSum
+        DepositAmountEqualToSegmentAmountsSum
         TokenContract
         TokenCompliant
     {
@@ -519,11 +436,10 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
-        DepositAmountEqualtoSegmentAmountsSum
+        DepositAmountEqualToSegmentAmountsSum
         TokenContract
         TokenCompliant
     {
@@ -555,11 +471,10 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
-        DepositAmountEqualtoSegmentAmountsSum
+        DepositAmountEqualToSegmentAmountsSum
         TokenContract
         TokenCompliant
     {
@@ -581,11 +496,10 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
-        DepositAmountEqualtoSegmentAmountsSum
+        DepositAmountEqualToSegmentAmountsSum
         TokenContract
         TokenCompliant
     {
@@ -635,11 +549,10 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
-        DepositAmountEqualtoSegmentAmountsSum
+        DepositAmountEqualToSegmentAmountsSum
         TokenContract
         TokenCompliant
     {
@@ -657,11 +570,10 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
-        DepositAmountEqualtoSegmentAmountsSum
+        DepositAmountEqualToSegmentAmountsSum
         TokenContract
         TokenCompliant
     {
@@ -680,11 +592,10 @@ contract Create__Tests is SablierV2ProBaseTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
         SegmentCountsEqual
-        StartTimeLessThanStopTime
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
-        DepositAmountEqualtoSegmentAmountsSum
+        DepositAmountEqualToSegmentAmountsSum
         TokenContract
         TokenCompliant
     {

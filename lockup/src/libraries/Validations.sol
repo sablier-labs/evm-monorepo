@@ -22,7 +22,7 @@ library Validations {
         uint64 stopTime
     ) internal pure {
         // Checks: the common requirements for the `create` function arguments.
-        _checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
+        _checkCreateArguments(sender, recipient, depositAmount);
 
         // Checks: the cliff time is greater than or equal to the start time.
         if (startTime > cliffTime) {
@@ -65,7 +65,7 @@ library Validations {
         }
 
         // Checks: the common requirements for the `create` function arguments.
-        _checkCreateArguments(sender, recipient, depositAmount, startTime, stopTime);
+        _checkCreateArguments(sender, recipient, depositAmount);
 
         // Checks: requirements of segments variables.
         _checkSegments(
@@ -87,9 +87,7 @@ library Validations {
     function _checkCreateArguments(
         address sender,
         address recipient,
-        uint256 depositAmount,
-        uint64 startTime,
-        uint64 stopTime
+        uint256 depositAmount
     ) private pure {
         // Checks: the sender is not the zero address.
         if (sender == address(0)) {
@@ -104,11 +102,6 @@ library Validations {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierV2__DepositAmountZero();
-        }
-
-        // Checks: the start time is not greater than the stop time.
-        if (startTime > stopTime) {
-            revert Errors.SablierV2__StartTimeGreaterThanStopTime(startTime, stopTime);
         }
     }
 
@@ -126,7 +119,7 @@ library Validations {
         SD59x18 maxExponent,
         uint256 segmentCount
     ) private pure {
-        // Check that The first milestone is greater than or equal to the start time.
+        // Check that the first milestone is greater than or equal to the start time.
         if (startTime > segmentMilestones[0]) {
             revert Errors.SablierV2Pro__StartTimeGreaterThanFirstMilestone(startTime, segmentMilestones[0]);
         }

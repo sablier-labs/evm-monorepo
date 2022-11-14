@@ -51,64 +51,7 @@ contract Create__Tests is SablierV2LinearBaseTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreate__StartTimeGreaterThanStopTime() external RecipientNonZeroAddress DepositAmountNotZero {
-        uint64 startTime = daiStream.stopTime;
-        uint64 stopTime = daiStream.startTime;
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__StartTimeGreaterThanStopTime.selector, startTime, stopTime)
-        );
-        sablierV2Linear.create(
-            daiStream.sender,
-            users.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            startTime,
-            daiStream.cliffTime,
-            stopTime,
-            daiStream.cancelable
-        );
-    }
-
-    /// @dev it should create the stream.
-    function testCreate__StartTimeEqualToStopTime() external RecipientNonZeroAddress DepositAmountNotZero {
-        uint64 cliffTime = daiStream.startTime;
-        uint64 stopTime = daiStream.startTime;
-        uint256 daiStreamId = sablierV2Linear.create(
-            daiStream.sender,
-            users.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            daiStream.startTime,
-            cliffTime,
-            stopTime,
-            daiStream.cancelable
-        );
-
-        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
-        assertEq(actualStream.sender, daiStream.sender);
-        assertEq(actualStream.depositAmount, daiStream.depositAmount);
-        assertEq(actualStream.token, daiStream.token);
-        assertEq(actualStream.startTime, daiStream.startTime);
-        assertEq(actualStream.cliffTime, cliffTime);
-        assertEq(actualStream.stopTime, stopTime);
-        assertEq(actualStream.cancelable, daiStream.cancelable);
-        assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
-
-        address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        assertEq(actualRecipient, users.recipient);
-    }
-
-    modifier StartTimeLessThanStopTime() {
-        _;
-    }
-
-    /// @dev it should revert.
-    function testCannotCreate__StartTimeGreaterThanCliffTime()
-        external
-        RecipientNonZeroAddress
-        DepositAmountNotZero
-        StartTimeLessThanStopTime
-    {
+    function testCannotCreate__StartTimeGreaterThanCliffTime() external RecipientNonZeroAddress DepositAmountNotZero {
         uint64 startTime = daiStream.cliffTime;
         uint64 cliffTime = daiStream.startTime;
         vm.expectRevert(
@@ -127,12 +70,7 @@ contract Create__Tests is SablierV2LinearBaseTest {
     }
 
     /// @dev it should create the stream.
-    function testCannotCreate__StartTimeEqualToCliffTime()
-        external
-        RecipientNonZeroAddress
-        DepositAmountNotZero
-        StartTimeLessThanStopTime
-    {
+    function testCannotCreate__StartTimeEqualToCliffTime() external RecipientNonZeroAddress DepositAmountNotZero {
         uint64 cliffTime = daiStream.startTime;
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
@@ -168,7 +106,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
     {
         uint64 cliffTime = daiStream.stopTime;
@@ -193,7 +130,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
     {
         uint64 cliffTime = daiStream.stopTime;
@@ -231,7 +167,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
     {
@@ -258,7 +193,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
         TokenContract
@@ -299,7 +233,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
         TokenContract
@@ -316,7 +249,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
         TokenContract
@@ -334,7 +266,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
         TokenContract
@@ -363,7 +294,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
         TokenContract
@@ -384,7 +314,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
         TokenContract
@@ -407,7 +336,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
         TokenContract
@@ -440,7 +368,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
         TokenContract
@@ -456,7 +383,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
         TokenContract
@@ -474,7 +400,6 @@ contract Create__Tests is SablierV2LinearBaseTest {
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
-        StartTimeLessThanStopTime
         StartTimeLessThanCliffTime
         CliffLessThanStopTime
         TokenContract

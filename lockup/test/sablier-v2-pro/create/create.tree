@@ -17,39 +17,34 @@ create.t.sol
             │  └── when the segment milestones are not equal
             │     └── it should revert
             └── when the segment counts are equal
-               ├── when the start time is greater than the stop time
+               ├── when the segment amounts sum overflows
                │  └── it should revert
-               ├── when the start time is equal to the stop time
-               │  └── it should create the stream
-               └── when the start time is less than the stop time
-                  ├── when the segment amounts sum overflows
+               └── when the segment amounts sum does not overflow
+                  ├── when the segment milestones are not ordered
                   │  └── it should revert
-                  └── when the segment amounts sum does not overflow
-                     ├── when the segment milestones are not ordered
+                  └── when the segment milestones are ordered
+                     ├── when a segment exponent is out of bounds
                      │  └── it should revert
-                     └── when the segment milestones are ordered
-                        ├── when a segment exponent is out of bounds
+                     └── when all segments exponents are within the permitted bounds
+                        ├── when the deposit amount is not equal to the segment amounts sum
                         │  └── it should revert
-                        └── when all segments exponents are within the permitted bounds
-                           ├── when the deposit amount is not equal to the segment amounts sum
+                        └── when the deposit amount is equal to the segment amounts sum
+                           ├── when the token is not a contract
                            │  └── it should revert
-                           └── when the deposit amount is equal to the segment amounts sum
-                              ├── when the token is not a contract
-                              │  └── it should revert
-                              └── when the token is a contract
-                                 ├── when the token misses the return value
-                                 │  └── it should create the stream
-                                 └── when the token is ERC-20 compliant
-                                    ├── when the token has 6 decimals
+                           └── when the token is a contract
+                              ├── when the token misses the return value
+                              │  └── it should create the stream
+                              └── when the token is ERC-20 compliant
+                                 ├── when the token has 6 decimals
+                                 │  ├── it should create the stream
+                                 │  ├── it should bump the next stream id
+                                 │  └── it should emit a CreateProStream event
+                                 └── when the token has 18 decimals
+                                    ├── when the caller is not the same as the sender of the stream
                                     │  ├── it should create the stream
                                     │  ├── it should bump the next stream id
                                     │  └── it should emit a CreateProStream event
-                                    └── when the token has 18 decimals
-                                       ├── when the caller is not the same as the sender of the stream
-                                       │  ├── it should create the stream
-                                       │  ├── it should bump the next stream id
-                                       │  └── it should emit a CreateProStream event
-                                       └── when the caller is the same as the sender of the stream
-                                          ├── it should create the stream
-                                          ├── it should bump the next stream id
-                                          └── it should emit a CreateProStream event
+                                    └── when the caller is the same as the sender of the stream
+                                       ├── it should create the stream
+                                       ├── it should bump the next stream id
+                                       └── it should emit a CreateProStream event

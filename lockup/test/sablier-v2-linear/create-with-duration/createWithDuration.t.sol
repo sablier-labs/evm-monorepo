@@ -7,7 +7,7 @@ import { Errors } from "@sablier/v2-core/libraries/Errors.sol";
 import { SablierV2LinearBaseTest } from "../SablierV2LinearBaseTest.t.sol";
 
 contract CreateWithDuration__Tests is SablierV2LinearBaseTest {
-    /// @dev it should revert due to the start time being greater than the stop time.
+    /// @dev it should revert due to the start time being greater than the cliff time.
     function testCannotCreateWithDuration__CliffDurationCalculationOverflows(uint64 cliffDuration) external {
         vm.assume(cliffDuration > UINT64_MAX - block.timestamp);
         uint64 totalDuration = cliffDuration;
@@ -18,7 +18,11 @@ contract CreateWithDuration__Tests is SablierV2LinearBaseTest {
             stopTime = cliffTime;
         }
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__StartTimeGreaterThanStopTime.selector, block.timestamp, stopTime)
+            abi.encodeWithSelector(
+                Errors.SablierV2Linear__StartTimeGreaterThanCliffTime.selector,
+                uint64(block.timestamp),
+                stopTime
+            )
         );
         sablierV2Linear.createWithDuration(
             daiStream.sender,
@@ -40,14 +44,17 @@ contract CreateWithDuration__Tests is SablierV2LinearBaseTest {
         external
         CliffDurationCalculationDoesNotOverflow
     {
-        vm.assume(cliffDuration <= UINT64_MAX - block.timestamp);
-        vm.assume(totalDuration > UINT64_MAX - block.timestamp);
+        uint64 startTime = uint64(block.timestamp);
+        vm.assume(cliffDuration <= UINT64_MAX - startTime);
+        vm.assume(totalDuration > UINT64_MAX - startTime);
+        uint64 cliffTime;
         uint64 stopTime;
         unchecked {
-            stopTime = uint64(block.timestamp) + totalDuration;
+            cliffTime = startTime + cliffDuration;
+            stopTime = startTime + totalDuration;
         }
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__StartTimeGreaterThanStopTime.selector, block.timestamp, stopTime)
+            abi.encodeWithSelector(Errors.SablierV2Linear__CliffTimeGreaterThanStopTime.selector, cliffTime, stopTime)
         );
         sablierV2Linear.createWithDuration(
             daiStream.sender,
