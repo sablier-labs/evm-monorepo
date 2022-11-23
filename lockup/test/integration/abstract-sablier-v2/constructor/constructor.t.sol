@@ -5,6 +5,8 @@ import { AbstractSablierV2Test } from "../AbstractSablierV2Test.t.sol";
 
 contract AbstractSablierV2__Test is AbstractSablierV2Test {
     function testConstructor() external {
-        assertEq(abstractSablierV2.nextStreamId(), 1);
+        uint256 actualStreamId = abstractSablierV2.nextStreamId();
+        uint256 expectedStreamId = 1;
+        assertEq(actualStreamId, expectedStreamId);
     }
 }

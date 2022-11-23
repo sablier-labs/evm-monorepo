@@ -132,6 +132,7 @@ abstract contract CreateTest is E2eTest {
         assertEq(actualStreamId, expectedStreamId);
         assertEq(sablierV2Pro.nextStreamId(), expectedStreamId + 1);
         assertEq(sablierV2Pro.getStream(actualStreamId), expectedStream);
+        assertEq(sablierV2Pro.getRecipient(actualStreamId), recipient);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
