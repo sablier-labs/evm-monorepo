@@ -2,6 +2,7 @@
 
 [profile.default]
 auto_detect_solc = false
+fork_block_number = 16_034_000
 fuzz = { runs = 256 }
 libs = ["lib"]
 gas_reports = ["*"]
@@ -11,9 +12,10 @@ out = "out"
 sender = "0x9aF2E2B7e57c1CD7C68C5C3796d8ea67e0018dB7"
 solc = "0.8.17"
 src = "src"
-test = "test"
+test = "test/integration"
 tx_origin = "0x9aF2E2B7e57c1CD7C68C5C3796d8ea67e0018dB7"
 
 [profile.ci]
 fuzz = { runs = 1_000 }
+test = "test"
 verbosity = 4
