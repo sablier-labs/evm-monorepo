@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { DataTypes } from "@sablier/v2-core/libraries/DataTypes.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { StdCheats, StdUtils } from "forge-std/Components.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
+
+import { DataTypes } from "src/libraries/DataTypes.sol";
 
 abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
     /*//////////////////////////////////////////////////////////////////////////

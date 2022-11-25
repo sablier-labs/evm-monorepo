@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { DataTypes } from "@sablier/v2-core/libraries/DataTypes.sol";
-import { Errors } from "@sablier/v2-core/libraries/Errors.sol";
-import { Events } from "@sablier/v2-core/libraries/Events.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 import { stdError } from "forge-std/StdError.sol";
+
+import { DataTypes } from "src/libraries/DataTypes.sol";
+import { Errors } from "src/libraries/Errors.sol";
+import { Events } from "src/libraries/Events.sol";
 
 import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
 

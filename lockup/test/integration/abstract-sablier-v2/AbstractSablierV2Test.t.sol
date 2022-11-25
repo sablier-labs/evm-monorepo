@@ -2,8 +2,8 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { ISablierV2 } from "@sablier/v2-core/interfaces/ISablierV2.sol";
-import { SablierV2 } from "@sablier/v2-core/SablierV2.sol";
+import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
+import { SablierV2 } from "src/SablierV2.sol";
 
 import { AbstractSablierV2 } from "./AbstractSablierV2.t.sol";
 import { IntegrationTest } from "../IntegrationTest.t.sol";

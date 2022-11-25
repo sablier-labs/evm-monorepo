@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { DataTypes } from "@sablier/v2-core/libraries/DataTypes.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
-import { SablierV2Pro } from "@sablier/v2-core/SablierV2Pro.sol";
+
+import { DataTypes } from "src/libraries/DataTypes.sol";
+import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 

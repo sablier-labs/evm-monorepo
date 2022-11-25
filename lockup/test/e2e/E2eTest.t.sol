@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SablierV2Linear } from "@sablier/v2-core/SablierV2Linear.sol";
-import { SablierV2Pro } from "@sablier/v2-core/SablierV2Pro.sol";
+import { SablierV2Linear } from "src/SablierV2Linear.sol";
+import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
 import { BaseTest } from "../BaseTest.t.sol";
 

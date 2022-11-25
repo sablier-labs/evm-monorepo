@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SablierV2 } from "@sablier/v2-core/SablierV2.sol";
+import { SablierV2 } from "src/SablierV2.sol";
 
 contract AbstractSablierV2 is SablierV2 {
     constructor() SablierV2() {
