@@ -5,7 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
 import { CreateTest } from "../CreateTest.t.sol";
 
-/// @dev A token which does not return a boolean on interactions functions.
+/// @dev A token that has the missing return value bug.
 contract USDT__Test is CreateTest {
     USDT internal usdt = USDT(0xdAC17F958D2ee523a2206206994597C13D831ec7);
 

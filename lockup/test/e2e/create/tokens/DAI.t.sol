@@ -5,7 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
 import { CreateTest } from "../CreateTest.t.sol";
 
-/// @dev A classic 18 decimals token with a normal total supply.
+/// @dev A typical 18-decimal token with a normal total supply.
 contract DAI__Test is CreateTest {
     function setUp() public override {
         super.setUp();
