@@ -29,7 +29,7 @@
     "solidity"
   ],
   "license": "LGPL-3.0",
-  "packageManager": "yarn@3.2.0",
+  "packageManager": "yarn@3.3.0",
   "private": true,
   "scripts": {
     "lint": "yarn solhint && yarn prettier:check",
