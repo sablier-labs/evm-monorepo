@@ -35,8 +35,8 @@
     "lint": "yarn solhint && yarn prettier:check",
     "lint:check": "yarn prettier:check && yarn solhint:check",
     "postinstall": "husky install",
-    "prettier": "prettier --config \"./.prettierrc.yml\" --write \"**/*.{json,md,sol,yml}\"",
-    "prettier:check": "prettier --config \"./.prettierrc.yml\" --check \"**/*.{json,md,sol,yml}\"",
+    "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
+    "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",
     "solhint": "solhint --config ./.solhint.json \"{src,test}/**/*.sol\""
   }
 }
