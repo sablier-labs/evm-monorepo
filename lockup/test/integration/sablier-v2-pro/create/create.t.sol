@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
 import { stdError } from "forge-std/StdError.sol";
@@ -323,7 +322,7 @@ contract Create__Test is SablierV2ProTest {
         DepositAmountEqualToSegmentAmountsSum
     {
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(6174)));
-        IERC20 token = IERC20(address(6174));
+        address token = address(6174);
         sablierV2Pro.create(
             daiStream.sender,
             users.recipient,
@@ -355,7 +354,7 @@ contract Create__Test is SablierV2ProTest {
         DepositAmountEqualToSegmentAmountsSum
         TokenContract
     {
-        IERC20 token = IERC20(address(nonCompliantToken));
+        address token = address(nonCompliantToken);
 
         uint256 daiStreamId = sablierV2Pro.create(
             daiStream.sender,
@@ -372,7 +371,7 @@ contract Create__Test is SablierV2ProTest {
         DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
-        assertEq(address(actualStream.token), address(nonCompliantToken));
+        assertEq(actualStream.token, address(nonCompliantToken));
         assertEq(actualStream.startTime, daiStream.startTime);
         assertEq(actualStream.stopTime, daiStream.stopTime);
         assertEq(actualStream.cancelable, daiStream.cancelable);

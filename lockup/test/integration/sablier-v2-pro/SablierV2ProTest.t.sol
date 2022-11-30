@@ -50,7 +50,7 @@ abstract contract SablierV2ProTest is IntegrationTest {
             sender: users.sender,
             startTime: START_TIME,
             stopTime: SEGMENT_MILESTONES[1],
-            token: dai,
+            token: address(dai),
             withdrawnAmount: 0
         });
         usdcStream = DataTypes.ProStream({
@@ -62,7 +62,7 @@ abstract contract SablierV2ProTest is IntegrationTest {
             sender: users.sender,
             startTime: START_TIME,
             stopTime: SEGMENT_MILESTONES[1],
-            token: usdc,
+            token: address(usdc),
             withdrawnAmount: 0
         });
 

@@ -43,7 +43,7 @@ abstract contract CreateTest is E2eTest {
         vm.assume(sender != address(0));
         vm.assume(recipient != address(0));
         vm.assume(depositAmount > 0);
-        vm.assume(depositAmount <= token().balanceOf(holder()));
+        vm.assume(depositAmount <= IERC20(token()).balanceOf(holder()));
         vm.assume(startTime <= cliffTime && cliffTime <= stopTime);
 
         // Pull the next stream id.
@@ -92,7 +92,7 @@ abstract contract CreateTest is E2eTest {
         vm.assume(sender != address(0));
         vm.assume(recipient != address(0));
         vm.assume(depositAmount > 0);
-        vm.assume(depositAmount <= token().balanceOf(holder()));
+        vm.assume(depositAmount <= IERC20(token()).balanceOf(holder()));
         vm.assume(startTime > 0); // needed for the segments to be ordered
         vm.assume(startTime <= stopTime);
 
@@ -142,13 +142,13 @@ abstract contract CreateTest is E2eTest {
 
     /// @dev Helper function to approve the Sablier V2 contracts to spend tokens.
     function approveSablierV2() internal {
-        token().approve(address(sablierV2Linear), UINT256_MAX);
-        token().approve(address(sablierV2Pro), UINT256_MAX);
+        IERC20(token()).approve(address(sablierV2Linear), UINT256_MAX);
+        IERC20(token()).approve(address(sablierV2Pro), UINT256_MAX);
     }
 
     /// @dev Helper function to return the token holder's address.
     function holder() internal pure virtual returns (address);
 
     /// @dev Helper function to return the token address.
-    function token() internal pure virtual returns (IERC20);
+    function token() internal pure virtual returns (address);
 }

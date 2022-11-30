@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
@@ -172,7 +171,7 @@ contract Create__Test is SablierV2LinearTest {
         CliffLessThanStopTime
     {
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(6174)));
-        IERC20 token = IERC20(address(6174));
+        address token = address(6174);
         sablierV2Linear.create(
             daiStream.sender,
             users.recipient,
@@ -198,7 +197,7 @@ contract Create__Test is SablierV2LinearTest {
         CliffLessThanStopTime
         TokenContract
     {
-        IERC20 token = IERC20(address(nonCompliantToken));
+        address token = address(nonCompliantToken);
 
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
@@ -214,7 +213,7 @@ contract Create__Test is SablierV2LinearTest {
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
-        assertEq(address(actualStream.token), address(nonCompliantToken));
+        assertEq(actualStream.token, address(nonCompliantToken));
         assertEq(actualStream.startTime, daiStream.startTime);
         assertEq(actualStream.cliffTime, daiStream.cliffTime);
         assertEq(actualStream.stopTime, daiStream.stopTime);

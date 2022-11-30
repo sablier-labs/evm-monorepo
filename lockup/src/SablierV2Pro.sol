@@ -223,7 +223,7 @@ contract SablierV2Pro is
         address sender,
         address recipient,
         uint256 depositAmount,
-        IERC20 token,
+        address token,
         uint64 startTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
@@ -249,7 +249,7 @@ contract SablierV2Pro is
         address sender,
         address recipient,
         uint256 depositAmount,
-        IERC20 token,
+        address token,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
         uint64[] memory segmentDeltas,
@@ -322,12 +322,12 @@ contract SablierV2Pro is
 
         // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
-            stream.token.safeTransfer(recipient, withdrawAmount);
+            IERC20(stream.token).safeTransfer(recipient, withdrawAmount);
         }
 
         // Interactions: return the tokens to the sender, if any.
         if (returnAmount > 0) {
-            stream.token.safeTransfer(stream.sender, returnAmount);
+            IERC20(stream.token).safeTransfer(stream.sender, returnAmount);
         }
 
         // Emit an event.
@@ -339,7 +339,7 @@ contract SablierV2Pro is
         address sender,
         address recipient,
         uint256 depositAmount,
-        IERC20 token,
+        address token,
         uint64 startTime,
         uint256[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
@@ -390,7 +390,7 @@ contract SablierV2Pro is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        token.safeTransferFrom(msg.sender, address(this), depositAmount);
+        IERC20(token).safeTransferFrom(msg.sender, address(this), depositAmount);
 
         // Emit an event.
         emit Events.CreateProStream(
@@ -450,7 +450,7 @@ contract SablierV2Pro is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        stream.token.safeTransfer(to, amount);
+        IERC20(stream.token).safeTransfer(to, amount);
 
         // Emit an event.
         emit Events.Withdraw(streamId, to, amount);

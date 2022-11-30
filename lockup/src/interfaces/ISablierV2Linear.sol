@@ -56,7 +56,7 @@ interface ISablierV2Linear is ISablierV2 {
         address sender,
         address recipient,
         uint256 depositAmount,
-        IERC20 token,
+        address token,
         uint64 startTime,
         uint64 cliffTime,
         uint64 stopTime,
@@ -84,7 +84,7 @@ interface ISablierV2Linear is ISablierV2 {
         address sender,
         address recipient,
         uint256 depositAmount,
-        IERC20 token,
+        address token,
         uint64 cliffDuration,
         uint64 totalDuration,
         bool cancelable

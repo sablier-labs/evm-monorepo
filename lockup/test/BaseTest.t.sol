@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { StdCheats, StdUtils } from "forge-std/Components.sol";
@@ -41,11 +40,6 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Helper function to compare two `IERC20` addresses.
-    function assertEq(IERC20 a, IERC20 b) internal {
-        assertEq(address(a), address(b));
-    }
 
     /// @dev Helper function to compare two `LinearStream` structs.
     function assertEq(DataTypes.LinearStream memory a, DataTypes.LinearStream memory b) internal {

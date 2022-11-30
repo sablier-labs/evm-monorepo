@@ -44,7 +44,7 @@ abstract contract SablierV2LinearTest is IntegrationTest {
             sender: users.sender,
             startTime: START_TIME,
             stopTime: STOP_TIME,
-            token: dai,
+            token: address(dai),
             withdrawnAmount: 0
         });
         usdcStream = DataTypes.LinearStream({
@@ -54,7 +54,7 @@ abstract contract SablierV2LinearTest is IntegrationTest {
             sender: users.sender,
             startTime: START_TIME,
             stopTime: STOP_TIME,
-            token: usdc,
+            token: address(usdc),
             withdrawnAmount: 0
         });
 

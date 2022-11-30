@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-
 import { CreateTest } from "../CreateTest.t.sol";
 
 /// @dev A typical 18-decimal token with a normal total supply.
@@ -18,7 +16,7 @@ contract DAI__Test is CreateTest {
         return 0x66F62574ab04989737228D18C3624f7FC1edAe14;
     }
 
-    function token() internal pure override returns (IERC20) {
-        return IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    function token() internal pure override returns (address) {
+        return 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     }
 }

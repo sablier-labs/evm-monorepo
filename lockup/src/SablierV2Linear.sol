@@ -146,7 +146,7 @@ contract SablierV2Linear is
         address sender,
         address recipient,
         uint256 depositAmount,
-        IERC20 token,
+        address token,
         uint64 startTime,
         uint64 cliffTime,
         uint64 stopTime,
@@ -161,7 +161,7 @@ contract SablierV2Linear is
         address sender,
         address recipient,
         uint256 depositAmount,
-        IERC20 token,
+        address token,
         uint64 cliffDuration,
         uint64 totalDuration,
         bool cancelable
@@ -220,12 +220,12 @@ contract SablierV2Linear is
 
         // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
-            stream.token.safeTransfer(recipient, withdrawAmount);
+            IERC20(stream.token).safeTransfer(recipient, withdrawAmount);
         }
 
         // Interactions: return the tokens to the sender, if any.
         if (returnAmount > 0) {
-            stream.token.safeTransfer(stream.sender, returnAmount);
+            IERC20(stream.token).safeTransfer(stream.sender, returnAmount);
         }
 
         // Emit an event.
@@ -237,7 +237,7 @@ contract SablierV2Linear is
         address sender,
         address recipient,
         uint256 depositAmount,
-        IERC20 token,
+        address token,
         uint64 startTime,
         uint64 cliffTime,
         uint64 stopTime,
@@ -269,7 +269,7 @@ contract SablierV2Linear is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        token.safeTransferFrom(msg.sender, address(this), depositAmount);
+        IERC20(token).safeTransferFrom(msg.sender, address(this), depositAmount);
 
         // Emit an event.
         emit Events.CreateLinearStream(
@@ -327,7 +327,7 @@ contract SablierV2Linear is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        stream.token.safeTransfer(to, amount);
+        IERC20(stream.token).safeTransfer(to, amount);
 
         // Emit an event.
         emit Events.Withdraw(streamId, to, amount);
