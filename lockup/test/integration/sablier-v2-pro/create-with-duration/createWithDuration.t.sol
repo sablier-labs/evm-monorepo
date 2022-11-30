@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
+import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -112,7 +112,7 @@ contract CreateWithDuration__Test is SablierV2ProTest {
     {
         uint64 startTime = uint64(block.timestamp);
         uint256[] memory segmentAmounts = createDynamicArray(0, SEGMENT_AMOUNTS_DAI[0], SEGMENT_AMOUNTS_DAI[1]);
-        SD59x18[] memory segmentExponents = createDynamicArray(SCALE, SEGMENT_EXPONENTS[0], SEGMENT_EXPONENTS[1]);
+        SD59x18[] memory segmentExponents = createDynamicArray(sd(1e18), SEGMENT_EXPONENTS[0], SEGMENT_EXPONENTS[1]);
         uint64[] memory segmentDeltas = createDynamicUint64Array(uint64(1), UINT64_MAX, 1);
         uint64[] memory segmentMilestones = new uint64[](3);
         unchecked {

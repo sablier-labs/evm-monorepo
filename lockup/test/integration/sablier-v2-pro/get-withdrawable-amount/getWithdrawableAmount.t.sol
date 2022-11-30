@@ -123,7 +123,7 @@ contract GetWithdrawableAmount__Test is SablierV2ProTest {
 
         vm.warp(usdcStream.startTime + 2_000 seconds); // 2,000 seconds is 20% of the stream duration.
         uint256 actualWithdrawableAmount = sablierV2Pro.getWithdrawableAmount(daiStreamId);
-        uint256 expectedWithdrawableAmount = 4472.135955e6; // ~10,000*0.2^{0.5}
+        uint256 expectedWithdrawableAmount = 4472.135954e6; // ~10,000*0.2^{0.5}
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 

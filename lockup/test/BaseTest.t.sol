@@ -24,20 +24,6 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
     uint256 internal constant UINT256_MAX = type(uint256).max;
 
     /*//////////////////////////////////////////////////////////////////////////
-                             INTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Helper function to convert an int256 number to type `SD59x18`.
-    function sd59x18(int256 number) internal pure returns (SD59x18 result) {
-        result = SD59x18.wrap(number);
-    }
-
-    /// @dev Helper function to convert a uint256 number to type `UD60x18`.
-    function ud60x18(uint256 number) internal pure returns (UD60x18 result) {
-        result = UD60x18.wrap(number);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 

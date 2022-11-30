@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SD59x18 } from "@prb/math/SD59x18.sol";
+import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 
@@ -13,7 +13,7 @@ abstract contract CreateTest is E2eTest {
                                        STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    SD59x18[] internal segmentExponents = createDynamicArray(sd59x18(3.14e18));
+    SD59x18[] internal segmentExponents = [sd(3.14e18)];
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION

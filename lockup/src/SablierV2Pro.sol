@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
-import { SCALE, SD59x18, toSD59x18, ZERO } from "@prb/math/SD59x18.sol";
+import { SD59x18, toSD59x18 } from "@prb/math/SD59x18.sol";
 
 import { DataTypes } from "./libraries/DataTypes.sol";
 import { Errors } from "./libraries/Errors.sol";

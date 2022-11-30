@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
-import { SCALE, SD59x18 } from "@prb/math/SD59x18.sol";
+import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 import { stdError } from "forge-std/StdError.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
@@ -249,7 +249,7 @@ contract Create__Test is SablierV2ProTest {
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
     {
-        SD59x18 outOfBoundsExponent = sablierV2Pro.MAX_EXPONENT().uncheckedAdd(SCALE);
+        SD59x18 outOfBoundsExponent = sablierV2Pro.MAX_EXPONENT().uncheckedAdd(sd(1e18));
         SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0], outOfBoundsExponent);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Pro__SegmentExponentOutOfBounds.selector, outOfBoundsExponent)
