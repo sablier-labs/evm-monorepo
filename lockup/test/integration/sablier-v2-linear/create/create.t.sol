@@ -33,7 +33,7 @@ contract Create__Test is SablierV2LinearTest {
     /// @dev it should revert.
     function testCannotCreate__DepositAmountZero() external RecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2__DepositAmountZero.selector);
-        uint256 depositAmount = 0;
+        uint128 depositAmount = 0;
         sablierV2Linear.create(
             daiStream.sender,
             users.recipient,
@@ -52,8 +52,8 @@ contract Create__Test is SablierV2LinearTest {
 
     /// @dev it should revert.
     function testCannotCreate__StartTimeGreaterThanCliffTime() external RecipientNonZeroAddress DepositAmountNotZero {
-        uint64 startTime = daiStream.cliffTime;
-        uint64 cliffTime = daiStream.startTime;
+        uint40 startTime = daiStream.cliffTime;
+        uint40 cliffTime = daiStream.startTime;
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Linear__StartTimeGreaterThanCliffTime.selector, startTime, cliffTime)
         );
@@ -71,7 +71,7 @@ contract Create__Test is SablierV2LinearTest {
 
     /// @dev it should create the stream.
     function testCannotCreate__StartTimeEqualToCliffTime() external RecipientNonZeroAddress DepositAmountNotZero {
-        uint64 cliffTime = daiStream.startTime;
+        uint40 cliffTime = daiStream.startTime;
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
             users.recipient,
@@ -108,8 +108,8 @@ contract Create__Test is SablierV2LinearTest {
         DepositAmountNotZero
         StartTimeLessThanCliffTime
     {
-        uint64 cliffTime = daiStream.stopTime;
-        uint64 stopTime = daiStream.cliffTime;
+        uint40 cliffTime = daiStream.stopTime;
+        uint40 stopTime = daiStream.cliffTime;
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Linear__CliffTimeGreaterThanStopTime.selector, cliffTime, stopTime)
         );
@@ -132,7 +132,7 @@ contract Create__Test is SablierV2LinearTest {
         DepositAmountNotZero
         StartTimeLessThanCliffTime
     {
-        uint64 cliffTime = daiStream.stopTime;
+        uint40 cliffTime = daiStream.stopTime;
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
             users.recipient,

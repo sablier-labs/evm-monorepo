@@ -18,7 +18,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Reads the segment amounts used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
     /// @return segmentAmounts The segment amounts used to composde the custom emission curve.
-    function getSegmentAmounts(uint256 streamId) external view returns (uint256[] memory segmentAmounts);
+    function getSegmentAmounts(uint256 streamId) external view returns (uint128[] memory segmentAmounts);
 
     /// @notice Reads the segment exponents used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
@@ -28,7 +28,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// @notice Reads the segment milestones used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
     /// @return segmentMilestones The segment milestones used to composde the custom emission curve.
-    function getSegmentMilestones(uint256 streamId) external view returns (uint64[] memory segmentMilestones);
+    function getSegmentMilestones(uint256 streamId) external view returns (uint40[] memory segmentMilestones);
 
     /// @notice Reads the stream struct.
     /// @param streamId The id of the stream to make the query for.
@@ -71,12 +71,12 @@ interface ISablierV2Pro is ISablierV2 {
     function create(
         address sender,
         address recipient,
-        uint256 depositAmount,
+        uint128 depositAmount,
         address token,
-        uint64 startTime,
-        uint256[] memory segmentAmounts,
+        uint40 startTime,
+        uint128[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint64[] memory segmentMilestones,
+        uint40[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId);
 
@@ -101,11 +101,11 @@ interface ISablierV2Pro is ISablierV2 {
     function createWithDuration(
         address sender,
         address recipient,
-        uint256 depositAmount,
+        uint128 depositAmount,
         address token,
-        uint256[] memory segmentAmounts,
+        uint128[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint64[] memory segmentDeltas,
+        uint40[] memory segmentDeltas,
         bool cancelable
     ) external returns (uint256 streamId);
 }

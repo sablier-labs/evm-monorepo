@@ -54,7 +54,7 @@ contract SablierV2Pro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
-    function getDepositAmount(uint256 streamId) external view override returns (uint256 depositAmount) {
+    function getDepositAmount(uint256 streamId) external view override returns (uint128 depositAmount) {
         depositAmount = _streams[streamId].depositAmount;
     }
 
@@ -64,14 +64,14 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2
-    function getReturnableAmount(uint256 streamId) external view returns (uint256 returnableAmount) {
+    function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount) {
         // If the stream does not exist, return zero.
         if (_streams[streamId].sender == address(0)) {
             return 0;
         }
 
         unchecked {
-            uint256 withdrawableAmount = getWithdrawableAmount(streamId);
+            uint128 withdrawableAmount = getWithdrawableAmount(streamId);
             returnableAmount =
                 _streams[streamId].depositAmount -
                 _streams[streamId].withdrawnAmount -
@@ -85,7 +85,7 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2Pro
-    function getSegmentAmounts(uint256 streamId) external view override returns (uint256[] memory segmentAmounts) {
+    function getSegmentAmounts(uint256 streamId) external view override returns (uint128[] memory segmentAmounts) {
         segmentAmounts = _streams[streamId].segmentAmounts;
     }
 
@@ -95,17 +95,17 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2Pro
-    function getSegmentMilestones(uint256 streamId) external view override returns (uint64[] memory segmentMilestones) {
+    function getSegmentMilestones(uint256 streamId) external view override returns (uint40[] memory segmentMilestones) {
         segmentMilestones = _streams[streamId].segmentMilestones;
     }
 
     /// @inheritdoc ISablierV2
-    function getStartTime(uint256 streamId) external view override returns (uint64 startTime) {
+    function getStartTime(uint256 streamId) external view override returns (uint40 startTime) {
         startTime = _streams[streamId].startTime;
     }
 
     /// @inheritdoc ISablierV2
-    function getStopTime(uint256 streamId) external view override returns (uint64 stopTime) {
+    function getStopTime(uint256 streamId) external view override returns (uint40 stopTime) {
         stopTime = _streams[streamId].stopTime;
     }
 
@@ -115,14 +115,14 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2
-    function getWithdrawableAmount(uint256 streamId) public view returns (uint256 withdrawableAmount) {
+    function getWithdrawableAmount(uint256 streamId) public view returns (uint128 withdrawableAmount) {
         // If the stream does not exist, return zero.
         if (_streams[streamId].sender == address(0)) {
             return 0;
         }
 
         // If the start time is greater than or equal to the block timestamp, return zero.
-        uint64 currentTime = uint64(block.timestamp);
+        uint40 currentTime = uint40(block.timestamp);
 
         if (_streams[streamId].startTime >= currentTime) {
             return 0;
@@ -140,14 +140,14 @@ contract SablierV2Pro is
             SD59x18 currentSegmentExponent;
             SD59x18 elapsedSegmentTime;
             SD59x18 totalSegmentTime;
-            uint256 previousSegmentAmounts;
+            uint128 previousSegmentAmounts;
 
             // If there's more than one segment, we have to iterate over all of them.
             uint256 segmentCount = _streams[streamId].segmentAmounts.length;
             if (segmentCount > 1) {
                 // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
                 // amount such that we avoid adding an if statement in the while loop.
-                uint64 currentSegmentMilestone = _streams[streamId].segmentMilestones[0];
+                uint40 currentSegmentMilestone = _streams[streamId].segmentMilestones[0];
                 uint256 index = 1;
                 while (currentSegmentMilestone < currentTime) {
                     previousSegmentAmounts += _streams[streamId].segmentAmounts[index - 1];
@@ -157,14 +157,14 @@ contract SablierV2Pro is
 
                 // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
                 // is found at `index - 2`.
-                currentSegmentAmount = SD59x18.wrap(int256(_streams[streamId].segmentAmounts[index - 1]));
+                currentSegmentAmount = SD59x18.wrap(int256(uint256(_streams[streamId].segmentAmounts[index - 1])));
                 currentSegmentExponent = _streams[streamId].segmentExponents[index - 1];
                 currentSegmentMilestone = _streams[streamId].segmentMilestones[index - 1];
 
                 // If the current segment is at an index that is >= 2, take the difference between the current segment
                 // milestone and the previous segment milestone.
                 if (index > 1) {
-                    uint64 previousSegmentMilestone = _streams[streamId].segmentMilestones[index - 2];
+                    uint40 previousSegmentMilestone = _streams[streamId].segmentMilestones[index - 2];
                     elapsedSegmentTime = toSD59x18(int256(uint256(currentTime - previousSegmentMilestone)));
 
                     // Calculate the time between the current segment milestone and the previous segment milestone.
@@ -181,11 +181,11 @@ contract SablierV2Pro is
             }
             // Otherwise, if there's only one segment, we use the start time of the stream in the calculations.
             else {
-                currentSegmentAmount = SD59x18.wrap(int256(_streams[streamId].segmentAmounts[0]));
+                currentSegmentAmount = SD59x18.wrap(int256(uint256(_streams[streamId].segmentAmounts[0])));
                 currentSegmentExponent = _streams[streamId].segmentExponents[0];
                 elapsedSegmentTime = toSD59x18(int256(uint256(currentTime - _streams[streamId].startTime)));
                 totalSegmentTime = toSD59x18(
-                    int256(uint256(_streams[streamId].stopTime) - _streams[streamId].startTime)
+                    int256(uint256(_streams[streamId].stopTime - _streams[streamId].startTime))
                 );
             }
 
@@ -193,14 +193,14 @@ contract SablierV2Pro is
             SD59x18 elapsedTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
             SD59x18 multiplier = elapsedTimePercentage.pow(currentSegmentExponent);
             SD59x18 proRataAmount = multiplier.mul(currentSegmentAmount);
-            SD59x18 streamedAmount = SD59x18.wrap(int256(previousSegmentAmounts)).add(proRataAmount);
-            SD59x18 withdrawnAmount = SD59x18.wrap(int256(_streams[streamId].withdrawnAmount));
-            withdrawableAmount = uint256(SD59x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount)));
+            SD59x18 streamedAmount = SD59x18.wrap(int256(uint256(previousSegmentAmounts))).add(proRataAmount);
+            SD59x18 withdrawnAmount = SD59x18.wrap(int256(uint256(_streams[streamId].withdrawnAmount)));
+            withdrawableAmount = uint128(uint256(SD59x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount))));
         }
     }
 
     /// @inheritdoc ISablierV2
-    function getWithdrawnAmount(uint256 streamId) external view override returns (uint256 withdrawnAmount) {
+    function getWithdrawnAmount(uint256 streamId) external view override returns (uint128 withdrawnAmount) {
         withdrawnAmount = _streams[streamId].withdrawnAmount;
     }
 
@@ -222,12 +222,12 @@ contract SablierV2Pro is
     function create(
         address sender,
         address recipient,
-        uint256 depositAmount,
+        uint128 depositAmount,
         address token,
-        uint64 startTime,
-        uint256[] memory segmentAmounts,
+        uint40 startTime,
+        uint128[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint64[] memory segmentMilestones,
+        uint40[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
@@ -248,19 +248,19 @@ contract SablierV2Pro is
     function createWithDuration(
         address sender,
         address recipient,
-        uint256 depositAmount,
+        uint128 depositAmount,
         address token,
-        uint256[] memory segmentAmounts,
+        uint128[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint64[] memory segmentDeltas,
+        uint40[] memory segmentDeltas,
         bool cancelable
     ) external override returns (uint256 streamId) {
-        uint64 startTime = uint64(block.timestamp);
+        uint40 startTime = uint40(block.timestamp);
         uint256 deltaCount = segmentDeltas.length;
 
         // Calculate the segment milestones. It is fine to use unchecked arithmetic because the `_create`
         // function will nonetheless check the segments.
-        uint64[] memory segmentMilestones = new uint64[](deltaCount);
+        uint40[] memory segmentMilestones = new uint40[](deltaCount);
         unchecked {
             segmentMilestones[0] = startTime + segmentDeltas[0];
             for (uint256 i = 1; i < deltaCount; ) {
@@ -306,8 +306,8 @@ contract SablierV2Pro is
         DataTypes.ProStream memory stream = _streams[streamId];
 
         // Calculate the withdraw and the return amounts.
-        uint256 withdrawAmount = getWithdrawableAmount(streamId);
-        uint256 returnAmount;
+        uint128 withdrawAmount = getWithdrawableAmount(streamId);
+        uint128 returnAmount;
         unchecked {
             returnAmount = stream.depositAmount - stream.withdrawnAmount - withdrawAmount;
         }
@@ -338,12 +338,12 @@ contract SablierV2Pro is
     function _create(
         address sender,
         address recipient,
-        uint256 depositAmount,
+        uint128 depositAmount,
         address token,
-        uint64 startTime,
-        uint256[] memory segmentAmounts,
+        uint40 startTime,
+        uint128[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint64[] memory segmentMilestones,
+        uint40[] memory segmentMilestones,
         bool cancelable
     ) internal returns (uint256 streamId) {
         // Checks: the arguments of the function.
@@ -361,7 +361,7 @@ contract SablierV2Pro is
 
         // We can use any count because they are all equal to each other.
         uint256 segmentCount = segmentAmounts.length;
-        uint64 stopTime;
+        uint40 stopTime;
         unchecked {
             stopTime = segmentMilestones[segmentCount - 1];
         }
@@ -422,7 +422,7 @@ contract SablierV2Pro is
     function _withdraw(
         uint256 streamId,
         address to,
-        uint256 amount
+        uint128 amount
     ) internal override {
         // Checks: the amount is not zero.
         if (amount == 0) {
@@ -430,7 +430,7 @@ contract SablierV2Pro is
         }
 
         // Checks: the amount is not greater than what can be withdrawn.
-        uint256 withdrawableAmount = getWithdrawableAmount(streamId);
+        uint128 withdrawableAmount = getWithdrawableAmount(streamId);
         if (amount > withdrawableAmount) {
             revert Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);
         }

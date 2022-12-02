@@ -16,9 +16,9 @@ abstract contract SablierV2LinearTest is IntegrationTest {
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint64 internal constant TIME_OFFSET = 2_600 seconds;
-    uint256 internal immutable WITHDRAW_AMOUNT_DAI = 2_600e18;
-    uint256 internal immutable WITHDRAW_AMOUNT_USDC = 2_600e6;
+    uint40 internal constant TIME_OFFSET = 2_600 seconds;
+    uint128 internal immutable WITHDRAW_AMOUNT_DAI = 2_600e18;
+    uint128 internal immutable WITHDRAW_AMOUNT_USDC = 2_600e6;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   TESTING VARIABLES

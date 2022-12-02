@@ -36,7 +36,7 @@ contract Create__Test is SablierV2ProTest {
     /// @dev it should revert.
     function testCannotCreate__DepositAmountZero() external RecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2__DepositAmountZero.selector);
-        uint256 depositAmount = 0;
+        uint128 depositAmount = 0;
         sablierV2Pro.create(
             daiStream.sender,
             users.recipient,
@@ -57,9 +57,9 @@ contract Create__Test is SablierV2ProTest {
     /// @dev it should revert.
     function testCannotCreate__SegmentCountZero() external RecipientNonZeroAddress DepositAmountNotZero {
         vm.expectRevert(Errors.SablierV2Pro__SegmentCountZero.selector);
-        uint256[] memory segmentAmounts;
+        uint128[] memory segmentAmounts;
         SD59x18[] memory segmentExponents;
-        uint64[] memory segmentMilestones;
+        uint40[] memory segmentMilestones;
         sablierV2Pro.create(
             daiStream.sender,
             users.recipient,
@@ -86,8 +86,8 @@ contract Create__Test is SablierV2ProTest {
     {
         uint256 segmentCount = sablierV2Pro.MAX_SEGMENT_COUNT() + 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Pro__SegmentCountOutOfBounds.selector, segmentCount));
-        uint256[] memory segmentAmounts = new uint256[](segmentCount);
-        for (uint256 i = 0; i < segmentCount; ) {
+        uint128[] memory segmentAmounts = new uint128[](segmentCount);
+        for (uint128 i = 0; i < segmentCount; ) {
             segmentAmounts[i] = i;
             unchecked {
                 i += 1;
@@ -148,7 +148,7 @@ contract Create__Test is SablierV2ProTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
     {
-        uint64[] memory segmentMilestones = createDynamicUint64Array(SEGMENT_MILESTONES[0]);
+        uint40[] memory segmentMilestones = createDynamicUint40Array(SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2Pro__SegmentCountsNotEqual.selector,
@@ -183,7 +183,7 @@ contract Create__Test is SablierV2ProTest {
         SegmentCountWithinBounds
         SegmentCountsEqual
     {
-        uint256[] memory segmentAmounts = createDynamicArray(UINT256_MAX, 1);
+        uint128[] memory segmentAmounts = createDynamicUint128Array(UINT128_MAX, 1);
         vm.expectRevert(stdError.arithmeticError);
         sablierV2Pro.create(
             daiStream.sender,
@@ -212,7 +212,7 @@ contract Create__Test is SablierV2ProTest {
         SegmentCountsEqual
         SegmentAmountsSumDoesNotOverflow
     {
-        uint64[] memory segmentMilestones = createDynamicUint64Array(SEGMENT_MILESTONES[1], SEGMENT_MILESTONES[0]);
+        uint40[] memory segmentMilestones = createDynamicUint40Array(SEGMENT_MILESTONES[1], SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2Pro__SegmentMilestonesNotOrdered.selector,
@@ -283,7 +283,7 @@ contract Create__Test is SablierV2ProTest {
         SegmentMilestonesOrdered
         SegmentExponentsWithinBounds
     {
-        uint256 depositAmount = daiStream.depositAmount + 1;
+        uint128 depositAmount = daiStream.depositAmount + 1;
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum.selector,

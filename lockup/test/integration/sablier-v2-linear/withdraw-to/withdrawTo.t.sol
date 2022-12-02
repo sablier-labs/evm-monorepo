@@ -29,7 +29,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
     function testCannotWithdrawTo__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonExistent.selector, nonStreamId));
-        uint256 withdrawAmount = 0;
+        uint128 withdrawAmount = 0;
         sablierV2Linear.withdrawTo(nonStreamId, toAlice, withdrawAmount);
     }
 
@@ -41,7 +41,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
     function testCannotWithdrawTo__ToZeroAddress() external StreamExistent {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__WithdrawZeroAddress.selector));
         address toZero = address(0);
-        uint256 withdrawAmount = 0;
+        uint128 withdrawAmount = 0;
         sablierV2Linear.withdrawTo(daiStreamId, toZero, withdrawAmount);
     }
 
@@ -56,7 +56,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.sender));
-        uint256 withdrawAmount = 0;
+        uint128 withdrawAmount = 0;
         sablierV2Linear.withdrawTo(daiStreamId, toAlice, withdrawAmount);
     }
 
@@ -67,7 +67,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
-        uint256 withdrawAmount = 0;
+        uint128 withdrawAmount = 0;
         sablierV2Linear.withdrawTo(daiStreamId, toAlice, withdrawAmount);
     }
 
@@ -89,8 +89,8 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         // Run the test.
         sablierV2Linear.withdrawTo(daiStreamId, toAlice, WITHDRAW_AMOUNT_DAI);
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
-        uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
-        uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
+        uint128 actualWithdrawnAmount = actualStream.withdrawnAmount;
+        uint128 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
@@ -128,7 +128,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         OriginalRecipient
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__WithdrawAmountZero.selector, daiStreamId));
-        uint256 withdrawAmountZero = 0;
+        uint128 withdrawAmountZero = 0;
         sablierV2Linear.withdrawTo(daiStreamId, toAlice, withdrawAmountZero);
     }
 
@@ -146,17 +146,17 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         OriginalRecipient
         WithdrawAmountNotZero
     {
-        uint256 withdrawAmountMaxUint256 = UINT256_MAX;
-        uint256 withdrawableAmount = 0;
+        uint128 withdrawAmountMaxUint128 = UINT128_MAX;
+        uint128 withdrawableAmount = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount.selector,
                 daiStreamId,
-                withdrawAmountMaxUint256,
+                withdrawAmountMaxUint128,
                 withdrawableAmount
             )
         );
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, withdrawAmountMaxUint256);
+        sablierV2Linear.withdrawTo(daiStreamId, toAlice, withdrawAmountMaxUint128);
     }
 
     modifier WithdrawAmountLessThanOrEqualToWithdrawableAmount() {
@@ -180,8 +180,8 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         // Run the test.
         sablierV2Linear.withdrawTo(daiStreamId, users.recipient, WITHDRAW_AMOUNT_DAI);
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
-        uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
-        uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
+        uint128 actualWithdrawnAmount = actualStream.withdrawnAmount;
+        uint128 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
@@ -254,8 +254,8 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         // Run the test.
         sablierV2Linear.withdrawTo(daiStreamId, toAlice, WITHDRAW_AMOUNT_DAI);
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
-        uint256 actualWithdrawnAmount = actualStream.withdrawnAmount;
-        uint256 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
+        uint128 actualWithdrawnAmount = actualStream.withdrawnAmount;
+        uint128 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 

@@ -16,10 +16,10 @@ library Validations {
     function checkCreateLinearArgs(
         address sender,
         address recipient,
-        uint256 depositAmount,
-        uint64 startTime,
-        uint64 cliffTime,
-        uint64 stopTime
+        uint128 depositAmount,
+        uint40 startTime,
+        uint40 cliffTime,
+        uint40 stopTime
     ) internal pure {
         // Checks: the common requirements for the `create` function arguments.
         _checkCreateArguments(sender, recipient, depositAmount);
@@ -39,11 +39,11 @@ library Validations {
     function checkCreateProArgs(
         address sender,
         address recipient,
-        uint256 depositAmount,
-        uint64 startTime,
-        uint256[] memory segmentAmounts,
+        uint128 depositAmount,
+        uint40 startTime,
+        uint128[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint64[] memory segmentMilestones,
+        uint40[] memory segmentMilestones,
         SD59x18 maxExponent,
         uint256 maxSegmentCount
     ) internal pure {
@@ -59,7 +59,7 @@ library Validations {
         uint256 segmentCount = segmentAmounts.length;
 
         // Imply the stop time from the last segment milestone.
-        uint64 stopTime;
+        uint40 stopTime;
         unchecked {
             stopTime = segmentMilestones[segmentCount - 1];
         }
@@ -87,7 +87,7 @@ library Validations {
     function _checkCreateArguments(
         address sender,
         address recipient,
-        uint256 depositAmount
+        uint128 depositAmount
     ) private pure {
         // Checks: the sender is not the zero address.
         if (sender == address(0)) {
@@ -111,11 +111,11 @@ library Validations {
     /// 3. The exponents are within the bounds permitted in Sablier.
     /// 4. The deposit amount is equal to the segment amounts summed up.
     function _checkSegments(
-        uint256 depositAmount,
-        uint64 startTime,
-        uint256[] memory segmentAmounts,
+        uint128 depositAmount,
+        uint40 startTime,
+        uint128[] memory segmentAmounts,
         SD59x18[] memory segmentExponents,
-        uint64[] memory segmentMilestones,
+        uint40[] memory segmentMilestones,
         SD59x18 maxExponent,
         uint256 segmentCount
     ) private pure {
@@ -125,10 +125,10 @@ library Validations {
         }
 
         // Define the variables needed in the for loop below.
-        uint64 currentMilestone;
+        uint40 currentMilestone;
         SD59x18 exponent;
-        uint64 previousMilestone;
-        uint256 segmentAmountsSum;
+        uint40 previousMilestone;
+        uint128 segmentAmountsSum;
 
         // Iterate over the amounts, the exponents and the milestones.
         uint256 index;

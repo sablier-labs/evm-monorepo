@@ -13,14 +13,17 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    event LogNamedArray(string key, uint64[] value);
+    event LogNamedArray(string key, uint40[] value);
+
+    event LogNamedArray(string key, uint128[] value);
 
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 internal constant MAX_SEGMENT_COUNT = 200;
-    uint64 internal constant UINT64_MAX = type(uint64).max;
+    uint40 internal constant UINT40_MAX = type(uint40).max;
+    uint128 internal constant UINT128_MAX = type(uint128).max;
     uint256 internal constant UINT256_MAX = type(uint256).max;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -30,27 +33,27 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
     /// @dev Helper function to compare two `LinearStream` structs.
     function assertEq(DataTypes.LinearStream memory a, DataTypes.LinearStream memory b) internal {
         assertEq(a.cancelable, b.cancelable);
-        assertEq(a.depositAmount, b.depositAmount);
+        assertEq(uint256(a.depositAmount), uint256(b.depositAmount));
         assertEq(a.sender, b.sender);
         assertEq(uint256(a.startTime), uint256(b.startTime));
         assertEq(uint256(a.cliffTime), uint256(b.cliffTime));
         assertEq(uint256(a.stopTime), uint256(b.stopTime));
         assertEq(a.token, b.token);
-        assertEq(a.withdrawnAmount, b.withdrawnAmount);
+        assertEq(uint256(a.withdrawnAmount), uint256(b.withdrawnAmount));
     }
 
     /// @dev Helper function to compare two `ProStream` structs.
     function assertEq(DataTypes.ProStream memory a, DataTypes.ProStream memory b) internal {
         assertEq(a.cancelable, b.cancelable);
-        assertEq(a.depositAmount, b.depositAmount);
+        assertEq(uint256(a.depositAmount), uint256(b.depositAmount));
         assertEq(a.sender, b.sender);
         assertEq(uint256(a.startTime), uint256(b.startTime));
         assertEq(uint256(a.stopTime), uint256(b.stopTime));
-        assertEq(a.segmentAmounts, b.segmentAmounts);
+        assertEqUint128Array(a.segmentAmounts, b.segmentAmounts);
         assertEq(a.segmentExponents, b.segmentExponents);
-        assertEqUint64Array(a.segmentMilestones, b.segmentMilestones);
+        assertEqUint40Array(a.segmentMilestones, b.segmentMilestones);
         assertEq(a.token, b.token);
-        assertEq(a.withdrawnAmount, b.withdrawnAmount);
+        assertEq(uint256(a.withdrawnAmount), uint256(b.withdrawnAmount));
     }
 
     /// @dev Helper function to compare two SD59x18 arrays.
@@ -64,10 +67,20 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
         assertEq(castedA, castedB);
     }
 
-    /// @dev Helper function to compare two `uint64` arrays.
-    function assertEqUint64Array(uint64[] memory a, uint64[] memory b) internal {
+    /// @dev Helper function to compare two `uint40` arrays.
+    function assertEqUint40Array(uint40[] memory a, uint40[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit Log("Error: a == b not satisfied [uint64[]]");
+            emit Log("Error: a == b not satisfied [uint40[]]");
+            emit LogNamedArray("  Expected", b);
+            emit LogNamedArray("    Actual", a);
+            fail();
+        }
+    }
+
+    /// @dev Helper function to compare two `uint128` arrays.
+    function assertEqUint128Array(uint128[] memory a, uint128[] memory b) internal {
+        if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
+            emit Log("Error: a == b not satisfied [uint128[]]");
             emit LogNamedArray("  Expected", b);
             emit LogNamedArray("    Actual", a);
             fail();
@@ -132,30 +145,59 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
         dynamicalArray[2] = element2;
     }
 
-    /// @dev Helper function to create a dynamical `uint64` array with 1 element.
-    function createDynamicUint64Array(uint64 element0) internal pure returns (uint64[] memory dynamicalArray) {
-        dynamicalArray = new uint64[](1);
+    /// @dev Helper function to create a dynamical `uint40` array with 1 element.
+    function createDynamicUint40Array(uint40 element0) internal pure returns (uint40[] memory dynamicalArray) {
+        dynamicalArray = new uint40[](1);
         dynamicalArray[0] = element0;
     }
 
-    /// @dev Helper function to create a dynamical `uint64` array with 2 elements.
-    function createDynamicUint64Array(uint64 element0, uint64 element1)
+    /// @dev Helper function to create a dynamical `uint40` array with 2 elements.
+    function createDynamicUint40Array(uint40 element0, uint40 element1)
         internal
         pure
-        returns (uint64[] memory dynamicalArray)
+        returns (uint40[] memory dynamicalArray)
     {
-        dynamicalArray = new uint64[](2);
+        dynamicalArray = new uint40[](2);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
     }
 
-    /// @dev Helper function to create a dynamical `uint64` array with 3 elements.
-    function createDynamicUint64Array(
-        uint64 element0,
-        uint64 element1,
-        uint64 element2
-    ) internal pure returns (uint64[] memory dynamicalArray) {
-        dynamicalArray = new uint64[](3);
+    /// @dev Helper function to create a dynamical `uint40` array with 3 elements.
+    function createDynamicUint40Array(
+        uint40 element0,
+        uint40 element1,
+        uint40 element2
+    ) internal pure returns (uint40[] memory dynamicalArray) {
+        dynamicalArray = new uint40[](3);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+        dynamicalArray[2] = element2;
+    }
+
+    /// @dev Helper function to create a dynamical `uint128` array with 1 element.
+    function createDynamicUint128Array(uint128 element0) internal pure returns (uint128[] memory dynamicalArray) {
+        dynamicalArray = new uint128[](1);
+        dynamicalArray[0] = element0;
+    }
+
+    /// @dev Helper function to create a dynamical `uint128` array with 2 elements.
+    function createDynamicUint128Array(uint128 element0, uint128 element1)
+        internal
+        pure
+        returns (uint128[] memory dynamicalArray)
+    {
+        dynamicalArray = new uint128[](2);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+    }
+
+    /// @dev Helper function to create a dynamical `uint128` array with 3 elements.
+    function createDynamicUint128Array(
+        uint128 element0,
+        uint128 element1,
+        uint128 element2
+    ) internal pure returns (uint128[] memory dynamicalArray) {
+        dynamicalArray = new uint128[](3);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
         dynamicalArray[2] = element2;

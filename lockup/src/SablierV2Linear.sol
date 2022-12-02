@@ -36,12 +36,12 @@ contract SablierV2Linear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Linear
-    function getCliffTime(uint256 streamId) external view override returns (uint64 cliffTime) {
+    function getCliffTime(uint256 streamId) external view override returns (uint40 cliffTime) {
         cliffTime = _streams[streamId].cliffTime;
     }
 
     /// @inheritdoc ISablierV2
-    function getDepositAmount(uint256 streamId) external view override returns (uint256 depositAmount) {
+    function getDepositAmount(uint256 streamId) external view override returns (uint128 depositAmount) {
         depositAmount = _streams[streamId].depositAmount;
     }
 
@@ -51,14 +51,14 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2
-    function getReturnableAmount(uint256 streamId) external view returns (uint256 returnableAmount) {
+    function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount) {
         // If the stream does not exist, return zero.
         if (_streams[streamId].sender == address(0)) {
             return 0;
         }
 
         unchecked {
-            uint256 withdrawableAmount = getWithdrawableAmount(streamId);
+            uint128 withdrawableAmount = getWithdrawableAmount(streamId);
             returnableAmount =
                 _streams[streamId].depositAmount -
                 _streams[streamId].withdrawnAmount -
@@ -72,12 +72,12 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2
-    function getStartTime(uint256 streamId) external view override returns (uint64 startTime) {
+    function getStartTime(uint256 streamId) external view override returns (uint40 startTime) {
         startTime = _streams[streamId].startTime;
     }
 
     /// @inheritdoc ISablierV2
-    function getStopTime(uint256 streamId) external view override returns (uint64 stopTime) {
+    function getStopTime(uint256 streamId) external view override returns (uint40 stopTime) {
         stopTime = _streams[streamId].stopTime;
     }
 
@@ -87,7 +87,7 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2
-    function getWithdrawableAmount(uint256 streamId) public view returns (uint256 withdrawableAmount) {
+    function getWithdrawableAmount(uint256 streamId) public view returns (uint128 withdrawableAmount) {
         // If the stream does not exist, return zero.
         if (_streams[streamId].sender == address(0)) {
             return 0;
@@ -118,12 +118,12 @@ contract SablierV2Linear is
             UD60x18 depositAmount = UD60x18.wrap(_streams[streamId].depositAmount);
             UD60x18 streamedAmount = elapsedTimePercentage.mul(depositAmount);
             UD60x18 withdrawnAmount = UD60x18.wrap(_streams[streamId].withdrawnAmount);
-            withdrawableAmount = UD60x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount));
+            withdrawableAmount = uint128(UD60x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount)));
         }
     }
 
     /// @inheritdoc ISablierV2
-    function getWithdrawnAmount(uint256 streamId) external view override returns (uint256 withdrawnAmount) {
+    function getWithdrawnAmount(uint256 streamId) external view override returns (uint128 withdrawnAmount) {
         withdrawnAmount = _streams[streamId].withdrawnAmount;
     }
 
@@ -145,11 +145,11 @@ contract SablierV2Linear is
     function create(
         address sender,
         address recipient,
-        uint256 depositAmount,
+        uint128 depositAmount,
         address token,
-        uint64 startTime,
-        uint64 cliffTime,
-        uint64 stopTime,
+        uint40 startTime,
+        uint40 cliffTime,
+        uint40 stopTime,
         bool cancelable
     ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
@@ -160,18 +160,18 @@ contract SablierV2Linear is
     function createWithDuration(
         address sender,
         address recipient,
-        uint256 depositAmount,
+        uint128 depositAmount,
         address token,
-        uint64 cliffDuration,
-        uint64 totalDuration,
+        uint40 cliffDuration,
+        uint40 totalDuration,
         bool cancelable
     ) external returns (uint256 streamId) {
         // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
         // `_create` function will nonetheless check that the stop time is greater than or equal to the
         // cliff time, and that the cliff time is greater than or equal to the start time.
-        uint64 startTime = uint64(block.timestamp);
-        uint64 cliffTime;
-        uint64 stopTime;
+        uint40 startTime = uint40(block.timestamp);
+        uint40 cliffTime;
+        uint40 stopTime;
         unchecked {
             cliffTime = startTime + cliffDuration;
             stopTime = startTime + totalDuration;
@@ -204,8 +204,8 @@ contract SablierV2Linear is
         DataTypes.LinearStream memory stream = _streams[streamId];
 
         // Calculate the withdraw and the return amounts.
-        uint256 withdrawAmount = getWithdrawableAmount(streamId);
-        uint256 returnAmount;
+        uint128 withdrawAmount = getWithdrawableAmount(streamId);
+        uint128 returnAmount;
         unchecked {
             returnAmount = stream.depositAmount - stream.withdrawnAmount - withdrawAmount;
         }
@@ -236,11 +236,11 @@ contract SablierV2Linear is
     function _create(
         address sender,
         address recipient,
-        uint256 depositAmount,
+        uint128 depositAmount,
         address token,
-        uint64 startTime,
-        uint64 cliffTime,
-        uint64 stopTime,
+        uint40 startTime,
+        uint40 cliffTime,
+        uint40 stopTime,
         bool cancelable
     ) internal returns (uint256 streamId) {
         // Checks: the arguments of the function.
@@ -299,7 +299,7 @@ contract SablierV2Linear is
     function _withdraw(
         uint256 streamId,
         address to,
-        uint256 amount
+        uint128 amount
     ) internal override {
         // Checks: the amount is not zero.
         if (amount == 0) {
@@ -307,7 +307,7 @@ contract SablierV2Linear is
         }
 
         // Checks: the amount is not greater than what can be withdrawn.
-        uint256 withdrawableAmount = getWithdrawableAmount(streamId);
+        uint128 withdrawableAmount = getWithdrawableAmount(streamId);
         if (amount > withdrawableAmount) {
             revert Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);
         }

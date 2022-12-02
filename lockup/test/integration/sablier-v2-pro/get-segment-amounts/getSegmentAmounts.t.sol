@@ -7,9 +7,9 @@ contract GetSegmentAmounts__Test is SablierV2ProTest {
     /// @dev it should return zero.
     function testGetSegmentAmounts__StreamNonExistents() external {
         uint256 nonStreamId = 1729;
-        uint256[] memory actualSegmentAmounts = sablierV2Pro.getSegmentAmounts(nonStreamId);
-        uint256[] memory expectedSegmentAmounts;
-        assertEq(actualSegmentAmounts, expectedSegmentAmounts);
+        uint128[] memory actualSegmentAmounts = sablierV2Pro.getSegmentAmounts(nonStreamId);
+        uint128[] memory expectedSegmentAmounts;
+        assertEqUint128Array(actualSegmentAmounts, expectedSegmentAmounts);
     }
 
     modifier StreamExistent() {
@@ -19,8 +19,8 @@ contract GetSegmentAmounts__Test is SablierV2ProTest {
     /// @dev it should return the correct segment amounts.
     function testGetSegmentAmounts() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
-        uint256[] memory actualSegmentAmounts = sablierV2Pro.getSegmentAmounts(daiStreamId);
-        uint256[] memory expectedSegmentAmounts = daiStream.segmentAmounts;
-        assertEq(actualSegmentAmounts, expectedSegmentAmounts);
+        uint128[] memory actualSegmentAmounts = sablierV2Pro.getSegmentAmounts(daiStreamId);
+        uint128[] memory expectedSegmentAmounts = daiStream.segmentAmounts;
+        assertEqUint128Array(actualSegmentAmounts, expectedSegmentAmounts);
     }
 }

@@ -20,8 +20,8 @@ contract GetWithdrawnAmount__Test is SablierV2ProTest {
     /// @dev it should return zero.
     function testGetWithdrawnAmount__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint256 actualDepositAmount = sablierV2Pro.getWithdrawnAmount(nonStreamId);
-        uint256 expectedDepositAmount = 0;
+        uint128 actualDepositAmount = sablierV2Pro.getWithdrawnAmount(nonStreamId);
+        uint128 expectedDepositAmount = 0;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
 
@@ -31,18 +31,18 @@ contract GetWithdrawnAmount__Test is SablierV2ProTest {
 
     /// @dev it should return zero.
     function testGetWithdrawnAmount__NoWithdrawals() external StreamExistent {
-        uint256 actualDepositAmount = sablierV2Pro.getWithdrawnAmount(daiStreamId);
-        uint256 expectedDepositAmount = 0;
+        uint128 actualDepositAmount = sablierV2Pro.getWithdrawnAmount(daiStreamId);
+        uint128 expectedDepositAmount = 0;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
 
     /// @dev it should return the correct withdrawn amount.
     function testGetWithdrawnAmount__WithWithdrawals() external StreamExistent {
         vm.warp(daiStream.stopTime);
-        uint256 withdrawAmount = 100e18;
+        uint128 withdrawAmount = 100e18;
         sablierV2Pro.withdraw(daiStreamId, withdrawAmount);
-        uint256 actualDepositAmount = sablierV2Pro.getWithdrawnAmount(daiStreamId);
-        uint256 expectedDepositAmount = withdrawAmount;
+        uint128 actualDepositAmount = sablierV2Pro.getWithdrawnAmount(daiStreamId);
+        uint128 expectedDepositAmount = withdrawAmount;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
 }

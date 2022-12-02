@@ -107,7 +107,7 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function withdraw(uint256 streamId, uint256 amount)
+    function withdraw(uint256 streamId, uint128 amount)
         external
         streamExists(streamId)
         isAuthorizedForStream(streamId)
@@ -117,7 +117,7 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function withdrawAll(uint256[] calldata streamIds, uint256[] calldata amounts) external {
+    function withdrawAll(uint256[] calldata streamIds, uint128[] calldata amounts) external {
         // Checks: count of `streamIds` matches count of `amounts`.
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
@@ -157,7 +157,7 @@ abstract contract SablierV2 is ISablierV2 {
     function withdrawAllTo(
         uint256[] calldata streamIds,
         address to,
-        uint256[] calldata amounts
+        uint128[] calldata amounts
     ) external {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
@@ -199,7 +199,7 @@ abstract contract SablierV2 is ISablierV2 {
     function withdrawTo(
         uint256 streamId,
         address to,
-        uint256 amount
+        uint128 amount
     ) external streamExists(streamId) {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
@@ -237,6 +237,6 @@ abstract contract SablierV2 is ISablierV2 {
     function _withdraw(
         uint256 streamId,
         address to,
-        uint256 amount
+        uint128 amount
     ) internal virtual;
 }

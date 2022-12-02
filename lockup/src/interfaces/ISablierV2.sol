@@ -13,7 +13,7 @@ interface ISablierV2 is IERC721 {
     /// @notice Reads the amount deposited in the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return depositAmount The amount deposited in the stream, in units of the ERC-20 token's decimals.
-    function getDepositAmount(uint256 streamId) external view returns (uint256 depositAmount);
+    function getDepositAmount(uint256 streamId) external view returns (uint128 depositAmount);
 
     /// @notice Reads the recipient of the stream.
     /// @param streamId The id of the stream to make the query for.
@@ -24,7 +24,7 @@ interface ISablierV2 is IERC721 {
     /// @param streamId The id of the stream to make the query for.
     /// @return returnableAmount The amount of tokens that would be returned if the stream was canceled, in units of
     /// the ERC-20 token's decimals.
-    function getReturnableAmount(uint256 streamId) external view returns (uint256 returnableAmount);
+    function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount);
 
     /// @notice Reads the sender of the stream.
     /// @param streamId The id of the stream to make the query for.
@@ -34,23 +34,23 @@ interface ISablierV2 is IERC721 {
     /// @notice Reads the start time of the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return startTime The start time of the stream.
-    function getStartTime(uint256 streamId) external view returns (uint64 startTime);
+    function getStartTime(uint256 streamId) external view returns (uint40 startTime);
 
     /// @notice Reads the stop time of the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return stopTime The stop time of the stream.
-    function getStopTime(uint256 streamId) external view returns (uint64 stopTime);
+    function getStopTime(uint256 streamId) external view returns (uint40 stopTime);
 
     /// @notice Calculates the amount that the recipient can withdraw from the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return withdrawableAmount The amount of tokens that the recipient can withdraw from the stream, in units of
     /// the ERC-20 token's decimals.
-    function getWithdrawableAmount(uint256 streamId) external view returns (uint256 withdrawableAmount);
+    function getWithdrawableAmount(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
     /// @notice Reads the amount withdrawn from the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return withdrawnAmount The amount withdrawn from the stream, in units of the ERC-20 token's decimals.
-    function getWithdrawnAmount(uint256 streamId) external view returns (uint256 withdrawnAmount);
+    function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
     /// @notice Checks whether the stream is cancelable or not.
     /// @param streamId The id of the stream to make the query for.
@@ -115,7 +115,7 @@ interface ISablierV2 is IERC721 {
     ///
     /// @param streamId The id of the stream to withdraw.
     /// @param amount The amount to withdraw, in units of the ERC-20 token's decimals.
-    function withdraw(uint256 streamId, uint256 amount) external;
+    function withdraw(uint256 streamId, uint128 amount) external;
 
     /// @notice Withdraws tokens from multiple streams to the recipient's account.
     ///
@@ -130,7 +130,7 @@ interface ISablierV2 is IERC721 {
     ///
     /// @param streamIds The ids of the streams to withdraw.
     /// @param amounts The amounts to withdraw, in units of the ERC-20 token's decimals.
-    function withdrawAll(uint256[] calldata streamIds, uint256[] calldata amounts) external;
+    function withdrawAll(uint256[] calldata streamIds, uint128[] calldata amounts) external;
 
     /// @notice Withdraws tokens from multiple streams to the provided address `to`.
     ///
@@ -150,7 +150,7 @@ interface ISablierV2 is IERC721 {
     function withdrawAllTo(
         uint256[] calldata streamIds,
         address to,
-        uint256[] calldata amounts
+        uint128[] calldata amounts
     ) external;
 
     /// @notice Withdraws tokens from the stream to the provided address `to`.
@@ -170,6 +170,6 @@ interface ISablierV2 is IERC721 {
     function withdrawTo(
         uint256 streamId,
         address to,
-        uint256 amount
+        uint128 amount
     ) external;
 }

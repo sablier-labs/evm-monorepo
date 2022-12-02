@@ -15,14 +15,14 @@ abstract contract IntegrationTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
-    uint64 internal constant CLIFF_DURATION = 2_500 seconds;
-    uint64 internal constant TOTAL_DURATION = 10_000 seconds;
+    uint40 internal constant CLIFF_DURATION = 2_500 seconds;
+    uint40 internal constant TOTAL_DURATION = 10_000 seconds;
 
-    uint64 internal immutable CLIFF_TIME;
-    uint256 internal immutable DEPOSIT_AMOUNT_DAI;
-    uint256 internal immutable DEPOSIT_AMOUNT_USDC;
-    uint64 internal immutable START_TIME;
-    uint64 internal immutable STOP_TIME;
+    uint40 internal immutable CLIFF_TIME;
+    uint128 internal immutable DEPOSIT_AMOUNT_DAI;
+    uint128 internal immutable DEPOSIT_AMOUNT_USDC;
+    uint40 internal immutable START_TIME;
+    uint40 internal immutable STOP_TIME;
 
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
@@ -55,11 +55,11 @@ abstract contract IntegrationTest is BaseTest {
         vm.warp(STARTING_BLOCK_TIMESTAMP);
 
         // Initialize the default stream values.
-        CLIFF_TIME = uint64(block.timestamp) + CLIFF_DURATION;
+        CLIFF_TIME = uint40(block.timestamp) + CLIFF_DURATION;
         DEPOSIT_AMOUNT_DAI = 10_000e18;
         DEPOSIT_AMOUNT_USDC = 10_000e6;
-        START_TIME = uint64(block.timestamp);
-        STOP_TIME = uint64(block.timestamp) + TOTAL_DURATION;
+        START_TIME = uint40(block.timestamp);
+        STOP_TIME = uint40(block.timestamp) + TOTAL_DURATION;
 
         // Create 5 users for testing. Order matters.
         users = Users({

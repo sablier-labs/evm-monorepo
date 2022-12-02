@@ -17,11 +17,11 @@ abstract contract SablierV2ProTest is IntegrationTest {
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256[] internal SEGMENT_AMOUNTS_DAI = [2_000e18, 8_000e18];
-    uint256[] internal SEGMENT_AMOUNTS_USDC = [2_000e6, 8_000e6];
-    uint64[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
+    uint128[] internal SEGMENT_AMOUNTS_DAI = [2_000e18, 8_000e18];
+    uint128[] internal SEGMENT_AMOUNTS_USDC = [2_000e6, 8_000e6];
+    uint40[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
     SD59x18[] internal SEGMENT_EXPONENTS = [sd(3.14e18), sd(0.5e18)];
-    uint64[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];
+    uint40[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];
     uint256 internal constant TIME_OFFSET = 2_000 seconds;
 
     /*//////////////////////////////////////////////////////////////////////////

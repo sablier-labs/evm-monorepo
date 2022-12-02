@@ -158,7 +158,7 @@ contract Cancel__Test is SablierV2LinearTest {
 
         // Run the test.
         vm.expectEmit(true, true, false, true);
-        uint256 returnAmount = 0;
+        uint128 returnAmount = 0;
         emit Events.Cancel(daiStreamId, users.recipient, daiStream.depositAmount, returnAmount);
         sablierV2Linear.cancel(daiStreamId);
     }
@@ -199,7 +199,7 @@ contract Cancel__Test is SablierV2LinearTest {
         vm.warp(daiStream.startTime + TIME_OFFSET);
 
         // Run the test.
-        uint256 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
+        uint128 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
         vm.expectEmit(true, true, false, true);
         emit Events.Cancel(daiStreamId, users.recipient, WITHDRAW_AMOUNT_DAI, returnAmount);
         sablierV2Linear.cancel(daiStreamId);
