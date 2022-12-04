@@ -290,7 +290,7 @@ contract Create__Test is SablierV2LinearTest {
     }
 
     /// @dev it should create the stream.
-    function testCreate___Token18Decimals__CallerNotSender()
+    function testCreate__Token18Decimals__CallerNotSender()
         external
         RecipientNonZeroAddress
         DepositAmountNotZero
