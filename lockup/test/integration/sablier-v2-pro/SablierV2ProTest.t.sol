@@ -38,7 +38,7 @@ abstract contract SablierV2ProTest is IntegrationTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        sablierV2Pro = new SablierV2Pro(MAX_SEGMENT_COUNT);
+        sablierV2Pro = new SablierV2Pro({ maxSegmentCount: MAX_SEGMENT_COUNT });
 
         // Create the default streams to be used across the tests.
         daiStream = DataTypes.ProStream({
@@ -67,10 +67,10 @@ abstract contract SablierV2ProTest is IntegrationTest {
         });
 
         // Approve the SablierV2Pro contract to spend tokens from the sender, recipient, Alice and Eve.
-        approveMax(users.sender, address(sablierV2Pro));
-        approveMax(users.recipient, address(sablierV2Pro));
-        approveMax(users.alice, address(sablierV2Pro));
-        approveMax(users.eve, address(sablierV2Pro));
+        approveMax({ caller: users.sender, spender: address(sablierV2Pro) });
+        approveMax({ caller: users.recipient, spender: address(sablierV2Pro) });
+        approveMax({ caller: users.alice, spender: address(sablierV2Pro) });
+        approveMax({ caller: users.eve, spender: address(sablierV2Pro) });
 
         // Sets all subsequent calls' `msg.sender` to be `sender`.
         changePrank(users.sender);

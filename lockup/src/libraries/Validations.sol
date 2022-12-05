@@ -49,9 +49,9 @@ library Validations {
     ) internal pure {
         // Checks: segment counts match.
         _checkSegmentCounts({
-            amountCount: segmentAmounts.length,
-            exponentCount: segmentExponents.length,
-            milestoneCount: segmentMilestones.length,
+            amountsCount: segmentAmounts.length,
+            exponentsCount: segmentExponents.length,
+            milestonesCount: segmentMilestones.length,
             maxSegmentCount: maxSegmentCount
         });
 
@@ -137,6 +137,7 @@ library Validations {
             segmentAmountsSum = segmentAmountsSum + segmentAmounts[index];
 
             // Check that the previous milestone is less than the current milestone.
+            // Note: this can overflow.
             currentMilestone = segmentMilestones[index];
             if (previousMilestone >= currentMilestone) {
                 revert Errors.SablierV2Pro__SegmentMilestonesNotOrdered(index, previousMilestone, currentMilestone);
@@ -166,29 +167,29 @@ library Validations {
     /// @dev Checks that the counts of segments match. The counts must be equal and less than or equal to
     /// the maximum segment count permitted in Sablier.
     function _checkSegmentCounts(
-        uint256 amountCount,
-        uint256 exponentCount,
-        uint256 milestoneCount,
+        uint256 amountsCount,
+        uint256 exponentsCount,
+        uint256 milestonesCount,
         uint256 maxSegmentCount
     ) private pure {
         // Check that the amount count is not zero.
-        if (amountCount == 0) {
+        if (amountsCount == 0) {
             revert Errors.SablierV2Pro__SegmentCountZero();
         }
 
         // Check that the amount count is not greater than the maximum segment count permitted in Sablier.
-        if (amountCount > maxSegmentCount) {
-            revert Errors.SablierV2Pro__SegmentCountOutOfBounds(amountCount);
+        if (amountsCount > maxSegmentCount) {
+            revert Errors.SablierV2Pro__SegmentCountOutOfBounds(amountsCount);
         }
 
         // Compare the amount count to the exponent count.
-        if (amountCount != exponentCount) {
-            revert Errors.SablierV2Pro__SegmentCountsNotEqual(amountCount, exponentCount, milestoneCount);
+        if (amountsCount != exponentsCount) {
+            revert Errors.SablierV2Pro__SegmentCountsNotEqual(amountsCount, exponentsCount, milestonesCount);
         }
 
         // Compare the amount count to the milestone count.
-        if (amountCount != milestoneCount) {
-            revert Errors.SablierV2Pro__SegmentCountsNotEqual(amountCount, exponentCount, milestoneCount);
+        if (amountsCount != milestonesCount) {
+            revert Errors.SablierV2Pro__SegmentCountsNotEqual(amountsCount, exponentsCount, milestonesCount);
         }
     }
 }

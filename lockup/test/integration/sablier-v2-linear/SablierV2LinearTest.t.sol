@@ -59,10 +59,10 @@ abstract contract SablierV2LinearTest is IntegrationTest {
         });
 
         // Approve the SablierV2Linear contract to spend tokens from the sender, recipient, Alice and Eve.
-        approveMax(users.sender, address(sablierV2Linear));
-        approveMax(users.recipient, address(sablierV2Linear));
-        approveMax(users.alice, address(sablierV2Linear));
-        approveMax(users.eve, address(sablierV2Linear));
+        approveMax({ caller: users.sender, spender: address(sablierV2Linear) });
+        approveMax({ caller: users.recipient, spender: address(sablierV2Linear) });
+        approveMax({ caller: users.alice, spender: address(sablierV2Linear) });
+        approveMax({ caller: users.eve, spender: address(sablierV2Linear) });
 
         // Sets all subsequent calls' `msg.sender` to be `sender`.
         changePrank(users.sender);

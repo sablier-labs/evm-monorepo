@@ -17,6 +17,6 @@ abstract contract AbstractSablierV2Test is IntegrationTest {
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
         // Sets all subsequent calls' `msg.sender` to be `sender`.
-        vm.startPrank(users.sender);
+        vm.startPrank({ msgSender: users.sender });
     }
 }

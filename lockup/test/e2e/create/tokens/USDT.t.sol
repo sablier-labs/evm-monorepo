@@ -10,8 +10,8 @@ contract USDT__Test is CreateTest {
     function setUp() public override {
         super.setUp();
 
-        usdt.approve(address(sablierV2Linear), UINT256_MAX);
-        usdt.approve(address(sablierV2Pro), UINT256_MAX);
+        usdt.approve({ spender: address(sablierV2Linear), value: UINT256_MAX });
+        usdt.approve({ spender: address(sablierV2Pro), value: UINT256_MAX });
     }
 
     /// @dev random USDT holder

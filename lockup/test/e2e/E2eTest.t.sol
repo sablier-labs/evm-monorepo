@@ -22,9 +22,9 @@ abstract contract E2eTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"));
+        vm.createSelectFork({ endpoint: vm.envString("ETH_RPC_URL") });
 
         sablierV2Linear = new SablierV2Linear();
-        sablierV2Pro = new SablierV2Pro(MAX_SEGMENT_COUNT);
+        sablierV2Pro = new SablierV2Pro({ maxSegmentCount: MAX_SEGMENT_COUNT });
     }
 }

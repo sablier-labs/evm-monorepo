@@ -9,7 +9,6 @@ import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
 
 contract WithdrawTo__Test is SablierV2LinearTest {
     uint256 internal daiStreamId;
-    address internal toAlice;
 
     /// @dev A setup function invoked before each test case.
     function setUp() public override {
@@ -20,9 +19,6 @@ contract WithdrawTo__Test is SablierV2LinearTest {
 
         // Make the recipient the `msg.sender` in this test suite.
         changePrank(users.recipient);
-
-        // Make Alice the address that will receive the tokens.
-        toAlice = users.alice;
     }
 
     /// @dev it should revert.
@@ -30,7 +26,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonExistent.selector, nonStreamId));
         uint128 withdrawAmount = 0;
-        sablierV2Linear.withdrawTo(nonStreamId, toAlice, withdrawAmount);
+        sablierV2Linear.withdrawTo({ streamId: nonStreamId, to: users.alice, amount: withdrawAmount });
     }
 
     modifier StreamExistent() {
@@ -40,9 +36,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
     /// @dev When the to address is zero, it should revert.
     function testCannotWithdrawTo__ToZeroAddress() external StreamExistent {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__WithdrawZeroAddress.selector));
-        address toZero = address(0);
-        uint128 withdrawAmount = 0;
-        sablierV2Linear.withdrawTo(daiStreamId, toZero, withdrawAmount);
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: address(0), amount: 0 });
     }
 
     modifier ToNonZeroAddress() {
@@ -56,8 +50,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.sender));
-        uint128 withdrawAmount = 0;
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, withdrawAmount);
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: users.alice, amount: 0 });
     }
 
     /// @dev it should revert.
@@ -67,8 +60,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
-        uint128 withdrawAmount = 0;
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, withdrawAmount);
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: users.alice, amount: 0 });
     }
 
     modifier CallerAuthorized() {
@@ -78,16 +70,16 @@ contract WithdrawTo__Test is SablierV2LinearTest {
     /// @dev it should make the withdrawal.
     function testWithdrawTo__CallerApprovedOperator() external StreamExistent ToNonZeroAddress CallerAuthorized {
         // Approve the operator to handle the stream.
-        sablierV2Linear.approve(users.operator, daiStreamId);
+        sablierV2Linear.approve({ to: users.operator, tokenId: daiStreamId });
 
         // Make the operator the `msg.sender` in this test case.
         changePrank(users.operator);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(daiStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
 
         // Run the test.
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, WITHDRAW_AMOUNT_DAI);
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: users.alice, amount: WITHDRAW_AMOUNT_DAI });
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         uint128 actualWithdrawnAmount = actualStream.withdrawnAmount;
         uint128 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
@@ -111,7 +103,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.recipient));
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, daiStream.depositAmount);
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: users.alice, amount: daiStream.depositAmount });
     }
 
     modifier OriginalRecipient() {
@@ -128,8 +120,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         OriginalRecipient
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__WithdrawAmountZero.selector, daiStreamId));
-        uint128 withdrawAmountZero = 0;
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, withdrawAmountZero);
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: users.alice, amount: 0 });
     }
 
     modifier WithdrawAmountNotZero() {
@@ -146,17 +137,16 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         OriginalRecipient
         WithdrawAmountNotZero
     {
-        uint128 withdrawAmountMaxUint128 = UINT128_MAX;
         uint128 withdrawableAmount = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount.selector,
                 daiStreamId,
-                withdrawAmountMaxUint128,
+                UINT128_MAX,
                 withdrawableAmount
             )
         );
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, withdrawAmountMaxUint128);
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: users.alice, amount: UINT128_MAX });
     }
 
     modifier WithdrawAmountLessThanOrEqualToWithdrawableAmount() {
@@ -175,7 +165,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         WithdrawAmountLessThanOrEqualToWithdrawableAmount
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(daiStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
 
         // Run the test.
         sablierV2Linear.withdrawTo(daiStreamId, users.recipient, WITHDRAW_AMOUNT_DAI);
@@ -202,10 +192,10 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         ToThirdParty
     {
         // Warp to the end of the stream.
-        vm.warp(daiStream.stopTime);
+        vm.warp({ timestamp: daiStream.stopTime });
 
         // Run the test.
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, daiStream.depositAmount);
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: users.alice, amount: daiStream.depositAmount });
         DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
@@ -228,12 +218,12 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         ToThirdParty
     {
         // Warp to the end of the stream.
-        vm.warp(daiStream.stopTime);
+        vm.warp({ timestamp: daiStream.stopTime });
 
         // Run the test.
-        vm.expectEmit(true, true, false, true);
-        emit Events.Withdraw(daiStreamId, toAlice, daiStream.depositAmount);
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, daiStream.depositAmount);
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        emit Events.Withdraw({ streamId: daiStreamId, recipient: users.alice, amount: daiStream.depositAmount });
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: users.alice, amount: daiStream.depositAmount });
     }
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
@@ -249,10 +239,10 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         ToThirdParty
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(daiStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
 
         // Run the test.
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, WITHDRAW_AMOUNT_DAI);
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: users.alice, amount: WITHDRAW_AMOUNT_DAI });
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         uint128 actualWithdrawnAmount = actualStream.withdrawnAmount;
         uint128 expectedWithdrawnAmount = WITHDRAW_AMOUNT_DAI;
@@ -272,11 +262,11 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         ToThirdParty
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(daiStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
 
         // Run the test.
-        vm.expectEmit(true, true, false, true);
-        emit Events.Withdraw(daiStreamId, toAlice, WITHDRAW_AMOUNT_DAI);
-        sablierV2Linear.withdrawTo(daiStreamId, toAlice, WITHDRAW_AMOUNT_DAI);
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        emit Events.Withdraw({ streamId: daiStreamId, recipient: users.alice, amount: WITHDRAW_AMOUNT_DAI });
+        sablierV2Linear.withdrawTo({ streamId: daiStreamId, to: users.alice, amount: WITHDRAW_AMOUNT_DAI });
     }
 }

@@ -444,7 +444,7 @@ contract Create__Test is SablierV2ProTest {
         TokenCompliant
     {
         uint256 usdcStreamId = sablierV2Pro.nextStreamId();
-        vm.expectEmit(true, true, true, true);
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         address funder = usdcStream.sender;
         emit Events.CreateProStream(
             usdcStreamId,
@@ -522,7 +522,7 @@ contract Create__Test is SablierV2ProTest {
 
         // Run the test.
         uint256 daiStreamId = sablierV2Pro.nextStreamId();
-        vm.expectEmit(true, true, true, true);
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         address funder = users.alice;
         emit Events.CreateProStream(
             daiStreamId,
@@ -600,7 +600,7 @@ contract Create__Test is SablierV2ProTest {
         TokenCompliant
     {
         uint256 daiStreamId = sablierV2Pro.nextStreamId();
-        vm.expectEmit(true, true, true, true);
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         address funder = daiStream.sender;
         emit Events.CreateProStream(
             daiStreamId,

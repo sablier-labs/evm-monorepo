@@ -35,7 +35,7 @@ contract GetReturnableAmount__Test is SablierV2LinearTest {
 
     /// @dev it should return the correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountZero__WithWithdrawals() external StreamExistent {
-        vm.warp(daiStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
         sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
         uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(daiStreamId);
         uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
@@ -44,7 +44,7 @@ contract GetReturnableAmount__Test is SablierV2LinearTest {
 
     /// @dev it should return the correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountNotZero__NoWithdrawals() external StreamExistent {
-        vm.warp(daiStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
         uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(daiStreamId);
         uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
@@ -52,7 +52,7 @@ contract GetReturnableAmount__Test is SablierV2LinearTest {
 
     /// @dev it should return the correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountNotZero__WithWithdrawals() external StreamExistent {
-        vm.warp(daiStream.startTime + TIME_OFFSET + 1 seconds);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET + 1 seconds });
         sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
         uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(daiStreamId);
         uint256 expectedReturnableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI - 1e18;

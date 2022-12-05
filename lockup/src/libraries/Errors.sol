@@ -32,7 +32,7 @@ library Errors {
 
     /// @notice Emitted when attempting to withdraw from multiple streams and the count of the stream ids does
     /// not match the count of the amounts.
-    error SablierV2__WithdrawAllArraysNotEqual(uint256 streamIdsLength, uint256 amountsLength);
+    error SablierV2__WithdrawAllArraysNotEqual(uint256 streamIdsCount, uint256 amountsCount);
 
     /// @notice Emitted when attempting to withdraw more than can be withdrawn.
     error SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(
@@ -67,7 +67,7 @@ library Errors {
     error SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(uint128 depositAmount, uint128 segmentAmountsSum);
 
     /// @notice Emitted when attempting to create a stream with segment counts that are not equal.
-    error SablierV2Pro__SegmentCountsNotEqual(uint256 amountLength, uint256 exponentLength, uint256 milestoneLength);
+    error SablierV2Pro__SegmentCountsNotEqual(uint256 amountsCount, uint256 exponentsCount, uint256 milestonesCount);
 
     /// @notice Emitted when attempting to create a stream with one or more out-of-bounds segment count.
     error SablierV2Pro__SegmentCountOutOfBounds(uint256 count);
@@ -78,8 +78,8 @@ library Errors {
     /// @notice Emitted when attempting to create a stream with an out of bounds exponent.
     error SablierV2Pro__SegmentExponentOutOfBounds(SD59x18 exponent);
 
-    /// @notice Emitted when attempting to create a stream with segment milestones which are not ordered.
-    error SablierV2Pro__SegmentMilestonesNotOrdered(uint256 index, uint40 previousMilestone, uint40 milestone);
+    /// @notice Emitted when attempting to create a stream with segment milestones that are not ordered.
+    error SablierV2Pro__SegmentMilestonesNotOrdered(uint256 index, uint40 previousMilestone, uint40 currentMilestone);
 
     /// @notice Emitted when attempting to create a stream with the start time greater than the first segment milestone.
     error SablierV2Pro__StartTimeGreaterThanFirstMilestone(uint40 startTime, uint40 segmentMilestone);

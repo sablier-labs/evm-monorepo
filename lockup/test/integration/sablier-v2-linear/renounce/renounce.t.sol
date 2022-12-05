@@ -64,7 +64,7 @@ contract Renounce__Test is SablierV2LinearTest {
 
     /// @dev it should emit a Renounce event.
     function testRenounce__Event() external {
-        vm.expectEmit(true, false, false, false);
+        vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: false });
         emit Events.Renounce(daiStreamId);
         sablierV2Linear.renounce(daiStreamId);
     }

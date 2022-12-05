@@ -23,7 +23,7 @@ abstract contract CreateTest is E2eTest {
         super.setUp();
 
         // Make the token holder the `msg.sender` in this test suite.
-        vm.startPrank(holder());
+        vm.startPrank({ msgSender: holder() });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -142,8 +142,8 @@ abstract contract CreateTest is E2eTest {
 
     /// @dev Helper function to approve the Sablier V2 contracts to spend tokens.
     function approveSablierV2() internal {
-        IERC20(token()).approve(address(sablierV2Linear), UINT256_MAX);
-        IERC20(token()).approve(address(sablierV2Pro), UINT256_MAX);
+        IERC20(token()).approve({ spender: address(sablierV2Linear), value: UINT256_MAX });
+        IERC20(token()).approve({ spender: address(sablierV2Pro), value: UINT256_MAX });
     }
 
     /// @dev Helper function to return the token holder's address.

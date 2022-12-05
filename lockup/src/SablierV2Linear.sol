@@ -216,16 +216,16 @@ contract SablierV2Linear is
         delete _streams[streamId];
 
         // Effects: burn the NFT.
-        _burn(streamId);
+        _burn({ tokenId: streamId });
 
         // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
-            IERC20(stream.token).safeTransfer(recipient, withdrawAmount);
+            IERC20(stream.token).safeTransfer({ to: recipient, amount: withdrawAmount });
         }
 
         // Interactions: return the tokens to the sender, if any.
         if (returnAmount > 0) {
-            IERC20(stream.token).safeTransfer(stream.sender, returnAmount);
+            IERC20(stream.token).safeTransfer({ to: stream.sender, amount: returnAmount });
         }
 
         // Emit an event.
@@ -259,8 +259,8 @@ contract SablierV2Linear is
             withdrawnAmount: 0
         });
 
-        // Effects: mint the NFT for the recipient.
-        _mint(recipient, streamId);
+        // Effects: mint the NFT for the recipient by setting the stream id as the token id.
+        _mint({ to: recipient, tokenId: streamId });
 
         // Effects: bump the next stream id.
         // We're using unchecked arithmetic here because this cannot realistically overflow, ever.
@@ -269,21 +269,21 @@ contract SablierV2Linear is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        IERC20(token).safeTransferFrom(msg.sender, address(this), depositAmount);
+        IERC20(token).safeTransferFrom({ from: msg.sender, to: address(this), amount: depositAmount });
 
         // Emit an event.
-        emit Events.CreateLinearStream(
-            streamId,
-            msg.sender,
-            sender,
-            recipient,
-            depositAmount,
-            token,
-            startTime,
-            cliffTime,
-            stopTime,
-            cancelable
-        );
+        emit Events.CreateLinearStream({
+            streamId: streamId,
+            funder: msg.sender,
+            sender: sender,
+            recipient: recipient,
+            depositAmount: depositAmount,
+            token: token,
+            startTime: startTime,
+            cliffTime: cliffTime,
+            stopTime: stopTime,
+            cancelable: cancelable
+        });
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -309,7 +309,11 @@ contract SablierV2Linear is
         // Checks: the amount is not greater than what can be withdrawn.
         uint128 withdrawableAmount = getWithdrawableAmount(streamId);
         if (amount > withdrawableAmount) {
-            revert Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);
+            revert Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount({
+                streamId: streamId,
+                withdrawAmount: amount,
+                withdrawableAmount: withdrawableAmount
+            });
         }
 
         // Effects: update the withdrawn amount.
@@ -323,13 +327,13 @@ contract SablierV2Linear is
         // Effects: if this stream is done, delete it from storage and burn the NFT.
         if (stream.depositAmount == stream.withdrawnAmount) {
             delete _streams[streamId];
-            _burn(streamId);
+            _burn({ tokenId: streamId });
         }
 
         // Interactions: perform the ERC-20 transfer.
-        IERC20(stream.token).safeTransfer(to, amount);
+        IERC20(stream.token).safeTransfer({ to: to, amount: amount });
 
         // Emit an event.
-        emit Events.Withdraw(streamId, to, amount);
+        emit Events.Withdraw({ streamId: streamId, recipient: to, amount: amount });
     }
 }

@@ -81,7 +81,7 @@ contract Cancel__Test is SablierV2LinearTest {
     /// @dev it should cancel and delete the stream and burn the NFT.
     function testCancel__CallerApprovedOperator() external StreamExistent StreamCancelable CallerAuthorized {
         // Approve Alice for the stream.
-        sablierV2Linear.approve(users.alice, daiStreamId);
+        sablierV2Linear.approve({ to: users.alice, tokenId: daiStreamId });
 
         // Make Alice the `msg.sender` in this test case.
         changePrank(users.alice);
@@ -110,7 +110,7 @@ contract Cancel__Test is SablierV2LinearTest {
         CallerRecipient
     {
         // Transfer the stream to Alice.
-        sablierV2Linear.transferFrom(users.recipient, users.alice, daiStreamId);
+        sablierV2Linear.transferFrom({ from: users.recipient, to: users.alice, tokenId: daiStreamId });
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.recipient));
@@ -131,7 +131,7 @@ contract Cancel__Test is SablierV2LinearTest {
         OriginalRecipient
     {
         // Warp to the end of the stream.
-        vm.warp(daiStream.stopTime);
+        vm.warp({ timestamp: daiStream.stopTime });
 
         // Run the test.
         sablierV2Linear.cancel(daiStreamId);
@@ -154,12 +154,17 @@ contract Cancel__Test is SablierV2LinearTest {
         OriginalRecipient
     {
         // Warp to the end of the stream.
-        vm.warp(daiStream.stopTime);
+        vm.warp({ timestamp: daiStream.stopTime });
 
         // Run the test.
-        vm.expectEmit(true, true, false, true);
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
         uint128 returnAmount = 0;
-        emit Events.Cancel(daiStreamId, users.recipient, daiStream.depositAmount, returnAmount);
+        emit Events.Cancel({
+            streamId: daiStreamId,
+            recipient: users.recipient,
+            withdrawAmount: daiStream.depositAmount,
+            returnAmount: returnAmount
+        });
         sablierV2Linear.cancel(daiStreamId);
     }
 
@@ -173,7 +178,7 @@ contract Cancel__Test is SablierV2LinearTest {
         OriginalRecipient
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(daiStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
 
         // Run the test.
         sablierV2Linear.cancel(daiStreamId);
@@ -196,12 +201,17 @@ contract Cancel__Test is SablierV2LinearTest {
         OriginalRecipient
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp(daiStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
 
         // Run the test.
         uint128 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
-        vm.expectEmit(true, true, false, true);
-        emit Events.Cancel(daiStreamId, users.recipient, WITHDRAW_AMOUNT_DAI, returnAmount);
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        emit Events.Cancel({
+            streamId: daiStreamId,
+            recipient: users.recipient,
+            withdrawAmount: WITHDRAW_AMOUNT_DAI,
+            returnAmount: returnAmount
+        });
         sablierV2Linear.cancel(daiStreamId);
     }
 }

@@ -78,9 +78,9 @@ abstract contract IntegrationTest is BaseTest {
     /// @dev Helper function to approve `spender` the `UINT256_MAX` amount with `caller` as the `msg.sender`.
     function approveMax(address caller, address spender) internal {
         changePrank(caller);
-        dai.approve(spender, UINT256_MAX);
-        usdc.approve(spender, UINT256_MAX);
-        nonCompliantToken.approve(spender, UINT256_MAX);
+        dai.approve({ spender: spender, value: UINT256_MAX });
+        usdc.approve({ spender: spender, value: UINT256_MAX });
+        nonCompliantToken.approve({ spender: spender, value: UINT256_MAX });
     }
 
     /// @dev Generates an address by hashing the name, labels the address and
@@ -89,8 +89,8 @@ abstract contract IntegrationTest is BaseTest {
         addr = payable(address(uint160(uint256(keccak256(abi.encodePacked(name))))));
         vm.label(addr, name);
         vm.deal(addr, 100 ether);
-        dai.mint(addr, 1_000_000e18);
-        usdc.mint(addr, 1_000_000e6);
-        nonCompliantToken.mint(addr, 1_000_000e18);
+        dai.mint({ beneficiary: addr, amount: 1_000_000e18 });
+        usdc.mint({ beneficiary: addr, amount: 1_000_000e6 });
+        nonCompliantToken.mint({ beneficiary: addr, amount: 1_000_000e18 });
     }
 }

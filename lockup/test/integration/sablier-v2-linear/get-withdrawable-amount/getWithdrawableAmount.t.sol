@@ -28,7 +28,7 @@ contract GetWithdrawableAmount__Test is SablierV2LinearTest {
 
     /// @dev it should return zero.
     function testGetWithdrawableAmount__CliffTimeGreaterThanBlockTimestamp() external StreamExistent {
-        vm.warp(daiStream.cliffTime - 1 seconds);
+        vm.warp({ timestamp: daiStream.cliffTime - 1 seconds });
         uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(daiStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -36,7 +36,7 @@ contract GetWithdrawableAmount__Test is SablierV2LinearTest {
 
     /// @dev When the cliff time is equal to the block timestamp, it should return the correct withdrawable amount.
     function testGetWithdrawableAmount__CliffTimeEqualToBlockTimestamp() external {
-        vm.warp(daiStream.cliffTime);
+        vm.warp({ timestamp: daiStream.cliffTime });
         uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(daiStreamId);
         uint128 expectedWithdrawableAmount = WITHDRAW_AMOUNT_DAI - 100e18;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -52,7 +52,7 @@ contract GetWithdrawableAmount__Test is SablierV2LinearTest {
         StreamExistent
         CliffTimeLessThanBlockTimestamp
     {
-        vm.warp(daiStream.stopTime + 1 seconds);
+        vm.warp({ timestamp: daiStream.stopTime + 1 seconds });
         sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
         uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(daiStreamId);
         uint128 expectedWithdrawableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
@@ -65,7 +65,7 @@ contract GetWithdrawableAmount__Test is SablierV2LinearTest {
         StreamExistent
         CliffTimeLessThanBlockTimestamp
     {
-        vm.warp(daiStream.stopTime + 1 seconds);
+        vm.warp({ timestamp: daiStream.stopTime + 1 seconds });
         uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(daiStreamId);
         uint128 expectedWithdrawableAmount = daiStream.depositAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -77,7 +77,7 @@ contract GetWithdrawableAmount__Test is SablierV2LinearTest {
         StreamExistent
         CliffTimeLessThanBlockTimestamp
     {
-        vm.warp(daiStream.stopTime);
+        vm.warp({ timestamp: daiStream.stopTime });
         sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
         uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(daiStreamId);
         uint128 expectedWithdrawableAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
@@ -90,7 +90,7 @@ contract GetWithdrawableAmount__Test is SablierV2LinearTest {
         StreamExistent
         CliffTimeLessThanBlockTimestamp
     {
-        vm.warp(daiStream.stopTime);
+        vm.warp({ timestamp: daiStream.stopTime });
         uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(daiStreamId);
         uint128 expectedWithdrawableAmount = daiStream.depositAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -102,7 +102,7 @@ contract GetWithdrawableAmount__Test is SablierV2LinearTest {
         StreamExistent
         CliffTimeLessThanBlockTimestamp
     {
-        vm.warp(daiStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
         sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
         uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(daiStreamId);
         uint128 expectedWithdrawableAmount = 0;
@@ -116,7 +116,7 @@ contract GetWithdrawableAmount__Test is SablierV2LinearTest {
         CliffTimeLessThanBlockTimestamp
     {
         uint256 usdcStreamId = createDefaultUsdcStream();
-        vm.warp(usdcStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: usdcStream.startTime + TIME_OFFSET });
         uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(usdcStreamId);
         uint128 expectedWithdrawableAmount = WITHDRAW_AMOUNT_USDC;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -128,7 +128,7 @@ contract GetWithdrawableAmount__Test is SablierV2LinearTest {
         StreamExistent
         CliffTimeLessThanBlockTimestamp
     {
-        vm.warp(daiStream.startTime + TIME_OFFSET);
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
         uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(daiStreamId);
         uint128 expectedWithdrawableAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);

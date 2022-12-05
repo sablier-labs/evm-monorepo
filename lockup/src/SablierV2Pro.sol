@@ -318,16 +318,16 @@ contract SablierV2Pro is
         delete _streams[streamId];
 
         // Effects: burn the NFT.
-        _burn(streamId);
+        _burn({ tokenId: streamId });
 
         // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
-            IERC20(stream.token).safeTransfer(recipient, withdrawAmount);
+            IERC20(stream.token).safeTransfer({ to: recipient, amount: withdrawAmount });
         }
 
         // Interactions: return the tokens to the sender, if any.
         if (returnAmount > 0) {
-            IERC20(stream.token).safeTransfer(stream.sender, returnAmount);
+            IERC20(stream.token).safeTransfer({ to: stream.sender, amount: returnAmount });
         }
 
         // Emit an event.
@@ -381,8 +381,8 @@ contract SablierV2Pro is
             withdrawnAmount: 0
         });
 
-        // Effects: mint the NFT for the recipient.
-        _mint(recipient, streamId);
+        // Effects: mint the NFT for the recipient by setting the stream id as the token id.
+        _mint({ to: recipient, tokenId: streamId });
 
         // Effects: bump the next stream id. This cannot realistically overflow, ever.
         unchecked {
@@ -393,20 +393,20 @@ contract SablierV2Pro is
         IERC20(token).safeTransferFrom(msg.sender, address(this), depositAmount);
 
         // Emit an event.
-        emit Events.CreateProStream(
-            streamId,
-            msg.sender,
-            sender,
-            recipient,
-            depositAmount,
-            token,
-            startTime,
-            stopTime,
-            segmentAmounts,
-            segmentExponents,
-            segmentMilestones,
-            cancelable
-        );
+        emit Events.CreateProStream({
+            streamId: streamId,
+            funder: msg.sender,
+            sender: sender,
+            recipient: recipient,
+            depositAmount: depositAmount,
+            token: token,
+            startTime: startTime,
+            stopTime: stopTime,
+            segmentAmounts: segmentAmounts,
+            segmentExponents: segmentExponents,
+            segmentMilestones: segmentMilestones,
+            cancelable: cancelable
+        });
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
