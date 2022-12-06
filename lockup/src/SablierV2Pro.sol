@@ -194,8 +194,7 @@ contract SablierV2Pro is
             SD59x18 multiplier = elapsedTimePercentage.pow(currentSegmentExponent);
             SD59x18 proRataAmount = multiplier.mul(currentSegmentAmount);
             SD59x18 streamedAmount = SD59x18.wrap(int256(uint256(previousSegmentAmounts))).add(proRataAmount);
-            SD59x18 withdrawnAmount = SD59x18.wrap(int256(uint256(_streams[streamId].withdrawnAmount)));
-            withdrawableAmount = uint128(uint256(SD59x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount))));
+            withdrawableAmount = uint128(uint256(SD59x18.unwrap(streamedAmount))) - _streams[streamId].withdrawnAmount;
         }
     }
 

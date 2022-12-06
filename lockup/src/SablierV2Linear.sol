@@ -117,8 +117,7 @@ contract SablierV2Linear is
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             UD60x18 depositAmount = UD60x18.wrap(_streams[streamId].depositAmount);
             UD60x18 streamedAmount = elapsedTimePercentage.mul(depositAmount);
-            UD60x18 withdrawnAmount = UD60x18.wrap(_streams[streamId].withdrawnAmount);
-            withdrawableAmount = uint128(UD60x18.unwrap(streamedAmount.uncheckedSub(withdrawnAmount)));
+            withdrawableAmount = uint128(UD60x18.unwrap(streamedAmount)) - _streams[streamId].withdrawnAmount;
         }
     }
 
