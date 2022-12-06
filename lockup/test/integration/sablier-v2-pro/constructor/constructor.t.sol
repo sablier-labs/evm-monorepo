@@ -8,5 +8,9 @@ contract Constructor__Test is SablierV2ProTest {
         uint256 actualStreamId = sablierV2Pro.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId);
+
+        uint256 actualMaxSegmentCount = sablierV2Pro.MAX_SEGMENT_COUNT();
+        uint256 expectedMaxSegmentCount = MAX_SEGMENT_COUNT;
+        assertEq(actualMaxSegmentCount, expectedMaxSegmentCount);
     }
 }
