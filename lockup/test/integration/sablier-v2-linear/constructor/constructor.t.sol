@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { AbstractSablierV2Test } from "../AbstractSablierV2Test.t.sol";
+import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
 
-contract AbstractSablierV2__Test is AbstractSablierV2Test {
+contract Constructor__Test is SablierV2LinearTest {
     function testConstructor() external {
-        uint256 actualStreamId = abstractSablierV2.nextStreamId();
+        uint256 actualStreamId = sablierV2Linear.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId);
     }

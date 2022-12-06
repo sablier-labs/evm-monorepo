@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 
 /// @title Events
