@@ -4,14 +4,14 @@ pragma solidity >=0.8.13;
 import { CreateTest } from "../CreateTest.t.sol";
 
 /// @dev A token with a large total supply.
-contract SHIBA__Test is CreateTest {
+contract SHIB__Test is CreateTest {
     function setUp() public override {
         super.setUp();
 
         approveSablierV2();
     }
 
-    /// @dev random SHIBA holder
+    /// @dev random SHIB holder
     function holder() internal pure override returns (address) {
         return 0x73AF3bcf944a6559933396c1577B257e2054D935;
     }

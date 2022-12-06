@@ -11,7 +11,7 @@ contract USDC__Test is CreateTest {
         approveSablierV2();
     }
 
-    /// @dev random USDC holder
+    /// @dev Random USDC holder.
     function holder() internal pure override returns (address) {
         return 0x09528d637deb5857dc059dddE6316D465a8b3b69;
     }

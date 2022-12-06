@@ -14,7 +14,7 @@ contract USDT__Test is CreateTest {
         usdt.approve({ spender: address(sablierV2Pro), value: UINT256_MAX });
     }
 
-    /// @dev random USDT holder
+    /// @dev random USDT holder.
     function holder() internal pure override returns (address) {
         return 0xee5B5B923fFcE93A870B3104b7CA09c3db80047A;
     }

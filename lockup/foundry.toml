@@ -2,7 +2,6 @@
 
 [profile.default]
 auto_detect_solc = false
-fork_block_number = 16_034_000
 fuzz = { runs = 256 }
 libs = ["lib"]
 gas_reports = ["*"]

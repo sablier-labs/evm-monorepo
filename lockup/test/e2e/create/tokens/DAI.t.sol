@@ -11,7 +11,7 @@ contract DAI__Test is CreateTest {
         approveSablierV2();
     }
 
-    /// @dev random DAI holder
+    /// @dev random DAI holder.
     function holder() internal pure override returns (address) {
         return 0x66F62574ab04989737228D18C3624f7FC1edAe14;
     }
