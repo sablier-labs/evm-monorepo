@@ -8,7 +8,6 @@ import { BaseTest } from "../BaseTest.t.sol";
 
 /// @title IntegrationTest
 /// @notice Common contract members needed across Sablier V2 integration test contracts.
-/// @dev Strictly for test purposes.
 abstract contract IntegrationTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
@@ -40,8 +39,8 @@ abstract contract IntegrationTest is BaseTest {
                                  STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Stablecoin", "USD", 18);
     ERC20GodMode internal dai = new ERC20GodMode("Dai Stablecoin", "DAI", 18);
+    NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Stablecoin", "USD", 18);
     ERC20GodMode internal usdc = new ERC20GodMode("USD Coin", "USDC", 6);
     Users internal users;
 

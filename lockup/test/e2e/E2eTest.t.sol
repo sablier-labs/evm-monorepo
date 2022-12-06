@@ -8,7 +8,6 @@ import { BaseTest } from "../BaseTest.t.sol";
 
 /// @title E2eTest
 /// @notice Collections of tests run against a mainnet fork.
-/// @dev Strictly for test purposes.
 abstract contract E2eTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                        STORAGE
