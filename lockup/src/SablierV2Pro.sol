@@ -28,7 +28,7 @@ contract SablierV2Pro is
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum value an exponent can have is 10.
+    /// @notice The maximum value an exponent can have is 10e18.
     SD59x18 public constant MAX_EXPONENT = SD59x18.wrap(10e18);
 
     /// @notice The maximum number of segments allowed in a stream.
