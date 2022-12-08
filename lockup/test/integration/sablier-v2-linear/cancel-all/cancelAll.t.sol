@@ -262,16 +262,18 @@ contract CancelAll__Test is SablierV2LinearTest {
         // Run the test.
         uint128 returnAmount = 0;
 
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.Cancel({
             streamId: defaultStreamIds[0],
+            sender: daiStream.sender,
             recipient: users.recipient,
             withdrawAmount: daiStream.depositAmount,
             returnAmount: returnAmount
         });
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.Cancel({
             streamId: defaultStreamIds[1],
+            sender: daiStream.sender,
             recipient: users.recipient,
             withdrawAmount: daiStream.depositAmount,
             returnAmount: returnAmount
@@ -324,16 +326,18 @@ contract CancelAll__Test is SablierV2LinearTest {
         // Run the test.
         uint128 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
 
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.Cancel({
             streamId: defaultStreamIds[0],
+            sender: daiStream.sender,
             recipient: users.recipient,
             withdrawAmount: WITHDRAW_AMOUNT_DAI,
             returnAmount: returnAmount
         });
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.Cancel({
             streamId: defaultStreamIds[1],
+            sender: daiStream.sender,
             recipient: users.recipient,
             withdrawAmount: WITHDRAW_AMOUNT_DAI,
             returnAmount: returnAmount
@@ -421,16 +425,18 @@ contract CancelAll__Test is SablierV2LinearTest {
         uint128 ongoingWithdrawAmount = WITHDRAW_AMOUNT_DAI;
         uint128 ongoingReturnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
 
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.Cancel({
             streamId: endedDaiStreamId,
+            sender: daiStream.sender,
             recipient: users.recipient,
             withdrawAmount: endedWithdrawAmount,
             returnAmount: endedReturnAmount
         });
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.Cancel({
             streamId: ongoingStreamId,
+            sender: daiStream.sender,
             recipient: users.recipient,
             withdrawAmount: ongoingWithdrawAmount,
             returnAmount: ongoingReturnAmount

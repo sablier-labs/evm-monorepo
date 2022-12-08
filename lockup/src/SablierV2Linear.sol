@@ -209,6 +209,8 @@ contract SablierV2Linear is
             returnAmount = stream.depositAmount - stream.withdrawnAmount - withdrawAmount;
         }
 
+        // Load the sender and the recipient in memory, we will need them below.
+        address sender = getSender(streamId);
         address recipient = getRecipient(streamId);
 
         // Effects: delete the stream from storage.
@@ -224,11 +226,11 @@ contract SablierV2Linear is
 
         // Interactions: return the tokens to the sender, if any.
         if (returnAmount > 0) {
-            IERC20(stream.token).safeTransfer({ to: stream.sender, amount: returnAmount });
+            IERC20(stream.token).safeTransfer({ to: sender, amount: returnAmount });
         }
 
         // Emit an event.
-        emit Events.Cancel(streamId, recipient, withdrawAmount, returnAmount);
+        emit Events.Cancel(streamId, sender, recipient, withdrawAmount, returnAmount);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
