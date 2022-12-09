@@ -6,9 +6,9 @@ import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 
-import { E2eTest } from "../E2eTest.t.sol";
+import { IntegrationTest } from "../IntegrationTest.t.sol";
 
-abstract contract CreateTest is E2eTest {
+abstract contract CreateTest is IntegrationTest {
     /*//////////////////////////////////////////////////////////////////////////
                                        STORAGE
     //////////////////////////////////////////////////////////////////////////*/

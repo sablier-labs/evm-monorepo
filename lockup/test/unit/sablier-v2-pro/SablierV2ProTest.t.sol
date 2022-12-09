@@ -6,11 +6,11 @@ import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
-import { IntegrationTest } from "../IntegrationTest.t.sol";
+import { UnitTest } from "../UnitTest.t.sol";
 
 /// @title SablierV2ProTest
-/// @notice Common contract members needed across SablierV2Pro integration tests.
-abstract contract SablierV2ProTest is IntegrationTest {
+/// @notice Common contract members needed across SablierV2Pro unit tests.
+abstract contract SablierV2ProTest is UnitTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/

@@ -4,11 +4,11 @@ pragma solidity >=0.8.13;
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 
-import { IntegrationTest } from "../IntegrationTest.t.sol";
+import { UnitTest } from "../UnitTest.t.sol";
 
 /// @title SablierV2LinearTest
-/// @notice Common contract members needed across SablierV2Linear integration tests
-abstract contract SablierV2LinearTest is IntegrationTest {
+/// @notice Common contract members needed across SablierV2Linear unit tests.
+abstract contract SablierV2LinearTest is UnitTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/

@@ -6,9 +6,9 @@ import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
 import { BaseTest } from "../BaseTest.t.sol";
 
-/// @title E2eTest
+/// @title IntegrationTest
 /// @notice Collections of tests run against a mainnet fork.
-abstract contract E2eTest is BaseTest {
+abstract contract IntegrationTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                        STORAGE
     //////////////////////////////////////////////////////////////////////////*/

@@ -6,9 +6,9 @@ import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.
 
 import { BaseTest } from "../BaseTest.t.sol";
 
-/// @title IntegrationTest
-/// @notice Common contract members needed across Sablier V2 integration test contracts.
-abstract contract IntegrationTest is BaseTest {
+/// @title UnitTest
+/// @notice Common contract members needed across Sablier V2 unit tests.
+abstract contract UnitTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
