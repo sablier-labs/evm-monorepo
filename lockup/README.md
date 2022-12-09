@@ -74,6 +74,39 @@ You will need the following VSCode extensions:
 - [vscode-solidity](https://marketplace.visualstudio.com/items?itemName=JuanBlanco.solidity)
 - [vscode-tree-language](https://marketplace.visualstudio.com/items?itemName=CTC.vscode-tree-extension)
 
+## Tests
+
+Tests are organized in two categories:
+
+1. Unit - simple tests that check the behavior of a single function on a local development EMV.
+2. Integration - complex tests that run against a fork of Ethereum Mainnet.
+
+You can run all the tests by using this command:
+
+```sh
+forge test
+```
+
+By default, only unit tests run. To run all tests, including integration tests, you can use the `--match-path` flag and
+pass the path to the `test` directory:
+
+```sh
+forge test --match-path ./test/integration
+```
+
+To filter tests by name, you can use the `--match-test` flag. Here's an example for the `create` function tests:
+
+```sh
+forge test --match-test testCreate
+```
+
+You can also filter the tests by test contract name with the `--match-contract` flag. Here's an example for the `create`
+function test contract:
+
+```sh
+forge test --match-contract Create__Test
+```
+
 ## Commands
 
 Here's a list of the most frequently needed commands.
