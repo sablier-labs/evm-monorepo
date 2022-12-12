@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { SD59x18 } from "@prb/math/SD59x18.sol";
-
 import { Errors } from "./Errors.sol";
 
 /// @title Validations
@@ -42,9 +40,8 @@ library Validations {
         uint128 depositAmount,
         uint40 startTime,
         uint128[] memory segmentAmounts,
-        SD59x18[] memory segmentExponents,
+        int64[] memory segmentExponents,
         uint40[] memory segmentMilestones,
-        SD59x18 maxExponent,
         uint256 maxSegmentCount
     ) internal pure {
         // Checks: segment counts match.
@@ -68,15 +65,7 @@ library Validations {
         _checkCreateArguments(sender, recipient, depositAmount);
 
         // Checks: requirements of segments variables.
-        _checkSegments(
-            depositAmount,
-            startTime,
-            segmentAmounts,
-            segmentExponents,
-            segmentMilestones,
-            maxExponent,
-            segmentCount
-        );
+        _checkSegments(depositAmount, startTime, segmentAmounts, segmentMilestones, segmentCount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -108,15 +97,12 @@ library Validations {
     /// @dev Checks that:
     /// 1. The first milestone is greater than or equal to the start time.
     /// 2. The milestones are ordered chronologically.
-    /// 3. The exponents are within the bounds permitted in Sablier.
-    /// 4. The deposit amount is equal to the segment amounts summed up.
+    /// 3. The deposit amount is equal to the segment amounts summed up.
     function _checkSegments(
         uint128 depositAmount,
         uint40 startTime,
         uint128[] memory segmentAmounts,
-        SD59x18[] memory segmentExponents,
         uint40[] memory segmentMilestones,
-        SD59x18 maxExponent,
         uint256 segmentCount
     ) private pure {
         // Check that the first milestone is greater than or equal to the start time.
@@ -126,7 +112,6 @@ library Validations {
 
         // Define the variables needed in the for loop below.
         uint40 currentMilestone;
-        SD59x18 exponent;
         uint40 previousMilestone;
         uint128 segmentAmountsSum;
 
@@ -141,12 +126,6 @@ library Validations {
             currentMilestone = segmentMilestones[index];
             if (previousMilestone >= currentMilestone) {
                 revert Errors.SablierV2Pro__SegmentMilestonesNotOrdered(index, previousMilestone, currentMilestone);
-            }
-
-            // Check that the exponent is not out of bounds.
-            exponent = segmentExponents[index];
-            if (exponent.gt(maxExponent)) {
-                revert Errors.SablierV2Pro__SegmentExponentOutOfBounds(exponent);
             }
 
             // Make the current milestone the previous milestone of the next iteration.

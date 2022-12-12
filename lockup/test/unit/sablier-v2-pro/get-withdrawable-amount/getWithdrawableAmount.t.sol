@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { E, SD59x18 } from "@prb/math/SD59x18.sol";
-
 import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
 
 contract GetWithdrawableAmount__Test is SablierV2ProTest {
     uint256 internal daiStreamId;
+    int64 internal constant E = 2_718281828459045235;
 
     /// @dev A setup function invoked before each test case.
     function setUp() public override {
@@ -107,7 +106,7 @@ contract GetWithdrawableAmount__Test is SablierV2ProTest {
     {
         uint128 usdcDepositAmount = SEGMENT_AMOUNTS_USDC[0] + SEGMENT_AMOUNTS_USDC[1];
         uint128[] memory segmentAmounts = createDynamicUint128Array(usdcDepositAmount);
-        SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[1]);
+        int64[] memory segmentExponents = createDynamicInt64Array(SEGMENT_EXPONENTS[1]);
         uint40[] memory segmentMilestones = createDynamicUint40Array(SEGMENT_MILESTONES[1]);
 
         uint256 usdcStreamId = sablierV2Pro.create(
@@ -138,7 +137,7 @@ contract GetWithdrawableAmount__Test is SablierV2ProTest {
     {
         uint128 daiDepositAmount = SEGMENT_AMOUNTS_DAI[0] + SEGMENT_AMOUNTS_DAI[1];
         uint128[] memory segmentAmounts = createDynamicUint128Array(daiDepositAmount);
-        SD59x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[1]);
+        int64[] memory segmentExponents = createDynamicInt64Array(SEGMENT_EXPONENTS[1]);
         uint40[] memory segmentMilestones = createDynamicUint40Array(SEGMENT_MILESTONES[1]);
 
         daiStreamId = sablierV2Pro.create(
@@ -229,13 +228,13 @@ contract GetWithdrawableAmount__Test is SablierV2ProTest {
     {
         uint256 count = sablierV2Pro.MAX_SEGMENT_COUNT();
         uint128[] memory segmentAmounts = new uint128[](count);
-        SD59x18[] memory segmentExponents = new SD59x18[](count);
+        int64[] memory segmentExponents = new int64[](count);
         uint40[] memory segmentMilestones = new uint40[](count);
 
         unchecked {
             // Generate 200 segments that each have the same amount, same exponent and are evenly spread apart.
             uint128 segmentAmount = usdcStream.depositAmount / uint128(count);
-            SD59x18 segmentExponent = E;
+            int64 segmentExponent = E;
             uint40 totalDuration = usdcStream.stopTime - usdcStream.startTime;
             uint40 segmentDuration = totalDuration / uint40(count);
             for (uint256 i = 0; i < count; ) {
@@ -275,13 +274,13 @@ contract GetWithdrawableAmount__Test is SablierV2ProTest {
     {
         uint256 count = sablierV2Pro.MAX_SEGMENT_COUNT();
         uint128[] memory segmentAmounts = new uint128[](count);
-        SD59x18[] memory segmentExponents = new SD59x18[](count);
+        int64[] memory segmentExponents = new int64[](count);
         uint40[] memory segmentMilestones = new uint40[](count);
 
         unchecked {
             // Generate 200 segments that each have the same amount, same exponent and are evenly spread apart.
             uint128 segmentAmount = daiStream.depositAmount / uint128(count);
-            SD59x18 segmentExponent = E;
+            int64 segmentExponent = E;
             uint40 totalDuration = daiStream.stopTime - daiStream.startTime;
             uint40 segmentDuration = totalDuration / uint40(count);
             for (uint40 i = 0; i < count; ) {

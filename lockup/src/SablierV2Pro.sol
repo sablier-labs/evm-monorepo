@@ -28,9 +28,6 @@ contract SablierV2Pro is
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum value an exponent can have is 10e18.
-    SD59x18 public constant MAX_EXPONENT = SD59x18.wrap(10e18);
-
     /// @notice The maximum number of segments allowed in a stream.
     uint256 public immutable MAX_SEGMENT_COUNT;
 
@@ -90,7 +87,7 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2Pro
-    function getSegmentExponents(uint256 streamId) external view override returns (SD59x18[] memory segmentExponents) {
+    function getSegmentExponents(uint256 streamId) external view override returns (int64[] memory segmentExponents) {
         segmentExponents = _streams[streamId].segmentExponents;
     }
 
@@ -136,11 +133,11 @@ contract SablierV2Pro is
             }
 
             // Define the common variables used in the calculations below.
-            SD59x18 currentSegmentAmount;
-            SD59x18 currentSegmentExponent;
-            SD59x18 elapsedSegmentTime;
-            SD59x18 totalSegmentTime;
+            int64 currentSegmentExponent;
+            uint128 currentSegmentAmount;
             uint128 previousSegmentAmounts;
+            uint40 elapsedSegmentTime;
+            uint40 totalSegmentTime;
 
             // If there's more than one segment, we have to iterate over all of them.
             uint256 segmentCount = _streams[streamId].segmentAmounts.length;
@@ -157,7 +154,7 @@ contract SablierV2Pro is
 
                 // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
                 // is found at `index - 2`.
-                currentSegmentAmount = SD59x18.wrap(int256(uint256(_streams[streamId].segmentAmounts[index - 1])));
+                currentSegmentAmount = _streams[streamId].segmentAmounts[index - 1];
                 currentSegmentExponent = _streams[streamId].segmentExponents[index - 1];
                 currentSegmentMilestone = _streams[streamId].segmentMilestones[index - 1];
 
@@ -165,34 +162,32 @@ contract SablierV2Pro is
                 // milestone and the previous segment milestone.
                 if (index > 1) {
                     uint40 previousSegmentMilestone = _streams[streamId].segmentMilestones[index - 2];
-                    elapsedSegmentTime = toSD59x18(int256(uint256(currentTime - previousSegmentMilestone)));
+                    elapsedSegmentTime = currentTime - previousSegmentMilestone;
 
                     // Calculate the time between the current segment milestone and the previous segment milestone.
-                    totalSegmentTime = toSD59x18(int256(uint256(currentSegmentMilestone - previousSegmentMilestone)));
+                    totalSegmentTime = currentSegmentMilestone - previousSegmentMilestone;
                 }
                 // If the current segment is at index 1, take the difference between the current segment milestone and
                 // the start time of the stream.
                 else {
-                    elapsedSegmentTime = toSD59x18(int256(uint256(currentTime - _streams[streamId].startTime)));
-                    totalSegmentTime = toSD59x18(
-                        int256(uint256(currentSegmentMilestone - _streams[streamId].startTime))
-                    );
+                    elapsedSegmentTime = currentTime - _streams[streamId].startTime;
+                    totalSegmentTime = currentSegmentMilestone - _streams[streamId].startTime;
                 }
             }
             // Otherwise, if there's only one segment, we use the start time of the stream in the calculations.
             else {
-                currentSegmentAmount = SD59x18.wrap(int256(uint256(_streams[streamId].segmentAmounts[0])));
+                currentSegmentAmount = _streams[streamId].segmentAmounts[0];
                 currentSegmentExponent = _streams[streamId].segmentExponents[0];
-                elapsedSegmentTime = toSD59x18(int256(uint256(currentTime - _streams[streamId].startTime)));
-                totalSegmentTime = toSD59x18(
-                    int256(uint256(_streams[streamId].stopTime - _streams[streamId].startTime))
-                );
+                elapsedSegmentTime = currentTime - _streams[streamId].startTime;
+                totalSegmentTime = _streams[streamId].stopTime - _streams[streamId].startTime;
             }
 
             // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
-            SD59x18 multiplier = elapsedTimePercentage.pow(currentSegmentExponent);
-            SD59x18 proRataAmount = multiplier.mul(currentSegmentAmount);
+            SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
+                toSD59x18(int256(uint256(totalSegmentTime)))
+            );
+            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(currentSegmentExponent)));
+            SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
             SD59x18 streamedAmount = SD59x18.wrap(int256(uint256(previousSegmentAmounts))).add(proRataAmount);
             withdrawableAmount = uint128(uint256(SD59x18.unwrap(streamedAmount))) - _streams[streamId].withdrawnAmount;
         }
@@ -225,7 +220,7 @@ contract SablierV2Pro is
         address token,
         uint40 startTime,
         uint128[] memory segmentAmounts,
-        SD59x18[] memory segmentExponents,
+        int64[] memory segmentExponents,
         uint40[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId) {
@@ -250,7 +245,7 @@ contract SablierV2Pro is
         uint128 depositAmount,
         address token,
         uint128[] memory segmentAmounts,
-        SD59x18[] memory segmentExponents,
+        int64[] memory segmentExponents,
         uint40[] memory segmentDeltas,
         bool cancelable
     ) external override returns (uint256 streamId) {
@@ -343,7 +338,7 @@ contract SablierV2Pro is
         address token,
         uint40 startTime,
         uint128[] memory segmentAmounts,
-        SD59x18[] memory segmentExponents,
+        int64[] memory segmentExponents,
         uint40[] memory segmentMilestones,
         bool cancelable
     ) internal returns (uint256 streamId) {
@@ -356,7 +351,6 @@ contract SablierV2Pro is
             segmentAmounts,
             segmentExponents,
             segmentMilestones,
-            MAX_EXPONENT,
             MAX_SEGMENT_COUNT
         );
 

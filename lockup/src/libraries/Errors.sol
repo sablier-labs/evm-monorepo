@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { SD59x18 } from "@prb/math/SD59x18.sol";
-
 /// @title Errors
 /// @notice Library with custom errors used across the core contracts.
 library Errors {
@@ -74,9 +72,6 @@ library Errors {
 
     /// @notice Emitted when attempting to create a stream with zero segments.
     error SablierV2Pro__SegmentCountZero();
-
-    /// @notice Emitted when attempting to create a stream with an out of bounds exponent.
-    error SablierV2Pro__SegmentExponentOutOfBounds(SD59x18 exponent);
 
     /// @notice Emitted when attempting to create a stream with segment milestones that are not ordered.
     error SablierV2Pro__SegmentMilestonesNotOrdered(uint256 index, uint40 previousMilestone, uint40 currentMilestone);

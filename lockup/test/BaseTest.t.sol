@@ -2,9 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { PRBTest } from "@prb/test/PRBTest.sol";
-import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { StdCheats, StdUtils } from "forge-std/Components.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 
@@ -12,6 +10,8 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
+
+    event LogNamedArray(string key, int64[] value);
 
     event LogNamedArray(string key, uint40[] value);
 
@@ -22,6 +22,7 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 internal constant MAX_SEGMENT_COUNT = 200;
+    int64 internal constant INT64_MAX = type(int64).max;
     uint40 internal constant UINT40_MAX = type(uint40).max;
     uint128 internal constant UINT128_MAX = type(uint128).max;
     uint256 internal constant UINT256_MAX = type(uint256).max;
@@ -50,21 +51,20 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
         assertEq(uint256(a.startTime), uint256(b.startTime));
         assertEq(uint256(a.stopTime), uint256(b.stopTime));
         assertEqUint128Array(a.segmentAmounts, b.segmentAmounts);
-        assertEq(a.segmentExponents, b.segmentExponents);
+        assertEqInt64Array(a.segmentExponents, b.segmentExponents);
         assertEqUint40Array(a.segmentMilestones, b.segmentMilestones);
         assertEq(a.token, b.token);
         assertEq(uint256(a.withdrawnAmount), uint256(b.withdrawnAmount));
     }
 
-    /// @dev Helper function to compare two SD59x18 arrays.
-    function assertEq(SD59x18[] memory a, SD59x18[] memory b) internal {
-        int256[] memory castedA;
-        int256[] memory castedB;
-        assembly {
-            castedA := a
-            castedB := b
+    /// @dev Helper function to compare two `int64` arrays.
+    function assertEqInt64Array(int64[] memory a, int64[] memory b) internal {
+        if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
+            emit Log("Error: a == b not satisfied [int64[]]");
+            emit LogNamedArray("  Expected", b);
+            emit LogNamedArray("    Actual", a);
+            fail();
         }
-        assertEq(castedA, castedB);
     }
 
     /// @dev Helper function to compare two `uint40` arrays.
@@ -93,12 +93,6 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
         dynamicalArray[0] = element0;
     }
 
-    /// @dev Helper function to create a dynamical `SD59x18` array with 1 element.
-    function createDynamicArray(SD59x18 element0) internal pure returns (SD59x18[] memory dynamicalArray) {
-        dynamicalArray = new SD59x18[](1);
-        dynamicalArray[0] = element0;
-    }
-
     /// @dev Helper function to create a dynamical `uint256` array with 2 elements.
     function createDynamicArray(uint256 element0, uint256 element1)
         internal
@@ -106,17 +100,6 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
         returns (uint256[] memory dynamicalArray)
     {
         dynamicalArray = new uint256[](2);
-        dynamicalArray[0] = element0;
-        dynamicalArray[1] = element1;
-    }
-
-    /// @dev Helper function to create a dynamical `SD59x18` array with 2 elements.
-    function createDynamicArray(SD59x18 element0, SD59x18 element1)
-        internal
-        pure
-        returns (SD59x18[] memory dynamicalArray)
-    {
-        dynamicalArray = new SD59x18[](2);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
     }
@@ -133,13 +116,30 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils {
         dynamicalArray[2] = element2;
     }
 
-    /// @dev Helper function to create a dynamical `SD59x18` array with 3 elements.
-    function createDynamicArray(
-        SD59x18 element0,
-        SD59x18 element1,
-        SD59x18 element2
-    ) internal pure returns (SD59x18[] memory dynamicalArray) {
-        dynamicalArray = new SD59x18[](3);
+    /// @dev Helper function to create a dynamical `int64` array with 1 element.
+    function createDynamicInt64Array(int64 element0) internal pure returns (int64[] memory dynamicalArray) {
+        dynamicalArray = new int64[](1);
+        dynamicalArray[0] = element0;
+    }
+
+    /// @dev Helper function to create a dynamical `int64` array with 2 elements.
+    function createDynamicInt64Array(int64 element0, int64 element1)
+        internal
+        pure
+        returns (int64[] memory dynamicalArray)
+    {
+        dynamicalArray = new int64[](2);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+    }
+
+    /// @dev Helper function to create a dynamical `int64` array with 3 elements.
+    function createDynamicInt64Array(
+        int64 element0,
+        int64 element1,
+        int64 element2
+    ) internal pure returns (int64[] memory dynamicalArray) {
+        dynamicalArray = new int64[](3);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
         dynamicalArray[2] = element2;
