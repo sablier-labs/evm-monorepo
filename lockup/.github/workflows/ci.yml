@@ -26,13 +26,19 @@ jobs:
         with:
           version: "nightly"
 
+      - name: "Cache RPC Responses"
+        uses: "actions/cache@v3"
+        with:
+          path: "~/.foundry/cache/rpc/mainnet/16126000"
+          key: "${{ runner.os }}-mainnet-16126000"
+
       - name: "Install Node.js"
         uses: "actions/setup-node@v3"
         with:
           cache: "yarn"
           node-version: "lts/*"
 
-      - name: "Install the Node.Js dependencies"
+      - name: "Install the Node.js dependencies"
         run: "yarn install --immutable"
 
       - name: "Lint the contracts"
