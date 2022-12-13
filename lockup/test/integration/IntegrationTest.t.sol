@@ -21,7 +21,7 @@ abstract contract IntegrationTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        vm.createSelectFork({ endpoint: vm.envString("ETH_RPC_URL"), blockNumber: 16_126_000 });
+        vm.createSelectFork({ urlOrAlias: vm.envString("ETH_RPC_URL"), blockNumber: 16_126_000 });
 
         sablierV2Linear = new SablierV2Linear();
         sablierV2Pro = new SablierV2Pro({ maxSegmentCount: MAX_SEGMENT_COUNT });
