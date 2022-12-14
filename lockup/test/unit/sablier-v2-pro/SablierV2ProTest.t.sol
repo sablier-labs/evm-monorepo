@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { SD1x18 } from "@prb/math/SD1x18.sol";
+
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
@@ -16,7 +18,7 @@ abstract contract SablierV2ProTest is UnitTest {
     uint128[] internal SEGMENT_AMOUNTS_DAI = [2_000e18, 8_000e18];
     uint128[] internal SEGMENT_AMOUNTS_USDC = [2_000e6, 8_000e6];
     uint40[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
-    int64[] internal SEGMENT_EXPONENTS = [int64(3.14e18), int64(0.5e18)];
+    SD1x18[] internal SEGMENT_EXPONENTS = [SD1x18.wrap(3.14e18), SD1x18.wrap(0.5e18)];
     uint40[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];
     uint256 internal constant TIME_OFFSET = 2_000 seconds;
 

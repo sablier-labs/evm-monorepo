@@ -4,6 +4,7 @@ pragma solidity >=0.8.13;
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
+import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18, toSD59x18 } from "@prb/math/SD59x18.sol";
 
 import { DataTypes } from "./libraries/DataTypes.sol";
@@ -29,6 +30,7 @@ contract SablierV2Pro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice The maximum number of segments allowed in a stream.
+    /// @dev This is initialized at construction time.
     uint256 public immutable MAX_SEGMENT_COUNT;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -87,7 +89,7 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2Pro
-    function getSegmentExponents(uint256 streamId) external view override returns (int64[] memory segmentExponents) {
+    function getSegmentExponents(uint256 streamId) external view override returns (SD1x18[] memory segmentExponents) {
         segmentExponents = _streams[streamId].segmentExponents;
     }
 
@@ -133,7 +135,7 @@ contract SablierV2Pro is
             }
 
             // Define the common variables used in the calculations below.
-            int64 currentSegmentExponent;
+            SD1x18 currentSegmentExponent;
             uint128 currentSegmentAmount;
             uint128 previousSegmentAmounts;
             uint40 elapsedSegmentTime;
@@ -186,7 +188,7 @@ contract SablierV2Pro is
             SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
                 toSD59x18(int256(uint256(totalSegmentTime)))
             );
-            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(currentSegmentExponent)));
+            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
             SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
             SD59x18 streamedAmount = SD59x18.wrap(int256(uint256(previousSegmentAmounts))).add(proRataAmount);
             withdrawableAmount = uint128(uint256(SD59x18.unwrap(streamedAmount))) - _streams[streamId].withdrawnAmount;
@@ -220,7 +222,7 @@ contract SablierV2Pro is
         address token,
         uint40 startTime,
         uint128[] memory segmentAmounts,
-        int64[] memory segmentExponents,
+        SD1x18[] memory segmentExponents,
         uint40[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId) {
@@ -245,7 +247,7 @@ contract SablierV2Pro is
         uint128 depositAmount,
         address token,
         uint128[] memory segmentAmounts,
-        int64[] memory segmentExponents,
+        SD1x18[] memory segmentExponents,
         uint40[] memory segmentDeltas,
         bool cancelable
     ) external override returns (uint256 streamId) {
@@ -338,7 +340,7 @@ contract SablierV2Pro is
         address token,
         uint40 startTime,
         uint128[] memory segmentAmounts,
-        int64[] memory segmentExponents,
+        SD1x18[] memory segmentExponents,
         uint40[] memory segmentMilestones,
         bool cancelable
     ) internal returns (uint256 streamId) {

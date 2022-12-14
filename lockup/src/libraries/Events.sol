@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { SD1x18 } from "@prb/math/SD1x18.sol";
+
 /// @title Events
 /// @notice Library with events used across the core contracts.
 library Events {
@@ -69,7 +71,7 @@ library Events {
         uint40 startTime,
         uint40 stopTime,
         uint128[] segmentAmounts,
-        int64[] segmentExponents,
+        SD1x18[] segmentExponents,
         uint40[] segmentMilestones,
         bool cancelable
     );

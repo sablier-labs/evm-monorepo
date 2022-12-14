@@ -2,6 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { SD1x18 } from "@prb/math/SD1x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 
@@ -80,7 +81,7 @@ abstract contract CreateTest is IntegrationTest {
         uint128 depositAmount,
         uint40 startTime,
         uint40 stopTime,
-        int64 exponent,
+        SD1x18 exponent,
         bool cancelable
     ) external {
         vm.assume(sender != address(0));
@@ -90,7 +91,7 @@ abstract contract CreateTest is IntegrationTest {
         vm.assume(startTime > 0); // needed for the segments to be ordered
         vm.assume(startTime <= stopTime);
 
-        int64[] memory segmentExponents = createDynamicInt64Array(exponent);
+        SD1x18[] memory segmentExponents = createDynamicArray(exponent);
         uint128[] memory segmentAmounts = createDynamicUint128Array(depositAmount);
         uint40[] memory segmentMilestones = createDynamicUint40Array(stopTime);
 

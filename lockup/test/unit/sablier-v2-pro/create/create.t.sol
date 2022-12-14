@@ -2,6 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
+import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { stdError } from "forge-std/StdError.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
@@ -57,7 +58,7 @@ contract Create__Test is SablierV2ProTest {
     function testCannotCreate__SegmentCountZero() external RecipientNonZeroAddress DepositAmountNotZero {
         vm.expectRevert(Errors.SablierV2Pro__SegmentCountZero.selector);
         uint128[] memory segmentAmounts;
-        int64[] memory segmentExponents;
+        SD1x18[] memory segmentExponents;
         uint40[] memory segmentMilestones;
         sablierV2Pro.create(
             daiStream.sender,
@@ -117,7 +118,7 @@ contract Create__Test is SablierV2ProTest {
         SegmentCountNotZero
         SegmentCountWithinBounds
     {
-        int64[] memory segmentExponents = createDynamicInt64Array(SEGMENT_EXPONENTS[0]);
+        SD1x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2Pro__SegmentCountsNotEqual.selector,

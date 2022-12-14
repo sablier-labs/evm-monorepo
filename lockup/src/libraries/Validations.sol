@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { SD1x18 } from "@prb/math/SD1x18.sol";
+
 import { Errors } from "./Errors.sol";
 
 /// @title Validations
@@ -40,7 +42,7 @@ library Validations {
         uint128 depositAmount,
         uint40 startTime,
         uint128[] memory segmentAmounts,
-        int64[] memory segmentExponents,
+        SD1x18[] memory segmentExponents,
         uint40[] memory segmentMilestones,
         uint256 maxSegmentCount
     ) internal pure {

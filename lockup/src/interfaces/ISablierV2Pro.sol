@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { SD1x18 } from "@prb/math/SD1x18.sol";
+
 import { DataTypes } from "../libraries/DataTypes.sol";
 
 import { ISablierV2 } from "./ISablierV2.sol";
@@ -14,17 +16,17 @@ interface ISablierV2Pro is ISablierV2 {
 
     /// @notice Reads the segment amounts used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
-    /// @return segmentAmounts The segment amounts used to composde the custom emission curve.
+    /// @return segmentAmounts The segment amounts used to compose the custom emission curve.
     function getSegmentAmounts(uint256 streamId) external view returns (uint128[] memory segmentAmounts);
 
     /// @notice Reads the segment exponents used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
-    /// @return segmentExponents The segment exponents used to composde the custom emission curve.
-    function getSegmentExponents(uint256 streamId) external view returns (int64[] memory segmentExponents);
+    /// @return segmentExponents The segment exponents used to compose the custom emission curve.
+    function getSegmentExponents(uint256 streamId) external view returns (SD1x18[] memory segmentExponents);
 
     /// @notice Reads the segment milestones used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
-    /// @return segmentMilestones The segment milestones used to composde the custom emission curve.
+    /// @return segmentMilestones The segment milestones used to compose the custom emission curve.
     function getSegmentMilestones(uint256 streamId) external view returns (uint40[] memory segmentMilestones);
 
     /// @notice Reads the stream struct.
@@ -49,7 +51,6 @@ interface ISablierV2Pro is ISablierV2 {
     /// - `segmentAmounts` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
     /// - `segmentAmounts` summed up must be equal to `depositAmount`.
     /// - `segmentExponents` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
-    /// - `segmentExponents` must fit within int64.
     /// - `segmentMilestones` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
     /// - `segmentMilestones` must be bounded between `startTime` and `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
@@ -72,7 +73,7 @@ interface ISablierV2Pro is ISablierV2 {
         address token,
         uint40 startTime,
         uint128[] memory segmentAmounts,
-        int64[] memory segmentExponents,
+        SD1x18[] memory segmentExponents,
         uint40[] memory segmentMilestones,
         bool cancelable
     ) external returns (uint256 streamId);
@@ -101,7 +102,7 @@ interface ISablierV2Pro is ISablierV2 {
         uint128 depositAmount,
         address token,
         uint128[] memory segmentAmounts,
-        int64[] memory segmentExponents,
+        SD1x18[] memory segmentExponents,
         uint40[] memory segmentDeltas,
         bool cancelable
     ) external returns (uint256 streamId);

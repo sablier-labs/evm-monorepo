@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { SD1x18 } from "@prb/math/SD1x18.sol";
+
 /// @title DataTypes
 /// @notice Library with data types used across the core contracts.
 library DataTypes {
@@ -30,7 +32,7 @@ library DataTypes {
     /// @dev The members are arranged like this to save gas via tight variable packing.
     struct ProStream {
         uint128[] segmentAmounts;
-        int64[] segmentExponents;
+        SD1x18[] segmentExponents;
         uint40[] segmentMilestones;
         uint128 depositAmount; // ───┐
         uint128 withdrawnAmount; // ─┘
