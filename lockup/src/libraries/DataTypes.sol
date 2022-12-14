@@ -18,7 +18,8 @@ library DataTypes {
         address sender; // ──┐
         uint40 startTime; // │
         uint40 cliffTime; // │
-        bool cancelable; // ─┘
+        bool cancelable; //  │
+        bool isEntity; // ───┘
         address token; // ────┐
         uint40 stopTime; // ──┘
     }
@@ -39,7 +40,8 @@ library DataTypes {
         address sender; // ───┐
         uint40 startTime; //  │
         uint40 stopTime; //   │
-        bool cancelable; // ──┘
+        bool cancelable; //   │
+        bool isEntity; // ────┘
         address token;
     }
 }

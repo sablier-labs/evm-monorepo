@@ -10,14 +10,8 @@ library Errors {
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
     error SablierV2__DepositAmountZero();
 
-    /// @notice Emitted when attempting to create a stream with the recipient as the zero address.
-    error SablierV2__RecipientZeroAddress();
-
     /// @notice Emitted when attempting to renounce an already non-cancelable stream.
     error SablierV2__RenounceNonCancelableStream(uint256 streamId);
-
-    /// @notice Emitted when attempting to create a stream with the sender as the zero address.
-    error SablierV2__SenderZeroAddress();
 
     /// @notice Emitted when attempting to cancel a stream that is already non-cancelable.
     error SablierV2__StreamNonCancelable(uint256 streamId);

@@ -67,7 +67,7 @@ contract SablierV2Pro is
     /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount) {
         // If the stream does not exist, return zero.
-        if (_streams[streamId].sender == address(0)) {
+        if (!_streams[streamId].isEntity) {
             return 0;
         }
 
@@ -118,7 +118,7 @@ contract SablierV2Pro is
     /// @inheritdoc ISablierV2
     function getWithdrawableAmount(uint256 streamId) public view returns (uint128 withdrawableAmount) {
         // If the stream does not exist, return zero.
-        if (_streams[streamId].sender == address(0)) {
+        if (!_streams[streamId].isEntity) {
             return 0;
         }
 
@@ -203,8 +203,13 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2
-    function isCancelable(uint256 streamId) public view override(ISablierV2, SablierV2) returns (bool cancelable) {
-        cancelable = _streams[streamId].cancelable;
+    function isCancelable(uint256 streamId) public view override(ISablierV2, SablierV2) returns (bool result) {
+        result = _streams[streamId].cancelable;
+    }
+
+    /// @inheritdoc ISablierV2
+    function isEntity(uint256 streamId) public view override(ISablierV2, SablierV2) returns (bool result) {
+        result = _streams[streamId].isEntity;
     }
 
     /// @inheritdoc ERC721
@@ -379,8 +384,6 @@ contract SablierV2Pro is
     ) internal returns (uint256 streamId) {
         // Checks: the arguments of the function.
         Validations.checkCreateProArgs(
-            sender,
-            recipient,
             depositAmount,
             startTime,
             segmentAmounts,
@@ -401,6 +404,7 @@ contract SablierV2Pro is
         _streams[streamId] = DataTypes.ProStream({
             cancelable: cancelable,
             depositAmount: depositAmount,
+            isEntity: true,
             segmentAmounts: segmentAmounts,
             segmentExponents: segmentExponents,
             segmentMilestones: segmentMilestones,

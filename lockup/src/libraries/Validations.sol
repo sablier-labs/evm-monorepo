@@ -14,15 +14,15 @@ library Validations {
 
     /// @dev Checks the arguments of the `create` function in the {SablierV2Linear} contract.
     function checkCreateLinearArgs(
-        address sender,
-        address recipient,
         uint128 depositAmount,
         uint40 startTime,
         uint40 cliffTime,
         uint40 stopTime
     ) internal pure {
-        // Checks: the common requirements for the `create` function arguments.
-        _checkCreateArguments(sender, recipient, depositAmount);
+        // Checks: the deposit amount is not zero.
+        if (depositAmount == 0) {
+            revert Errors.SablierV2__DepositAmountZero();
+        }
 
         // Checks: the cliff time is greater than or equal to the start time.
         if (startTime > cliffTime) {
@@ -37,8 +37,6 @@ library Validations {
 
     /// @dev Checks the arguments of the `create` function in the {SablierV2Pro} contract.
     function checkCreateProArgs(
-        address sender,
-        address recipient,
         uint128 depositAmount,
         uint40 startTime,
         uint128[] memory segmentAmounts,
@@ -46,6 +44,11 @@ library Validations {
         uint40[] memory segmentMilestones,
         uint256 maxSegmentCount
     ) internal pure {
+        // Checks: the deposit amount is not zero.
+        if (depositAmount == 0) {
+            revert Errors.SablierV2__DepositAmountZero();
+        }
+
         // Checks: segment counts match.
         _checkSegmentCounts({
             amountsCount: segmentAmounts.length,
@@ -57,15 +60,6 @@ library Validations {
         // We can use any count because they are all equal to each other.
         uint256 segmentCount = segmentAmounts.length;
 
-        // Imply the stop time from the last segment milestone.
-        uint40 stopTime;
-        unchecked {
-            stopTime = segmentMilestones[segmentCount - 1];
-        }
-
-        // Checks: the common requirements for the `create` function arguments.
-        _checkCreateArguments(sender, recipient, depositAmount);
-
         // Checks: requirements of segments variables.
         _checkSegments(depositAmount, startTime, segmentAmounts, segmentMilestones, segmentCount);
     }
@@ -73,28 +67,6 @@ library Validations {
     /*//////////////////////////////////////////////////////////////////////////
                              PRIVATE CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Checks the basic requirements for the `create` function.
-    function _checkCreateArguments(
-        address sender,
-        address recipient,
-        uint128 depositAmount
-    ) private pure {
-        // Checks: the sender is not the zero address.
-        if (sender == address(0)) {
-            revert Errors.SablierV2__SenderZeroAddress();
-        }
-
-        // Checks: the recipient is not the zero address.
-        if (recipient == address(0)) {
-            revert Errors.SablierV2__RecipientZeroAddress();
-        }
-
-        // Checks: the deposit amount is not zero.
-        if (depositAmount == 0) {
-            revert Errors.SablierV2__DepositAmountZero();
-        }
-    }
 
     /// @dev Checks that:
     /// 1. The first milestone is greater than or equal to the start time.

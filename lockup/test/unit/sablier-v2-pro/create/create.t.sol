@@ -14,7 +14,7 @@ import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
 contract Create__Test is SablierV2ProTest {
     /// @dev it should revert.
     function testCannotCreate__RecipientZeroAddress() external {
-        vm.expectRevert(Errors.SablierV2__RecipientZeroAddress.selector);
+        vm.expectRevert("ERC721: mint to the zero address");
         address recipient = address(0);
         sablierV2Pro.create(
             daiStream.sender,
@@ -339,6 +339,7 @@ contract Create__Test is SablierV2ProTest {
         assertEq(actualStream.startTime, daiStream.startTime);
         assertEq(actualStream.stopTime, daiStream.stopTime);
         assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.isEntity, daiStream.isEntity);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
 
         address actualRecipient = sablierV2Pro.getRecipient(daiStreamId);

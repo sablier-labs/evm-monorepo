@@ -36,6 +36,7 @@ abstract contract BaseTest is PRBTest, PRBMathAssertions, StdCheats, StdUtils {
     function assertEq(DataTypes.LinearStream memory a, DataTypes.LinearStream memory b) internal {
         assertEq(a.cancelable, b.cancelable);
         assertEq(uint256(a.depositAmount), uint256(b.depositAmount));
+        assertEq(a.isEntity, b.isEntity);
         assertEq(a.sender, b.sender);
         assertEq(uint256(a.startTime), uint256(b.startTime));
         assertEq(uint256(a.cliffTime), uint256(b.cliffTime));
@@ -48,6 +49,7 @@ abstract contract BaseTest is PRBTest, PRBMathAssertions, StdCheats, StdUtils {
     function assertEq(DataTypes.ProStream memory a, DataTypes.ProStream memory b) internal {
         assertEq(a.cancelable, b.cancelable);
         assertEq(uint256(a.depositAmount), uint256(b.depositAmount));
+        assertEq(a.isEntity, b.isEntity);
         assertEq(a.sender, b.sender);
         assertEq(uint256(a.startTime), uint256(b.startTime));
         assertEq(uint256(a.stopTime), uint256(b.stopTime));

@@ -12,7 +12,7 @@ import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
 contract Create__Test is SablierV2LinearTest {
     /// @dev it should revert.
     function testCannotCreate__RecipientZeroAddress() external {
-        vm.expectRevert(Errors.SablierV2__RecipientZeroAddress.selector);
+        vm.expectRevert("ERC721: mint to the zero address");
         address recipient = address(0);
         sablierV2Linear.create(
             daiStream.sender,
@@ -91,6 +91,7 @@ contract Create__Test is SablierV2LinearTest {
         assertEq(actualStream.cliffTime, cliffTime);
         assertEq(actualStream.stopTime, daiStream.stopTime);
         assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.isEntity, daiStream.isEntity);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
@@ -152,6 +153,7 @@ contract Create__Test is SablierV2LinearTest {
         assertEq(actualStream.cliffTime, cliffTime);
         assertEq(actualStream.stopTime, daiStream.stopTime);
         assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.isEntity, daiStream.isEntity);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
@@ -218,6 +220,7 @@ contract Create__Test is SablierV2LinearTest {
         assertEq(actualStream.cliffTime, daiStream.cliffTime);
         assertEq(actualStream.stopTime, daiStream.stopTime);
         assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.isEntity, daiStream.isEntity);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);

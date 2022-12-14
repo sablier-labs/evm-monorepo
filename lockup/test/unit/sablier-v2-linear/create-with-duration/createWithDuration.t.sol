@@ -103,6 +103,7 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
         assertEq(actualStream.cliffTime, cliffTime);
         assertEq(actualStream.stopTime, stopTime);
         assertEq(actualStream.cancelable, daiStream.cancelable);
+        assertEq(actualStream.isEntity, daiStream.isEntity);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);

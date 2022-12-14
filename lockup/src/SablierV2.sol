@@ -39,7 +39,7 @@ abstract contract SablierV2 is ISablierV2 {
 
     /// @dev Checks that `streamId` points to a stream that exists.
     modifier streamExists(uint256 streamId) {
-        if (getSender(streamId) == address(0)) {
+        if (!isEntity(streamId)) {
             revert Errors.SablierV2__StreamNonExistent(streamId);
         }
         _;
@@ -64,7 +64,10 @@ abstract contract SablierV2 is ISablierV2 {
     function getSender(uint256 streamId) public view virtual override returns (address sender);
 
     /// @inheritdoc ISablierV2
-    function isCancelable(uint256 streamId) public view virtual override returns (bool cancelable);
+    function isCancelable(uint256 streamId) public view virtual override returns (bool result);
+
+    /// @inheritdoc ISablierV2
+    function isEntity(uint256 streamId) public view virtual override returns (bool result);
 
     /*//////////////////////////////////////////////////////////////////////////
                             PUBLIC NON-CONSTANT FUNCTIONS
@@ -89,7 +92,7 @@ abstract contract SablierV2 is ISablierV2 {
             streamId = streamIds[i];
 
             // Cancel the stream only if the `streamId` points to a stream that exists and is cancelable.
-            if (getSender(streamId) != address(0) && isCancelable(streamId)) {
+            if (isEntity(streamId) && isCancelable(streamId)) {
                 _cancel(streamId);
             }
 
@@ -141,17 +144,17 @@ abstract contract SablierV2 is ISablierV2 {
         for (uint256 i = 0; i < streamIdsCount; ) {
             streamId = streamIds[i];
 
-            // If the `streamId` points to a stream that does not exist, skip it.
-            recipient = getRecipient(streamId);
-            sender = getSender(streamId);
-            if (sender != address(0)) {
+            // If the `streamId` points to a stream that does not exist, we simply skip it.
+            if (isEntity(streamId)) {
                 // Checks: the `msg.sender` is the sender or the stream, an approved operator, or the owner of the NFT
                 // (a.k.a. the recipient of the stream).
+                sender = getSender(streamId);
                 if (msg.sender != sender && !_isApprovedOrOwner(msg.sender, streamId)) {
                     revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
                 }
 
                 // Effects and Interactions: withdraw from the stream.
+                recipient = getRecipient(streamId);
                 _withdraw(streamId, recipient, amounts[i]);
             }
 
@@ -185,8 +188,8 @@ abstract contract SablierV2 is ISablierV2 {
         for (uint256 i = 0; i < streamIdsCount; ) {
             streamId = streamIds[i];
 
-            // If the `streamId` points to a stream that does not exist, skip it.
-            if (getSender(streamId) != address(0)) {
+            // If the `streamId` points to a stream that does not exist, we simply skip it.
+            if (isEntity(streamId)) {
                 // Checks: the `msg.sender` is either an approved operator or the owner of the NFT (a.k.a. the recipient
                 // of the stream).
                 if (!_isApprovedOrOwner(msg.sender, streamId)) {

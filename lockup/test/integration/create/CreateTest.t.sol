@@ -60,6 +60,7 @@ abstract contract CreateTest is IntegrationTest {
             cancelable: cancelable,
             cliffTime: cliffTime,
             depositAmount: depositAmount,
+            isEntity: true,
             sender: sender,
             startTime: startTime,
             stopTime: stopTime,
@@ -115,6 +116,7 @@ abstract contract CreateTest is IntegrationTest {
         DataTypes.ProStream memory expectedStream = DataTypes.ProStream({
             cancelable: cancelable,
             depositAmount: depositAmount,
+            isEntity: true,
             segmentAmounts: segmentAmounts,
             segmentExponents: segmentExponents,
             segmentMilestones: segmentMilestones,

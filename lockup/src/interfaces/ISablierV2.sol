@@ -54,8 +54,13 @@ interface ISablierV2 is IERC721 {
 
     /// @notice Checks whether the stream is cancelable or not.
     /// @param streamId The id of the stream to make the query for.
-    /// @return cancelable Whether the stream is cancelable or not.
-    function isCancelable(uint256 streamId) external view returns (bool cancelable);
+    /// @return result Whether the stream is cancelable or not.
+    function isCancelable(uint256 streamId) external view returns (bool result);
+
+    /// @notice Checks whether the stream entity exists or not.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return result Whether the stream entity exists or not.
+    function isEntity(uint256 streamId) external view returns (bool result);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS

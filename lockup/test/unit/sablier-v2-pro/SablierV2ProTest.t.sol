@@ -42,6 +42,7 @@ abstract contract SablierV2ProTest is UnitTest {
         daiStream = DataTypes.ProStream({
             cancelable: true,
             depositAmount: DEPOSIT_AMOUNT_DAI,
+            isEntity: true,
             segmentAmounts: SEGMENT_AMOUNTS_DAI,
             segmentExponents: SEGMENT_EXPONENTS,
             segmentMilestones: SEGMENT_MILESTONES,
@@ -54,6 +55,7 @@ abstract contract SablierV2ProTest is UnitTest {
         usdcStream = DataTypes.ProStream({
             cancelable: true,
             depositAmount: DEPOSIT_AMOUNT_USDC,
+            isEntity: true,
             segmentAmounts: SEGMENT_AMOUNTS_USDC,
             segmentExponents: SEGMENT_EXPONENTS,
             segmentMilestones: SEGMENT_MILESTONES,
