@@ -7,9 +7,8 @@ contract IsEntity__Test is SablierV2LinearTest {
     /// @dev it should return false.
     function testIsEntity__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        bool actualIsEntity = sablierV2Linear.isEntity(nonStreamId);
-        bool expectedIsEntity = false;
-        assertEq(actualIsEntity, expectedIsEntity);
+        bool isEntity = sablierV2Linear.isEntity(nonStreamId);
+        assertFalse(isEntity);
     }
 
     modifier StreamExistent() {
@@ -19,8 +18,7 @@ contract IsEntity__Test is SablierV2LinearTest {
     /// @dev it should return true.
     function testIsEntity() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
-        bool actualIsEntity = sablierV2Linear.isEntity(daiStreamId);
-        bool expectedIsEntity = true;
-        assertEq(actualIsEntity, expectedIsEntity);
+        bool isEntity = sablierV2Linear.isEntity(daiStreamId);
+        assertTrue(isEntity);
     }
 }

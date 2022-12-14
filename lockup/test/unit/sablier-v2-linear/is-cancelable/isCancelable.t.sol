@@ -7,9 +7,8 @@ contract IsCancelable__Test is SablierV2LinearTest {
     /// @dev it should return false.
     function testIsCancelable__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        bool actualIsCancelable = sablierV2Linear.isCancelable(nonStreamId);
-        bool expectedIsCancelable = false;
-        assertEq(actualIsCancelable, expectedIsCancelable);
+        bool isCancelable = sablierV2Linear.isCancelable(nonStreamId);
+        assertFalse(isCancelable);
     }
 
     modifier StreamExistent() {
@@ -19,9 +18,8 @@ contract IsCancelable__Test is SablierV2LinearTest {
     /// @dev it should return true.
     function testIsCancelable__CancelableStream() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
-        bool actualIsCancelable = sablierV2Linear.isCancelable(daiStreamId);
-        bool expectedIsCancelable = true;
-        assertEq(actualIsCancelable, expectedIsCancelable);
+        bool isCancelable = sablierV2Linear.isCancelable(daiStreamId);
+        assertTrue(isCancelable);
     }
 
     modifier NonCancelableStream() {
@@ -31,8 +29,7 @@ contract IsCancelable__Test is SablierV2LinearTest {
     /// @dev it should return false.
     function testIsCancelable() external StreamExistent NonCancelableStream {
         uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
-        bool actualIsCancelable = sablierV2Linear.isCancelable(nonCancelableDaiStreamId);
-        bool expectedIsCancelable = false;
-        assertEq(actualIsCancelable, expectedIsCancelable);
+        bool isCancelable = sablierV2Linear.isCancelable(nonCancelableDaiStreamId);
+        assertFalse(isCancelable);
     }
 }
