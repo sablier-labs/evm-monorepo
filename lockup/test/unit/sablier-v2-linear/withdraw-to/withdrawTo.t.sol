@@ -17,7 +17,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         // Create the default stream, since most tests need it.
         daiStreamId = createDefaultDaiStream();
 
-        // Make the recipient the `msg.sender` in this test suite.
+        // Make the recipient the caller in this test suite.
         changePrank(users.recipient);
     }
 
@@ -45,7 +45,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
 
     /// @dev it should revert.
     function testCannotWithdrawTo__CallerSender() external StreamExistent ToNonZeroAddress {
-        // Make Eve the `msg.sender` in this test case.
+        // Make Eve the caller in this test.
         changePrank(users.sender);
 
         // Run the test.
@@ -55,7 +55,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
 
     /// @dev it should revert.
     function testCannotWithdrawTo__CallerThirdParty() external StreamExistent ToNonZeroAddress {
-        // Make Eve the `msg.sender` in this test case.
+        // Make Eve the caller in this test.
         changePrank(users.eve);
 
         // Run the test.
@@ -72,7 +72,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         // Approve the operator to handle the stream.
         sablierV2Linear.approve({ to: users.operator, tokenId: daiStreamId });
 
-        // Make the operator the `msg.sender` in this test case.
+        // Make the operator the caller in this test.
         changePrank(users.operator);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).

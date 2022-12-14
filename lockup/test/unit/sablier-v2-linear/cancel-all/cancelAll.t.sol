@@ -18,7 +18,7 @@ contract CancelAll__Test is SablierV2LinearTest {
         defaultStreamIds.push(createDefaultDaiStream());
         defaultStreamIds.push(createDefaultDaiStream());
 
-        // Make the recipient the `msg.sender` in this test suite.
+        // Make the recipient the caller in this test suite.
         changePrank(users.recipient);
     }
 
@@ -80,7 +80,7 @@ contract CancelAll__Test is SablierV2LinearTest {
 
     /// @dev it should revert.
     function testCannotCancelAll__CallerUnauthorizedAllStreams() external OnlyExistentStreams AllStreamsCancelable {
-        // Make Eve the `msg.sender` in this test case.
+        // Make Eve the caller in this test.
         changePrank(users.eve);
 
         // Run the test.
@@ -92,7 +92,7 @@ contract CancelAll__Test is SablierV2LinearTest {
 
     /// @dev it should revert.
     function testCannotCancelAll__CallerUnauthorizedSomeStreams() external OnlyExistentStreams AllStreamsCancelable {
-        // Make Eve the `msg.sender` in this test case.
+        // Make Eve the caller in this test.
         changePrank(users.eve);
 
         // Create a stream with Eve as the sender.
@@ -126,7 +126,7 @@ contract CancelAll__Test is SablierV2LinearTest {
         AllStreamsCancelable
         CallerAuthorizedAllStreams
     {
-        // Make the sender the `msg.sender` in this test case.
+        // Make the sender the caller in this test.
         changePrank(users.sender);
 
         // Run the test.
@@ -155,23 +155,14 @@ contract CancelAll__Test is SablierV2LinearTest {
         // Approve the operator for all streams.
         sablierV2Linear.setApprovalForAll(users.operator, true);
 
-        // Make the operator the `msg.sender` in this test case.
+        // Make the operator the caller in this test.
         changePrank(users.operator);
 
         // Run the test.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.operator)
+        );
         sablierV2Linear.cancelAll(defaultStreamIds);
-
-        DataTypes.LinearStream memory actualStream0 = sablierV2Linear.getStream(defaultStreamIds[0]);
-        DataTypes.LinearStream memory actualStream1 = sablierV2Linear.getStream(defaultStreamIds[1]);
-        DataTypes.LinearStream memory expectedStream;
-        assertEq(actualStream0, expectedStream);
-        assertEq(actualStream1, expectedStream);
-
-        address actualRecipient0 = sablierV2Linear.getRecipient(defaultStreamIds[0]);
-        address actualRecipient1 = sablierV2Linear.getRecipient(defaultStreamIds[1]);
-        address expectedRecipient = address(0);
-        assertEq(actualRecipient0, expectedRecipient);
-        assertEq(actualRecipient1, expectedRecipient);
     }
 
     modifier CallerRecipientAllStreams() {

@@ -24,7 +24,7 @@ withdrawAll.t.sol
            ├── when some amounts are zero
            │  └── it should revert
            └── when all amounts are not zero
-              ├── when some amounts are greater than the withrawable amounts
+              ├── when some amounts are greater than the withdrawable amounts
               │  └── it should revert
               └── when all amounts are less than or equal to the withdrawable amounts
                  ├── when all streams are ended

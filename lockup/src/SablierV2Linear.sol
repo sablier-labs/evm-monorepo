@@ -13,6 +13,8 @@ import { Validations } from "./libraries/Validations.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Linear } from "./interfaces/ISablierV2Linear.sol";
+import { ISablierV2Recipient } from "./interfaces/ISablierV2Recipient.sol";
+import { ISablierV2Sender } from "./interfaces/ISablierV2Sender.sol";
 import { SablierV2 } from "./SablierV2.sol";
 
 /// @title SablierV2Linear
@@ -199,7 +201,7 @@ contract SablierV2Linear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _cancel(uint256 streamId) internal override isAuthorizedForStream(streamId) {
+    function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
         DataTypes.LinearStream memory stream = _streams[streamId];
 
         // Calculate the withdraw and the return amounts.
@@ -227,6 +229,37 @@ contract SablierV2Linear is
         // Interactions: return the tokens to the sender, if any.
         if (returnAmount > 0) {
             IERC20(stream.token).safeTransfer({ to: sender, amount: returnAmount });
+        }
+
+        // Interactions: if the caller is the sender and the recipient is a contract, try to invoke the cancel
+        // hook on the recipient without reverting if the hook is not implemented, and without bubbling up any
+        // potential revert.
+        if (msg.sender == sender) {
+            if (recipient.code.length > 0) {
+                try
+                    ISablierV2Recipient(recipient).onStreamCanceled({
+                        streamId: streamId,
+                        caller: msg.sender,
+                        withdrawAmount: withdrawAmount,
+                        returnAmount: returnAmount
+                    })
+                {} catch {}
+            }
+        }
+        // Interactions: if the caller is the recipient and the sender is a contract, try to invoke the cancel
+        // hook on the sender without reverting if the hook is not implemented, and also without bubbling up any
+        // potential revert.
+        else {
+            if (sender.code.length > 0) {
+                try
+                    ISablierV2Sender(sender).onStreamCanceled({
+                        streamId: streamId,
+                        caller: msg.sender,
+                        withdrawAmount: withdrawAmount,
+                        returnAmount: returnAmount
+                    })
+                {} catch {}
+            }
         }
 
         // Emit an event.
@@ -269,7 +302,7 @@ contract SablierV2Linear is
             nextStreamId = streamId + 1;
         }
 
-        // Interactions: perform the ERC-20 transfer.
+        // Interactions: safely perform the ERC-20 transfer.
         IERC20(token).safeTransferFrom({ from: msg.sender, to: address(this), amount: depositAmount });
 
         // Emit an event.
@@ -322,8 +355,9 @@ contract SablierV2Linear is
             _streams[streamId].withdrawnAmount += amount;
         }
 
-        // Load the stream in memory, we will need it below.
+        // Load the stream and the recipient in memory, we will need it below.
         DataTypes.LinearStream memory stream = _streams[streamId];
+        address recipient = getRecipient(streamId);
 
         // Effects: if this stream is done, delete it from storage and burn the NFT.
         if (stream.depositAmount == stream.withdrawnAmount) {
@@ -333,6 +367,19 @@ contract SablierV2Linear is
 
         // Interactions: perform the ERC-20 transfer.
         IERC20(stream.token).safeTransfer({ to: to, amount: amount });
+
+        // Interactions: if the caller is not the recipient and the recipient is a contract, try to invoke the
+        // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up
+        // any potential revert.
+        if (msg.sender != recipient && recipient.code.length > 0) {
+            try
+                ISablierV2Recipient(recipient).onStreamWithdrawn({
+                    streamId: streamId,
+                    caller: msg.sender,
+                    withdrawAmount: amount
+                })
+            {} catch {}
+        }
 
         // Emit an event.
         emit Events.Withdraw({ streamId: streamId, recipient: to, amount: amount });

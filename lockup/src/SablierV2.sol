@@ -28,6 +28,15 @@ abstract contract SablierV2 is ISablierV2 {
         _;
     }
 
+    /// @notice Checks that `msg.sender` is either the sender of the stream or the owner of the NFT (also known as
+    /// the recipient of the stream).
+    modifier onlySenderOrRecipient(uint256 streamId) {
+        if (msg.sender != getSender(streamId) && msg.sender != getRecipient(streamId)) {
+            revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
+        }
+        _;
+    }
+
     /// @dev Checks that `streamId` points to a stream that exists.
     modifier streamExists(uint256 streamId) {
         if (getSender(streamId) == address(0)) {

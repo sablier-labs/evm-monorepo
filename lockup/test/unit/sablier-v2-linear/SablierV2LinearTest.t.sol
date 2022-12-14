@@ -69,7 +69,7 @@ abstract contract SablierV2LinearTest is UnitTest {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function to create a default stream with $DAI used as streaming currency.
+    /// @dev Helper function to create a default stream with $DAI as streaming currency.
     function createDefaultDaiStream() internal returns (uint256 daiStreamId) {
         daiStreamId = sablierV2Linear.create(
             daiStream.sender,
@@ -83,7 +83,37 @@ abstract contract SablierV2LinearTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create a default stream with $USDC used as streaming currency.
+    /// @dev Helper function to create a default stream with $DAI as streaming currency and the provided recipient
+    /// as the recipient of the stream.
+    function createDefaultDaiStreamWithRecipient(address recipient) internal returns (uint256 daiStreamId) {
+        daiStreamId = sablierV2Linear.create(
+            daiStream.sender,
+            recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.cliffTime,
+            daiStream.stopTime,
+            daiStream.cancelable
+        );
+    }
+
+    /// @dev Helper function to create a default stream with $DAI as streaming currency and the provided sender
+    /// as the sender of the stream.
+    function createDefaultDaiStreamWithSender(address sender) internal returns (uint256 daiStreamId) {
+        daiStreamId = sablierV2Linear.create(
+            sender,
+            users.recipient,
+            daiStream.depositAmount,
+            daiStream.token,
+            daiStream.startTime,
+            daiStream.cliffTime,
+            daiStream.stopTime,
+            daiStream.cancelable
+        );
+    }
+
+    /// @dev Helper function to create a default stream with $USDC as streaming currency.
     function createDefaultUsdcStream() internal returns (uint256 usdcStreamId) {
         usdcStreamId = sablierV2Linear.create(
             usdcStream.sender,
@@ -97,7 +127,7 @@ abstract contract SablierV2LinearTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create a non-cancelable stream with $DAI used as streaming currency.
+    /// @dev Helper function to create a non-cancelable stream with $DAI as streaming currency.
     function createNonCancelableDaiStream() internal returns (uint256 nonCancelableDaiStreamId) {
         bool cancelable = false;
         nonCancelableDaiStreamId = sablierV2Linear.create(

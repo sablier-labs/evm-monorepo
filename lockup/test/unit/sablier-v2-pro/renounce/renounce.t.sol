@@ -31,7 +31,7 @@ contract Renounce__Test is SablierV2ProTest {
 
     /// @dev it should revert.
     function testCannotRenounce__CallerNotSender() external StreamExistent {
-        // Make Eve the `msg.sender` in this test case.
+        // Make Eve the caller in this test.
         changePrank(users.eve);
 
         // Run the test.

@@ -23,7 +23,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
         defaultStreamIds.push(createDefaultDaiStream());
         defaultStreamIds.push(createDefaultDaiStream());
 
-        // Make the recipient the `msg.sender` in this test suite.
+        // Make the recipient the caller in this test suite.
         changePrank(users.recipient);
     }
 
@@ -90,7 +90,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
         ArraysEqual
         OnlyExistentStreams
     {
-        // Make the sender the `msg.sender` in this test case.
+        // Make the sender the caller in this test.
         changePrank(users.sender);
 
         // Run the test.
@@ -107,7 +107,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
         ArraysEqual
         OnlyExistentStreams
     {
-        // Make eve the `msg.sender` in this test case.
+        // Make eve the caller in this test.
         changePrank(users.eve);
 
         // Run the test.
@@ -200,7 +200,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
         // Approve the operator for all streams.
         sablierV2Linear.setApprovalForAll({ operator: users.operator, approved: true });
 
-        // Make the operator the `msg.sender` in this test case.
+        // Make the operator the caller in this test.
         changePrank(users.operator);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).

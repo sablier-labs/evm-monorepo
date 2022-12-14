@@ -5,6 +5,13 @@ import { ERC20GodMode } from "@prb/contracts/token/erc20/ERC20GodMode.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
 
 import { BaseTest } from "../BaseTest.t.sol";
+import { Empty } from "../shared/Empty.t.sol";
+import { NonRevertingRecipient } from "../shared/NonRevertingRecipient.t.sol";
+import { NonRevertingSender } from "../shared/NonRevertingSender.t.sol";
+import { ReentrantRecipient } from "../shared/ReentrantRecipient.t.sol";
+import { ReentrantSender } from "../shared/ReentrantSender.t.sol";
+import { RevertingRecipient } from "../shared/RevertingRecipient.t.sol";
+import { RevertingSender } from "../shared/RevertingSender.t.sol";
 
 /// @title UnitTest
 /// @notice Common contract members needed across Sablier V2 unit tests.
@@ -39,9 +46,16 @@ abstract contract UnitTest is BaseTest {
                                  STORAGE
     //////////////////////////////////////////////////////////////*/
 
+    Empty internal empty = new Empty();
     ERC20GodMode internal dai = new ERC20GodMode("Dai Stablecoin", "DAI", 18);
-    NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Stablecoin", "USD", 18);
     ERC20GodMode internal usdc = new ERC20GodMode("USD Coin", "USDC", 6);
+    NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Stablecoin", "USD", 18);
+    NonRevertingRecipient internal nonRevertingRecipient = new NonRevertingRecipient();
+    NonRevertingSender internal nonRevertingSender = new NonRevertingSender();
+    ReentrantRecipient internal reentrantRecipient = new ReentrantRecipient();
+    ReentrantSender internal reentrantSender = new ReentrantSender();
+    RevertingRecipient internal revertingRecipient = new RevertingRecipient();
+    RevertingSender internal revertingSender = new RevertingSender();
     Users internal users;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -60,13 +74,13 @@ abstract contract UnitTest is BaseTest {
         START_TIME = uint40(block.timestamp);
         STOP_TIME = uint40(block.timestamp) + TOTAL_DURATION;
 
-        // Create 5 users for testing. Order matters.
+        // Create 5 users for testing.
         users = Users({
-            sender: createUser("Sender"),
-            recipient: createUser("Recipient"),
-            operator: createUser("Operator"),
+            alice: createUser("Alice"),
             eve: createUser("Eve"),
-            alice: createUser("Alice")
+            operator: createUser("Operator"),
+            recipient: createUser("Recipient"),
+            sender: createUser("Sender")
         });
     }
 

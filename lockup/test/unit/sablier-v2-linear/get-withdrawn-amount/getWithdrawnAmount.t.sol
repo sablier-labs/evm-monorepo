@@ -13,7 +13,7 @@ contract GetWithdrawnAmount__Test is SablierV2LinearTest {
         // Create the default stream, since most tests need it.
         daiStreamId = createDefaultDaiStream();
 
-        // Make the recipient the `msg.sender` in this test suite.
+        // Make the recipient the caller in this test suite.
         changePrank(users.recipient);
     }
 

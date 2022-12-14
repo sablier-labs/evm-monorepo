@@ -20,8 +20,19 @@ withdraw.t.sol
                │  └── it should revert
                └── when the amount is less than or equal to the withdrawable amount
                   ├── when the stream ended
-                  │  ├── it should make the withdrawal and delete the stream and burn the NFT
-                  │  └── it should emit a Withdraw event
+                  │  └── it should make the withdrawal and delete the stream and burn the NFT
                   └── when the stream did not end
-                     ├── it should make the withdrawal and update the withdrawn amount
-                     └── it should emit a Withdraw event
+                     ├── when the recipient is not a contract
+                     │  └── it should make the withdrawal and update the withdrawn amount
+                     └── when the recipient is a contract
+                        ├── when the recipient does not implement the hook
+                        │  └── it should make the withdrawal and update the withdrawn amount
+                        └── when the recipient implements the hook
+                           ├── when the recipient reverts
+                           │  └── it should ignore the revert and make the withdrawal and update the withdrawn amount
+                           └── when the recipient does not revert
+                              ├── when there is reentrancy
+                              │  └── it should make the multiple withdrawals and update the withdrawn amounts
+                              └── when there is no reentrancy
+                                 ├── it should make the withdrawal and update the withdrawn amount
+                                 └── it should emit a Withdraw event

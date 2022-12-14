@@ -17,7 +17,7 @@ contract Cancel__Test is SablierV2LinearTest {
         // Create the default stream, since most tests need it.
         daiStreamId = createDefaultDaiStream();
 
-        // Make the recipient the `msg.sender` in this test suite.
+        // Make the recipient the caller in this test suite.
         changePrank(users.recipient);
     }
 
@@ -49,8 +49,8 @@ contract Cancel__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancel__CallerUnauthorized() external StreamExistent StreamCancelable {
-        // Make Eve the `msg.sender` in this test case.
+    function testCannotCancel__CallerMaliciousThirdParty() external StreamExistent StreamCancelable {
+        // Make Eve the caller in this test.
         changePrank(users.eve);
 
         // Run the test.
@@ -58,16 +58,55 @@ contract Cancel__Test is SablierV2LinearTest {
         sablierV2Linear.cancel(daiStreamId);
     }
 
+    /// @dev it should revert.
+    function testCannotCancel__CallerApprovedOperator() external StreamExistent StreamCancelable {
+        // Approve Alice for the stream.
+        sablierV2Linear.approve({ to: users.operator, tokenId: daiStreamId });
+
+        // Make Alice the caller in this test.
+        changePrank(users.operator);
+
+        // Run the test.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.operator));
+        sablierV2Linear.cancel(daiStreamId);
+    }
+
     modifier CallerAuthorized() {
         _;
     }
 
-    /// @dev it should cancel and delete the stream and burn the NFT.
-    function testCancel__CallerSender() external StreamExistent StreamCancelable CallerAuthorized {
-        // Make the sender the `msg.sender` in this test case.
+    modifier CallerSender() {
+        // Make the sender the caller in this test suite.
         changePrank(users.sender);
+        _;
+    }
 
-        // Run the test.
+    /// @dev it should cancel and delete the stream and burn the NFT.
+    function testCancel__RecipientNotContract() external StreamExistent StreamCancelable CallerAuthorized CallerSender {
+        sablierV2Linear.cancel(daiStreamId);
+        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
+
+        address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient, expectedRecipient);
+    }
+
+    modifier RecipientContract() {
+        _;
+    }
+
+    /// @dev it should cancel and delete the stream and burn the NFT.
+    function testCancel__RecipientDoesNotImplementHook()
+        external
+        StreamExistent
+        StreamCancelable
+        CallerAuthorized
+        CallerSender
+        RecipientContract
+    {
+        daiStreamId = createDefaultDaiStreamWithRecipient(address(empty));
         sablierV2Linear.cancel(daiStreamId);
         DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
         DataTypes.LinearStream memory expectedStream;
@@ -79,14 +118,15 @@ contract Cancel__Test is SablierV2LinearTest {
     }
 
     /// @dev it should cancel and delete the stream and burn the NFT.
-    function testCancel__CallerApprovedOperator() external StreamExistent StreamCancelable CallerAuthorized {
-        // Approve Alice for the stream.
-        sablierV2Linear.approve({ to: users.alice, tokenId: daiStreamId });
-
-        // Make Alice the `msg.sender` in this test case.
-        changePrank(users.alice);
-
-        // Run the test.
+    function testCancel__RecipientImplementsHook()
+        external
+        StreamExistent
+        StreamCancelable
+        CallerAuthorized
+        CallerSender
+        RecipientContract
+    {
+        daiStreamId = createDefaultDaiStreamWithRecipient(address(nonRevertingRecipient));
         sablierV2Linear.cancel(daiStreamId);
         DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
         DataTypes.LinearStream memory expectedStream;
@@ -144,44 +184,132 @@ contract Cancel__Test is SablierV2LinearTest {
         assertEq(actualRecipient, expectedRecipient);
     }
 
-    /// @dev it should emit a Cancel event.
-    function testCancel__StreamEnded__Event()
-        external
-        StreamExistent
-        StreamCancelable
-        CallerAuthorized
-        CallerRecipient
-        OriginalRecipient
-    {
-        // Warp to the end of the stream.
-        vm.warp({ timestamp: daiStream.stopTime });
-
-        // Run the test.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        uint128 returnAmount = 0;
-        emit Events.Cancel({
-            streamId: daiStreamId,
-            sender: daiStream.sender,
-            recipient: users.recipient,
-            withdrawAmount: daiStream.depositAmount,
-            returnAmount: returnAmount
-        });
-        sablierV2Linear.cancel(daiStreamId);
+    modifier StreamOngoing() {
+        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
+        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
+        _;
     }
 
     /// @dev it should cancel and delete the stream and burn the NFT.
-    function testCancel__StreamOngoing()
+    function testCancel__SenderNotContract()
         external
         StreamExistent
         StreamCancelable
         CallerAuthorized
         CallerRecipient
         OriginalRecipient
+        StreamOngoing
     {
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
+        sablierV2Linear.cancel(daiStreamId);
+        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
 
-        // Run the test.
+        address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient, expectedRecipient);
+    }
+
+    modifier SenderContract() {
+        _;
+    }
+
+    /// @dev it should cancel and delete the stream and burn the NFT.
+    function testCancel__SenderDoesNotImplementHook()
+        external
+        StreamExistent
+        StreamCancelable
+        CallerAuthorized
+        CallerRecipient
+        OriginalRecipient
+        StreamOngoing
+        SenderContract
+    {
+        daiStreamId = createDefaultDaiStreamWithSender(address(empty));
+        sablierV2Linear.cancel(daiStreamId);
+        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
+
+        address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient, expectedRecipient);
+    }
+
+    modifier SenderImplementsHook() {
+        _;
+    }
+
+    /// @dev it should cancel and delete the stream and burn the NFT.
+    function testCancel__SenderReverts()
+        external
+        StreamExistent
+        StreamCancelable
+        CallerAuthorized
+        CallerRecipient
+        OriginalRecipient
+        StreamOngoing
+        SenderContract
+        SenderImplementsHook
+    {
+        daiStreamId = createDefaultDaiStreamWithSender(address(revertingSender));
+        sablierV2Linear.cancel(daiStreamId);
+        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
+
+        address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient, expectedRecipient);
+    }
+
+    modifier SenderDoesNotRevert() {
+        _;
+    }
+
+    /// @dev it should ignore the revert and make the withdrawal and delete the stream.
+    function testCannotCancel__Reentrancy()
+        external
+        StreamExistent
+        StreamCancelable
+        CallerAuthorized
+        CallerRecipient
+        OriginalRecipient
+        StreamOngoing
+        SenderContract
+        SenderImplementsHook
+        SenderDoesNotRevert
+    {
+        daiStreamId = createDefaultDaiStreamWithSender(address(reentrantSender));
+        sablierV2Linear.cancel(daiStreamId);
+        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
+        DataTypes.LinearStream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
+
+        address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
+        address expectedRecipient = address(0);
+        assertEq(actualRecipient, expectedRecipient);
+    }
+
+    modifier NoReentrancy() {
+        _;
+    }
+
+    /// @dev it should cancel and delete the stream and burn the NFT.
+    function testCancel()
+        external
+        StreamExistent
+        StreamCancelable
+        CallerAuthorized
+        CallerRecipient
+        OriginalRecipient
+        StreamOngoing
+        SenderContract
+        SenderImplementsHook
+        SenderDoesNotRevert
+        NoReentrancy
+    {
+        daiStreamId = createDefaultDaiStreamWithSender(address(nonRevertingSender));
         sablierV2Linear.cancel(daiStreamId);
         DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
         DataTypes.LinearStream memory expectedStream;
@@ -193,23 +321,25 @@ contract Cancel__Test is SablierV2LinearTest {
     }
 
     /// @dev it should emit a Cancel event.
-    function testCancel__StreamOngoing__Event()
+    function testCancel__Event()
         external
         StreamExistent
         StreamCancelable
         CallerAuthorized
         CallerRecipient
         OriginalRecipient
+        StreamOngoing
+        SenderContract
+        SenderImplementsHook
+        SenderDoesNotRevert
+        NoReentrancy
     {
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
-
-        // Run the test.
+        daiStreamId = createDefaultDaiStreamWithSender(address(nonRevertingSender));
         uint128 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.Cancel({
             streamId: daiStreamId,
-            sender: daiStream.sender,
+            sender: address(nonRevertingSender),
             recipient: users.recipient,
             withdrawAmount: WITHDRAW_AMOUNT_DAI,
             returnAmount: returnAmount

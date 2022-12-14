@@ -2,6 +2,7 @@
   "extends": "solhint:recommended",
   "plugins": ["prettier"],
   "rules": {
+    "avoid-low-level-calls": "off",
     "code-complexity": ["error", 8],
     "compiler-version": ["error", ">=0.8.13"],
     "contract-name-camelcase": "off",
@@ -9,6 +10,7 @@
     "func-name-mixedcase": "off",
     "func-visibility": ["error", { "ignoreConstructors": true }],
     "max-line-length": ["error", 120],
+    "no-empty-blocks": "off",
     "no-inline-assembly": "off",
     "not-rely-on-time": "off",
     "prettier/prettier": [
