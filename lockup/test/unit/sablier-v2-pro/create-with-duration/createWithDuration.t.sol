@@ -12,7 +12,7 @@ contract CreateWithDuration__Test is SablierV2ProTest {
     /// @dev it should revert.
     function testCannotCreateWithDuration__LoopCalculationOverflowsBlockGasLimit() external {
         uint40[] memory segmentDeltas = new uint40[](1_000_000);
-        vm.expectRevert();
+        vm.expectRevert(bytes(""));
         sablierV2Pro.createWithDuration(
             daiStream.sender,
             users.recipient,
