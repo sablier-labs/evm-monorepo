@@ -44,10 +44,10 @@ library Events {
         address indexed recipient,
         uint128 depositAmount,
         address token,
+        bool cancelable,
         uint40 startTime,
         uint40 cliffTime,
-        uint40 stopTime,
-        bool cancelable
+        uint40 stopTime
     );
 
     /// @notice Emitted when a pro stream is created.
@@ -70,12 +70,12 @@ library Events {
         address indexed recipient,
         uint128 depositAmount,
         address token,
+        bool cancelable,
         uint40 startTime,
         uint40 stopTime,
         uint128[] segmentAmounts,
         SD1x18[] segmentExponents,
-        uint40[] segmentMilestones,
-        bool cancelable
+        uint40[] segmentMilestones
     );
 
     /// @notice Emitted when a sender makes a stream non-cancelable.

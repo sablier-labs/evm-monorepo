@@ -50,10 +50,10 @@ abstract contract CreateTest is IntegrationTest {
             recipient,
             depositAmount,
             token(),
+            cancelable,
             startTime,
             cliffTime,
-            stopTime,
-            cancelable
+            stopTime
         );
 
         // Declare the expected stream struct.
@@ -106,11 +106,11 @@ abstract contract CreateTest is IntegrationTest {
             recipient,
             depositAmount,
             token(),
+            cancelable,
             startTime,
             segmentAmounts,
             segmentExponents,
-            segmentMilestones,
-            cancelable
+            segmentMilestones
         );
 
         // Declare the expected stream struct.

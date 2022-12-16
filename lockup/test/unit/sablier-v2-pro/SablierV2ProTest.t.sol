@@ -89,11 +89,11 @@ abstract contract SablierV2ProTest is UnitTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
     }
 
@@ -104,11 +104,11 @@ abstract contract SablierV2ProTest is UnitTest {
             users.recipient,
             usdcStream.depositAmount,
             usdcStream.token,
+            usdcStream.cancelable,
             usdcStream.startTime,
             usdcStream.segmentAmounts,
             usdcStream.segmentExponents,
-            usdcStream.segmentMilestones,
-            usdcStream.cancelable
+            usdcStream.segmentMilestones
         );
     }
 
@@ -120,11 +120,11 @@ abstract contract SablierV2ProTest is UnitTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            cancelable,
             daiStream.startTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            cancelable
+            daiStream.segmentMilestones
         );
     }
 }

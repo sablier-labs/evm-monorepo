@@ -228,23 +228,23 @@ contract SablierV2Pro is
         address recipient,
         uint128 depositAmount,
         address token,
+        bool cancelable,
         uint40 startTime,
         uint128[] memory segmentAmounts,
         SD1x18[] memory segmentExponents,
-        uint40[] memory segmentMilestones,
-        bool cancelable
-    ) external override returns (uint256 streamId) {
+        uint40[] memory segmentMilestones
+    ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
         streamId = _create(
             sender,
             recipient,
             depositAmount,
             token,
+            cancelable,
             startTime,
             segmentAmounts,
             segmentExponents,
-            segmentMilestones,
-            cancelable
+            segmentMilestones
         );
     }
 
@@ -254,10 +254,10 @@ contract SablierV2Pro is
         address recipient,
         uint128 depositAmount,
         address token,
+        bool cancelable,
         uint128[] memory segmentAmounts,
         SD1x18[] memory segmentExponents,
-        uint40[] memory segmentDeltas,
-        bool cancelable
+        uint40[] memory segmentDeltas
     ) external override returns (uint256 streamId) {
         uint40 startTime = uint40(block.timestamp);
         uint256 deltaCount = segmentDeltas.length;
@@ -279,11 +279,11 @@ contract SablierV2Pro is
             recipient,
             depositAmount,
             token,
+            cancelable,
             startTime,
             segmentAmounts,
             segmentExponents,
-            segmentMilestones,
-            cancelable
+            segmentMilestones
         );
     }
 
@@ -383,11 +383,11 @@ contract SablierV2Pro is
         address recipient,
         uint128 depositAmount,
         address token,
+        bool cancelable,
         uint40 startTime,
         uint128[] memory segmentAmounts,
         SD1x18[] memory segmentExponents,
-        uint40[] memory segmentMilestones,
-        bool cancelable
+        uint40[] memory segmentMilestones
     ) internal returns (uint256 streamId) {
         // Checks: the arguments of the function.
         Validations.checkCreateProArgs(
@@ -441,12 +441,12 @@ contract SablierV2Pro is
             recipient: recipient,
             depositAmount: depositAmount,
             token: token,
+            cancelable: cancelable,
             startTime: startTime,
             stopTime: stopTime,
             segmentAmounts: segmentAmounts,
             segmentExponents: segmentExponents,
-            segmentMilestones: segmentMilestones,
-            cancelable: cancelable
+            segmentMilestones: segmentMilestones
         });
     }
 

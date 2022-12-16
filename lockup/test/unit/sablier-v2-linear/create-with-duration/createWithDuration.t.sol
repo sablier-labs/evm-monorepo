@@ -29,9 +29,9 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             cliffDuration,
-            totalDuration,
-            daiStream.cancelable
+            totalDuration
         );
     }
 
@@ -61,9 +61,9 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             cliffDuration,
-            totalDuration,
-            daiStream.cancelable
+            totalDuration
         );
     }
 
@@ -89,9 +89,9 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             cliffDuration,
-            totalDuration,
-            daiStream.cancelable
+            totalDuration
         );
 
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);

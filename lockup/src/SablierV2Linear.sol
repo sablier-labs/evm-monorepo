@@ -159,13 +159,13 @@ contract SablierV2Linear is
         address recipient,
         uint128 depositAmount,
         address token,
+        bool cancelable,
         uint40 startTime,
         uint40 cliffTime,
-        uint40 stopTime,
-        bool cancelable
-    ) external override returns (uint256 streamId) {
+        uint40 stopTime
+    ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(sender, recipient, depositAmount, token, startTime, cliffTime, stopTime, cancelable);
+        streamId = _create(sender, recipient, depositAmount, token, cancelable, startTime, cliffTime, stopTime);
     }
 
     /// @inheritdoc ISablierV2Linear
@@ -174,10 +174,10 @@ contract SablierV2Linear is
         address recipient,
         uint128 depositAmount,
         address token,
+        bool cancelable,
         uint40 cliffDuration,
-        uint40 totalDuration,
-        bool cancelable
-    ) external override returns (uint256 streamId) {
+        uint40 totalDuration
+    ) external returns (uint256 streamId) {
         // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
         // `_create` function will nonetheless check that the stop time is greater than or equal to the
         // cliff time, and that the cliff time is greater than or equal to the start time.
@@ -190,7 +190,7 @@ contract SablierV2Linear is
         }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(sender, recipient, depositAmount, token, startTime, cliffTime, stopTime, cancelable);
+        streamId = _create(sender, recipient, depositAmount, token, cancelable, startTime, cliffTime, stopTime);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -289,10 +289,10 @@ contract SablierV2Linear is
         address recipient,
         uint128 depositAmount,
         address token,
+        bool cancelable,
         uint40 startTime,
         uint40 cliffTime,
-        uint40 stopTime,
-        bool cancelable
+        uint40 stopTime
     ) internal returns (uint256 streamId) {
         // Checks: the arguments of the function.
         Validations.checkCreateLinearArgs(depositAmount, startTime, cliffTime, stopTime);
@@ -331,10 +331,10 @@ contract SablierV2Linear is
             recipient: recipient,
             depositAmount: depositAmount,
             token: token,
+            cancelable: cancelable,
             startTime: startTime,
             cliffTime: cliffTime,
-            stopTime: stopTime,
-            cancelable: cancelable
+            stopTime: stopTime
         });
     }
 

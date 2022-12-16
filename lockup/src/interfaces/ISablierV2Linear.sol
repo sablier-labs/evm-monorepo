@@ -45,20 +45,20 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param recipient The address toward which to stream the tokens.
     /// @param depositAmount The amount of tokens to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
+    /// @param cancelable Whether the stream will be cancelable or not
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
     /// @param stopTime The unix timestamp in seconds for when the stream will stop.
-    /// @param cancelable Whether the stream will be cancelable or not.
     /// @return streamId The id of the newly created stream.
     function create(
         address sender,
         address recipient,
         uint128 depositAmount,
         address token,
+        bool cancelable,
         uint40 startTime,
         uint40 cliffTime,
-        uint40 stopTime,
-        bool cancelable
+        uint40 stopTime
     ) external returns (uint256 streamId);
 
     /// @notice Creates a stream funded by `msg.sender` wrapped in an ERC-721 NFT and sets the start time to
@@ -83,8 +83,8 @@ interface ISablierV2Linear is ISablierV2 {
         address recipient,
         uint128 depositAmount,
         address token,
+        bool cancelable,
         uint40 cliffDuration,
-        uint40 totalDuration,
-        bool cancelable
+        uint40 totalDuration
     ) external returns (uint256 streamId);
 }

@@ -128,10 +128,10 @@ contract CancelAll__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
 
         // Run the test.
@@ -382,10 +382,10 @@ contract CancelAll__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            earlyStopTime,
-            daiStream.cancelable
+            earlyStopTime
         );
 
         // Warp to the end of the first daiStream.
@@ -427,10 +427,10 @@ contract CancelAll__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            earlyStopTime,
-            daiStream.cancelable
+            earlyStopTime
         );
 
         // Warp to the end of the first daiStream.

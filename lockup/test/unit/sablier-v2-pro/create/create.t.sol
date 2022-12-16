@@ -21,11 +21,11 @@ contract Create__Test is SablierV2ProTest {
             recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
     }
 
@@ -42,11 +42,11 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
     }
 
@@ -65,11 +65,11 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             segmentAmounts,
             segmentExponents,
-            segmentMilestones,
-            daiStream.cancelable
+            segmentMilestones
         );
     }
 
@@ -98,11 +98,11 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
     }
 
@@ -132,11 +132,11 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.segmentAmounts,
             segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
     }
 
@@ -162,11 +162,11 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            segmentMilestones,
-            daiStream.cancelable
+            segmentMilestones
         );
     }
 
@@ -190,11 +190,11 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
     }
 
@@ -226,11 +226,11 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            segmentMilestones,
-            daiStream.cancelable
+            segmentMilestones
         );
     }
 
@@ -262,11 +262,11 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
     }
 
@@ -293,11 +293,11 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
     }
 
@@ -324,11 +324,11 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
 
         DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
@@ -414,12 +414,12 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             usdcStream.depositAmount,
             usdcStream.token,
+            usdcStream.cancelable,
             usdcStream.startTime,
             usdcStream.stopTime,
             usdcStream.segmentAmounts,
             usdcStream.segmentExponents,
-            usdcStream.segmentMilestones,
-            usdcStream.cancelable
+            usdcStream.segmentMilestones
         );
         createDefaultUsdcStream();
     }
@@ -490,12 +490,12 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.stopTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
         createDefaultDaiStream();
     }
@@ -565,12 +565,12 @@ contract Create__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.stopTime,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            daiStream.segmentMilestones,
-            daiStream.cancelable
+            daiStream.segmentMilestones
         );
         createDefaultDaiStream();
     }

@@ -81,10 +81,10 @@ abstract contract SablierV2LinearTest is UnitTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
     }
 
@@ -96,10 +96,10 @@ abstract contract SablierV2LinearTest is UnitTest {
             recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
     }
 
@@ -111,10 +111,10 @@ abstract contract SablierV2LinearTest is UnitTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
     }
 
@@ -125,10 +125,10 @@ abstract contract SablierV2LinearTest is UnitTest {
             users.recipient,
             usdcStream.depositAmount,
             usdcStream.token,
+            usdcStream.cancelable,
             usdcStream.startTime,
             usdcStream.cliffTime,
-            usdcStream.stopTime,
-            usdcStream.cancelable
+            usdcStream.stopTime
         );
     }
 
@@ -140,10 +140,10 @@ abstract contract SablierV2LinearTest is UnitTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            cancelable
+            daiStream.stopTime
         );
     }
 }

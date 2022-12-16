@@ -18,10 +18,10 @@ contract CreateWithDuration__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            segmentDeltas,
-            daiStream.cancelable
+            segmentDeltas
         );
     }
 
@@ -55,10 +55,10 @@ contract CreateWithDuration__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            segmentDeltas,
-            daiStream.cancelable
+            segmentDeltas
         );
     }
 
@@ -96,10 +96,10 @@ contract CreateWithDuration__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            segmentDeltas,
-            daiStream.cancelable
+            segmentDeltas
         );
     }
 
@@ -137,10 +137,10 @@ contract CreateWithDuration__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             segmentAmounts,
             segmentExponents,
-            segmentDeltas,
-            daiStream.cancelable
+            segmentDeltas
         );
     }
 
@@ -160,10 +160,10 @@ contract CreateWithDuration__Test is SablierV2ProTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.segmentAmounts,
             daiStream.segmentExponents,
-            SEGMENT_DELTAS,
-            daiStream.cancelable
+            SEGMENT_DELTAS
         );
         DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         DataTypes.ProStream memory expectedStream = daiStream;

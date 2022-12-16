@@ -19,10 +19,10 @@ contract Create__Test is SablierV2LinearTest {
             recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
     }
 
@@ -39,10 +39,10 @@ contract Create__Test is SablierV2LinearTest {
             users.recipient,
             depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
     }
 
@@ -62,10 +62,10 @@ contract Create__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             startTime,
             cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
     }
 
@@ -77,10 +77,10 @@ contract Create__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
 
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
@@ -119,10 +119,10 @@ contract Create__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             cliffTime,
-            stopTime,
-            daiStream.cancelable
+            stopTime
         );
     }
 
@@ -139,10 +139,10 @@ contract Create__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
 
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
@@ -179,10 +179,10 @@ contract Create__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
     }
 
@@ -205,10 +205,10 @@ contract Create__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
 
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
@@ -283,10 +283,10 @@ contract Create__Test is SablierV2LinearTest {
             users.recipient,
             usdcStream.depositAmount,
             usdcStream.token,
+            usdcStream.cancelable,
             usdcStream.startTime,
             usdcStream.cliffTime,
-            usdcStream.stopTime,
-            usdcStream.cancelable
+            usdcStream.stopTime
         );
         createDefaultUsdcStream();
     }
@@ -357,10 +357,10 @@ contract Create__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
         createDefaultDaiStream();
     }
@@ -417,10 +417,10 @@ contract Create__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
         createDefaultDaiStream();
     }

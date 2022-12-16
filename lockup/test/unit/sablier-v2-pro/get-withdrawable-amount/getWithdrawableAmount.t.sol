@@ -116,11 +116,11 @@ contract GetWithdrawableAmount__Test is SablierV2ProTest {
             users.recipient,
             usdcDepositAmount,
             usdcStream.token,
+            usdcStream.cancelable,
             usdcStream.startTime,
             segmentAmounts,
             segmentExponents,
-            segmentMilestones,
-            usdcStream.cancelable
+            segmentMilestones
         );
 
         // 2,000 seconds is 20% of the stream duration.
@@ -147,11 +147,11 @@ contract GetWithdrawableAmount__Test is SablierV2ProTest {
             users.recipient,
             daiDepositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             segmentAmounts,
             segmentExponents,
-            segmentMilestones,
-            daiStream.cancelable
+            segmentMilestones
         );
 
         // 2,000 seconds is 20% of the stream duration.
@@ -252,11 +252,11 @@ contract GetWithdrawableAmount__Test is SablierV2ProTest {
                 users.recipient,
                 usdcStream.depositAmount,
                 usdcStream.token,
+                usdcStream.cancelable,
                 usdcStream.startTime,
                 segmentAmounts,
                 segmentExponents,
-                segmentMilestones,
-                usdcStream.cancelable
+                segmentMilestones
             );
             vm.warp({ timestamp: usdcStream.stopTime - segmentDuration / 2 });
 
@@ -298,11 +298,11 @@ contract GetWithdrawableAmount__Test is SablierV2ProTest {
                 users.recipient,
                 daiStream.depositAmount,
                 daiStream.token,
+                daiStream.cancelable,
                 daiStream.startTime,
                 segmentAmounts,
                 segmentExponents,
-                segmentMilestones,
-                daiStream.cancelable
+                segmentMilestones
             );
             vm.warp({ timestamp: daiStream.stopTime - segmentDuration / 2 });
 

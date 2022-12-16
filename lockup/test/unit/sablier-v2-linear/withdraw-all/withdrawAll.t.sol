@@ -132,10 +132,10 @@ contract WithdrawAll__Test is SablierV2LinearTest {
             users.eve,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            daiStream.stopTime,
-            daiStream.cancelable
+            daiStream.stopTime
         );
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
@@ -442,10 +442,10 @@ contract WithdrawAll__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            earlyStopTime,
-            daiStream.cancelable
+            earlyStopTime
         );
         changePrank(users.recipient);
 
@@ -496,10 +496,10 @@ contract WithdrawAll__Test is SablierV2LinearTest {
             users.recipient,
             daiStream.depositAmount,
             daiStream.token,
+            daiStream.cancelable,
             daiStream.startTime,
             daiStream.cliffTime,
-            earlyStopTime,
-            daiStream.cancelable
+            earlyStopTime
         );
         changePrank(users.recipient);
 
