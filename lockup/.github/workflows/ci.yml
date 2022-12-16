@@ -22,15 +22,19 @@ jobs:
           submodules: "recursive"
 
       - name: "Install Foundry"
-        uses: "onbjerg/foundry-toolchain@v1"
+        uses: "foundry-rs/foundry-toolchain"
         with:
           version: "nightly"
 
+      # Always load the latest valid cache, and always create a new one with the updated cache.
+      # When the fork tests are updated and there are new RPC requests, the RPC cache is updated as well.
       - name: "Cache RPC Responses"
         uses: "actions/cache@v3"
         with:
-          path: "~/.foundry/cache/rpc/mainnet/16126000"
-          key: "${{ runner.os }}-mainnet-16126000"
+          key: "${{ runner.os }}-foundry-chain-fork-${{ github.sha }}"
+          path: "~/.foundry/cache/rpc"
+          restore-keys: |
+            "${{ runner.os }}-foundry-chain-fork-"
 
       - name: "Install Node.js"
         uses: "actions/setup-node@v3"
