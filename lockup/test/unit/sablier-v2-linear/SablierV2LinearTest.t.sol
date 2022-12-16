@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { UD60x18 } from "@prb/math/UD60x18.sol";
+
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 
@@ -31,7 +33,8 @@ abstract contract SablierV2LinearTest is UnitTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        sablierV2Linear = new SablierV2Linear();
+        vm.prank(users.owner);
+        sablierV2Linear = new SablierV2Linear({ maxGlobalFee: MAX_GLOBAL_FEE });
 
         // Create the default streams to be used across the tests.
         daiStream = DataTypes.LinearStream({
@@ -63,7 +66,7 @@ abstract contract SablierV2LinearTest is UnitTest {
         approveMax({ caller: users.alice, spender: address(sablierV2Linear) });
         approveMax({ caller: users.eve, spender: address(sablierV2Linear) });
 
-        // Sets all subsequent calls' `msg.sender` to be `sender`.
+        // Make the sender the caller for all subsequent calls.
         changePrank(users.sender);
     }
 

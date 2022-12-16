@@ -14,6 +14,10 @@ interface ISablierV2Pro is ISablierV2 {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice The maximum number of segments allowed in a stream.
+    /// @dev This is initialized at construction time.
+    function MAX_SEGMENT_COUNT() external view returns (uint256);
+
     /// @notice Reads the segment amounts used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
     /// @return segmentAmounts The segment amounts used to compose the custom emission curve.

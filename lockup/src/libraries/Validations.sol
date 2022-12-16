@@ -24,12 +24,12 @@ library Validations {
             revert Errors.SablierV2__DepositAmountZero();
         }
 
-        // Checks: the cliff time is greater than or equal to the start time.
+        // Checks: the start time is less than or equal to the cliff time.
         if (startTime > cliffTime) {
             revert Errors.SablierV2Linear__StartTimeGreaterThanCliffTime(startTime, cliffTime);
         }
 
-        // Checks: the stop time is greater than or equal to the cliff time.
+        // Checks: the cliff time is less than or equal to the stop time.
         if (cliffTime > stopTime) {
             revert Errors.SablierV2Linear__CliffTimeGreaterThanStopTime(cliffTime, stopTime);
         }
@@ -49,7 +49,7 @@ library Validations {
             revert Errors.SablierV2__DepositAmountZero();
         }
 
-        // Checks: segment counts match.
+        // Checks: the segment counts match.
         _checkSegmentCounts({
             amountsCount: segmentAmounts.length,
             exponentsCount: segmentExponents.length,

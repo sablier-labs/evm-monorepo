@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { UD60x18 } from "@prb/math/UD60x18.sol";
+
 /// @title Errors
 /// @notice Library with custom errors used across the core contracts.
 library Errors {
@@ -10,8 +12,8 @@ library Errors {
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
     error SablierV2__DepositAmountZero();
 
-    /// @notice Emitted when the stream id points to an existent stream.
-    error SablierV2__StreamExistent(uint256 streamId);
+    /// @notice Emitted when the new global fee is greater than the maximum permitted.
+    error SablierV2__NewGlobalFeeGreaterThanMaxPermitted(UD60x18 newGlobalFee, UD60x18 maxGlobalFee);
 
     /// @notice Emitted when attempting to renounce an already non-cancelable stream.
     error SablierV2__RenounceNonCancelableStream(uint256 streamId);
@@ -67,7 +69,8 @@ library Errors {
     /// @notice Emitted when attempting to create a stream with segment counts that are not equal.
     error SablierV2Pro__SegmentCountsNotEqual(uint256 amountsCount, uint256 exponentsCount, uint256 milestonesCount);
 
-    /// @notice Emitted when attempting to create a stream with one or more out-of-bounds segment count.
+    /// @notice Emitted when attempting to create a stream with one or more segment counts greater than the maximum
+    /// permitted.
     error SablierV2Pro__SegmentCountOutOfBounds(uint256 count);
 
     /// @notice Emitted when attempting to create a stream with zero segments.

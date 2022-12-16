@@ -3,9 +3,11 @@ pragma solidity >=0.8.13;
 
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { Ownable } from "@prb/contracts/access/Ownable.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18, toSD59x18 } from "@prb/math/SD59x18.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { DataTypes } from "./libraries/DataTypes.sol";
 import { Errors } from "./libraries/Errors.sol";
@@ -31,9 +33,8 @@ contract SablierV2Pro is
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum number of segments allowed in a stream.
-    /// @dev This is initialized at construction time.
-    uint256 public immutable MAX_SEGMENT_COUNT;
+    /// @inheritdoc ISablierV2Pro
+    uint256 public immutable override MAX_SEGMENT_COUNT;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   INTERNAL STORAGE
@@ -46,7 +47,7 @@ contract SablierV2Pro is
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(uint256 maxSegmentCount) {
+    constructor(UD60x18 maxGlobalFee, uint256 maxSegmentCount) SablierV2(maxGlobalFee) {
         MAX_SEGMENT_COUNT = maxSegmentCount;
     }
 

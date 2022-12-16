@@ -15,6 +15,7 @@ abstract contract SablierV2ProTest is UnitTest {
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    uint256 internal constant MAX_SEGMENT_COUNT = 200;
     uint128[] internal SEGMENT_AMOUNTS_DAI = [2_000e18, 8_000e18];
     uint128[] internal SEGMENT_AMOUNTS_USDC = [2_000e6, 8_000e6];
     uint40[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
@@ -36,7 +37,8 @@ abstract contract SablierV2ProTest is UnitTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        sablierV2Pro = new SablierV2Pro({ maxSegmentCount: MAX_SEGMENT_COUNT });
+        vm.prank(users.owner);
+        sablierV2Pro = new SablierV2Pro({ maxGlobalFee: MAX_GLOBAL_FEE, maxSegmentCount: MAX_SEGMENT_COUNT });
 
         // Create the default streams to be used across the tests.
         daiStream = DataTypes.ProStream({
@@ -72,7 +74,7 @@ abstract contract SablierV2ProTest is UnitTest {
         approveMax({ caller: users.alice, spender: address(sablierV2Pro) });
         approveMax({ caller: users.eve, spender: address(sablierV2Pro) });
 
-        // Sets all subsequent calls' `msg.sender` to be `sender`.
+        // Make the sender the caller for all subsequent calls.
         changePrank(users.sender);
     }
 

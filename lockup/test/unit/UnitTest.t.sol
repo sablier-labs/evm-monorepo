@@ -38,6 +38,7 @@ abstract contract UnitTest is BaseTest {
         address payable alice;
         address payable eve;
         address payable operator;
+        address payable owner;
         address payable recipient;
         address payable sender;
     }
@@ -47,9 +48,9 @@ abstract contract UnitTest is BaseTest {
     //////////////////////////////////////////////////////////////*/
 
     Empty internal empty = new Empty();
-    ERC20 internal dai = new ERC20("Dai Stablecoin", "DAI", 18);
-    ERC20 internal usdc = new ERC20("USD Coin", "USDC", 6);
-    NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Stablecoin", "USD", 18);
+    ERC20GodMode internal dai = new ERC20GodMode("Dai Stablecoin", "DAI", 18);
+    ERC20GodMode internal usdc = new ERC20GodMode("USD Coin", "USDC", 6);
+    NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Non-Compliant Token", "NCT", 18);
     NonRevertingRecipient internal nonRevertingRecipient = new NonRevertingRecipient();
     NonRevertingSender internal nonRevertingSender = new NonRevertingSender();
     ReentrantRecipient internal reentrantRecipient = new ReentrantRecipient();
@@ -63,7 +64,7 @@ abstract contract UnitTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
-        // By default the test EVM begins at time zero, but in some of our tests we need to warp back in time, so we
+        // By default the test EVM begins at time zero, but we need to warp back in time in some of our tests, so we
         // have to change the default to something else (100 seconds into the future).
         vm.warp(STARTING_BLOCK_TIMESTAMP);
 
@@ -74,11 +75,12 @@ abstract contract UnitTest is BaseTest {
         START_TIME = uint40(block.timestamp);
         STOP_TIME = uint40(block.timestamp) + TOTAL_DURATION;
 
-        // Create 5 users for testing.
+        // Create users for testing.
         users = Users({
             alice: createUser("Alice"),
             eve: createUser("Eve"),
             operator: createUser("Operator"),
+            owner: createUser("Owner"),
             recipient: createUser("Recipient"),
             sender: createUser("Sender")
         });

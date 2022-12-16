@@ -1,13 +1,34 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { Ownable } from "@prb/contracts/access/Ownable.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
+
 import { Errors } from "./libraries/Errors.sol";
+import { Events } from "./libraries/Events.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 
 /// @title SablierV2
 /// @dev Abstract contract implementing common logic. Implements the ISablierV2 interface.
-abstract contract SablierV2 is ISablierV2 {
+abstract contract SablierV2 is
+    Ownable, // one dependency
+    ISablierV2 // three dependencies
+{
+    /*//////////////////////////////////////////////////////////////////////////
+                                      CONSTANTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierV2
+    UD60x18 public immutable override MAX_GLOBAL_FEE;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  INTERNAL STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Global fees mapped by token addresses.
+    mapping(address => UD60x18) internal _globalFees;
+
     /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -19,8 +40,8 @@ abstract contract SablierV2 is ISablierV2 {
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Checks that `msg.sender` is the sender of the stream, an approved operator, or the owner of the
-    /// NFT (also known as the recipient of the stream).
+    /// @notice Checks that `msg.sender` is the sender of the stream, the recipient of the stream (also known as
+    /// the owner of the NFT), or an approved operator.
     modifier isAuthorizedForStream(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
             revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
@@ -28,8 +49,8 @@ abstract contract SablierV2 is ISablierV2 {
         _;
     }
 
-    /// @notice Checks that `msg.sender` is either the sender of the stream or the owner of the NFT (also known as
-    /// the recipient of the stream).
+    /// @notice Checks that `msg.sender` is either the sender of the stream or the recipient of the stream (also known
+    /// as the owner of the NFT).
     modifier onlySenderOrRecipient(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && msg.sender != getRecipient(streamId)) {
             revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
@@ -49,13 +70,19 @@ abstract contract SablierV2 is ISablierV2 {
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor() {
+    constructor(UD60x18 maxGlobalFee) {
+        MAX_GLOBAL_FEE = maxGlobalFee;
         nextStreamId = 1;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                               PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierV2
+    function getGlobalFee(address token) external view override returns (UD60x18 globalFee) {
+        globalFee = _globalFees[token];
+    }
 
     /// @inheritdoc ISablierV2
     function getRecipient(uint256 streamId) public view virtual override returns (address recipient);

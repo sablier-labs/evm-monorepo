@@ -2,18 +2,32 @@
 pragma solidity >=0.8.13;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @title ISablierV2
 /// @notice The common interface between all Sablier V2 streaming contracts.
-interface ISablierV2 is IERC721 {
+interface ISablierV2 is
+    IOwnable, // no dependencies
+    IERC721 // one dependency
+{
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice The maximum global fee allowed for any token.
+    /// @dev This is initialized at construction time.
+    function MAX_GLOBAL_FEE() external view returns (UD60x18);
 
     /// @notice Reads the amount deposited in the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return depositAmount The amount deposited in the stream, in units of the token's decimals.
     function getDepositAmount(uint256 streamId) external view returns (uint128 depositAmount);
+
+    /// @notice Reads the global fee levied on all streams created with the given token.
+    /// @param token The address of the token to make the query for.
+    /// @return globalFee The global fee as an UD60x18 number.
+    function getGlobalFee(address token) external view returns (UD60x18 globalFee);
 
     /// @notice Reads the recipient of the stream.
     /// @param streamId The id of the stream to make the query for.
@@ -91,8 +105,8 @@ interface ISablierV2 is IERC721 {
     ///
     /// Requirements:
     /// - `streamId` must point to an existent stream.
-    /// - `msg.sender` must be either the sender of the stream or the owner of the NFT (also known as the
-    /// recipient of the stream).
+    /// - `msg.sender` must be either the sender of the stream or the recipient of the stream (also known as the
+    /// the owner of the NFT).
     /// - The stream must be cancelable.
     ///
     /// @param streamId The id of the stream to cancel.
@@ -104,8 +118,8 @@ interface ISablierV2 is IERC721 {
     ///
     /// Requirements:
     /// - Each stream id in `streamIds` must point to an existent stream.
-    /// - `msg.sender` must be either the sender of the stream or the owner of the NFT (also known as the
-    /// recipient of the stream) of every stream.
+    /// - `msg.sender` must be either the sender of the stream or the recipient of the stream (also known as the
+    /// owner of the NFT) of every stream.
     /// - Each stream must be cancelable.
     ///
     /// @param streamIds The ids of the streams to cancel.
@@ -154,8 +168,8 @@ interface ISablierV2 is IERC721 {
     ///
     /// Requirements:
     /// - The count of `streamIds` must match the count of `amounts`.
-    /// - `msg.sender` must be either an approved operator or the owner of the NFT (also known as the recipient of the
-    /// stream) of every stream.
+    /// - Each stream id in `streamIds` must point to an existent stream.
+    /// - `msg.sender` must be either the recipient of the stream (a.k.a the owner of the NFT) or an approved operator.
     /// - Each amount in `amounts` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamIds The ids of the streams to withdraw.

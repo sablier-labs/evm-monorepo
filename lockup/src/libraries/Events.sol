@@ -2,6 +2,8 @@
 pragma solidity >=0.8.13;
 
 import { SD1x18 } from "@prb/math/SD1x18.sol";
+import { SD59x18 } from "@prb/math/SD59x18.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @title Events
 /// @notice Library with events used across the core contracts.
@@ -79,6 +81,13 @@ library Events {
     /// @notice Emitted when a sender makes a stream non-cancelable.
     /// @param streamId The id of the stream.
     event Renounce(uint256 indexed streamId);
+
+    /// @notice Emitted when the owner sets a new global fee for a token.
+    /// @param owner The address of the current contract owner.
+    /// @param token The address of the token the new global fee was set for.
+    /// @param oldFee The old global fee for the token.
+    /// @param newFee The new global fee for the token.
+    event SetGlobalFee(address indexed owner, address indexed token, UD60x18 oldFee, UD60x18 newFee);
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The id of the stream.

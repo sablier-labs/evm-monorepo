@@ -10,7 +10,14 @@ import { BaseTest } from "../BaseTest.t.sol";
 /// @notice Collections of tests run against a mainnet fork.
 abstract contract IntegrationTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
-                                       STORAGE
+                                      CONSTANTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18);
+    uint256 internal constant MAX_SEGMENT_COUNT = 200;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  TESTING VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     SablierV2Linear internal sablierV2Linear;
@@ -23,7 +30,8 @@ abstract contract IntegrationTest is BaseTest {
     function setUp() public virtual {
         vm.createSelectFork({ urlOrAlias: vm.envString("ETH_RPC_URL"), blockNumber: 16_126_000 });
 
-        sablierV2Linear = new SablierV2Linear();
-        sablierV2Pro = new SablierV2Pro({ maxSegmentCount: MAX_SEGMENT_COUNT });
+        vm.startPrank(users.owner);
+        sablierV2Linear = new SablierV2Linear({ maxGlobalFee: MAX_GLOBAL_FEE });
+        sablierV2Pro = new SablierV2Pro({ maxGlobalFee: MAX_GLOBAL_FEE, maxSegmentCount: MAX_SEGMENT_COUNT });
     }
 }
