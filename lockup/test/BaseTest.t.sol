@@ -4,7 +4,8 @@ pragma solidity >=0.8.13;
 import { Assertions as PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
-import { StdCheats, StdUtils } from "forge-std/Components.sol";
+import { StdCheats } from "forge-std/StdCheats.sol";
+import { StdUtils } from "forge-std/StdUtils.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 
