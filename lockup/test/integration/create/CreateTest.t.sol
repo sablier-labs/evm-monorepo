@@ -16,7 +16,7 @@ abstract contract CreateTest is IntegrationTest {
     function setUp() public virtual override {
         super.setUp();
 
-        // Make the token holder the `msg.sender` in this test suite.
+        // Make the token holder the caller in this test suite.
         vm.startPrank({ msgSender: holder() });
     }
 

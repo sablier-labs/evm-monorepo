@@ -13,24 +13,24 @@ cancel.t.sol
       └── when the caller is authorized
          ├── when the caller is the sender
          │  ├── when the recipient is not a contract
-         │  │  └── it should cancel and delete the stream and burn the NFT
+         │  │  └── it should cancel and delete the stream
          │  └── when the recipient is a contract
          │     ├── when the recipient does not implement the hook
-         │     │  └── it should cancel and delete the stream and burn the NFT
+         │     │  └── it should cancel and delete the stream
          │     └── when the recipient implements the hook
-         │        └── it should cancel and delete the stream and burn the NFT
+         │        └── it should cancel and delete the stream
          └── when the caller is the recipient
             ├── when the original recipient transferred ownership of the stream
             │  └── it should revert
             └── when the original recipient did not transfer ownership of the stream
                ├── when the stream ended
-               │  └── it should cancel and delete the stream and burn the NFT
+               │  └── it should cancel and delete the stream
                └── when the stream did not end
                   ├── when the sender is not a contract
-                  │  └── it should cancel and delete the stream and burn the NFT
+                  │  └── it should cancel and delete the stream
                   └── when the sender is a contract
                     ├── when the sender does not implement the hook
-                    │  └── it should cancel and delete the stream and burn the NFT
+                    │  └── it should cancel and delete the stream
                     └── when the sender implements the hook
                         ├── when the sender reverts
                         │  └── it should ignore the revert and make the withdrawal and delete the stream
@@ -38,5 +38,5 @@ cancel.t.sol
                            ├── when there is reentrancy
                            │  └── it should ignore the revert and make the withdrawal and delete the stream
                            └── when there is no reentrancy
-                              ├── it should cancel and delete the stream and burn the NFT
+                              ├── it should cancel and delete the stream
                               └── it should emit a Cancel event

@@ -10,6 +10,9 @@ library Errors {
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
     error SablierV2__DepositAmountZero();
 
+    /// @notice Emitted when the stream id points to an existent stream.
+    error SablierV2__StreamExistent(uint256 streamId);
+
     /// @notice Emitted when attempting to renounce an already non-cancelable stream.
     error SablierV2__RenounceNonCancelableStream(uint256 streamId);
 

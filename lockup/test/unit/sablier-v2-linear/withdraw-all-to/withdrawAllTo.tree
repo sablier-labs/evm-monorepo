@@ -39,11 +39,11 @@ withdrawAllTo.t.sol
                         │  └── it should make the withdrawals and update the withdrawn amounts
                         └── when the to address is a third-party
                            ├── when all streams are ended
-                           │  ├── it should make the withdrawals, delete the streams and burn the NFTs
+                           │  ├── it should make the withdrawals, delete the streams
                            │  └── it should emit multiple Withdraw events
                            ├── when all streams are ongoing
                            │  ├── it should make the withdrawals and update the withdrawn amounts
                            │  └── it should emit multiple Withdraw events
                            └── when some streams are ended and some streams are ongoing
-                              ├── it should make the withdrawals, delete the ended streams and burn the NFTs, and update the withdrawn amounts
+                              ├── it should make the withdrawals, delete the ended streams and update the withdrawn amounts
                               └── it should emit multiple Withdraw events

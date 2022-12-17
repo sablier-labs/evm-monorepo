@@ -38,10 +38,10 @@ interface ISablierV2Pro is ISablierV2 {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a new stream funded by `msg.sender` wrapped in a NFT. The `stopTime` is implied by
+    /// @notice Creates a new stream funded by `msg.sender` wrapped in an ERC-721 NFT. The `stopTime` is implied by
     /// the last element in the `segmentMilestones` array.
     ///
-    /// @dev Emits a {CreateProStream} event.
+    /// @dev Emits a {CreateProStream} and a {Transfer} event.
     ///
     /// Requirements:
     /// - `sender` must not be the zero address.
@@ -78,10 +78,10 @@ interface ISablierV2Pro is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a stream funded by `msg.sender` wrapped in a NFT and sets the start time to `block.timestamp`
-    ///  and the stop time to `block.timestamp + sum(segmentDeltas)`.
+    /// @notice Creates a stream funded by `msg.sender` wrapped in an ERC-721 NFT and sets the start time to
+    /// `block.timestamp` and the stop time to `block.timestamp + sum(segmentDeltas)`.
     ///
-    /// @dev Emits a {CreateProStream} event.
+    /// @dev Emits a {CreateProStream} and a {Transfer} event.
     ///
     /// Requirements:
     /// - All from `create`.

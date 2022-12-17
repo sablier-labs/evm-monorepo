@@ -22,7 +22,7 @@ abstract contract SablierV2 is ISablierV2 {
     /// @notice Checks that `msg.sender` is the sender of the stream, an approved operator, or the owner of the
     /// NFT (also known as the recipient of the stream).
     modifier isAuthorizedForStream(uint256 streamId) {
-        if (msg.sender != getSender(streamId) && !_isApprovedOrOwner(msg.sender, streamId)) {
+        if (msg.sender != getSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
             revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
         }
         _;
@@ -74,7 +74,25 @@ abstract contract SablierV2 is ISablierV2 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
-    function cancel(uint256 streamId) external streamExists(streamId) {
+    function burn(uint256 streamId) external override {
+        // Checks: the stream does not exist.
+        if (isEntity(streamId)) {
+            revert Errors.SablierV2__StreamExistent(streamId);
+        }
+
+        // Checks:
+        // 1. The NFT exists (see `getApproved`).
+        // 2. The caller is either the owner of the NFT or an approved operator.
+        if (!_isApprovedOrOwner(streamId, msg.sender)) {
+            revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
+        }
+
+        // Effects: burn the NFT.
+        _burn({ tokenId: streamId });
+    }
+
+    /// @inheritdoc ISablierV2
+    function cancel(uint256 streamId) external override streamExists(streamId) {
         // Checks: the stream is cancelable.
         if (!isCancelable(streamId)) {
             revert Errors.SablierV2__StreamNonCancelable(streamId);
@@ -84,7 +102,7 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function cancelAll(uint256[] calldata streamIds) external {
+    function cancelAll(uint256[] calldata streamIds) external override {
         // Iterate over the provided array of stream ids and cancel each stream that exists and is cancelable.
         uint256 count = streamIds.length;
         uint256 streamId;
@@ -104,7 +122,7 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function renounce(uint256 streamId) external streamExists(streamId) {
+    function renounce(uint256 streamId) external override streamExists(streamId) {
         // Checks: the caller is the sender of the stream.
         if (msg.sender != getSender(streamId)) {
             revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
@@ -121,6 +139,7 @@ abstract contract SablierV2 is ISablierV2 {
     /// @inheritdoc ISablierV2
     function withdraw(uint256 streamId, uint128 amount)
         external
+        override
         streamExists(streamId)
         isAuthorizedForStream(streamId)
     {
@@ -129,7 +148,7 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function withdrawAll(uint256[] calldata streamIds, uint128[] calldata amounts) external {
+    function withdrawAll(uint256[] calldata streamIds, uint128[] calldata amounts) external override {
         // Checks: count of `streamIds` matches count of `amounts`.
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
@@ -149,7 +168,7 @@ abstract contract SablierV2 is ISablierV2 {
                 // Checks: the `msg.sender` is the sender or the stream, an approved operator, or the owner of the NFT
                 // (a.k.a. the recipient of the stream).
                 sender = getSender(streamId);
-                if (msg.sender != sender && !_isApprovedOrOwner(msg.sender, streamId)) {
+                if (msg.sender != sender && !_isApprovedOrOwner(streamId, msg.sender)) {
                     revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
                 }
 
@@ -170,7 +189,7 @@ abstract contract SablierV2 is ISablierV2 {
         uint256[] calldata streamIds,
         address to,
         uint128[] calldata amounts
-    ) external {
+    ) external override {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
             revert Errors.SablierV2__WithdrawZeroAddress();
@@ -192,7 +211,7 @@ abstract contract SablierV2 is ISablierV2 {
             if (isEntity(streamId)) {
                 // Checks: the `msg.sender` is either an approved operator or the owner of the NFT (a.k.a. the recipient
                 // of the stream).
-                if (!_isApprovedOrOwner(msg.sender, streamId)) {
+                if (!_isApprovedOrOwner(streamId, msg.sender)) {
                     revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
                 }
 
@@ -212,7 +231,7 @@ abstract contract SablierV2 is ISablierV2 {
         uint256 streamId,
         address to,
         uint128 amount
-    ) external streamExists(streamId) {
+    ) external override streamExists(streamId) {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
             revert Errors.SablierV2__WithdrawZeroAddress();
@@ -220,7 +239,7 @@ abstract contract SablierV2 is ISablierV2 {
 
         // Checks: the `msg.sender` is either an approved operator or the owner of the NFT (a.k.a. the recipient
         // of the stream).
-        if (!_isApprovedOrOwner(msg.sender, streamId)) {
+        if (!_isApprovedOrOwner(streamId, msg.sender)) {
             revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
         }
         _withdraw(streamId, to, amount);
@@ -230,14 +249,22 @@ abstract contract SablierV2 is ISablierV2 {
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks whether the spender is authorized to interact with the stream.
-    /// @param spender The spender to make the query for.
+    /// @notice Checks whether the spender is authorized to interact with the stream.
+    /// @dev Unlike the ERC-721 implementation, this function does not check whether the owner is the zero address.
     /// @param streamId The id of the stream to make the query for.
-    function _isApprovedOrOwner(address spender, uint256 streamId) internal view virtual returns (bool approvedOrOwner);
+    /// @param spender The spender to make the query for.
+    function _isApprovedOrOwner(uint256 streamId, address spender)
+        internal
+        view
+        virtual
+        returns (bool isApprovedOrOwner);
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _burn(uint256 tokenId) internal virtual;
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _cancel(uint256 streamId) internal virtual;

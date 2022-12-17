@@ -137,7 +137,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
             daiStream.cancelable
         );
 
-        // Make Eve the sender the caller in the rest of this test case.
+        // Make Eve the caller for the rest of this test case.
         changePrank(users.sender);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
@@ -171,7 +171,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
             daiStream.cancelable
         );
 
-        // Make Eve the `msg.sender` the caller in the rest of this test case.
+        // Make Eve the caller in the rest of this test case.
         changePrank(users.eve);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
@@ -200,7 +200,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
         // Approve the operator for all streams.
         sablierV2Linear.setApprovalForAll({ operator: users.operator, approved: true });
 
-        // Make the operator the caller in this test.
+        // Make the approved operator the caller in this test.
         changePrank(users.operator);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
@@ -355,7 +355,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should make the withdrawals, delete the streams and burn the NFTs.
+    /// @dev it should make the withdrawals and delete the streams.
     function testWithdrawAllTo__AllStreamsEnded()
         external
         ToNonZeroAddress
@@ -384,7 +384,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
 
         address actualRecipient0 = sablierV2Linear.getRecipient(defaultStreamIds[0]);
         address actualRecipient1 = sablierV2Linear.getRecipient(defaultStreamIds[1]);
-        address expectedRecipient = address(0);
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient0, expectedRecipient);
         assertEq(actualRecipient1, expectedRecipient);
     }
@@ -478,8 +478,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
         sablierV2Linear.withdrawAllTo({ streamIds: defaultStreamIds, to: users.alice, amounts: defaultAmounts });
     }
 
-    /// @dev it should make the withdrawals, delete the ended streams and burn the NFTs,
-    /// and update the withdrawn amounts.
+    /// @dev it should make the withdrawals, delete the ended streams and update the withdrawn amounts.
     function testWithdrawAllTo__SomeStreamsEndedSomeStreamsOngoing()
         external
         ToNonZeroAddress
@@ -525,7 +524,7 @@ contract WithdrawAllTo__Test is SablierV2LinearTest {
         assertEq(actualEndedStream, expectedEndedStream);
 
         address actualEndedRecipient = sablierV2Linear.getRecipient(endedDaiStreamId);
-        address expectedEndedRecipient = address(0);
+        address expectedEndedRecipient = users.recipient;
         assertEq(actualEndedRecipient, expectedEndedRecipient);
 
         DataTypes.LinearStream memory queriedStream = sablierV2Linear.getStream(ongoingStreamId);

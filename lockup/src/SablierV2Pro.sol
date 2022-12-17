@@ -232,7 +232,7 @@ contract SablierV2Pro is
         SD1x18[] memory segmentExponents,
         uint40[] memory segmentMilestones,
         bool cancelable
-    ) external returns (uint256 streamId) {
+    ) external override returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
         streamId = _create(
             sender,
@@ -291,18 +291,24 @@ contract SablierV2Pro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierV2
-    function _isApprovedOrOwner(address spender, uint256 streamId)
+    function _isApprovedOrOwner(uint256 streamId, address spender)
         internal
         view
-        override(ERC721, SablierV2)
-        returns (bool approvedOrOwner)
+        override
+        returns (bool isApprovedOrOwner)
     {
-        approvedOrOwner = ERC721._isApprovedOrOwner(spender, streamId);
+        address owner = _ownerOf(streamId);
+        isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _burn(uint256 tokenId) internal override(ERC721, SablierV2) {
+        ERC721._burn(tokenId);
+    }
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
@@ -321,9 +327,6 @@ contract SablierV2Pro is
 
         // Effects: delete the stream from storage.
         delete _streams[streamId];
-
-        // Effects: burn the NFT.
-        _burn({ tokenId: streamId });
 
         // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
@@ -478,10 +481,9 @@ contract SablierV2Pro is
         DataTypes.ProStream memory stream = _streams[streamId];
         address recipient = getRecipient(streamId);
 
-        // Effects: if this stream is done, delete it from storage and burn the NFT.
+        // Effects: if this stream is done, delete it from storage.
         if (stream.depositAmount == stream.withdrawnAmount) {
             delete _streams[streamId];
-            _burn(streamId);
         }
 
         // Interactions: safely perform the ERC-20 transfer.

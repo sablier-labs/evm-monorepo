@@ -72,7 +72,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         // Approve the operator to handle the stream.
         sablierV2Linear.approve({ to: users.operator, tokenId: daiStreamId });
 
-        // Make the operator the caller in this test.
+        // Make the approved operator the caller in this test.
         changePrank(users.operator);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
@@ -179,7 +179,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should make the withdrawal and delete the stream and burn the NFT.
+    /// @dev it should make the withdrawal and delete the stream.
     function testWithdrawTo__StreamEnded()
         external
         StreamExistent
@@ -201,7 +201,7 @@ contract WithdrawTo__Test is SablierV2LinearTest {
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = address(0);
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }
 

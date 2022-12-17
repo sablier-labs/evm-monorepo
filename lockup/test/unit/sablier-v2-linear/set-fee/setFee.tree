@@ -1,0 +1,12 @@
+setFee.t.sol
+├── when the caller is not the owner
+│  └── it should revert
+└── when the caller is the owner
+   ├── when the new fee is greater than the maximum fee permitted
+   │  └── it should revert
+   └── when the new fee is less than or equal to the maximum fee permitted
+      ├── when the new fee is the same as the current fee
+      │  └── it should set the new fee
+      └── when the new fee is not the same as the current fee
+         └── it should set the new fee
+

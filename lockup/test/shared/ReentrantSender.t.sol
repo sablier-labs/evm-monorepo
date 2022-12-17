@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { console2 } from "forge-std/console2.sol";
 import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 import { ISablierV2Sender } from "src/interfaces/ISablierV2Sender.sol";
 
@@ -16,7 +15,6 @@ contract ReentrantSender is ISablierV2Sender {
         caller;
         withdrawAmount;
         returnAmount;
-        console2.log("Hello World, I am ReentrantSender!");
         ISablierV2(msg.sender).cancel(streamId);
     }
 }

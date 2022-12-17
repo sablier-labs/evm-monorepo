@@ -27,7 +27,7 @@ withdrawTo.t.sol
                      │  └── it should make the withdrawal and update the withdrawn amount
                      └── when the to address is a third-party
                         ├── when the stream ended
-                        │  ├── it should make the withdrawal and delete the stream and burn the NFT
+                        │  ├── it should make the withdrawal and delete the stream
                         │  └── it should emit a Withdraw event
                         └── when the stream did not end
                            ├── it should make the withdrawal and update the withdrawn amount

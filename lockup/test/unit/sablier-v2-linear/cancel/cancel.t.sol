@@ -81,7 +81,7 @@ contract Cancel__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should cancel and delete the stream and burn the NFT.
+    /// @dev it should cancel and delete the stream.
     function testCancel__RecipientNotContract() external StreamExistent StreamCancelable CallerAuthorized CallerSender {
         sablierV2Linear.cancel(daiStreamId);
         DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(daiStreamId);
@@ -89,7 +89,7 @@ contract Cancel__Test is SablierV2LinearTest {
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = address(0);
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }
 
@@ -97,7 +97,7 @@ contract Cancel__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should cancel and delete the stream and burn the NFT.
+    /// @dev it should cancel and delete the stream.
     function testCancel__RecipientDoesNotImplementHook()
         external
         StreamExistent
@@ -113,11 +113,11 @@ contract Cancel__Test is SablierV2LinearTest {
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = address(0);
+        address expectedRecipient = address(empty);
         assertEq(actualRecipient, expectedRecipient);
     }
 
-    /// @dev it should cancel and delete the stream and burn the NFT.
+    /// @dev it should cancel and delete the stream.
     function testCancel__RecipientImplementsHook()
         external
         StreamExistent
@@ -133,7 +133,7 @@ contract Cancel__Test is SablierV2LinearTest {
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = address(0);
+        address expectedRecipient = address(nonRevertingRecipient);
         assertEq(actualRecipient, expectedRecipient);
     }
 
@@ -161,7 +161,7 @@ contract Cancel__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should cancel and delete the stream and burn the NFT.
+    /// @dev it should cancel and delete the stream.
     function testCancel__StreamEnded()
         external
         StreamExistent
@@ -180,7 +180,7 @@ contract Cancel__Test is SablierV2LinearTest {
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = address(0);
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }
 
@@ -190,7 +190,7 @@ contract Cancel__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should cancel and delete the stream and burn the NFT.
+    /// @dev it should cancel and delete the stream.
     function testCancel__SenderNotContract()
         external
         StreamExistent
@@ -206,7 +206,7 @@ contract Cancel__Test is SablierV2LinearTest {
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = address(0);
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }
 
@@ -214,7 +214,7 @@ contract Cancel__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should cancel and delete the stream and burn the NFT.
+    /// @dev it should cancel and delete the stream.
     function testCancel__SenderDoesNotImplementHook()
         external
         StreamExistent
@@ -232,7 +232,7 @@ contract Cancel__Test is SablierV2LinearTest {
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = address(0);
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }
 
@@ -240,7 +240,7 @@ contract Cancel__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should cancel and delete the stream and burn the NFT.
+    /// @dev it should cancel and delete the stream.
     function testCancel__SenderReverts()
         external
         StreamExistent
@@ -259,7 +259,7 @@ contract Cancel__Test is SablierV2LinearTest {
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = address(0);
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }
 
@@ -287,7 +287,7 @@ contract Cancel__Test is SablierV2LinearTest {
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = address(0);
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }
 
@@ -295,7 +295,7 @@ contract Cancel__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should cancel and delete the stream and burn the NFT.
+    /// @dev it should cancel and delete the stream.
     function testCancel()
         external
         StreamExistent
@@ -316,7 +316,7 @@ contract Cancel__Test is SablierV2LinearTest {
         assertEq(deletedStream, expectedStream);
 
         address actualRecipient = sablierV2Linear.getRecipient(daiStreamId);
-        address expectedRecipient = address(0);
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }
 

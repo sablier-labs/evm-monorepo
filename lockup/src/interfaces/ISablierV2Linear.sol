@@ -29,7 +29,7 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// @notice Creates a new stream funded by `msg.sender` wrapped in a NFT.
     ///
-    /// @dev Emits a {CreateLinearStream} event.
+    /// @dev Emits a {CreateLinearStream} and a {Transfer} event.
     ///
     /// Requirements:
     /// - `sender` must not be the zero address.
@@ -40,8 +40,8 @@ interface ISablierV2Linear is ISablierV2 {
     /// - `cliffTime` must not be greater than `stopTime`.
     /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
     ///
-    /// @param sender The address from which to stream the tokens with a cliff period, which will have the ability to
-    /// cancel the stream. It doesn't have to be the same as `msg.sender`.
+    /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
+    /// It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address toward which to stream the tokens.
     /// @param depositAmount The amount of tokens to be streamed.
     /// @param token The address of the ERC-20 token to use for streaming.
@@ -61,10 +61,10 @@ interface ISablierV2Linear is ISablierV2 {
         bool cancelable
     ) external returns (uint256 streamId);
 
-    /// @notice Creates a stream funded by `msg.sender` wrapped in a NFT and sets the start time to `block.timestamp`
-    /// and the stop time to `block.timestamp + duration`.
+    /// @notice Creates a stream funded by `msg.sender` wrapped in an ERC-721 NFT and sets the start time to
+    /// `block.timestamp` and the stop time to `block.timestamp + duration`.
     ///
-    /// @dev Emits a {CreateLinearStream} event.
+    /// @dev Emits a {CreateLinearStream} and a {Transfer} event.
     ///
     /// Requirements:
     /// - All from `create`.

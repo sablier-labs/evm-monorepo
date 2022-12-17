@@ -154,7 +154,7 @@ contract WithdrawAll__Test is SablierV2LinearTest {
         // Approve the operator for all streams.
         sablierV2Linear.setApprovalForAll(users.operator, true);
 
-        // Make the operator the caller in this test.
+        // Make the approved operator the caller in this test.
         changePrank(users.operator);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
@@ -272,7 +272,7 @@ contract WithdrawAll__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should make the withdrawals, delete the streams and burn the NFTs.
+    /// @dev it should make the withdrawals and delete the streams.
     function testWithdrawAll__AllStreamsEnded()
         external
         ArraysEqual
@@ -298,7 +298,7 @@ contract WithdrawAll__Test is SablierV2LinearTest {
 
         address actualRecipient0 = sablierV2Linear.getRecipient(defaultStreamIds[0]);
         address actualRecipient1 = sablierV2Linear.getRecipient(defaultStreamIds[1]);
-        address expectedRecipient = address(0);
+        address expectedRecipient = users.recipient;
         assertEq(actualRecipient0, expectedRecipient);
         assertEq(actualRecipient1, expectedRecipient);
     }
@@ -392,8 +392,7 @@ contract WithdrawAll__Test is SablierV2LinearTest {
         sablierV2Linear.withdrawAll(defaultStreamIds, defaultAmounts);
     }
 
-    /// @dev it should make the withdrawals, delete the ended streams and burn the NFTs,
-    // and update the withdrawn amounts.
+    /// @dev it should make the withdrawals, delete the ended streams and update the withdrawn amounts.
     function testWithdrawAll__SomeStreamsEndedSomeStreamsOngoing()
         external
         ArraysEqual
@@ -437,7 +436,7 @@ contract WithdrawAll__Test is SablierV2LinearTest {
         assertEq(actualEndedStream, expectedEndedStream);
 
         address actualEndedRecipient = sablierV2Linear.getRecipient(endedDaiStreamId);
-        address expectedEndedRecipient = address(0);
+        address expectedEndedRecipient = users.recipient;
         assertEq(actualEndedRecipient, expectedEndedRecipient);
 
         DataTypes.LinearStream memory queriedStream = sablierV2Linear.getStream(ongoingStreamId);

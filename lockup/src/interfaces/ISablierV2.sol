@@ -66,6 +66,22 @@ interface ISablierV2 is IERC721 {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Burns the NFT associated with the stream.
+    ///
+    /// @dev Emits a {Transfer} event.
+    ///
+    /// The purpose of this function is to make the integration of Sablier V2 easier. Because the burning of
+    /// the NFT is separated from the deletion of the stream entity from the mapping, third-party contracts don't
+    /// have to constantly check for the existence of the NFT. They can decide to burn the NFT themselves, or not.
+    ///
+    /// Requirements:
+    /// - `streamId` must point to a deleted stream.
+    /// - The NFT must exist.
+    /// - `msg.sender` must be either an approved operator or the owner of the NFT.
+    ///
+    /// @param streamId The id of the stream NFT to burn.
+    function burn(uint256 streamId) external;
+
     /// @notice Cancels the stream and transfers any remaining amounts to the sender and the recipient.
     ///
     /// @dev Emits a {Cancel} event.
@@ -113,7 +129,7 @@ interface ISablierV2 is IERC721 {
 
     /// @notice Withdraws tokens from the stream to the recipient's account.
     ///
-    /// @dev Emits a {Withdraw} event.
+    /// @dev Emits a {Withdraw} and a {Transfer} event.
     ///
     /// This function will attempt to call a hook on the recipient of the stream, if the recipient is a contract.
     ///
@@ -129,7 +145,7 @@ interface ISablierV2 is IERC721 {
 
     /// @notice Withdraws tokens from multiple streams to the recipient's account.
     ///
-    /// @dev Emits multiple {Withdraw} event.
+    /// @dev Emits multiple {Withdraw} and {Transfer} events.
     ///
     /// This function will attempt to call a hook on the recipient of each stream, if the recipient is a contract.
     ///
@@ -146,7 +162,7 @@ interface ISablierV2 is IERC721 {
 
     /// @notice Withdraws tokens from multiple streams to the provided address `to`.
     ///
-    /// @dev Emits multiple {Withdraw} event.
+    /// @dev Emits multiple {Withdraw} and {Transfer} events.
     ///
     /// This function will attempt to call a hook on the recipient of each stream, if the recipient is a contract.
     ///
@@ -169,7 +185,7 @@ interface ISablierV2 is IERC721 {
 
     /// @notice Withdraws tokens from the stream to the provided address `to`.
     ///
-    /// @dev Emits a {Withdraw} event.
+    /// @dev Emits a {Withdraw} and a {Transfer} event.
     ///
     /// This function will attempt to call a hook on the recipient of the stream, if the recipient is a contract.
     ///

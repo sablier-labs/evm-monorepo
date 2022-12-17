@@ -157,7 +157,7 @@ contract SablierV2Linear is
         uint40 cliffTime,
         uint40 stopTime,
         bool cancelable
-    ) external returns (uint256 streamId) {
+    ) external override returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
         streamId = _create(sender, recipient, depositAmount, token, startTime, cliffTime, stopTime, cancelable);
     }
@@ -171,7 +171,7 @@ contract SablierV2Linear is
         uint40 cliffDuration,
         uint40 totalDuration,
         bool cancelable
-    ) external returns (uint256 streamId) {
+    ) external override returns (uint256 streamId) {
         // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
         // `_create` function will nonetheless check that the stop time is greater than or equal to the
         // cliff time, and that the cliff time is greater than or equal to the start time.
@@ -192,18 +192,24 @@ contract SablierV2Linear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierV2
-    function _isApprovedOrOwner(address spender, uint256 streamId)
+    function _isApprovedOrOwner(uint256 streamId, address spender)
         internal
         view
-        override(ERC721, SablierV2)
-        returns (bool approvedOrOwner)
+        override
+        returns (bool isApprovedOrOwner)
     {
-        approvedOrOwner = ERC721._isApprovedOrOwner(spender, streamId);
+        address owner = _ownerOf(streamId);
+        isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _burn(uint256 tokenId) internal override(ERC721, SablierV2) {
+        ERC721._burn(tokenId);
+    }
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
@@ -222,9 +228,6 @@ contract SablierV2Linear is
 
         // Effects: delete the stream from storage.
         delete _streams[streamId];
-
-        // Effects: burn the NFT.
-        _burn({ tokenId: streamId });
 
         // Interactions: withdraw the tokens to the recipient, if any.
         if (withdrawAmount > 0) {
@@ -365,10 +368,9 @@ contract SablierV2Linear is
         DataTypes.LinearStream memory stream = _streams[streamId];
         address recipient = getRecipient(streamId);
 
-        // Effects: if this stream is done, delete it from storage and burn the NFT.
+        // Effects: if the stream is done, delete the entity from the mapping.
         if (stream.depositAmount == stream.withdrawnAmount) {
             delete _streams[streamId];
-            _burn({ tokenId: streamId });
         }
 
         // Interactions: perform the ERC-20 transfer.
