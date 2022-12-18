@@ -24,6 +24,9 @@ library Errors {
     /// @notice Emitted when attempting to renounce an already non-cancelable stream.
     error SablierV2__RenounceNonCancelableStream(uint256 streamId);
 
+    /// @notice Emitted when the stream id points to an existent stream.
+    error SablierV2__StreamExistent(uint256 streamId);
+
     /// @notice Emitted when attempting to cancel a stream that is already non-cancelable.
     error SablierV2__StreamNonCancelable(uint256 streamId);
 
