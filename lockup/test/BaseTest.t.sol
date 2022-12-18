@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { Assertions as PRBMathAssertions } from "@prb/math/test/Assertions.sol";
+import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
+import { PRBMathUtils } from "@prb/math/test/Utils.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
@@ -10,7 +11,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 
-abstract contract BaseTest is PRBTest, PRBMathAssertions, StdCheats, StdUtils {
+abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, PRBMathUtils {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -25,7 +26,7 @@ abstract contract BaseTest is PRBTest, PRBMathAssertions, StdCheats, StdUtils {
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    UD60x18 internal constant MAX_GLOBAL_FEE = UD60x18.wrap(0.1e18);
+    UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18);
     uint40 internal constant UINT40_MAX = type(uint40).max;
     uint128 internal constant UINT128_MAX = type(uint128).max;
     uint256 internal constant UINT256_MAX = type(uint256).max;
@@ -80,42 +81,6 @@ abstract contract BaseTest is PRBTest, PRBMathAssertions, StdCheats, StdUtils {
             emit LogNamedArray("    Actual", a);
             fail();
         }
-    }
-
-    /// @dev Helper function to bound an `UD60x18` number.
-    function bound(
-        UD60x18 x,
-        UD60x18 min,
-        UD60x18 max
-    ) internal view returns (UD60x18 result) {
-        result = UD60x18.wrap(bound(UD60x18.unwrap(x), UD60x18.unwrap(min), UD60x18.unwrap(max)));
-    }
-
-    /// @dev Helper function to bound an `UD60x18` number.
-    function bound(
-        UD60x18 x,
-        uint256 min,
-        UD60x18 max
-    ) internal view returns (UD60x18 result) {
-        result = UD60x18.wrap(bound(UD60x18.unwrap(x), min, UD60x18.unwrap(max)));
-    }
-
-    /// @dev Helper function to bound an `UD60x18` number.
-    function bound(
-        UD60x18 x,
-        UD60x18 min,
-        uint256 max
-    ) internal view returns (UD60x18 result) {
-        result = UD60x18.wrap(bound(UD60x18.unwrap(x), UD60x18.unwrap(min), max));
-    }
-
-    /// @dev Helper function to bound an `UD60x18` number.
-    function bound(
-        UD60x18 x,
-        uint256 min,
-        uint256 max
-    ) internal view returns (UD60x18 result) {
-        result = UD60x18.wrap(bound(UD60x18.unwrap(x), min, max));
     }
 
     /// @dev Helper function to create a dynamical `SD1x18` array with 1 element.

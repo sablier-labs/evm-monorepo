@@ -15,6 +15,12 @@ library Errors {
     /// @notice Emitted when the new global fee is greater than the maximum permitted.
     error SablierV2__NewGlobalFeeGreaterThanMaxPermitted(UD60x18 newGlobalFee, UD60x18 maxGlobalFee);
 
+    /// @notice Emitted when the operator fee is greater than the maximum fee permitted.
+    error SablierV2__OperatorFeeTooHigh(UD60x18 operatorFee, UD60x18 maxFee);
+
+    /// @notice Emitted when the protocol fee is greater than the maximum fee permitted.
+    error SablierV2__ProtocolFeeTooHigh(UD60x18 protocolFee, UD60x18 maxFee);
+
     /// @notice Emitted when attempting to renounce an already non-cancelable stream.
     error SablierV2__RenounceNonCancelableStream(uint256 streamId);
 

@@ -4,6 +4,8 @@ pragma solidity >=0.8.13;
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
 
+import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
+
 import { BaseTest } from "../BaseTest.t.sol";
 import { Empty } from "../shared/Empty.t.sol";
 import { NonRevertingRecipient } from "../shared/NonRevertingRecipient.t.sol";
@@ -57,6 +59,7 @@ abstract contract UnitTest is BaseTest {
     ReentrantSender internal reentrantSender = new ReentrantSender();
     RevertingRecipient internal revertingRecipient = new RevertingRecipient();
     RevertingSender internal revertingSender = new RevertingSender();
+    SablierV2Comptroller internal sablierV2Comptroller;
     Users internal users;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -84,6 +87,10 @@ abstract contract UnitTest is BaseTest {
             recipient: createUser("Recipient"),
             sender: createUser("Sender")
         });
+
+        // Deploy the comptroller, since it's needed in all test suites.
+        vm.startPrank({ msgSender: users.owner });
+        sablierV2Comptroller = new SablierV2Comptroller();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -9,9 +9,10 @@ import { UD60x18, toUD60x18 } from "@prb/math/UD60x18.sol";
 import { DataTypes } from "./libraries/DataTypes.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
-import { Validations } from "./libraries/Validations.sol";
+import { Helpers } from "./libraries/Helpers.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
+import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Linear } from "./interfaces/ISablierV2Linear.sol";
 import { ISablierV2Recipient } from "./interfaces/ISablierV2Recipient.sol";
 import { ISablierV2Sender } from "./interfaces/ISablierV2Sender.sol";
@@ -37,7 +38,7 @@ contract SablierV2Linear is
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(UD60x18 maxGlobalFee) SablierV2(maxGlobalFee) {}
+    constructor(ISablierV2Comptroller initialComptroller, UD60x18 maxFee) SablierV2(initialComptroller, maxFee) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                             PUBLIC CONSTANT FUNCTIONS
@@ -158,6 +159,8 @@ contract SablierV2Linear is
         address sender,
         address recipient,
         uint128 depositAmount,
+        UD60x18 operatorFee,
+        address operator,
         address token,
         bool cancelable,
         uint40 startTime,
@@ -165,7 +168,18 @@ contract SablierV2Linear is
         uint40 stopTime
     ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(sender, recipient, depositAmount, token, cancelable, startTime, cliffTime, stopTime);
+        streamId = _create(
+            sender,
+            recipient,
+            depositAmount,
+            operatorFee,
+            operator,
+            token,
+            cancelable,
+            startTime,
+            cliffTime,
+            stopTime
+        );
     }
 
     /// @inheritdoc ISablierV2Linear
@@ -173,6 +187,8 @@ contract SablierV2Linear is
         address sender,
         address recipient,
         uint128 depositAmount,
+        UD60x18 operatorFee,
+        address operator,
         address token,
         bool cancelable,
         uint40 cliffDuration,
@@ -190,7 +206,18 @@ contract SablierV2Linear is
         }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(sender, recipient, depositAmount, token, cancelable, startTime, cliffTime, stopTime);
+        streamId = _create(
+            sender,
+            recipient,
+            depositAmount,
+            operatorFee,
+            operator,
+            token,
+            cancelable,
+            startTime,
+            cliffTime,
+            stopTime
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -287,15 +314,36 @@ contract SablierV2Linear is
     function _create(
         address sender,
         address recipient,
-        uint128 depositAmount,
+        uint128 grossDepositAmount,
+        UD60x18 operatorFee,
+        address operator,
         address token,
         bool cancelable,
         uint40 startTime,
         uint40 cliffTime,
         uint40 stopTime
     ) internal returns (uint256 streamId) {
-        // Checks: the arguments of the function.
-        Validations.checkCreateLinearArgs(depositAmount, startTime, cliffTime, stopTime);
+        // Checks: validate the streaming arguments.
+        Helpers.checkCreateLinearArgs(grossDepositAmount, startTime, cliffTime, stopTime);
+
+        // Safe Interactions: query the protocol fee associated with this token.
+        // This interaction is safe because we are querying a Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(token);
+
+        // Checks: check that the fees are not greater than `MAX_FEE`, and also calculate the fee amounts and the
+        // deposit amount.
+        (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 depositAmount) = Helpers.checkAndCalculateFees(
+            grossDepositAmount,
+            protocolFee,
+            operatorFee,
+            MAX_FEE
+        );
+
+        // Effects: record the protocol fee amount.
+        // We're using unchecked arithmetic here because this calculation cannot realistically overflow, ever.
+        unchecked {
+            _protocolRevenues[token] += protocolFeeAmount;
+        }
 
         // Effects: create the stream.
         streamId = nextStreamId;
@@ -311,17 +359,22 @@ contract SablierV2Linear is
             withdrawnAmount: 0
         });
 
-        // Effects: mint the NFT for the recipient by setting the stream id as the token id.
-        _mint({ to: recipient, tokenId: streamId });
-
         // Effects: bump the next stream id.
-        // We're using unchecked arithmetic here because this cannot realistically overflow, ever.
+        // We're using unchecked arithmetic here because this calculation cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
         }
 
-        // Interactions: safely perform the ERC-20 transfer.
-        IERC20(token).safeTransferFrom({ from: msg.sender, to: address(this), amount: depositAmount });
+        // Effects: mint the NFT for the recipient by setting the stream id as the token id.
+        _mint({ to: recipient, tokenId: streamId });
+
+        // Interactions: perform an ERC-20 transfer to deposit the gross amount of tokens.
+        IERC20(token).safeTransferFrom({ from: msg.sender, to: address(this), amount: grossDepositAmount });
+
+        // Interactions: perform an ERC-20 transfer to pay the operator fee, if any.
+        if (operatorFeeAmount > 0) {
+            IERC20(token).safeTransfer({ to: operator, amount: operatorFeeAmount });
+        }
 
         // Emit an event.
         emit Events.CreateLinearStream({
@@ -330,11 +383,13 @@ contract SablierV2Linear is
             sender: sender,
             recipient: recipient,
             depositAmount: depositAmount,
+            protocolFeeAmount: protocolFeeAmount,
+            operatorFeeAmount: operatorFeeAmount,
             token: token,
-            cancelable: cancelable,
             startTime: startTime,
             cliffTime: cliffTime,
-            stopTime: stopTime
+            stopTime: stopTime,
+            cancelable: cancelable
         });
     }
 

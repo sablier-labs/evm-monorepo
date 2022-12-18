@@ -18,22 +18,22 @@ interface ISablierV2Pro is ISablierV2 {
     /// @dev This is initialized at construction time.
     function MAX_SEGMENT_COUNT() external view returns (uint256);
 
-    /// @notice Reads the segment amounts used to compose the custom emission curve.
+    /// @notice Queries the segment amounts used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
     /// @return segmentAmounts The segment amounts used to compose the custom emission curve.
     function getSegmentAmounts(uint256 streamId) external view returns (uint128[] memory segmentAmounts);
 
-    /// @notice Reads the segment exponents used to compose the custom emission curve.
+    /// @notice Queries the segment exponents used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
     /// @return segmentExponents The segment exponents used to compose the custom emission curve.
     function getSegmentExponents(uint256 streamId) external view returns (SD1x18[] memory segmentExponents);
 
-    /// @notice Reads the segment milestones used to compose the custom emission curve.
+    /// @notice Queries the segment milestones used to compose the custom emission curve.
     /// @param streamId The id of the stream to make the query for.
     /// @return segmentMilestones The segment milestones used to compose the custom emission curve.
     function getSegmentMilestones(uint256 streamId) external view returns (uint40[] memory segmentMilestones);
 
-    /// @notice Reads the stream struct.
+    /// @notice Queries the stream struct.
     /// @param streamId The id of the stream to make the query for.
     /// @return stream The stream struct.
     function getStream(uint256 streamId) external view returns (DataTypes.ProStream memory stream);

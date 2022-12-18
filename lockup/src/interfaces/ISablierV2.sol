@@ -3,6 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
+import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @title ISablierV2
@@ -15,21 +16,27 @@ interface ISablierV2 is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum global fee allowed for any token.
-    /// @dev This is initialized at construction time.
-    function MAX_GLOBAL_FEE() external view returns (UD60x18);
+    /// @notice Queries the maximum fee permitted.
+    /// @dev This is initialized in the constructor.
+    /// @return The maximum fee permitted.
+    function MAX_FEE() external view returns (UD60x18);
 
-    /// @notice Reads the amount deposited in the stream.
+    /// @notice Queries the address of the SablierV2Comptroller contract. The comptroller is in charge of the Sablier V2
+    /// protocol configuration, handling such values as the protocol fees.
+    /// @return The address of the SablierV2Comptroller contract.
+    function comptroller() external view returns (ISablierV2Comptroller);
+
+    /// @notice Queries the amount deposited in the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return depositAmount The amount deposited in the stream, in units of the token's decimals.
     function getDepositAmount(uint256 streamId) external view returns (uint128 depositAmount);
 
-    /// @notice Reads the global fee levied on all streams created with the given token.
+    /// @notice Queries the protocol revenues accrued for the provided token.
     /// @param token The address of the token to make the query for.
-    /// @return globalFee The global fee as an UD60x18 number.
-    function getGlobalFee(address token) external view returns (UD60x18 globalFee);
+    /// @return protocolRevenues The protocol revenues accrued for the provided token, in units of the token's decimals.
+    function getProtocolRevenues(address token) external view returns (uint128 protocolRevenues);
 
-    /// @notice Reads the recipient of the stream.
+    /// @notice Queries the recipient of the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return recipient The recipient of the stream.
     function getRecipient(uint256 streamId) external view returns (address recipient);
@@ -40,17 +47,17 @@ interface ISablierV2 is
     /// the ERC-20 token's decimals.
     function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount);
 
-    /// @notice Reads the sender of the stream.
+    /// @notice Queries the sender of the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return sender The sender of the stream.
     function getSender(uint256 streamId) external view returns (address sender);
 
-    /// @notice Reads the start time of the stream.
+    /// @notice Queries the start time of the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return startTime The start time of the stream.
     function getStartTime(uint256 streamId) external view returns (uint40 startTime);
 
-    /// @notice Reads the stop time of the stream.
+    /// @notice Queries the stop time of the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return stopTime The stop time of the stream.
     function getStopTime(uint256 streamId) external view returns (uint40 stopTime);
@@ -61,7 +68,7 @@ interface ISablierV2 is
     /// the ERC-20 token's decimals.
     function getWithdrawableAmount(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
-    /// @notice Reads the amount withdrawn from the stream.
+    /// @notice Queries the amount withdrawn from the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return withdrawnAmount The amount withdrawn from the stream, in units of the token's decimals.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
@@ -141,7 +148,20 @@ interface ISablierV2 is
     /// @param streamId The id of the stream to renounce.
     function renounce(uint256 streamId) external;
 
-    /// @notice Withdraws tokens from the stream to the provided address `to`.
+    /// @notice Sets the SablierV2Comptroller contract. The comptroller is in charge of the protocol configuration,
+    /// handling such values as the protocol fees.
+    ///
+    /// @dev Emits a {SetComptroller} event.
+    ///
+    /// It is not an error to set the same comptroller.
+    ///
+    /// Requirements:
+    /// - The caller must be the owner.
+    ///
+    /// @param newComptroller The address of the new SablierV2Comptroller contract.
+    function setComptroller(ISablierV2Comptroller newComptroller) external;
+
+    /// @notice Withdraws tokens from the stream to the recipient's account.
     ///
     /// @dev Emits a {Withdraw} and a {Transfer} event.
     ///

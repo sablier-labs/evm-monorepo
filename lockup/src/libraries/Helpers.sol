@@ -2,15 +2,54 @@
 pragma solidity >=0.8.13;
 
 import { SD1x18 } from "@prb/math/SD1x18.sol";
+import { UD60x18, unwrap, wrap } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./Errors.sol";
 
-/// @title Validations
-/// @notice Library with logic that checks the Sablier V2 functions' requirements.
-library Validations {
+/// @title Helpers
+/// @notice Library with helper functions needed across the Sablier V2 contracts.
+library Helpers {
     /*//////////////////////////////////////////////////////////////////////////
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Calculates the protocol and the operator fee amounts.
+    function checkAndCalculateFees(
+        uint128 grossDepositAmount,
+        UD60x18 protocolFee,
+        UD60x18 operatorFee,
+        UD60x18 maxFee
+    )
+        internal
+        pure
+        returns (
+            uint128 protocolFeeAmount,
+            uint128 operatorFeeAmount,
+            uint128 depositAmount
+        )
+    {
+        // Checks: the protocol fee is not greater than `MAX_FEE`.
+        if (protocolFee.gt(maxFee)) {
+            revert Errors.SablierV2__ProtocolFeeTooHigh(operatorFee, maxFee);
+        }
+
+        // Calculate the protocol fee amount.
+        protocolFeeAmount = uint128(unwrap(wrap(grossDepositAmount).mul(protocolFee)));
+
+        // Checks: the operator fee is not greater than `MAX_FEE`.
+        if (operatorFee.gt(maxFee)) {
+            revert Errors.SablierV2__OperatorFeeTooHigh(operatorFee, maxFee);
+        }
+
+        // Calculate the operator fee amount.
+        operatorFeeAmount = uint128(unwrap(wrap(grossDepositAmount).mul(operatorFee)));
+
+        // Calculate the deposit amount (the amount net of fees).
+        unchecked {
+            assert(grossDepositAmount > protocolFeeAmount + operatorFeeAmount);
+            depositAmount = grossDepositAmount - protocolFeeAmount - operatorFeeAmount;
+        }
+    }
 
     /// @dev Checks the arguments of the `create` function in the {SablierV2Linear} contract.
     function checkCreateLinearArgs(
@@ -118,7 +157,7 @@ library Validations {
     }
 
     /// @dev Checks that the counts of segments match. The counts must be equal and less than or equal to
-    /// the maximum segment count permitted in Sablier.
+    /// the maximum segment count permitted.
     function _checkSegmentCounts(
         uint256 amountsCount,
         uint256 exponentsCount,
@@ -130,7 +169,7 @@ library Validations {
             revert Errors.SablierV2Pro__SegmentCountZero();
         }
 
-        // Check that the amount count is not greater than the maximum segment count permitted in Sablier.
+        // Check that the amount count is not greater than the maximum segment count permitted.
         if (amountsCount > maxSegmentCount) {
             revert Errors.SablierV2Pro__SegmentCountOutOfBounds(amountsCount);
         }

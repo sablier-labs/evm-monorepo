@@ -11,8 +11,12 @@ out = "out"
 sender = "0x9aF2E2B7e57c1CD7C68C5C3796d8ea67e0018dB7"
 solc = "0.8.17"
 src = "src"
-test = "test/unit"
+test = "test/unit/sablier-v2-comptroller"
 tx_origin = "0x9aF2E2B7e57c1CD7C68C5C3796d8ea67e0018dB7"
+via_ir = true
+
+[profile.default.optimizer_details.yulDetails]
+optimizerSteps = ""
 
 [profile.ci]
 fuzz = { runs = 1_000 }

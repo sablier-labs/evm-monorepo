@@ -31,18 +31,22 @@ library Events {
     /// @param funder The address which funded the stream.
     /// @param sender The address from which to stream the tokens, which has the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
-    /// @param depositAmount The amount of tokens to be streamed.
+    /// @param depositAmount The amount of tokens to be streamed, in units of the token's decimals.
+    /// @param protocolFeeAmount The amount of tokens charged by the protocol, in units of the token's decimals.
+    /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
     /// @param token The address of the ERC-20 token to use for streaming.
+    /// @param cancelable Whether the stream will be cancelable or not.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param cliffTime The unix timestamp in seconds for when the cliff period will end.
     /// @param stopTime The unix timestamp in seconds for when the stream will stop.
-    /// @param cancelable Whether the stream will be cancelable or not.
     event CreateLinearStream(
         uint256 streamId,
         address indexed funder,
         address indexed sender,
         address indexed recipient,
         uint128 depositAmount,
+        uint128 protocolFeeAmount,
+        uint128 operatorFeeAmount,
         address token,
         bool cancelable,
         uint40 startTime,
@@ -55,7 +59,7 @@ library Events {
     /// @param funder The address which funded the stream.
     /// @param sender The address from which to stream the tokens, which has the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
-    /// @param depositAmount The amount of tokens to be streamed.
+    /// @param depositAmount The amount of tokens to be streamed, in units of the token's decimals.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param stopTime The calculated unix timestamp in seconds for when the stream will stop.
@@ -82,12 +86,16 @@ library Events {
     /// @param streamId The id of the stream.
     event Renounce(uint256 indexed streamId);
 
-    /// @notice Emitted when the owner sets a new global fee for a token.
+    /// @notice Emitted when the SablierV2Comptroller contract is set.
+    /// @param newComptroller The address of the new SablierV2Comptroller contract.
+    event SetComptroller(address indexed owner, address oldComptroller, address newComptroller);
+
+    /// @notice Emitted when the owner sets a new protocol fee for the provided token.
     /// @param owner The address of the current contract owner.
-    /// @param token The address of the token the new global fee was set for.
-    /// @param oldFee The old global fee for the token.
-    /// @param newFee The new global fee for the token.
-    event SetGlobalFee(address indexed owner, address indexed token, UD60x18 oldFee, UD60x18 newFee);
+    /// @param token The address of the token the new protocol fee was set for.
+    /// @param oldFee The old global fee for the provided token.
+    /// @param newFee The new global fee for the provided token.
+    event SetProtocolFee(address indexed owner, address indexed token, UD60x18 oldFee, UD60x18 newFee);
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The id of the stream.

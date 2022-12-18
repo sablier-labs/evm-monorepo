@@ -12,9 +12,10 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { DataTypes } from "./libraries/DataTypes.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
-import { Validations } from "./libraries/Validations.sol";
+import { Helpers } from "./libraries/Helpers.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
+import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Pro } from "./interfaces/ISablierV2Pro.sol";
 import { ISablierV2Recipient } from "./interfaces/ISablierV2Recipient.sol";
 import { ISablierV2Sender } from "./interfaces/ISablierV2Sender.sol";
@@ -47,7 +48,11 @@ contract SablierV2Pro is
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(UD60x18 maxGlobalFee, uint256 maxSegmentCount) SablierV2(maxGlobalFee) {
+    constructor(
+        ISablierV2Comptroller initialComptroller,
+        UD60x18 maxFee,
+        uint256 maxSegmentCount
+    ) SablierV2(initialComptroller, maxFee) {
         MAX_SEGMENT_COUNT = maxSegmentCount;
     }
 
@@ -390,7 +395,7 @@ contract SablierV2Pro is
         uint40[] memory segmentMilestones
     ) internal returns (uint256 streamId) {
         // Checks: the arguments of the function.
-        Validations.checkCreateProArgs(
+        Helpers.checkCreateProArgs(
             depositAmount,
             startTime,
             segmentAmounts,
@@ -422,15 +427,16 @@ contract SablierV2Pro is
             withdrawnAmount: 0
         });
 
-        // Effects: mint the NFT for the recipient by setting the stream id as the token id.
-        _mint({ to: recipient, tokenId: streamId });
-
-        // Effects: bump the next stream id. This cannot realistically overflow, ever.
+        // Effects: bump the next stream id.
+        // We're using unchecked arithmetic here because this calculation cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
         }
 
-        // Interactions: safely perform the ERC-20 transfer.
+        // Effects: mint the NFT for the recipient by setting the stream id as the token id.
+        _mint({ to: recipient, tokenId: streamId });
+
+        // Interactions: perform the ERC-20 transfer.
         IERC20(token).safeTransferFrom({ from: msg.sender, to: address(this), amount: depositAmount });
 
         // Emit an event.
@@ -486,7 +492,7 @@ contract SablierV2Pro is
             delete _streams[streamId];
         }
 
-        // Interactions: safely perform the ERC-20 transfer.
+        // Interactions: perform the ERC-20 transfer.
         IERC20(stream.token).safeTransfer(to, amount);
 
         // Interactions: if the `msg.sender` is not the recipient and the recipient is a contract, try to invoke the

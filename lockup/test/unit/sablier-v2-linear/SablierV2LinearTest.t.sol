@@ -33,8 +33,7 @@ abstract contract SablierV2LinearTest is UnitTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        vm.prank(users.owner);
-        sablierV2Linear = new SablierV2Linear({ maxGlobalFee: MAX_GLOBAL_FEE });
+        sablierV2Linear = new SablierV2Linear({ initialComptroller: sablierV2Comptroller, maxFee: MAX_FEE });
 
         // Create the default streams to be used across the tests.
         daiStream = DataTypes.LinearStream({

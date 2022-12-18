@@ -37,8 +37,11 @@ abstract contract SablierV2ProTest is UnitTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        vm.prank(users.owner);
-        sablierV2Pro = new SablierV2Pro({ maxGlobalFee: MAX_GLOBAL_FEE, maxSegmentCount: MAX_SEGMENT_COUNT });
+        sablierV2Pro = new SablierV2Pro({
+            initialComptroller: sablierV2Comptroller,
+            maxFee: MAX_FEE,
+            maxSegmentCount: MAX_SEGMENT_COUNT
+        });
 
         // Create the default streams to be used across the tests.
         daiStream = DataTypes.ProStream({

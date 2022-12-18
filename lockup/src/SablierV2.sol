@@ -8,6 +8,7 @@ import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
+import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 
 /// @title SablierV2
 /// @dev Abstract contract implementing common logic. Implements the ISablierV2 interface.
@@ -16,25 +17,28 @@ abstract contract SablierV2 is
     ISablierV2 // three dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
-                                      CONSTANTS
+                                     CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
-    UD60x18 public immutable override MAX_GLOBAL_FEE;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  INTERNAL STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Global fees mapped by token addresses.
-    mapping(address => UD60x18) internal _globalFees;
+    UD60x18 public immutable override MAX_FEE;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
+    ISablierV2Comptroller public override comptroller;
+
+    /// @inheritdoc ISablierV2
     uint256 public override nextStreamId;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  INTERNAL STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Protocol revenues mapped by token addresses.
+    mapping(address => uint128) internal _protocolRevenues;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       MODIFIERS
@@ -70,8 +74,9 @@ abstract contract SablierV2 is
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(UD60x18 maxGlobalFee) {
-        MAX_GLOBAL_FEE = maxGlobalFee;
+    constructor(ISablierV2Comptroller initialComptroller, UD60x18 maxFee) {
+        comptroller = initialComptroller;
+        MAX_FEE = maxFee;
         nextStreamId = 1;
     }
 
@@ -80,8 +85,8 @@ abstract contract SablierV2 is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
-    function getGlobalFee(address token) external view override returns (UD60x18 globalFee) {
-        globalFee = _globalFees[token];
+    function getProtocolRevenues(address token) external view override returns (uint128 protocolRevenues) {
+        protocolRevenues = _protocolRevenues[token];
     }
 
     /// @inheritdoc ISablierV2
@@ -158,6 +163,16 @@ abstract contract SablierV2 is
         }
 
         _renounce(streamId);
+    }
+
+    /// @inheritdoc ISablierV2
+    function setComptroller(ISablierV2Comptroller newComptroller) external onlyOwner {
+        // Effects: set the comptroller.
+        address oldComptroller = address(newComptroller);
+        comptroller = newComptroller;
+
+        // Emit an event.
+        emit Events.SetComptroller(owner, oldComptroller, address(newComptroller));
     }
 
     /// @inheritdoc ISablierV2
