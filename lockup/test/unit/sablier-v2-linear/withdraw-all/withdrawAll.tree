@@ -1,38 +1,46 @@
 withdrawAll.t.sol
-├── when the array counts are not equal
+├── when the provided address is zero
 │  └── it should revert
-└── when the array counts are equal
-   ├── when the stream ids array points only to non existent streams
-   │  └── it should do nothing
-   ├── when the stream ids array points to some non existent streams
-   │  └── it should make the withdrawals for the existent streams
-   └── when the stream ids array points only to existent streams
-     ├── when the caller is not authorized for any stream
-     │  └── it should revert
-     ├── when the caller is not authorized for some streams
-     │  └── it should revert
-     ├── when the caller is the sender of all streams
-     │  └── it should make the withdrawals and update the withdrawn amounts
-     ├── when the caller is an approved operator of all streams
-     │  └── it should make the withdrawals and update the withdrawn amounts
-     └── when the caller is the recipient of all streams
-        ├── when the original recipient transferred ownership of all streams
-        │  └── it should revert
-        ├── when the original recipient transferred ownership of some of the streams
-        │  └── it should revert
-        └── when the original recipient did not transfer ownership of any stream
-           ├── when some amounts are zero
-           │  └── it should revert
-           └── when all amounts are not zero
-              ├── when some amounts are greater than the withdrawable amounts
-              │  └── it should revert
-              └── when all amounts are less than or equal to the withdrawable amounts
-                 ├── when all streams are ended
-                 │  ├── it should make the withdrawals and delete the streams
-                 │  └── it should emit multiple Withdraw events
-                 ├── when all streams are ongoing
-                 │  ├── it should make the withdrawals and update the withdrawn amounts
-                 │  └── it should emit multiple Withdraw events
-                 └── when some streams are ended and some streams are ongoing
-                    ├── it should make the withdrawals, delete the ended streams and update the withdrawn amounts
-                    └── it should emit multiple Withdraw events
+└── when the provided address is not zero
+   ├── when the array counts are not equal
+   │  └── it should revert
+   └── when the array counts are equal
+      ├── when the stream ids array points only to non existent streams
+      │  └── it should do nothing
+      ├── when the stream ids array points to some non existent streams
+      │  └── it should make the withdrawals for the existent streams
+      └── when the stream ids array points only to existent streams
+         ├── when the caller is not authorized for any stream
+         │  ├── when the caller is a malicious third-party
+         │  │  └── it should revert
+         │  └── when the caller is the sender
+         │     └── it should revert
+         ├── when the caller is not authorized for some streams
+         │  └── it should revert
+         └── when the caller is authorized for all streams
+            ├── when the caller is an approved operator
+            │  └── it should make the withdrawals to the provided address and update the withdrawn amounts
+            └── when the caller is the recipient
+               ├── when the original recipient transferred ownership of all streams
+               │  └── it should revert
+               ├── when the original recipient transferred ownership of some of the streams
+               │  └── it should revert
+               └── when the original recipient did not transfer ownership of any stream
+                  ├── when some amounts are zero
+                  │  └── it should revert
+                  └── when all amounts are not zero
+                     ├── when some amounts are greater than the withdrawable amounts
+                     │  └── it should revert
+                     └── when all amounts are less than or equal to the withdrawable amounts
+                        ├── when the provided address is the recipient
+                        │  └── it should make the withdrawal to the recipient and update the withdrawn amount
+                        └── when the provided address is a third-party
+                           ├── when all streams are ended
+                           │  ├── it should make the withdrawals to the provided address, delete the streams
+                           │  └── it should emit multiple Withdraw events
+                           ├── when all streams are ongoing
+                           │  ├── it should make the withdrawals to the provided address and update the withdrawn amounts
+                           │  └── it should emit multiple Withdraw events
+                           └── when some streams are ended and some streams are ongoing
+                              ├── it should make the withdrawals to the provided address, delete the ended streams, and update the withdrawn amounts
+                              └── it should emit multiple Withdraw events

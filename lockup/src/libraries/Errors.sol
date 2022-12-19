@@ -22,7 +22,7 @@ library Errors {
     /// @notice Emitted when the stream id points to a nonexistent stream.
     error SablierV2__StreamNonExistent(uint256 streamId);
 
-    /// @notice Emitted when the caller is not authorized to perform some action.
+    /// @notice Emitted when the `msg.sender` is not authorized to perform some action.
     error SablierV2__Unauthorized(uint256 streamId, address caller);
 
     /// @notice Emitted when attempting to withdraw from multiple streams and the count of the stream ids does
@@ -40,18 +40,21 @@ library Errors {
     /// @notice The id of the stream.
     error SablierV2__WithdrawAmountZero(uint256 streamId);
 
+    /// @notice Emitted when the sender of the stream attempts to withdraw to some address other than the recipient.
+    error SablierV2__WithdrawSenderUnauthorized(uint256 streamId, address sender, address to);
+
     /// @notice Emitted when attempting to withdraw to a zero address.
-    error SablierV2__WithdrawZeroAddress();
+    error SablierV2__WithdrawToZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
                            SABLIER-V2-LINEAR CUSTOM ERRORS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when attempting to create a stream with a start time greater than cliff time;
-    error SablierV2Linear__StartTimeGreaterThanCliffTime(uint40 startTime, uint40 cliffTime);
-
     /// @notice Emitted when attempting to create a stream with a cliff time greater than stop time;
     error SablierV2Linear__CliffTimeGreaterThanStopTime(uint40 cliffTime, uint40 stopTime);
+
+    /// @notice Emitted when attempting to create a stream with a start time greater than cliff time;
+    error SablierV2Linear__StartTimeGreaterThanCliffTime(uint40 startTime, uint40 cliffTime);
 
     /*//////////////////////////////////////////////////////////////////////////
                             SABLIER-V2-PRO CUSTOM ERRORS

@@ -39,7 +39,7 @@ contract GetWithdrawnAmount__Test is SablierV2LinearTest {
     /// @dev it should return the correct withdrawn amount.
     function testGetWithdrawnAmount__WithWithdrawals() external StreamExistent {
         vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
-        sablierV2Linear.withdraw(daiStreamId, WITHDRAW_AMOUNT_DAI);
+        sablierV2Linear.withdraw(daiStreamId, users.recipient, WITHDRAW_AMOUNT_DAI);
         uint128 actualDepositAmount = sablierV2Linear.getWithdrawnAmount(daiStreamId);
         uint128 expectedDepositAmount = WITHDRAW_AMOUNT_DAI;
         assertEq(actualDepositAmount, expectedDepositAmount);

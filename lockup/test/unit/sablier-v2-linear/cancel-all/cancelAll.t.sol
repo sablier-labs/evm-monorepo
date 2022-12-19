@@ -79,7 +79,7 @@ contract CancelAll__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerMaliciousThirdPartyAllStreams()
+    function testCannotCancelAll__CallerUnauthorizedAllStreams__MaliciousThirdParty()
         external
         OnlyExistentStreams
         AllStreamsCancelable
@@ -95,7 +95,11 @@ contract CancelAll__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerApprovedOperatorAllStreams() external OnlyExistentStreams AllStreamsCancelable {
+    function testCannotCancelAll__CallerUnauthorizedAllStreams__ApprovedOperator()
+        external
+        OnlyExistentStreams
+        AllStreamsCancelable
+    {
         // Approve the operator for all streams.
         sablierV2Linear.setApprovalForAll({ operator: users.operator, approved: true });
 
@@ -110,7 +114,7 @@ contract CancelAll__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerMaliciousThirdPartySomeStreams()
+    function testCannotCancelAll__CallerUnauthorizedSomeStreams__MaliciousThirdParty()
         external
         OnlyExistentStreams
         AllStreamsCancelable
@@ -139,7 +143,7 @@ contract CancelAll__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerApprovedOperatorSomeStreams()
+    function testCannotCancelAll__CallerUnauthorizedSomeStreams__ApprovedOperator()
         external
         OnlyExistentStreams
         AllStreamsCancelable

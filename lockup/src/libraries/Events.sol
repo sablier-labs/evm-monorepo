@@ -82,7 +82,7 @@ library Events {
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The id of the stream.
-    /// @param recipient The address of the recipient.
+    /// @param to The address that received the withdrawn tokens.
     /// @param amount The amount of tokens withdrawn, in units of the token's decimals.
-    event Withdraw(uint256 indexed streamId, address indexed recipient, uint128 amount);
+    event Withdraw(uint256 indexed streamId, address indexed to, uint128 amount);
 }

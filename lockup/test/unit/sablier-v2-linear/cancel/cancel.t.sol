@@ -49,7 +49,7 @@ contract Cancel__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancel__CallerMaliciousThirdParty() external StreamExistent StreamCancelable {
+    function testCannotCancel__CallerUnauthorized__MaliciousThirdParty() external StreamExistent StreamCancelable {
         // Make Eve the caller in this test.
         changePrank(users.eve);
 
@@ -59,7 +59,7 @@ contract Cancel__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancel__CallerApprovedOperator() external StreamExistent StreamCancelable {
+    function testCannotCancel__CallerUnauthorized__ApprovedOperator() external StreamExistent StreamCancelable {
         // Approve Alice for the stream.
         sablierV2Linear.approve({ to: users.operator, tokenId: daiStreamId });
 

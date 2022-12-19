@@ -26,6 +26,6 @@ contract ReentrantRecipient is ISablierV2Recipient {
         streamId;
         caller;
         withdrawAmount;
-        ISablierV2(msg.sender).withdraw(streamId, withdrawAmount);
+        ISablierV2(msg.sender).withdraw(streamId, address(this), withdrawAmount);
     }
 }
