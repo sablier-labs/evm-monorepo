@@ -15,6 +15,7 @@
     "lint-staged": "^12.3.7",
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-dev.21",
+    "rimraf": "^3.0.2",
     "solhint": "^3.3.7",
     "solhint-plugin-prettier": "^0.0.5"
   },
@@ -32,6 +33,7 @@
   "packageManager": "yarn@3.3.0",
   "private": true,
   "scripts": {
+    "clean": "rimraf cache out",
     "lint": "yarn solhint && yarn prettier:check",
     "lint:check": "yarn prettier:check && yarn solhint:check",
     "postinstall": "husky install",
