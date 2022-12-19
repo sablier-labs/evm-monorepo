@@ -38,7 +38,8 @@ abstract contract CreateTest is IntegrationTest {
         vm.assume(recipient != address(0));
         vm.assume(depositAmount > 0);
         vm.assume(depositAmount <= IERC20(token()).balanceOf(holder()));
-        vm.assume(startTime <= cliffTime && cliffTime <= stopTime);
+        vm.assume(startTime <= cliffTime);
+        vm.assume(cliffTime <= stopTime);
 
         // Pull the next stream id.
         uint256 expectedStreamId = sablierV2Linear.nextStreamId();
