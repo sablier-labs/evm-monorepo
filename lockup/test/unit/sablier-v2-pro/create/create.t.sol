@@ -319,7 +319,6 @@ contract Create__Test is SablierV2ProTest {
         TokenContract
     {
         address token = address(nonCompliantToken);
-
         uint256 daiStreamId = sablierV2Pro.create(
             daiStream.sender,
             users.recipient,
@@ -335,7 +334,7 @@ contract Create__Test is SablierV2ProTest {
         DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
-        assertEq(actualStream.token, address(nonCompliantToken));
+        assertEq(actualStream.token, token);
         assertEq(actualStream.startTime, daiStream.startTime);
         assertEq(actualStream.stopTime, daiStream.stopTime);
         assertEq(actualStream.cancelable, daiStream.cancelable);

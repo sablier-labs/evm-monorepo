@@ -200,7 +200,6 @@ contract Create__Test is SablierV2LinearTest {
         TokenContract
     {
         address token = address(nonCompliantToken);
-
         uint256 daiStreamId = sablierV2Linear.create(
             daiStream.sender,
             users.recipient,
@@ -215,7 +214,7 @@ contract Create__Test is SablierV2LinearTest {
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
-        assertEq(actualStream.token, address(nonCompliantToken));
+        assertEq(actualStream.token, token);
         assertEq(actualStream.startTime, daiStream.startTime);
         assertEq(actualStream.cliffTime, daiStream.cliffTime);
         assertEq(actualStream.stopTime, daiStream.stopTime);

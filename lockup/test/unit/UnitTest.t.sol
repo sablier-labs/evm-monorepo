@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { ERC20GodMode } from "@prb/contracts/token/erc20/ERC20GodMode.sol";
+import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
 
 import { BaseTest } from "../BaseTest.t.sol";
@@ -47,8 +47,8 @@ abstract contract UnitTest is BaseTest {
     //////////////////////////////////////////////////////////////*/
 
     Empty internal empty = new Empty();
-    ERC20GodMode internal dai = new ERC20GodMode("Dai Stablecoin", "DAI", 18);
-    ERC20GodMode internal usdc = new ERC20GodMode("USD Coin", "USDC", 6);
+    ERC20 internal dai = new ERC20("Dai Stablecoin", "DAI", 18);
+    ERC20 internal usdc = new ERC20("USD Coin", "USDC", 6);
     NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Stablecoin", "USD", 18);
     NonRevertingRecipient internal nonRevertingRecipient = new NonRevertingRecipient();
     NonRevertingSender internal nonRevertingSender = new NonRevertingSender();
@@ -102,8 +102,8 @@ abstract contract UnitTest is BaseTest {
         addr = payable(address(uint160(uint256(keccak256(abi.encodePacked(name))))));
         vm.label(addr, name);
         vm.deal(addr, 100 ether);
-        dai.mint({ beneficiary: addr, amount: 1_000_000e18 });
-        usdc.mint({ beneficiary: addr, amount: 1_000_000e6 });
-        nonCompliantToken.mint({ beneficiary: addr, amount: 1_000_000e18 });
+        deal({ token: address(dai), to: addr, give: 1_000_000e18, adjust: true });
+        deal({ token: address(usdc), to: addr, give: 1_000_000e6, adjust: true });
+        deal({ token: address(nonCompliantToken), to: addr, give: 1_000_000e18, adjust: true });
     }
 }

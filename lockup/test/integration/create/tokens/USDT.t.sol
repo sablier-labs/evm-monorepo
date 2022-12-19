@@ -5,13 +5,13 @@ import { CreateTest } from "../CreateTest.t.sol";
 
 /// @dev A token that has the missing return value bug.
 contract USDT__Test is CreateTest {
-    USDT internal usdt = USDT(0xdAC17F958D2ee523a2206206994597C13D831ec7);
+    USDT internal nonCompliantToken = USDT(0xdAC17F958D2ee523a2206206994597C13D831ec7);
 
     function setUp() public override {
         super.setUp();
 
-        usdt.approve({ spender: address(sablierV2Linear), value: UINT256_MAX });
-        usdt.approve({ spender: address(sablierV2Pro), value: UINT256_MAX });
+        nonCompliantToken.approve({ spender: address(sablierV2Linear), value: UINT256_MAX });
+        nonCompliantToken.approve({ spender: address(sablierV2Pro), value: UINT256_MAX });
     }
 
     /// @dev random USDT holder.
