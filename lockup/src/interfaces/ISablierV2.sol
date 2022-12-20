@@ -132,6 +132,16 @@ interface ISablierV2 is
     /// @param streamIds The ids of the streams to cancel.
     function cancelAll(uint256[] calldata streamIds) external;
 
+    /// @notice Claims all protocol revenues accrued for the provided token.
+    ///
+    /// @dev Emits a {ClaimProtocolRevenues} event.
+    ///
+    /// Requirements:
+    /// - The caller must be the owner of the contract.
+    ///
+    /// @param token The address of the token to claim the protocol revenues for.
+    function claimProtocolRevenues(address token) external;
+
     /// @notice Counter for stream ids.
     /// @return The next stream id.
     function nextStreamId() external view returns (uint256);
@@ -156,7 +166,7 @@ interface ISablierV2 is
     /// It is not an error to set the same comptroller.
     ///
     /// Requirements:
-    /// - The caller must be the owner.
+    /// - The caller must be the owner of the contract.
     ///
     /// @param newComptroller The address of the new SablierV2Comptroller contract.
     function setComptroller(ISablierV2Comptroller newComptroller) external;

@@ -248,7 +248,7 @@ contract CreateStream__Test is SablierV2LinearTest {
             defaultArgs.createStream.stopTime
         );
 
-        // Assert that the stream has been created.
+        // Assert that the stream was created.
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(streamId);
         assertEq(actualStream.cancelable, defaultStream.cancelable);
         assertEq(actualStream.cliffTime, defaultStream.cliffTime);
@@ -260,12 +260,12 @@ contract CreateStream__Test is SablierV2LinearTest {
         assertEq(actualStream.token, token);
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
 
-        // Assert that the NFT has been minted.
+        // Assert that the NFT was minted.
         address actualRecipient = sablierV2Linear.getRecipient(streamId);
         address expectedRecipient = defaultArgs.createStream.recipient;
         assertEq(actualRecipient, expectedRecipient);

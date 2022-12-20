@@ -1,0 +1,11 @@
+claimProtocolRevenues.t.sol
+├── when the caller is not the owner
+│  └── it should revert
+└── when the caller is the owner
+   ├── when the protocol revenues are zero
+   │  └── it should revert
+   └── when the protocol revenues are not zero
+      ├── it should claim the protocol revenues
+      ├── it should set the protocol revenues to zero
+      └── it should emit a ClaimProtocolRevenues event
+

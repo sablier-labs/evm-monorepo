@@ -9,6 +9,10 @@ library Errors {
     /*//////////////////////////////////////////////////////////////////////////
                               SABLIER-V2 CUSTOM ERRORS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when attempting to claim protocol revenues for a token that did not accrue any revenues.
+    error SablierV2__ClaimZeroProtocolRevenues(address token);
+
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
     error SablierV2__GrossDepositAmountZero();
 

@@ -44,7 +44,7 @@ contract Renounce__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotRenounce__NonCancelabeStream() external StreamExistent CallerSender {
+    function testCannotRenounce__NonCancelableStream() external StreamExistent CallerSender {
         // Create the non-cancelable stream.
         uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
 

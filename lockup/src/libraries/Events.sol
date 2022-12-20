@@ -26,6 +26,12 @@ library Events {
         uint128 returnAmount
     );
 
+    /// @notice Emitted when the contract owner claims all protocol revenues accrued for the provided token.
+    /// @param owner The address of the current contract owner.
+    /// @param token The address of the token the protocol revenues were claimed for.
+    /// @param protocolRevenues The amount of protocol revenues claimed, in units of the token's decimals.
+    event ClaimProtocolRevenues(address indexed owner, address indexed token, uint128 protocolRevenues);
+
     /// @notice Emitted when a linear stream is created.
     /// @param streamId The id of the newly created stream.
     /// @param funder The address which funded the stream.
@@ -91,7 +97,7 @@ library Events {
     /// @param newComptroller The address of the new SablierV2Comptroller contract.
     event SetComptroller(address indexed owner, address oldComptroller, address newComptroller);
 
-    /// @notice Emitted when the owner sets a new protocol fee for the provided token.
+    /// @notice Emitted when the contract owner sets a new protocol fee for the provided token.
     /// @param owner The address of the current contract owner.
     /// @param token The address of the token the new protocol fee was set for.
     /// @param oldFee The old global fee for the provided token.

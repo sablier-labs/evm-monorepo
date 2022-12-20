@@ -10,14 +10,6 @@ import { Events } from "src/libraries/Events.sol";
 import { SablierV2ComptrollerTest } from "../SablierV2Comptroller.t.sol";
 
 contract SetProtocolFee__Test is SablierV2ComptrollerTest {
-    /// @dev A setup function invoked before each test case.
-    function setUp() public override {
-        super.setUp();
-
-        // Make the owner the caller in this test suite.
-        changePrank(users.owner);
-    }
-
     /// @dev it should revert.
     function testCannotSetProtocolFee__CallerNotOwner() external {
         // Make Eve the caller in this test.
@@ -29,6 +21,8 @@ contract SetProtocolFee__Test is SablierV2ComptrollerTest {
     }
 
     modifier CallerOwner() {
+        // Make the owner the caller in the rest of this test suite.
+        changePrank(users.owner);
         _;
     }
 

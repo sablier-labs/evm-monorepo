@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { Ownable } from "@prb/contracts/access/Ownable.sol";
+import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";
@@ -16,6 +18,8 @@ abstract contract SablierV2 is
     Ownable, // one dependency
     ISablierV2 // three dependencies
 {
+    using SafeERC20 for IERC20;
+
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -151,6 +155,24 @@ abstract contract SablierV2 is
     }
 
     /// @inheritdoc ISablierV2
+    function claimProtocolRevenues(address token) external override onlyOwner {
+        // Checks: the protocol revenues are not zero.
+        uint128 protocolRevenues = _protocolRevenues[token];
+        if (protocolRevenues == 0) {
+            revert Errors.SablierV2__ClaimZeroProtocolRevenues(token);
+        }
+
+        // Effects: set the protocol revenues to zero.
+        _protocolRevenues[token] = 0;
+
+        // Interactions: perform the ERC-20 transfer to pay the protocol revenues.
+        IERC20(token).safeTransfer(msg.sender, protocolRevenues);
+
+        // Emit an event.
+        emit Events.ClaimProtocolRevenues(msg.sender, token, protocolRevenues);
+    }
+
+    /// @inheritdoc ISablierV2
     function renounce(uint256 streamId) external override streamExists(streamId) {
         // Checks: the `msg.sender` is the sender of the stream.
         if (!_isCallerStreamSender(streamId)) {
@@ -166,13 +188,13 @@ abstract contract SablierV2 is
     }
 
     /// @inheritdoc ISablierV2
-    function setComptroller(ISablierV2Comptroller newComptroller) external onlyOwner {
+    function setComptroller(ISablierV2Comptroller newComptroller) external override onlyOwner {
         // Effects: set the comptroller.
         address oldComptroller = address(newComptroller);
         comptroller = newComptroller;
 
         // Emit an event.
-        emit Events.SetComptroller(owner, oldComptroller, address(newComptroller));
+        emit Events.SetComptroller(msg.sender, oldComptroller, address(newComptroller));
     }
 
     /// @inheritdoc ISablierV2
