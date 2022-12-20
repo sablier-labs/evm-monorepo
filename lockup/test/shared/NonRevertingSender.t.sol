@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { ISablierV2Sender } from "src/interfaces/ISablierV2Sender.sol";
+import { ISablierV2Sender } from "src/hooks/ISablierV2Sender.sol";
 
 contract NonRevertingSender is ISablierV2Sender {
     function onStreamCanceled(
