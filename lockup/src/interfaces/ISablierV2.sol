@@ -16,8 +16,8 @@ interface ISablierV2 is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Queries the maximum fee permitted.
-    /// @dev This is initialized in the constructor.
+    /// @notice Queries the maximum value that the protocol and the operator fee can each have.
+    /// @dev This is initialized at construction time.
     /// @return The maximum fee permitted.
     function MAX_FEE() external view returns (UD60x18);
 
@@ -44,7 +44,7 @@ interface ISablierV2 is
     /// @notice Calculates the amount that the sender would be returned if the stream was canceled.
     /// @param streamId The id of the stream to make the query for.
     /// @return returnableAmount The amount of tokens that would be returned if the stream was canceled, in units of
-    /// the ERC-20 token's decimals.
+    /// the token's decimals.
     function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount);
 
     /// @notice Queries the sender of the stream.
@@ -65,7 +65,7 @@ interface ISablierV2 is
     /// @notice Calculates the amount that the recipient can withdraw from the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return withdrawableAmount The amount of tokens that the recipient can withdraw from the stream, in units of
-    /// the ERC-20 token's decimals.
+    /// the token's decimals.
     function getWithdrawableAmount(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
     /// @notice Queries the amount withdrawn from the stream.

@@ -7,7 +7,6 @@ import { PRBTest } from "@prb/test/PRBTest.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 import { StdUtils } from "forge-std/StdUtils.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 
@@ -26,7 +25,6 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18);
     uint40 internal constant UINT40_MAX = type(uint40).max;
     uint128 internal constant UINT128_MAX = type(uint128).max;
     uint256 internal constant UINT256_MAX = type(uint256).max;
@@ -38,11 +36,11 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
     /// @dev Helper function to compare two `LinearStream` structs.
     function assertEq(DataTypes.LinearStream memory a, DataTypes.LinearStream memory b) internal {
         assertEq(a.cancelable, b.cancelable);
+        assertEq(uint256(a.cliffTime), uint256(b.cliffTime));
         assertEq(uint256(a.depositAmount), uint256(b.depositAmount));
         assertEq(a.isEntity, b.isEntity);
         assertEq(a.sender, b.sender);
         assertEq(uint256(a.startTime), uint256(b.startTime));
-        assertEq(uint256(a.cliffTime), uint256(b.cliffTime));
         assertEq(uint256(a.stopTime), uint256(b.stopTime));
         assertEq(a.token, b.token);
         assertEq(uint256(a.withdrawnAmount), uint256(b.withdrawnAmount));

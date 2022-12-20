@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
@@ -20,12 +21,34 @@ abstract contract SablierV2LinearTest is UnitTest {
     uint128 internal immutable WITHDRAW_AMOUNT_USDC = 2_600e6;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                      STRUCTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    struct CreateStreamArgs {
+        address sender;
+        address recipient;
+        uint128 grossDepositAmount;
+        address operator;
+        UD60x18 operatorFee;
+        address token;
+        bool cancelable;
+        uint40 startTime;
+        uint40 cliffTime;
+        uint40 stopTime;
+    }
+
+    struct DefaultArgs {
+        CreateStreamArgs createStream;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                   TESTING VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     SablierV2Linear internal sablierV2Linear;
-    DataTypes.LinearStream internal daiStream;
-    DataTypes.LinearStream internal usdcStream;
+    CreateStreamArgs internal defaultCreateStreamArgs;
+    DefaultArgs internal defaultArgs;
+    DataTypes.LinearStream internal defaultStream;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
@@ -35,27 +58,32 @@ abstract contract SablierV2LinearTest is UnitTest {
     function setUp() public virtual {
         sablierV2Linear = new SablierV2Linear({ initialComptroller: sablierV2Comptroller, maxFee: MAX_FEE });
 
-        // Create the default streams to be used across the tests.
-        daiStream = DataTypes.LinearStream({
-            cancelable: true,
-            cliffTime: CLIFF_TIME,
-            depositAmount: DEPOSIT_AMOUNT_DAI,
-            isEntity: true,
-            sender: users.sender,
-            startTime: START_TIME,
-            stopTime: STOP_TIME,
-            token: address(dai),
-            withdrawnAmount: 0
+        // Create the default args to be used across the tests.
+        defaultArgs = DefaultArgs({
+            createStream: CreateStreamArgs({
+                sender: users.sender,
+                recipient: users.recipient,
+                grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
+                operator: users.operator,
+                operatorFee: DEFAULT_OPERATOR_FEE,
+                token: address(dai),
+                cancelable: true,
+                startTime: DEFAULT_START_TIME,
+                cliffTime: DEFAULT_CLIFF_TIME,
+                stopTime: DEFAULT_STOP_TIME
+            })
         });
-        usdcStream = DataTypes.LinearStream({
-            cancelable: true,
-            cliffTime: CLIFF_TIME,
-            depositAmount: DEPOSIT_AMOUNT_USDC,
+
+        // Create the default streams to be used across the tests.
+        defaultStream = DataTypes.LinearStream({
+            cancelable: defaultArgs.createStream.cancelable,
+            cliffTime: defaultArgs.createStream.cliffTime,
+            depositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
             isEntity: true,
-            sender: users.sender,
-            startTime: START_TIME,
-            stopTime: STOP_TIME,
-            token: address(usdc),
+            sender: defaultArgs.createStream.sender,
+            startTime: defaultArgs.createStream.startTime,
+            stopTime: defaultArgs.createStream.stopTime,
+            token: defaultArgs.createStream.token,
             withdrawnAmount: 0
         });
 
@@ -73,76 +101,68 @@ abstract contract SablierV2LinearTest is UnitTest {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function to create a default stream with $DAI as streaming currency.
-    function createDefaultDaiStream() internal returns (uint256 daiStreamId) {
-        daiStreamId = sablierV2Linear.create(
-            daiStream.sender,
-            users.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            daiStream.cancelable,
-            daiStream.startTime,
-            daiStream.cliffTime,
-            daiStream.stopTime
+    /// @dev Helper function to create the default stream.
+    function createDefaultStream() internal returns (uint256 defaultStreamId) {
+        defaultStreamId = sablierV2Linear.createStream(
+            defaultArgs.createStream.sender,
+            defaultArgs.createStream.recipient,
+            defaultArgs.createStream.grossDepositAmount,
+            defaultArgs.createStream.operator,
+            defaultArgs.createStream.operatorFee,
+            defaultArgs.createStream.token,
+            defaultArgs.createStream.cancelable,
+            defaultArgs.createStream.startTime,
+            defaultArgs.createStream.cliffTime,
+            defaultArgs.createStream.stopTime
         );
     }
 
-    /// @dev Helper function to create a default stream with $DAI as streaming currency and the provided recipient
-    /// as the recipient of the stream.
-    function createDefaultDaiStreamWithRecipient(address recipient) internal returns (uint256 daiStreamId) {
-        daiStreamId = sablierV2Linear.create(
-            daiStream.sender,
-            recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            daiStream.cancelable,
-            daiStream.startTime,
-            daiStream.cliffTime,
-            daiStream.stopTime
-        );
-    }
-
-    /// @dev Helper function to create a default stream with $DAI as streaming currency and the provided sender
-    /// as the sender of the stream.
-    function createDefaultDaiStreamWithSender(address sender) internal returns (uint256 daiStreamId) {
-        daiStreamId = sablierV2Linear.create(
-            sender,
-            users.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            daiStream.cancelable,
-            daiStream.startTime,
-            daiStream.cliffTime,
-            daiStream.stopTime
-        );
-    }
-
-    /// @dev Helper function to create a default stream with $USDC as streaming currency.
-    function createDefaultUsdcStream() internal returns (uint256 usdcStreamId) {
-        usdcStreamId = sablierV2Linear.create(
-            usdcStream.sender,
-            users.recipient,
-            usdcStream.depositAmount,
-            usdcStream.token,
-            usdcStream.cancelable,
-            usdcStream.startTime,
-            usdcStream.cliffTime,
-            usdcStream.stopTime
-        );
-    }
-
-    /// @dev Helper function to create a non-cancelable stream with $DAI as streaming currency.
-    function createNonCancelableDaiStream() internal returns (uint256 nonCancelableDaiStreamId) {
+    /// @dev Helper function to create a default stream that is non-cancelable.
+    function createDefaultStreamNonCancelable() internal returns (uint256 nonCancelableDefaultStreamId) {
         bool cancelable = false;
-        nonCancelableDaiStreamId = sablierV2Linear.create(
-            daiStream.sender,
-            users.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
+        nonCancelableDefaultStreamId = sablierV2Linear.createStream(
+            defaultArgs.createStream.sender,
+            defaultArgs.createStream.recipient,
+            defaultArgs.createStream.grossDepositAmount,
+            defaultArgs.createStream.operator,
+            defaultArgs.createStream.operatorFee,
+            defaultArgs.createStream.token,
             cancelable,
-            daiStream.startTime,
-            daiStream.cliffTime,
-            daiStream.stopTime
+            defaultArgs.createStream.startTime,
+            defaultArgs.createStream.cliffTime,
+            defaultArgs.createStream.stopTime
+        );
+    }
+
+    /// @dev Helper function to create a default stream and the provided recipient as the recipient of the stream.
+    function createDefaultStreamWithRecipient(address recipient) internal returns (uint256 defaultStreamId) {
+        defaultStreamId = sablierV2Linear.createStream(
+            defaultArgs.createStream.sender,
+            recipient,
+            defaultArgs.createStream.grossDepositAmount,
+            defaultArgs.createStream.operator,
+            defaultArgs.createStream.operatorFee,
+            defaultArgs.createStream.token,
+            defaultArgs.createStream.cancelable,
+            defaultArgs.createStream.startTime,
+            defaultArgs.createStream.cliffTime,
+            defaultArgs.createStream.stopTime
+        );
+    }
+
+    /// @dev Helper function to create a default stream and the provided sender as the sender of the stream.
+    function createDefaultDaiStreamWithSender(address sender) internal returns (uint256 daiStreamId) {
+        daiStreamId = sablierV2Linear.createStream(
+            sender,
+            defaultArgs.createStream.recipient,
+            defaultArgs.createStream.grossDepositAmount,
+            defaultArgs.createStream.operator,
+            defaultArgs.createStream.operatorFee,
+            defaultArgs.createStream.token,
+            defaultArgs.createStream.cancelable,
+            defaultArgs.createStream.startTime,
+            defaultArgs.createStream.cliffTime,
+            defaultArgs.createStream.stopTime
         );
     }
 }

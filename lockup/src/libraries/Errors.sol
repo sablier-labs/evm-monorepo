@@ -10,7 +10,7 @@ library Errors {
                               SABLIER-V2 CUSTOM ERRORS
     //////////////////////////////////////////////////////////////////////////*/
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
-    error SablierV2__DepositAmountZero();
+    error SablierV2__GrossDepositAmountZero();
 
     /// @notice Emitted when the new global fee is greater than the maximum permitted.
     error SablierV2__NewGlobalFeeGreaterThanMaxPermitted(UD60x18 newGlobalFee, UD60x18 maxGlobalFee);

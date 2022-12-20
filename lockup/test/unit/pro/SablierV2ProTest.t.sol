@@ -46,26 +46,26 @@ abstract contract SablierV2ProTest is UnitTest {
         // Create the default streams to be used across the tests.
         daiStream = DataTypes.ProStream({
             cancelable: true,
-            depositAmount: DEPOSIT_AMOUNT_DAI,
+            depositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
             isEntity: true,
             segmentAmounts: SEGMENT_AMOUNTS_DAI,
             segmentExponents: SEGMENT_EXPONENTS,
             segmentMilestones: SEGMENT_MILESTONES,
             sender: users.sender,
-            startTime: START_TIME,
+            startTime: DEFAULT_START_TIME,
             stopTime: SEGMENT_MILESTONES[1],
             token: address(dai),
             withdrawnAmount: 0
         });
         usdcStream = DataTypes.ProStream({
             cancelable: true,
-            depositAmount: DEPOSIT_AMOUNT_USDC,
+            depositAmount: GROSS_DEPOSIT_AMOUNT_USDC,
             isEntity: true,
             segmentAmounts: SEGMENT_AMOUNTS_USDC,
             segmentExponents: SEGMENT_EXPONENTS,
             segmentMilestones: SEGMENT_MILESTONES,
             sender: users.sender,
-            startTime: START_TIME,
+            startTime: DEFAULT_START_TIME,
             stopTime: SEGMENT_MILESTONES[1],
             token: address(usdc),
             withdrawnAmount: 0

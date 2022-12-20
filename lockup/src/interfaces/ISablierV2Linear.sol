@@ -46,24 +46,24 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address toward which to stream the tokens.
-    /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the ERC-20
-    /// token's decimals.
-    /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
-    /// a percentage with 100% = 1e18.
+    /// @param grossDepositAmount The gross amount of tokens to deposit, inclusive of fees, in units of the token's
+    /// decimals.
     /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
     /// receives the fee.
+    /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
+    /// a percentage with 100% = 1e18.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable Whether the stream will be cancelable or not.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
     /// @param stopTime The unix timestamp in seconds for when the stream will stop.
     /// @return streamId The id of the newly created stream.
-    function create(
+    function createStream(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        UD60x18 operatorFee,
         address operator,
+        UD60x18 operatorFee,
         address token,
         bool cancelable,
         uint40 startTime,
@@ -82,23 +82,23 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param sender The address from which to stream the tokens with a cliff period, which will have the ability to
     /// cancel the stream. It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address toward which to stream the tokens.
-    /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the ERC-20
-    /// token's decimals.
+    /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the token's
+    /// decimals.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable Whether the stream will be cancelable or not.
-    /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
-    /// a percentage with 100% = 1e18.
     /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
     /// receives the fee.
+    /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
+    /// a percentage with 100% = 1e18.
     /// @param cliffDuration The number of seconds for how long the cliff period will last.
     /// @param totalDuration The total number of seconds for how long the stream will last.
     /// @return streamId The id of the newly created stream.
-    function createWithDuration(
+    function createStream(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        UD60x18 operatorFee,
         address operator,
+        UD60x18 operatorFee,
         address token,
         bool cancelable,
         uint40 cliffDuration,

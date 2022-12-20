@@ -155,12 +155,12 @@ contract SablierV2Linear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Linear
-    function create(
+    function createStream(
         address sender,
         address recipient,
-        uint128 depositAmount,
-        UD60x18 operatorFee,
+        uint128 grossDepositAmount,
         address operator,
+        UD60x18 operatorFee,
         address token,
         bool cancelable,
         uint40 startTime,
@@ -168,12 +168,12 @@ contract SablierV2Linear is
         uint40 stopTime
     ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(
+        streamId = _createStream(
             sender,
             recipient,
-            depositAmount,
-            operatorFee,
+            grossDepositAmount,
             operator,
+            operatorFee,
             token,
             cancelable,
             startTime,
@@ -183,19 +183,19 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2Linear
-    function createWithDuration(
+    function createStream(
         address sender,
         address recipient,
-        uint128 depositAmount,
-        UD60x18 operatorFee,
+        uint128 grossDepositAmount,
         address operator,
+        UD60x18 operatorFee,
         address token,
         bool cancelable,
         uint40 cliffDuration,
         uint40 totalDuration
     ) external returns (uint256 streamId) {
         // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
-        // `_create` function will nonetheless check that the stop time is greater than or equal to the
+        // `_createStream` function will nonetheless check that the stop time is greater than or equal to the
         // cliff time, and that the cliff time is greater than or equal to the start time.
         uint40 startTime = uint40(block.timestamp);
         uint40 cliffTime;
@@ -206,12 +206,12 @@ contract SablierV2Linear is
         }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(
+        streamId = _createStream(
             sender,
             recipient,
-            depositAmount,
-            operatorFee,
+            grossDepositAmount,
             operator,
+            operatorFee,
             token,
             cancelable,
             startTime,
@@ -311,12 +311,12 @@ contract SablierV2Linear is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _create(
+    function _createStream(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        UD60x18 operatorFee,
         address operator,
+        UD60x18 operatorFee,
         address token,
         bool cancelable,
         uint40 startTime,
@@ -368,10 +368,10 @@ contract SablierV2Linear is
         // Effects: mint the NFT for the recipient by setting the stream id as the token id.
         _mint({ to: recipient, tokenId: streamId });
 
-        // Interactions: perform an ERC-20 transfer to deposit the gross amount of tokens.
+        // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.
         IERC20(token).safeTransferFrom({ from: msg.sender, to: address(this), amount: grossDepositAmount });
 
-        // Interactions: perform an ERC-20 transfer to pay the operator fee, if any.
+        // Interactions: perform the ERC-20 transfer to pay the operator fee, if not zero.
         if (operatorFeeAmount > 0) {
             IERC20(token).safeTransfer({ to: operator, amount: operatorFeeAmount });
         }
@@ -384,6 +384,7 @@ contract SablierV2Linear is
             recipient: recipient,
             depositAmount: depositAmount,
             protocolFeeAmount: protocolFeeAmount,
+            operator: operator,
             operatorFeeAmount: operatorFeeAmount,
             token: token,
             startTime: startTime,

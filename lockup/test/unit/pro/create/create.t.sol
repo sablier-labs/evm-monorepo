@@ -35,7 +35,7 @@ contract Create__Test is SablierV2ProTest {
 
     /// @dev it should revert.
     function testCannotCreate__DepositAmountZero() external RecipientNonZeroAddress {
-        vm.expectRevert(Errors.SablierV2__DepositAmountZero.selector);
+        vm.expectRevert(Errors.SablierV2__GrossDepositAmountZero.selector);
         uint128 depositAmount = 0;
         sablierV2Pro.create(
             daiStream.sender,

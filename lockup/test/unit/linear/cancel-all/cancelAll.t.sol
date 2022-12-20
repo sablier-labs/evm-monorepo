@@ -123,7 +123,7 @@ contract CancelAll__Test is SablierV2LinearTest {
         changePrank(users.eve);
 
         // Create a stream with Eve as the sender.
-        uint256 eveStreamId = sablierV2Linear.create(
+        uint256 eveStreamId = sablierV2Linear.createStream(
             users.eve,
             users.recipient,
             daiStream.depositAmount,
@@ -377,7 +377,7 @@ contract CancelAll__Test is SablierV2LinearTest {
 
         // Create the ended dai stream.
         uint40 earlyStopTime = daiStream.startTime + TIME_OFFSET;
-        uint256 endedDaiStreamId = sablierV2Linear.create(
+        uint256 endedDaiStreamId = sablierV2Linear.createStream(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -422,7 +422,7 @@ contract CancelAll__Test is SablierV2LinearTest {
 
         // Create the ended dai stream.
         uint40 earlyStopTime = daiStream.startTime + TIME_OFFSET;
-        uint256 endedDaiStreamId = sablierV2Linear.create(
+        uint256 endedDaiStreamId = sablierV2Linear.createStream(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,

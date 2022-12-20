@@ -46,6 +46,7 @@ library Events {
         address indexed recipient,
         uint128 depositAmount,
         uint128 protocolFeeAmount,
+        address operator,
         uint128 operatorFeeAmount,
         address token,
         bool cancelable,

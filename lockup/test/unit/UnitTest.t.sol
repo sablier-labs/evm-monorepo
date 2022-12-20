@@ -3,6 +3,7 @@ pragma solidity >=0.8.13;
 
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
@@ -22,15 +23,18 @@ abstract contract UnitTest is BaseTest {
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 internal constant STARTING_BLOCK_TIMESTAMP = 100 seconds;
-    uint40 internal constant CLIFF_DURATION = 2_500 seconds;
-    uint40 internal constant TOTAL_DURATION = 10_000 seconds;
+    uint128 internal constant DEFAULT_GROSS_DEPOSIT_AMOUNT = 10_000e18;
+    uint128 internal constant DEFAULT_NET_DEPOSIT_AMOUNT = 9_970e18; // 10,000 minus 0.3% default operator fee
+    UD60x18 internal constant DEFAULT_OPERATOR_FEE = UD60x18.wrap(0.003e18); // 0.3%
+    UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
 
-    uint40 internal immutable CLIFF_TIME;
-    uint128 internal immutable DEPOSIT_AMOUNT_DAI;
-    uint128 internal immutable DEPOSIT_AMOUNT_USDC;
-    uint40 internal immutable START_TIME;
-    uint40 internal immutable STOP_TIME;
+    /*//////////////////////////////////////////////////////////////////////////
+                                     IMMUTABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
+    uint40 internal immutable DEFAULT_CLIFF_TIME;
+    uint40 internal immutable DEFAULT_START_TIME;
+    uint40 internal immutable DEFAULT_STOP_TIME;
 
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
@@ -50,8 +54,8 @@ abstract contract UnitTest is BaseTest {
     //////////////////////////////////////////////////////////////*/
 
     Empty internal empty = new Empty();
-    ERC20GodMode internal dai = new ERC20GodMode("Dai Stablecoin", "DAI", 18);
-    ERC20GodMode internal usdc = new ERC20GodMode("USD Coin", "USDC", 6);
+    ERC20 internal dai = new ERC20("Dai Stablecoin", "DAI", 18);
+    ERC20 internal usdc = new ERC20("USD Coin", "USDC", 6);
     NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Non-Compliant Token", "NCT", 18);
     NonRevertingRecipient internal nonRevertingRecipient = new NonRevertingRecipient();
     NonRevertingSender internal nonRevertingSender = new NonRevertingSender();
@@ -68,15 +72,13 @@ abstract contract UnitTest is BaseTest {
 
     constructor() {
         // By default the test EVM begins at time zero, but we need to warp back in time in some of our tests, so we
-        // have to change the default to something else (100 seconds into the future).
-        vm.warp(STARTING_BLOCK_TIMESTAMP);
+        // have to change the starting block timestamp to be 100 seconds into the future.
+        vm.warp(100 seconds);
 
         // Initialize the default stream values.
-        CLIFF_TIME = uint40(block.timestamp) + CLIFF_DURATION;
-        DEPOSIT_AMOUNT_DAI = 10_000e18;
-        DEPOSIT_AMOUNT_USDC = 10_000e6;
-        START_TIME = uint40(block.timestamp);
-        STOP_TIME = uint40(block.timestamp) + TOTAL_DURATION;
+        DEFAULT_CLIFF_TIME = uint40(block.timestamp) + 2_500 seconds;
+        DEFAULT_START_TIME = uint40(block.timestamp);
+        DEFAULT_STOP_TIME = uint40(block.timestamp) + 10_000 seconds;
 
         // Create users for testing.
         users = Users({
@@ -114,5 +116,15 @@ abstract contract UnitTest is BaseTest {
         deal({ token: address(dai), to: addr, give: 1_000_000e18, adjust: true });
         deal({ token: address(usdc), to: addr, give: 1_000_000e6, adjust: true });
         deal({ token: address(nonCompliantToken), to: addr, give: 1_000_000e18, adjust: true });
+    }
+
+    /// @dev Deploys a token with the provided decimals and funds the user with the provided token amount.
+    function deployAndDealToken(
+        uint8 decimals,
+        address user,
+        uint256 give
+    ) internal returns (address token) {
+        token = address(new ERC20("Test Token", "TKN", decimals));
+        deal({ token: token, to: user, give: give, adjust: true });
     }
 }

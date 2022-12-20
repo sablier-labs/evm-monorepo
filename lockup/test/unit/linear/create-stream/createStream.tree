@@ -1,0 +1,26 @@
+createStream.t.sol
+├── when the recipient is the zero address
+│  └── it should revert
+└── when the recipient is not the zero address
+   ├── when the gross deposit amount is zero
+   │  └── it should revert
+   └── when the gross deposit amount is not zero
+      ├── when the start time is greater than the cliff time
+      │  └── it should revert
+      └── when the start time is less than or equal to the cliff time
+         ├── when the cliff time is greater than the stop time
+         │  └── it should revert
+         └── when the cliff time is less than or equal to the stop time
+            ├── when the protocol fee is too high
+            │  └── it should revert
+            └── when the protocol fee is not too high
+               ├── when the operator fee is too high
+               │  └── it should revert
+               └── when the operator fee is not too high
+                  ├── when the token is not a contract
+                  │  └── it should revert
+                  └── when the token is a contract
+                     ├── when the token misses the return value
+                     │  └── it should create the stream
+                     └── when the token is ERC-20 compliant
+                        └── it should emit a CreateLinearStream event, create the stream, mint the NFT, and bump the next stream id

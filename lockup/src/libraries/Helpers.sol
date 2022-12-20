@@ -30,7 +30,7 @@ library Helpers {
     {
         // Checks: the protocol fee is not greater than `MAX_FEE`.
         if (protocolFee.gt(maxFee)) {
-            revert Errors.SablierV2__ProtocolFeeTooHigh(operatorFee, maxFee);
+            revert Errors.SablierV2__ProtocolFeeTooHigh(protocolFee, maxFee);
         }
 
         // Calculate the protocol fee amount.
@@ -60,7 +60,7 @@ library Helpers {
     ) internal pure {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
-            revert Errors.SablierV2__DepositAmountZero();
+            revert Errors.SablierV2__GrossDepositAmountZero();
         }
 
         // Checks: the start time is less than or equal to the cliff time.
@@ -85,7 +85,7 @@ library Helpers {
     ) internal pure {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
-            revert Errors.SablierV2__DepositAmountZero();
+            revert Errors.SablierV2__GrossDepositAmountZero();
         }
 
         // Checks: the segment counts match.
