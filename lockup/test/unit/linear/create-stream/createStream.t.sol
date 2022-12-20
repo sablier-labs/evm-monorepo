@@ -186,7 +186,8 @@ contract CreateStream__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should create the stream.
+    /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, mint the NFT
+    /// and bump the next stream id.
     function testCreateStream__TokenMissingReturnValue()
         external
         RecipientNonZeroAddress
@@ -195,8 +196,46 @@ contract CreateStream__Test is SablierV2LinearTest {
         CliffLessThanOrEqualToStopTime
         TokenContract
     {
+        // Expect the tokens to be transferred from the funder to the SablierV2Linear contract, and the operator fee
+        // to be paid to the operator.
         address token = address(nonCompliantToken);
-        uint256 streamId = sablierV2Linear.createStream(
+        address funder = defaultArgs.createStream.sender;
+        vm.expectCall(
+            token,
+            abi.encodeCall(
+                IERC20.transferFrom,
+                (funder, address(sablierV2Linear), defaultArgs.createStream.grossDepositAmount)
+            )
+        );
+
+        // Expect the the operator fee to be paid to the operator, if the fee amount is not zero.
+        vm.expectCall(
+            token,
+            abi.encodeCall(IERC20.transfer, (defaultArgs.createStream.operator, DEFAULT_OPERATOR_FEE_AMOUNT))
+        );
+
+        // Expect an event to be emitted.
+        uint256 streamId = sablierV2Linear.nextStreamId();
+        uint128 protocolFeeAmount = 0;
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        emit Events.CreateLinearStream(
+            streamId,
+            funder,
+            defaultArgs.createStream.sender,
+            defaultArgs.createStream.recipient,
+            DEFAULT_NET_DEPOSIT_AMOUNT,
+            protocolFeeAmount,
+            defaultArgs.createStream.operator,
+            DEFAULT_OPERATOR_FEE_AMOUNT,
+            token,
+            defaultArgs.createStream.cancelable,
+            defaultArgs.createStream.startTime,
+            defaultArgs.createStream.cliffTime,
+            defaultArgs.createStream.stopTime
+        );
+
+        // Create the stream.
+        sablierV2Linear.createStream(
             defaultArgs.createStream.sender,
             defaultArgs.createStream.recipient,
             defaultArgs.createStream.grossDepositAmount,
@@ -236,7 +275,8 @@ contract CreateStream__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should emit a CreateLinearStream event, create the stream, mint the NFT, and bump the next stream id.
+    /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, mint the NFT
+    /// and bump the next stream id.
     function testCreateStream(
         address funder,
         address recipient,
@@ -285,6 +325,18 @@ contract CreateStream__Test is SablierV2LinearTest {
         uint128 protocolFeeAmount = uint128(unwrap(wrap(grossDepositAmount).mul(protocolFee)));
         uint128 operatorFeeAmount = uint128(unwrap(wrap(grossDepositAmount).mul(operatorFee)));
         uint128 depositAmount = grossDepositAmount - protocolFeeAmount - operatorFeeAmount;
+
+        // Expect the tokens to be transferred from the funder to the SablierV2Linear contract, and the operator fee
+        // to be paid to the operator.
+        vm.expectCall(
+            address(token),
+            abi.encodeCall(IERC20.transferFrom, (funder, address(sablierV2Linear), grossDepositAmount))
+        );
+
+        // Expect the the operator fee to be paid to the operator, if the fee amount is not zero.
+        if (operatorFeeAmount > 0) {
+            vm.expectCall(address(token), abi.encodeCall(IERC20.transfer, (operator, operatorFeeAmount)));
+        }
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });

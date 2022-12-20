@@ -24,8 +24,9 @@ abstract contract UnitTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint128 internal constant DEFAULT_GROSS_DEPOSIT_AMOUNT = 10_000e18;
-    uint128 internal constant DEFAULT_NET_DEPOSIT_AMOUNT = 9_970e18; // 10,000 minus 0.3% default operator fee
+    uint128 internal constant DEFAULT_NET_DEPOSIT_AMOUNT = DEFAULT_GROSS_DEPOSIT_AMOUNT - DEFAULT_OPERATOR_FEE_AMOUNT;
     UD60x18 internal constant DEFAULT_OPERATOR_FEE = UD60x18.wrap(0.003e18); // 0.3%
+    uint128 internal constant DEFAULT_OPERATOR_FEE_AMOUNT = 30e18;
     UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
 
     /*//////////////////////////////////////////////////////////////////////////
