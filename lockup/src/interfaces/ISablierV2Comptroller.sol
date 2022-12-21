@@ -19,10 +19,10 @@ interface ISablierV2Comptroller is IOwnable {
     ///
     /// @dev Emits a {SetProtocolFee} event.
     ///
-    /// The fee is not in units of the token's decimals, instead it follows the UD60x18 number format. Refer to the
+    /// Notes:
+    /// - The fee is not in units of the token's decimals, instead it follows the UD60x18 number format. Refer to the
     /// PRBMath documentation for more detail on the logic of UD60x18.
-    ///
-    /// Does not revert if the fee is the same.
+    /// - Does not revert if the fee is the same.
     ///
     /// Requirements:
     /// - The caller must be the owner.

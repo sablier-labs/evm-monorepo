@@ -122,11 +122,7 @@ abstract contract UnitTest is BaseTest {
     }
 
     /// @dev Deploys a token with the provided decimals and funds the user with the provided token amount.
-    function deployAndDealToken(
-        uint8 decimals,
-        address user,
-        uint256 give
-    ) internal returns (address token) {
+    function deployAndDealToken(uint8 decimals, address user, uint256 give) internal returns (address token) {
         token = address(new ERC20("Test Token", "TKN", decimals));
         deal({ token: token, to: user, give: give, adjust: true });
     }

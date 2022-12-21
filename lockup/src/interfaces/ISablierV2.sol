@@ -91,7 +91,8 @@ interface ISablierV2 is
     ///
     /// @dev Emits a {Transfer} event.
     ///
-    /// The purpose of this function is to make the integration of Sablier V2 easier. Because the burning of
+    /// Notes:
+    /// - The purpose of this function is to make the integration of Sablier V2 easier. Because the burning of
     /// the NFT is separated from the deletion of the stream entity from the mapping, third-party contracts don't
     /// have to constantly check for the existence of the NFT. They can decide to burn the NFT themselves, or not.
     ///
@@ -107,7 +108,8 @@ interface ISablierV2 is
     ///
     /// @dev Emits a {Cancel} event.
     ///
-    /// This function will attempt to call a hook on either the sender or the recipient, depending upon who the
+    /// Notes:
+    /// - This function will attempt to call a hook on either the sender or the recipient, depending upon who the
     /// `msg.sender` is, and if the sender and the recipient are contracts.
     ///
     /// Requirements:
@@ -163,7 +165,8 @@ interface ISablierV2 is
     ///
     /// @dev Emits a {SetComptroller} event.
     ///
-    /// It is not an error to set the same comptroller.
+    /// Notes:
+    /// - It is not an error to set the same comptroller.
     ///
     /// Requirements:
     /// - The caller must be the owner of the contract.
@@ -175,7 +178,8 @@ interface ISablierV2 is
     ///
     /// @dev Emits a {Withdraw} and a {Transfer} event.
     ///
-    /// This function will attempt to call a hook on the recipient of the stream, if the recipient is a contract.
+    /// Notes:
+    /// - This function will attempt to call a hook on the recipient of the stream, if the recipient is a contract.
     ///
     /// Requirements:
     /// - `streamId` must point to an existent stream.
@@ -193,8 +197,9 @@ interface ISablierV2 is
     ///
     /// @dev Emits multiple {Withdraw} and {Transfer} events.
     ///
-    /// It is not an error if one of the stream ids points to a non-existent stream.
-    /// This function will attempt to call a hook on the recipient of each stream, if that recipient is a contract.
+    /// Notes:
+    /// - It is not an error if one of the stream ids points to a non-existent stream.
+    /// - This function will attempt to call a hook on the recipient of each stream, if that recipient is a contract.
     ///
     /// Requirements:
     /// - The count of `streamIds` must match the count of `amounts`.

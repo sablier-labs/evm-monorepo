@@ -13,9 +13,9 @@ import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol"
 
 import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
 
-contract CreateStream__Test is SablierV2LinearTest {
+contract CreateWithRange__Test is SablierV2LinearTest {
     /// @dev it should revert.
-    function testCannotCreateStream__RecipientZeroAddress() external {
+    function testCannotCreateWithRange__RecipientZeroAddress() external {
         vm.expectRevert("ERC721: mint to the zero address");
         createDefaultStreamWithRecipient({ recipient: address(0) });
     }
@@ -25,20 +25,20 @@ contract CreateStream__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateStream__GrossDepositAmountZero() external RecipientNonZeroAddress {
+    function testCannotCreateWithRange__GrossDepositAmountZero() external RecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2__GrossDepositAmountZero.selector);
         uint128 grossDepositAmount = 0;
-        sablierV2Linear.createStream(
-            defaultArgs.createStream.sender,
-            defaultArgs.createStream.recipient,
+        sablierV2Linear.createWithRange(
+            defaultArgs.createWithRange.sender,
+            defaultArgs.createWithRange.recipient,
             grossDepositAmount,
-            defaultArgs.createStream.operator,
-            defaultArgs.createStream.operatorFee,
-            defaultArgs.createStream.token,
-            defaultArgs.createStream.cancelable,
-            defaultArgs.createStream.startTime,
-            defaultArgs.createStream.cliffTime,
-            defaultArgs.createStream.stopTime
+            defaultArgs.createWithRange.operator,
+            defaultArgs.createWithRange.operatorFee,
+            defaultArgs.createWithRange.token,
+            defaultArgs.createWithRange.cancelable,
+            defaultArgs.createWithRange.startTime,
+            defaultArgs.createWithRange.cliffTime,
+            defaultArgs.createWithRange.stopTime
         );
     }
 
@@ -47,7 +47,7 @@ contract CreateStream__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateStream__StartTimeGreaterThanCliffTime()
+    function testCannotCreateWithRange__StartTimeGreaterThanCliffTime()
         external
         RecipientNonZeroAddress
         GrossDepositAmountNotZero
@@ -57,17 +57,17 @@ contract CreateStream__Test is SablierV2LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Linear__StartTimeGreaterThanCliffTime.selector, startTime, cliffTime)
         );
-        sablierV2Linear.createStream(
-            defaultArgs.createStream.sender,
-            defaultArgs.createStream.recipient,
-            defaultArgs.createStream.grossDepositAmount,
-            defaultArgs.createStream.operator,
-            defaultArgs.createStream.operatorFee,
-            defaultArgs.createStream.token,
-            defaultArgs.createStream.cancelable,
+        sablierV2Linear.createWithRange(
+            defaultArgs.createWithRange.sender,
+            defaultArgs.createWithRange.recipient,
+            defaultArgs.createWithRange.grossDepositAmount,
+            defaultArgs.createWithRange.operator,
+            defaultArgs.createWithRange.operatorFee,
+            defaultArgs.createWithRange.token,
+            defaultArgs.createWithRange.cancelable,
             startTime,
             cliffTime,
-            defaultArgs.createStream.stopTime
+            defaultArgs.createWithRange.stopTime
         );
     }
 
@@ -76,27 +76,27 @@ contract CreateStream__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateStream__CliffTimeGreaterThanStopTime(uint40 cliffTime, uint40 stopTime)
+    function testCannotCreateWithRange__CliffTimeGreaterThanStopTime(uint40 cliffTime, uint40 stopTime)
         external
         RecipientNonZeroAddress
         GrossDepositAmountNotZero
         StartTimeLessThanOrEqualToCliffTime
     {
         vm.assume(cliffTime > stopTime);
-        vm.assume(stopTime > defaultArgs.createStream.startTime);
+        vm.assume(stopTime > defaultArgs.createWithRange.startTime);
 
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Linear__CliffTimeGreaterThanStopTime.selector, cliffTime, stopTime)
         );
-        sablierV2Linear.createStream(
-            defaultArgs.createStream.sender,
-            defaultArgs.createStream.recipient,
-            defaultArgs.createStream.grossDepositAmount,
-            defaultArgs.createStream.operator,
-            defaultArgs.createStream.operatorFee,
-            defaultArgs.createStream.token,
-            defaultArgs.createStream.cancelable,
-            defaultArgs.createStream.startTime,
+        sablierV2Linear.createWithRange(
+            defaultArgs.createWithRange.sender,
+            defaultArgs.createWithRange.recipient,
+            defaultArgs.createWithRange.grossDepositAmount,
+            defaultArgs.createWithRange.operator,
+            defaultArgs.createWithRange.operatorFee,
+            defaultArgs.createWithRange.token,
+            defaultArgs.createWithRange.cancelable,
+            defaultArgs.createWithRange.startTime,
             cliffTime,
             stopTime
         );
@@ -107,7 +107,7 @@ contract CreateStream__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateStream__ProtocolFeeTooHigh(UD60x18 protocolFee)
+    function testCannotCreateWithRange__ProtocolFeeTooHigh(UD60x18 protocolFee)
         external
         RecipientNonZeroAddress
         GrossDepositAmountNotZero
@@ -130,7 +130,7 @@ contract CreateStream__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateStream__OperatorFeeTooHigh(UD60x18 operatorFee)
+    function testCannotCreateWithRange__OperatorFeeTooHigh(UD60x18 operatorFee)
         external
         RecipientNonZeroAddress
         GrossDepositAmountNotZero
@@ -140,17 +140,17 @@ contract CreateStream__Test is SablierV2LinearTest {
     {
         operatorFee = bound(operatorFee, MAX_FEE.add(ud(1)), MAX_UD60x18);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__OperatorFeeTooHigh.selector, operatorFee, MAX_FEE));
-        sablierV2Linear.createStream(
-            defaultArgs.createStream.sender,
-            defaultArgs.createStream.recipient,
-            defaultArgs.createStream.grossDepositAmount,
-            defaultArgs.createStream.operator,
+        sablierV2Linear.createWithRange(
+            defaultArgs.createWithRange.sender,
+            defaultArgs.createWithRange.recipient,
+            defaultArgs.createWithRange.grossDepositAmount,
+            defaultArgs.createWithRange.operator,
             operatorFee,
-            defaultArgs.createStream.token,
-            defaultArgs.createStream.cancelable,
-            defaultArgs.createStream.startTime,
-            defaultArgs.createStream.cliffTime,
-            defaultArgs.createStream.stopTime
+            defaultArgs.createWithRange.token,
+            defaultArgs.createWithRange.cancelable,
+            defaultArgs.createWithRange.startTime,
+            defaultArgs.createWithRange.cliffTime,
+            defaultArgs.createWithRange.stopTime
         );
     }
 
@@ -159,7 +159,7 @@ contract CreateStream__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateStream__TokenNotContract()
+    function testCannotCreateWithRange__TokenNotContract()
         external
         RecipientNonZeroAddress
         GrossDepositAmountNotZero
@@ -168,17 +168,17 @@ contract CreateStream__Test is SablierV2LinearTest {
     {
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(6174)));
         address token = address(6174);
-        sablierV2Linear.createStream(
-            defaultArgs.createStream.sender,
-            defaultArgs.createStream.recipient,
-            defaultArgs.createStream.grossDepositAmount,
-            defaultArgs.createStream.operator,
-            defaultArgs.createStream.operatorFee,
+        sablierV2Linear.createWithRange(
+            defaultArgs.createWithRange.sender,
+            defaultArgs.createWithRange.recipient,
+            defaultArgs.createWithRange.grossDepositAmount,
+            defaultArgs.createWithRange.operator,
+            defaultArgs.createWithRange.operatorFee,
             token,
-            defaultArgs.createStream.cancelable,
-            defaultArgs.createStream.startTime,
-            defaultArgs.createStream.cliffTime,
-            defaultArgs.createStream.stopTime
+            defaultArgs.createWithRange.cancelable,
+            defaultArgs.createWithRange.startTime,
+            defaultArgs.createWithRange.cliffTime,
+            defaultArgs.createWithRange.stopTime
         );
     }
 
@@ -188,7 +188,7 @@ contract CreateStream__Test is SablierV2LinearTest {
 
     /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, mint the NFT
     /// and bump the next stream id.
-    function testCreateStream__TokenMissingReturnValue()
+    function testCreateWithRange__TokenMissingReturnValue()
         external
         RecipientNonZeroAddress
         GrossDepositAmountNotZero
@@ -199,19 +199,19 @@ contract CreateStream__Test is SablierV2LinearTest {
         // Expect the tokens to be transferred from the funder to the SablierV2Linear contract, and the operator fee
         // to be paid to the operator.
         address token = address(nonCompliantToken);
-        address funder = defaultArgs.createStream.sender;
+        address funder = defaultArgs.createWithRange.sender;
         vm.expectCall(
             token,
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, address(sablierV2Linear), defaultArgs.createStream.grossDepositAmount)
+                (funder, address(sablierV2Linear), defaultArgs.createWithRange.grossDepositAmount)
             )
         );
 
         // Expect the the operator fee to be paid to the operator, if the fee amount is not zero.
         vm.expectCall(
             token,
-            abi.encodeCall(IERC20.transfer, (defaultArgs.createStream.operator, DEFAULT_OPERATOR_FEE_AMOUNT))
+            abi.encodeCall(IERC20.transfer, (defaultArgs.createWithRange.operator, DEFAULT_OPERATOR_FEE_AMOUNT))
         );
 
         // Expect an event to be emitted.
@@ -221,31 +221,31 @@ contract CreateStream__Test is SablierV2LinearTest {
         emit Events.CreateLinearStream(
             streamId,
             funder,
-            defaultArgs.createStream.sender,
-            defaultArgs.createStream.recipient,
+            defaultArgs.createWithRange.sender,
+            defaultArgs.createWithRange.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             protocolFeeAmount,
-            defaultArgs.createStream.operator,
+            defaultArgs.createWithRange.operator,
             DEFAULT_OPERATOR_FEE_AMOUNT,
             token,
-            defaultArgs.createStream.cancelable,
-            defaultArgs.createStream.startTime,
-            defaultArgs.createStream.cliffTime,
-            defaultArgs.createStream.stopTime
+            defaultArgs.createWithRange.cancelable,
+            defaultArgs.createWithRange.startTime,
+            defaultArgs.createWithRange.cliffTime,
+            defaultArgs.createWithRange.stopTime
         );
 
         // Create the stream.
-        sablierV2Linear.createStream(
-            defaultArgs.createStream.sender,
-            defaultArgs.createStream.recipient,
-            defaultArgs.createStream.grossDepositAmount,
-            defaultArgs.createStream.operator,
-            defaultArgs.createStream.operatorFee,
+        sablierV2Linear.createWithRange(
+            defaultArgs.createWithRange.sender,
+            defaultArgs.createWithRange.recipient,
+            defaultArgs.createWithRange.grossDepositAmount,
+            defaultArgs.createWithRange.operator,
+            defaultArgs.createWithRange.operatorFee,
             token,
-            defaultArgs.createStream.cancelable,
-            defaultArgs.createStream.startTime,
-            defaultArgs.createStream.cliffTime,
-            defaultArgs.createStream.stopTime
+            defaultArgs.createWithRange.cancelable,
+            defaultArgs.createWithRange.startTime,
+            defaultArgs.createWithRange.cliffTime,
+            defaultArgs.createWithRange.stopTime
         );
 
         // Assert that the stream was created.
@@ -267,7 +267,7 @@ contract CreateStream__Test is SablierV2LinearTest {
 
         // Assert that the NFT was minted.
         address actualRecipient = sablierV2Linear.getRecipient(streamId);
-        address expectedRecipient = defaultArgs.createStream.recipient;
+        address expectedRecipient = defaultArgs.createWithRange.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }
 
@@ -277,7 +277,7 @@ contract CreateStream__Test is SablierV2LinearTest {
 
     /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, mint the NFT
     /// and bump the next stream id.
-    function testCreateStream(
+    function testCreateWithRange(
         address funder,
         address recipient,
         uint128 grossDepositAmount,
@@ -343,28 +343,28 @@ contract CreateStream__Test is SablierV2LinearTest {
         emit Events.CreateLinearStream(
             streamId,
             funder,
-            defaultArgs.createStream.sender,
+            defaultArgs.createWithRange.sender,
             recipient,
             depositAmount,
             protocolFeeAmount,
             operator,
             operatorFeeAmount,
             address(token),
-            defaultArgs.createStream.cancelable,
+            defaultArgs.createWithRange.cancelable,
             startTime,
             cliffTime,
             stopTime
         );
 
         // Create the stream.
-        sablierV2Linear.createStream(
-            defaultArgs.createStream.sender,
+        sablierV2Linear.createWithRange(
+            defaultArgs.createWithRange.sender,
             recipient,
             grossDepositAmount,
             operator,
             operatorFee,
             address(token),
-            defaultArgs.createStream.cancelable,
+            defaultArgs.createWithRange.cancelable,
             startTime,
             cliffTime,
             stopTime

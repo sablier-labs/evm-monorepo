@@ -228,32 +228,6 @@ contract SablierV2Pro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Pro
-    function create(
-        address sender,
-        address recipient,
-        uint128 depositAmount,
-        address token,
-        bool cancelable,
-        uint40 startTime,
-        uint128[] memory segmentAmounts,
-        SD1x18[] memory segmentExponents,
-        uint40[] memory segmentMilestones
-    ) external returns (uint256 streamId) {
-        // Checks, Effects and Interactions: create the stream.
-        streamId = _create(
-            sender,
-            recipient,
-            depositAmount,
-            token,
-            cancelable,
-            startTime,
-            segmentAmounts,
-            segmentExponents,
-            segmentMilestones
-        );
-    }
-
-    /// @inheritdoc ISablierV2Pro
     function createWithDuration(
         address sender,
         address recipient,
@@ -267,7 +241,7 @@ contract SablierV2Pro is
         uint40 startTime = uint40(block.timestamp);
         uint256 deltaCount = segmentDeltas.length;
 
-        // Calculate the segment milestones. It is fine to use unchecked arithmetic because the `_create`
+        // Calculate the segment milestones. It is fine to use unchecked arithmetic because the `_createWithRange`
         // function will nonetheless check the segments.
         uint40[] memory segmentMilestones = new uint40[](deltaCount);
         unchecked {
@@ -279,7 +253,33 @@ contract SablierV2Pro is
         }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(
+        streamId = _createWithRange(
+            sender,
+            recipient,
+            depositAmount,
+            token,
+            cancelable,
+            startTime,
+            segmentAmounts,
+            segmentExponents,
+            segmentMilestones
+        );
+    }
+
+    /// @inheritdoc ISablierV2Pro
+    function createWithRange(
+        address sender,
+        address recipient,
+        uint128 depositAmount,
+        address token,
+        bool cancelable,
+        uint40 startTime,
+        uint128[] memory segmentAmounts,
+        SD1x18[] memory segmentExponents,
+        uint40[] memory segmentMilestones
+    ) external returns (uint256 streamId) {
+        // Checks, Effects and Interactions: create the stream.
+        streamId = _createWithRange(
             sender,
             recipient,
             depositAmount,
@@ -383,7 +383,7 @@ contract SablierV2Pro is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _create(
+    function _createWithRange(
         address sender,
         address recipient,
         uint128 depositAmount,

@@ -24,7 +24,7 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
                 stopTime
             )
         );
-        sablierV2Linear.createStream(
+        sablierV2Linear.createWithRange(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -56,7 +56,7 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Linear__CliffTimeGreaterThanStopTime.selector, cliffTime, stopTime)
         );
-        sablierV2Linear.createStream(
+        sablierV2Linear.createWithRange(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -84,7 +84,7 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
             cliffTime = uint40(block.timestamp) + cliffDuration;
             stopTime = uint40(block.timestamp) + totalDuration;
         }
-        uint256 daiStreamId = sablierV2Linear.createStream(
+        uint256 daiStreamId = sablierV2Linear.createWithRange(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,

@@ -6,10 +6,12 @@ pragma solidity >=0.8.13;
 /// @dev Implementing this interface is entirely optional. If a recipient contract does not implement this interface,
 /// the function execution will not revert.
 interface ISablierV2Recipient {
-    /// @notice Reacts to the cancellation of a stream.
-    /// @dev Sablier V2 invokes this function on the recipient after a cancellation triggered by the sender or
-    /// an approved operator.
-    /// This function may revert, but Sablier V2 will always ignore the revert.
+    /// @notice Reacts to the cancellation of a stream. Sablier V2 invokes this function on the recipient
+    /// after a cancellation triggered by the sender or an approved operator.
+    ///
+    /// @dev Notes:
+    /// - This function may revert, but Sablier V2 will always ignore the revert.
+    ///
     /// @param streamId The id of the stream that was canceled.
     /// @param caller The address of the original `msg.sender` address that triggered the cancellation.
     /// @param withdrawAmount The amount of tokens withdrawn to the recipient, in units of the token's decimals.

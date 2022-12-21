@@ -1,4 +1,4 @@
-createStream.t.sol
+createWithRange.t.sol
 ├── when the recipient is the zero address
 │  └── it should revert
 └── when the recipient is not the zero address

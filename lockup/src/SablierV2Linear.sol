@@ -155,7 +155,7 @@ contract SablierV2Linear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Linear
-    function createStream(
+    function createWithDuration(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
@@ -163,12 +163,22 @@ contract SablierV2Linear is
         UD60x18 operatorFee,
         address token,
         bool cancelable,
-        uint40 startTime,
-        uint40 cliffTime,
-        uint40 stopTime
+        uint40 cliffDuration,
+        uint40 totalDuration
     ) external returns (uint256 streamId) {
+        // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
+        // `_createWithRange` function will nonetheless check that the stop time is greater than or equal to the
+        // cliff time, and that the cliff time is greater than or equal to the start time.
+        uint40 startTime = uint40(block.timestamp);
+        uint40 cliffTime;
+        uint40 stopTime;
+        unchecked {
+            cliffTime = startTime + cliffDuration;
+            stopTime = startTime + totalDuration;
+        }
+
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createStream(
+        streamId = _createWithRange(
             sender,
             recipient,
             grossDepositAmount,
@@ -183,7 +193,7 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2Linear
-    function createStream(
+    function createWithRange(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
@@ -191,22 +201,12 @@ contract SablierV2Linear is
         UD60x18 operatorFee,
         address token,
         bool cancelable,
-        uint40 cliffDuration,
-        uint40 totalDuration
+        uint40 startTime,
+        uint40 cliffTime,
+        uint40 stopTime
     ) external returns (uint256 streamId) {
-        // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
-        // `_createStream` function will nonetheless check that the stop time is greater than or equal to the
-        // cliff time, and that the cliff time is greater than or equal to the start time.
-        uint40 startTime = uint40(block.timestamp);
-        uint40 cliffTime;
-        uint40 stopTime;
-        unchecked {
-            cliffTime = startTime + cliffDuration;
-            stopTime = startTime + totalDuration;
-        }
-
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createStream(
+        streamId = _createWithRange(
             sender,
             recipient,
             grossDepositAmount,
@@ -311,7 +311,7 @@ contract SablierV2Linear is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _createStream(
+    function _createWithRange(
         address sender,
         address recipient,
         uint128 grossDepositAmount,

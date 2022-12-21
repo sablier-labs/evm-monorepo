@@ -42,10 +42,42 @@ interface ISablierV2Pro is ISablierV2 {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a new stream funded by `msg.sender` wrapped in an ERC-721 NFT. The `stopTime` is implied by
+    /// @notice Creates a stream funded by `msg.sender` wrapped in an ERC-721 NFT and sets the start time to
+    /// `block.timestamp` and the stop time to `block.timestamp + sum(segmentDeltas)`.
+    ///
+    /// @dev Emits a {CreateProStream} and a {Transfer} event.
+    ///
+    /// Requirements:
+    /// - All from `createWithRange`.
+    ///
+    /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
+    /// It doesn't have to be the same as `msg.sender`.
+    /// @param recipient The address toward which to stream the tokens.
+    /// @param depositAmount The amount of tokens to be streamed.
+    /// @param token The address of the ERC-20 token to use for streaming.
+    /// @param segmentAmounts The amounts used to compose the custom emission curve.
+    /// @param segmentExponents The exponents used to compose the custom emission curve.
+    /// @param segmentDeltas The differences between the milestones used to compose the custom emission curve.
+    /// @param cancelable Whether the stream is cancelable or not.
+    /// @return streamId The id of the newly created stream.
+    function createWithDuration(
+        address sender,
+        address recipient,
+        uint128 depositAmount,
+        address token,
+        bool cancelable,
+        uint128[] memory segmentAmounts,
+        SD1x18[] memory segmentExponents,
+        uint40[] memory segmentDeltas
+    ) external returns (uint256 streamId);
+
+    /// @notice Creates a new stream funded by `msg.sender` wrapped in an ERC-721 NFT, implying the `stopTime` by
     /// the last element in the `segmentMilestones` array.
     ///
     /// @dev Emits a {CreateProStream} and a {Transfer} event.
+    ///
+    /// Notes:
+    /// - As long as they are ordered, it is not an error to set `startTime` and `stopTime` to a time in the past.
     ///
     /// Requirements:
     /// - `sender` must not be the zero address.
@@ -70,7 +102,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// @param segmentExponents The exponents used to compose the custom emission curve.
     /// @param segmentMilestones The milestones used to compose the custom emission curve.
     /// @return streamId The id of the newly created stream.
-    function create(
+    function createWithRange(
         address sender,
         address recipient,
         uint128 depositAmount,
@@ -80,34 +112,5 @@ interface ISablierV2Pro is ISablierV2 {
         uint128[] memory segmentAmounts,
         SD1x18[] memory segmentExponents,
         uint40[] memory segmentMilestones
-    ) external returns (uint256 streamId);
-
-    /// @notice Creates a stream funded by `msg.sender` wrapped in an ERC-721 NFT and sets the start time to
-    /// `block.timestamp` and the stop time to `block.timestamp + sum(segmentDeltas)`.
-    ///
-    /// @dev Emits a {CreateProStream} and a {Transfer} event.
-    ///
-    /// Requirements:
-    /// - All from `create`.
-    ///
-    /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
-    /// It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address toward which to stream the tokens.
-    /// @param depositAmount The amount of tokens to be streamed.
-    /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param segmentAmounts The amounts used to compose the custom emission curve.
-    /// @param segmentExponents The exponents used to compose the custom emission curve.
-    /// @param segmentDeltas The differences between the milestones used to compose the custom emission curve.
-    /// @param cancelable Whether the stream is cancelable or not.
-    /// @return streamId The id of the newly created stream.
-    function createWithDuration(
-        address sender,
-        address recipient,
-        uint128 depositAmount,
-        address token,
-        bool cancelable,
-        uint128[] memory segmentAmounts,
-        SD1x18[] memory segmentExponents,
-        uint40[] memory segmentDeltas
     ) external returns (uint256 streamId);
 }

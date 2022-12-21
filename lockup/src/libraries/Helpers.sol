@@ -19,15 +19,7 @@ library Helpers {
         UD60x18 protocolFee,
         UD60x18 operatorFee,
         UD60x18 maxFee
-    )
-        internal
-        pure
-        returns (
-            uint128 protocolFeeAmount,
-            uint128 operatorFeeAmount,
-            uint128 depositAmount
-        )
-    {
+    ) internal pure returns (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 depositAmount) {
         // Checks: the protocol fee is not greater than `MAX_FEE`.
         if (protocolFee.gt(maxFee)) {
             revert Errors.SablierV2__ProtocolFeeTooHigh(protocolFee, maxFee);

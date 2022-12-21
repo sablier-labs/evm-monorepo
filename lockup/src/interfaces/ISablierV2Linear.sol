@@ -29,9 +29,47 @@ interface ISablierV2Linear is ISablierV2 {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a new stream funded by `msg.sender` wrapped in a NFT.
+    /// @notice Creates a stream funded by `msg.sender` wrapped in an ERC-721 NFT, setting the start time to
+    /// `block.timestamp` and the stop time to `block.timestamp + duration`.
     ///
     /// @dev Emits a {CreateLinearStream} and a {Transfer} event.
+    ///
+    /// Requirements:
+    /// - All from `createWithRange`.
+    ///
+    /// @param sender The address from which to stream the tokens with a cliff period, which will have the ability to
+    /// cancel the stream. It doesn't have to be the same as `msg.sender`.
+    /// @param recipient The address toward which to stream the tokens.
+    /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the token's
+    /// decimals.
+    /// @param token The address of the ERC-20 token to use for streaming.
+    /// @param cancelable Whether the stream will be cancelable or not.
+    /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
+    /// receives the fee.
+    /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
+    /// a percentage with 100% = 1e18.
+    /// @param cliffDuration The number of seconds for how long the cliff period will last.
+    /// @param totalDuration The total number of seconds for how long the stream will last.
+    /// @return streamId The id of the newly created stream.
+    function createWithDuration(
+        address sender,
+        address recipient,
+        uint128 grossDepositAmount,
+        address operator,
+        UD60x18 operatorFee,
+        address token,
+        bool cancelable,
+        uint40 cliffDuration,
+        uint40 totalDuration
+    ) external returns (uint256 streamId);
+
+    /// @notice Creates a new stream funded by `msg.sender` wrapped in an ERC-721 NFT, setting the start time and the
+    /// stop time to the provided values.
+    ///
+    /// @dev Emits a {CreateLinearStream} and a {Transfer} event.
+    ///
+    /// Notes:
+    /// - As long as they are ordered, it is not an error to set `startTime` and `stopTime` to a time in the past.
     ///
     /// Requirements:
     /// - `sender` must not be the zero address.
@@ -58,7 +96,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
     /// @param stopTime The unix timestamp in seconds for when the stream will stop.
     /// @return streamId The id of the newly created stream.
-    function createStream(
+    function createWithRange(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
@@ -69,39 +107,5 @@ interface ISablierV2Linear is ISablierV2 {
         uint40 startTime,
         uint40 cliffTime,
         uint40 stopTime
-    ) external returns (uint256 streamId);
-
-    /// @notice Creates a stream funded by `msg.sender` wrapped in an ERC-721 NFT and sets the start time to
-    /// `block.timestamp` and the stop time to `block.timestamp + duration`.
-    ///
-    /// @dev Emits a {CreateLinearStream} and a {Transfer} event.
-    ///
-    /// Requirements:
-    /// - All from `create`.
-    ///
-    /// @param sender The address from which to stream the tokens with a cliff period, which will have the ability to
-    /// cancel the stream. It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address toward which to stream the tokens.
-    /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the token's
-    /// decimals.
-    /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param cancelable Whether the stream will be cancelable or not.
-    /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
-    /// receives the fee.
-    /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
-    /// a percentage with 100% = 1e18.
-    /// @param cliffDuration The number of seconds for how long the cliff period will last.
-    /// @param totalDuration The total number of seconds for how long the stream will last.
-    /// @return streamId The id of the newly created stream.
-    function createStream(
-        address sender,
-        address recipient,
-        uint128 grossDepositAmount,
-        address operator,
-        UD60x18 operatorFee,
-        address token,
-        bool cancelable,
-        uint40 cliffDuration,
-        uint40 totalDuration
     ) external returns (uint256 streamId);
 }
