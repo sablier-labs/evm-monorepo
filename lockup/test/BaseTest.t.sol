@@ -81,6 +81,11 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
         }
     }
 
+    /// @dev Helper function to bound a `uint40` number.
+    function boundUint40(uint40 x, uint40 min, uint40 max) internal view returns (uint40 result) {
+        result = uint40(bound(uint256(x), uint256(min), uint256(max)));
+    }
+
     /// @dev Helper function to create a dynamical `SD1x18` array with 1 element.
     function createDynamicArray(SD1x18 element0) internal pure returns (SD1x18[] memory dynamicalArray) {
         dynamicalArray = new SD1x18[](1);

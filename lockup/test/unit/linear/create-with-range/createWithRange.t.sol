@@ -76,12 +76,10 @@ contract CreateWithRange__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithRange__CliffTimeGreaterThanStopTime(uint40 cliffTime, uint40 stopTime)
-        external
-        RecipientNonZeroAddress
-        GrossDepositAmountNotZero
-        StartTimeLessThanOrEqualToCliffTime
-    {
+    function testCannotCreateWithRange__CliffTimeGreaterThanStopTime(
+        uint40 cliffTime,
+        uint40 stopTime
+    ) external RecipientNonZeroAddress GrossDepositAmountNotZero StartTimeLessThanOrEqualToCliffTime {
         vm.assume(cliffTime > stopTime);
         vm.assume(stopTime > defaultArgs.createWithRange.startTime);
 
@@ -107,7 +105,9 @@ contract CreateWithRange__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithRange__ProtocolFeeTooHigh(UD60x18 protocolFee)
+    function testCannotCreateWithRange__ProtocolFeeTooHigh(
+        UD60x18 protocolFee
+    )
         external
         RecipientNonZeroAddress
         GrossDepositAmountNotZero
@@ -130,7 +130,9 @@ contract CreateWithRange__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithRange__OperatorFeeTooHigh(UD60x18 operatorFee)
+    function testCannotCreateWithRange__OperatorFeeTooHigh(
+        UD60x18 operatorFee
+    )
         external
         RecipientNonZeroAddress
         GrossDepositAmountNotZero
@@ -186,8 +188,8 @@ contract CreateWithRange__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, mint the NFT
-    /// and bump the next stream id.
+    /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, bump the next
+    /// stream id and mint the NFT.
     function testCreateWithRange__TokenMissingReturnValue()
         external
         RecipientNonZeroAddress
@@ -275,8 +277,8 @@ contract CreateWithRange__Test is SablierV2LinearTest {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, mint the NFT
-    /// and bump the next stream id.
+    /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, bump the next
+    /// stream id and mint the NFT.
     function testCreateWithRange(
         address funder,
         address recipient,
@@ -318,9 +320,6 @@ contract CreateWithRange__Test is SablierV2LinearTest {
         // Approve the SablierV2Linear contract to transfer the tokens.
         IERC20(token).approve({ spender: address(sablierV2Linear), value: UINT256_MAX });
 
-        // Query the next stream id.
-        uint256 streamId = sablierV2Linear.nextStreamId();
-
         // Calculate the fee amounts and the net deposit amount.
         uint128 protocolFeeAmount = uint128(unwrap(wrap(grossDepositAmount).mul(protocolFee)));
         uint128 operatorFeeAmount = uint128(unwrap(wrap(grossDepositAmount).mul(operatorFee)));
@@ -339,6 +338,7 @@ contract CreateWithRange__Test is SablierV2LinearTest {
         }
 
         // Expect an event to be emitted.
+        uint256 streamId = sablierV2Linear.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLinearStream(
             streamId,

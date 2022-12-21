@@ -24,6 +24,18 @@ abstract contract SablierV2LinearTest is UnitTest {
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    struct CreateWithDurationArgs {
+        address sender;
+        address recipient;
+        uint128 grossDepositAmount;
+        address operator;
+        UD60x18 operatorFee;
+        address token;
+        bool cancelable;
+        uint40 cliffDuration;
+        uint40 totalDuration;
+    }
+
     struct CreateWithRangeArgs {
         address sender;
         address recipient;
@@ -38,6 +50,7 @@ abstract contract SablierV2LinearTest is UnitTest {
     }
 
     struct DefaultArgs {
+        CreateWithDurationArgs createWithDuration;
         CreateWithRangeArgs createWithRange;
     }
 
@@ -46,7 +59,6 @@ abstract contract SablierV2LinearTest is UnitTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     SablierV2Linear internal sablierV2Linear;
-    CreateWithRangeArgs internal defaultCreateWithRangeArgs;
     DefaultArgs internal defaultArgs;
     DataTypes.LinearStream internal defaultStream;
 
@@ -60,6 +72,17 @@ abstract contract SablierV2LinearTest is UnitTest {
 
         // Create the default args to be used across the tests.
         defaultArgs = DefaultArgs({
+            createWithDuration: CreateWithDurationArgs({
+                sender: users.sender,
+                recipient: users.recipient,
+                grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
+                operator: users.operator,
+                operatorFee: DEFAULT_OPERATOR_FEE,
+                token: address(dai),
+                cancelable: true,
+                cliffDuration: DEFAULT_CLIFF_DURATION,
+                totalDuration: DEFAULT_TOTAL_DURATION
+            }),
             createWithRange: CreateWithRangeArgs({
                 sender: users.sender,
                 recipient: users.recipient,

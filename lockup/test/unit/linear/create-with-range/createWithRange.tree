@@ -21,6 +21,6 @@ createWithRange.t.sol
                   │  └── it should revert
                   └── when the token is a contract
                      ├── when the token misses the return value
-                     │  └── it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, mint the NFT and bump the next stream id
+                     │  └── it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, bump the next stream id and mint the NFT
                      └── when the token is ERC-20 compliant
-                        └── it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, mint the NFT and bump the next stream id
+                        └── it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, bump the next stream id and mint the NFT

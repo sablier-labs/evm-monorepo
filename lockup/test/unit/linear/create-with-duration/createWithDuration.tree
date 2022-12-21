@@ -5,4 +5,4 @@ createWithDuration.t.sol
    ├── when the total duration calculation overflows uint256
    │   └── it should revert
    └── when the total duration calculation does not overflow uint256
-       └── it should create the stream with duration
+       └── it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, bump the next stream id and mint the NFT
