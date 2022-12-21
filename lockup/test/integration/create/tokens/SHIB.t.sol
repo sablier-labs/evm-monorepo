@@ -5,6 +5,7 @@ import { CreateTest } from "../CreateTest.t.sol";
 
 /// @dev A token with a large total supply.
 contract SHIB__Test is CreateTest {
+    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
