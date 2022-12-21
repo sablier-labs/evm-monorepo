@@ -192,4 +192,9 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
         dynamicalArray[1] = element1;
         dynamicalArray[2] = element2;
     }
+
+    /// @dev Helper function to retrieve the current block timestamp as an `uint40`.
+    function getBlockTimestamp() internal view returns (uint40 blockTimestamp) {
+        blockTimestamp = uint40(block.timestamp);
+    }
 }

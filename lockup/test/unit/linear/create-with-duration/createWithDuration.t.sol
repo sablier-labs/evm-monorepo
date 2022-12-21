@@ -14,13 +14,13 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
         uint40 cliffTime;
         uint40 stopTime;
         unchecked {
-            cliffTime = uint40(block.timestamp) + cliffDuration;
+            cliffTime = getBlockTimestamp() + cliffDuration;
             stopTime = cliffTime;
         }
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2Linear__StartTimeGreaterThanCliffTime.selector,
-                uint40(block.timestamp),
+                getBlockTimestamp(),
                 stopTime
             )
         );
@@ -44,7 +44,7 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
         uint40 cliffDuration,
         uint40 totalDuration
     ) external CliffDurationCalculationDoesNotOverflow {
-        uint40 startTime = uint40(block.timestamp);
+        uint40 startTime = getBlockTimestamp();
         vm.assume(cliffDuration <= UINT40_MAX - startTime);
         vm.assume(totalDuration > UINT40_MAX - startTime);
         uint40 cliffTime;
@@ -81,8 +81,8 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
         uint40 cliffTime;
         uint40 stopTime;
         unchecked {
-            cliffTime = uint40(block.timestamp) + cliffDuration;
-            stopTime = uint40(block.timestamp) + totalDuration;
+            cliffTime = getBlockTimestamp() + cliffDuration;
+            stopTime = getBlockTimestamp() + totalDuration;
         }
         uint256 daiStreamId = sablierV2Linear.createWithRange(
             daiStream.sender,

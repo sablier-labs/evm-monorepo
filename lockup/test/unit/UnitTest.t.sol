@@ -79,9 +79,9 @@ abstract contract UnitTest is BaseTest {
         vm.warp(100 seconds);
 
         // Initialize the default stream values.
-        DEFAULT_CLIFF_TIME = uint40(block.timestamp) + 2_500 seconds;
-        DEFAULT_START_TIME = uint40(block.timestamp);
-        DEFAULT_STOP_TIME = uint40(block.timestamp) + 10_000 seconds;
+        DEFAULT_CLIFF_TIME = getBlockTimestamp() + 2_500 seconds;
+        DEFAULT_START_TIME = getBlockTimestamp();
+        DEFAULT_STOP_TIME = getBlockTimestamp() + 10_000 seconds;
 
         // Create users for testing.
         users = Users({

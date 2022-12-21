@@ -77,7 +77,7 @@ contract CreateWithDuration__Test is SablierV2ProTest {
         SegmentDeltaEqual
         MilestonesCalculationOverflows
     {
-        uint40 startTime = uint40(block.timestamp);
+        uint40 startTime = getBlockTimestamp();
         uint40[] memory segmentDeltas = createDynamicUint40Array(UINT40_MAX, 1);
         uint40[] memory segmentMilestones = new uint40[](2);
         unchecked {
@@ -110,7 +110,7 @@ contract CreateWithDuration__Test is SablierV2ProTest {
         SegmentDeltaEqual
         MilestonesCalculationOverflows
     {
-        uint40 startTime = uint40(block.timestamp);
+        uint40 startTime = getBlockTimestamp();
         uint128[] memory segmentAmounts = createDynamicUint128Array(0, SEGMENT_AMOUNTS_DAI[0], SEGMENT_AMOUNTS_DAI[1]);
         SD1x18[] memory segmentExponents = createDynamicArray(
             SD1x18.wrap(1e18),
