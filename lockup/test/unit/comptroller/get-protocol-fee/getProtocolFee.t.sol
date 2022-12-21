@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
-import { UD60x18, unwrap, wrap, ZERO } from "@prb/math/UD60x18.sol";
+import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
