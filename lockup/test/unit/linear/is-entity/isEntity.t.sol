@@ -7,7 +7,7 @@ contract IsEntity__Test is LinearTest {
     /// @dev it should return false.
     function testIsEntity__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        bool isEntity = sablierV2Linear.isEntity(nonStreamId);
+        bool isEntity = linear.isEntity(nonStreamId);
         assertFalse(isEntity);
     }
 
@@ -18,7 +18,7 @@ contract IsEntity__Test is LinearTest {
     /// @dev it should return true.
     function testIsEntity() external StreamExistent {
         uint256 defaultStreamId = createDefaultStream();
-        bool isEntity = sablierV2Linear.isEntity(defaultStreamId);
+        bool isEntity = linear.isEntity(defaultStreamId);
         assertTrue(isEntity);
     }
 }

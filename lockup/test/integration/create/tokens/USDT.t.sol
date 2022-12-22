@@ -11,7 +11,7 @@ contract USDT__Test is CreateTest {
     function setUp() public override {
         super.setUp();
 
-        nonCompliantToken.approve({ spender: address(sablierV2Linear), value: UINT256_MAX });
+        nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantToken.approve({ spender: address(sablierV2Pro), value: UINT256_MAX });
     }
 

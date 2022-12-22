@@ -22,7 +22,7 @@ contract Burn__Test is LinearTest {
     /// @dev it should revert.
     function testCannotBurn__StreamExistent() external {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamExistent.selector, defaultStreamId));
-        sablierV2Linear.burn(defaultStreamId);
+        linear.burn(defaultStreamId);
     }
 
     modifier StreamNonExistent() {
@@ -33,12 +33,12 @@ contract Burn__Test is LinearTest {
     function testCannotBurn__NFTNonExistent() external StreamNonExistent {
         uint256 nonStreamId = 1729;
         vm.expectRevert("ERC721: invalid token ID");
-        sablierV2Linear.burn(nonStreamId);
+        linear.burn(nonStreamId);
     }
 
     modifier NFTExistent() {
         // Cancel the stream so that the stream entity gets deleted.
-        sablierV2Linear.cancel(defaultStreamId);
+        linear.cancel(defaultStreamId);
         _;
     }
 
@@ -49,7 +49,7 @@ contract Burn__Test is LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, users.eve));
-        sablierV2Linear.burn(defaultStreamId);
+        linear.burn(defaultStreamId);
     }
 
     modifier CallerAuthorized() {
@@ -63,22 +63,22 @@ contract Burn__Test is LinearTest {
         vm.assume(operator != address(0));
 
         // Approve the operator to handle the stream.
-        sablierV2Linear.approve({ to: operator, tokenId: defaultStreamId });
+        linear.approve({ to: operator, tokenId: defaultStreamId });
 
         // Make the approved operator the caller in this test.
         changePrank(operator);
 
         // Run the test.
-        sablierV2Linear.burn(defaultStreamId);
-        address actualOwner = sablierV2Linear.getRecipient(defaultStreamId);
+        linear.burn(defaultStreamId);
+        address actualOwner = linear.getRecipient(defaultStreamId);
         address expectedOwner = address(0);
         assertEq(actualOwner, expectedOwner);
     }
 
     /// @dev it should burn the NFT.
     function testBurn__CallerNFTOwner() external StreamNonExistent NFTExistent CallerAuthorized {
-        sablierV2Linear.burn(defaultStreamId);
-        address actualOwner = sablierV2Linear.getRecipient(defaultStreamId);
+        linear.burn(defaultStreamId);
+        address actualOwner = linear.getRecipient(defaultStreamId);
         address expectedOwner = address(0);
         assertEq(actualOwner, expectedOwner);
     }

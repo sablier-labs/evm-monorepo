@@ -9,7 +9,7 @@ contract GetStream__Test is LinearTest {
     /// @dev it should return a zeroed out stream struct.
     function testGetStream__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(nonStreamId);
+        DataTypes.LinearStream memory actualStream = linear.getStream(nonStreamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(actualStream, expectedStream);
     }
@@ -21,7 +21,7 @@ contract GetStream__Test is LinearTest {
     /// @dev it should return the stream struct.
     function testGetStream() external StreamExistent {
         uint256 defaultStreamId = createDefaultStream();
-        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(defaultStreamId);
+        DataTypes.LinearStream memory actualStream = linear.getStream(defaultStreamId);
         DataTypes.LinearStream memory expectedStream = defaultStream;
         assertEq(actualStream, expectedStream);
     }

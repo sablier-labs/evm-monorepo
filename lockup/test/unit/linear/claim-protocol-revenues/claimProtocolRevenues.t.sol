@@ -18,7 +18,7 @@ contract ClaimProtocolRevenues__Test is LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(IOwnable.Ownable__CallerNotOwner.selector, users.owner, users.eve));
-        sablierV2Linear.claimProtocolRevenues(address(dai));
+        linear.claimProtocolRevenues(address(dai));
     }
 
     modifier CallerOwner() {
@@ -30,7 +30,7 @@ contract ClaimProtocolRevenues__Test is LinearTest {
     /// @dev it should revert.
     function testCannotClaimProtocolRevenues__ProtocolRevenuesZero() external CallerOwner {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__ClaimZeroProtocolRevenues.selector, address(dai)));
-        sablierV2Linear.claimProtocolRevenues(address(dai));
+        linear.claimProtocolRevenues(address(dai));
     }
 
     modifier ProtocolRevenuesNotZero() {
@@ -48,7 +48,7 @@ contract ClaimProtocolRevenues__Test is LinearTest {
         vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.owner, protocolRevenues)));
 
         // Claim the protocol revenues.
-        sablierV2Linear.claimProtocolRevenues(address(dai));
+        linear.claimProtocolRevenues(address(dai));
     }
 
     /// @dev it should set the protocol revenues to zero.
@@ -58,10 +58,10 @@ contract ClaimProtocolRevenues__Test is LinearTest {
         vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.owner, protocolRevenues)));
 
         // Claim the protocol revenues.
-        sablierV2Linear.claimProtocolRevenues(address(dai));
+        linear.claimProtocolRevenues(address(dai));
 
         // Assert that the protocol revenues were set to zero.
-        uint128 actualProtocolRevenues = sablierV2Linear.getProtocolRevenues(address(dai));
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(address(dai));
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -74,6 +74,6 @@ contract ClaimProtocolRevenues__Test is LinearTest {
         emit Events.ClaimProtocolRevenues(users.owner, address(dai), protocolRevenues);
 
         // Claim the protocol revenues.
-        sablierV2Linear.claimProtocolRevenues(address(dai));
+        linear.claimProtocolRevenues(address(dai));
     }
 }

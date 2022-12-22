@@ -9,7 +9,7 @@ contract GetReturnableAmount__Test is LinearTest {
     /// @dev it should return zero.
     function testGetReturnableAmount__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(nonStreamId);
+        uint256 actualReturnableAmount = linear.getReturnableAmount(nonStreamId);
         uint256 expectedReturnableAmount = 0;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
@@ -22,7 +22,7 @@ contract GetReturnableAmount__Test is LinearTest {
 
     /// @dev it should return the deposit amount.
     function testGetReturnableAmount__WithdrawableAmountZero__NoWithdrawals() external StreamExistent {
-        uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(defaultStreamId);
+        uint256 actualReturnableAmount = linear.getReturnableAmount(defaultStreamId);
         uint256 expectedReturnableAmount = defaultStream.depositAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
@@ -35,11 +35,11 @@ contract GetReturnableAmount__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
         // Withdraw the entire withdrawable amount.
-        uint128 withdrawAmount = sablierV2Linear.getWithdrawableAmount(defaultStreamId);
-        sablierV2Linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+        uint128 withdrawAmount = linear.getWithdrawableAmount(defaultStreamId);
+        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(defaultStreamId);
+        uint256 actualReturnableAmount = linear.getReturnableAmount(defaultStreamId);
         uint256 expectedReturnableAmount = defaultStream.depositAmount - withdrawAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
@@ -54,10 +54,10 @@ contract GetReturnableAmount__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
         // Get the withdrawable amount.
-        uint128 withdrawableAmount = sablierV2Linear.getWithdrawableAmount(defaultStreamId);
+        uint128 withdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
 
         // Run the test.
-        uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(defaultStreamId);
+        uint256 actualReturnableAmount = linear.getReturnableAmount(defaultStreamId);
         uint256 expectedReturnableAmount = defaultStream.depositAmount - withdrawableAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
@@ -73,17 +73,17 @@ contract GetReturnableAmount__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
         // Bound the withdraw amount.
-        uint128 initialWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(defaultStreamId);
+        uint128 initialWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
         withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount - 1);
 
         // Make the withdrawal.
-        sablierV2Linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Get the withdrawable amount.
-        uint128 withdrawableAmount = sablierV2Linear.getWithdrawableAmount(defaultStreamId);
+        uint128 withdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
 
         // Run the test.
-        uint256 actualReturnableAmount = sablierV2Linear.getReturnableAmount(defaultStreamId);
+        uint256 actualReturnableAmount = linear.getReturnableAmount(defaultStreamId);
         uint256 expectedReturnableAmount = defaultStream.depositAmount - withdrawAmount - withdrawableAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }

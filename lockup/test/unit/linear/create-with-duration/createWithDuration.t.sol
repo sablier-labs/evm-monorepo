@@ -30,7 +30,7 @@ contract CreateWithDuration__Test is LinearTest {
         uint40 totalDuration = cliffDuration;
 
         // Create the stream.
-        sablierV2Linear.createWithDuration(
+        linear.createWithDuration(
             defaultArgs.createWithDuration.sender,
             defaultArgs.createWithDuration.recipient,
             defaultArgs.createWithDuration.grossDepositAmount,
@@ -70,7 +70,7 @@ contract CreateWithDuration__Test is LinearTest {
         );
 
         // Create the stream.
-        sablierV2Linear.createWithDuration(
+        linear.createWithDuration(
             defaultArgs.createWithDuration.sender,
             defaultArgs.createWithDuration.recipient,
             defaultArgs.createWithDuration.grossDepositAmount,
@@ -104,7 +104,7 @@ contract CreateWithDuration__Test is LinearTest {
             token,
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, address(sablierV2Linear), defaultArgs.createWithDuration.grossDepositAmount)
+                (funder, address(linear), defaultArgs.createWithDuration.grossDepositAmount)
             )
         );
 
@@ -120,7 +120,7 @@ contract CreateWithDuration__Test is LinearTest {
         uint40 stopTime = startTime + totalDuration;
 
         // Expect an event to be emitted.
-        uint256 streamId = sablierV2Linear.nextStreamId();
+        uint256 streamId = linear.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLinearStream(
             streamId,
@@ -139,7 +139,7 @@ contract CreateWithDuration__Test is LinearTest {
         );
 
         // Create the stream.
-        sablierV2Linear.createWithDuration(
+        linear.createWithDuration(
             defaultArgs.createWithDuration.sender,
             defaultArgs.createWithDuration.recipient,
             defaultArgs.createWithDuration.grossDepositAmount,
@@ -152,7 +152,7 @@ contract CreateWithDuration__Test is LinearTest {
         );
 
         // Assert that the stream was created.
-        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(streamId);
+        DataTypes.LinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.cancelable, defaultStream.cancelable);
         assertEq(actualStream.cliffTime, cliffTime);
         assertEq(actualStream.depositAmount, defaultStream.depositAmount);
@@ -164,12 +164,12 @@ contract CreateWithDuration__Test is LinearTest {
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
 
         // Assert that the next stream id was bumped.
-        uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
+        uint256 actualNextStreamId = linear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
 
         // Assert that the NFT was minted.
-        address actualNFTOwner = sablierV2Linear.ownerOf({ tokenId: streamId });
+        address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = defaultArgs.createWithDuration.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner);
     }

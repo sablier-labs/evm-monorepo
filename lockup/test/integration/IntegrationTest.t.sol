@@ -22,7 +22,7 @@ abstract contract IntegrationTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     SablierV2Comptroller internal sablierV2Comptroller;
-    SablierV2Linear internal sablierV2Linear;
+    SablierV2Linear internal linear;
     SablierV2Pro internal sablierV2Pro;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ abstract contract IntegrationTest is BaseTest {
 
         vm.startPrank({ msgSender: users.owner });
         sablierV2Comptroller = new sablierV2Comptroller();
-        sablierV2Linear = new SablierV2Linear({ initialComptroller: sablierV2Comptroller, maxFee: MAX_FEE });
+        linear = new SablierV2Linear({ initialComptroller: sablierV2Comptroller, maxFee: MAX_FEE });
         sablierV2Pro = new SablierV2Pro({
             initialComptroller: sablierV2Comptroller,
             maxFee: MAX_FEE,

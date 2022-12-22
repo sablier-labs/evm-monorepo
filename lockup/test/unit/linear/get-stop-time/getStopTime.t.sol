@@ -7,7 +7,7 @@ contract GetStopTime__Test is LinearTest {
     /// @dev it should return zero.
     function testGetStopTime__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint256 actualStopTime = sablierV2Linear.getStopTime(nonStreamId);
+        uint256 actualStopTime = linear.getStopTime(nonStreamId);
         uint256 expectedStopTime = 0;
         assertEq(actualStopTime, expectedStopTime);
     }
@@ -19,7 +19,7 @@ contract GetStopTime__Test is LinearTest {
     /// @dev it should return the correct stop time.
     function testGetStopTime() external StreamExistent {
         uint256 defaultStreamId = createDefaultStream();
-        uint256 actualStopTime = sablierV2Linear.getStopTime(defaultStreamId);
+        uint256 actualStopTime = linear.getStopTime(defaultStreamId);
         uint256 expectedStopTime = defaultStream.stopTime;
         assertEq(actualStopTime, expectedStopTime);
     }

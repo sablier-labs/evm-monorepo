@@ -24,7 +24,7 @@ contract Withdraw__Test is LinearTest {
     function testCannotWithdraw__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonExistent.selector, nonStreamId));
-        sablierV2Linear.withdraw({ streamId: nonStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+        linear.withdraw({ streamId: nonStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
     modifier StreamExistent() {
@@ -42,7 +42,7 @@ contract Withdraw__Test is LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, eve));
-        sablierV2Linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
     /// @dev it should revert.
@@ -59,23 +59,19 @@ contract Withdraw__Test is LinearTest {
                 defaultStream.sender
             )
         );
-        sablierV2Linear.withdraw({
-            streamId: defaultStreamId,
-            to: defaultStream.sender,
-            amount: DEFAULT_WITHDRAW_AMOUNT
-        });
+        linear.withdraw({ streamId: defaultStreamId, to: defaultStream.sender, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
     /// @dev it should revert.
     function testCannotWithdraw__FormerRecipient() external StreamExistent {
         // Transfer the stream to Alice.
-        sablierV2Linear.transferFrom(users.recipient, users.alice, defaultStreamId);
+        linear.transferFrom(users.recipient, users.alice, defaultStreamId);
 
         // Run the test.
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, users.recipient)
         );
-        sablierV2Linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
     modifier CallerAuthorized() {
@@ -85,7 +81,7 @@ contract Withdraw__Test is LinearTest {
     /// @dev it should revert.
     function testCannotWithdraw__ToZeroAddress() external StreamExistent CallerAuthorized {
         vm.expectRevert(Errors.SablierV2__WithdrawToZeroAddress.selector);
-        sablierV2Linear.withdraw({ streamId: defaultStreamId, to: address(0), amount: defaultStream.depositAmount });
+        linear.withdraw({ streamId: defaultStreamId, to: address(0), amount: defaultStream.depositAmount });
     }
 
     modifier ToNonZeroAddress() {
@@ -95,7 +91,7 @@ contract Withdraw__Test is LinearTest {
     /// @dev it should revert.
     function testCannotWithdraw__WithdrawAmountZero() external StreamExistent CallerAuthorized ToNonZeroAddress {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__WithdrawAmountZero.selector, defaultStreamId));
-        sablierV2Linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
+        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
     }
 
     modifier WithdrawAmountNotZero() {
@@ -119,7 +115,7 @@ contract Withdraw__Test is LinearTest {
                 withdrawableAmount
             )
         );
-        sablierV2Linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: UINT128_MAX });
+        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: UINT128_MAX });
     }
 
     modifier WithdrawAmountLessThanOrEqualToWithdrawableAmount() {
@@ -143,8 +139,8 @@ contract Withdraw__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
 
         // Run the test.
-        sablierV2Linear.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
-        uint128 actualWithdrawnAmount = sablierV2Linear.getWithdrawnAmount(defaultStreamId);
+        linear.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
+        uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
@@ -163,7 +159,7 @@ contract Withdraw__Test is LinearTest {
         vm.assume(to != address(0));
 
         // Approve the operator to handle the stream.
-        sablierV2Linear.approve(users.operator, defaultStreamId);
+        linear.approve(users.operator, defaultStreamId);
 
         // Make the operator the caller in this test.
         changePrank(users.operator);
@@ -172,10 +168,10 @@ contract Withdraw__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
 
         // Make the withdrawal.
-        sablierV2Linear.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
+        linear.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
 
         // Run the test.
-        uint128 actualWithdrawnAmount = sablierV2Linear.getWithdrawnAmount(defaultStreamId);
+        uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
@@ -200,19 +196,15 @@ contract Withdraw__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.stopTime });
 
         // Make the withdrawal.
-        sablierV2Linear.withdraw({
-            streamId: defaultStreamId,
-            to: users.recipient,
-            amount: defaultStream.depositAmount
-        });
+        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaultStream.depositAmount });
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(defaultStreamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(defaultStreamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
 
         // Assert that the NFT was not burned.
-        address actualNFTowner = sablierV2Linear.ownerOf({ tokenId: defaultStreamId });
+        address actualNFTowner = linear.ownerOf({ tokenId: defaultStreamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner);
     }
@@ -248,7 +240,7 @@ contract Withdraw__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
         // Bound the withdraw amount.
-        uint128 withdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
+        uint128 withdrawableAmount = linear.getWithdrawableAmount(streamId);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawal to be made to the recipient.
@@ -259,10 +251,10 @@ contract Withdraw__Test is LinearTest {
         emit Events.Withdraw({ streamId: streamId, to: to, amount: withdrawAmount });
 
         // Make the withdrawal.
-        sablierV2Linear.withdraw({ streamId: streamId, to: to, amount: withdrawAmount });
+        linear.withdraw({ streamId: streamId, to: to, amount: withdrawAmount });
 
         // Assert that the withdrawn amount was updated.
-        uint128 actualWithdrawnAmount = sablierV2Linear.getWithdrawnAmount(streamId);
+        uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
@@ -287,10 +279,10 @@ contract Withdraw__Test is LinearTest {
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
 
         // Make the withdrawal.
-        sablierV2Linear.withdraw({ streamId: streamId, to: address(empty), amount: DEFAULT_WITHDRAW_AMOUNT });
+        linear.withdraw({ streamId: streamId, to: address(empty), amount: DEFAULT_WITHDRAW_AMOUNT });
 
         // Assert that the stream was deleted.
-        uint128 actualWithdrawnAmount = sablierV2Linear.getWithdrawnAmount(streamId);
+        uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
@@ -316,14 +308,10 @@ contract Withdraw__Test is LinearTest {
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
 
         // Make the withdrawal.
-        sablierV2Linear.withdraw({
-            streamId: streamId,
-            to: address(revertingRecipient),
-            amount: DEFAULT_WITHDRAW_AMOUNT
-        });
+        linear.withdraw({ streamId: streamId, to: address(revertingRecipient), amount: DEFAULT_WITHDRAW_AMOUNT });
 
         // Assert that the stream was deleted.
-        uint128 actualWithdrawnAmount = sablierV2Linear.getWithdrawnAmount(streamId);
+        uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
@@ -353,10 +341,10 @@ contract Withdraw__Test is LinearTest {
         uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT / 2;
 
         // Make the withdrawal.
-        sablierV2Linear.withdraw({ streamId: streamId, to: address(reentrantRecipient), amount: withdrawAmount });
+        linear.withdraw({ streamId: streamId, to: address(reentrantRecipient), amount: withdrawAmount });
 
         // Assert that the stream was deleted.
-        uint128 actualWithdrawnAmount = sablierV2Linear.getWithdrawnAmount(streamId);
+        uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
@@ -392,7 +380,7 @@ contract Withdraw__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
         // Bound the withdraw amount.
-        uint128 withdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
+        uint128 withdrawableAmount = linear.getWithdrawableAmount(streamId);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawal to be made to the recipient.
@@ -403,10 +391,10 @@ contract Withdraw__Test is LinearTest {
         emit Events.Withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
 
         // Make the withdrawal.
-        sablierV2Linear.withdraw(streamId, address(goodRecipient), withdrawAmount);
+        linear.withdraw(streamId, address(goodRecipient), withdrawAmount);
 
         // Assert that the withdrawn amount was updated.
-        uint128 actualWithdrawnAmount = sablierV2Linear.getWithdrawnAmount(streamId);
+        uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }

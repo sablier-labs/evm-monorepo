@@ -57,7 +57,7 @@ abstract contract LinearTest is UnitTest {
                                   TESTING VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    SablierV2Linear internal sablierV2Linear;
+    SablierV2Linear internal linear;
     DefaultArgs internal defaultArgs;
     DataTypes.LinearStream internal defaultStream;
 
@@ -67,7 +67,7 @@ abstract contract LinearTest is UnitTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        sablierV2Linear = new SablierV2Linear({ initialComptroller: sablierV2Comptroller, maxFee: MAX_FEE });
+        linear = new SablierV2Linear({ initialComptroller: sablierV2Comptroller, maxFee: MAX_FEE });
 
         // Create the default args to be used for the create functions.
         defaultArgs = DefaultArgs({
@@ -114,10 +114,10 @@ abstract contract LinearTest is UnitTest {
         sablierV2Comptroller.setProtocolFee(address(nonCompliantToken), DEFAULT_PROTOCOL_FEE);
 
         // Approve the SablierV2Linear contract to spend tokens from the sender, recipient, Alice and Eve.
-        approveMax({ caller: users.sender, spender: address(sablierV2Linear) });
-        approveMax({ caller: users.recipient, spender: address(sablierV2Linear) });
-        approveMax({ caller: users.alice, spender: address(sablierV2Linear) });
-        approveMax({ caller: users.eve, spender: address(sablierV2Linear) });
+        approveMax({ caller: users.sender, spender: address(linear) });
+        approveMax({ caller: users.recipient, spender: address(linear) });
+        approveMax({ caller: users.alice, spender: address(linear) });
+        approveMax({ caller: users.eve, spender: address(linear) });
 
         // Make the sender the caller for all subsequent calls.
         changePrank(users.sender);
@@ -129,7 +129,7 @@ abstract contract LinearTest is UnitTest {
 
     /// @dev Helper function to create the default stream.
     function createDefaultStream() internal returns (uint256 defaultStreamId) {
-        defaultStreamId = sablierV2Linear.createWithRange(
+        defaultStreamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -146,7 +146,7 @@ abstract contract LinearTest is UnitTest {
     /// @dev Helper function to create a default stream that is non-cancelable.
     function createDefaultStreamNonCancelable() internal returns (uint256 streamId) {
         bool cancelable = false;
-        streamId = sablierV2Linear.createWithRange(
+        streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -162,7 +162,7 @@ abstract contract LinearTest is UnitTest {
 
     /// @dev Helper function to create a default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal returns (uint256 streamId) {
-        streamId = sablierV2Linear.createWithRange(
+        streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -178,7 +178,7 @@ abstract contract LinearTest is UnitTest {
 
     /// @dev Helper function to create a default stream with the provided sender.
     function createDefaultStreamWithSender(address sender) internal returns (uint256 streamId) {
-        streamId = sablierV2Linear.createWithRange(
+        streamId = linear.createWithRange(
             sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -194,7 +194,7 @@ abstract contract LinearTest is UnitTest {
 
     /// @dev Helper function to create a default stream with the provided stop time.
     function createDefaultStreamWithStopTime(uint40 stopTime) internal returns (uint256 streamId) {
-        streamId = sablierV2Linear.createWithRange(
+        streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,

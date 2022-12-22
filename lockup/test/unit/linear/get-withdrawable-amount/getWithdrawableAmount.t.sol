@@ -12,7 +12,7 @@ contract GetWithdrawableAmount__Test is LinearTest {
     /// @dev When the stream does not exist, it should return zero.
     function testGetWithdrawableAmount__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(nonStreamId);
+        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(nonStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -26,7 +26,7 @@ contract GetWithdrawableAmount__Test is LinearTest {
     /// @dev it should return zero.
     function testGetWithdrawableAmount__CliffTimeGreaterThanBlockTimestamp() external StreamExistent {
         vm.warp({ timestamp: defaultStream.cliffTime - 1 seconds });
-        uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(defaultStreamId);
+        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -50,7 +50,7 @@ contract GetWithdrawableAmount__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.stopTime + timeWarp });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(defaultStreamId);
+        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = defaultStream.depositAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -72,10 +72,10 @@ contract GetWithdrawableAmount__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.stopTime + timeWarp });
 
         // Withdraw the amount.
-        sablierV2Linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(defaultStreamId);
+        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = defaultStream.depositAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -109,11 +109,11 @@ contract GetWithdrawableAmount__Test is LinearTest {
         });
 
         // Approve the SablierV2Linear contract to transfer the tokens.
-        IERC20(token).approve({ spender: address(sablierV2Linear), value: UINT256_MAX });
+        IERC20(token).approve({ spender: address(linear), value: UINT256_MAX });
 
         // Create the stream.
         UD60x18 operatorFee = ZERO;
-        uint256 streamId = sablierV2Linear.createWithRange(
+        uint256 streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             depositAmount,
@@ -131,7 +131,7 @@ contract GetWithdrawableAmount__Test is LinearTest {
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
+        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(streamId);
         uint128 expectedWithdrawableAmount = calculateWithdrawableAmount(currentTime, depositAmount);
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -159,11 +159,11 @@ contract GetWithdrawableAmount__Test is LinearTest {
         });
 
         // Approve the SablierV2Linear contract to transfer the tokens.
-        IERC20(token).approve({ spender: address(sablierV2Linear), value: UINT256_MAX });
+        IERC20(token).approve({ spender: address(linear), value: UINT256_MAX });
 
         // Create the stream.
         UD60x18 operatorFee = ZERO;
-        uint256 streamId = sablierV2Linear.createWithRange(
+        uint256 streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             depositAmount,
@@ -180,10 +180,10 @@ contract GetWithdrawableAmount__Test is LinearTest {
         vm.warp({ timestamp: currentTime });
 
         // Make the withdrawal.
-        sablierV2Linear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
+        linear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = sablierV2Linear.getWithdrawableAmount(streamId);
+        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(streamId);
         uint128 expectedWithdrawableAmount = initialWithdrawableAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }

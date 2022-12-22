@@ -28,7 +28,7 @@ contract CreateWithRange__Test is LinearTest {
     function testCannotCreateWithRange__GrossDepositAmountZero() external RecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2__GrossDepositAmountZero.selector);
         uint128 grossDepositAmount = 0;
-        sablierV2Linear.createWithRange(
+        linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             grossDepositAmount,
@@ -57,7 +57,7 @@ contract CreateWithRange__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Linear__StartTimeGreaterThanCliffTime.selector, startTime, cliffTime)
         );
-        sablierV2Linear.createWithRange(
+        linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -86,7 +86,7 @@ contract CreateWithRange__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Linear__CliffTimeGreaterThanStopTime.selector, cliffTime, stopTime)
         );
-        sablierV2Linear.createWithRange(
+        linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -142,7 +142,7 @@ contract CreateWithRange__Test is LinearTest {
     {
         operatorFee = bound(operatorFee, MAX_FEE.add(ud(1)), MAX_UD60x18);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__OperatorFeeTooHigh.selector, operatorFee, MAX_FEE));
-        sablierV2Linear.createWithRange(
+        linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -170,7 +170,7 @@ contract CreateWithRange__Test is LinearTest {
     {
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(6174)));
         address token = address(6174);
-        sablierV2Linear.createWithRange(
+        linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -206,7 +206,7 @@ contract CreateWithRange__Test is LinearTest {
             token,
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, address(sablierV2Linear), defaultArgs.createWithRange.grossDepositAmount)
+                (funder, address(linear), defaultArgs.createWithRange.grossDepositAmount)
             )
         );
 
@@ -217,7 +217,7 @@ contract CreateWithRange__Test is LinearTest {
         );
 
         // Expect an event to be emitted.
-        uint256 streamId = sablierV2Linear.nextStreamId();
+        uint256 streamId = linear.nextStreamId();
         // vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         // emit Events.CreateLinearStream(
         //     streamId,
@@ -236,7 +236,7 @@ contract CreateWithRange__Test is LinearTest {
         // );
 
         // Create the stream.
-        sablierV2Linear.createWithRange(
+        linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -250,7 +250,7 @@ contract CreateWithRange__Test is LinearTest {
         );
 
         // Assert that the stream was created.
-        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(streamId);
+        DataTypes.LinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.cancelable, defaultStream.cancelable);
         assertEq(actualStream.cliffTime, defaultStream.cliffTime);
         assertEq(actualStream.depositAmount, defaultStream.depositAmount);
@@ -262,12 +262,12 @@ contract CreateWithRange__Test is LinearTest {
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
 
         // Assert that the next stream id was bumped.
-        uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
+        uint256 actualNextStreamId = linear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
 
         // Assert that the NFT was minted.
-        address actualNFTOwner = sablierV2Linear.ownerOf({ tokenId: streamId });
+        address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = defaultArgs.createWithRange.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
@@ -317,7 +317,7 @@ contract CreateWithRange__Test is LinearTest {
         changePrank(funder);
 
         // Approve the SablierV2Linear contract to transfer the tokens.
-        IERC20(token).approve({ spender: address(sablierV2Linear), value: UINT256_MAX });
+        IERC20(token).approve({ spender: address(linear), value: UINT256_MAX });
 
         // Calculate the fee amounts and the net deposit amount.
         uint128 protocolFeeAmount = uint128(unwrap(wrap(grossDepositAmount).mul(protocolFee)));
@@ -328,7 +328,7 @@ contract CreateWithRange__Test is LinearTest {
         // to be paid to the operator.
         vm.expectCall(
             address(token),
-            abi.encodeCall(IERC20.transferFrom, (funder, address(sablierV2Linear), grossDepositAmount))
+            abi.encodeCall(IERC20.transferFrom, (funder, address(linear), grossDepositAmount))
         );
 
         // Expect the the operator fee to be paid to the operator, if the fee amount is not zero.
@@ -337,7 +337,7 @@ contract CreateWithRange__Test is LinearTest {
         }
 
         // Expect an event to be emitted.
-        uint256 streamId = sablierV2Linear.nextStreamId();
+        uint256 streamId = linear.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLinearStream(
             streamId,
@@ -356,7 +356,7 @@ contract CreateWithRange__Test is LinearTest {
         );
 
         // Create the stream.
-        sablierV2Linear.createWithRange(
+        linear.createWithRange(
             defaultArgs.createWithRange.sender,
             recipient,
             grossDepositAmount,
@@ -370,7 +370,7 @@ contract CreateWithRange__Test is LinearTest {
         );
 
         // Assert that the stream has been created.
-        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(streamId);
+        DataTypes.LinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.cancelable, defaultStream.cancelable);
         assertEq(actualStream.cliffTime, cliffTime);
         assertEq(actualStream.depositAmount, depositAmount);
@@ -382,12 +382,12 @@ contract CreateWithRange__Test is LinearTest {
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
 
         // Assert that the next stream id has been bumped.
-        uint256 actualNextStreamId = sablierV2Linear.nextStreamId();
+        uint256 actualNextStreamId = linear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
 
         // Assert that the NFT was minted.
-        address actualNFTOwner = sablierV2Linear.ownerOf({ tokenId: streamId });
+        address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = recipient;
         assertEq(actualNFTOwner, expectedNFTOwner);
     }

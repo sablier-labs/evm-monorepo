@@ -20,7 +20,7 @@ contract GetProtocolFee__Test is LinearTest {
 
     /// @dev it should return zero.
     function testGetProtocolRevenues__ProtocolRevenuesZero() external {
-        uint128 actualProtocolRevenues = sablierV2Linear.getProtocolRevenues(address(dai));
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(address(dai));
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -35,7 +35,7 @@ contract GetProtocolFee__Test is LinearTest {
 
     /// @dev it should return the correct protocol revenues.
     function testGetProtocolRevenues() external ProtocolRevenuesNotZero {
-        uint128 actualProtocolRevenues = sablierV2Linear.getProtocolRevenues(address(dai));
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(address(dai));
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }

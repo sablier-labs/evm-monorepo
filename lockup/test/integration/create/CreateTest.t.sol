@@ -42,10 +42,10 @@ abstract contract CreateTest is IntegrationTest {
         vm.assume(cliffTime <= stopTime);
 
         // Pull the next stream id.
-        uint256 expectedStreamId = sablierV2Linear.nextStreamId();
+        uint256 expectedStreamId = linear.nextStreamId();
 
         // Create the stream.
-        uint256 actualStreamId = sablierV2Linear.create(
+        uint256 actualStreamId = linear.create(
             sender,
             recipient,
             depositAmount,
@@ -71,9 +71,9 @@ abstract contract CreateTest is IntegrationTest {
 
         // Run the tests.
         assertEq(actualStreamId, expectedStreamId);
-        assertEq(sablierV2Linear.nextStreamId(), expectedStreamId + 1);
-        assertEq(sablierV2Linear.getStream(actualStreamId), stream);
-        assertEq(sablierV2Linear.getRecipient(actualStreamId), recipient);
+        assertEq(linear.nextStreamId(), expectedStreamId + 1);
+        assertEq(linear.getStream(actualStreamId), stream);
+        assertEq(linear.getRecipient(actualStreamId), recipient);
     }
 
     /// @dev it should create the pro stream.
@@ -141,7 +141,7 @@ abstract contract CreateTest is IntegrationTest {
 
     /// @dev Helper function to approve the Sablier V2 contracts to spend tokens.
     function approveSablierV2() internal {
-        IERC20(token()).approve({ spender: address(sablierV2Linear), value: UINT256_MAX });
+        IERC20(token()).approve({ spender: address(linear), value: UINT256_MAX });
         IERC20(token()).approve({ spender: address(sablierV2Pro), value: UINT256_MAX });
     }
 

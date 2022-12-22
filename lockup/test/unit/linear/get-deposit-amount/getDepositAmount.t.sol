@@ -7,7 +7,7 @@ contract GetDepositAmount__Test is LinearTest {
     /// @dev it should return zero.
     function testGetDepositAmount__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint128 actualDepositAmount = sablierV2Linear.getDepositAmount(nonStreamId);
+        uint128 actualDepositAmount = linear.getDepositAmount(nonStreamId);
         uint128 expectedDepositAmount = 0;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
@@ -19,7 +19,7 @@ contract GetDepositAmount__Test is LinearTest {
     /// @dev it should the correct deposit amount.
     function testGetDepositAmount() external StreamExistent {
         uint256 defaultStreamId = createDefaultStream();
-        uint128 actualDepositAmount = sablierV2Linear.getDepositAmount(defaultStreamId);
+        uint128 actualDepositAmount = linear.getDepositAmount(defaultStreamId);
         uint128 expectedDepositAmount = defaultStream.depositAmount;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }

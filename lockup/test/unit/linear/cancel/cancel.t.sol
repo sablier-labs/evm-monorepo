@@ -24,7 +24,7 @@ contract Cancel__Test is LinearTest {
     function testCannotCancel__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonExistent.selector, nonStreamId));
-        sablierV2Linear.cancel(nonStreamId);
+        linear.cancel(nonStreamId);
     }
 
     modifier StreamExistent() {
@@ -42,7 +42,7 @@ contract Cancel__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__StreamNonCancelable.selector, nonCancelableDaiStreamId)
         );
-        sablierV2Linear.cancel(nonCancelableDaiStreamId);
+        linear.cancel(nonCancelableDaiStreamId);
     }
 
     modifier StreamCancelable() {
@@ -60,7 +60,7 @@ contract Cancel__Test is LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, eve));
-        sablierV2Linear.cancel(defaultStreamId);
+        linear.cancel(defaultStreamId);
     }
 
     /// @dev it should revert.
@@ -70,26 +70,26 @@ contract Cancel__Test is LinearTest {
         vm.assume(operator != address(0) && operator != defaultStream.sender && operator != users.recipient);
 
         // Approve Alice for the stream.
-        sablierV2Linear.approve({ to: operator, tokenId: defaultStreamId });
+        linear.approve({ to: operator, tokenId: defaultStreamId });
 
         // Make Alice the caller in this test.
         changePrank(operator);
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, operator));
-        sablierV2Linear.cancel(defaultStreamId);
+        linear.cancel(defaultStreamId);
     }
 
     /// @dev it should revert.
     function testCannotCancel__CallerUnauthorized__FormerRecipient() external StreamExistent StreamCancelable {
         // Transfer the stream to Alice.
-        sablierV2Linear.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
+        linear.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
 
         // Run the test.
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, users.recipient)
         );
-        sablierV2Linear.cancel(defaultStreamId);
+        linear.cancel(defaultStreamId);
     }
 
     modifier CallerAuthorized() {
@@ -110,8 +110,8 @@ contract Cancel__Test is LinearTest {
         CallerAuthorized
         CallerSender
     {
-        sablierV2Linear.cancel(defaultStreamId);
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(defaultStreamId);
+        linear.cancel(defaultStreamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(defaultStreamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -130,8 +130,8 @@ contract Cancel__Test is LinearTest {
         RecipientContract
     {
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
-        sablierV2Linear.cancel(streamId);
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(streamId);
+        linear.cancel(streamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -151,8 +151,8 @@ contract Cancel__Test is LinearTest {
         RecipientImplementsHook
     {
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
-        sablierV2Linear.cancel(streamId);
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(streamId);
+        linear.cancel(streamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -173,8 +173,8 @@ contract Cancel__Test is LinearTest {
         RecipientDoesNotRevert
     {
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
-        sablierV2Linear.cancel(streamId);
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(streamId);
+        linear.cancel(streamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -211,7 +211,7 @@ contract Cancel__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
         // Expect the tokens to be withdrawn to the recipient.
-        uint128 withdrawAmount = sablierV2Linear.getWithdrawableAmount(streamId);
+        uint128 withdrawAmount = linear.getWithdrawableAmount(streamId);
         if (withdrawAmount > 0) {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount)));
         }
@@ -227,15 +227,15 @@ contract Cancel__Test is LinearTest {
         emit Events.Cancel(streamId, defaultStream.sender, address(goodRecipient), returnAmount, withdrawAmount);
 
         // Cancel the stream.
-        sablierV2Linear.cancel(streamId);
+        linear.cancel(streamId);
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(streamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
 
         // Assert that the NFT was not burned.
-        address actualNFTOwner = sablierV2Linear.ownerOf({ tokenId: streamId });
+        address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = address(goodRecipient);
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
@@ -252,8 +252,8 @@ contract Cancel__Test is LinearTest {
         CallerAuthorized
         CallerRecipient
     {
-        sablierV2Linear.cancel(defaultStreamId);
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(defaultStreamId);
+        linear.cancel(defaultStreamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(defaultStreamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -272,10 +272,10 @@ contract Cancel__Test is LinearTest {
         SenderContract
     {
         uint256 streamId = createDefaultStreamWithSender(address(empty));
-        sablierV2Linear.cancel(streamId);
+        linear.cancel(streamId);
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(streamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -295,10 +295,10 @@ contract Cancel__Test is LinearTest {
         SenderImplementsHook
     {
         uint256 streamId = createDefaultStreamWithSender(address(revertingSender));
-        sablierV2Linear.cancel(streamId);
+        linear.cancel(streamId);
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(streamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -319,10 +319,10 @@ contract Cancel__Test is LinearTest {
         SenderDoesNotRevert
     {
         uint256 streamId = createDefaultStreamWithSender(address(reentrantSender));
-        sablierV2Linear.cancel(streamId);
+        linear.cancel(streamId);
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(streamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
@@ -362,7 +362,7 @@ contract Cancel__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
         // Expect the tokens to be withdrawn to the recipient, if not zero.
-        uint128 withdrawAmount = sablierV2Linear.getWithdrawableAmount(streamId);
+        uint128 withdrawAmount = linear.getWithdrawableAmount(streamId);
         if (withdrawAmount > 0) {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
         }
@@ -378,15 +378,15 @@ contract Cancel__Test is LinearTest {
         emit Events.Cancel(streamId, address(goodSender), users.recipient, returnAmount, withdrawAmount);
 
         // Cancel the stream.
-        sablierV2Linear.cancel(streamId);
+        linear.cancel(streamId);
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = sablierV2Linear.getStream(streamId);
+        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
 
         // Assert that the NFT was not burned.
-        address actualNFTOwner = sablierV2Linear.ownerOf({ tokenId: streamId });
+        address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
