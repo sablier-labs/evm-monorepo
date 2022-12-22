@@ -13,7 +13,7 @@ contract CreateWithDuration__Test is ProTest {
     function testCannotCreateWithDuration__LoopCalculationOverflowsBlockGasLimit() external {
         uint40[] memory segmentDeltas = new uint40[](1_000_000);
         vm.expectRevert(bytes(""));
-        sablierV2Pro.createWithDuration(
+        pro.createWithDuration(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -50,7 +50,7 @@ contract CreateWithDuration__Test is ProTest {
                 i += 1;
             }
         }
-        sablierV2Pro.createWithDuration(
+        pro.createWithDuration(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -91,7 +91,7 @@ contract CreateWithDuration__Test is ProTest {
                 segmentMilestones[0]
             )
         );
-        sablierV2Pro.createWithDuration(
+        pro.createWithDuration(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -132,7 +132,7 @@ contract CreateWithDuration__Test is ProTest {
                 segmentMilestones[1]
             )
         );
-        sablierV2Pro.createWithDuration(
+        pro.createWithDuration(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -155,7 +155,7 @@ contract CreateWithDuration__Test is ProTest {
         SegmentDeltaEqual
         MilestonesCalculationDoesNotOverflow
     {
-        uint256 daiStreamId = sablierV2Pro.createWithDuration(
+        uint256 daiStreamId = pro.createWithDuration(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -165,7 +165,7 @@ contract CreateWithDuration__Test is ProTest {
             daiStream.segmentExponents,
             SEGMENT_DELTAS
         );
-        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
+        DataTypes.ProStream memory actualStream = pro.getStream(daiStreamId);
         DataTypes.ProStream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }

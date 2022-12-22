@@ -23,7 +23,7 @@ abstract contract IntegrationTest is BaseTest {
 
     SablierV2Comptroller internal sablierV2Comptroller;
     SablierV2Linear internal linear;
-    SablierV2Pro internal sablierV2Pro;
+    SablierV2Pro internal pro;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
@@ -35,7 +35,7 @@ abstract contract IntegrationTest is BaseTest {
         vm.startPrank({ msgSender: users.owner });
         sablierV2Comptroller = new sablierV2Comptroller();
         linear = new SablierV2Linear({ initialComptroller: sablierV2Comptroller, maxFee: MAX_FEE });
-        sablierV2Pro = new SablierV2Pro({
+        pro = new SablierV2Pro({
             initialComptroller: sablierV2Comptroller,
             maxFee: MAX_FEE,
             maxSegmentCount: MAX_SEGMENT_COUNT

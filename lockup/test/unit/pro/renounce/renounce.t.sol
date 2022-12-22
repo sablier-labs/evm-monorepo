@@ -22,7 +22,7 @@ contract Renounce__Test is ProTest {
     function testCannotRenounce__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonExistent.selector, nonStreamId));
-        sablierV2Pro.renounce(nonStreamId);
+        pro.renounce(nonStreamId);
     }
 
     modifier StreamExistent() {
@@ -36,7 +36,7 @@ contract Renounce__Test is ProTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
-        sablierV2Pro.renounce(daiStreamId);
+        pro.renounce(daiStreamId);
     }
 
     modifier CallerSender() {
@@ -52,13 +52,13 @@ contract Renounce__Test is ProTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__RenounceNonCancelableStream.selector, nonCancelableDaiStreamId)
         );
-        sablierV2Pro.renounce(nonCancelableDaiStreamId);
+        pro.renounce(nonCancelableDaiStreamId);
     }
 
     /// @dev it should make the stream non-cancelable.
     function testRenounce() external StreamExistent CallerSender {
-        sablierV2Pro.renounce(daiStreamId);
-        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
+        pro.renounce(daiStreamId);
+        DataTypes.ProStream memory actualStream = pro.getStream(daiStreamId);
         assertEq(actualStream.cancelable, false);
     }
 
@@ -66,6 +66,6 @@ contract Renounce__Test is ProTest {
     function testRenounce__Event() external {
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: false });
         emit Events.Renounce(daiStreamId);
-        sablierV2Pro.renounce(daiStreamId);
+        pro.renounce(daiStreamId);
     }
 }

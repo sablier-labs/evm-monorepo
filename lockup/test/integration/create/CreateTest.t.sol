@@ -98,10 +98,10 @@ abstract contract CreateTest is IntegrationTest {
         uint40[] memory segmentMilestones = createDynamicUint40Array(stopTime);
 
         // Pull the next stream id.
-        uint256 expectedStreamId = sablierV2Pro.nextStreamId();
+        uint256 expectedStreamId = pro.nextStreamId();
 
         // Create the stream.
-        uint256 actualStreamId = sablierV2Pro.create(
+        uint256 actualStreamId = pro.create(
             sender,
             recipient,
             depositAmount,
@@ -130,9 +130,9 @@ abstract contract CreateTest is IntegrationTest {
 
         // Run the tests.
         assertEq(actualStreamId, expectedStreamId);
-        assertEq(sablierV2Pro.nextStreamId(), expectedStreamId + 1);
-        assertEq(sablierV2Pro.getStream(actualStreamId), expectedStream);
-        assertEq(sablierV2Pro.getRecipient(actualStreamId), recipient);
+        assertEq(pro.nextStreamId(), expectedStreamId + 1);
+        assertEq(pro.getStream(actualStreamId), expectedStream);
+        assertEq(pro.getRecipient(actualStreamId), recipient);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -142,7 +142,7 @@ abstract contract CreateTest is IntegrationTest {
     /// @dev Helper function to approve the Sablier V2 contracts to spend tokens.
     function approveSablierV2() internal {
         IERC20(token()).approve({ spender: address(linear), value: UINT256_MAX });
-        IERC20(token()).approve({ spender: address(sablierV2Pro), value: UINT256_MAX });
+        IERC20(token()).approve({ spender: address(pro), value: UINT256_MAX });
     }
 
     /// @dev Helper function to return the token holder's address.

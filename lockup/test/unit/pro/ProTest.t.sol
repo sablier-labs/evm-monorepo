@@ -26,8 +26,8 @@ abstract contract ProTest is UnitTest {
                                   TESTING VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    SablierV2Pro internal sablierV2Pro;
     DataTypes.ProStream internal daiStream;
+    SablierV2Pro internal pro;
     DataTypes.ProStream internal usdcStream;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ abstract contract ProTest is UnitTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        sablierV2Pro = new SablierV2Pro({
+        pro = new SablierV2Pro({
             initialComptroller: sablierV2Comptroller,
             maxFee: MAX_FEE,
             maxSegmentCount: MAX_SEGMENT_COUNT
@@ -58,10 +58,10 @@ abstract contract ProTest is UnitTest {
         });
 
         // Approve the SablierV2Pro contract to spend tokens from the sender, recipient, Alice and Eve.
-        approveMax({ caller: users.sender, spender: address(sablierV2Pro) });
-        approveMax({ caller: users.recipient, spender: address(sablierV2Pro) });
-        approveMax({ caller: users.alice, spender: address(sablierV2Pro) });
-        approveMax({ caller: users.eve, spender: address(sablierV2Pro) });
+        approveMax({ caller: users.sender, spender: address(pro) });
+        approveMax({ caller: users.recipient, spender: address(pro) });
+        approveMax({ caller: users.alice, spender: address(pro) });
+        approveMax({ caller: users.eve, spender: address(pro) });
 
         // Make the sender the caller for all subsequent calls.
         changePrank(users.sender);
@@ -73,7 +73,7 @@ abstract contract ProTest is UnitTest {
 
     /// @dev Helper function to create a default stream with $DAI used as streaming currency.
     function createDefaultDaiStream() internal returns (uint256 daiStreamId) {
-        daiStreamId = sablierV2Pro.create(
+        daiStreamId = pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -88,7 +88,7 @@ abstract contract ProTest is UnitTest {
 
     /// @dev Helper function to create a default stream with $USDC used as streaming currency.
     function createDefaultUsdcStream() internal returns (uint256 usdcStreamId) {
-        usdcStreamId = sablierV2Pro.create(
+        usdcStreamId = pro.create(
             usdcStream.sender,
             users.recipient,
             usdcStream.depositAmount,
@@ -104,7 +104,7 @@ abstract contract ProTest is UnitTest {
     /// @dev Helper function to create a non-cancelable stream.
     function createNonCancelableDaiStream() internal returns (uint256 nonCancelableDaiStreamId) {
         bool cancelable = false;
-        nonCancelableDaiStreamId = sablierV2Pro.create(
+        nonCancelableDaiStreamId = pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,

@@ -9,7 +9,7 @@ contract GetSegmentExponents__Test is ProTest {
     /// @dev it should return zero.
     function testGetSegmentExponents__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        SD1x18[] memory actualSegmentExponents = sablierV2Pro.getSegmentExponents(nonStreamId);
+        SD1x18[] memory actualSegmentExponents = pro.getSegmentExponents(nonStreamId);
         SD1x18[] memory expectedSegmentExponents;
         assertEq(actualSegmentExponents, expectedSegmentExponents);
     }
@@ -21,7 +21,7 @@ contract GetSegmentExponents__Test is ProTest {
     /// @dev it should return the correct segment amounts.
     function testGetSegmentExponents() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
-        SD1x18[] memory actualSegmentExponents = sablierV2Pro.getSegmentExponents(daiStreamId);
+        SD1x18[] memory actualSegmentExponents = pro.getSegmentExponents(daiStreamId);
         SD1x18[] memory expectedSegmentExponents = daiStream.segmentExponents;
         assertEq(actualSegmentExponents, expectedSegmentExponents);
     }

@@ -16,7 +16,7 @@ contract Create__Test is ProTest {
     function testCannotCreate__RecipientZeroAddress() external {
         vm.expectRevert("ERC721: mint to the zero address");
         address recipient = address(0);
-        sablierV2Pro.create(
+        pro.create(
             daiStream.sender,
             recipient,
             daiStream.depositAmount,
@@ -37,7 +37,7 @@ contract Create__Test is ProTest {
     function testCannotCreate__DepositAmountZero() external RecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2__GrossDepositAmountZero.selector);
         uint128 depositAmount = 0;
-        sablierV2Pro.create(
+        pro.create(
             daiStream.sender,
             users.recipient,
             depositAmount,
@@ -60,7 +60,7 @@ contract Create__Test is ProTest {
         uint128[] memory segmentAmounts;
         SD1x18[] memory segmentExponents;
         uint40[] memory segmentMilestones;
-        sablierV2Pro.create(
+        pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -84,7 +84,7 @@ contract Create__Test is ProTest {
         DepositAmountNotZero
         SegmentCountNotZero
     {
-        uint256 segmentCount = sablierV2Pro.MAX_SEGMENT_COUNT() + 1;
+        uint256 segmentCount = pro.MAX_SEGMENT_COUNT() + 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Pro__SegmentCountOutOfBounds.selector, segmentCount));
         uint128[] memory segmentAmounts = new uint128[](segmentCount);
         for (uint128 i = 0; i < segmentCount; ) {
@@ -93,7 +93,7 @@ contract Create__Test is ProTest {
                 i += 1;
             }
         }
-        sablierV2Pro.create(
+        pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -127,7 +127,7 @@ contract Create__Test is ProTest {
                 daiStream.segmentMilestones.length
             )
         );
-        sablierV2Pro.create(
+        pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -157,7 +157,7 @@ contract Create__Test is ProTest {
                 segmentMilestones.length
             )
         );
-        sablierV2Pro.create(
+        pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -185,7 +185,7 @@ contract Create__Test is ProTest {
     {
         uint128[] memory segmentAmounts = createDynamicUint128Array(UINT128_MAX, 1);
         vm.expectRevert(stdError.arithmeticError);
-        sablierV2Pro.create(
+        pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -221,7 +221,7 @@ contract Create__Test is ProTest {
                 segmentMilestones[1]
             )
         );
-        sablierV2Pro.create(
+        pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -257,7 +257,7 @@ contract Create__Test is ProTest {
                 daiStream.depositAmount
             )
         );
-        sablierV2Pro.create(
+        pro.create(
             daiStream.sender,
             users.recipient,
             depositAmount,
@@ -288,7 +288,7 @@ contract Create__Test is ProTest {
     {
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(6174)));
         address token = address(6174);
-        sablierV2Pro.create(
+        pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -319,7 +319,7 @@ contract Create__Test is ProTest {
         TokenContract
     {
         address token = address(nonCompliantToken);
-        uint256 streamId = sablierV2Pro.create(
+        uint256 streamId = pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -331,7 +331,7 @@ contract Create__Test is ProTest {
             daiStream.segmentMilestones
         );
 
-        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(streamId);
+        DataTypes.ProStream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
         assertEq(actualStream.token, token);
@@ -342,7 +342,7 @@ contract Create__Test is ProTest {
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
 
         // Assert that the NFT was minted.
-        address actualRecipient = sablierV2Pro.ownerOf(streamId);
+        address actualRecipient = pro.ownerOf(streamId);
         assertEq(actualRecipient, users.recipient);
     }
 
@@ -365,7 +365,7 @@ contract Create__Test is ProTest {
         TokenCompliant
     {
         uint256 usdcStreamId = createDefaultUsdcStream();
-        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(usdcStreamId);
+        DataTypes.ProStream memory actualStream = pro.getStream(usdcStreamId);
         DataTypes.ProStream memory expectedStream = usdcStream;
         assertEq(actualStream, expectedStream);
     }
@@ -384,9 +384,9 @@ contract Create__Test is ProTest {
         TokenContract
         TokenCompliant
     {
-        uint256 nextStreamId = sablierV2Pro.nextStreamId();
+        uint256 nextStreamId = pro.nextStreamId();
         createDefaultUsdcStream();
-        uint256 actualNextStreamId = sablierV2Pro.nextStreamId();
+        uint256 actualNextStreamId = pro.nextStreamId();
         uint256 expectedNextStreamId = nextStreamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
@@ -405,7 +405,7 @@ contract Create__Test is ProTest {
         TokenContract
         TokenCompliant
     {
-        uint256 usdcStreamId = sablierV2Pro.nextStreamId();
+        uint256 usdcStreamId = pro.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         address funder = usdcStream.sender;
         emit Events.CreateProStream(
@@ -444,7 +444,7 @@ contract Create__Test is ProTest {
         uint256 streamId = createDefaultDaiStream();
 
         // Run the test.
-        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(streamId);
+        DataTypes.ProStream memory actualStream = pro.getStream(streamId);
         DataTypes.ProStream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
@@ -463,14 +463,14 @@ contract Create__Test is ProTest {
         TokenContract
         TokenCompliant
     {
-        uint256 nextStreamId = sablierV2Pro.nextStreamId();
+        uint256 nextStreamId = pro.nextStreamId();
 
         // Make Alice the funder of the stream.
         changePrank(users.alice);
         createDefaultDaiStream();
 
         // Run the test.
-        uint256 actualNextStreamId = sablierV2Pro.nextStreamId();
+        uint256 actualNextStreamId = pro.nextStreamId();
         uint256 expectedNextStreamId = nextStreamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
@@ -481,7 +481,7 @@ contract Create__Test is ProTest {
         changePrank(users.alice);
 
         // Run the test.
-        uint256 streamId = sablierV2Pro.nextStreamId();
+        uint256 streamId = pro.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         address funder = users.alice;
         emit Events.CreateProStream(
@@ -516,7 +516,7 @@ contract Create__Test is ProTest {
         TokenCompliant
     {
         uint256 streamId = createDefaultDaiStream();
-        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(streamId);
+        DataTypes.ProStream memory actualStream = pro.getStream(streamId);
         DataTypes.ProStream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
@@ -535,9 +535,9 @@ contract Create__Test is ProTest {
         TokenContract
         TokenCompliant
     {
-        uint256 nextStreamId = sablierV2Pro.nextStreamId();
+        uint256 nextStreamId = pro.nextStreamId();
         createDefaultDaiStream();
-        uint256 actualNextStreamId = sablierV2Pro.nextStreamId();
+        uint256 actualNextStreamId = pro.nextStreamId();
         uint256 expectedNextStreamId = nextStreamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
     }
@@ -556,7 +556,7 @@ contract Create__Test is ProTest {
         TokenContract
         TokenCompliant
     {
-        uint256 streamId = sablierV2Pro.nextStreamId();
+        uint256 streamId = pro.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         address funder = daiStream.sender;
         emit Events.CreateProStream(

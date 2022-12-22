@@ -22,7 +22,7 @@ contract Burn__Test is ProTest {
     /// @dev it should revert.
     function testCannotBurn__StreamExistent() external {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamExistent.selector, daiStreamId));
-        sablierV2Pro.burn(daiStreamId);
+        pro.burn(daiStreamId);
     }
 
     modifier StreamNonExistent() {
@@ -33,12 +33,12 @@ contract Burn__Test is ProTest {
     function testCannotBurn__NFTNonExistent() external StreamNonExistent {
         uint256 nonStreamId = 1729;
         vm.expectRevert("ERC721: invalid token ID");
-        sablierV2Pro.burn(nonStreamId);
+        pro.burn(nonStreamId);
     }
 
     modifier NFTExistent() {
         // Cancel the stream so that the stream entity gets deleted.
-        sablierV2Pro.cancel(daiStreamId);
+        pro.cancel(daiStreamId);
         _;
     }
 
@@ -49,7 +49,7 @@ contract Burn__Test is ProTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
-        sablierV2Pro.burn(daiStreamId);
+        pro.burn(daiStreamId);
     }
 
     modifier CallerAuthorized() {
@@ -59,22 +59,22 @@ contract Burn__Test is ProTest {
     /// @dev it should burn the NFT.
     function testBurn__CallerApprovedOperator() external StreamNonExistent NFTExistent CallerAuthorized {
         // Approve the operator to handle the stream.
-        sablierV2Pro.approve({ to: users.operator, tokenId: daiStreamId });
+        pro.approve({ to: users.operator, tokenId: daiStreamId });
 
         // Make the approved operator the caller in this test.
         changePrank(users.operator);
 
         // Run the test.
-        sablierV2Pro.burn(daiStreamId);
-        address actualOwner = sablierV2Pro.getRecipient(daiStreamId);
+        pro.burn(daiStreamId);
+        address actualOwner = pro.getRecipient(daiStreamId);
         address expectedOwner = address(0);
         assertEq(actualOwner, expectedOwner);
     }
 
     /// @dev it should burn the NFT.
     function testBurn__CallerNFTOwner() external StreamNonExistent NFTExistent CallerAuthorized {
-        sablierV2Pro.burn(daiStreamId);
-        address actualOwner = sablierV2Pro.getRecipient(daiStreamId);
+        pro.burn(daiStreamId);
+        address actualOwner = pro.getRecipient(daiStreamId);
         address expectedOwner = address(0);
         assertEq(actualOwner, expectedOwner);
     }

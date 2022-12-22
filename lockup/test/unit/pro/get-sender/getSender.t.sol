@@ -7,7 +7,7 @@ contract GetSender__Test is ProTest {
     /// @dev it should return zero.
     function testGetSender__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        address actualSender = sablierV2Pro.getSender(nonStreamId);
+        address actualSender = pro.getSender(nonStreamId);
         address expectedSender = address(0);
         assertEq(actualSender, expectedSender);
     }
@@ -19,7 +19,7 @@ contract GetSender__Test is ProTest {
     /// @dev it should return the correct sender.
     function testGetSender() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
-        address actualSender = sablierV2Pro.getSender(daiStreamId);
+        address actualSender = pro.getSender(daiStreamId);
         address expectedSender = daiStream.sender;
         assertEq(actualSender, expectedSender);
     }

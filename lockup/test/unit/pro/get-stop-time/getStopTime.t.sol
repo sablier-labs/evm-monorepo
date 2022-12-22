@@ -7,7 +7,7 @@ contract GetStopTime__Test is ProTest {
     /// @dev it should return zero.
     function testGetStopTime__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint256 actualStopTime = sablierV2Pro.getStopTime(nonStreamId);
+        uint256 actualStopTime = pro.getStopTime(nonStreamId);
         uint256 expectedStopTime = 0;
         assertEq(actualStopTime, expectedStopTime);
     }
@@ -19,7 +19,7 @@ contract GetStopTime__Test is ProTest {
     /// @dev it should return the correct stop time.
     function testGetStopTime() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
-        uint256 actualStopTime = sablierV2Pro.getStopTime(daiStreamId);
+        uint256 actualStopTime = pro.getStopTime(daiStreamId);
         uint256 expectedStopTime = daiStream.stopTime;
         assertEq(actualStopTime, expectedStopTime);
     }

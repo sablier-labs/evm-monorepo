@@ -7,7 +7,7 @@ contract GetDepositAmount__Test is ProTest {
     /// @dev it should return zero.
     function testGetDepositAmount__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint128 actualDepositAmount = sablierV2Pro.getDepositAmount(nonStreamId);
+        uint128 actualDepositAmount = pro.getDepositAmount(nonStreamId);
         uint128 expectedDepositAmount = 0;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
@@ -19,7 +19,7 @@ contract GetDepositAmount__Test is ProTest {
     /// @dev it should the correct deposit amount.
     function testGetDepositAmount() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
-        uint128 actualDepositAmount = sablierV2Pro.getDepositAmount(daiStreamId);
+        uint128 actualDepositAmount = pro.getDepositAmount(daiStreamId);
         uint128 expectedDepositAmount = daiStream.depositAmount;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }

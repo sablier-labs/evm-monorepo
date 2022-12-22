@@ -7,7 +7,7 @@ contract IsEntity__Test is ProTest {
     /// @dev it should return false.
     function testIsEntity__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        bool isEntity = sablierV2Pro.isEntity(nonStreamId);
+        bool isEntity = pro.isEntity(nonStreamId);
         assertFalse(isEntity);
     }
 
@@ -18,7 +18,7 @@ contract IsEntity__Test is ProTest {
     /// @dev it should return true.
     function testIsEntity() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
-        bool isEntity = sablierV2Pro.isEntity(daiStreamId);
+        bool isEntity = pro.isEntity(daiStreamId);
         assertTrue(isEntity);
     }
 }

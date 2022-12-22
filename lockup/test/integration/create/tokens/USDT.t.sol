@@ -12,7 +12,7 @@ contract USDT__Test is CreateTest {
         super.setUp();
 
         nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(sablierV2Pro), value: UINT256_MAX });
+        nonCompliantToken.approve({ spender: address(pro), value: UINT256_MAX });
     }
 
     /// @dev random USDT holder.

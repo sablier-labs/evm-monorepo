@@ -7,7 +7,7 @@ contract IsCancelable__Test is ProTest {
     /// @dev it should return false.
     function testIsCancelable__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        bool isCancelable = sablierV2Pro.isCancelable(nonStreamId);
+        bool isCancelable = pro.isCancelable(nonStreamId);
         assertFalse(isCancelable);
     }
 
@@ -18,7 +18,7 @@ contract IsCancelable__Test is ProTest {
     /// @dev it should return true.
     function testIsCancelable__CancelableStream() external StreamExistent {
         uint256 daiStreamId = createDefaultDaiStream();
-        bool isCancelable = sablierV2Pro.isCancelable(daiStreamId);
+        bool isCancelable = pro.isCancelable(daiStreamId);
         assertTrue(isCancelable);
     }
 
@@ -29,7 +29,7 @@ contract IsCancelable__Test is ProTest {
     /// @dev it should return false.
     function testIsCancelable() external StreamExistent NonCancelableStream {
         uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
-        bool isCancelable = sablierV2Pro.isCancelable(nonCancelableDaiStreamId);
+        bool isCancelable = pro.isCancelable(nonCancelableDaiStreamId);
         assertFalse(isCancelable);
     }
 }
