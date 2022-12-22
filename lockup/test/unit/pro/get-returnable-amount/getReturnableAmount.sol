@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
+import { ProTest } from "../ProTest.t.sol";
 
-contract GetReturnableAmount__Test is SablierV2ProTest {
+contract GetReturnableAmount__Test is ProTest {
     uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.

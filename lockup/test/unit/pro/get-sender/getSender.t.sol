@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
+import { ProTest } from "../ProTest.t.sol";
 
-contract GetSender__Test is SablierV2ProTest {
+contract GetSender__Test is ProTest {
     /// @dev it should return zero.
     function testGetSender__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

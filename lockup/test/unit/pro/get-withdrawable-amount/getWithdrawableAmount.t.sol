@@ -3,9 +3,9 @@ pragma solidity >=0.8.13;
 
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 
-import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
+import { ProTest } from "../ProTest.t.sol";
 
-contract GetWithdrawableAmount__Test is SablierV2ProTest {
+contract GetWithdrawableAmount__Test is ProTest {
     uint256 internal daiStreamId;
     SD1x18 internal constant E = SD1x18.wrap(2_718281828459045235);
 

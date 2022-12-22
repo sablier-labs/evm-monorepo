@@ -3,9 +3,9 @@ pragma solidity >=0.8.13;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
+import { ProTest } from "../ProTest.t.sol";
 
-contract Burn__Test is SablierV2ProTest {
+contract Burn__Test is ProTest {
     uint256 internal daiStreamId;
 
     /// @dev A setup function invoked before each test case.

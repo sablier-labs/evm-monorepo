@@ -3,9 +3,9 @@ pragma solidity >=0.8.13;
 
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 
-import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
+import { ProTest } from "../ProTest.t.sol";
 
-contract GetSegmentExponents__Test is SablierV2ProTest {
+contract GetSegmentExponents__Test is ProTest {
     /// @dev it should return zero.
     function testGetSegmentExponents__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

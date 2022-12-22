@@ -9,9 +9,9 @@ import { DataTypes } from "src/libraries/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
+import { ProTest } from "../ProTest.t.sol";
 
-contract Create__Test is SablierV2ProTest {
+contract Create__Test is ProTest {
     /// @dev it should revert.
     function testCannotCreate__RecipientZeroAddress() external {
         vm.expectRevert("ERC721: mint to the zero address");

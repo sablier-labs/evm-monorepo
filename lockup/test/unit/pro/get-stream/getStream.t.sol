@@ -3,9 +3,9 @@ pragma solidity >=0.8.13;
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 
-import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
+import { ProTest } from "../ProTest.t.sol";
 
-contract GetStream__Test is SablierV2ProTest {
+contract GetStream__Test is ProTest {
     /// @dev it should return a zeroed out stream struct.
     function testGetStream__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SablierV2ProTest } from "../SablierV2ProTest.t.sol";
+import { ProTest } from "../ProTest.t.sol";
 
-contract IsEntity__Test is SablierV2ProTest {
+contract IsEntity__Test is ProTest {
     /// @dev it should return false.
     function testIsEntity__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
