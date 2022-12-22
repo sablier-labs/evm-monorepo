@@ -18,9 +18,9 @@ contract GetStopTime__Test is SablierV2LinearTest {
 
     /// @dev it should return the correct stop time.
     function testGetStopTime() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        uint256 actualStopTime = sablierV2Linear.getStopTime(daiStreamId);
-        uint256 expectedStopTime = daiStream.stopTime;
+        uint256 defaultStreamId = createDefaultStream();
+        uint256 actualStopTime = sablierV2Linear.getStopTime(defaultStreamId);
+        uint256 expectedStopTime = defaultStream.stopTime;
         assertEq(actualStopTime, expectedStopTime);
     }
 }

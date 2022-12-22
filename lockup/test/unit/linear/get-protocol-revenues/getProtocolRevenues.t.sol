@@ -26,9 +26,6 @@ contract GetProtocolFee__Test is SablierV2LinearTest {
     }
 
     modifier ProtocolRevenuesNotZero() {
-        // Set the protocol revenues to a non-zero value.
-        sablierV2Comptroller.setProtocolFee(address(dai), DEFAULT_PROTOCOL_FEE);
-
         // Create the default stream, which will accrue revenues for the protocol.
         changePrank(users.sender);
         createDefaultStream();

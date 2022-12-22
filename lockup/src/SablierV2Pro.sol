@@ -379,7 +379,7 @@ contract SablierV2Pro is
         }
 
         // Emit an event.
-        emit Events.Cancel(streamId, sender, recipient, withdrawAmount, returnAmount);
+        emit Events.Cancel(streamId, sender, recipient, returnAmount, withdrawAmount);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.

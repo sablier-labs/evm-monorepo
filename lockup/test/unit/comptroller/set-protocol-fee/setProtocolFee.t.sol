@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
-import { UD60x18, unwrap, wrap } from "@prb/math/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
@@ -28,7 +28,7 @@ contract SetProtocolFee__Test is SablierV2ComptrollerTest {
 
     /// @dev it should set the new global fee.
     function testSetProtocolFee__SameFee() external CallerOwner {
-        UD60x18 newProtocolFee = wrap(0);
+        UD60x18 newProtocolFee = ud(0);
         sablierV2Comptroller.setProtocolFee(address(dai), newProtocolFee);
 
         UD60x18 actualProtocolFee = sablierV2Comptroller.getProtocolFee(address(dai));

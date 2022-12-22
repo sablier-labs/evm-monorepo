@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { ISablierV2Sender } from "src/hooks/ISablierV2Sender.sol";
 
-contract NonRevertingSender is ISablierV2Sender {
+contract GoodSender is ISablierV2Sender {
     function onStreamCanceled(
         uint256 streamId,
         address caller,

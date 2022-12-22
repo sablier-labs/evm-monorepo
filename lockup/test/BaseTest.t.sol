@@ -86,6 +86,11 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
         result = uint40(bound(uint256(x), uint256(min), uint256(max)));
     }
 
+    /// @dev Helper function to bound a `uint40` number.
+    function boundUint128(uint128 x, uint128 min, uint128 max) internal view returns (uint128 result) {
+        result = uint128(bound(uint256(x), uint256(min), uint256(max)));
+    }
+
     /// @dev Helper function to create a dynamical `SD1x18` array with 1 element.
     function createDynamicArray(SD1x18 element0) internal pure returns (SD1x18[] memory dynamicalArray) {
         dynamicalArray = new SD1x18[](1);
@@ -142,34 +147,6 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
         dynamicalArray[2] = element2;
     }
 
-    /// @dev Helper function to create a dynamical `uint40` array with 1 element.
-    function createDynamicUint40Array(uint40 element0) internal pure returns (uint40[] memory dynamicalArray) {
-        dynamicalArray = new uint40[](1);
-        dynamicalArray[0] = element0;
-    }
-
-    /// @dev Helper function to create a dynamical `uint40` array with 2 elements.
-    function createDynamicUint40Array(
-        uint40 element0,
-        uint40 element1
-    ) internal pure returns (uint40[] memory dynamicalArray) {
-        dynamicalArray = new uint40[](2);
-        dynamicalArray[0] = element0;
-        dynamicalArray[1] = element1;
-    }
-
-    /// @dev Helper function to create a dynamical `uint40` array with 3 elements.
-    function createDynamicUint40Array(
-        uint40 element0,
-        uint40 element1,
-        uint40 element2
-    ) internal pure returns (uint40[] memory dynamicalArray) {
-        dynamicalArray = new uint40[](3);
-        dynamicalArray[0] = element0;
-        dynamicalArray[1] = element1;
-        dynamicalArray[2] = element2;
-    }
-
     /// @dev Helper function to create a dynamical `uint128` array with 1 element.
     function createDynamicUint128Array(uint128 element0) internal pure returns (uint128[] memory dynamicalArray) {
         dynamicalArray = new uint128[](1);
@@ -193,6 +170,34 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
         uint128 element2
     ) internal pure returns (uint128[] memory dynamicalArray) {
         dynamicalArray = new uint128[](3);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+        dynamicalArray[2] = element2;
+    }
+
+    /// @dev Helper function to create a dynamical `uint40` array with 1 element.
+    function createDynamicUint40Array(uint40 element0) internal pure returns (uint40[] memory dynamicalArray) {
+        dynamicalArray = new uint40[](1);
+        dynamicalArray[0] = element0;
+    }
+
+    /// @dev Helper function to create a dynamical `uint40` array with 2 elements.
+    function createDynamicUint40Array(
+        uint40 element0,
+        uint40 element1
+    ) internal pure returns (uint40[] memory dynamicalArray) {
+        dynamicalArray = new uint40[](2);
+        dynamicalArray[0] = element0;
+        dynamicalArray[1] = element1;
+    }
+
+    /// @dev Helper function to create a dynamical `uint40` array with 3 elements.
+    function createDynamicUint40Array(
+        uint40 element0,
+        uint40 element1,
+        uint40 element2
+    ) internal pure returns (uint40[] memory dynamicalArray) {
+        dynamicalArray = new uint40[](3);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
         dynamicalArray[2] = element2;

@@ -16,14 +16,14 @@ library Events {
     /// @param streamId The id of the stream.
     /// @param sender The address of the sender.
     /// @param recipient The address of the recipient.
-    /// @param withdrawAmount The amount of tokens withdrawn to the recipient, in units of the token's decimals.
     /// @param returnAmount The amount of tokens returned to the sender, in units of the token's decimals.
+    /// @param withdrawAmount The amount of tokens withdrawn to the recipient, in units of the token's decimals.
     event Cancel(
         uint256 indexed streamId,
         address indexed sender,
         address indexed recipient,
-        uint128 withdrawAmount,
-        uint128 returnAmount
+        uint128 returnAmount,
+        uint128 withdrawAmount
     );
 
     /// @notice Emitted when the contract owner claims all protocol revenues accrued for the provided token.

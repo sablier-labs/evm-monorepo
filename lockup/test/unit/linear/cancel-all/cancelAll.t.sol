@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
@@ -15,8 +17,8 @@ contract CancelAll__Test is SablierV2LinearTest {
         super.setUp();
 
         // Create the default streams, since most tests need them.
-        defaultStreamIds.push(createDefaultDaiStream());
-        defaultStreamIds.push(createDefaultDaiStream());
+        defaultStreamIds.push(createDefaultStream());
+        defaultStreamIds.push(createDefaultStream());
 
         // Make the recipient the caller in this test suite.
         changePrank(users.recipient);
@@ -29,7 +31,7 @@ contract CancelAll__Test is SablierV2LinearTest {
         sablierV2Linear.cancelAll(streamIds);
     }
 
-    /// @dev it should cancel and delete the existent streams.
+    /// @dev it should ignore the non-existent streams and cancel the existent streams.
     function testCannotCancelAll__SomeNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonStreamId);
@@ -37,10 +39,6 @@ contract CancelAll__Test is SablierV2LinearTest {
         DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(defaultStreamIds[0]);
         DataTypes.LinearStream memory expectedStream;
         assertEq(actualStream, expectedStream);
-
-        address actualRecipient = sablierV2Linear.getRecipient(defaultStreamIds[0]);
-        address expectedRecipient = users.recipient;
-        assertEq(actualRecipient, expectedRecipient);
     }
 
     modifier OnlyExistentStreams() {
@@ -50,28 +48,28 @@ contract CancelAll__Test is SablierV2LinearTest {
     /// @dev it should do nothing.
     function testCannotCancelAll__AllStreamsNonCancelable() external OnlyExistentStreams {
         // Create the non-cancelable stream.
-        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
+        uint256 nonCancelableDaiStreamId = createDefaultStreamNonCancelable();
 
         // Run the test.
         uint256[] memory nonCancelableStreamIds = createDynamicArray(nonCancelableDaiStreamId);
         sablierV2Linear.cancelAll(nonCancelableStreamIds);
     }
 
-    /// @dev it should cancel and delete the cancelable streams.
+    /// @dev it should ignore the non-cancelable streams and cancel the cancelable streams.
     function testCannotCancelAll__SomeStreamsNonCancelable() external OnlyExistentStreams {
         // Create the non-cancelable stream.
-        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
+        uint256 nonCancelableDaiStreamId = createDefaultStreamNonCancelable();
 
         // Run the test.
         uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonCancelableDaiStreamId);
         sablierV2Linear.cancelAll(streamIds);
-        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(defaultStreamIds[0]);
-        DataTypes.LinearStream memory expectedStream;
-        assertEq(actualStream, expectedStream);
-
-        address actualRecipient = sablierV2Linear.getRecipient(defaultStreamIds[0]);
-        address expectedRecipient = users.recipient;
-        assertEq(actualRecipient, expectedRecipient);
+        DataTypes.LinearStream memory actualStream0 = sablierV2Linear.getStream(defaultStreamIds[0]);
+        DataTypes.LinearStream memory actualStream1 = sablierV2Linear.getStream(nonCancelableDaiStreamId);
+        DataTypes.LinearStream memory expectedStream0;
+        DataTypes.LinearStream memory expectedStream1 = defaultStream;
+        expectedStream1.cancelable = false;
+        assertEq(actualStream0, expectedStream0);
+        assertEq(actualStream1, expectedStream1);
     }
 
     modifier AllStreamsCancelable() {
@@ -79,29 +77,27 @@ contract CancelAll__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedAllStreams__MaliciousThirdParty()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-    {
+    function testCannotCancelAll__CallerUnauthorizedAllStreams__MaliciousThirdParty(
+        address eve
+    ) external OnlyExistentStreams AllStreamsCancelable {
+        vm.assume(eve != address(0) && eve != defaultStream.sender && eve != users.recipient);
+
         // Make Eve the caller in this test.
-        changePrank(users.eve);
+        changePrank(eve);
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.eve)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], eve));
         sablierV2Linear.cancelAll(defaultStreamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedAllStreams__ApprovedOperator()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-    {
+    function testCannotCancelAll__CallerUnauthorizedAllStreams__ApprovedOperator(
+        address operator
+    ) external OnlyExistentStreams AllStreamsCancelable {
+        vm.assume(operator != address(0) && operator != defaultStream.sender && operator != users.recipient);
+
         // Approve the operator for all streams.
-        sablierV2Linear.setApprovalForAll({ operator: users.operator, approved: true });
+        sablierV2Linear.setApprovalForAll({ operator: operator, approved: true });
 
         // Make the approved operator the caller in this test.
         changePrank(users.operator);
@@ -114,94 +110,10 @@ contract CancelAll__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedSomeStreams__MaliciousThirdParty()
+    function testCannotCancelAll__CallerUnauthorizedAllStreams__FormerRecipient()
         external
         OnlyExistentStreams
         AllStreamsCancelable
-    {
-        // Make Eve the caller in this test.
-        changePrank(users.eve);
-
-        // Create a stream with Eve as the sender.
-        uint256 eveStreamId = sablierV2Linear.createWithRange(
-            users.eve,
-            users.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            daiStream.cancelable,
-            daiStream.startTime,
-            daiStream.cliffTime,
-            daiStream.stopTime
-        );
-
-        // Run the test.
-        uint256[] memory streamIds = createDynamicArray(eveStreamId, defaultStreamIds[0]);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.eve)
-        );
-        sablierV2Linear.cancelAll(streamIds);
-    }
-
-    /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedSomeStreams__ApprovedOperator()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-    {
-        // Approve the operator to handle the first stream.
-        sablierV2Linear.approve({ to: users.operator, tokenId: defaultStreamIds[0] });
-
-        // Make the approved operator the caller in this test.
-        changePrank(users.operator);
-
-        // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.operator)
-        );
-        sablierV2Linear.cancelAll(defaultStreamIds);
-    }
-
-    modifier CallerAuthorizedAllStreams() {
-        _;
-    }
-
-    /// @dev it should cancel and delete the streams.
-    function testCancelAll__CallerSenderAllStreams()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-        CallerAuthorizedAllStreams
-    {
-        // Make the sender the caller in this test.
-        changePrank(users.sender);
-
-        // Run the test.
-        sablierV2Linear.cancelAll(defaultStreamIds);
-
-        DataTypes.LinearStream memory actualStream0 = sablierV2Linear.getStream(defaultStreamIds[0]);
-        DataTypes.LinearStream memory actualStream1 = sablierV2Linear.getStream(defaultStreamIds[1]);
-        DataTypes.LinearStream memory expectedStream;
-        assertEq(actualStream0, expectedStream);
-        assertEq(actualStream1, expectedStream);
-
-        address actualRecipient0 = sablierV2Linear.getRecipient(defaultStreamIds[0]);
-        address actualRecipient1 = sablierV2Linear.getRecipient(defaultStreamIds[1]);
-        address expectedRecipient = users.recipient;
-        assertEq(actualRecipient0, expectedRecipient);
-        assertEq(actualRecipient1, expectedRecipient);
-    }
-
-    modifier CallerRecipientAllStreams() {
-        _;
-    }
-
-    /// @dev it should revert.
-    function testCannotCancelAll__OriginalRecipientTransferredOwnershipAllStreams()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-        CallerAuthorizedAllStreams
-        CallerRecipientAllStreams
     {
         // Transfer the streams to Alice.
         sablierV2Linear.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -215,14 +127,51 @@ contract CancelAll__Test is SablierV2LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__OriginalRecipientTransferredOwnershipSomeStreams()
+    function testCannotCancelAll__CallerUnauthorizedSomeStreams__MaliciousThirdParty(
+        address eve
+    ) external OnlyExistentStreams AllStreamsCancelable {
+        vm.assume(eve != address(0) && eve != defaultStream.sender && eve != users.recipient);
+
+        // Make Eve the caller in this test.
+        changePrank(users.eve);
+
+        // Create a stream with Eve as the sender.
+        uint256 eveStreamId = createDefaultStreamWithSender(users.eve);
+
+        // Run the test.
+        uint256[] memory streamIds = createDynamicArray(eveStreamId, defaultStreamIds[0]);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.eve)
+        );
+        sablierV2Linear.cancelAll(streamIds);
+    }
+
+    /// @dev it should revert.
+    function testCannotCancelAll__CallerUnauthorizedSomeStreams__ApprovedOperator(
+        address operator
+    ) external OnlyExistentStreams AllStreamsCancelable {
+        vm.assume(operator != address(0) && operator != defaultStream.sender && operator != users.recipient);
+
+        // Approve the operator to handle the first stream.
+        sablierV2Linear.approve({ to: users.operator, tokenId: defaultStreamIds[0] });
+
+        // Make the approved operator the caller in this test.
+        changePrank(users.operator);
+
+        // Run the test.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.operator)
+        );
+        sablierV2Linear.cancelAll(defaultStreamIds);
+    }
+
+    /// @dev it should revert.
+    function testCannotCancelAll__CallerUnauthorizedSomeStreams__FormerRecipient()
         external
         OnlyExistentStreams
         AllStreamsCancelable
-        CallerAuthorizedAllStreams
-        CallerRecipientAllStreams
     {
-        // Transfer one of the streams to eve.
+        // Transfer the first stream to Eve.
         sablierV2Linear.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
 
         // Run the test.
@@ -232,234 +181,155 @@ contract CancelAll__Test is SablierV2LinearTest {
         sablierV2Linear.cancelAll(defaultStreamIds);
     }
 
-    modifier OriginalRecipientAllStreams() {
+    modifier CallerAuthorizedAllStreams() {
         _;
     }
 
-    /// @dev it should cancel and delete the streams.
-    function testCancelAll__AllStreamsEnded()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-        CallerAuthorizedAllStreams
-        CallerRecipientAllStreams
-        OriginalRecipientAllStreams
-    {
-        // Warp to the end of the stream.
-        vm.warp({ timestamp: daiStream.stopTime });
+    /// @dev it should perform the ERC-20 transfers, emit Cancel events, and cancel the streams.
+    ///
+    /// The fuzzing ensures that all of the following scenarios are tested:
+    ///
+    /// - All streams ended.
+    /// - All streams ongoing.
+    /// - Some streams ended, some streams ongoing.
+    function testCancelAll__Sender(
+        uint40 timeWarp,
+        uint40 stopTime
+    ) external OnlyExistentStreams AllStreamsCancelable CallerAuthorizedAllStreams {
+        timeWarp = boundUint40(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
+        stopTime = boundUint40(
+            stopTime,
+            defaultStream.startTime + DEFAULT_TOTAL_DURATION / 2,
+            defaultStream.stopTime + DEFAULT_TOTAL_DURATION / 2
+        );
 
-        // Run the test.
-        sablierV2Linear.cancelAll(defaultStreamIds);
+        // Make the the sender the caller in this test.
+        changePrank(defaultStream.sender);
 
-        DataTypes.LinearStream memory actualStream0 = sablierV2Linear.getStream(defaultStreamIds[0]);
-        DataTypes.LinearStream memory actualStream1 = sablierV2Linear.getStream(defaultStreamIds[1]);
+        // Create a new stream with a different stop time.
+        uint256 streamId = createDefaultStreamWithStopTime(stopTime);
+
+        // Warp into the future.
+        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+
+        // Create the stream ids array.
+        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], streamId);
+
+        // Expect the tokens to be withdrawn to the recipient, if not zero.
+        uint128 withdrawAmount0 = sablierV2Linear.getWithdrawableAmount(streamIds[0]);
+        if (withdrawAmount0 > 0) {
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount0)));
+        }
+        uint128 withdrawAmount1 = sablierV2Linear.getWithdrawableAmount(streamIds[1]);
+        if (withdrawAmount1 > 0) {
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount1)));
+        }
+
+        // Expect the tokens to be returned to the sender, if not zero.
+        uint128 returnAmount0 = defaultStream.depositAmount - withdrawAmount0;
+        if (returnAmount0 > 0) {
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount0)));
+        }
+        uint128 returnAmount1 = defaultStream.depositAmount - withdrawAmount1;
+        if (returnAmount1 > 0) {
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount1)));
+        }
+
+        // Expect Cancel events to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        emit Events.Cancel(streamIds[0], defaultStream.sender, users.recipient, returnAmount0, withdrawAmount0);
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        emit Events.Cancel(streamIds[1], defaultStream.sender, users.recipient, returnAmount1, withdrawAmount1);
+
+        // Cancel the streams.
+        sablierV2Linear.cancelAll(streamIds);
+
+        // Assert that the streams were deleted.
+        DataTypes.LinearStream memory actualStream0 = sablierV2Linear.getStream(streamIds[0]);
+        DataTypes.LinearStream memory actualStream1 = sablierV2Linear.getStream(streamIds[1]);
         DataTypes.LinearStream memory expectedStream;
         assertEq(actualStream0, expectedStream);
         assertEq(actualStream1, expectedStream);
 
-        address actualRecipient0 = sablierV2Linear.getRecipient(defaultStreamIds[0]);
-        address actualRecipient1 = sablierV2Linear.getRecipient(defaultStreamIds[1]);
-        address expectedRecipient = users.recipient;
-        assertEq(actualRecipient0, expectedRecipient);
-        assertEq(actualRecipient1, expectedRecipient);
+        // Assert that the NFTs weren't burned.
+        address actualNFTOwner0 = sablierV2Linear.ownerOf({ tokenId: streamIds[0] });
+        address actualNFTOwner1 = sablierV2Linear.ownerOf({ tokenId: streamIds[1] });
+        address expectedNFTOwner = users.recipient;
+        assertEq(actualNFTOwner0, expectedNFTOwner);
+        assertEq(actualNFTOwner1, expectedNFTOwner);
     }
 
-    /// @dev it should emit multiple Cancel events.
-    function testCancelAll__AllStreamsEnded__Events()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-        CallerAuthorizedAllStreams
-        CallerRecipientAllStreams
-        OriginalRecipientAllStreams
-    {
-        // Warp to the end of the stream.
-        vm.warp({ timestamp: daiStream.stopTime });
+    /// @dev it should perform the ERC-20 transfers, emit Cancel events, and cancel the streams.
+    ///
+    /// The fuzzing ensures that all of the following scenarios are tested:
+    ///
+    /// - All streams ended.
+    /// - All streams ongoing.
+    /// - Some streams ended, some streams ongoing.
+    function testCancelAll__Recipient(
+        uint40 timeWarp,
+        uint40 stopTime
+    ) external OnlyExistentStreams AllStreamsCancelable CallerAuthorizedAllStreams {
+        timeWarp = boundUint40(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
+        stopTime = boundUint40(
+            stopTime,
+            defaultStream.startTime + DEFAULT_TOTAL_DURATION / 2,
+            defaultStream.stopTime + DEFAULT_TOTAL_DURATION / 2
+        );
 
-        // Run the test.
-        uint128 returnAmount = 0;
+        // Make the the recipient the caller in this test.
+        changePrank(users.recipient);
 
+        // Create a new stream with a different stop time.
+        uint256 streamId = createDefaultStreamWithStopTime(stopTime);
+
+        // Warp into the future.
+        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+
+        // Create the stream ids array.
+        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], streamId);
+
+        // Expect the tokens to be withdrawn to the recipient, if not zero.
+        uint128 withdrawAmount0 = sablierV2Linear.getWithdrawableAmount(streamIds[0]);
+        if (withdrawAmount0 > 0) {
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount0)));
+        }
+        uint128 withdrawAmount1 = sablierV2Linear.getWithdrawableAmount(streamIds[1]);
+        if (withdrawAmount1 > 0) {
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount1)));
+        }
+
+        // Expect the tokens to be returned to the sender, if not zero.
+        uint128 returnAmount0 = defaultStream.depositAmount - withdrawAmount0;
+        if (returnAmount0 > 0) {
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount0)));
+        }
+        uint128 returnAmount1 = defaultStream.depositAmount - withdrawAmount1;
+        if (returnAmount1 > 0) {
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount1)));
+        }
+
+        // Expect Cancel events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.Cancel({
-            streamId: defaultStreamIds[0],
-            sender: daiStream.sender,
-            recipient: users.recipient,
-            withdrawAmount: daiStream.depositAmount,
-            returnAmount: returnAmount
-        });
+        emit Events.Cancel(streamIds[0], defaultStream.sender, users.recipient, returnAmount0, withdrawAmount0);
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.Cancel({
-            streamId: defaultStreamIds[1],
-            sender: daiStream.sender,
-            recipient: users.recipient,
-            withdrawAmount: daiStream.depositAmount,
-            returnAmount: returnAmount
-        });
+        emit Events.Cancel(streamIds[1], defaultStream.sender, users.recipient, returnAmount1, withdrawAmount1);
 
-        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], defaultStreamIds[1]);
+        // Cancel the streams.
         sablierV2Linear.cancelAll(streamIds);
-    }
 
-    /// @dev it should cancel and delete the streams.
-    function testCancelAll__AllStreamsOngoing()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-        CallerAuthorizedAllStreams
-        CallerRecipientAllStreams
-        OriginalRecipientAllStreams
-    {
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
-
-        // Run the test.
-        sablierV2Linear.cancelAll(defaultStreamIds);
-
-        DataTypes.LinearStream memory actualStream0 = sablierV2Linear.getStream(defaultStreamIds[0]);
-        DataTypes.LinearStream memory actualStream1 = sablierV2Linear.getStream(defaultStreamIds[1]);
+        // Assert that the streams were deleted.
+        DataTypes.LinearStream memory actualStream0 = sablierV2Linear.getStream(streamIds[0]);
+        DataTypes.LinearStream memory actualStream1 = sablierV2Linear.getStream(streamIds[1]);
         DataTypes.LinearStream memory expectedStream;
         assertEq(actualStream0, expectedStream);
         assertEq(actualStream1, expectedStream);
 
-        address actualRecipient0 = sablierV2Linear.getRecipient(defaultStreamIds[0]);
-        address actualRecipient1 = sablierV2Linear.getRecipient(defaultStreamIds[1]);
+        // Assert that the NFTs weren't burned.
+        address actualNFTOwner0 = sablierV2Linear.getRecipient(streamIds[0]);
+        address actualNFTOwner1 = sablierV2Linear.getRecipient(streamIds[1]);
         address expectedRecipient = users.recipient;
-        assertEq(actualRecipient0, expectedRecipient);
-        assertEq(actualRecipient1, expectedRecipient);
-    }
-
-    /// @dev it should emit multiple Cancel events.
-    function testCancelAll__AllStreamsOngoing__Events()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-        CallerAuthorizedAllStreams
-        CallerRecipientAllStreams
-        OriginalRecipientAllStreams
-    {
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
-
-        // Run the test.
-        uint128 returnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
-
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.Cancel({
-            streamId: defaultStreamIds[0],
-            sender: daiStream.sender,
-            recipient: users.recipient,
-            withdrawAmount: WITHDRAW_AMOUNT_DAI,
-            returnAmount: returnAmount
-        });
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.Cancel({
-            streamId: defaultStreamIds[1],
-            sender: daiStream.sender,
-            recipient: users.recipient,
-            withdrawAmount: WITHDRAW_AMOUNT_DAI,
-            returnAmount: returnAmount
-        });
-
-        sablierV2Linear.cancelAll(defaultStreamIds);
-    }
-
-    /// @dev it should cancel and delete the streams.
-    function testCancelAll__SomeStreamsEndedSomeStreamsOngoing()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-        CallerAuthorizedAllStreams
-        CallerRecipientAllStreams
-        OriginalRecipientAllStreams
-    {
-        // Use the first default stream as the ongoing DAI stream.
-        uint256 ongoingStreamId = defaultStreamIds[0];
-
-        // Create the ended dai stream.
-        uint40 earlyStopTime = daiStream.startTime + TIME_OFFSET;
-        uint256 endedDaiStreamId = sablierV2Linear.createWithRange(
-            daiStream.sender,
-            users.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            daiStream.cancelable,
-            daiStream.startTime,
-            daiStream.cliffTime,
-            earlyStopTime
-        );
-
-        // Warp to the end of the first daiStream.
-        vm.warp({ timestamp: earlyStopTime });
-
-        // Run the test.
-        uint256[] memory streamIds = createDynamicArray(ongoingStreamId, endedDaiStreamId);
-        sablierV2Linear.cancelAll(streamIds);
-
-        DataTypes.LinearStream memory deletedOngoingStream = sablierV2Linear.getStream(ongoingStreamId);
-        DataTypes.LinearStream memory deletedEndedStream = sablierV2Linear.getStream(endedDaiStreamId);
-        DataTypes.LinearStream memory expectedStream;
-        assertEq(deletedOngoingStream, expectedStream);
-        assertEq(deletedEndedStream, expectedStream);
-
-        address actualRecipient0 = sablierV2Linear.getRecipient(ongoingStreamId);
-        address actualRecipient1 = sablierV2Linear.getRecipient(endedDaiStreamId);
-        address expectedRecipient = users.recipient;
-        assertEq(actualRecipient0, expectedRecipient);
-        assertEq(actualRecipient1, expectedRecipient);
-    }
-
-    /// @dev it should emit multiple Cancel events.
-    function testCancelAll__SomeStreamsEndedSomeStreamsOngoing__Events()
-        external
-        OnlyExistentStreams
-        AllStreamsCancelable
-        CallerAuthorizedAllStreams
-        CallerRecipientAllStreams
-        OriginalRecipientAllStreams
-    {
-        // Use the first default stream as the ongoing DAI stream.
-        uint256 ongoingStreamId = defaultStreamIds[0];
-
-        // Create the ended dai stream.
-        uint40 earlyStopTime = daiStream.startTime + TIME_OFFSET;
-        uint256 endedDaiStreamId = sablierV2Linear.createWithRange(
-            daiStream.sender,
-            users.recipient,
-            daiStream.depositAmount,
-            daiStream.token,
-            daiStream.cancelable,
-            daiStream.startTime,
-            daiStream.cliffTime,
-            earlyStopTime
-        );
-
-        // Warp to the end of the first daiStream.
-        vm.warp({ timestamp: earlyStopTime });
-
-        // Run the test.
-        uint128 endedWithdrawAmount = daiStream.depositAmount;
-        uint128 endedReturnAmount = 0;
-        uint128 ongoingWithdrawAmount = WITHDRAW_AMOUNT_DAI;
-        uint128 ongoingReturnAmount = daiStream.depositAmount - WITHDRAW_AMOUNT_DAI;
-
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.Cancel({
-            streamId: endedDaiStreamId,
-            sender: daiStream.sender,
-            recipient: users.recipient,
-            withdrawAmount: endedWithdrawAmount,
-            returnAmount: endedReturnAmount
-        });
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.Cancel({
-            streamId: ongoingStreamId,
-            sender: daiStream.sender,
-            recipient: users.recipient,
-            withdrawAmount: ongoingWithdrawAmount,
-            returnAmount: ongoingReturnAmount
-        });
-
-        uint256[] memory streamIds = createDynamicArray(endedDaiStreamId, ongoingStreamId);
-        sablierV2Linear.cancelAll(streamIds);
+        assertEq(actualNFTOwner0, expectedRecipient);
+        assertEq(actualNFTOwner1, expectedRecipient);
     }
 }

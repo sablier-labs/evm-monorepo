@@ -20,9 +20,9 @@ contract GetStream__Test is SablierV2LinearTest {
 
     /// @dev it should return the stream struct.
     function testGetStream() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
-        DataTypes.LinearStream memory expectedStream = daiStream;
+        uint256 defaultStreamId = createDefaultStream();
+        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(defaultStreamId);
+        DataTypes.LinearStream memory expectedStream = defaultStream;
         assertEq(actualStream, expectedStream);
     }
 }

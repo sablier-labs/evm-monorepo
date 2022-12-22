@@ -4,24 +4,14 @@ getWithdrawableAmount.t.sol
 └── when the stream exists
    ├── when the cliff time is greater than the block timestamp
    │  └── it should return zero
-   ├── when the cliff time is equal to the block timestamp
-   │  └── it should return the correct withdrawable amount
-   └── when the cliff time is less than the block timestamp
-      ├── when the current time is greater than the stop time
-      │  ├── when there have been withdrawals
+   └── when the cliff time is less than or equal to the block timestamp
+      ├── when the current time is greater than or equal to the stop time
+      │  ├── when there weren't withdrawals
       │  │  └── it should return the deposit amount
-      │  └── when there have been no withdrawals
-      │     └── it should return the deposit amount minus the withdrawn amount
-      ├── when the current time is equal to the stop time
-      │  ├── when there have been withdrawals
-      │  │  └── it should return the deposit amount
-      │  └── when there have been no withdrawals
+      │  └── when there were withdrawals
       │     └── it should return the deposit amount minus the withdrawn amount
       └── when the current time is less than the stop time
-         ├── when there have been withdrawals
+         ├── when there weren't withdrawals
          │  └── it should return the correct withdrawable amount
-         └── when there have been no withdrawals
-            ├── when the token has 6 decimals
-            │  └── it should return the correct withdrawable amount
-            └── when the token has 18 decimals
-               └── it should return the correct withdrawable amount
+         └── when there were withdrawals
+            └── it should return the correct withdrawable amount

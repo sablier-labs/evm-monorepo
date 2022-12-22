@@ -3,14 +3,14 @@ pragma solidity >=0.8.13;
 
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
+import { UD60x18, UNIT } from "@prb/math/UD60x18.sol";
 
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
 import { BaseTest } from "../BaseTest.t.sol";
 import { Empty } from "../shared/Empty.t.sol";
-import { NonRevertingRecipient } from "../shared/NonRevertingRecipient.t.sol";
-import { NonRevertingSender } from "../shared/NonRevertingSender.t.sol";
+import { GoodRecipient } from "../shared/GoodRecipient.t.sol";
+import { GoodSender } from "../shared/GoodSender.t.sol";
 import { ReentrantRecipient } from "../shared/ReentrantRecipient.t.sol";
 import { ReentrantSender } from "../shared/ReentrantSender.t.sol";
 import { RevertingRecipient } from "../shared/RevertingRecipient.t.sol";
@@ -23,14 +23,14 @@ abstract contract UnitTest is BaseTest {
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint40 internal immutable DEFAULT_CLIFF_DURATION = 2_500 seconds;
-    uint128 internal constant DEFAULT_GROSS_DEPOSIT_AMOUNT = 10_000e18;
-    uint128 internal constant DEFAULT_NET_DEPOSIT_AMOUNT = DEFAULT_GROSS_DEPOSIT_AMOUNT - DEFAULT_OPERATOR_FEE_AMOUNT;
+    uint40 internal constant DEFAULT_CLIFF_DURATION = 2_500 seconds;
+    uint128 internal constant DEFAULT_GROSS_DEPOSIT_AMOUNT = 10_040.160642570281124497e18; // net deposit * (1 - fee)
+    uint128 internal constant DEFAULT_NET_DEPOSIT_AMOUNT = 10_000e18;
     UD60x18 internal constant DEFAULT_PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%
     UD60x18 internal constant DEFAULT_OPERATOR_FEE = UD60x18.wrap(0.003e18); // 0.3%
-    uint128 internal constant DEFAULT_PROTOCOL_FEE_AMOUNT = 10e18;
-    uint128 internal constant DEFAULT_OPERATOR_FEE_AMOUNT = 30e18;
-    uint40 internal immutable DEFAULT_TOTAL_DURATION = 10_000 seconds;
+    uint128 internal constant DEFAULT_PROTOCOL_FEE_AMOUNT = 10.040160642570281124e18; // 0.1% of gross deposit
+    uint128 internal constant DEFAULT_OPERATOR_FEE_AMOUNT = 30.120481927710843373e18; // 0.3% of gross deposit
+    uint40 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
     UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -46,11 +46,17 @@ abstract contract UnitTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     struct Users {
+        // Neutral user.
         address payable alice;
+        // Malicious user.
         address payable eve;
+        // Default NFT operator.
         address payable operator;
+        // Default owner of all Sablier V2 contracts.
         address payable owner;
+        // Default recipient of the stream.
         address payable recipient;
+        // Default sender of the stream.
         address payable sender;
     }
 
@@ -60,10 +66,9 @@ abstract contract UnitTest is BaseTest {
 
     Empty internal empty = new Empty();
     ERC20 internal dai = new ERC20("Dai Stablecoin", "DAI", 18);
-    ERC20 internal usdc = new ERC20("USD Coin", "USDC", 6);
     NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Non-Compliant Token", "NCT", 18);
-    NonRevertingRecipient internal nonRevertingRecipient = new NonRevertingRecipient();
-    NonRevertingSender internal nonRevertingSender = new NonRevertingSender();
+    GoodRecipient internal goodRecipient = new GoodRecipient();
+    GoodSender internal goodSender = new GoodSender();
     ReentrantRecipient internal reentrantRecipient = new ReentrantRecipient();
     ReentrantSender internal reentrantSender = new ReentrantSender();
     RevertingRecipient internal revertingRecipient = new RevertingRecipient();
@@ -108,7 +113,6 @@ abstract contract UnitTest is BaseTest {
     function approveMax(address caller, address spender) internal {
         changePrank(caller);
         dai.approve({ spender: spender, value: UINT256_MAX });
-        usdc.approve({ spender: spender, value: UINT256_MAX });
         nonCompliantToken.approve({ spender: spender, value: UINT256_MAX });
     }
 
@@ -119,7 +123,6 @@ abstract contract UnitTest is BaseTest {
         vm.label(addr, name);
         vm.deal(addr, 100 ether);
         deal({ token: address(dai), to: addr, give: 1_000_000e18, adjust: true });
-        deal({ token: address(usdc), to: addr, give: 1_000_000e6, adjust: true });
         deal({ token: address(nonCompliantToken), to: addr, give: 1_000_000e18, adjust: true });
     }
 

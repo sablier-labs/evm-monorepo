@@ -16,9 +16,8 @@ abstract contract SablierV2LinearTest is UnitTest {
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint40 internal constant TIME_OFFSET = 2_600 seconds;
-    uint128 internal immutable WITHDRAW_AMOUNT_DAI = 2_600e18;
-    uint128 internal immutable WITHDRAW_AMOUNT_USDC = 2_600e6;
+    uint40 internal constant DEFAULT_TIME_WARP = 2_600 seconds;
+    uint128 internal immutable DEFAULT_WITHDRAW_AMOUNT = 2_600e18;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       STRUCTS
@@ -70,7 +69,7 @@ abstract contract SablierV2LinearTest is UnitTest {
     function setUp() public virtual {
         sablierV2Linear = new SablierV2Linear({ initialComptroller: sablierV2Comptroller, maxFee: MAX_FEE });
 
-        // Create the default args to be used across the tests.
+        // Create the default args to be used for the create functions.
         defaultArgs = DefaultArgs({
             createWithDuration: CreateWithDurationArgs({
                 sender: users.sender,
@@ -110,6 +109,10 @@ abstract contract SablierV2LinearTest is UnitTest {
             withdrawnAmount: 0
         });
 
+        // Set the default protocol fee.
+        sablierV2Comptroller.setProtocolFee(address(dai), DEFAULT_PROTOCOL_FEE);
+        sablierV2Comptroller.setProtocolFee(address(nonCompliantToken), DEFAULT_PROTOCOL_FEE);
+
         // Approve the SablierV2Linear contract to spend tokens from the sender, recipient, Alice and Eve.
         approveMax({ caller: users.sender, spender: address(sablierV2Linear) });
         approveMax({ caller: users.recipient, spender: address(sablierV2Linear) });
@@ -141,9 +144,9 @@ abstract contract SablierV2LinearTest is UnitTest {
     }
 
     /// @dev Helper function to create a default stream that is non-cancelable.
-    function createDefaultStreamNonCancelable() internal returns (uint256 nonCancelableDefaultStreamId) {
+    function createDefaultStreamNonCancelable() internal returns (uint256 streamId) {
         bool cancelable = false;
-        nonCancelableDefaultStreamId = sablierV2Linear.createWithRange(
+        streamId = sablierV2Linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -157,9 +160,9 @@ abstract contract SablierV2LinearTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create a default stream and the provided recipient as the recipient of the stream.
-    function createDefaultStreamWithRecipient(address recipient) internal returns (uint256 defaultStreamId) {
-        defaultStreamId = sablierV2Linear.createWithRange(
+    /// @dev Helper function to create a default stream with the provided recipient.
+    function createDefaultStreamWithRecipient(address recipient) internal returns (uint256 streamId) {
+        streamId = sablierV2Linear.createWithRange(
             defaultArgs.createWithRange.sender,
             recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -173,9 +176,9 @@ abstract contract SablierV2LinearTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create a default stream and the provided sender as the sender of the stream.
-    function createDefaultDaiStreamWithSender(address sender) internal returns (uint256 daiStreamId) {
-        daiStreamId = sablierV2Linear.createWithRange(
+    /// @dev Helper function to create a default stream with the provided sender.
+    function createDefaultStreamWithSender(address sender) internal returns (uint256 streamId) {
+        streamId = sablierV2Linear.createWithRange(
             sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
@@ -186,6 +189,22 @@ abstract contract SablierV2LinearTest is UnitTest {
             defaultArgs.createWithRange.startTime,
             defaultArgs.createWithRange.cliffTime,
             defaultArgs.createWithRange.stopTime
+        );
+    }
+
+    /// @dev Helper function to create a default stream with the provided stop time.
+    function createDefaultStreamWithStopTime(uint40 stopTime) internal returns (uint256 streamId) {
+        streamId = sablierV2Linear.createWithRange(
+            defaultArgs.createWithRange.sender,
+            defaultArgs.createWithRange.recipient,
+            defaultArgs.createWithRange.grossDepositAmount,
+            defaultArgs.createWithRange.operator,
+            defaultArgs.createWithRange.operatorFee,
+            defaultArgs.createWithRange.token,
+            defaultArgs.createWithRange.cancelable,
+            defaultArgs.createWithRange.startTime,
+            defaultArgs.createWithRange.cliffTime,
+            stopTime
         );
     }
 }

@@ -8,15 +8,7 @@ import { Events } from "src/libraries/Events.sol";
 import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
 
 contract Renounce__Test is SablierV2LinearTest {
-    uint256 internal daiStreamId;
-
-    /// @dev A setup function invoked before each test case.
-    function setUp() public override {
-        super.setUp();
-
-        // Create the default stream, since most tests need it.
-        daiStreamId = createDefaultDaiStream();
-    }
+    uint256 internal defaultStreamId;
 
     /// @dev it should revert.
     function testCannotRenounce__StreamNonExistent() external {
@@ -26,6 +18,8 @@ contract Renounce__Test is SablierV2LinearTest {
     }
 
     modifier StreamExistent() {
+        // Create the default stream.
+        defaultStreamId = createDefaultStream();
         _;
     }
 
@@ -35,8 +29,8 @@ contract Renounce__Test is SablierV2LinearTest {
         changePrank(users.eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
-        sablierV2Linear.renounce(daiStreamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, users.eve));
+        sablierV2Linear.renounce(defaultStreamId);
     }
 
     modifier CallerSender() {
@@ -46,26 +40,26 @@ contract Renounce__Test is SablierV2LinearTest {
     /// @dev it should revert.
     function testCannotRenounce__NonCancelableStream() external StreamExistent CallerSender {
         // Create the non-cancelable stream.
-        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
+        uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__RenounceNonCancelableStream.selector, nonCancelableDaiStreamId)
+            abi.encodeWithSelector(Errors.SablierV2__RenounceNonCancelableStream.selector, nonCancelableStreamId)
         );
-        sablierV2Linear.renounce(nonCancelableDaiStreamId);
+        sablierV2Linear.renounce(nonCancelableStreamId);
     }
 
     /// @dev it should make the stream non-cancelable.
     function testRenounce() external StreamExistent CallerSender {
-        sablierV2Linear.renounce(daiStreamId);
-        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(daiStreamId);
+        sablierV2Linear.renounce(defaultStreamId);
+        DataTypes.LinearStream memory actualStream = sablierV2Linear.getStream(defaultStreamId);
         assertEq(actualStream.cancelable, false);
     }
 
     /// @dev it should emit a Renounce event.
-    function testRenounce__Event() external {
+    function testRenounce__Event() external StreamExistent CallerSender {
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: false });
-        emit Events.Renounce(daiStreamId);
-        sablierV2Linear.renounce(daiStreamId);
+        emit Events.Renounce(defaultStreamId);
+        sablierV2Linear.renounce(defaultStreamId);
     }
 }

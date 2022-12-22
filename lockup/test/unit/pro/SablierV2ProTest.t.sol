@@ -21,7 +21,6 @@ abstract contract SablierV2ProTest is UnitTest {
     uint40[] internal SEGMENT_DELTAS = [2_000 seconds, 8_000 seconds];
     SD1x18[] internal SEGMENT_EXPONENTS = [SD1x18.wrap(3.14e18), SD1x18.wrap(0.5e18)];
     uint40[] internal SEGMENT_MILESTONES = [2_100 seconds, 10_100 seconds];
-    uint256 internal constant TIME_OFFSET = 2_000 seconds;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   TESTING VARIABLES
@@ -55,19 +54,6 @@ abstract contract SablierV2ProTest is UnitTest {
             startTime: DEFAULT_START_TIME,
             stopTime: SEGMENT_MILESTONES[1],
             token: address(dai),
-            withdrawnAmount: 0
-        });
-        usdcStream = DataTypes.ProStream({
-            cancelable: true,
-            depositAmount: GROSS_DEPOSIT_AMOUNT_USDC,
-            isEntity: true,
-            segmentAmounts: SEGMENT_AMOUNTS_USDC,
-            segmentExponents: SEGMENT_EXPONENTS,
-            segmentMilestones: SEGMENT_MILESTONES,
-            sender: users.sender,
-            startTime: DEFAULT_START_TIME,
-            stopTime: SEGMENT_MILESTONES[1],
-            token: address(usdc),
             withdrawnAmount: 0
         });
 

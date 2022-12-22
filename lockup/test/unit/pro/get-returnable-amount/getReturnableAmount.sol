@@ -10,7 +10,7 @@ contract GetReturnableAmount__Test is SablierV2ProTest {
     function setUp() public override {
         super.setUp();
 
-        // Create the default dai stream, since most tests need it.
+        // Create the default stream, since most tests need it.
         daiStreamId = createDefaultDaiStream();
     }
 
@@ -35,7 +35,7 @@ contract GetReturnableAmount__Test is SablierV2ProTest {
 
     /// @dev it should return the correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountZero__WithWithdrawals() external StreamExistent {
-        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
+        vm.warp({ timestamp: daiStream.startTime + DEFAULT_TIME_WARP });
         sablierV2Pro.withdraw(daiStreamId, users.recipient, SEGMENT_AMOUNTS_DAI[0]);
         uint256 actualReturnableAmount = sablierV2Pro.getReturnableAmount(daiStreamId);
         uint256 expectedReturnableAmount = daiStream.depositAmount - SEGMENT_AMOUNTS_DAI[0];
@@ -44,7 +44,7 @@ contract GetReturnableAmount__Test is SablierV2ProTest {
 
     /// @dev it should return the correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountNotZero__NoWithdrawals() external StreamExistent {
-        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET });
+        vm.warp({ timestamp: daiStream.startTime + DEFAULT_TIME_WARP });
         uint256 actualReturnableAmount = sablierV2Pro.getReturnableAmount(daiStreamId);
         uint256 expectedReturnableAmount = daiStream.depositAmount - SEGMENT_AMOUNTS_DAI[0];
         assertEq(actualReturnableAmount, expectedReturnableAmount);
@@ -52,10 +52,10 @@ contract GetReturnableAmount__Test is SablierV2ProTest {
 
     /// @dev it should return the correct returnable amount.
     function testGetReturnableAmount__WithdrawableAmountNotZero__WithWithdrawals() external StreamExistent {
-        vm.warp({ timestamp: daiStream.startTime + TIME_OFFSET + 1 seconds });
+        vm.warp({ timestamp: daiStream.startTime + DEFAULT_TIME_WARP + 1 seconds });
         sablierV2Pro.withdraw(daiStreamId, users.recipient, SEGMENT_AMOUNTS_DAI[0]);
         uint256 actualReturnableAmount = sablierV2Pro.getReturnableAmount(daiStreamId);
-        // TIME_OFFSET + 1 seconds is 0.0125% of the way in the second segment => ~8,000*0.000125^{0.5}
+        // DEFAULT_TIME_WARP + 1 seconds is 0.0125% of the way in the second segment => ~8,000*0.000125^{0.5}
         uint256 expectedReturnableAmount = daiStream.depositAmount - SEGMENT_AMOUNTS_DAI[0] - 89.442719099991584e18;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }

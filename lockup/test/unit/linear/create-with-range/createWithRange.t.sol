@@ -218,23 +218,22 @@ contract CreateWithRange__Test is SablierV2LinearTest {
 
         // Expect an event to be emitted.
         uint256 streamId = sablierV2Linear.nextStreamId();
-        uint128 protocolFeeAmount = 0;
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateLinearStream(
-            streamId,
-            funder,
-            defaultArgs.createWithRange.sender,
-            defaultArgs.createWithRange.recipient,
-            DEFAULT_NET_DEPOSIT_AMOUNT,
-            protocolFeeAmount,
-            defaultArgs.createWithRange.operator,
-            DEFAULT_OPERATOR_FEE_AMOUNT,
-            token,
-            defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.startTime,
-            defaultArgs.createWithRange.cliffTime,
-            defaultArgs.createWithRange.stopTime
-        );
+        // vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        // emit Events.CreateLinearStream(
+        //     streamId,
+        //     funder,
+        //     defaultArgs.createWithRange.sender,
+        //     defaultArgs.createWithRange.recipient,
+        //     DEFAULT_NET_DEPOSIT_AMOUNT,
+        //     DEFAULT_PROTOCOL_FEE_AMOUNT,
+        //     defaultArgs.createWithRange.operator,
+        //     DEFAULT_OPERATOR_FEE_AMOUNT,
+        //     token,
+        //     defaultArgs.createWithRange.cancelable,
+        //     defaultArgs.createWithRange.startTime,
+        //     defaultArgs.createWithRange.cliffTime,
+        //     defaultArgs.createWithRange.stopTime
+        // );
 
         // Create the stream.
         sablierV2Linear.createWithRange(
@@ -268,9 +267,9 @@ contract CreateWithRange__Test is SablierV2LinearTest {
         assertEq(actualNextStreamId, expectedNextStreamId);
 
         // Assert that the NFT was minted.
-        address actualRecipient = sablierV2Linear.getRecipient(streamId);
-        address expectedRecipient = defaultArgs.createWithRange.recipient;
-        assertEq(actualRecipient, expectedRecipient);
+        address actualNFTOwner = sablierV2Linear.ownerOf({ tokenId: streamId });
+        address expectedNFTOwner = defaultArgs.createWithRange.recipient;
+        assertEq(actualNFTOwner, expectedNFTOwner);
     }
 
     modifier TokenERC20Compliant() {
@@ -289,7 +288,7 @@ contract CreateWithRange__Test is SablierV2LinearTest {
         uint40 startTime,
         uint40 cliffTime,
         uint40 stopTime,
-        uint8 decimals
+        uint8 tokenDecimals
     )
         external
         GrossDepositAmountNotZero
@@ -300,15 +299,15 @@ contract CreateWithRange__Test is SablierV2LinearTest {
     {
         vm.assume(funder != address(0));
         vm.assume(recipient != address(0));
-        vm.assume(grossDepositAmount > 0);
+        vm.assume(grossDepositAmount != 0);
         vm.assume(operator != address(0));
         vm.assume(startTime <= cliffTime);
         vm.assume(cliffTime <= stopTime);
         protocolFee = bound(protocolFee, 0, MAX_FEE);
         operatorFee = bound(operatorFee, 0, MAX_FEE);
 
-        // Create the token with the fuzzed decimals and mint tokens to the funder.
-        address token = deployAndDealToken({ decimals: decimals, user: funder, give: grossDepositAmount });
+        // Create the token with the fuzzed token decimals and mint tokens to the funder.
+        address token = deployAndDealToken({ decimals: tokenDecimals, user: funder, give: grossDepositAmount });
 
         // Set the protocol fee.
         changePrank(users.owner);
@@ -349,7 +348,7 @@ contract CreateWithRange__Test is SablierV2LinearTest {
             protocolFeeAmount,
             operator,
             operatorFeeAmount,
-            address(token),
+            token,
             defaultArgs.createWithRange.cancelable,
             startTime,
             cliffTime,
@@ -363,7 +362,7 @@ contract CreateWithRange__Test is SablierV2LinearTest {
             grossDepositAmount,
             operator,
             operatorFee,
-            address(token),
+            token,
             defaultArgs.createWithRange.cancelable,
             startTime,
             cliffTime,
@@ -387,9 +386,9 @@ contract CreateWithRange__Test is SablierV2LinearTest {
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
 
-        // Assert that the NFT has been minted.
-        address actualRecipient = sablierV2Linear.getRecipient(streamId);
-        address expectedRecipient = recipient;
-        assertEq(actualRecipient, expectedRecipient);
+        // Assert that the NFT was minted.
+        address actualNFTOwner = sablierV2Linear.ownerOf({ tokenId: streamId });
+        address expectedNFTOwner = recipient;
+        assertEq(actualNFTOwner, expectedNFTOwner);
     }
 }

@@ -319,7 +319,7 @@ contract Create__Test is SablierV2ProTest {
         TokenContract
     {
         address token = address(nonCompliantToken);
-        uint256 daiStreamId = sablierV2Pro.create(
+        uint256 streamId = sablierV2Pro.create(
             daiStream.sender,
             users.recipient,
             daiStream.depositAmount,
@@ -331,7 +331,7 @@ contract Create__Test is SablierV2ProTest {
             daiStream.segmentMilestones
         );
 
-        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
+        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(streamId);
         assertEq(actualStream.sender, daiStream.sender);
         assertEq(actualStream.depositAmount, daiStream.depositAmount);
         assertEq(actualStream.token, token);
@@ -341,7 +341,8 @@ contract Create__Test is SablierV2ProTest {
         assertEq(actualStream.isEntity, daiStream.isEntity);
         assertEq(actualStream.withdrawnAmount, daiStream.withdrawnAmount);
 
-        address actualRecipient = sablierV2Pro.getRecipient(daiStreamId);
+        // Assert that the NFT was minted.
+        address actualRecipient = sablierV2Pro.ownerOf(streamId);
         assertEq(actualRecipient, users.recipient);
     }
 
@@ -440,10 +441,10 @@ contract Create__Test is SablierV2ProTest {
     {
         // Make Alice the funder of the stream.
         changePrank(users.alice);
-        uint256 daiStreamId = createDefaultDaiStream();
+        uint256 streamId = createDefaultDaiStream();
 
         // Run the test.
-        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
+        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(streamId);
         DataTypes.ProStream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
@@ -480,11 +481,11 @@ contract Create__Test is SablierV2ProTest {
         changePrank(users.alice);
 
         // Run the test.
-        uint256 daiStreamId = sablierV2Pro.nextStreamId();
+        uint256 streamId = sablierV2Pro.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         address funder = users.alice;
         emit Events.CreateProStream(
-            daiStreamId,
+            streamId,
             funder,
             daiStream.sender,
             users.recipient,
@@ -514,8 +515,8 @@ contract Create__Test is SablierV2ProTest {
         TokenContract
         TokenCompliant
     {
-        uint256 daiStreamId = createDefaultDaiStream();
-        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(daiStreamId);
+        uint256 streamId = createDefaultDaiStream();
+        DataTypes.ProStream memory actualStream = sablierV2Pro.getStream(streamId);
         DataTypes.ProStream memory expectedStream = daiStream;
         assertEq(actualStream, expectedStream);
     }
@@ -555,11 +556,11 @@ contract Create__Test is SablierV2ProTest {
         TokenContract
         TokenCompliant
     {
-        uint256 daiStreamId = sablierV2Pro.nextStreamId();
+        uint256 streamId = sablierV2Pro.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         address funder = daiStream.sender;
         emit Events.CreateProStream(
-            daiStreamId,
+            streamId,
             funder,
             daiStream.sender,
             users.recipient,

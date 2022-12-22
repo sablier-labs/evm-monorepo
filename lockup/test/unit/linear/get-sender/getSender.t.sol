@@ -18,9 +18,9 @@ contract GetSender__Test is SablierV2LinearTest {
 
     /// @dev it should return the correct sender.
     function testGetSender() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        address actualSender = sablierV2Linear.getSender(daiStreamId);
-        address expectedSender = daiStream.sender;
+        uint256 defaultStreamId = createDefaultStream();
+        address actualSender = sablierV2Linear.getSender(defaultStreamId);
+        address expectedSender = defaultStream.sender;
         assertEq(actualSender, expectedSender);
     }
 }

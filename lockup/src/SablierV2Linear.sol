@@ -168,7 +168,7 @@ contract SablierV2Linear is
     ) external returns (uint256 streamId) {
         // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
         // `_createWithRange` function will nonetheless check that the stop time is greater than or equal to the
-        // cliff time, and that the cliff time is greater than or equal to the start time.
+        // cliff time, and also that the cliff time is greater than or equal to the start time.
         uint40 startTime = uint40(block.timestamp);
         uint40 cliffTime;
         uint40 stopTime;
@@ -307,7 +307,7 @@ contract SablierV2Linear is
         }
 
         // Emit an event.
-        emit Events.Cancel(streamId, sender, recipient, withdrawAmount, returnAmount);
+        emit Events.Cancel(streamId, sender, recipient, returnAmount, withdrawAmount);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -429,7 +429,7 @@ contract SablierV2Linear is
         DataTypes.LinearStream memory stream = _streams[streamId];
         address recipient = getRecipient(streamId);
 
-        // Effects: if the stream is done, delete the entity from the mapping.
+        // Effects: if the entire deposit amount is now withdrawn, delete the stream entity.
         if (stream.depositAmount == stream.withdrawnAmount) {
             delete _streams[streamId];
         }

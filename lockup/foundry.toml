@@ -11,7 +11,7 @@ out = "out"
 sender = "0x9aF2E2B7e57c1CD7C68C5C3796d8ea67e0018dB7"
 solc = "0.8.17"
 src = "src"
-test = "test/unit/linear/create-with-duration"
+test = "test/unit/linear"
 tx_origin = "0x9aF2E2B7e57c1CD7C68C5C3796d8ea67e0018dB7"
 via_ir = true
 
@@ -19,6 +19,6 @@ via_ir = true
 optimizerSteps = ""
 
 [profile.ci]
-fuzz = { runs = 1_000 }
+fuzz = { runs = 10_000 }
 test = "test"
 verbosity = 4

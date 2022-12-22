@@ -121,7 +121,6 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
 
         // Expect an event to be emitted.
         uint256 streamId = sablierV2Linear.nextStreamId();
-        uint128 protocolFeeAmount = 0;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLinearStream(
             streamId,
@@ -129,7 +128,7 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
             defaultArgs.createWithDuration.sender,
             defaultArgs.createWithDuration.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
-            protocolFeeAmount,
+            DEFAULT_PROTOCOL_FEE_AMOUNT,
             defaultArgs.createWithDuration.operator,
             DEFAULT_OPERATOR_FEE_AMOUNT,
             token,
@@ -170,8 +169,8 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
         assertEq(actualNextStreamId, expectedNextStreamId);
 
         // Assert that the NFT was minted.
-        address actualRecipient = sablierV2Linear.getRecipient(streamId);
-        address expectedRecipient = defaultArgs.createWithDuration.recipient;
-        assertEq(actualRecipient, expectedRecipient);
+        address actualNFTOwner = sablierV2Linear.ownerOf({ tokenId: streamId });
+        address expectedNFTOwner = defaultArgs.createWithDuration.recipient;
+        assertEq(actualNFTOwner, expectedNFTOwner);
     }
 }

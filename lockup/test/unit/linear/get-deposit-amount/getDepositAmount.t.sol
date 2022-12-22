@@ -18,9 +18,9 @@ contract GetDepositAmount__Test is SablierV2LinearTest {
 
     /// @dev it should the correct deposit amount.
     function testGetDepositAmount() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        uint128 actualDepositAmount = sablierV2Linear.getDepositAmount(daiStreamId);
-        uint128 expectedDepositAmount = daiStream.depositAmount;
+        uint256 defaultStreamId = createDefaultStream();
+        uint128 actualDepositAmount = sablierV2Linear.getDepositAmount(defaultStreamId);
+        uint128 expectedDepositAmount = defaultStream.depositAmount;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
 }

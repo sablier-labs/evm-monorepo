@@ -13,7 +13,7 @@ contract GetWithdrawableAmount__Test is SablierV2ProTest {
     function setUp() public override {
         super.setUp();
 
-        // Create the default dai stream, since most tests need it.
+        // Create the default stream, since most tests need it.
         daiStreamId = createDefaultDaiStream();
     }
 
