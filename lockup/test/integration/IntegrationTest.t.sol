@@ -21,7 +21,7 @@ abstract contract IntegrationTest is BaseTest {
                                   TESTING VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    SablierV2Comptroller internal sablierV2Comptroller;
+    SablierV2Comptroller internal comptroller;
     SablierV2Linear internal linear;
     SablierV2Pro internal pro;
 
@@ -33,10 +33,10 @@ abstract contract IntegrationTest is BaseTest {
         vm.createSelectFork({ urlOrAlias: vm.envString("ETH_RPC_URL"), blockNumber: 16_126_000 });
 
         vm.startPrank({ msgSender: users.owner });
-        sablierV2Comptroller = new sablierV2Comptroller();
-        linear = new SablierV2Linear({ initialComptroller: sablierV2Comptroller, maxFee: MAX_FEE });
+        comptroller = new comptroller();
+        linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: MAX_FEE });
         pro = new SablierV2Pro({
-            initialComptroller: sablierV2Comptroller,
+            initialComptroller: comptroller,
             maxFee: MAX_FEE,
             maxSegmentCount: MAX_SEGMENT_COUNT
         });

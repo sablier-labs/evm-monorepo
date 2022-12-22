@@ -37,7 +37,7 @@ abstract contract ProTest is UnitTest {
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
         pro = new SablierV2Pro({
-            initialComptroller: sablierV2Comptroller,
+            initialComptroller: comptroller,
             maxFee: MAX_FEE,
             maxSegmentCount: MAX_SEGMENT_COUNT
         });

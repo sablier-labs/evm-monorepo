@@ -73,7 +73,7 @@ abstract contract UnitTest is BaseTest {
     ReentrantSender internal reentrantSender = new ReentrantSender();
     RevertingRecipient internal revertingRecipient = new RevertingRecipient();
     RevertingSender internal revertingSender = new RevertingSender();
-    SablierV2Comptroller internal sablierV2Comptroller;
+    SablierV2Comptroller internal comptroller;
     Users internal users;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ abstract contract UnitTest is BaseTest {
 
         // Deploy the comptroller, since it's needed in all test suites.
         vm.startPrank({ msgSender: users.owner });
-        sablierV2Comptroller = new SablierV2Comptroller();
+        comptroller = new SablierV2Comptroller();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

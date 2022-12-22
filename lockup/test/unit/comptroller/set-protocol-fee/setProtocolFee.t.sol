@@ -17,7 +17,7 @@ contract SetProtocolFee__Test is SablierV2ComptrollerTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(IOwnable.Ownable__CallerNotOwner.selector, users.owner, users.eve));
-        sablierV2Comptroller.setProtocolFee(address(dai), MAX_FEE);
+        comptroller.setProtocolFee(address(dai), MAX_FEE);
     }
 
     modifier CallerOwner() {
@@ -29,9 +29,9 @@ contract SetProtocolFee__Test is SablierV2ComptrollerTest {
     /// @dev it should set the new global fee.
     function testSetProtocolFee__SameFee() external CallerOwner {
         UD60x18 newProtocolFee = ud(0);
-        sablierV2Comptroller.setProtocolFee(address(dai), newProtocolFee);
+        comptroller.setProtocolFee(address(dai), newProtocolFee);
 
-        UD60x18 actualProtocolFee = sablierV2Comptroller.getProtocolFee(address(dai));
+        UD60x18 actualProtocolFee = comptroller.getProtocolFee(address(dai));
         UD60x18 expectedProtocolFee = newProtocolFee;
         assertEq(actualProtocolFee, expectedProtocolFee);
     }
@@ -39,9 +39,9 @@ contract SetProtocolFee__Test is SablierV2ComptrollerTest {
     /// @dev it should set the new global fee.
     function testSetProtocolFee__DifferentFee(UD60x18 newProtocolFee) external CallerOwner {
         newProtocolFee = bound(newProtocolFee, 1, MAX_FEE);
-        sablierV2Comptroller.setProtocolFee(address(dai), newProtocolFee);
+        comptroller.setProtocolFee(address(dai), newProtocolFee);
 
-        UD60x18 actualProtocolFee = sablierV2Comptroller.getProtocolFee(address(dai));
+        UD60x18 actualProtocolFee = comptroller.getProtocolFee(address(dai));
         UD60x18 expectedProtocolFee = newProtocolFee;
         assertEq(actualProtocolFee, expectedProtocolFee);
     }

@@ -67,7 +67,7 @@ abstract contract LinearTest is UnitTest {
 
     /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
-        linear = new SablierV2Linear({ initialComptroller: sablierV2Comptroller, maxFee: MAX_FEE });
+        linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: MAX_FEE });
 
         // Create the default args to be used for the create functions.
         defaultArgs = DefaultArgs({
@@ -110,8 +110,8 @@ abstract contract LinearTest is UnitTest {
         });
 
         // Set the default protocol fee.
-        sablierV2Comptroller.setProtocolFee(address(dai), DEFAULT_PROTOCOL_FEE);
-        sablierV2Comptroller.setProtocolFee(address(nonCompliantToken), DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee(address(dai), DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee(address(nonCompliantToken), DEFAULT_PROTOCOL_FEE);
 
         // Approve the SablierV2Linear contract to spend tokens from the sender, recipient, Alice and Eve.
         approveMax({ caller: users.sender, spender: address(linear) });

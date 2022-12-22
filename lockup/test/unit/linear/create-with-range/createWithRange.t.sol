@@ -118,7 +118,7 @@ contract CreateWithRange__Test is LinearTest {
 
         // Set the protocol fee.
         changePrank(users.owner);
-        sablierV2Comptroller.setProtocolFee(address(dai), protocolFee);
+        comptroller.setProtocolFee(address(dai), protocolFee);
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__ProtocolFeeTooHigh.selector, protocolFee, MAX_FEE));
@@ -311,7 +311,7 @@ contract CreateWithRange__Test is LinearTest {
 
         // Set the protocol fee.
         changePrank(users.owner);
-        sablierV2Comptroller.setProtocolFee(token, protocolFee);
+        comptroller.setProtocolFee(token, protocolFee);
 
         // Make the funder the caller in the rest of this test.
         changePrank(funder);
