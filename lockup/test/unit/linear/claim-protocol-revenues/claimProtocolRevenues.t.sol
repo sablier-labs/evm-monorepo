@@ -8,9 +8,9 @@ import { UD60x18, unwrap, wrap } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract ClaimProtocolRevenues__Test is SablierV2LinearTest {
+contract ClaimProtocolRevenues__Test is LinearTest {
     /// @dev it should revert.
     function testCannotClaimProtocolRevenues__CallerNotOwner() external {
         // Make Eve the caller in this test.

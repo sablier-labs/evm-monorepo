@@ -5,9 +5,9 @@ import { DataTypes } from "src/libraries/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract Renounce__Test is SablierV2LinearTest {
+contract Renounce__Test is LinearTest {
     uint256 internal defaultStreamId;
 
     /// @dev it should revert.

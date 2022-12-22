@@ -3,9 +3,9 @@ pragma solidity >=0.8.13;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract Burn__Test is SablierV2LinearTest {
+contract Burn__Test is LinearTest {
     uint256 internal defaultStreamId;
 
     /// @dev A setup function invoked before each test case.

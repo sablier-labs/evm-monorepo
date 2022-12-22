@@ -4,9 +4,9 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18, toUD60x18, unwrap, wrap, ZERO } from "@prb/math/UD60x18.sol";
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract GetWithdrawableAmount__Test is SablierV2LinearTest {
+contract GetWithdrawableAmount__Test is LinearTest {
     uint256 internal defaultStreamId;
 
     /// @dev When the stream does not exist, it should return zero.

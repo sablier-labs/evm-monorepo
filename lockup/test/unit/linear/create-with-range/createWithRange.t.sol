@@ -11,9 +11,9 @@ import { Events } from "src/libraries/Events.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract CreateWithRange__Test is SablierV2LinearTest {
+contract CreateWithRange__Test is LinearTest {
     /// @dev it should revert.
     function testCannotCreateWithRange__RecipientZeroAddress() external {
         vm.expectRevert("ERC721: mint to the zero address");

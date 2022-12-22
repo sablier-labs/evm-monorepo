@@ -7,9 +7,9 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract GetProtocolFee__Test is SablierV2LinearTest {
+contract GetProtocolFee__Test is LinearTest {
     /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();

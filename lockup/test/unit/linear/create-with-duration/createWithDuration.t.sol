@@ -7,9 +7,9 @@ import { DataTypes } from "src/libraries/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract CreateWithDuration__Test is SablierV2LinearTest {
+contract CreateWithDuration__Test is LinearTest {
     /// @dev it should revert due to the start time being greater than the cliff time.
     function testCannotCreateWithDuration__CliffDurationCalculationOverflows(uint40 cliffDuration) external {
         uint40 startTime = getBlockTimestamp();

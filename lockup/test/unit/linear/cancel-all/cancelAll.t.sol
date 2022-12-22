@@ -7,9 +7,9 @@ import { DataTypes } from "src/libraries/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract CancelAll__Test is SablierV2LinearTest {
+contract CancelAll__Test is LinearTest {
     uint256[] internal defaultStreamIds;
 
     /// @dev A setup function invoked before each test case.

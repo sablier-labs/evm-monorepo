@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract GetReturnableAmount__Test is SablierV2LinearTest {
+contract GetReturnableAmount__Test is LinearTest {
     uint256 internal defaultStreamId;
 
     /// @dev it should return zero.

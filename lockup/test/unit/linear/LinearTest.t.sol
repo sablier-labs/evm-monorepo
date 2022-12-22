@@ -9,9 +9,9 @@ import { SablierV2Linear } from "src/SablierV2Linear.sol";
 
 import { UnitTest } from "../UnitTest.t.sol";
 
-/// @title SablierV2LinearTest
+/// @title LinearTest
 /// @notice Common contract members needed across SablierV2Linear unit tests.
-abstract contract SablierV2LinearTest is UnitTest {
+abstract contract LinearTest is UnitTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/

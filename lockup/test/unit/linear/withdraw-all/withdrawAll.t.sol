@@ -7,9 +7,9 @@ import { DataTypes } from "src/libraries/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract WithdrawAll__Test is SablierV2LinearTest {
+contract WithdrawAll__Test is LinearTest {
     uint128[] internal defaultAmounts;
     uint256[] internal defaultStreamIds;
 

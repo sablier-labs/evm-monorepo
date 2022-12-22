@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SablierV2LinearTest } from "../SablierV2LinearTest.t.sol";
+import { LinearTest } from "../LinearTest.t.sol";
 
-contract GetCliffTime__Test is SablierV2LinearTest {
+contract GetCliffTime__Test is LinearTest {
     /// @dev it should return zero.
     function testGetCliffTime__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
