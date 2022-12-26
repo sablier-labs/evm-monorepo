@@ -17,8 +17,8 @@ contract IsEntity__Test is ProTest {
 
     /// @dev it should return true.
     function testIsEntity() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        bool isEntity = pro.isEntity(daiStreamId);
+        uint256 defaultStreamId = createDefaultStream();
+        bool isEntity = pro.isEntity(defaultStreamId);
         assertTrue(isEntity);
     }
 }

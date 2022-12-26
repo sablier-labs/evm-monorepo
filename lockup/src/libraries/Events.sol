@@ -67,12 +67,13 @@ library Events {
     /// @param sender The address from which to stream the tokens, which has the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
     /// @param depositAmount The amount of tokens to be streamed, in units of the token's decimals.
+    /// @param segmentAmounts The amounts used to compose the custom streaming curve, in units of the token's decimals.
+    /// @param segmentExponents The exponents used to compose the custom streaming curve, as SD1x18 numbers.
+    /// @param protocolFeeAmount The amount of tokens charged by the protocol, in units of the token's decimals.
+    /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
-    /// @param stopTime The calculated unix timestamp in seconds for when the stream will stop.
-    /// @param segmentAmounts The array of amounts used to compose the custom emission curve.
-    /// @param segmentExponents The array of exponents used to compose the custom emission curve.
-    /// @param segmentMilestones The array of milestones used to compose the custom emission curve.
+    /// @param segmentMilestones The unix timestamp milestones used to compose the custom streaming curve.
     /// @param cancelable Whether the stream will be cancelable or not.
     event CreateProStream(
         uint256 streamId,
@@ -80,12 +81,14 @@ library Events {
         address indexed sender,
         address indexed recipient,
         uint128 depositAmount,
+        uint128[] segmentAmounts,
+        SD1x18[] segmentExponents,
+        uint128 protocolFeeAmount,
+        address operator,
+        uint128 operatorFeeAmount,
         address token,
         bool cancelable,
         uint40 startTime,
-        uint40 stopTime,
-        uint128[] segmentAmounts,
-        SD1x18[] segmentExponents,
         uint40[] segmentMilestones
     );
 

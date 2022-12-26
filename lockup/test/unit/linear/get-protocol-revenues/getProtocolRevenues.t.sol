@@ -10,7 +10,6 @@ import { Events } from "src/libraries/Events.sol";
 import { LinearTest } from "../LinearTest.t.sol";
 
 contract GetProtocolFee__Test is LinearTest {
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
@@ -20,7 +19,7 @@ contract GetProtocolFee__Test is LinearTest {
 
     /// @dev it should return zero.
     function testGetProtocolRevenues__ProtocolRevenuesZero() external {
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(address(dai));
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultStream.token);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -35,7 +34,7 @@ contract GetProtocolFee__Test is LinearTest {
 
     /// @dev it should return the correct protocol revenues.
     function testGetProtocolRevenues() external ProtocolRevenuesNotZero {
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(address(dai));
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultStream.token);
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }

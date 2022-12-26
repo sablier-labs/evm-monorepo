@@ -18,9 +18,9 @@ contract GetSender__Test is ProTest {
 
     /// @dev it should return the correct sender.
     function testGetSender() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        address actualSender = pro.getSender(daiStreamId);
-        address expectedSender = daiStream.sender;
+        uint256 defaultStreamId = createDefaultStream();
+        address actualSender = pro.getSender(defaultStreamId);
+        address expectedSender = defaultStream.sender;
         assertEq(actualSender, expectedSender);
     }
 }

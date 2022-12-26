@@ -9,7 +9,7 @@ import { Events } from "src/libraries/Events.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract CreateWithDuration__Test is LinearTest {
+contract CreateWithDeltas__Test is LinearTest {
     /// @dev it should revert due to the start time being greater than the cliff time.
     function testCannotCreateWithDuration__CliffDurationCalculationOverflows(uint40 cliffDuration) external {
         uint40 startTime = getBlockTimestamp();
@@ -47,7 +47,7 @@ contract CreateWithDuration__Test is LinearTest {
         _;
     }
 
-    /// @dev When the total duration calculation overflows uint256, it should revert.
+    /// @dev it should revert.
     function testCannotCreateWithDuration__TotalDurationCalculationOverflows(
         uint40 cliffDuration,
         uint40 totalDuration
@@ -87,8 +87,8 @@ contract CreateWithDuration__Test is LinearTest {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, bump the next
-    /// stream id and mint the NFT.
+    /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, record the
+    /// protocol fee, bump the next stream id and mint the NFT.
     function testCreateWithDuration(
         uint40 cliffDuration,
         uint40 totalDuration
@@ -96,8 +96,10 @@ contract CreateWithDuration__Test is LinearTest {
         totalDuration = boundUint40(totalDuration, 0, UINT40_MAX - getBlockTimestamp());
         vm.assume(cliffDuration <= totalDuration);
 
-        // Expect the tokens to be transferred from the funder to the SablierV2Linear contract, and the operator fee
-        // to be paid to the operator.
+        // Load the protocol revenues.
+        uint128 previousProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithRange.token);
+
+        // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
         address token = defaultArgs.createWithDuration.token;
         address funder = defaultArgs.createWithDuration.sender;
         vm.expectCall(
@@ -108,7 +110,7 @@ contract CreateWithDuration__Test is LinearTest {
             )
         );
 
-        // Expect the the operator fee to be paid to the operator, if the fee amount is not zero.
+        // Expect the the operator fee to be paid to the operator, if the amount is not zero.
         vm.expectCall(
             token,
             abi.encodeCall(IERC20.transfer, (defaultArgs.createWithDuration.operator, DEFAULT_OPERATOR_FEE_AMOUNT))
@@ -162,6 +164,11 @@ contract CreateWithDuration__Test is LinearTest {
         assertEq(actualStream.stopTime, stopTime);
         assertEq(actualStream.token, token);
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
+
+        // Assert that the protocol fee was recorded.
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(token);
+        uint128 expectedProtocolRevenues = previousProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = linear.nextStreamId();

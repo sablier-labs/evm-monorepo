@@ -12,7 +12,6 @@ import { LinearTest } from "../LinearTest.t.sol";
 contract CancelAll__Test is LinearTest {
     uint256[] internal defaultStreamIds;
 
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
@@ -48,23 +47,23 @@ contract CancelAll__Test is LinearTest {
     /// @dev it should do nothing.
     function testCannotCancelAll__AllStreamsNonCancelable() external OnlyExistentStreams {
         // Create the non-cancelable stream.
-        uint256 nonCancelableDaiStreamId = createDefaultStreamNonCancelable();
+        uint256 streamId = createDefaultStreamNonCancelable();
 
         // Run the test.
-        uint256[] memory nonCancelableStreamIds = createDynamicArray(nonCancelableDaiStreamId);
+        uint256[] memory nonCancelableStreamIds = createDynamicArray(streamId);
         linear.cancelAll(nonCancelableStreamIds);
     }
 
     /// @dev it should ignore the non-cancelable streams and cancel the cancelable streams.
     function testCannotCancelAll__SomeStreamsNonCancelable() external OnlyExistentStreams {
         // Create the non-cancelable stream.
-        uint256 nonCancelableDaiStreamId = createDefaultStreamNonCancelable();
+        uint256 streamId = createDefaultStreamNonCancelable();
 
         // Run the test.
-        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonCancelableDaiStreamId);
+        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], streamId);
         linear.cancelAll(streamIds);
         DataTypes.LinearStream memory actualStream0 = linear.getStream(defaultStreamIds[0]);
-        DataTypes.LinearStream memory actualStream1 = linear.getStream(nonCancelableDaiStreamId);
+        DataTypes.LinearStream memory actualStream1 = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream0;
         DataTypes.LinearStream memory expectedStream1 = defaultStream;
         expectedStream1.cancelable = false;
@@ -193,10 +192,10 @@ contract CancelAll__Test is LinearTest {
     /// - All streams ongoing.
     /// - Some streams ended, some streams ongoing.
     function testCancelAll__Sender(
-        uint40 timeWarp,
+        uint256 timeWarp,
         uint40 stopTime
     ) external OnlyExistentStreams AllStreamsCancelable CallerAuthorizedAllStreams {
-        timeWarp = boundUint40(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
         stopTime = boundUint40(
             stopTime,
             defaultStream.startTime + DEFAULT_TOTAL_DURATION / 2,
@@ -204,7 +203,7 @@ contract CancelAll__Test is LinearTest {
         );
 
         // Make the the sender the caller in this test.
-        changePrank(defaultStream.sender);
+        changePrank(users.sender);
 
         // Create a new stream with a different stop time.
         uint256 streamId = createDefaultStreamWithStopTime(stopTime);
@@ -218,21 +217,21 @@ contract CancelAll__Test is LinearTest {
         // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 withdrawAmount0 = linear.getWithdrawableAmount(streamIds[0]);
         if (withdrawAmount0 > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount0)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount0)));
         }
         uint128 withdrawAmount1 = linear.getWithdrawableAmount(streamIds[1]);
         if (withdrawAmount1 > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount1)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount1)));
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
         uint128 returnAmount0 = defaultStream.depositAmount - withdrawAmount0;
         if (returnAmount0 > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount0)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount0)));
         }
         uint128 returnAmount1 = defaultStream.depositAmount - withdrawAmount1;
         if (returnAmount1 > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount1)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount1)));
         }
 
         // Expect Cancel events to be emitted.
@@ -267,10 +266,10 @@ contract CancelAll__Test is LinearTest {
     /// - All streams ongoing.
     /// - Some streams ended, some streams ongoing.
     function testCancelAll__Recipient(
-        uint40 timeWarp,
+        uint256 timeWarp,
         uint40 stopTime
     ) external OnlyExistentStreams AllStreamsCancelable CallerAuthorizedAllStreams {
-        timeWarp = boundUint40(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
         stopTime = boundUint40(
             stopTime,
             defaultStream.startTime + DEFAULT_TOTAL_DURATION / 2,
@@ -292,21 +291,21 @@ contract CancelAll__Test is LinearTest {
         // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 withdrawAmount0 = linear.getWithdrawableAmount(streamIds[0]);
         if (withdrawAmount0 > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount0)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount0)));
         }
         uint128 withdrawAmount1 = linear.getWithdrawableAmount(streamIds[1]);
         if (withdrawAmount1 > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount1)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount1)));
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
         uint128 returnAmount0 = defaultStream.depositAmount - withdrawAmount0;
         if (returnAmount0 > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount0)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount0)));
         }
         uint128 returnAmount1 = defaultStream.depositAmount - withdrawAmount1;
         if (returnAmount1 > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount1)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount1)));
         }
 
         // Expect Cancel events to be emitted.

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { UD60x18, toUD60x18, unwrap, wrap, ZERO } from "@prb/math/UD60x18.sol";
+import { UD60x18, unwrap, wrap, ZERO } from "@prb/math/UD60x18.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
@@ -24,8 +24,9 @@ contract GetWithdrawableAmount__Test is LinearTest {
     }
 
     /// @dev it should return zero.
-    function testGetWithdrawableAmount__CliffTimeGreaterThanBlockTimestamp() external StreamExistent {
-        vm.warp({ timestamp: defaultStream.cliffTime - 1 seconds });
+    function testGetWithdrawableAmount__CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external StreamExistent {
+        timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
+        vm.warp({ timestamp: defaultStream.startTime = timeWarp });
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -39,12 +40,12 @@ contract GetWithdrawableAmount__Test is LinearTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - current time > stop time
-    /// - current time = stop time
+    /// - Current time > stop time
+    /// - Current time = stop time
     function testGetWithdrawableAmount__CurrentTimeGreaterThanOrEqualToStopTime__NoWithdrawals(
-        uint40 timeWarp
+        uint256 timeWarp
     ) external StreamExistent CliffTimeLessThanOrEqualToCurrentTime {
-        timeWarp = boundUint40(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
+        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
 
         // Warp into the future.
         vm.warp({ timestamp: defaultStream.stopTime + timeWarp });
@@ -59,13 +60,14 @@ contract GetWithdrawableAmount__Test is LinearTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - current time > stop time
-    /// - current time = stop time
+    /// - Current time > stop time
+    /// - Current time = stop time
+    /// - Withdraw amount equal to deposit amount and not
     function testGetWithdrawableAmount__CurrentTimeGreaterThanOrEqualToStopTime__WithWithdrawals(
-        uint40 timeWarp,
+        uint256 timeWarp,
         uint128 withdrawAmount
     ) external StreamExistent CliffTimeLessThanOrEqualToCurrentTime {
-        timeWarp = boundUint40(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
+        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
         withdrawAmount = boundUint128(withdrawAmount, 1, defaultStream.depositAmount);
 
         // Warp into the future.
@@ -80,46 +82,36 @@ contract GetWithdrawableAmount__Test is LinearTest {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    /// @dev Helper function that replicates the logic of the `getWithdrawableAmount` function.
-    function calculateWithdrawableAmount(
-        uint40 currentTime,
-        uint128 depositAmount
-    ) internal view returns (uint128 withdrawableAmount) {
-        UD60x18 elapsedTime = toUD60x18(currentTime - defaultStream.startTime);
-        UD60x18 totalTime = toUD60x18(defaultStream.stopTime - defaultStream.startTime);
-        UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-        UD60x18 streamedAmount = elapsedTimePercentage.mul(wrap(depositAmount));
-        withdrawableAmount = uint128(unwrap(streamedAmount));
+    modifier CurrentTimeLessThanStopTime() {
+        // Disable the protocol fee so that it doesn't interfere with the calculations.
+        changePrank(users.owner);
+        comptroller.setProtocolFee(defaultStream.token, ZERO);
+        changePrank(users.sender);
+        _;
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__CurrentTimeLessThanStopTime__NoWithdrawals(
+    function testGetWithdrawableAmount__NoWithdrawals(
         uint40 timeWarp,
-        uint128 depositAmount,
-        uint8 tokenDecimals
-    ) external StreamExistent CliffTimeLessThanOrEqualToCurrentTime {
+        uint128 depositAmount
+    ) external StreamExistent CliffTimeLessThanOrEqualToCurrentTime CurrentTimeLessThanStopTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(depositAmount != 0);
 
-        // Create the token with the fuzzed token decimals and mint tokens to the sender.
-        address token = deployAndDealToken({
-            decimals: tokenDecimals,
-            user: defaultStream.sender,
-            give: depositAmount
-        });
+        // Mint tokens to the sender.
+        deal({ token: defaultStream.token, to: defaultStream.sender, give: depositAmount });
 
-        // Approve the SablierV2Linear contract to transfer the tokens.
-        IERC20(token).approve({ spender: address(linear), value: UINT256_MAX });
+        // Disable the operator fee so that it doesn't interfere with the calculations.
+        UD60x18 operatorFee = ZERO;
 
         // Create the stream.
-        UD60x18 operatorFee = ZERO;
         uint256 streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             depositAmount,
             defaultArgs.createWithRange.operator,
             operatorFee,
-            token,
+            defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
             defaultArgs.createWithRange.startTime,
             defaultArgs.createWithRange.cliffTime,
@@ -132,7 +124,7 @@ contract GetWithdrawableAmount__Test is LinearTest {
 
         // Run the test.
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(streamId);
-        uint128 expectedWithdrawableAmount = calculateWithdrawableAmount(currentTime, depositAmount);
+        uint128 expectedWithdrawableAmount = calculateStreamedAmount(currentTime, depositAmount);
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
@@ -140,36 +132,30 @@ contract GetWithdrawableAmount__Test is LinearTest {
     function testGetWithdrawableAmount__CurrentTimeLessThanStopTime__WithWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount,
-        uint128 withdrawAmount,
-        uint8 tokenDecimals
-    ) external StreamExistent CliffTimeLessThanOrEqualToCurrentTime {
+        uint128 withdrawAmount
+    ) external StreamExistent CliffTimeLessThanOrEqualToCurrentTime CurrentTimeLessThanStopTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         depositAmount = boundUint128(depositAmount, 10_000, UINT128_MAX);
 
         // Bound the withdraw amount.
         uint40 currentTime = defaultStream.startTime + timeWarp;
-        uint128 initialWithdrawableAmount = calculateWithdrawableAmount(currentTime, depositAmount);
+        uint128 initialWithdrawableAmount = calculateStreamedAmount(currentTime, depositAmount);
         withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
 
-        // Create the token with the fuzzed token decimals and mint tokens to the sender.
-        address token = deployAndDealToken({
-            decimals: tokenDecimals,
-            user: defaultStream.sender,
-            give: depositAmount
-        });
+        // Mint tokens to the sender.
+        deal({ token: defaultStream.token, to: defaultStream.sender, give: depositAmount });
 
-        // Approve the SablierV2Linear contract to transfer the tokens.
-        IERC20(token).approve({ spender: address(linear), value: UINT256_MAX });
-
-        // Create the stream.
+        // Disable the operator fee so that it doesn't interfere with the calculations.
         UD60x18 operatorFee = ZERO;
+
+        // Create the stream with a custom gross deposit amount and operator fee.
         uint256 streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             depositAmount,
             defaultArgs.createWithRange.operator,
             operatorFee,
-            token,
+            defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
             defaultArgs.createWithRange.startTime,
             defaultArgs.createWithRange.cliffTime,

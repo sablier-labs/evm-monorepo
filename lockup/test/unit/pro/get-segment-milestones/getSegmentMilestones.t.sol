@@ -18,9 +18,9 @@ contract GetSegmentMilestones__Test is ProTest {
 
     /// @dev it should return the correct segment milestones.
     function testGetSegmentMilestones() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        uint40[] memory actualSegmentMilestones = pro.getSegmentMilestones(daiStreamId);
-        uint40[] memory expectedSegmentMilestones = daiStream.segmentMilestones;
+        uint256 defaultStreamId = createDefaultStream();
+        uint40[] memory actualSegmentMilestones = pro.getSegmentMilestones(defaultStreamId);
+        uint40[] memory expectedSegmentMilestones = defaultStream.segmentMilestones;
         assertEqUint40Array(actualSegmentMilestones, expectedSegmentMilestones);
     }
 }

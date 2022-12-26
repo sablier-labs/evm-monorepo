@@ -2,20 +2,16 @@
 pragma solidity >=0.8.13;
 
 import { SD1x18 } from "@prb/math/SD1x18.sol";
+import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
 contract GetWithdrawableAmount__Test is ProTest {
-    uint256 internal daiStreamId;
+    uint256 internal defaultStreamId;
     SD1x18 internal constant E = SD1x18.wrap(2_718281828459045235);
-
-    /// @dev A setup function invoked before each test case.
-    function setUp() public override {
-        super.setUp();
-
-        // Create the default stream, since most tests need it.
-        daiStreamId = createDefaultDaiStream();
-    }
+    uint128[] internal maxSegmentAmounts = new uint128[](MAX_SEGMENT_COUNT);
+    SD1x18[] internal maxSegmentExponents = new SD1x18[](MAX_SEGMENT_COUNT);
+    uint40[] internal maxSegmentMilestones = new uint40[](MAX_SEGMENT_COUNT);
 
     /// @dev it should return zero.
     function testGetWithdrawableAmount__StreamNonExistent() external {
@@ -26,73 +22,136 @@ contract GetWithdrawableAmount__Test is ProTest {
     }
 
     modifier StreamExistent() {
+        // Create the default stream.
+        defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function testGetWithdrawableAmount__StartTimeGreaterThanBlockTimestamp() external StreamExistent {
-        vm.warp({ timestamp: daiStream.startTime - 1 seconds });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
+    function testGetWithdrawableAmount__StartTimeGreaterThanCurrentTime() external StreamExistent {
+        vm.warp({ timestamp: 0 });
+        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev it should return zero.
-    function testGetWithdrawableAmount__StartTimeEqualToBlockTimestamp() external StreamExistent {
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
+    function testGetWithdrawableAmount__StartTimeEqualToCurrentTime() external StreamExistent {
+        vm.warp({ timestamp: defaultStream.startTime });
+        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+    }
+
+    modifier StartTimeLessThanCurrentTime() {
+        _;
+    }
+
+    /// @dev it should return the deposit amount.
+    ///
+    /// The fuzzing ensures that all of the following scenarios are tested:
+    ///
+    /// - current time > stop time
+    /// - current time = stop time
+    function testGetWithdrawableAmount__CurrentTimeGreaterThanOrEqualToStopTime__NoWithdrawals(
+        uint256 timeWarp
+    ) external StreamExistent StartTimeLessThanCurrentTime {
+        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
+
+        // Warp into the future.
+        vm.warp({ timestamp: defaultStream.stopTime + timeWarp });
+
+        // Run the test.
+        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
+        uint128 expectedWithdrawableAmount = defaultStream.depositAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     /// @dev it should return the deposit amount minus the withdrawn amount.
-    function testGetWithdrawableAmount__CurrentTimeGreaterThanStopTime__WithWithdrawals() external StreamExistent {
-        vm.warp({ timestamp: daiStream.stopTime + 1 seconds });
-        uint128 withdrawAmount = 2_500e18;
-        pro.withdraw(daiStreamId, users.recipient, withdrawAmount);
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
-        uint128 expectedWithdrawableAmount = daiStream.depositAmount - withdrawAmount;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-    }
+    ///
+    /// The fuzzing ensures that all of the following scenarios are tested:
+    ///
+    /// - Current time > stop time
+    /// - Current time = stop time
+    /// - Withdraw amount equal to deposit amount and not
+    function testGetWithdrawableAmount__CurrentTimeGreaterThanOrEqualToStopTime__WithWithdrawals(
+        uint256 timeWarp,
+        uint128 withdrawAmount
+    ) external StreamExistent StartTimeLessThanCurrentTime {
+        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
+        withdrawAmount = boundUint128(withdrawAmount, 1, defaultStream.depositAmount);
 
-    /// @dev it should return the deposit amount.
-    function testGetWithdrawableAmount__CurrentTimeGreaterThanStopTime__NoWithdrawals() external StreamExistent {
-        vm.warp({ timestamp: daiStream.stopTime + 1 seconds });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
-        uint128 expectedWithdrawableAmount = daiStream.depositAmount;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-    }
+        // Warp into the future.
+        vm.warp({ timestamp: defaultStream.stopTime + timeWarp });
 
-    /// @dev return the deposit amount minus the withdrawn amount.
-    function testGetWithdrawableAmount__CurrentTimeEqualToStopTime__WithWithdrawals() external StreamExistent {
-        vm.warp({ timestamp: daiStream.stopTime });
-        uint128 withdrawAmount = 2_500e18;
-        pro.withdraw(daiStreamId, users.recipient, withdrawAmount);
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
-        uint128 expectedWithdrawableAmount = daiStream.depositAmount - withdrawAmount;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-    }
+        // Withdraw the amount.
+        pro.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
-    /// @dev it should return the deposit amount.
-    function testGetWithdrawableAmount__CurrentTimeEqualToStopTime__NoWithdrawals() external StreamExistent {
-        vm.warp({ timestamp: daiStream.stopTime });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
-        uint128 expectedWithdrawableAmount = daiStream.depositAmount;
+        // Run the test.
+        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
+        uint128 expectedWithdrawableAmount = defaultStream.depositAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     modifier CurrentTimeLessThanStopTime() {
+        // Disable the protocol fee so that it doesn't interfere with the calculations.
+        changePrank(users.owner);
+        comptroller.setProtocolFee(defaultStream.token, ZERO);
+        changePrank(users.sender);
         _;
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__WithWithdrawals() external StreamExistent CurrentTimeLessThanStopTime {
-        // 500 seconds is 25% of the way in the first segment.
-        vm.warp({ timestamp: daiStream.startTime + 500 seconds });
-        uint128 withdrawAmount = 5e18;
-        pro.withdraw(daiStreamId, users.recipient, withdrawAmount);
-        uint128 expectedWithdrawableAmount = 25.73721928961166e18 - withdrawAmount; // 1st term: ~2,000*0.25^{3.14}
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
-        assertEq(expectedWithdrawableAmount, actualWithdrawableAmount);
+    function testGetWithdrawableAmount__WithWithdrawals(
+        uint40 timeWarp,
+        uint128 withdrawAmount
+    ) external StreamExistent StartTimeLessThanCurrentTime CurrentTimeLessThanStopTime {
+        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+
+        // Calculate the segment amounts.
+        uint128[] memory segmentAmounts = calculateSegmentAmounts(defaultStream.depositAmount);
+
+        // Bound the withdraw amount.
+        uint40 currentTime = defaultStream.startTime + timeWarp;
+        uint128 initialWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
+            currentTime,
+            segmentAmounts,
+            defaultStream.segmentExponents,
+            defaultStream.segmentMilestones
+        );
+        withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
+
+        // Mint tokens to the sender.
+        deal({ token: defaultStream.token, to: defaultStream.sender, give: defaultStream.depositAmount });
+
+        // Disable the operator fee so that it doesn't interfere with the calculations.
+        UD60x18 operatorFee = ZERO;
+
+        // Create the stream with a custom gross deposit amount and operator fee.
+        uint256 streamId = pro.createWithMilestones(
+            defaultArgs.createWithMilestones.sender,
+            defaultArgs.createWithMilestones.recipient,
+            defaultStream.depositAmount,
+            segmentAmounts,
+            defaultArgs.createWithMilestones.segmentExponents,
+            defaultArgs.createWithMilestones.operator,
+            operatorFee,
+            defaultArgs.createWithMilestones.token,
+            defaultArgs.createWithMilestones.cancelable,
+            defaultArgs.createWithMilestones.startTime,
+            defaultArgs.createWithMilestones.segmentMilestones
+        );
+
+        // Warp into the future.
+        vm.warp({ timestamp: currentTime });
+
+        // Make the withdrawal.
+        pro.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
+
+        // Run the test.
+        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(streamId);
+        uint128 expectedWithdrawableAmount = initialWithdrawableAmount - withdrawAmount;
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     modifier NoWithdrawals() {
@@ -100,216 +159,143 @@ contract GetWithdrawableAmount__Test is ProTest {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__OneSegment__Token6Decimals()
-        external
-        StreamExistent
-        CurrentTimeLessThanStopTime
-        NoWithdrawals
-    {
-        uint128 usdcDepositAmount = SEGMENT_AMOUNTS_USDC[0] + SEGMENT_AMOUNTS_USDC[1];
-        uint128[] memory segmentAmounts = createDynamicUint128Array(usdcDepositAmount);
-        SD1x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[1]);
-        uint40[] memory segmentMilestones = createDynamicUint40Array(SEGMENT_MILESTONES[1]);
+    function testGetWithdrawableAmount__OneSegment(
+        uint40 timeWarp
+    ) external StreamExistent StartTimeLessThanCurrentTime CurrentTimeLessThanStopTime NoWithdrawals {
+        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
-        uint256 usdcStreamId = pro.create(
-            usdcStream.sender,
-            users.recipient,
-            usdcDepositAmount,
-            usdcStream.token,
-            usdcStream.cancelable,
-            usdcStream.startTime,
+        // Create the one-segment arrays.
+        uint128 depositAmount = DEFAULT_SEGMENT_AMOUNTS[0] + DEFAULT_SEGMENT_AMOUNTS[1];
+        uint128[] memory segmentAmounts = createDynamicUint128Array(depositAmount);
+        SD1x18[] memory segmentExponents = createDynamicArray(DEFAULT_SEGMENT_EXPONENTS[1]);
+        uint40[] memory segmentMilestones = createDynamicUint40Array(DEFAULT_STOP_TIME);
+
+        // Disable the operator fee so that it doesn't interfere with the calculations.
+        UD60x18 operatorFee = ZERO;
+
+        // Create the stream wit the one-segment arrays.
+        uint256 streamId = pro.createWithMilestones(
+            defaultArgs.createWithMilestones.sender,
+            defaultArgs.createWithMilestones.recipient,
+            depositAmount,
             segmentAmounts,
             segmentExponents,
+            defaultArgs.createWithMilestones.operator,
+            operatorFee,
+            defaultArgs.createWithMilestones.token,
+            defaultArgs.createWithMilestones.cancelable,
+            defaultArgs.createWithMilestones.startTime,
             segmentMilestones
         );
 
-        // 2,000 seconds is 20% of the stream duration.
-        vm.warp({ timestamp: usdcStream.startTime + 2_000 seconds });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(usdcStreamId);
-        uint128 expectedWithdrawableAmount = 4472.135954e6; // ~10,000*0.2^{0.5}
+        // Warp into the future.
+        uint40 currentTime = defaultStream.startTime + timeWarp;
+        vm.warp({ timestamp: currentTime });
+
+        // Run the test.
+        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(streamId);
+        uint128 expectedWithdrawableAmount = calculateStreamedAmountForOneSegment(
+            currentTime,
+            depositAmount,
+            segmentExponents[0]
+        );
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
+    modifier MultipleSegments() {
+        unchecked {
+            uint128 segmentAmount = defaultStream.depositAmount / uint128(MAX_SEGMENT_COUNT);
+            SD1x18 segmentExponent = E;
+            uint40 segmentDuration = DEFAULT_TOTAL_DURATION / uint40(MAX_SEGMENT_COUNT);
+
+            // Generate lots of segments that each have the same amount, same exponent, and with milestones
+            // evenly spread apart.
+            for (uint40 i = 0; i < MAX_SEGMENT_COUNT; i += 1) {
+                maxSegmentAmounts[i] = segmentAmount;
+                maxSegmentExponents[i] = segmentExponent;
+                maxSegmentMilestones[i] = defaultStream.startTime + segmentDuration * (i + 1);
+            }
+        }
+        _;
+    }
+
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__OneSegment__Token18Decimals()
+    function testGetWithdrawableAmount__CurrentMilestone1st()
         external
         StreamExistent
         CurrentTimeLessThanStopTime
         NoWithdrawals
+        MultipleSegments
     {
-        uint128 daiDepositAmount = SEGMENT_AMOUNTS_DAI[0] + SEGMENT_AMOUNTS_DAI[1];
-        uint128[] memory segmentAmounts = createDynamicUint128Array(daiDepositAmount);
-        SD1x18[] memory segmentExponents = createDynamicArray(SEGMENT_EXPONENTS[1]);
-        uint40[] memory segmentMilestones = createDynamicUint40Array(SEGMENT_MILESTONES[1]);
+        // Disable the operator fee so that it doesn't interfere with the calculations.
+        UD60x18 operatorFee = ZERO;
 
-        daiStreamId = pro.create(
-            daiStream.sender,
-            users.recipient,
-            daiDepositAmount,
-            daiStream.token,
-            daiStream.cancelable,
-            daiStream.startTime,
-            segmentAmounts,
-            segmentExponents,
-            segmentMilestones
+        // Create the stream with the multiple-segment arrays.
+        uint256 streamId = pro.createWithMilestones(
+            defaultArgs.createWithMilestones.sender,
+            defaultArgs.createWithMilestones.recipient,
+            defaultStream.depositAmount,
+            maxSegmentAmounts,
+            maxSegmentExponents,
+            defaultArgs.createWithMilestones.operator,
+            operatorFee,
+            defaultArgs.createWithMilestones.token,
+            defaultArgs.createWithMilestones.cancelable,
+            defaultArgs.createWithMilestones.startTime,
+            maxSegmentMilestones
         );
 
-        // 2,000 seconds is 20% of the stream duration.
-        vm.warp({ timestamp: daiStream.startTime + 2_000 seconds });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
-        uint128 expectedWithdrawableAmount = 4472.13595499957941e18; // ~10,000*0.2^{0.5}
+        // Run the test.
+        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(streamId);
+        uint128 expectedWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
+            uint40(block.timestamp),
+            maxSegmentAmounts,
+            maxSegmentExponents,
+            maxSegmentMilestones
+        );
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
+    modifier CurrentMilestoneNot1st() {
+        _;
+    }
+
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone1st__Token6Decimals()
-        external
-        StreamExistent
-        CurrentTimeLessThanStopTime
-        NoWithdrawals
-    {
-        uint256 usdcStreamId = createDefaultUsdcStream();
-        // 500 seconds is 25% of the way in the first segment.
-        vm.warp({ timestamp: usdcStream.startTime + 500 seconds });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(usdcStreamId);
-        uint128 expectedWithdrawableAmount = 25.737219e6; // ~2,000*0.25^{3.14}
+    function testGetWithdrawableAmount__CurrentMilestoneNot1st(
+        uint40 timeWarp
+    ) external StreamExistent CurrentTimeLessThanStopTime NoWithdrawals MultipleSegments CurrentMilestoneNot1st {
+        timeWarp = boundUint40(timeWarp, maxSegmentMilestones[0], DEFAULT_TOTAL_DURATION - 1);
+
+        // Disable the operator fee so that it doesn't interfere with the calculations.
+        UD60x18 operatorFee = ZERO;
+
+        // Create the stream with the multiple-segment arrays.
+        uint256 streamId = pro.createWithMilestones(
+            defaultArgs.createWithMilestones.sender,
+            defaultArgs.createWithMilestones.recipient,
+            defaultStream.depositAmount,
+            maxSegmentAmounts,
+            maxSegmentExponents,
+            defaultArgs.createWithMilestones.operator,
+            operatorFee,
+            defaultArgs.createWithMilestones.token,
+            defaultArgs.createWithMilestones.cancelable,
+            defaultArgs.createWithMilestones.startTime,
+            maxSegmentMilestones
+        );
+
+        // Warp into the future.
+        uint40 currentTime = defaultStream.startTime + timeWarp;
+        vm.warp({ timestamp: currentTime });
+
+        // Run the test.
+        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(streamId);
+        uint128 expectedWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
+            currentTime,
+            maxSegmentAmounts,
+            maxSegmentExponents,
+            maxSegmentMilestones
+        );
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-    }
-
-    /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone1st__Token18Decimals()
-        external
-        StreamExistent
-        CurrentTimeLessThanStopTime
-        NoWithdrawals
-    {
-        // 500 seconds is 25% of the way in the first segment.
-        vm.warp({ timestamp: daiStream.startTime + 500 seconds });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
-        uint128 expectedWithdrawableAmount = 25.73721928961166e18; // ~2,000*0.25^{3.14}
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-    }
-
-    /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone2nd__Token6Decimals()
-        external
-        StreamExistent
-        CurrentTimeLessThanStopTime
-        NoWithdrawals
-    {
-        uint256 usdcStreamId = createDefaultUsdcStream();
-        // 2,800 seconds is 10% of the way in the second segment.
-        vm.warp({ timestamp: usdcStream.startTime + 2_800 seconds });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(usdcStreamId);
-        // 2nd term: ~8,000*0.1^{0.5}
-        uint128 expectedWithdrawableAmount = SEGMENT_AMOUNTS_USDC[0] + 2529.822128e6;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-    }
-
-    /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone2nd__Token18Decimals()
-        external
-        StreamExistent
-        CurrentTimeLessThanStopTime
-        NoWithdrawals
-    {
-        // 2,800 seconds is 10% of the way in the second segment.
-        vm.warp({ timestamp: daiStream.startTime + 2_800 seconds });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
-        // 2nd term: ~8,000*0.1^{0.5}
-        uint128 expectedWithdrawableAmount = SEGMENT_AMOUNTS_DAI[0] + 2529.822128134703472e18;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-    }
-
-    /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone200th__Token6Decimals()
-        external
-        StreamExistent
-        CurrentTimeLessThanStopTime
-        NoWithdrawals
-    {
-        uint256 count = pro.MAX_SEGMENT_COUNT();
-        uint128[] memory segmentAmounts = new uint128[](count);
-        SD1x18[] memory segmentExponents = new SD1x18[](count);
-        uint40[] memory segmentMilestones = new uint40[](count);
-
-        unchecked {
-            // Generate 200 segments that each have the same amount, same exponent and are evenly spread apart.
-            uint128 segmentAmount = usdcStream.depositAmount / uint128(count);
-            SD1x18 segmentExponent = E;
-            uint40 totalDuration = usdcStream.stopTime - usdcStream.startTime;
-            uint40 segmentDuration = totalDuration / uint40(count);
-            for (uint256 i = 0; i < count; ) {
-                segmentAmounts[i] = segmentAmount;
-                segmentExponents[i] = segmentExponent;
-                segmentMilestones[i] = usdcStream.startTime + segmentDuration * (uint40(i) + 1);
-                i += 1;
-            }
-
-            // Create the 200-segment stream.
-            uint256 usdcStreamId = pro.create(
-                usdcStream.sender,
-                users.recipient,
-                usdcStream.depositAmount,
-                usdcStream.token,
-                usdcStream.cancelable,
-                usdcStream.startTime,
-                segmentAmounts,
-                segmentExponents,
-                segmentMilestones
-            );
-            vm.warp({ timestamp: usdcStream.stopTime - segmentDuration / 2 });
-
-            uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(usdcStreamId);
-            // 3rd term: 50*0.5^e
-            uint128 expectedWithdrawableAmount = segmentAmount * (uint128(count) - 1) + 7.597761e6;
-            assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-        }
-    }
-
-    /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__MultipleSegments__CurrentMilestone200th__Token18Decimals()
-        external
-        StreamExistent
-        CurrentTimeLessThanStopTime
-        NoWithdrawals
-    {
-        uint256 count = pro.MAX_SEGMENT_COUNT();
-        uint128[] memory segmentAmounts = new uint128[](count);
-        SD1x18[] memory segmentExponents = new SD1x18[](count);
-        uint40[] memory segmentMilestones = new uint40[](count);
-
-        unchecked {
-            // Generate 200 segments that each have the same amount, same exponent and are evenly spread apart.
-            uint128 segmentAmount = daiStream.depositAmount / uint128(count);
-            SD1x18 segmentExponent = E;
-            uint40 totalDuration = daiStream.stopTime - daiStream.startTime;
-            uint40 segmentDuration = totalDuration / uint40(count);
-            for (uint40 i = 0; i < count; ) {
-                segmentAmounts[i] = segmentAmount;
-                segmentExponents[i] = segmentExponent;
-                segmentMilestones[i] = daiStream.startTime + segmentDuration * (i + 1);
-                i += 1;
-            }
-
-            // Create the 200-segment stream.
-            daiStreamId = pro.create(
-                daiStream.sender,
-                users.recipient,
-                daiStream.depositAmount,
-                daiStream.token,
-                daiStream.cancelable,
-                daiStream.startTime,
-                segmentAmounts,
-                segmentExponents,
-                segmentMilestones
-            );
-            vm.warp({ timestamp: daiStream.stopTime - segmentDuration / 2 });
-
-            uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(daiStreamId);
-            // 3rd term: 50*0.5^e
-            uint128 expectedWithdrawableAmount = segmentAmount * (uint128(count) - 1) + 7.59776116289564825e18;
-            assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-        }
     }
 }

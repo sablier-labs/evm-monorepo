@@ -12,7 +12,6 @@ import { LinearTest } from "../LinearTest.t.sol";
 contract Cancel__Test is LinearTest {
     uint256 internal defaultStreamId;
 
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
@@ -36,13 +35,11 @@ contract Cancel__Test is LinearTest {
     /// @dev it should revert.
     function testCannotCancel__StreamNonCancelable() external StreamExistent {
         // Create the non-cancelable stream.
-        uint256 nonCancelableDaiStreamId = createDefaultStreamNonCancelable();
+        uint256 streamId = createDefaultStreamNonCancelable();
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__StreamNonCancelable.selector, nonCancelableDaiStreamId)
-        );
-        linear.cancel(nonCancelableDaiStreamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonCancelable.selector, streamId));
+        linear.cancel(streamId);
     }
 
     modifier StreamCancelable() {
@@ -213,13 +210,16 @@ contract Cancel__Test is LinearTest {
         // Expect the tokens to be withdrawn to the recipient.
         uint128 withdrawAmount = linear.getWithdrawableAmount(streamId);
         if (withdrawAmount > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount)));
+            vm.expectCall(
+                defaultStream.token,
+                abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount))
+            );
         }
 
         // Expect the tokens to be returned to the sender.
         uint128 returnAmount = defaultStream.depositAmount - withdrawAmount;
         if (returnAmount > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount)));
         }
 
         // Expect an event to be emitted.
@@ -364,13 +364,13 @@ contract Cancel__Test is LinearTest {
         // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 withdrawAmount = linear.getWithdrawableAmount(streamId);
         if (withdrawAmount > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
         uint128 returnAmount = defaultStream.depositAmount - withdrawAmount;
         if (returnAmount > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodSender), returnAmount)));
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (address(goodSender), returnAmount)));
         }
 
         // Expect an event to be emitted.

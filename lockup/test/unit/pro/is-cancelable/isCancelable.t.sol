@@ -17,8 +17,8 @@ contract IsCancelable__Test is ProTest {
 
     /// @dev it should return true.
     function testIsCancelable__CancelableStream() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        bool isCancelable = pro.isCancelable(daiStreamId);
+        uint256 defaultStreamId = createDefaultStream();
+        bool isCancelable = pro.isCancelable(defaultStreamId);
         assertTrue(isCancelable);
     }
 
@@ -28,8 +28,8 @@ contract IsCancelable__Test is ProTest {
 
     /// @dev it should return false.
     function testIsCancelable() external StreamExistent NonCancelableStream {
-        uint256 nonCancelableDaiStreamId = createNonCancelableDaiStream();
-        bool isCancelable = pro.isCancelable(nonCancelableDaiStreamId);
+        uint256 streamId = createDefaultStreamNonCancelable();
+        bool isCancelable = pro.isCancelable(streamId);
         assertFalse(isCancelable);
     }
 }

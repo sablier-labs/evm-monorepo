@@ -6,14 +6,13 @@ import { Errors } from "src/libraries/Errors.sol";
 import { ProTest } from "../ProTest.t.sol";
 
 contract Burn__Test is ProTest {
-    uint256 internal daiStreamId;
+    uint256 internal defaultStreamId;
 
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
         // Create the default stream, since most tests need it.
-        daiStreamId = createDefaultDaiStream();
+        defaultStreamId = createDefaultStream();
 
         // Make the owner of the NFT the caller in this test suite.
         changePrank(users.recipient);
@@ -21,8 +20,8 @@ contract Burn__Test is ProTest {
 
     /// @dev it should revert.
     function testCannotBurn__StreamExistent() external {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamExistent.selector, daiStreamId));
-        pro.burn(daiStreamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamExistent.selector, defaultStreamId));
+        pro.burn(defaultStreamId);
     }
 
     modifier StreamNonExistent() {
@@ -38,7 +37,7 @@ contract Burn__Test is ProTest {
 
     modifier NFTExistent() {
         // Cancel the stream so that the stream entity gets deleted.
-        pro.cancel(daiStreamId);
+        pro.cancel(defaultStreamId);
         _;
     }
 
@@ -48,8 +47,8 @@ contract Burn__Test is ProTest {
         changePrank(users.eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, daiStreamId, users.eve));
-        pro.burn(daiStreamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, users.eve));
+        pro.burn(defaultStreamId);
     }
 
     modifier CallerAuthorized() {
@@ -57,24 +56,30 @@ contract Burn__Test is ProTest {
     }
 
     /// @dev it should burn the NFT.
-    function testBurn__CallerApprovedOperator() external StreamNonExistent NFTExistent CallerAuthorized {
+    function testBurn__CallerApprovedOperator(
+        address operator
+    ) external StreamNonExistent NFTExistent CallerAuthorized {
+        vm.assume(operator != address(0) && operator != users.recipient);
+
         // Approve the operator to handle the stream.
-        pro.approve({ to: users.operator, tokenId: daiStreamId });
+        pro.approve({ to: users.operator, tokenId: defaultStreamId });
 
         // Make the approved operator the caller in this test.
         changePrank(users.operator);
 
-        // Run the test.
-        pro.burn(daiStreamId);
-        address actualOwner = pro.getRecipient(daiStreamId);
+        // Burn the NFT.
+        pro.burn(defaultStreamId);
+
+        // Assert that the NFT was burned.
+        address actualOwner = pro.getRecipient(defaultStreamId);
         address expectedOwner = address(0);
         assertEq(actualOwner, expectedOwner);
     }
 
     /// @dev it should burn the NFT.
     function testBurn__CallerNFTOwner() external StreamNonExistent NFTExistent CallerAuthorized {
-        pro.burn(daiStreamId);
-        address actualOwner = pro.getRecipient(daiStreamId);
+        pro.burn(defaultStreamId);
+        address actualOwner = pro.getRecipient(defaultStreamId);
         address expectedOwner = address(0);
         assertEq(actualOwner, expectedOwner);
     }

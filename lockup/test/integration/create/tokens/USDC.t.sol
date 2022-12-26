@@ -5,7 +5,6 @@ import { CreateTest } from "../CreateTest.t.sol";
 
 /// @dev A token with 6 decimals.
 contract USDC__Test is CreateTest {
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 

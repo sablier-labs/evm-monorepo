@@ -7,7 +7,6 @@ import { CreateTest } from "../CreateTest.t.sol";
 contract USDT__Test is CreateTest {
     USDT internal nonCompliantToken = USDT(0xdAC17F958D2ee523a2206206994597C13D831ec7);
 
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 

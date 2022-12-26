@@ -2,7 +2,7 @@
 
 [profile.default]
 auto_detect_solc = false
-fuzz = { runs = 256 }
+fuzz = { max_test_rejects = 100_000, runs = 256 }
 libs = ["lib"]
 gas_reports = ["*"]
 optimizer = true
@@ -11,7 +11,7 @@ out = "out"
 sender = "0x9aF2E2B7e57c1CD7C68C5C3796d8ea67e0018dB7"
 solc = "0.8.17"
 src = "src"
-test = "test/unit/linear"
+test = "test/unit"
 tx_origin = "0x9aF2E2B7e57c1CD7C68C5C3796d8ea67e0018dB7"
 via_ir = true
 

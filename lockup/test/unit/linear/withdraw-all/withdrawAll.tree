@@ -25,7 +25,7 @@ withdrawAll.t.sol
          └── when the caller is authorized for all streams
             ├── when some amounts are zero
             │  └── it should revert
-            └── when all amounts are not zero
+            └── when none of the amounts are zero
                ├── when some amounts are greater than the withdrawable amounts
                │  └── it should revert
                └── when all amounts are less than or equal to the withdrawable amounts

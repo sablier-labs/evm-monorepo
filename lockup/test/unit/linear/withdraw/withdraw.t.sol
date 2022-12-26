@@ -12,7 +12,6 @@ import { LinearTest } from "../LinearTest.t.sol";
 contract Withdraw__Test is LinearTest {
     uint256 internal defaultStreamId;
 
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
@@ -48,7 +47,7 @@ contract Withdraw__Test is LinearTest {
     /// @dev it should revert.
     function testCannotWithdraw__CallerUnauthorized__Sender() external StreamExistent {
         // Make the sender the caller in this test.
-        changePrank(defaultStream.sender);
+        changePrank(users.sender);
 
         // Run the test.
         vm.expectRevert(
@@ -178,7 +177,7 @@ contract Withdraw__Test is LinearTest {
 
     modifier CallerSender() {
         // Make the sender the caller in this test suite.
-        changePrank(defaultStream.sender);
+        changePrank(users.sender);
         _;
     }
 
@@ -217,7 +216,7 @@ contract Withdraw__Test is LinearTest {
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
     function testWithdraw__RecipientNotContract(
-        uint40 timeWarp,
+        uint256 timeWarp,
         address to,
         uint128 withdrawAmount
     )
@@ -230,7 +229,7 @@ contract Withdraw__Test is LinearTest {
         CallerSender
         StreamOngoing
     {
-        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(to != address(0) && to.code.length == 0);
 
         // Create the stream with the fuzzed recipient that is not a contract.
@@ -244,7 +243,7 @@ contract Withdraw__Test is LinearTest {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawal to be made to the recipient.
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
@@ -355,7 +354,7 @@ contract Withdraw__Test is LinearTest {
 
     /// @dev it should make the withdrawal, emit a Withdraw event, and update the withdrawn amount.
     function testWithdraw(
-        uint40 timeWarp,
+        uint256 timeWarp,
         uint128 withdrawAmount
     )
         external
@@ -371,7 +370,7 @@ contract Withdraw__Test is LinearTest {
         RecipientDoesNotRevert
         NoRecipientReentrancy
     {
-        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
         // Create the stream with the recipient as a contract.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
@@ -384,7 +383,7 @@ contract Withdraw__Test is LinearTest {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawal to be made to the recipient.
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount)));
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

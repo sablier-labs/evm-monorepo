@@ -3,7 +3,6 @@ pragma solidity >=0.8.13;
 
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { Ownable } from "@prb/contracts/access/Ownable.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18, toSD59x18 } from "@prb/math/SD59x18.sol";
@@ -130,76 +129,25 @@ contract SablierV2Pro is
 
         // If the start time is greater than or equal to the block timestamp, return zero.
         uint40 currentTime = uint40(block.timestamp);
-
         if (_streams[streamId].startTime >= currentTime) {
             return 0;
         }
 
         unchecked {
-            // If the current time is greater than or equal to the stop time, return the deposit minus
+            // If the current time is greater than or equal to the stop time, we return the deposit minus
             // the withdrawn amount.
             if (currentTime >= _streams[streamId].stopTime) {
                 return _streams[streamId].depositAmount - _streams[streamId].withdrawnAmount;
             }
 
-            // Define the common variables used in the calculations below.
-            SD1x18 currentSegmentExponent;
-            uint128 currentSegmentAmount;
-            uint128 previousSegmentAmounts;
-            uint40 elapsedSegmentTime;
-            uint40 totalSegmentTime;
-
-            // If there's more than one segment, we have to iterate over all of them.
             uint256 segmentCount = _streams[streamId].segmentAmounts.length;
             if (segmentCount > 1) {
-                // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
-                // amount such that we avoid adding an if statement in the while loop.
-                uint40 currentSegmentMilestone = _streams[streamId].segmentMilestones[0];
-                uint256 index = 1;
-                while (currentSegmentMilestone < currentTime) {
-                    previousSegmentAmounts += _streams[streamId].segmentAmounts[index - 1];
-                    currentSegmentMilestone = _streams[streamId].segmentMilestones[index];
-                    index += 1;
-                }
-
-                // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
-                // is found at `index - 2`.
-                currentSegmentAmount = _streams[streamId].segmentAmounts[index - 1];
-                currentSegmentExponent = _streams[streamId].segmentExponents[index - 1];
-                currentSegmentMilestone = _streams[streamId].segmentMilestones[index - 1];
-
-                // If the current segment is at an index that is >= 2, take the difference between the current segment
-                // milestone and the previous segment milestone.
-                if (index > 1) {
-                    uint40 previousSegmentMilestone = _streams[streamId].segmentMilestones[index - 2];
-                    elapsedSegmentTime = currentTime - previousSegmentMilestone;
-
-                    // Calculate the time between the current segment milestone and the previous segment milestone.
-                    totalSegmentTime = currentSegmentMilestone - previousSegmentMilestone;
-                }
-                // If the current segment is at index 1, take the difference between the current segment milestone and
-                // the start time of the stream.
-                else {
-                    elapsedSegmentTime = currentTime - _streams[streamId].startTime;
-                    totalSegmentTime = currentSegmentMilestone - _streams[streamId].startTime;
-                }
+                // If there's more than one segment, we have to iterate over all of them.
+                withdrawableAmount = _getWithdrawableAmountForMultipleSegments(streamId);
+            } else {
+                // Otherwise, there is only one segment, and the calculation is simple.
+                withdrawableAmount = _getWithdrawableAmountForOneSegment(streamId);
             }
-            // Otherwise, if there's only one segment, we use the start time of the stream in the calculations.
-            else {
-                currentSegmentAmount = _streams[streamId].segmentAmounts[0];
-                currentSegmentExponent = _streams[streamId].segmentExponents[0];
-                elapsedSegmentTime = currentTime - _streams[streamId].startTime;
-                totalSegmentTime = _streams[streamId].stopTime - _streams[streamId].startTime;
-            }
-
-            // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
-                toSD59x18(int256(uint256(totalSegmentTime)))
-            );
-            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
-            SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
-            SD59x18 streamedAmount = SD59x18.wrap(int256(uint256(previousSegmentAmounts))).add(proRataAmount);
-            withdrawableAmount = uint128(uint256(SD59x18.unwrap(streamedAmount))) - _streams[streamId].withdrawnAmount;
         }
     }
 
@@ -228,66 +176,76 @@ contract SablierV2Pro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Pro
-    function createWithDuration(
+    function createWithDeltas(
         address sender,
         address recipient,
-        uint128 depositAmount,
-        address token,
-        bool cancelable,
+        uint128 grossDepositAmount,
         uint128[] memory segmentAmounts,
         SD1x18[] memory segmentExponents,
+        address operator,
+        UD60x18 operatorFee,
+        address token,
+        bool cancelable,
         uint40[] memory segmentDeltas
     ) external override returns (uint256 streamId) {
+        // Make the current block timestamp the start time of the stream.
         uint40 startTime = uint40(block.timestamp);
-        uint256 deltaCount = segmentDeltas.length;
 
-        // Calculate the segment milestones. It is fine to use unchecked arithmetic because the `_createWithRange`
+        // Calculate the segment milestones. It is safe to use unchecked arithmetic because the `_createWithMilestones`
         // function will nonetheless check the segments.
+        uint256 deltaCount = segmentDeltas.length;
         uint40[] memory segmentMilestones = new uint40[](deltaCount);
         unchecked {
             segmentMilestones[0] = startTime + segmentDeltas[0];
-            for (uint256 i = 1; i < deltaCount; ) {
+            for (uint256 i = 1; i < deltaCount; ++i) {
                 segmentMilestones[i] = segmentMilestones[i - 1] + segmentDeltas[i];
-                i += 1;
             }
         }
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithRange(
+        streamId = nextStreamId;
+        _createWithMilestones(
             sender,
             recipient,
-            depositAmount,
+            grossDepositAmount,
+            segmentAmounts,
+            segmentExponents,
+            operator,
+            operatorFee,
             token,
             cancelable,
             startTime,
-            segmentAmounts,
-            segmentExponents,
             segmentMilestones
         );
     }
 
     /// @inheritdoc ISablierV2Pro
-    function createWithRange(
+    function createWithMilestones(
         address sender,
         address recipient,
-        uint128 depositAmount,
+        uint128 grossDepositAmount,
+        uint128[] memory segmentAmounts,
+        SD1x18[] memory segmentExponents,
+        address operator,
+        UD60x18 operatorFee,
         address token,
         bool cancelable,
         uint40 startTime,
-        uint128[] memory segmentAmounts,
-        SD1x18[] memory segmentExponents,
         uint40[] memory segmentMilestones
     ) external returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithRange(
+        streamId = nextStreamId;
+        _createWithMilestones(
             sender,
             recipient,
-            depositAmount,
+            grossDepositAmount,
+            segmentAmounts,
+            segmentExponents,
+            operator,
+            operatorFee,
             token,
             cancelable,
             startTime,
-            segmentAmounts,
-            segmentExponents,
             segmentMilestones
         );
     }
@@ -382,40 +340,50 @@ contract SablierV2Pro is
         emit Events.Cancel(streamId, sender, recipient, returnAmount, withdrawAmount);
     }
 
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _createWithRange(
+    function _createWithMilestones(
         address sender,
         address recipient,
-        uint128 depositAmount,
+        uint128 grossDepositAmount,
+        uint128[] memory segmentAmounts,
+        SD1x18[] memory segmentExponents,
+        address operator,
+        UD60x18 operatorFee,
         address token,
         bool cancelable,
         uint40 startTime,
-        uint128[] memory segmentAmounts,
-        SD1x18[] memory segmentExponents,
         uint40[] memory segmentMilestones
-    ) internal returns (uint256 streamId) {
-        // Checks: the arguments of the function.
+    ) internal {
+        // Safe Interactions: query the protocol fee of this token.
+        // This interaction is safe because we are querying a Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(token);
+
+        // Checks: check that neither fee is greater than `MAX_FEE`, and also calculate the fee amounts and the
+        // deposit amount.
+        (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 netDepositAmount) = Helpers
+            .checkAndCalculateFees(grossDepositAmount, protocolFee, operatorFee, MAX_FEE);
+
+        // Checks: validate the arguments.
         Helpers.checkCreateProArgs(
-            depositAmount,
-            startTime,
+            netDepositAmount,
             segmentAmounts,
             segmentExponents,
+            startTime,
             segmentMilestones,
             MAX_SEGMENT_COUNT
         );
 
-        // We can use any count because they are all equal to each other.
-        uint256 segmentCount = segmentAmounts.length;
+        // Imply the stop time from the last segment milestone.
+        // We can pick any count because they are all equal to each other.
         uint40 stopTime;
         unchecked {
-            stopTime = segmentMilestones[segmentCount - 1];
+            stopTime = segmentMilestones[segmentMilestones.length - 1];
         }
 
         // Effects: create the stream.
-        streamId = nextStreamId;
+        uint256 streamId = nextStreamId;
         _streams[streamId] = DataTypes.ProStream({
             cancelable: cancelable,
-            depositAmount: depositAmount,
+            depositAmount: netDepositAmount,
             isEntity: true,
             segmentAmounts: segmentAmounts,
             segmentExponents: segmentExponents,
@@ -427,17 +395,28 @@ contract SablierV2Pro is
             withdrawnAmount: 0
         });
 
+        // Effects: record the protocol fee amount.
+        // We're using unchecked arithmetic here because this calculation cannot realistically overflow, ever.
+        unchecked {
+            _protocolRevenues[token] += protocolFeeAmount;
+        }
+
         // Effects: bump the next stream id.
         // We're using unchecked arithmetic here because this calculation cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
         }
 
-        // Effects: mint the NFT for the recipient by setting the stream id as the token id.
+        // Effects: mint the NFT for the recipient.
         _mint({ to: recipient, tokenId: streamId });
 
-        // Interactions: perform the ERC-20 transfer.
-        IERC20(token).safeTransferFrom({ from: msg.sender, to: address(this), amount: depositAmount });
+        // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.
+        IERC20(token).safeTransferFrom({ from: msg.sender, to: address(this), amount: grossDepositAmount });
+
+        // Interactions: perform the ERC-20 transfer to pay the operator fee, if not zero.
+        if (operatorFeeAmount > 0) {
+            IERC20(token).safeTransfer({ to: operator, amount: operatorFeeAmount });
+        }
 
         // Emit an event.
         emit Events.CreateProStream({
@@ -445,15 +424,90 @@ contract SablierV2Pro is
             funder: msg.sender,
             sender: sender,
             recipient: recipient,
-            depositAmount: depositAmount,
+            depositAmount: netDepositAmount,
+            segmentAmounts: segmentAmounts,
+            segmentExponents: segmentExponents,
+            protocolFeeAmount: protocolFeeAmount,
+            operator: operator,
+            operatorFeeAmount: operatorFeeAmount,
             token: token,
             cancelable: cancelable,
             startTime: startTime,
-            stopTime: stopTime,
-            segmentAmounts: segmentAmounts,
-            segmentExponents: segmentExponents,
             segmentMilestones: segmentMilestones
         });
+    }
+
+    /// @dev Calculate the withdrawable amount for a stream with multiple segments.
+    function _getWithdrawableAmountForMultipleSegments(
+        uint256 streamId
+    ) internal view returns (uint128 withdrawableAmount) {
+        unchecked {
+            uint40 currentTime = uint40(block.timestamp);
+
+            // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
+            // amount such that we avoid adding an if statement in the while loop.
+            uint128 previousSegmentAmounts;
+            uint40 currentSegmentMilestone = _streams[streamId].segmentMilestones[0];
+            uint256 index = 1;
+            while (currentSegmentMilestone < currentTime) {
+                previousSegmentAmounts += _streams[streamId].segmentAmounts[index - 1];
+                currentSegmentMilestone = _streams[streamId].segmentMilestones[index];
+                index += 1;
+            }
+
+            // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
+            // is found at `index - 2`.
+            uint128 currentSegmentAmount = _streams[streamId].segmentAmounts[index - 1];
+            SD1x18 currentSegmentExponent = _streams[streamId].segmentExponents[index - 1];
+            currentSegmentMilestone = _streams[streamId].segmentMilestones[index - 1];
+
+            // Define the time variables.
+            uint40 elapsedSegmentTime;
+            uint40 totalSegmentTime;
+
+            // If the current segment is at an index that is >= 2, we take the difference between the current
+            // segment milestone and the previous segment milestone.
+            if (index > 1) {
+                uint40 previousSegmentMilestone = _streams[streamId].segmentMilestones[index - 2];
+                elapsedSegmentTime = currentTime - previousSegmentMilestone;
+
+                // Calculate the time between the current segment milestone and the previous segment milestone.
+                totalSegmentTime = currentSegmentMilestone - previousSegmentMilestone;
+            }
+            // If the current segment is at index 1, we take the difference between the current segment milestone
+            // and the start time of the stream.
+            else {
+                elapsedSegmentTime = currentTime - _streams[streamId].startTime;
+                totalSegmentTime = currentSegmentMilestone - _streams[streamId].startTime;
+            }
+
+            // Calculate the streamed amount.
+            SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
+                toSD59x18(int256(uint256(totalSegmentTime)))
+            );
+            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
+            SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
+            uint128 streamedAmount = previousSegmentAmounts + uint128(uint256(SD59x18.unwrap(proRataAmount)));
+            withdrawableAmount = streamedAmount - _streams[streamId].withdrawnAmount;
+        }
+    }
+
+    /// @dev Calculate the withdrawable amount for a stream with one segment.
+    function _getWithdrawableAmountForOneSegment(uint256 streamId) internal view returns (uint128 withdrawableAmount) {
+        unchecked {
+            uint128 currentSegmentAmount = _streams[streamId].segmentAmounts[0];
+            SD1x18 currentSegmentExponent = _streams[streamId].segmentExponents[0];
+            uint40 elapsedSegmentTime = uint40(block.timestamp) - _streams[streamId].startTime;
+            uint40 totalSegmentTime = _streams[streamId].stopTime - _streams[streamId].startTime;
+
+            // Calculate the streamed amount.
+            SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
+                toSD59x18(int256(uint256(totalSegmentTime)))
+            );
+            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
+            SD59x18 streamedAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
+            withdrawableAmount = uint128(uint256(SD59x18.unwrap(streamedAmount))) - _streams[streamId].withdrawnAmount;
+        }
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -493,7 +547,7 @@ contract SablierV2Pro is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        IERC20(stream.token).safeTransfer(to, amount);
+        IERC20(stream.token).safeTransfer({ to: to, amount: amount });
 
         // Interactions: if the `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up

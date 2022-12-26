@@ -24,7 +24,7 @@ abstract contract UnitTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint40 internal constant DEFAULT_CLIFF_DURATION = 2_500 seconds;
-    uint128 internal constant DEFAULT_GROSS_DEPOSIT_AMOUNT = 10_040.160642570281124497e18; // net deposit * (1 - fee)
+    uint128 internal constant DEFAULT_GROSS_DEPOSIT_AMOUNT = 10_040.160642570281124497e18; // net deposit / (1 - fee)
     uint128 internal constant DEFAULT_NET_DEPOSIT_AMOUNT = 10_000e18;
     UD60x18 internal constant DEFAULT_PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%
     UD60x18 internal constant DEFAULT_OPERATOR_FEE = UD60x18.wrap(0.003e18); // 0.3%
@@ -81,14 +81,10 @@ abstract contract UnitTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
-        // By default the test EVM begins at time zero, but we need to warp back in time in some of our tests, so we
-        // have to change the starting block timestamp to be 100 seconds into the future.
-        vm.warp(100 seconds);
-
-        // Initialize the default stream values.
-        DEFAULT_CLIFF_TIME = getBlockTimestamp() + DEFAULT_CLIFF_DURATION;
+        // Initialize the immutables.
         DEFAULT_START_TIME = getBlockTimestamp();
-        DEFAULT_STOP_TIME = getBlockTimestamp() + DEFAULT_TOTAL_DURATION;
+        DEFAULT_CLIFF_TIME = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION;
+        DEFAULT_STOP_TIME = DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION;
 
         // Create users for testing.
         users = Users({
@@ -116,19 +112,13 @@ abstract contract UnitTest is BaseTest {
         nonCompliantToken.approve({ spender: spender, value: UINT256_MAX });
     }
 
-    /// @dev Generates an address by hashing the name, labels the address and
-    /// funds it with 100 ETH, 1M DAI, 1M USDC and 1M non-standard tokens.
+    /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
+    ///  and 1 million non-compliant tokens.
     function createUser(string memory name) internal returns (address payable addr) {
         addr = payable(address(uint160(uint256(keccak256(abi.encodePacked(name))))));
         vm.label(addr, name);
         vm.deal(addr, 100 ether);
         deal({ token: address(dai), to: addr, give: 1_000_000e18, adjust: true });
         deal({ token: address(nonCompliantToken), to: addr, give: 1_000_000e18, adjust: true });
-    }
-
-    /// @dev Deploys a token with the provided decimals and funds the user with the provided token amount.
-    function deployAndDealToken(uint8 decimals, address user, uint256 give) internal returns (address token) {
-        token = address(new ERC20("Test Token", "TKN", decimals));
-        deal({ token: token, to: user, give: give, adjust: true });
     }
 }

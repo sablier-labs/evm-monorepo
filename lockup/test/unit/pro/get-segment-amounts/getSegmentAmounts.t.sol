@@ -18,9 +18,9 @@ contract GetSegmentAmounts__Test is ProTest {
 
     /// @dev it should return the correct segment amounts.
     function testGetSegmentAmounts() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        uint128[] memory actualSegmentAmounts = pro.getSegmentAmounts(daiStreamId);
-        uint128[] memory expectedSegmentAmounts = daiStream.segmentAmounts;
+        uint256 defaultStreamId = createDefaultStream();
+        uint128[] memory actualSegmentAmounts = pro.getSegmentAmounts(defaultStreamId);
+        uint128[] memory expectedSegmentAmounts = defaultStream.segmentAmounts;
         assertEqUint128Array(actualSegmentAmounts, expectedSegmentAmounts);
     }
 }

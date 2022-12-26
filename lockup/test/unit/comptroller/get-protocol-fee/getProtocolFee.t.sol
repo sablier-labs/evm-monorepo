@@ -10,7 +10,6 @@ import { Events } from "src/libraries/Events.sol";
 import { SablierV2ComptrollerTest } from "../SablierV2Comptroller.t.sol";
 
 contract GetProtocolFee__Test is SablierV2ComptrollerTest {
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 

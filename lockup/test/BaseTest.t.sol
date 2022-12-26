@@ -61,20 +61,20 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
         assertEq(uint256(a.withdrawnAmount), uint256(b.withdrawnAmount));
     }
 
-    /// @dev Helper function to compare two `uint40` arrays.
-    function assertEqUint40Array(uint40[] memory a, uint40[] memory b) internal {
+    /// @dev Helper function to compare two `uint128` arrays.
+    function assertEqUint128Array(uint128[] memory a, uint128[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit Log("Error: a == b not satisfied [uint40[]]");
+            emit Log("Error: a == b not satisfied [uint128[]]");
             emit LogNamedArray("  Expected", b);
             emit LogNamedArray("    Actual", a);
             fail();
         }
     }
 
-    /// @dev Helper function to compare two `uint128` arrays.
-    function assertEqUint128Array(uint128[] memory a, uint128[] memory b) internal {
+    /// @dev Helper function to compare two `uint40` arrays.
+    function assertEqUint40Array(uint40[] memory a, uint40[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit Log("Error: a == b not satisfied [uint128[]]");
+            emit Log("Error: a == b not satisfied [uint40[]]");
             emit LogNamedArray("  Expected", b);
             emit LogNamedArray("    Actual", a);
             fail();

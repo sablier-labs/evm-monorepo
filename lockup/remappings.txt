@@ -3,4 +3,5 @@
 @prb/math/=lib/prb-math/src/
 @prb/test/=lib/prb-test/src/
 forge-std/=lib/forge-std/src/
+solidity-generators=lib/solidity-generators/src
 src/=src/

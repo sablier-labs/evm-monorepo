@@ -14,7 +14,7 @@ library Errors {
     error SablierV2__ClaimZeroProtocolRevenues(address token);
 
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
-    error SablierV2__GrossDepositAmountZero();
+    error SablierV2__NetDepositAmountZero();
 
     /// @notice Emitted when the new global fee is greater than the maximum permitted.
     error SablierV2__NewGlobalFeeGreaterThanMaxPermitted(UD60x18 newGlobalFee, UD60x18 maxGlobalFee);
@@ -75,16 +75,19 @@ library Errors {
                             SABLIER-V2-PRO CUSTOM ERRORS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when attempting to create a stream with a deposit amount that does not qual the segment
+    /// @notice Emitted when attempting to create a stream with a net deposit amount that does not equal the segment
     /// amounts sum.
-    error SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(uint128 depositAmount, uint128 segmentAmountsSum);
+    error SablierV2Pro__NetDepositAmountNotEqualToSegmentAmountsSum(
+        uint128 netDepositAmount,
+        uint128 segmentAmountsSum
+    );
 
     /// @notice Emitted when attempting to create a stream with segment counts that are not equal.
     error SablierV2Pro__SegmentCountsNotEqual(uint256 amountsCount, uint256 exponentsCount, uint256 milestonesCount);
 
     /// @notice Emitted when attempting to create a stream with one or more segment counts greater than the maximum
     /// permitted.
-    error SablierV2Pro__SegmentCountOutOfBounds(uint256 count);
+    error SablierV2Pro__SegmentCountTooHigh(uint256 count);
 
     /// @notice Emitted when attempting to create a stream with zero segments.
     error SablierV2Pro__SegmentCountZero();

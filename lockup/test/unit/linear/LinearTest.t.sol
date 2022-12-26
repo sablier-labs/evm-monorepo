@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
+import { toUD60x18, ud, UD60x18, unwrap } from "@prb/math/UD60x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
@@ -57,16 +57,16 @@ abstract contract LinearTest is UnitTest {
                                   TESTING VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    SablierV2Linear internal linear;
     DefaultArgs internal defaultArgs;
     DataTypes.LinearStream internal defaultStream;
+    SablierV2Linear internal linear;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev A setup function invoked before each test case.
     function setUp() public virtual {
+        // Construct the SablierV2Linear contract.
         linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: MAX_FEE });
 
         // Create the default args to be used for the create functions.
@@ -119,8 +119,24 @@ abstract contract LinearTest is UnitTest {
         approveMax({ caller: users.alice, spender: address(linear) });
         approveMax({ caller: users.eve, spender: address(linear) });
 
-        // Make the sender the caller for all subsequent calls.
+        // Make the sender the default caller in all subsequent tests.
         changePrank(users.sender);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                 CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Helper function that replicates the logic of the `getWithdrawableAmount` function, but which
+    /// does not subtract the withdrawn amount.
+    function calculateStreamedAmount(
+        uint40 currentTime,
+        uint128 depositAmount
+    ) internal view returns (uint128 streamedAmount) {
+        UD60x18 elapsedTime = toUD60x18(currentTime - defaultStream.startTime);
+        UD60x18 totalTime = toUD60x18(defaultStream.stopTime - defaultStream.startTime);
+        UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+        streamedAmount = uint128(unwrap(elapsedTimePercentage.mul(ud(depositAmount))));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -6,7 +6,6 @@ import { LinearTest } from "../LinearTest.t.sol";
 contract GetWithdrawnAmount__Test is LinearTest {
     uint256 internal defaultStreamId;
 
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
@@ -17,9 +16,9 @@ contract GetWithdrawnAmount__Test is LinearTest {
     /// @dev it should return zero.
     function testGetWithdrawnAmount__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        uint128 actualDepositAmount = linear.getWithdrawnAmount(nonStreamId);
-        uint128 expectedDepositAmount = 0;
-        assertEq(actualDepositAmount, expectedDepositAmount);
+        uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(nonStreamId);
+        uint128 expectedWithdrawnAmount = 0;
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
     modifier StreamExistent() {
@@ -35,24 +34,27 @@ contract GetWithdrawnAmount__Test is LinearTest {
         // Warp into the future.
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
-        // Run the test.
+        // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = 0;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
     /// @dev it should return the correct withdrawn amount.
-    function testGetWithdrawnAmount__WithWithdrawals(uint256 timeWarp) external StreamExistent {
+    function testGetWithdrawnAmount__WithWithdrawals(uint256 timeWarp, uint128 withdrawAmount) external StreamExistent {
         timeWarp = bound(timeWarp, defaultStream.cliffTime, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
+        // Bound the withdraw amount.
+        uint128 withdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
+        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
+
         // Make the withdrawal.
-        uint128 withdrawAmount = linear.getWithdrawableAmount(defaultStreamId);
         linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
-        // Run the test.
+        // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);

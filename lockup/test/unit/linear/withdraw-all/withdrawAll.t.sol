@@ -13,7 +13,6 @@ contract WithdrawAll__Test is LinearTest {
     uint128[] internal defaultAmounts;
     uint256[] internal defaultStreamIds;
 
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
@@ -106,7 +105,7 @@ contract WithdrawAll__Test is LinearTest {
         OnlyExistentStreams
     {
         // Make the sender the caller in this test.
-        changePrank(defaultStream.sender);
+        changePrank(users.sender);
 
         // Run the test.
         vm.expectRevert(
@@ -195,8 +194,8 @@ contract WithdrawAll__Test is LinearTest {
 
         // Expect the withdrawals to be made.
         uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
         // Make the withdrawals.
         linear.withdrawAll({ streamIds: defaultStreamIds, to: to, amounts: defaultAmounts });
@@ -268,7 +267,7 @@ contract WithdrawAll__Test is LinearTest {
 
     /// @dev it should make the withdrawals, emit multiple Withdraw events, and delete the streams.
     function testWithdrawAll__AllStreamsEnded(
-        uint40 timeWarp,
+        uint256 timeWarp,
         address to
     )
         external
@@ -280,7 +279,7 @@ contract WithdrawAll__Test is LinearTest {
         AllAmountsNotZero
         AllAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        timeWarp = boundUint40(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
+        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
         vm.assume(to != address(0));
 
         // Warp into the future, past the stop time.
@@ -293,8 +292,8 @@ contract WithdrawAll__Test is LinearTest {
         emit Events.Withdraw({ streamId: defaultStreamIds[1], to: to, amount: defaultStream.depositAmount });
 
         // Expect the withdrawals to be made.
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, defaultStream.depositAmount)));
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, defaultStream.depositAmount)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, defaultStream.depositAmount)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, defaultStream.depositAmount)));
 
         // Make the withdrawals.
         uint128[] memory amounts = createDynamicUint128Array(defaultStream.depositAmount, defaultStream.depositAmount);
@@ -317,7 +316,7 @@ contract WithdrawAll__Test is LinearTest {
 
     /// @dev it should make the withdrawals, emit multiple Withdraw events, and update the withdrawn amounts.
     function testWithdrawAll__AllStreamsOngoing(
-        uint40 timeWarp,
+        uint256 timeWarp,
         address to,
         uint128 withdrawAmount
     )
@@ -330,7 +329,7 @@ contract WithdrawAll__Test is LinearTest {
         AllAmountsNotZero
         AllAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(to != address(0));
 
         // Warp into the future, before the stop time of the stream.
@@ -341,8 +340,8 @@ contract WithdrawAll__Test is LinearTest {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawals to be made.
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
         // Expect Withdraw events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
@@ -365,7 +364,7 @@ contract WithdrawAll__Test is LinearTest {
     /// @dev it should make the withdrawals, emit multiple Withdraw events, delete the ended streams, and update
     /// the withdrawn amounts.
     function testWithdrawAll__SomeStreamsEndedSomeStreamsOngoing(
-        uint40 timeWarp,
+        uint256 timeWarp,
         address to,
         uint128 ongoingWithdrawAmount
     )
@@ -378,7 +377,7 @@ contract WithdrawAll__Test is LinearTest {
         AllAmountsNotZero
         AllAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        timeWarp = boundUint40(timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1);
+        timeWarp = bound(timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1);
         vm.assume(to != address(0));
 
         // Use the first default stream as the ended stream.

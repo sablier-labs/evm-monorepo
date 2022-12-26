@@ -20,9 +20,9 @@ contract GetStream__Test is ProTest {
 
     /// @dev it should return the stream struct.
     function testGetStream() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        DataTypes.ProStream memory actualStream = pro.getStream(daiStreamId);
-        DataTypes.ProStream memory expectedStream = daiStream;
+        uint256 defaultStreamId = createDefaultStream();
+        DataTypes.ProStream memory actualStream = pro.getStream(defaultStreamId);
+        DataTypes.ProStream memory expectedStream = defaultStream;
         assertEq(actualStream, expectedStream);
     }
 }

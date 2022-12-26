@@ -18,8 +18,8 @@ contract GetRecipient__Test is ProTest {
 
     /// @dev it should return the correct recipient.
     function testGetRecipient() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        address actualRecipient = pro.getRecipient(daiStreamId);
+        uint256 defaultStreamId = createDefaultStream();
+        address actualRecipient = pro.getRecipient(defaultStreamId);
         address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient);
     }

@@ -20,9 +20,9 @@ contract GetSegmentExponents__Test is ProTest {
 
     /// @dev it should return the correct segment amounts.
     function testGetSegmentExponents() external StreamExistent {
-        uint256 daiStreamId = createDefaultDaiStream();
-        SD1x18[] memory actualSegmentExponents = pro.getSegmentExponents(daiStreamId);
-        SD1x18[] memory expectedSegmentExponents = daiStream.segmentExponents;
+        uint256 defaultStreamId = createDefaultStream();
+        SD1x18[] memory actualSegmentExponents = pro.getSegmentExponents(defaultStreamId);
+        SD1x18[] memory expectedSegmentExponents = defaultStream.segmentExponents;
         assertEq(actualSegmentExponents, expectedSegmentExponents);
     }
 }

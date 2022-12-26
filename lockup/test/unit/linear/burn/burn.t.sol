@@ -8,7 +8,6 @@ import { LinearTest } from "../LinearTest.t.sol";
 contract Burn__Test is LinearTest {
     uint256 internal defaultStreamId;
 
-    /// @dev A setup function invoked before each test case.
     function setUp() public override {
         super.setUp();
 
@@ -60,7 +59,7 @@ contract Burn__Test is LinearTest {
     function testBurn__CallerApprovedOperator(
         address operator
     ) external StreamNonExistent NFTExistent CallerAuthorized {
-        vm.assume(operator != address(0));
+        vm.assume(operator != address(0) && operator != users.recipient);
 
         // Approve the operator to handle the stream.
         linear.approve({ to: operator, tokenId: defaultStreamId });
@@ -68,8 +67,10 @@ contract Burn__Test is LinearTest {
         // Make the approved operator the caller in this test.
         changePrank(operator);
 
-        // Run the test.
+        // Burn the NFT.
         linear.burn(defaultStreamId);
+
+        // Assert that the NFT was burned.
         address actualOwner = linear.getRecipient(defaultStreamId);
         address expectedOwner = address(0);
         assertEq(actualOwner, expectedOwner);

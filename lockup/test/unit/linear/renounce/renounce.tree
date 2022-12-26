@@ -5,5 +5,4 @@ renounce.t.sol
    ├── when the caller is not the sender
    │  └── it should revert
    └── when the caller is the sender
-      ├── it should renounce the stream
-      └── it should emit a Renounce event
+      └── it should emit a Renounce event and renounce the stream

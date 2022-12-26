@@ -69,7 +69,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// @dev Emits a {CreateLinearStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - As long as they are ordered, it is not an error to set `startTime` and `stopTime` to a time in the past.
+    /// - As long as they are ordered, it is not an error to set `startTime` and `stopTime` to past times.
     ///
     /// Requirements:
     /// - `sender` must not be the zero address.
@@ -79,7 +79,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// - `startTime` must not be greater than `stopTime`.
     /// - `startTime` must not be greater than cliffTime`.
     /// - `cliffTime` must not be greater than `stopTime`.
-    /// - `msg.sender` must have allowed this contract to spend `depositAmount` tokens.
+    /// - `msg.sender` must have allowed this contract to spend at least `grossDepositAmount` tokens.
     ///
     /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.

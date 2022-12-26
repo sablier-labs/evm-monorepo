@@ -24,12 +24,14 @@ contract Renounce__Test is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotRenounce__CallerNotSender() external StreamExistent {
+    function testCannotRenounce__CallerNotSender(address eve) external StreamExistent {
+        vm.assume(eve != address(0) && eve != defaultStream.sender);
+
         // Make Eve the caller in this test.
-        changePrank(users.eve);
+        changePrank(eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, eve));
         linear.renounce(defaultStreamId);
     }
 
@@ -49,17 +51,17 @@ contract Renounce__Test is LinearTest {
         linear.renounce(nonCancelableStreamId);
     }
 
-    /// @dev it should make the stream non-cancelable.
+    /// @dev it should emit a Renounce event and renounce the stream.
     function testRenounce() external StreamExistent CallerSender {
-        linear.renounce(defaultStreamId);
-        DataTypes.LinearStream memory actualStream = linear.getStream(defaultStreamId);
-        assertEq(actualStream.cancelable, false);
-    }
-
-    /// @dev it should emit a Renounce event.
-    function testRenounce__Event() external StreamExistent CallerSender {
+        // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: false });
         emit Events.Renounce(defaultStreamId);
+
+        // Renounce the stream.
         linear.renounce(defaultStreamId);
+
+        // Assert that the stream is non-cancelable now.
+        bool isCancelable = linear.isCancelable(defaultStreamId);
+        assertFalse(isCancelable);
     }
 }

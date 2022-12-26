@@ -18,7 +18,7 @@ contract ClaimProtocolRevenues__Test is LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(IOwnable.Ownable__CallerNotOwner.selector, users.owner, users.eve));
-        linear.claimProtocolRevenues(address(dai));
+        linear.claimProtocolRevenues(defaultStream.token);
     }
 
     modifier CallerOwner() {
@@ -29,8 +29,10 @@ contract ClaimProtocolRevenues__Test is LinearTest {
 
     /// @dev it should revert.
     function testCannotClaimProtocolRevenues__ProtocolRevenuesZero() external CallerOwner {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__ClaimZeroProtocolRevenues.selector, address(dai)));
-        linear.claimProtocolRevenues(address(dai));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2__ClaimZeroProtocolRevenues.selector, defaultStream.token)
+        );
+        linear.claimProtocolRevenues(defaultStream.token);
     }
 
     modifier ProtocolRevenuesNotZero() {
@@ -45,23 +47,23 @@ contract ClaimProtocolRevenues__Test is LinearTest {
     function testClaimProtocolRevenues() external CallerOwner ProtocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.owner, protocolRevenues)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (users.owner, protocolRevenues)));
 
         // Claim the protocol revenues.
-        linear.claimProtocolRevenues(address(dai));
+        linear.claimProtocolRevenues(defaultStream.token);
     }
 
     /// @dev it should set the protocol revenues to zero.
     function testClaimProtocolRevenues__SetToZero() external CallerOwner ProtocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.owner, protocolRevenues)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (users.owner, protocolRevenues)));
 
         // Claim the protocol revenues.
-        linear.claimProtocolRevenues(address(dai));
+        linear.claimProtocolRevenues(defaultStream.token);
 
         // Assert that the protocol revenues were set to zero.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(address(dai));
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultStream.token);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -71,9 +73,9 @@ contract ClaimProtocolRevenues__Test is LinearTest {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.ClaimProtocolRevenues(users.owner, address(dai), protocolRevenues);
+        emit Events.ClaimProtocolRevenues(users.owner, defaultStream.token, protocolRevenues);
 
         // Claim the protocol revenues.
-        linear.claimProtocolRevenues(address(dai));
+        linear.claimProtocolRevenues(defaultStream.token);
     }
 }

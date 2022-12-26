@@ -166,10 +166,12 @@ contract SablierV2Linear is
         uint40 cliffDuration,
         uint40 totalDuration
     ) external returns (uint256 streamId) {
-        // Calculate the cliff time and the stop time. It is fine to use unchecked arithmetic because the
+        // Make the current block timestamp the start time of the stream.
+        uint40 startTime = uint40(block.timestamp);
+
+        // Calculate the cliff time and the stop time. It is safe to use unchecked arithmetic because the
         // `_createWithRange` function will nonetheless check that the stop time is greater than or equal to the
         // cliff time, and also that the cliff time is greater than or equal to the start time.
-        uint40 startTime = uint40(block.timestamp);
         uint40 cliffTime;
         uint40 stopTime;
         unchecked {
@@ -323,34 +325,24 @@ contract SablierV2Linear is
         uint40 cliffTime,
         uint40 stopTime
     ) internal returns (uint256 streamId) {
-        // Checks: validate the streaming arguments.
-        Helpers.checkCreateLinearArgs(grossDepositAmount, startTime, cliffTime, stopTime);
-
-        // Safe Interactions: query the protocol fee associated with this token.
+        // Safe Interactions: query the protocol fee of this token.
         // This interaction is safe because we are querying a Sablier contract.
         UD60x18 protocolFee = comptroller.getProtocolFee(token);
 
-        // Checks: check that the fees are not greater than `MAX_FEE`, and also calculate the fee amounts and the
+        // Checks: check that neither fee is greater than `MAX_FEE`, and also calculate the fee amounts and the
         // deposit amount.
-        (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 depositAmount) = Helpers.checkAndCalculateFees(
-            grossDepositAmount,
-            protocolFee,
-            operatorFee,
-            MAX_FEE
-        );
+        (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 netDepositAmount) = Helpers
+            .checkAndCalculateFees(grossDepositAmount, protocolFee, operatorFee, MAX_FEE);
 
-        // Effects: record the protocol fee amount.
-        // We're using unchecked arithmetic here because this calculation cannot realistically overflow, ever.
-        unchecked {
-            _protocolRevenues[token] += protocolFeeAmount;
-        }
+        // Checks: validate the arguments.
+        Helpers.checkCreateLinearArgs(netDepositAmount, startTime, cliffTime, stopTime);
 
         // Effects: create the stream.
         streamId = nextStreamId;
         _streams[streamId] = DataTypes.LinearStream({
             cancelable: cancelable,
             cliffTime: cliffTime,
-            depositAmount: depositAmount,
+            depositAmount: netDepositAmount,
             isEntity: true,
             sender: sender,
             startTime: startTime,
@@ -359,13 +351,19 @@ contract SablierV2Linear is
             withdrawnAmount: 0
         });
 
+        // Effects: record the protocol fee amount.
+        // We're using unchecked arithmetic here because this calculation cannot realistically overflow, ever.
+        unchecked {
+            _protocolRevenues[token] += protocolFeeAmount;
+        }
+
         // Effects: bump the next stream id.
         // We're using unchecked arithmetic here because this calculation cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
         }
 
-        // Effects: mint the NFT for the recipient by setting the stream id as the token id.
+        // Effects: mint the NFT for the recipient.
         _mint({ to: recipient, tokenId: streamId });
 
         // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.
@@ -382,7 +380,7 @@ contract SablierV2Linear is
             funder: msg.sender,
             sender: sender,
             recipient: recipient,
-            depositAmount: depositAmount,
+            depositAmount: netDepositAmount,
             protocolFeeAmount: protocolFeeAmount,
             operator: operator,
             operatorFeeAmount: operatorFeeAmount,
