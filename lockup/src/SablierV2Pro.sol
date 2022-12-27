@@ -431,7 +431,7 @@ contract SablierV2Pro is
             operator: operator,
             operatorFeeAmount: operatorFeeAmount,
             token: token,
-            isCancelable: cancelable,
+            cancelable: cancelable,
             startTime: startTime,
             segmentMilestones: segmentMilestones
         });

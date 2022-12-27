@@ -385,7 +385,7 @@ contract SablierV2Linear is
             operator: operator,
             operatorFeeAmount: operatorFeeAmount,
             token: token,
-            isCancelable: cancelable,
+            cancelable: cancelable,
             startTime: startTime,
             cliffTime: cliffTime,
             stopTime: stopTime
