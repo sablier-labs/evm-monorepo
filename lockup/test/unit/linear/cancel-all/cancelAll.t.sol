@@ -2,6 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { Solarray } from "solarray/Solarray.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -26,14 +27,14 @@ contract CancelAll__Test is LinearTest {
     /// @dev it should do nothing.
     function testCannotCancelAll__OnlyNonExistentStreams() external {
         uint256 nonStreamId = 1729;
-        uint256[] memory streamIds = createDynamicArray(nonStreamId);
+        uint256[] memory streamIds = Solarray.uint256s(nonStreamId);
         linear.cancelAll(streamIds);
     }
 
     /// @dev it should ignore the non-existent streams and cancel the existent streams.
     function testCannotCancelAll__SomeNonExistentStreams() external {
         uint256 nonStreamId = 1729;
-        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], nonStreamId);
+        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], nonStreamId);
         linear.cancelAll(streamIds);
         DataTypes.LinearStream memory actualStream = linear.getStream(defaultStreamIds[0]);
         DataTypes.LinearStream memory expectedStream;
@@ -50,7 +51,7 @@ contract CancelAll__Test is LinearTest {
         uint256 streamId = createDefaultStreamNonCancelable();
 
         // Run the test.
-        uint256[] memory nonCancelableStreamIds = createDynamicArray(streamId);
+        uint256[] memory nonCancelableStreamIds = Solarray.uint256s(streamId);
         linear.cancelAll(nonCancelableStreamIds);
     }
 
@@ -60,7 +61,7 @@ contract CancelAll__Test is LinearTest {
         uint256 streamId = createDefaultStreamNonCancelable();
 
         // Run the test.
-        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], streamId);
+        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
         linear.cancelAll(streamIds);
         DataTypes.LinearStream memory actualStream0 = linear.getStream(defaultStreamIds[0]);
         DataTypes.LinearStream memory actualStream1 = linear.getStream(streamId);
@@ -138,7 +139,7 @@ contract CancelAll__Test is LinearTest {
         uint256 eveStreamId = createDefaultStreamWithSender(users.eve);
 
         // Run the test.
-        uint256[] memory streamIds = createDynamicArray(eveStreamId, defaultStreamIds[0]);
+        uint256[] memory streamIds = Solarray.uint256s(eveStreamId, defaultStreamIds[0]);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.eve)
         );
@@ -212,7 +213,7 @@ contract CancelAll__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
         // Create the stream ids array.
-        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], streamId);
+        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
         // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 withdrawAmount0 = linear.getWithdrawableAmount(streamIds[0]);
@@ -286,7 +287,7 @@ contract CancelAll__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });
 
         // Create the stream ids array.
-        uint256[] memory streamIds = createDynamicArray(defaultStreamIds[0], streamId);
+        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
         // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 withdrawAmount0 = linear.getWithdrawableAmount(streamIds[0]);

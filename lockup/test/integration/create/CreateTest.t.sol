@@ -3,6 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
+import { Solarray } from "solarray/Solarray.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 
@@ -93,9 +94,9 @@ abstract contract CreateTest is IntegrationTest {
         vm.assume(startTime > 0); // needed for the segments to be ordered
         vm.assume(startTime <= stopTime);
 
-        SD1x18[] memory segmentExponents = createDynamicArray(exponent);
-        uint128[] memory segmentAmounts = createDynamicUint128Array(depositAmount);
-        uint40[] memory segmentMilestones = createDynamicUint40Array(stopTime);
+        SD1x18[] memory segmentExponents = Solarray.SD1x18s(exponent);
+        uint128[] memory segmentAmounts = Solarray.uint128s(depositAmount);
+        uint40[] memory segmentMilestones = Solarray.uint40s(stopTime);
 
         // Pull the next stream id.
         uint256 expectedStreamId = pro.nextStreamId();

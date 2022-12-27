@@ -4,6 +4,7 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
+import { Solarray } from "solarray/Solarray.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
@@ -80,7 +81,7 @@ contract CreateWithDeltas__Test is ProTest {
         SegmentDeltaEqual
     {
         uint40 startTime = getBlockTimestamp();
-        uint40[] memory segmentDeltas = createDynamicUint40Array(UINT40_MAX, 1);
+        uint40[] memory segmentDeltas = Solarray.uint40s(UINT40_MAX, 1);
         uint40[] memory segmentMilestones = new uint40[](2);
         unchecked {
             segmentMilestones[0] = startTime + segmentDeltas[0];
@@ -114,17 +115,13 @@ contract CreateWithDeltas__Test is ProTest {
         SegmentDeltaEqual
     {
         uint40 startTime = getBlockTimestamp();
-        uint128[] memory segmentAmounts = createDynamicUint128Array(
-            0,
-            DEFAULT_SEGMENT_AMOUNTS[0],
-            DEFAULT_SEGMENT_AMOUNTS[1]
-        );
-        SD1x18[] memory segmentExponents = createDynamicArray(
+        uint128[] memory segmentAmounts = Solarray.uint128s(0, DEFAULT_SEGMENT_AMOUNTS[0], DEFAULT_SEGMENT_AMOUNTS[1]);
+        SD1x18[] memory segmentExponents = Solarray.SD1x18s(
             SD1x18.wrap(1e18),
             DEFAULT_SEGMENT_EXPONENTS[0],
             DEFAULT_SEGMENT_EXPONENTS[1]
         );
-        uint40[] memory segmentDeltas = createDynamicUint40Array(uint40(1), UINT40_MAX, 1);
+        uint40[] memory segmentDeltas = Solarray.uint40s(uint40(1), UINT40_MAX, 1);
         uint40[] memory segmentMilestones = new uint40[](3);
         unchecked {
             segmentMilestones[0] = startTime + segmentDeltas[0];

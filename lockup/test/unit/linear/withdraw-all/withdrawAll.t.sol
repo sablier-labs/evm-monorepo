@@ -2,6 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { Solarray } from "solarray/Solarray.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -59,15 +60,15 @@ contract WithdrawAll__Test is LinearTest {
     /// @dev it should do nothing.
     function testCannotWithdrawAll__OnlyNonExistentStreams() external ToNonZeroAddress ArraysEqual {
         uint256 nonStreamId = 1729;
-        uint256[] memory nonStreamIds = createDynamicArray(nonStreamId);
-        uint128[] memory amounts = createDynamicUint128Array(DEFAULT_WITHDRAW_AMOUNT);
+        uint256[] memory nonStreamIds = Solarray.uint256s(nonStreamId);
+        uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT);
         linear.withdrawAll({ streamIds: nonStreamIds, to: users.recipient, amounts: amounts });
     }
 
     /// @dev it should ignore the non-existent streams and make the withdrawals for the existent streams.
     function testCannotWithdrawAll__SomeNonExistentStreams() external ToNonZeroAddress ArraysEqual {
         uint256 nonStreamId = 1729;
-        uint256[] memory streamIds = createDynamicArray(nonStreamId, defaultStreamIds[0]);
+        uint256[] memory streamIds = Solarray.uint256s(nonStreamId, defaultStreamIds[0]);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
@@ -148,7 +149,7 @@ contract WithdrawAll__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
 
         // Run the test.
-        uint256[] memory streamIds = createDynamicArray(eveStreamId, defaultStreamIds[0]);
+        uint256[] memory streamIds = Solarray.uint256s(eveStreamId, defaultStreamIds[0]);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], eve));
         linear.withdrawAll({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
     }
@@ -225,7 +226,7 @@ contract WithdrawAll__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
 
         // Run the test.
-        uint128[] memory amounts = createDynamicUint128Array(DEFAULT_WITHDRAW_AMOUNT, 0);
+        uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT, 0);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__WithdrawAmountZero.selector, defaultStreamIds[1]));
         linear.withdrawAll({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
     }
@@ -249,7 +250,7 @@ contract WithdrawAll__Test is LinearTest {
 
         // Run the test.
         uint128 withdrawableAmount = DEFAULT_WITHDRAW_AMOUNT;
-        uint128[] memory amounts = createDynamicUint128Array(withdrawableAmount, UINT128_MAX);
+        uint128[] memory amounts = Solarray.uint128s(withdrawableAmount, UINT128_MAX);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount.selector,
@@ -296,7 +297,7 @@ contract WithdrawAll__Test is LinearTest {
         vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, defaultStream.depositAmount)));
 
         // Make the withdrawals.
-        uint128[] memory amounts = createDynamicUint128Array(defaultStream.depositAmount, defaultStream.depositAmount);
+        uint128[] memory amounts = Solarray.uint128s(defaultStream.depositAmount, defaultStream.depositAmount);
         linear.withdrawAll({ streamIds: defaultStreamIds, to: to, amounts: amounts });
 
         // Assert that the streams were deleted.
@@ -350,7 +351,7 @@ contract WithdrawAll__Test is LinearTest {
         emit Events.Withdraw({ streamId: defaultStreamIds[1], to: to, amount: withdrawAmount });
 
         // Make the withdrawals.
-        uint128[] memory amounts = createDynamicUint128Array(withdrawAmount, withdrawAmount);
+        uint128[] memory amounts = Solarray.uint128s(withdrawAmount, withdrawAmount);
         linear.withdrawAll({ streamIds: defaultStreamIds, to: to, amounts: amounts });
 
         // Assert that the withdrawn amounts were updated.
@@ -402,8 +403,8 @@ contract WithdrawAll__Test is LinearTest {
         emit Events.Withdraw({ streamId: ongoingStreamId, to: to, amount: ongoingWithdrawAmount });
 
         // Run the test.
-        uint256[] memory streamIds = createDynamicArray(endedStreamId, ongoingStreamId);
-        uint128[] memory amounts = createDynamicUint128Array(endedWithdrawAmount, ongoingWithdrawAmount);
+        uint256[] memory streamIds = Solarray.uint256s(endedStreamId, ongoingStreamId);
+        uint128[] memory amounts = Solarray.uint128s(endedWithdrawAmount, ongoingWithdrawAmount);
         linear.withdrawAll({ streamIds: streamIds, to: to, amounts: amounts });
 
         // Assert that the ended stream was deleted.

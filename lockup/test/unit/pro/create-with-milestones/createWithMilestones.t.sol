@@ -2,9 +2,10 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
-import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
+import { Solarray } from "solarray/Solarray.sol";
 import { stdError } from "forge-std/StdError.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
@@ -120,7 +121,7 @@ contract CreateWithMilestones__Test is ProTest {
         SegmentCountNotZero
         SegmentCountNotTooHigh
     {
-        SD1x18[] memory segmentExponents = createDynamicArray(DEFAULT_SEGMENT_EXPONENTS[0]);
+        SD1x18[] memory segmentExponents = Solarray.SD1x18s(DEFAULT_SEGMENT_EXPONENTS[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2Pro__SegmentCountsNotEqual.selector,
@@ -152,7 +153,7 @@ contract CreateWithMilestones__Test is ProTest {
         SegmentCountNotZero
         SegmentCountNotTooHigh
     {
-        uint40[] memory segmentMilestones = createDynamicUint40Array(DEFAULT_SEGMENT_MILESTONES[0]);
+        uint40[] memory segmentMilestones = Solarray.uint40s(DEFAULT_SEGMENT_MILESTONES[0]);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2Pro__SegmentCountsNotEqual.selector,
@@ -199,7 +200,7 @@ contract CreateWithMilestones__Test is ProTest {
         SegmentCountsEqual
         LoopCalculationsDoNotOverflowBlockGasLimit
     {
-        uint128[] memory segmentAmounts = createDynamicUint128Array(UINT128_MAX, 1);
+        uint128[] memory segmentAmounts = Solarray.uint128s(UINT128_MAX, 1);
         vm.expectRevert(stdError.arithmeticError);
         pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
@@ -231,7 +232,7 @@ contract CreateWithMilestones__Test is ProTest {
         LoopCalculationsDoNotOverflowBlockGasLimit
         SegmentAmountsSumDoesNotOverflow
     {
-        uint40[] memory segmentMilestones = createDynamicUint40Array(
+        uint40[] memory segmentMilestones = Solarray.uint40s(
             DEFAULT_SEGMENT_MILESTONES[1],
             DEFAULT_SEGMENT_MILESTONES[0]
         );

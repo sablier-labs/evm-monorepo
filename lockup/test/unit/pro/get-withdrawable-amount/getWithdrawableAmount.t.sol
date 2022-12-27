@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { SD1x18 } from "@prb/math/SD1x18.sol";
+import { E, SD1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
+import { Solarray } from "solarray/Solarray.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
 contract GetWithdrawableAmount__Test is ProTest {
     uint256 internal defaultStreamId;
-    SD1x18 internal constant E = SD1x18.wrap(2_718281828459045235);
     uint128[] internal maxSegmentAmounts = new uint128[](MAX_SEGMENT_COUNT);
     SD1x18[] internal maxSegmentExponents = new SD1x18[](MAX_SEGMENT_COUNT);
     uint40[] internal maxSegmentMilestones = new uint40[](MAX_SEGMENT_COUNT);
@@ -51,8 +51,8 @@ contract GetWithdrawableAmount__Test is ProTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - current time > stop time
-    /// - current time = stop time
+    /// - Current time > stop time
+    /// - Current time = stop time
     function testGetWithdrawableAmount__CurrentTimeGreaterThanOrEqualToStopTime__NoWithdrawals(
         uint256 timeWarp
     ) external StreamExistent StartTimeLessThanCurrentTime {
@@ -166,9 +166,9 @@ contract GetWithdrawableAmount__Test is ProTest {
 
         // Create the one-segment arrays.
         uint128 depositAmount = DEFAULT_SEGMENT_AMOUNTS[0] + DEFAULT_SEGMENT_AMOUNTS[1];
-        uint128[] memory segmentAmounts = createDynamicUint128Array(depositAmount);
-        SD1x18[] memory segmentExponents = createDynamicArray(DEFAULT_SEGMENT_EXPONENTS[1]);
-        uint40[] memory segmentMilestones = createDynamicUint40Array(DEFAULT_STOP_TIME);
+        uint128[] memory segmentAmounts = Solarray.uint128s(depositAmount);
+        SD1x18[] memory segmentExponents = Solarray.SD1x18s(DEFAULT_SEGMENT_EXPONENTS[1]);
+        uint40[] memory segmentMilestones = Solarray.uint40s(DEFAULT_STOP_TIME);
 
         // Disable the operator fee so that it doesn't interfere with the calculations.
         UD60x18 operatorFee = ZERO;
