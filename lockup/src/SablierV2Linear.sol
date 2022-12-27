@@ -137,7 +137,7 @@ contract SablierV2Linear is
 
     /// @inheritdoc ISablierV2
     function isCancelable(uint256 streamId) public view override(ISablierV2, SablierV2) returns (bool result) {
-        result = _streams[streamId].cancelable;
+        result = _streams[streamId].isCancelable;
     }
 
     /// @inheritdoc ISablierV2
@@ -340,9 +340,9 @@ contract SablierV2Linear is
         // Effects: create the stream.
         streamId = nextStreamId;
         _streams[streamId] = DataTypes.LinearStream({
-            cancelable: cancelable,
             cliffTime: cliffTime,
             depositAmount: netDepositAmount,
+            isCancelable: cancelable,
             isEntity: true,
             sender: sender,
             startTime: startTime,
@@ -385,17 +385,17 @@ contract SablierV2Linear is
             operator: operator,
             operatorFeeAmount: operatorFeeAmount,
             token: token,
+            isCancelable: cancelable,
             startTime: startTime,
             cliffTime: cliffTime,
-            stopTime: stopTime,
-            cancelable: cancelable
+            stopTime: stopTime
         });
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _renounce(uint256 streamId) internal override {
         // Effects: make the stream non-cancelable.
-        _streams[streamId].cancelable = false;
+        _streams[streamId].isCancelable = false;
 
         // Emit an event.
         emit Events.Renounce(streamId);

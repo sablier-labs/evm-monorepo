@@ -117,7 +117,7 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2Pro
     function getStream(uint256 streamId) external view returns (DataTypes.ProStream memory stream) {
-        return _streams[streamId];
+        stream = _streams[streamId];
     }
 
     /// @inheritdoc ISablierV2
@@ -158,7 +158,7 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2
     function isCancelable(uint256 streamId) public view override(ISablierV2, SablierV2) returns (bool result) {
-        result = _streams[streamId].cancelable;
+        result = _streams[streamId].isCancelable;
     }
 
     /// @inheritdoc ISablierV2
@@ -382,8 +382,8 @@ contract SablierV2Pro is
         // Effects: create the stream.
         uint256 streamId = nextStreamId;
         _streams[streamId] = DataTypes.ProStream({
-            cancelable: cancelable,
             depositAmount: netDepositAmount,
+            isCancelable: cancelable,
             isEntity: true,
             segmentAmounts: segmentAmounts,
             segmentExponents: segmentExponents,
@@ -431,7 +431,7 @@ contract SablierV2Pro is
             operator: operator,
             operatorFeeAmount: operatorFeeAmount,
             token: token,
-            cancelable: cancelable,
+            isCancelable: cancelable,
             startTime: startTime,
             segmentMilestones: segmentMilestones
         });
@@ -513,7 +513,7 @@ contract SablierV2Pro is
     /// @dev See the documentation for the public functions that call this internal function.
     function _renounce(uint256 streamId) internal override {
         // Effects: make the stream non-cancelable.
-        _streams[streamId].cancelable = false;
+        _streams[streamId].isCancelable = false;
 
         // Emit an event.
         emit Events.Renounce(streamId);

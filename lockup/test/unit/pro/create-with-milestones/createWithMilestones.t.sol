@@ -486,8 +486,8 @@ contract CreateWithMilestones__Test is ProTest {
 
         // Assert that the stream was created.
         DataTypes.ProStream memory actualStream = pro.getStream(streamId);
-        assertEq(actualStream.cancelable, defaultStream.cancelable);
         assertEq(actualStream.depositAmount, DEFAULT_NET_DEPOSIT_AMOUNT);
+        assertEq(actualStream.isCancelable, defaultStream.isCancelable);
         assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEqUint128Array(actualStream.segmentAmounts, defaultStream.segmentAmounts);
@@ -618,8 +618,8 @@ contract CreateWithMilestones__Test is ProTest {
 
         // Assert that the stream was created.
         DataTypes.ProStream memory actualStream = pro.getStream(streamId);
-        assertEq(actualStream.cancelable, defaultStream.cancelable);
         assertEq(actualStream.depositAmount, netDepositAmount);
+        assertEq(actualStream.isCancelable, defaultStream.isCancelable);
         assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEqUint128Array(actualStream.segmentAmounts, segmentAmounts);

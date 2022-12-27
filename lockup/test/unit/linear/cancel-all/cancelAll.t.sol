@@ -66,7 +66,7 @@ contract CancelAll__Test is LinearTest {
         DataTypes.LinearStream memory actualStream1 = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream0;
         DataTypes.LinearStream memory expectedStream1 = defaultStream;
-        expectedStream1.cancelable = false;
+        expectedStream1.isCancelable = false;
         assertEq(actualStream0, expectedStream0);
         assertEq(actualStream1, expectedStream1);
     }

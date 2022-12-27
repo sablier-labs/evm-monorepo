@@ -116,8 +116,8 @@ abstract contract ProTest is UnitTest {
 
         // Create the default streams to be used across the tests.
         defaultStream = DataTypes.ProStream({
-            cancelable: defaultArgs.createWithMilestones.cancelable,
             depositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            isCancelable: defaultArgs.createWithMilestones.cancelable,
             isEntity: true,
             segmentAmounts: defaultArgs.createWithMilestones.segmentAmounts,
             segmentExponents: defaultArgs.createWithMilestones.segmentExponents,
@@ -270,7 +270,7 @@ abstract contract ProTest is UnitTest {
 
     /// @dev Helper function to create a non-cancelable stream.
     function createDefaultStreamNonCancelable() internal returns (uint256 streamId) {
-        bool cancelable = false;
+        bool isCancelable = false;
         streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
@@ -280,7 +280,7 @@ abstract contract ProTest is UnitTest {
             defaultArgs.createWithMilestones.operator,
             defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
-            cancelable,
+            isCancelable,
             defaultArgs.createWithMilestones.startTime,
             defaultArgs.createWithMilestones.segmentMilestones
         );

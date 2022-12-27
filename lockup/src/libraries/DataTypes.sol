@@ -15,11 +15,11 @@ library DataTypes {
     struct LinearStream {
         uint128 depositAmount; // ───┐
         uint128 withdrawnAmount; // ─┘
-        address sender; // ──┐
-        uint40 startTime; // │
-        uint40 cliffTime; // │
-        bool cancelable; //  │
-        bool isEntity; // ───┘
+        address sender; // ───┐
+        uint40 startTime; //  │
+        uint40 cliffTime; //  │
+        bool isCancelable; // │
+        bool isEntity; // ────┘
         address token; // ────┐
         uint40 stopTime; // ──┘
     }
@@ -40,7 +40,7 @@ library DataTypes {
         address sender; // ───┐
         uint40 startTime; //  │
         uint40 stopTime; //   │
-        bool cancelable; //   │
+        bool isCancelable; // │
         bool isEntity; // ────┘
         address token;
     }

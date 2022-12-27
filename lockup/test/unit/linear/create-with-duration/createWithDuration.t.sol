@@ -155,9 +155,9 @@ contract CreateWithDeltas__Test is LinearTest {
 
         // Assert that the stream was created.
         DataTypes.LinearStream memory actualStream = linear.getStream(streamId);
-        assertEq(actualStream.cancelable, defaultStream.cancelable);
         assertEq(actualStream.cliffTime, cliffTime);
         assertEq(actualStream.depositAmount, defaultStream.depositAmount);
+        assertEq(actualStream.isCancelable, defaultStream.isCancelable);
         assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.startTime, startTime);

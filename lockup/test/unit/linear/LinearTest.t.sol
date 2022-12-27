@@ -98,9 +98,9 @@ abstract contract LinearTest is UnitTest {
 
         // Create the default streams to be used across the tests.
         defaultStream = DataTypes.LinearStream({
-            cancelable: defaultArgs.createWithRange.cancelable,
             cliffTime: defaultArgs.createWithRange.cliffTime,
             depositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            isCancelable: defaultArgs.createWithRange.cancelable,
             isEntity: true,
             sender: defaultArgs.createWithRange.sender,
             startTime: defaultArgs.createWithRange.startTime,
@@ -161,7 +161,7 @@ abstract contract LinearTest is UnitTest {
 
     /// @dev Helper function to create a default stream that is non-cancelable.
     function createDefaultStreamNonCancelable() internal returns (uint256 streamId) {
-        bool cancelable = false;
+        bool isCancelable = false;
         streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
@@ -169,7 +169,7 @@ abstract contract LinearTest is UnitTest {
             defaultArgs.createWithRange.operator,
             defaultArgs.createWithRange.operatorFee,
             defaultArgs.createWithRange.token,
-            cancelable,
+            isCancelable,
             defaultArgs.createWithRange.startTime,
             defaultArgs.createWithRange.cliffTime,
             defaultArgs.createWithRange.stopTime

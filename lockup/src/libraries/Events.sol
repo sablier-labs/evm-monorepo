@@ -41,7 +41,7 @@ library Events {
     /// @param protocolFeeAmount The amount of tokens charged by the protocol, in units of the token's decimals.
     /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
     /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param cancelable Whether the stream will be cancelable or not.
+    /// @param isCancelable Whether the stream will be cancelable or not.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param cliffTime The unix timestamp in seconds for when the cliff period will end.
     /// @param stopTime The unix timestamp in seconds for when the stream will stop.
@@ -55,7 +55,7 @@ library Events {
         address operator,
         uint128 operatorFeeAmount,
         address token,
-        bool cancelable,
+        bool isCancelable,
         uint40 startTime,
         uint40 cliffTime,
         uint40 stopTime
@@ -72,9 +72,9 @@ library Events {
     /// @param protocolFeeAmount The amount of tokens charged by the protocol, in units of the token's decimals.
     /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
     /// @param token The address of the ERC-20 token to use for streaming.
+    /// @param isCancelable Whether the stream will be cancelable or not.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
     /// @param segmentMilestones The unix timestamp milestones used to compose the custom streaming curve.
-    /// @param cancelable Whether the stream will be cancelable or not.
     event CreateProStream(
         uint256 streamId,
         address indexed funder,
@@ -87,7 +87,7 @@ library Events {
         address operator,
         uint128 operatorFeeAmount,
         address token,
-        bool cancelable,
+        bool isCancelable,
         uint40 startTime,
         uint40[] segmentMilestones
     );

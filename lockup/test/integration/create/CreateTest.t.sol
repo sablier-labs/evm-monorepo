@@ -32,7 +32,7 @@ abstract contract CreateTest is IntegrationTest {
         uint40 startTime,
         uint40 cliffTime,
         uint40 stopTime,
-        bool cancelable
+        bool isCancelable
     ) external {
         vm.assume(sender != address(0));
         vm.assume(recipient != address(0));
@@ -50,7 +50,7 @@ abstract contract CreateTest is IntegrationTest {
             recipient,
             depositAmount,
             token(),
-            cancelable,
+            isCancelable,
             startTime,
             cliffTime,
             stopTime
@@ -58,9 +58,9 @@ abstract contract CreateTest is IntegrationTest {
 
         // Declare the expected stream struct.
         DataTypes.LinearStream memory stream = DataTypes.LinearStream({
-            cancelable: cancelable,
             cliffTime: cliffTime,
             depositAmount: depositAmount,
+            isCancelable: cancelable,
             isEntity: true,
             sender: sender,
             startTime: startTime,
@@ -84,7 +84,7 @@ abstract contract CreateTest is IntegrationTest {
         uint40 startTime,
         uint40 stopTime,
         SD1x18 exponent,
-        bool cancelable
+        bool isCancelable
     ) external {
         vm.assume(sender != address(0));
         vm.assume(recipient != address(0));
@@ -106,7 +106,7 @@ abstract contract CreateTest is IntegrationTest {
             recipient,
             depositAmount,
             token(),
-            cancelable,
+            isCancelable,
             startTime,
             segmentAmounts,
             segmentExponents,
@@ -115,8 +115,8 @@ abstract contract CreateTest is IntegrationTest {
 
         // Declare the expected stream struct.
         DataTypes.ProStream memory expectedStream = DataTypes.ProStream({
-            cancelable: cancelable,
             depositAmount: depositAmount,
+            isCancelable: cancelable,
             isEntity: true,
             segmentAmounts: segmentAmounts,
             segmentExponents: segmentExponents,
