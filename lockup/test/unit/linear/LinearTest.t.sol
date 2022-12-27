@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { toUD60x18, ud, UD60x18, unwrap } from "@prb/math/UD60x18.sol";
 
-import { DataTypes } from "src/libraries/DataTypes.sol";
+import { DataTypes } from "src/types/DataTypes.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 
 import { BaseTest } from "../../BaseTest.t.sol";

@@ -5,7 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
-import { DataTypes } from "src/libraries/DataTypes.sol";
+import { DataTypes } from "src/types/DataTypes.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 

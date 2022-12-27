@@ -5,7 +5,7 @@ import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18, toSD59x18 } from "@prb/math/SD59x18.sol";
 import { toUD60x18, ud, UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { DataTypes } from "src/libraries/DataTypes.sol";
+import { DataTypes } from "src/types/DataTypes.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
 import { BaseTest } from "../../BaseTest.t.sol";

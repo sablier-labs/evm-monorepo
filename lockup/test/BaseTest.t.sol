@@ -11,7 +11,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 import { StdUtils } from "forge-std/StdUtils.sol";
 
-import { DataTypes } from "src/libraries/DataTypes.sol";
+import { DataTypes } from "src/types/DataTypes.sol";
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";

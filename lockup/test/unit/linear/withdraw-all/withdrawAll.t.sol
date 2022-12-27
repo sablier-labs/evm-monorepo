@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
-import { DataTypes } from "src/libraries/DataTypes.sol";
+import { DataTypes } from "src/types/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 

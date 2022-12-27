@@ -7,7 +7,7 @@ import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { DataTypes } from "src/libraries/DataTypes.sol";
+import { DataTypes } from "src/types/DataTypes.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Errors } from "src/libraries/Errors.sol";
 

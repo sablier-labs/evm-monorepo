@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { DataTypes } from "../libraries/DataTypes.sol";
+import { DataTypes } from "../types/DataTypes.sol";
 
 import { ISablierV2 } from "./ISablierV2.sol";
 
