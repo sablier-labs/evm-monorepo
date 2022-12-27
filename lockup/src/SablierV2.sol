@@ -154,11 +154,7 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function withdrawAll(
-        uint256[] calldata streamIds,
-        address to,
-        uint128[] calldata amounts
-    ) external override {
+    function withdrawAll(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external override {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
             revert Errors.SablierV2__WithdrawToZeroAddress();
@@ -203,11 +199,10 @@ abstract contract SablierV2 is ISablierV2 {
     /// @dev Unlike the ERC-721 implementation, this function does not check whether the owner is the zero address.
     /// @param streamId The id of the stream to make the query for.
     /// @param spender The spender to make the query for.
-    function _isApprovedOrOwner(uint256 streamId, address spender)
-        internal
-        view
-        virtual
-        returns (bool isApprovedOrOwner);
+    function _isApprovedOrOwner(
+        uint256 streamId,
+        address spender
+    ) internal view virtual returns (bool isApprovedOrOwner);
 
     /// @notice Checks whether the `msg.sender` is the sender of the stream or not.
     /// @param streamId The id of the stream to make the query for.
@@ -228,9 +223,5 @@ abstract contract SablierV2 is ISablierV2 {
     function _renounce(uint256 streamId) internal virtual;
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount
-    ) internal virtual;
+    function _withdraw(uint256 streamId, address to, uint128 amount) internal virtual;
 }

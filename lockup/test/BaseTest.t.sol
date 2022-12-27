@@ -88,11 +88,10 @@ abstract contract BaseTest is PRBTest, PRBMathAssertions, StdCheats, StdUtils {
     }
 
     /// @dev Helper function to create a dynamical `SD1x18` array with 2 elements.
-    function createDynamicArray(SD1x18 element0, SD1x18 element1)
-        internal
-        pure
-        returns (SD1x18[] memory dynamicalArray)
-    {
+    function createDynamicArray(
+        SD1x18 element0,
+        SD1x18 element1
+    ) internal pure returns (SD1x18[] memory dynamicalArray) {
         dynamicalArray = new SD1x18[](2);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
@@ -117,11 +116,10 @@ abstract contract BaseTest is PRBTest, PRBMathAssertions, StdCheats, StdUtils {
     }
 
     /// @dev Helper function to create a dynamical `uint256` array with 2 elements.
-    function createDynamicArray(uint256 element0, uint256 element1)
-        internal
-        pure
-        returns (uint256[] memory dynamicalArray)
-    {
+    function createDynamicArray(
+        uint256 element0,
+        uint256 element1
+    ) internal pure returns (uint256[] memory dynamicalArray) {
         dynamicalArray = new uint256[](2);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
@@ -146,11 +144,10 @@ abstract contract BaseTest is PRBTest, PRBMathAssertions, StdCheats, StdUtils {
     }
 
     /// @dev Helper function to create a dynamical `uint40` array with 2 elements.
-    function createDynamicUint40Array(uint40 element0, uint40 element1)
-        internal
-        pure
-        returns (uint40[] memory dynamicalArray)
-    {
+    function createDynamicUint40Array(
+        uint40 element0,
+        uint40 element1
+    ) internal pure returns (uint40[] memory dynamicalArray) {
         dynamicalArray = new uint40[](2);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;
@@ -175,11 +172,10 @@ abstract contract BaseTest is PRBTest, PRBMathAssertions, StdCheats, StdUtils {
     }
 
     /// @dev Helper function to create a dynamical `uint128` array with 2 elements.
-    function createDynamicUint128Array(uint128 element0, uint128 element1)
-        internal
-        pure
-        returns (uint128[] memory dynamicalArray)
-    {
+    function createDynamicUint128Array(
+        uint128 element0,
+        uint128 element1
+    ) internal pure returns (uint128[] memory dynamicalArray) {
         dynamicalArray = new uint128[](2);
         dynamicalArray[0] = element0;
         dynamicalArray[1] = element1;

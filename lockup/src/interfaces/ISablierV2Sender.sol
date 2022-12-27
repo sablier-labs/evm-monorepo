@@ -13,10 +13,5 @@ interface ISablierV2Sender {
     /// @param caller The address of the original `msg.sender` address that triggered the cancellation.
     /// @param withdrawAmount The amount of tokens withdrawn to the recipient, in units of the token's decimals.
     /// @param returnAmount The amount of tokens returned to the sender, in units of the token's decimals.
-    function onStreamCanceled(
-        uint256 streamId,
-        address caller,
-        uint128 withdrawAmount,
-        uint128 returnAmount
-    ) external;
+    function onStreamCanceled(uint256 streamId, address caller, uint128 withdrawAmount, uint128 returnAmount) external;
 }

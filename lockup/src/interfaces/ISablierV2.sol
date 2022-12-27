@@ -143,11 +143,7 @@ interface ISablierV2 is IERC721 {
     /// @param streamId The id of the stream to withdraw.
     /// @param to The address that receives the withdrawn tokens, if the `msg.sender` is not the stream sender.
     /// @param amount The amount to withdraw, in units of the token's decimals.
-    function withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount
-    ) external;
+    function withdraw(uint256 streamId, address to, uint128 amount) external;
 
     /// @notice Withdraws tokens from multiple streams to the provided address `to`.
     ///
@@ -165,9 +161,5 @@ interface ISablierV2 is IERC721 {
     /// @param streamIds The ids of the streams to withdraw.
     /// @param to The address that receives the withdrawn tokens, if the `msg.sender` is not the stream sender.
     /// @param amounts The amounts to withdraw, in units of the token's decimals.
-    function withdrawAll(
-        uint256[] calldata streamIds,
-        address to,
-        uint128[] calldata amounts
-    ) external;
+    function withdrawAll(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external;
 }

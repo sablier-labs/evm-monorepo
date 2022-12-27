@@ -16,11 +16,7 @@ contract NonRevertingRecipient is ISablierV2Recipient {
         returnAmount;
     }
 
-    function onStreamWithdrawn(
-        uint256 streamId,
-        address caller,
-        uint128 withdrawAmount
-    ) external pure {
+    function onStreamWithdrawn(uint256 streamId, address caller, uint128 withdrawAmount) external pure {
         streamId;
         caller;
         withdrawAmount;

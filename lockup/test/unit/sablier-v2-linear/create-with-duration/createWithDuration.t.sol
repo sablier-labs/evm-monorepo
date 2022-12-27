@@ -40,10 +40,10 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
     }
 
     /// @dev When the total duration calculation overflows uint256, it should revert.
-    function testCannotCreateWithDuration__TotalDurationCalculationOverflows(uint40 cliffDuration, uint40 totalDuration)
-        external
-        CliffDurationCalculationDoesNotOverflow
-    {
+    function testCannotCreateWithDuration__TotalDurationCalculationOverflows(
+        uint40 cliffDuration,
+        uint40 totalDuration
+    ) external CliffDurationCalculationDoesNotOverflow {
         uint40 startTime = uint40(block.timestamp);
         vm.assume(cliffDuration <= UINT40_MAX - startTime);
         vm.assume(totalDuration > UINT40_MAX - startTime);
@@ -72,11 +72,10 @@ contract CreateWithDuration__Test is SablierV2LinearTest {
     }
 
     /// @dev it should create the stream with duration.
-    function testCreateWithDuration(uint40 cliffDuration, uint40 totalDuration)
-        external
-        CliffDurationCalculationDoesNotOverflow
-        TotalDurationCalculationDoesNotOverflow
-    {
+    function testCreateWithDuration(
+        uint40 cliffDuration,
+        uint40 totalDuration
+    ) external CliffDurationCalculationDoesNotOverflow TotalDurationCalculationDoesNotOverflow {
         vm.assume(cliffDuration <= totalDuration);
         vm.assume(totalDuration <= UINT40_MAX - block.timestamp);
         uint40 cliffTime;

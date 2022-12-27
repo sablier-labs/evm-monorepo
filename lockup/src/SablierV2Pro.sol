@@ -291,12 +291,10 @@ contract SablierV2Pro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierV2
-    function _isApprovedOrOwner(uint256 streamId, address spender)
-        internal
-        view
-        override
-        returns (bool isApprovedOrOwner)
-    {
+    function _isApprovedOrOwner(
+        uint256 streamId,
+        address spender
+    ) internal view override returns (bool isApprovedOrOwner) {
         address owner = _ownerOf(streamId);
         isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
     }
@@ -461,11 +459,7 @@ contract SablierV2Pro is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount
-    ) internal override {
+    function _withdraw(uint256 streamId, address to, uint128 amount) internal override {
         // Checks: the amount is not zero.
         if (amount == 0) {
             revert Errors.SablierV2__WithdrawAmountZero(streamId);
