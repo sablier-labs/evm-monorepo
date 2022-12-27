@@ -430,8 +430,8 @@ contract CreateWithMilestones__Test is ProTest {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, emit a CreateProStream event, create the stream, record the
-    /// protocol fee, bump the next stream id, and mint the NFT.
+    /// @dev it should perform the ERC-20 transfers, create the stream, record the protocol fee, bump the next
+    /// stream id, and mint the NFT.
     function testCreateWithMilestones__TokenMissingReturnValue()
         external
         RecipientNonZeroAddress
@@ -448,16 +448,15 @@ contract CreateWithMilestones__Test is ProTest {
         TokenContract
     {
         // Load the protocol revenues.
-        address token = address(nonCompliantToken);
-        uint128 previousProtocolRevenues = pro.getProtocolRevenues(token);
+        uint128 previousProtocolRevenues = pro.getProtocolRevenues(address(nonCompliantToken));
 
         // Load the stream id.
         uint256 streamId = pro.nextStreamId();
 
-        // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
+        // Expect the tokens to be transferred from the funder to the SablierV2Pro contract.
         address funder = defaultArgs.createWithMilestones.sender;
         vm.expectCall(
-            token,
+            address(nonCompliantToken),
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, address(pro), defaultArgs.createWithMilestones.grossDepositAmount)
@@ -466,7 +465,7 @@ contract CreateWithMilestones__Test is ProTest {
 
         // Expect the the operator fee to be paid to the operator.
         vm.expectCall(
-            token,
+            address(nonCompliantToken),
             abi.encodeCall(IERC20.transfer, (defaultArgs.createWithMilestones.operator, DEFAULT_OPERATOR_FEE_AMOUNT))
         );
 
@@ -479,7 +478,7 @@ contract CreateWithMilestones__Test is ProTest {
             defaultArgs.createWithMilestones.segmentExponents,
             defaultArgs.createWithMilestones.operator,
             defaultArgs.createWithMilestones.operatorFee,
-            token,
+            address(nonCompliantToken),
             defaultArgs.createWithMilestones.cancelable,
             defaultArgs.createWithMilestones.startTime,
             defaultArgs.createWithMilestones.segmentMilestones
@@ -496,11 +495,11 @@ contract CreateWithMilestones__Test is ProTest {
         assertEqUint40Array(actualStream.segmentMilestones, defaultStream.segmentMilestones);
         assertEq(actualStream.startTime, defaultStream.startTime);
         assertEq(actualStream.stopTime, DEFAULT_STOP_TIME);
-        assertEq(actualStream.token, token);
+        assertEq(actualStream.token, address(nonCompliantToken));
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = pro.getProtocolRevenues(token);
+        uint128 actualProtocolRevenues = pro.getProtocolRevenues(address(nonCompliantToken));
         uint128 expectedProtocolRevenues = previousProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
@@ -524,9 +523,7 @@ contract CreateWithMilestones__Test is ProTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Funder same as and different from sender.
-    /// - Funder same as and different from recipient.
-    /// - Sender same as and different from recipient.
+    /// - All possible permutations between the funder, recipient, sender, and operator.
     /// - Protocol fee zero and non-zero.
     /// - Operator fee zero and non-zero.
     /// - Start time in the past, present and future.
@@ -568,27 +565,26 @@ contract CreateWithMilestones__Test is ProTest {
         // Make the funder the caller in the rest of this test.
         changePrank(funder);
 
-        // Mint  tokens to the funder.
+        // Mint tokens to the funder.
         deal({ token: defaultArgs.createWithMilestones.token, to: funder, give: grossDepositAmount });
 
-        // Approve the SablierV2Linear contract to transfer the tokens from the funder.
+        // Approve the SablierV2Pro contract to transfer the tokens from the funder.
         IERC20(defaultArgs.createWithMilestones.token).approve({ spender: address(pro), value: UINT256_MAX });
 
         // Load the protocol revenues.
         uint128 previousProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithMilestones.token);
 
-        // Load the stream id.
-        uint256 streamId = pro.nextStreamId();
-
         // Calculate the fee amounts and the net deposit amount.
-        uint128 protocolFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(protocolFee)));
-        uint128 operatorFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(operatorFee)));
-        uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - operatorFeeAmount;
+        (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 netDepositAmount) = calculateFeeAmounts(
+            grossDepositAmount,
+            protocolFee,
+            operatorFee
+        );
 
-        // Calculate the segment amounts as two fractions of the net deposit amount, one 20%, the other 80%.
+        // Calculate the segment amounts.
         uint128[] memory segmentAmounts = calculateSegmentAmounts(netDepositAmount);
 
-        // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
+        // Expect the tokens to be transferred from the funder to the SablierV2Pro contract.
         vm.expectCall(
             defaultArgs.createWithMilestones.token,
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), grossDepositAmount))
@@ -603,7 +599,7 @@ contract CreateWithMilestones__Test is ProTest {
         }
 
         // Create the stream.
-        pro.createWithMilestones(
+        uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             recipient,
             grossDepositAmount,
@@ -647,6 +643,7 @@ contract CreateWithMilestones__Test is ProTest {
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
 
+    /// @dev it should emit a CreateProStream event.
     function testCreateWithMilestones__Event()
         external
         RecipientNonZeroAddress

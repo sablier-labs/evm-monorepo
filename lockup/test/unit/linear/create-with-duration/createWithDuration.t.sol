@@ -100,10 +100,9 @@ contract CreateWithDeltas__Test is LinearTest {
         uint128 previousProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithRange.token);
 
         // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
-        address token = defaultArgs.createWithDuration.token;
         address funder = defaultArgs.createWithDuration.sender;
         vm.expectCall(
-            token,
+            defaultArgs.createWithDuration.token,
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, address(linear), defaultArgs.createWithDuration.grossDepositAmount)
@@ -112,9 +111,12 @@ contract CreateWithDeltas__Test is LinearTest {
 
         // Expect the the operator fee to be paid to the operator, if the amount is not zero.
         vm.expectCall(
-            token,
+            defaultArgs.createWithDuration.token,
             abi.encodeCall(IERC20.transfer, (defaultArgs.createWithDuration.operator, DEFAULT_OPERATOR_FEE_AMOUNT))
         );
+
+        // Load the stream id.
+        uint256 streamId = linear.nextStreamId();
 
         // Calculate the start time, cliff time and the stop time.
         uint40 startTime = getBlockTimestamp();
@@ -122,7 +124,6 @@ contract CreateWithDeltas__Test is LinearTest {
         uint40 stopTime = startTime + totalDuration;
 
         // Expect an event to be emitted.
-        uint256 streamId = linear.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLinearStream(
             streamId,
@@ -133,7 +134,7 @@ contract CreateWithDeltas__Test is LinearTest {
             DEFAULT_PROTOCOL_FEE_AMOUNT,
             defaultArgs.createWithDuration.operator,
             DEFAULT_OPERATOR_FEE_AMOUNT,
-            token,
+            defaultArgs.createWithDuration.token,
             defaultArgs.createWithDuration.cancelable,
             startTime,
             cliffTime,
@@ -162,11 +163,11 @@ contract CreateWithDeltas__Test is LinearTest {
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.startTime, startTime);
         assertEq(actualStream.stopTime, stopTime);
-        assertEq(actualStream.token, token);
+        assertEq(actualStream.token, defaultStream.token);
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(token);
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithDuration.token);
         uint128 expectedProtocolRevenues = previousProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 

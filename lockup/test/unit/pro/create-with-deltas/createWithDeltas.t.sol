@@ -5,9 +5,10 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
+import { Events } from "src/libraries/Events.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { ProTest } from "../ProTest.t.sol";
@@ -154,14 +155,12 @@ contract CreateWithDeltas__Test is ProTest {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, emit a CreateProStream event, create the stream, record the
-    /// protocol fee, and bump the next stream id.
+    /// @dev it should perform the ERC-20 transfers, create the stream, record the protocol fee, and bump the
+    /// next stream id.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Funder same as and different from sender.
-    /// - Funder same as and different from recipient.
-    /// - Sender same as and different from recipient.
+    /// - All possible permutations between the funder, recipient, sender, and operator.
     /// - Protocol fee zero and non-zero.
     /// - Operator fee zero and non-zero.
     function testCreateWithDeltas(
@@ -187,26 +186,23 @@ contract CreateWithDeltas__Test is ProTest {
         // Mint tokens to the funder.
         deal({ token: defaultArgs.createWithDeltas.token, to: funder, give: grossDepositAmount });
 
-        // Approve the SablierV2Linear contract to transfer the tokens from the funder.
+        // Approve the SablierV2Pro contract to transfer the tokens from the funder.
         IERC20(defaultArgs.createWithDeltas.token).approve({ spender: address(pro), value: UINT256_MAX });
 
         // Load the protocol revenues.
         uint128 previousProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithDeltas.token);
 
-        // Load the stream id.
-        uint256 streamId = pro.nextStreamId();
-
         // Calculate the fee amounts and the net deposit amount.
-        uint128 protocolFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(protocolFee)));
-        uint128 operatorFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(operatorFee)));
-        uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - operatorFeeAmount;
+        (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 netDepositAmount) = calculateFeeAmounts(
+            grossDepositAmount,
+            protocolFee,
+            operatorFee
+        );
 
-        // Calculate the segment amounts as two fractions of the net deposit amount, one 20%, the other 80%.
-        uint128[] memory segmentAmounts = new uint128[](2);
-        segmentAmounts[0] = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(ud(0.2e18))));
-        segmentAmounts[1] = netDepositAmount - segmentAmounts[0];
+        // Calculate the segment amounts.
+        uint128[] memory segmentAmounts = calculateSegmentAmounts(netDepositAmount);
 
-        // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
+        // Expect the tokens to be transferred from the funder to the SablierV2Pro contract.
         vm.expectCall(
             defaultArgs.createWithDeltas.token,
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), grossDepositAmount))
@@ -221,7 +217,7 @@ contract CreateWithDeltas__Test is ProTest {
         }
 
         // Create the stream.
-        pro.createWithDeltas(
+        uint256 streamId = pro.createWithDeltas(
             defaultArgs.createWithDeltas.sender,
             recipient,
             grossDepositAmount,
@@ -262,5 +258,48 @@ contract CreateWithDeltas__Test is ProTest {
         address actualNFTOwner = pro.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = recipient;
         assertEq(actualNFTOwner, expectedNFTOwner);
+    }
+
+    /// @dev it should create a CreateProStream event.
+    function testCreateWithDeltas__Event()
+        external
+        LoopCalculationsDoNotOverflowBlockGasLimit
+        SegmentDeltaEqual
+        MilestonesCalculationsDoNotOverflow
+    {
+        // Expect an event to be emitted.
+        uint256 streamId = pro.nextStreamId();
+        address funder = defaultArgs.createWithDeltas.sender;
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        emit Events.CreateProStream(
+            streamId,
+            funder,
+            defaultArgs.createWithDeltas.sender,
+            defaultArgs.createWithDeltas.recipient,
+            DEFAULT_NET_DEPOSIT_AMOUNT,
+            defaultArgs.createWithDeltas.segmentAmounts,
+            defaultArgs.createWithDeltas.segmentExponents,
+            DEFAULT_PROTOCOL_FEE_AMOUNT,
+            defaultArgs.createWithDeltas.operator,
+            DEFAULT_OPERATOR_FEE_AMOUNT,
+            defaultArgs.createWithDeltas.token,
+            defaultArgs.createWithDeltas.cancelable,
+            DEFAULT_START_TIME,
+            DEFAULT_SEGMENT_MILESTONES
+        );
+
+        // Create the stream.
+        pro.createWithDeltas(
+            defaultArgs.createWithDeltas.sender,
+            defaultArgs.createWithDeltas.recipient,
+            defaultArgs.createWithDeltas.grossDepositAmount,
+            defaultArgs.createWithDeltas.segmentAmounts,
+            defaultArgs.createWithDeltas.segmentExponents,
+            defaultArgs.createWithDeltas.operator,
+            defaultArgs.createWithDeltas.operatorFee,
+            defaultArgs.createWithDeltas.token,
+            defaultArgs.createWithDeltas.cancelable,
+            defaultArgs.createWithDeltas.segmentDeltas
+        );
     }
 }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
-import { MAX_UD60x18, UD60x18, ud, unwrap, wrap } from "@prb/math/UD60x18.sol";
+import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -204,8 +204,7 @@ contract CreateWithRange__Test is LinearTest {
         TokenContract
     {
         // Load the protocol revenues.
-        address token = address(nonCompliantToken);
-        uint128 previousProtocolRevenues = linear.getProtocolRevenues(token);
+        uint128 previousProtocolRevenues = linear.getProtocolRevenues(address(nonCompliantToken));
 
         // Load the stream id.
         uint256 streamId = linear.nextStreamId();
@@ -213,7 +212,7 @@ contract CreateWithRange__Test is LinearTest {
         // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
         address funder = defaultArgs.createWithRange.sender;
         vm.expectCall(
-            token,
+            address(nonCompliantToken),
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, address(linear), defaultArgs.createWithRange.grossDepositAmount)
@@ -222,7 +221,7 @@ contract CreateWithRange__Test is LinearTest {
 
         // Expect the the operator fee to be paid to the operator.
         vm.expectCall(
-            token,
+            address(nonCompliantToken),
             abi.encodeCall(IERC20.transfer, (defaultArgs.createWithRange.operator, DEFAULT_OPERATOR_FEE_AMOUNT))
         );
 
@@ -237,7 +236,7 @@ contract CreateWithRange__Test is LinearTest {
             DEFAULT_PROTOCOL_FEE_AMOUNT,
             defaultArgs.createWithRange.operator,
             DEFAULT_OPERATOR_FEE_AMOUNT,
-            token,
+            address(nonCompliantToken),
             defaultArgs.createWithRange.cancelable,
             defaultArgs.createWithRange.startTime,
             defaultArgs.createWithRange.cliffTime,
@@ -251,7 +250,7 @@ contract CreateWithRange__Test is LinearTest {
             defaultArgs.createWithRange.grossDepositAmount,
             defaultArgs.createWithRange.operator,
             defaultArgs.createWithRange.operatorFee,
-            token,
+            address(nonCompliantToken),
             defaultArgs.createWithRange.cancelable,
             defaultArgs.createWithRange.startTime,
             defaultArgs.createWithRange.cliffTime,
@@ -267,11 +266,11 @@ contract CreateWithRange__Test is LinearTest {
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.startTime, defaultStream.startTime);
         assertEq(actualStream.stopTime, defaultStream.stopTime);
-        assertEq(actualStream.token, token);
+        assertEq(actualStream.token, address(nonCompliantToken));
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(token);
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(address(nonCompliantToken));
         uint128 expectedProtocolRevenues = previousProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
@@ -295,9 +294,7 @@ contract CreateWithRange__Test is LinearTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Funder same as and different from sender.
-    /// - Funder same as and different from recipient.
-    /// - Sender same as and different from recipient.
+    /// - All possible permutations between the funder, recipient, sender, and operator.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
     /// - Cliff time lower than and equal to stop time.
@@ -347,9 +344,11 @@ contract CreateWithRange__Test is LinearTest {
         uint256 streamId = linear.nextStreamId();
 
         // Calculate the fee amounts and the net deposit amount.
-        uint128 protocolFeeAmount = uint128(unwrap(ud(grossDepositAmount).mul(protocolFee)));
-        uint128 operatorFeeAmount = uint128(unwrap(ud(grossDepositAmount).mul(operatorFee)));
-        uint128 depositAmount = grossDepositAmount - protocolFeeAmount - operatorFeeAmount;
+        (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 netDepositAmount) = calculateFeeAmounts(
+            grossDepositAmount,
+            protocolFee,
+            operatorFee
+        );
 
         // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
         vm.expectCall(
@@ -372,7 +371,7 @@ contract CreateWithRange__Test is LinearTest {
             funder,
             defaultArgs.createWithRange.sender,
             recipient,
-            depositAmount,
+            netDepositAmount,
             protocolFeeAmount,
             operator,
             operatorFeeAmount,
@@ -400,7 +399,7 @@ contract CreateWithRange__Test is LinearTest {
         // Assert that the stream was created.
         DataTypes.LinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.cliffTime, cliffTime);
-        assertEq(actualStream.depositAmount, depositAmount);
+        assertEq(actualStream.depositAmount, netDepositAmount);
         assertEq(actualStream.isCancelable, defaultStream.isCancelable);
         assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);

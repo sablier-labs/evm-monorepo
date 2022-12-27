@@ -8,16 +8,15 @@ import { toUD60x18, ud, UD60x18 } from "@prb/math/UD60x18.sol";
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
-import { UnitTest } from "../UnitTest.t.sol";
+import { BaseTest } from "../../BaseTest.t.sol";
 
 /// @title ProTest
 /// @notice Common contract members needed across SablierV2Pro unit tests.
-abstract contract ProTest is UnitTest {
+abstract contract ProTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 internal constant MAX_SEGMENT_COUNT = 200;
     uint128[] internal DEFAULT_SEGMENT_AMOUNTS = [2_500e18, 7_500e18];
     uint40[] internal DEFAULT_SEGMENT_DELTAS = [2_500 seconds, 7_500 seconds];
     SD1x18[] internal DEFAULT_SEGMENT_EXPONENTS = [SD1x18.wrap(3.14e18), SD1x18.wrap(0.5e18)];
@@ -65,25 +64,19 @@ abstract contract ProTest is UnitTest {
 
     DefaultArgs internal defaultArgs;
     DataTypes.ProStream internal defaultStream;
-    SablierV2Pro internal pro;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public virtual {
+    function setUp() public virtual override {
+        super.setUp();
+
         // Initialize the immutables.
         DEFAULT_SEGMENT_MILESTONES = [
             DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION,
             DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION
         ];
-
-        // Construct the SablierV2Pro contract.
-        pro = new SablierV2Pro({
-            initialComptroller: comptroller,
-            maxFee: MAX_FEE,
-            maxSegmentCount: MAX_SEGMENT_COUNT
-        });
 
         // Create the default args to be used for the create functions.
         defaultArgs = DefaultArgs({

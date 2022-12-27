@@ -7,9 +7,9 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { SablierV2ComptrollerTest } from "../SablierV2Comptroller.t.sol";
+import { ComptrollerTest } from "../ComptrollerTest.t.sol";
 
-contract GetProtocolFee__Test is SablierV2ComptrollerTest {
+contract GetProtocolFee__Test is ComptrollerTest {
     function setUp() public override {
         super.setUp();
 

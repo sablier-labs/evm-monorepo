@@ -7,9 +7,9 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { SablierV2ComptrollerTest } from "../SablierV2Comptroller.t.sol";
+import { ComptrollerTest } from "../ComptrollerTest.t.sol";
 
-contract SetProtocolFee__Test is SablierV2ComptrollerTest {
+contract SetProtocolFee__Test is ComptrollerTest {
     /// @dev it should revert.
     function testCannotSetProtocolFee__CallerNotOwner() external {
         // Make Eve the caller in this test.

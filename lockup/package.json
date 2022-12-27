@@ -35,7 +35,6 @@
   "scripts": {
     "clean": "rimraf cache out",
     "lint": "yarn solhint && yarn prettier:check",
-    "lint:check": "yarn prettier:check && yarn solhint:check",
     "postinstall": "husky install",
     "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
     "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",

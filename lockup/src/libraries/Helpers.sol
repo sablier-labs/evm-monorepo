@@ -13,7 +13,7 @@ library Helpers {
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Calculates the protocol and the operator fee amounts.
+    /// @dev Calculates the protocol fee amount, the operator fee amount, and the net deposit amount.
     function checkAndCalculateFees(
         uint128 grossDepositAmount,
         UD60x18 protocolFee,

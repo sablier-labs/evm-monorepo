@@ -7,11 +7,11 @@ import { toUD60x18, ud, UD60x18, unwrap } from "@prb/math/UD60x18.sol";
 import { DataTypes } from "src/libraries/DataTypes.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 
-import { UnitTest } from "../UnitTest.t.sol";
+import { BaseTest } from "../../BaseTest.t.sol";
 
 /// @title LinearTest
 /// @notice Common contract members needed across SablierV2Linear unit tests.
-abstract contract LinearTest is UnitTest {
+abstract contract LinearTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -59,15 +59,13 @@ abstract contract LinearTest is UnitTest {
 
     DefaultArgs internal defaultArgs;
     DataTypes.LinearStream internal defaultStream;
-    SablierV2Linear internal linear;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public virtual {
-        // Construct the SablierV2Linear contract.
-        linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: MAX_FEE });
+    function setUp() public virtual override {
+        super.setUp();
 
         // Create the default args to be used for the create functions.
         defaultArgs = DefaultArgs({

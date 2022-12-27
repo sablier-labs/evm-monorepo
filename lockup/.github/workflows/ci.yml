@@ -1,5 +1,9 @@
 name: "CI"
 
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
 env:
   ETH_RPC_URL: "${{ secrets.ETH_RPC_URL }}"
   FOUNDRY_PROFILE: "ci"
