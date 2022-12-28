@@ -10,7 +10,7 @@ import { Events } from "src/libraries/Events.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract CancelAll__Test is LinearTest {
+contract CancelMultiple__Test is LinearTest {
     uint256[] internal defaultStreamIds;
 
     function setUp() public override {
@@ -25,17 +25,17 @@ contract CancelAll__Test is LinearTest {
     }
 
     /// @dev it should do nothing.
-    function testCannotCancelAll__OnlyNonExistentStreams() external {
+    function testCannotCancelMultiple__OnlyNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(nonStreamId);
-        linear.cancelAll(streamIds);
+        linear.cancelMultiple(streamIds);
     }
 
     /// @dev it should ignore the non-existent streams and cancel the existent streams.
-    function testCannotCancelAll__SomeNonExistentStreams() external {
+    function testCannotCancelMultiple__SomeNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], nonStreamId);
-        linear.cancelAll(streamIds);
+        linear.cancelMultiple(streamIds);
         DataTypes.LinearStream memory actualStream = linear.getStream(defaultStreamIds[0]);
         DataTypes.LinearStream memory expectedStream;
         assertEq(actualStream, expectedStream);
@@ -46,23 +46,23 @@ contract CancelAll__Test is LinearTest {
     }
 
     /// @dev it should do nothing.
-    function testCannotCancelAll__AllStreamsNonCancelable() external OnlyExistentStreams {
+    function testCannotCancelMultiple__AllStreamsNonCancelable() external OnlyExistentStreams {
         // Create the non-cancelable stream.
         uint256 streamId = createDefaultStreamNonCancelable();
 
         // Run the test.
         uint256[] memory nonCancelableStreamIds = Solarray.uint256s(streamId);
-        linear.cancelAll(nonCancelableStreamIds);
+        linear.cancelMultiple(nonCancelableStreamIds);
     }
 
     /// @dev it should ignore the non-cancelable streams and cancel the cancelable streams.
-    function testCannotCancelAll__SomeStreamsNonCancelable() external OnlyExistentStreams {
+    function testCannotCancelMultiple__SomeStreamsNonCancelable() external OnlyExistentStreams {
         // Create the non-cancelable stream.
         uint256 streamId = createDefaultStreamNonCancelable();
 
         // Run the test.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
-        linear.cancelAll(streamIds);
+        linear.cancelMultiple(streamIds);
         DataTypes.LinearStream memory actualStream0 = linear.getStream(defaultStreamIds[0]);
         DataTypes.LinearStream memory actualStream1 = linear.getStream(streamId);
         DataTypes.LinearStream memory expectedStream0;
@@ -77,7 +77,7 @@ contract CancelAll__Test is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedAllStreams__MaliciousThirdParty(
+    function testCannotCancelMultiple__CallerUnauthorizedAllStreams__MaliciousThirdParty(
         address eve
     ) external OnlyExistentStreams AllStreamsCancelable {
         vm.assume(eve != address(0) && eve != defaultStream.sender && eve != users.recipient);
@@ -87,11 +87,11 @@ contract CancelAll__Test is LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], eve));
-        linear.cancelAll(defaultStreamIds);
+        linear.cancelMultiple(defaultStreamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedAllStreams__ApprovedOperator(
+    function testCannotCancelMultiple__CallerUnauthorizedAllStreams__ApprovedOperator(
         address operator
     ) external OnlyExistentStreams AllStreamsCancelable {
         vm.assume(operator != address(0) && operator != defaultStream.sender && operator != users.recipient);
@@ -106,11 +106,11 @@ contract CancelAll__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.operator)
         );
-        linear.cancelAll(defaultStreamIds);
+        linear.cancelMultiple(defaultStreamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedAllStreams__FormerRecipient()
+    function testCannotCancelMultiple__CallerUnauthorizedAllStreams__FormerRecipient()
         external
         OnlyExistentStreams
         AllStreamsCancelable
@@ -123,11 +123,11 @@ contract CancelAll__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.recipient)
         );
-        linear.cancelAll(defaultStreamIds);
+        linear.cancelMultiple(defaultStreamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedSomeStreams__MaliciousThirdParty(
+    function testCannotCancelMultiple__CallerUnauthorizedSomeStreams__MaliciousThirdParty(
         address eve
     ) external OnlyExistentStreams AllStreamsCancelable {
         vm.assume(eve != address(0) && eve != defaultStream.sender && eve != users.recipient);
@@ -143,11 +143,11 @@ contract CancelAll__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.eve)
         );
-        linear.cancelAll(streamIds);
+        linear.cancelMultiple(streamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedSomeStreams__ApprovedOperator(
+    function testCannotCancelMultiple__CallerUnauthorizedSomeStreams__ApprovedOperator(
         address operator
     ) external OnlyExistentStreams AllStreamsCancelable {
         vm.assume(operator != address(0) && operator != defaultStream.sender && operator != users.recipient);
@@ -162,11 +162,11 @@ contract CancelAll__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.operator)
         );
-        linear.cancelAll(defaultStreamIds);
+        linear.cancelMultiple(defaultStreamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelAll__CallerUnauthorizedSomeStreams__FormerRecipient()
+    function testCannotCancelMultiple__CallerUnauthorizedSomeStreams__FormerRecipient()
         external
         OnlyExistentStreams
         AllStreamsCancelable
@@ -178,7 +178,7 @@ contract CancelAll__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.recipient)
         );
-        linear.cancelAll(defaultStreamIds);
+        linear.cancelMultiple(defaultStreamIds);
     }
 
     modifier CallerAuthorizedAllStreams() {
@@ -192,7 +192,7 @@ contract CancelAll__Test is LinearTest {
     /// - All streams ended.
     /// - All streams ongoing.
     /// - Some streams ended, some streams ongoing.
-    function testCancelAll__Sender(
+    function testCancelMultiple__Sender(
         uint256 timeWarp,
         uint40 stopTime
     ) external OnlyExistentStreams AllStreamsCancelable CallerAuthorizedAllStreams {
@@ -242,7 +242,7 @@ contract CancelAll__Test is LinearTest {
         emit Events.Cancel(streamIds[1], defaultStream.sender, users.recipient, returnAmount1, withdrawAmount1);
 
         // Cancel the streams.
-        linear.cancelAll(streamIds);
+        linear.cancelMultiple(streamIds);
 
         // Assert that the streams were deleted.
         DataTypes.LinearStream memory actualStream0 = linear.getStream(streamIds[0]);
@@ -266,7 +266,7 @@ contract CancelAll__Test is LinearTest {
     /// - All streams ended.
     /// - All streams ongoing.
     /// - Some streams ended, some streams ongoing.
-    function testCancelAll__Recipient(
+    function testCancelMultiple__Recipient(
         uint256 timeWarp,
         uint40 stopTime
     ) external OnlyExistentStreams AllStreamsCancelable CallerAuthorizedAllStreams {
@@ -316,7 +316,7 @@ contract CancelAll__Test is LinearTest {
         emit Events.Cancel(streamIds[1], defaultStream.sender, users.recipient, returnAmount1, withdrawAmount1);
 
         // Cancel the streams.
-        linear.cancelAll(streamIds);
+        linear.cancelMultiple(streamIds);
 
         // Assert that the streams were deleted.
         DataTypes.LinearStream memory actualStream0 = linear.getStream(streamIds[0]);

@@ -1,4 +1,4 @@
-cancelAll.t.sol
+cancelMultiple.t.sol
 ├── when the stream ids array points only to non-existent streams
 │  └── it should do nothing
 ├── when the stream ids array points to some non-existent streams

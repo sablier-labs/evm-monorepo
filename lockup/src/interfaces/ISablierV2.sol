@@ -132,7 +132,7 @@ interface ISablierV2 is
     /// - Each stream must be cancelable.
     ///
     /// @param streamIds The ids of the streams to cancel.
-    function cancelAll(uint256[] calldata streamIds) external;
+    function cancelMultiple(uint256[] calldata streamIds) external;
 
     /// @notice Claims all protocol revenues accrued for the provided token.
     ///
