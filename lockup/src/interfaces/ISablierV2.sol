@@ -210,5 +210,5 @@ interface ISablierV2 is
     /// @param streamIds The ids of the streams to withdraw.
     /// @param to The address that receives the withdrawn tokens, if the `msg.sender` is not the stream sender.
     /// @param amounts The amounts to withdraw, in units of the token's decimals.
-    function withdrawAll(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external;
+    function withdrawMultiple(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external;
 }

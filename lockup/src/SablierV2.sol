@@ -218,7 +218,7 @@ abstract contract SablierV2 is
     }
 
     /// @inheritdoc ISablierV2
-    function withdrawAll(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external override {
+    function withdrawMultiple(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external override {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
             revert Errors.SablierV2__WithdrawToZeroAddress();
@@ -228,7 +228,7 @@ abstract contract SablierV2 is
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
         if (streamIdsCount != amountsCount) {
-            revert Errors.SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
+            revert Errors.SablierV2__WithdrawArraysNotEqual(streamIdsCount, amountsCount);
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.

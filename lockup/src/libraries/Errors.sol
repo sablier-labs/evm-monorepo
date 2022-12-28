@@ -42,7 +42,7 @@ library Errors {
 
     /// @notice Emitted when attempting to withdraw from multiple streams and the count of the stream ids does
     /// not match the count of the amounts.
-    error SablierV2__WithdrawAllArraysNotEqual(uint256 streamIdsCount, uint256 amountsCount);
+    error SablierV2__WithdrawArraysNotEqual(uint256 streamIdsCount, uint256 amountsCount);
 
     /// @notice Emitted when attempting to withdraw more than can be withdrawn.
     error SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(

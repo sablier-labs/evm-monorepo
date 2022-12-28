@@ -10,7 +10,7 @@ import { Events } from "src/libraries/Events.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract WithdrawAll__Test is LinearTest {
+contract WithdrawMultiple__Test is LinearTest {
     uint128[] internal defaultAmounts;
     uint256[] internal defaultStreamIds;
 
@@ -30,9 +30,9 @@ contract WithdrawAll__Test is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotWithdrawAll__ToZeroAddress() external {
+    function testCannotWithdrawMultiple__ToZeroAddress() external {
         vm.expectRevert(Errors.SablierV2__WithdrawToZeroAddress.selector);
-        linear.withdrawAll({ streamIds: defaultStreamIds, to: address(0), amounts: defaultAmounts });
+        linear.withdrawMultiple({ streamIds: defaultStreamIds, to: address(0), amounts: defaultAmounts });
     }
 
     modifier ToNonZeroAddress() {
@@ -40,17 +40,13 @@ contract WithdrawAll__Test is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotWithdrawAll__ArraysNotEqual() external ToNonZeroAddress {
+    function testCannotWithdrawMultiple__ArraysNotEqual() external ToNonZeroAddress {
         uint256[] memory streamIds = new uint256[](2);
         uint128[] memory amounts = new uint128[](1);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2__WithdrawAllArraysNotEqual.selector,
-                streamIds.length,
-                amounts.length
-            )
+            abi.encodeWithSelector(Errors.SablierV2__WithdrawArraysNotEqual.selector, streamIds.length, amounts.length)
         );
-        linear.withdrawAll({ streamIds: streamIds, to: users.recipient, amounts: amounts });
+        linear.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
     }
 
     modifier ArraysEqual() {
@@ -58,15 +54,15 @@ contract WithdrawAll__Test is LinearTest {
     }
 
     /// @dev it should do nothing.
-    function testCannotWithdrawAll__OnlyNonExistentStreams() external ToNonZeroAddress ArraysEqual {
+    function testCannotWithdrawMultiple__OnlyNonExistentStreams() external ToNonZeroAddress ArraysEqual {
         uint256 nonStreamId = 1729;
         uint256[] memory nonStreamIds = Solarray.uint256s(nonStreamId);
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT);
-        linear.withdrawAll({ streamIds: nonStreamIds, to: users.recipient, amounts: amounts });
+        linear.withdrawMultiple({ streamIds: nonStreamIds, to: users.recipient, amounts: amounts });
     }
 
     /// @dev it should ignore the non-existent streams and make the withdrawals for the existent streams.
-    function testCannotWithdrawAll__SomeNonExistentStreams() external ToNonZeroAddress ArraysEqual {
+    function testCannotWithdrawMultiple__SomeNonExistentStreams() external ToNonZeroAddress ArraysEqual {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(nonStreamId, defaultStreamIds[0]);
 
@@ -74,7 +70,7 @@ contract WithdrawAll__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
 
         // Run the test.
-        linear.withdrawAll({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
+        linear.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
         uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(defaultStreamIds[0]);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
@@ -85,7 +81,7 @@ contract WithdrawAll__Test is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotWithdrawAll__CallerUnauthorizedAllStreams__MaliciousThirdParty(
+    function testCannotWithdrawMultiple__CallerUnauthorizedAllStreams__MaliciousThirdParty(
         address eve
     ) external ToNonZeroAddress ArraysEqual OnlyExistentStreams {
         vm.assume(eve != address(0) && eve != defaultStream.sender && eve != users.recipient);
@@ -95,11 +91,11 @@ contract WithdrawAll__Test is LinearTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], eve));
-        linear.withdrawAll({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
+        linear.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
     /// @dev it should revert.
-    function testCannotWithdrawAll__CallerUnauthorizedAllStreams__Sender()
+    function testCannotWithdrawMultiple__CallerUnauthorizedAllStreams__Sender()
         external
         ToNonZeroAddress
         ArraysEqual
@@ -112,11 +108,11 @@ contract WithdrawAll__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], defaultStream.sender)
         );
-        linear.withdrawAll({ streamIds: defaultStreamIds, to: defaultStream.sender, amounts: defaultAmounts });
+        linear.withdrawMultiple({ streamIds: defaultStreamIds, to: defaultStream.sender, amounts: defaultAmounts });
     }
 
     /// @dev it should revert.
-    function testCannotWithdrawAll__CallerUnauthorizedAllStreams__FormerRecipient()
+    function testCannotWithdrawMultiple__CallerUnauthorizedAllStreams__FormerRecipient()
         external
         ToNonZeroAddress
         ArraysEqual
@@ -130,11 +126,11 @@ contract WithdrawAll__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.recipient)
         );
-        linear.withdrawAll({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
+        linear.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
     /// @dev it should revert.
-    function testCannotWithdrawAll__CallerUnauthorizedSomeStreams__MaliciousThirdParty(
+    function testCannotWithdrawMultiple__CallerUnauthorizedSomeStreams__MaliciousThirdParty(
         address eve
     ) external ToNonZeroAddress ArraysEqual OnlyExistentStreams {
         vm.assume(eve != address(0) && eve != defaultStream.sender && eve != users.recipient);
@@ -151,11 +147,11 @@ contract WithdrawAll__Test is LinearTest {
         // Run the test.
         uint256[] memory streamIds = Solarray.uint256s(eveStreamId, defaultStreamIds[0]);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], eve));
-        linear.withdrawAll({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
+        linear.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
     /// @dev it should revert.
-    function testCannotWithdrawAll__CallerUnauthorizedSomeStreams__FormerRecipient()
+    function testCannotWithdrawMultiple__CallerUnauthorizedSomeStreams__FormerRecipient()
         external
         ToNonZeroAddress
         ArraysEqual
@@ -171,7 +167,7 @@ contract WithdrawAll__Test is LinearTest {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.recipient)
         );
-        linear.withdrawAll({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
+        linear.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
     modifier CallerAuthorizedAllStreams() {
@@ -179,7 +175,7 @@ contract WithdrawAll__Test is LinearTest {
     }
 
     /// @dev it should make the withdrawals and update the withdrawn amounts.
-    function testWithdrawAll__CallerApprovedOperator(
+    function testWithdrawMultiple__CallerApprovedOperator(
         address to
     ) external ToNonZeroAddress ArraysEqual OnlyExistentStreams CallerAuthorizedAllStreams {
         vm.assume(to != address(0));
@@ -199,7 +195,7 @@ contract WithdrawAll__Test is LinearTest {
         vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
         // Make the withdrawals.
-        linear.withdrawAll({ streamIds: defaultStreamIds, to: to, amounts: defaultAmounts });
+        linear.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: defaultAmounts });
 
         // Assert that the withdrawn amounts were updated.
         uint128 actualWithdrawnAmount0 = linear.getWithdrawnAmount(defaultStreamIds[0]);
@@ -214,7 +210,7 @@ contract WithdrawAll__Test is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotWithdrawAll__SomeAmountsZero()
+    function testCannotWithdrawMultiple__SomeAmountsZero()
         external
         ToNonZeroAddress
         ArraysEqual
@@ -228,7 +224,7 @@ contract WithdrawAll__Test is LinearTest {
         // Run the test.
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT, 0);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__WithdrawAmountZero.selector, defaultStreamIds[1]));
-        linear.withdrawAll({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
+        linear.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
     }
 
     modifier AllAmountsNotZero() {
@@ -236,7 +232,7 @@ contract WithdrawAll__Test is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotWithdrawAll__SomeAmountsGreaterThanWithdrawableAmount()
+    function testCannotWithdrawMultiple__SomeAmountsGreaterThanWithdrawableAmount()
         external
         ToNonZeroAddress
         ArraysEqual
@@ -259,7 +255,7 @@ contract WithdrawAll__Test is LinearTest {
                 withdrawableAmount
             )
         );
-        linear.withdrawAll({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
+        linear.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
     }
 
     modifier AllAmountsLessThanOrEqualToWithdrawableAmounts() {
@@ -267,7 +263,7 @@ contract WithdrawAll__Test is LinearTest {
     }
 
     /// @dev it should make the withdrawals, emit multiple Withdraw events, and delete the streams.
-    function testWithdrawAll__AllStreamsEnded(
+    function testWithdrawMultiple__AllStreamsEnded(
         uint256 timeWarp,
         address to
     )
@@ -298,7 +294,7 @@ contract WithdrawAll__Test is LinearTest {
 
         // Make the withdrawals.
         uint128[] memory amounts = Solarray.uint128s(defaultStream.depositAmount, defaultStream.depositAmount);
-        linear.withdrawAll({ streamIds: defaultStreamIds, to: to, amounts: amounts });
+        linear.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: amounts });
 
         // Assert that the streams were deleted.
         DataTypes.LinearStream memory actualStream0 = linear.getStream(defaultStreamIds[0]);
@@ -316,7 +312,7 @@ contract WithdrawAll__Test is LinearTest {
     }
 
     /// @dev it should make the withdrawals, emit multiple Withdraw events, and update the withdrawn amounts.
-    function testWithdrawAll__AllStreamsOngoing(
+    function testWithdrawMultiple__AllStreamsOngoing(
         uint256 timeWarp,
         address to,
         uint128 withdrawAmount
@@ -352,7 +348,7 @@ contract WithdrawAll__Test is LinearTest {
 
         // Make the withdrawals.
         uint128[] memory amounts = Solarray.uint128s(withdrawAmount, withdrawAmount);
-        linear.withdrawAll({ streamIds: defaultStreamIds, to: to, amounts: amounts });
+        linear.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: amounts });
 
         // Assert that the withdrawn amounts were updated.
         uint128 actualWithdrawnAmount0 = linear.getWithdrawnAmount(defaultStreamIds[0]);
@@ -364,7 +360,7 @@ contract WithdrawAll__Test is LinearTest {
 
     /// @dev it should make the withdrawals, emit multiple Withdraw events, delete the ended streams, and update
     /// the withdrawn amounts.
-    function testWithdrawAll__SomeStreamsEndedSomeStreamsOngoing(
+    function testWithdrawMultiple__SomeStreamsEndedSomeStreamsOngoing(
         uint256 timeWarp,
         address to,
         uint128 ongoingWithdrawAmount
@@ -405,7 +401,7 @@ contract WithdrawAll__Test is LinearTest {
         // Run the test.
         uint256[] memory streamIds = Solarray.uint256s(endedStreamId, ongoingStreamId);
         uint128[] memory amounts = Solarray.uint128s(endedWithdrawAmount, ongoingWithdrawAmount);
-        linear.withdrawAll({ streamIds: streamIds, to: to, amounts: amounts });
+        linear.withdrawMultiple({ streamIds: streamIds, to: to, amounts: amounts });
 
         // Assert that the ended stream was deleted.
         DataTypes.LinearStream memory actualEndedStream = linear.getStream(endedStreamId);

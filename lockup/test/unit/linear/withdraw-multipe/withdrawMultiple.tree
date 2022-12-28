@@ -1,4 +1,4 @@
-withdrawAll.t.sol
+withdrawMultiple.t.sol
 ├── when the provided address is zero
 │  └── it should revert
 └── when the provided address is not zero
