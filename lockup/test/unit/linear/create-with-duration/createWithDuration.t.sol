@@ -166,15 +166,15 @@ contract CreateWithDeltas__Test is LinearTest {
         assertEq(actualStream.token, defaultStream.token);
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
 
-        // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithDuration.token);
-        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
-
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
+
+        // Assert that the protocol fee was recorded.
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithDuration.token);
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
         // Assert that the NFT was minted.
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });

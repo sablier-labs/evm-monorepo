@@ -116,6 +116,16 @@ abstract contract CreateWithRange__Test is IntegrationTest {
         assertEq(actualStream.token, token);
         assertEq(actualStream.withdrawnAmount, 0);
 
+        // Assert that the next stream id was bumped.
+        uint256 actualNextStreamId = linear.nextStreamId();
+        uint256 expectedNextStreamId = streamId + 1;
+        assertEq(actualNextStreamId, expectedNextStreamId);
+
+        // Assert that the NFT was minted.
+        address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
+        address expectedNFTOwner = recipient;
+        assertEq(actualNFTOwner, expectedNFTOwner);
+
         // Assert that the SablierV2Linear contract's balance was updated.
         uint256 actualLinearBalance = IERC20(token).balanceOf(address(linear));
         uint256 expectedLinearBalance = initialLinearBalance + netDepositAmount;
@@ -130,15 +140,5 @@ abstract contract CreateWithRange__Test is IntegrationTest {
         uint256 actualOperatorBalance = IERC20(token).balanceOf(operator);
         uint256 expectedOperatorBalance = initialOperatorBalance + operatorFeeAmount;
         assertEq(actualOperatorBalance, expectedOperatorBalance);
-
-        // Assert that the next stream id was bumped.
-        uint256 actualNextStreamId = linear.nextStreamId();
-        uint256 expectedNextStreamId = streamId + 1;
-        assertEq(actualNextStreamId, expectedNextStreamId);
-
-        // Assert that the NFT was minted.
-        address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = recipient;
-        assertEq(actualNFTOwner, expectedNFTOwner);
     }
 }

@@ -395,16 +395,11 @@ contract SablierV2Pro is
             withdrawnAmount: 0
         });
 
-        // Effects: record the protocol fee amount.
-        // We're using unchecked arithmetic here because this calculation cannot realistically overflow, ever.
-        unchecked {
-            _protocolRevenues[token] += protocolFeeAmount;
-        }
-
-        // Effects: bump the next stream id.
-        // We're using unchecked arithmetic here because this calculation cannot realistically overflow, ever.
+        // Effects: bump the next stream id and record the protocol fee.
+        // We're using unchecked arithmetic here because theses calculations cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
+            _protocolRevenues[token] += protocolFeeAmount;
         }
 
         // Effects: mint the NFT for the recipient.

@@ -498,15 +498,15 @@ contract CreateWithMilestones__Test is ProTest {
         assertEq(actualStream.token, address(nonCompliantToken));
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
 
-        // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = pro.getProtocolRevenues(address(nonCompliantToken));
-        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
-
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = pro.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
+
+        // Assert that the protocol fee was recorded.
+        uint128 actualProtocolRevenues = pro.getProtocolRevenues(address(nonCompliantToken));
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
         // Assert that the NFT was minted.
         address actualNFTOwner = pro.ownerOf({ tokenId: streamId });
@@ -629,15 +629,15 @@ contract CreateWithMilestones__Test is ProTest {
         assertEq(actualStream.token, defaultStream.token);
         assertEq(actualStream.withdrawnAmount, defaultStream.withdrawnAmount);
 
-        // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithMilestones.token);
-        uint128 expectedProtocolRevenues = initialProtocolRevenues + protocolFeeAmount;
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
-
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = pro.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
+
+        // Assert that the protocol fee was recorded.
+        uint128 actualProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithMilestones.token);
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + protocolFeeAmount;
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
         // Assert that the NFT was minted.
         address actualNFTOwner = pro.ownerOf({ tokenId: streamId });

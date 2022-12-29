@@ -131,15 +131,15 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
         uint256 expectedHolderBalance = initialHolderBalance - grossDepositAmount;
         assertEq(actualHolderBalance, expectedHolderBalance);
 
-        // Assert that the operator's balance was updated.
-        uint256 actualOperatorBalance = IERC20(token).balanceOf(operator);
-        uint256 expectedOperatorBalance = initialOperatorBalance + operatorFeeAmount;
-        assertEq(actualOperatorBalance, expectedOperatorBalance);
-
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = pro.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
+
+        // Assert that the operator's balance was updated.
+        uint256 actualOperatorBalance = IERC20(token).balanceOf(operator);
+        uint256 expectedOperatorBalance = initialOperatorBalance + operatorFeeAmount;
+        assertEq(actualOperatorBalance, expectedOperatorBalance);
 
         // Assert that the NFT was minted.
         address actualNFTOwner = pro.ownerOf({ tokenId: streamId });
