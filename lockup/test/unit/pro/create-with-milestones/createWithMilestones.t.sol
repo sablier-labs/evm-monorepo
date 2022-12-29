@@ -448,7 +448,7 @@ contract CreateWithMilestones__Test is ProTest {
         TokenContract
     {
         // Load the protocol revenues.
-        uint128 previousProtocolRevenues = pro.getProtocolRevenues(address(nonCompliantToken));
+        uint128 initialProtocolRevenues = pro.getProtocolRevenues(address(nonCompliantToken));
 
         // Load the stream id.
         uint256 streamId = pro.nextStreamId();
@@ -463,7 +463,7 @@ contract CreateWithMilestones__Test is ProTest {
             )
         );
 
-        // Expect the the operator fee to be paid to the operator.
+        // Expect the operator fee to be paid to the operator.
         vm.expectCall(
             address(nonCompliantToken),
             abi.encodeCall(IERC20.transfer, (defaultArgs.createWithMilestones.operator, DEFAULT_OPERATOR_FEE_AMOUNT))
@@ -500,7 +500,7 @@ contract CreateWithMilestones__Test is ProTest {
 
         // Assert that the protocol fee was recorded.
         uint128 actualProtocolRevenues = pro.getProtocolRevenues(address(nonCompliantToken));
-        uint128 expectedProtocolRevenues = previousProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
         // Assert that the next stream id was bumped.
@@ -523,9 +523,10 @@ contract CreateWithMilestones__Test is ProTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - All possible permutations between the funder, recipient, sender, and operator.
+    /// - All possible permutations for the funder, recipient, sender, and operator.
     /// - Protocol fee zero and non-zero.
     /// - Operator fee zero and non-zero.
+    /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
     function testCreateWithMilestones(
@@ -535,6 +536,7 @@ contract CreateWithMilestones__Test is ProTest {
         UD60x18 protocolFee,
         address operator,
         UD60x18 operatorFee,
+        bool cancelable,
         uint40 startTime
     )
         external
@@ -572,7 +574,7 @@ contract CreateWithMilestones__Test is ProTest {
         IERC20(defaultArgs.createWithMilestones.token).approve({ spender: address(pro), value: UINT256_MAX });
 
         // Load the protocol revenues.
-        uint128 previousProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithMilestones.token);
+        uint128 initialProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithMilestones.token);
 
         // Calculate the fee amounts and the net deposit amount.
         (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 netDepositAmount) = calculateFeeAmounts(
@@ -590,7 +592,7 @@ contract CreateWithMilestones__Test is ProTest {
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), grossDepositAmount))
         );
 
-        // Expect the the operator fee to be paid to the operator, if the fee amount is not zero.
+        // Expect the operator fee to be paid to the operator, if the fee amount is not zero.
         if (operatorFeeAmount > 0) {
             vm.expectCall(
                 defaultArgs.createWithMilestones.token,
@@ -608,7 +610,7 @@ contract CreateWithMilestones__Test is ProTest {
             operator,
             operatorFee,
             defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
+            cancelable,
             startTime,
             defaultArgs.createWithMilestones.segmentMilestones
         );
@@ -616,7 +618,7 @@ contract CreateWithMilestones__Test is ProTest {
         // Assert that the stream was created.
         DataTypes.ProStream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.depositAmount, netDepositAmount);
-        assertEq(actualStream.isCancelable, defaultStream.isCancelable);
+        assertEq(actualStream.isCancelable, cancelable);
         assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEqUint128Array(actualStream.segmentAmounts, segmentAmounts);
@@ -629,7 +631,7 @@ contract CreateWithMilestones__Test is ProTest {
 
         // Assert that the protocol fee was recorded.
         uint128 actualProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithMilestones.token);
-        uint128 expectedProtocolRevenues = previousProtocolRevenues + protocolFeeAmount;
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + protocolFeeAmount;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
         // Assert that the next stream id was bumped.

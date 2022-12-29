@@ -204,7 +204,7 @@ contract CreateWithRange__Test is LinearTest {
         TokenContract
     {
         // Load the protocol revenues.
-        uint128 previousProtocolRevenues = linear.getProtocolRevenues(address(nonCompliantToken));
+        uint128 initialProtocolRevenues = linear.getProtocolRevenues(address(nonCompliantToken));
 
         // Load the stream id.
         uint256 streamId = linear.nextStreamId();
@@ -219,7 +219,7 @@ contract CreateWithRange__Test is LinearTest {
             )
         );
 
-        // Expect the the operator fee to be paid to the operator.
+        // Expect the operator fee to be paid to the operator.
         vm.expectCall(
             address(nonCompliantToken),
             abi.encodeCall(IERC20.transfer, (defaultArgs.createWithRange.operator, DEFAULT_OPERATOR_FEE_AMOUNT))
@@ -271,7 +271,7 @@ contract CreateWithRange__Test is LinearTest {
 
         // Assert that the protocol fee was recorded.
         uint128 actualProtocolRevenues = linear.getProtocolRevenues(address(nonCompliantToken));
-        uint128 expectedProtocolRevenues = previousProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
         // Assert that the next stream id was bumped.
@@ -294,12 +294,13 @@ contract CreateWithRange__Test is LinearTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - All possible permutations between the funder, recipient, sender, and operator.
+    /// - All possible permutations for the funder, recipient, sender, and operator.
+    /// - Protocol fee zero and non-zero.
+    /// - Operator fee zero and non-zero.
+    /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
     /// - Cliff time lower than and equal to stop time.
-    /// - Protocol fee zero and non-zero.
-    /// - Operator fee zero and non-zero.
     function testCreateWithRange(
         address funder,
         address recipient,
@@ -307,6 +308,7 @@ contract CreateWithRange__Test is LinearTest {
         UD60x18 protocolFee,
         address operator,
         UD60x18 operatorFee,
+        bool cancelable,
         uint40 startTime,
         uint40 cliffTime,
         uint40 stopTime
@@ -338,7 +340,7 @@ contract CreateWithRange__Test is LinearTest {
         IERC20(defaultArgs.createWithRange.token).approve({ spender: address(linear), value: UINT256_MAX });
 
         // Load the protocol revenues.
-        uint128 previousProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithRange.token);
+        uint128 initialProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithRange.token);
 
         // Load the stream id.
         uint256 streamId = linear.nextStreamId();
@@ -356,7 +358,7 @@ contract CreateWithRange__Test is LinearTest {
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), grossDepositAmount))
         );
 
-        // Expect the the operator fee to be paid to the operator, if the fee amount is not zero.
+        // Expect the operator fee to be paid to the operator, if the fee amount is not zero.
         if (operatorFeeAmount > 0) {
             vm.expectCall(
                 defaultArgs.createWithRange.token,
@@ -376,7 +378,7 @@ contract CreateWithRange__Test is LinearTest {
             operator,
             operatorFeeAmount,
             defaultArgs.createWithRange.token,
-            defaultArgs.createWithRange.cancelable,
+            cancelable,
             startTime,
             cliffTime,
             stopTime
@@ -390,7 +392,7 @@ contract CreateWithRange__Test is LinearTest {
             operator,
             operatorFee,
             defaultArgs.createWithRange.token,
-            defaultArgs.createWithRange.cancelable,
+            cancelable,
             startTime,
             cliffTime,
             stopTime
@@ -400,7 +402,7 @@ contract CreateWithRange__Test is LinearTest {
         DataTypes.LinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.cliffTime, cliffTime);
         assertEq(actualStream.depositAmount, netDepositAmount);
-        assertEq(actualStream.isCancelable, defaultStream.isCancelable);
+        assertEq(actualStream.isCancelable, cancelable);
         assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.startTime, startTime);
@@ -410,7 +412,7 @@ contract CreateWithRange__Test is LinearTest {
 
         // Assert that the protocol fee was recorded.
         uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithRange.token);
-        uint128 expectedProtocolRevenues = previousProtocolRevenues + protocolFeeAmount;
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + protocolFeeAmount;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
         // Assert that the next stream id was bumped.

@@ -98,7 +98,7 @@ contract GetWithdrawableAmount__Test is LinearTest {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(depositAmount != 0);
 
-        // Mint tokens to the sender.
+        // Mint enough tokens to the sender.
         deal({ token: defaultStream.token, to: defaultStream.sender, give: depositAmount });
 
         // Disable the operator fee so that it doesn't interfere with the calculations.
@@ -142,7 +142,7 @@ contract GetWithdrawableAmount__Test is LinearTest {
         uint128 initialWithdrawableAmount = calculateStreamedAmount(currentTime, depositAmount);
         withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
 
-        // Mint tokens to the sender.
+        // Mint enough tokens to the sender.
         deal({ token: defaultStream.token, to: defaultStream.sender, give: depositAmount });
 
         // Disable the operator fee so that it doesn't interfere with the calculations.

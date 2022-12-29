@@ -121,9 +121,6 @@ contract GetWithdrawableAmount__Test is ProTest {
         );
         withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
 
-        // Mint tokens to the sender.
-        deal({ token: defaultStream.token, to: defaultStream.sender, give: defaultStream.depositAmount });
-
         // Disable the operator fee so that it doesn't interfere with the calculations.
         UD60x18 operatorFee = ZERO;
 

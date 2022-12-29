@@ -3,25 +3,16 @@ pragma solidity >=0.8.13;
 
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18, toSD59x18 } from "@prb/math/SD59x18.sol";
-import { toUD60x18, ud, UD60x18 } from "@prb/math/UD60x18.sol";
+import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { DataTypes } from "src/types/DataTypes.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
-import { BaseTest } from "../../BaseTest.t.sol";
+import { UnitTest } from "../UnitTest.t.sol";
 
 /// @title ProTest
 /// @notice Common contract members needed across SablierV2Pro unit tests.
-abstract contract ProTest is BaseTest {
-    /*//////////////////////////////////////////////////////////////////////////
-                                      CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    uint128[] internal DEFAULT_SEGMENT_AMOUNTS = [2_500e18, 7_500e18];
-    uint40[] internal DEFAULT_SEGMENT_DELTAS = [2_500 seconds, 7_500 seconds];
-    SD1x18[] internal DEFAULT_SEGMENT_EXPONENTS = [SD1x18.wrap(3.14e18), SD1x18.wrap(0.5e18)];
-    uint40[] internal DEFAULT_SEGMENT_MILESTONES;
-
+abstract contract ProTest is UnitTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -72,12 +63,6 @@ abstract contract ProTest is BaseTest {
     function setUp() public virtual override {
         super.setUp();
 
-        // Initialize the immutables.
-        DEFAULT_SEGMENT_MILESTONES = [
-            DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION,
-            DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION
-        ];
-
         // Create the default args to be used for the create functions.
         defaultArgs = DefaultArgs({
             createWithDeltas: CreateWithDeltasArgs({
@@ -126,12 +111,6 @@ abstract contract ProTest is BaseTest {
         comptroller.setProtocolFee(address(dai), DEFAULT_PROTOCOL_FEE);
         comptroller.setProtocolFee(address(nonCompliantToken), DEFAULT_PROTOCOL_FEE);
 
-        // Approve the SablierV2Pro contract to spend tokens from the sender, recipient, Alice and Eve.
-        approveMax({ caller: users.sender, spender: address(pro) });
-        approveMax({ caller: users.recipient, spender: address(pro) });
-        approveMax({ caller: users.alice, spender: address(pro) });
-        approveMax({ caller: users.eve, spender: address(pro) });
-
         // Make the sender the default caller in all subsequent tests.
         changePrank(users.sender);
     }
@@ -139,13 +118,6 @@ abstract contract ProTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Calculate the segment amounts as two fractions of the provided net deposit amount, one 20%, the other 80%.
-    function calculateSegmentAmounts(uint128 netDepositAmount) internal pure returns (uint128[] memory segmentAmounts) {
-        segmentAmounts = new uint128[](2);
-        segmentAmounts[0] = uint128(UD60x18.unwrap(ud(netDepositAmount).mul(ud(0.2e18))));
-        segmentAmounts[1] = netDepositAmount - segmentAmounts[0];
-    }
 
     /// @dev Helper function that replicates the logic of the `getWithdrawableAmountForMultipleSegment` function, but
     /// which does not subtract the withdrawn amount.
@@ -158,16 +130,16 @@ abstract contract ProTest is BaseTest {
         unchecked {
             // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
             // amount such that we avoid adding an if statement in the while loop.
-            uint128 previousSegmentAmounts;
+            uint128 initialSegmentAmounts;
             uint40 currentSegmentMilestone = segmentMilestones[0];
             uint256 index = 1;
             while (currentSegmentMilestone < currentTime) {
-                previousSegmentAmounts += segmentAmounts[index - 1];
+                initialSegmentAmounts += segmentAmounts[index - 1];
                 currentSegmentMilestone = segmentMilestones[index];
                 index += 1;
             }
 
-            // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
+            // After the loop exits, the current segment is found at index `index - 1`, while the initial segment
             // is found at `index - 2`.
             uint128 currentSegmentAmount = segmentAmounts[index - 1];
             SD1x18 currentSegmentExponent = segmentExponents[index - 1];
@@ -178,13 +150,13 @@ abstract contract ProTest is BaseTest {
             uint40 totalSegmentTime;
 
             // If the current segment is at an index that is >= 2, we take the difference between the current
-            // segment milestone and the previous segment milestone.
+            // segment milestone and the initial segment milestone.
             if (index > 1) {
-                uint40 previousSegmentMilestone = segmentMilestones[index - 2];
-                elapsedSegmentTime = currentTime - previousSegmentMilestone;
+                uint40 initialSegmentMilestone = segmentMilestones[index - 2];
+                elapsedSegmentTime = currentTime - initialSegmentMilestone;
 
-                // Calculate the time between the current segment milestone and the previous segment milestone.
-                totalSegmentTime = currentSegmentMilestone - previousSegmentMilestone;
+                // Calculate the time between the current segment milestone and the initial segment milestone.
+                totalSegmentTime = currentSegmentMilestone - initialSegmentMilestone;
             }
             // If the current segment is at index 1, we take the difference between the current segment milestone
             // and the start time of the stream.
@@ -199,7 +171,7 @@ abstract contract ProTest is BaseTest {
             );
             SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
             SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
-            streamedAmount = previousSegmentAmounts + uint128(uint256(SD59x18.unwrap(proRataAmount)));
+            streamedAmount = initialSegmentAmounts + uint128(uint256(SD59x18.unwrap(proRataAmount)));
         }
     }
 

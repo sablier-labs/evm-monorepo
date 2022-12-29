@@ -203,7 +203,7 @@ contract CancelMultiple__Test is LinearTest {
             defaultStream.stopTime + DEFAULT_TOTAL_DURATION / 2
         );
 
-        // Make the the sender the caller in this test.
+        // Make the sender the caller in this test.
         changePrank(users.sender);
 
         // Create a new stream with a different stop time.
@@ -277,7 +277,7 @@ contract CancelMultiple__Test is LinearTest {
             defaultStream.stopTime + DEFAULT_TOTAL_DURATION / 2
         );
 
-        // Make the the recipient the caller in this test.
+        // Make the recipient the caller in this test.
         changePrank(users.recipient);
 
         // Create a new stream with a different stop time.

@@ -7,18 +7,11 @@ import { toUD60x18, ud, UD60x18, unwrap } from "@prb/math/UD60x18.sol";
 import { DataTypes } from "src/types/DataTypes.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 
-import { BaseTest } from "../../BaseTest.t.sol";
+import { UnitTest } from "../UnitTest.t.sol";
 
 /// @title LinearTest
 /// @notice Common contract members needed across SablierV2Linear unit tests.
-abstract contract LinearTest is BaseTest {
-    /*//////////////////////////////////////////////////////////////////////////
-                                      CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    uint40 internal constant DEFAULT_TIME_WARP = 2_600 seconds;
-    uint128 internal immutable DEFAULT_WITHDRAW_AMOUNT = 2_600e18;
-
+abstract contract LinearTest is UnitTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -110,12 +103,6 @@ abstract contract LinearTest is BaseTest {
         // Set the default protocol fee.
         comptroller.setProtocolFee(address(dai), DEFAULT_PROTOCOL_FEE);
         comptroller.setProtocolFee(address(nonCompliantToken), DEFAULT_PROTOCOL_FEE);
-
-        // Approve the SablierV2Linear contract to spend tokens from the sender, recipient, Alice and Eve.
-        approveMax({ caller: users.sender, spender: address(linear) });
-        approveMax({ caller: users.recipient, spender: address(linear) });
-        approveMax({ caller: users.alice, spender: address(linear) });
-        approveMax({ caller: users.eve, spender: address(linear) });
 
         // Make the sender the default caller in all subsequent tests.
         changePrank(users.sender);

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
-import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBMathUtils } from "@prb/math/test/Utils.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
@@ -12,17 +10,6 @@ import { StdCheats } from "forge-std/StdCheats.sol";
 import { StdUtils } from "forge-std/StdUtils.sol";
 
 import { DataTypes } from "src/types/DataTypes.sol";
-import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
-import { SablierV2Linear } from "src/SablierV2Linear.sol";
-import { SablierV2Pro } from "src/SablierV2Pro.sol";
-
-import { Empty } from "./shared/Empty.t.sol";
-import { GoodRecipient } from "./shared/GoodRecipient.t.sol";
-import { GoodSender } from "./shared/GoodSender.t.sol";
-import { ReentrantRecipient } from "./shared/ReentrantRecipient.t.sol";
-import { ReentrantSender } from "./shared/ReentrantSender.t.sol";
-import { RevertingRecipient } from "./shared/RevertingRecipient.t.sol";
-import { RevertingSender } from "./shared/RevertingSender.t.sol";
 
 abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, PRBMathUtils {
     /*//////////////////////////////////////////////////////////////////////////
@@ -36,17 +23,26 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
     event LogNamedArray(string key, uint128[] value);
 
     /*//////////////////////////////////////////////////////////////////////////
+                                     CONSTANTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /*//////////////////////////////////////////////////////////////////////////
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     uint40 internal constant DEFAULT_CLIFF_DURATION = 2_500 seconds;
     uint128 internal constant DEFAULT_GROSS_DEPOSIT_AMOUNT = 10_040.160642570281124497e18; // net deposit / (1 - fee)
     uint128 internal constant DEFAULT_NET_DEPOSIT_AMOUNT = 10_000e18;
-    UD60x18 internal constant DEFAULT_PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%
     UD60x18 internal constant DEFAULT_OPERATOR_FEE = UD60x18.wrap(0.003e18); // 0.3%
-    uint128 internal constant DEFAULT_PROTOCOL_FEE_AMOUNT = 10.040160642570281124e18; // 0.1% of gross deposit
     uint128 internal constant DEFAULT_OPERATOR_FEE_AMOUNT = 30.120481927710843373e18; // 0.3% of gross deposit
+    UD60x18 internal constant DEFAULT_PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%
+    uint128 internal constant DEFAULT_PROTOCOL_FEE_AMOUNT = 10.040160642570281124e18; // 0.1% of gross deposit
+    uint128[] internal DEFAULT_SEGMENT_AMOUNTS = [2_500e18, 7_500e18];
+    uint40[] internal DEFAULT_SEGMENT_DELTAS = [2_500 seconds, 7_500 seconds];
+    SD1x18[] internal DEFAULT_SEGMENT_EXPONENTS = [SD1x18.wrap(3.14e18), SD1x18.wrap(0.5e18)];
+    uint40 internal constant DEFAULT_TIME_WARP = 2_600 seconds;
     uint40 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
+    uint128 internal constant DEFAULT_WITHDRAW_AMOUNT = 2_600e18;
     UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
     uint256 internal constant MAX_SEGMENT_COUNT = 200;
     uint40 internal constant UINT40_MAX = type(uint40).max;
@@ -58,86 +54,22 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
     //////////////////////////////////////////////////////////////////////////*/
 
     uint40 internal immutable DEFAULT_CLIFF_TIME;
+    uint40[] internal DEFAULT_SEGMENT_MILESTONES;
     uint40 internal immutable DEFAULT_START_TIME;
     uint40 internal immutable DEFAULT_STOP_TIME;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                       STRUCTS
+                                    CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
-
-    struct Users {
-        // Neutral user.
-        address payable alice;
-        // Malicious user.
-        address payable eve;
-        // Default NFT operator.
-        address payable operator;
-        // Default owner of all Sablier V2 contracts.
-        address payable owner;
-        // Recipient of the default stream.
-        address payable recipient;
-        // Sender of the default stream.
-        address payable sender;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER CONTRACTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    SablierV2Comptroller internal comptroller;
-    SablierV2Linear internal linear;
-    SablierV2Pro internal pro;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   TEST CONTRACTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    Empty internal empty = new Empty();
-    ERC20 internal dai = new ERC20("Dai Stablecoin", "DAI", 18);
-    GoodRecipient internal goodRecipient = new GoodRecipient();
-    GoodSender internal goodSender = new GoodSender();
-    NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Non-Compliant Token", "NCT", 18);
-    ReentrantRecipient internal reentrantRecipient = new ReentrantRecipient();
-    ReentrantSender internal reentrantSender = new ReentrantSender();
-    RevertingRecipient internal revertingRecipient = new RevertingRecipient();
-    RevertingSender internal revertingSender = new RevertingSender();
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                      STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    Users internal users;
 
     constructor() {
-        // Initialize the immutables.
         DEFAULT_START_TIME = getBlockTimestamp();
         DEFAULT_CLIFF_TIME = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION;
         DEFAULT_STOP_TIME = DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  SET-UP FUNCTION
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function setUp() public virtual {
-        // Create users for testing.
-        users = Users({
-            alice: createUser("Alice"),
-            eve: createUser("Eve"),
-            operator: createUser("Operator"),
-            owner: createUser("Owner"),
-            recipient: createUser("Recipient"),
-            sender: createUser("Sender")
-        });
-
-        // Deploy all contracts.
-        deployContracts();
-
-        // Label all contracts.
-        labelContracts();
-
-        // Approve all contracts.
-        approveContracts();
+        DEFAULT_SEGMENT_MILESTONES = [
+            DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION,
+            DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION
+        ];
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -170,29 +102,16 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
         blockTimestamp = uint40(block.timestamp);
     }
 
+    /// @dev Calculate the segment amounts as two fractions of the provided net deposit amount, one 20%, the other 80%.
+    function calculateSegmentAmounts(uint128 netDepositAmount) internal pure returns (uint128[] memory segmentAmounts) {
+        segmentAmounts = new uint128[](2);
+        segmentAmounts[0] = uint128(UD60x18.unwrap(ud(netDepositAmount).mul(ud(0.2e18))));
+        segmentAmounts[1] = netDepositAmount - segmentAmounts[0];
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Approve all Sablier contracts to spend tokens from the sender, recipient, Alice and Eve.
-    function approveContracts() internal {
-        approveMax({ caller: users.sender, spender: address(linear) });
-        approveMax({ caller: users.recipient, spender: address(linear) });
-        approveMax({ caller: users.alice, spender: address(linear) });
-        approveMax({ caller: users.eve, spender: address(linear) });
-        approveMax({ caller: users.sender, spender: address(pro) });
-        approveMax({ caller: users.recipient, spender: address(pro) });
-        approveMax({ caller: users.alice, spender: address(pro) });
-        approveMax({ caller: users.eve, spender: address(pro) });
-        changePrank(users.owner);
-    }
-
-    /// @dev Helper function to approve `spender` the `UINT256_MAX` amount with `caller` as the `msg.sender`.
-    function approveMax(address caller, address spender) internal {
-        changePrank(caller);
-        dai.approve({ spender: spender, value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: spender, value: UINT256_MAX });
-    }
 
     /// @dev Helper function to compare two `LinearStream` structs.
     function assertEq(DataTypes.LinearStream memory a, DataTypes.LinearStream memory b) internal {
@@ -240,46 +159,5 @@ abstract contract BaseTest is PRBTest, StdCheats, StdUtils, PRBMathAssertions, P
             emit LogNamedArray("    Actual", a);
             fail();
         }
-    }
-
-    /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
-    ///  and 1 million non-compliant tokens.
-    function createUser(string memory name) internal returns (address payable addr) {
-        addr = payable(address(uint160(uint256(keccak256(abi.encodePacked(name))))));
-        vm.label({ account: addr, newLabel: name });
-        vm.deal({ account: addr, newBalance: 100 ether });
-        deal({ token: address(dai), to: addr, give: 1_000_000e18 });
-        deal({ token: address(nonCompliantToken), to: addr, give: 1_000_000e18 });
-    }
-
-    /// @dev Deploy all contracts with the owner as the caller.
-    function deployContracts() internal {
-        vm.startPrank({ msgSender: users.owner });
-        comptroller = new SablierV2Comptroller();
-        linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: MAX_FEE });
-        pro = new SablierV2Pro({
-            initialComptroller: comptroller,
-            maxFee: MAX_FEE,
-            maxSegmentCount: MAX_SEGMENT_COUNT
-        });
-    }
-
-    /// @dev Label all contracts, which helps during debugging.
-    function labelContracts() internal {
-        // Label the Sablier contracts.
-        vm.label({ account: address(comptroller), newLabel: "Comptroller" });
-        vm.label({ account: address(linear), newLabel: "SablierV2Linear" });
-        vm.label({ account: address(pro), newLabel: "SablierV2Pro" });
-
-        // Label the test contracts.
-        vm.label({ account: address(empty), newLabel: "Empty" });
-        vm.label({ account: address(dai), newLabel: "Dai" });
-        vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
-        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
-        vm.label({ account: address(nonCompliantToken), newLabel: "Non-Compliant Token" });
-        vm.label({ account: address(reentrantRecipient), newLabel: "Reentrant Recipient" });
-        vm.label({ account: address(reentrantSender), newLabel: "Reentrant Sender" });
-        vm.label({ account: address(revertingRecipient), newLabel: "Reverting Recipient" });
-        vm.label({ account: address(revertingSender), newLabel: "Reverting Sender" });
     }
 }

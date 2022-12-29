@@ -97,7 +97,7 @@ contract CreateWithDeltas__Test is LinearTest {
         vm.assume(cliffDuration <= totalDuration);
 
         // Load the protocol revenues.
-        uint128 previousProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithRange.token);
+        uint128 initialProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithRange.token);
 
         // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
         address funder = defaultArgs.createWithDuration.sender;
@@ -109,7 +109,7 @@ contract CreateWithDeltas__Test is LinearTest {
             )
         );
 
-        // Expect the the operator fee to be paid to the operator, if the amount is not zero.
+        // Expect the operator fee to be paid to the operator, if the amount is not zero.
         vm.expectCall(
             defaultArgs.createWithDuration.token,
             abi.encodeCall(IERC20.transfer, (defaultArgs.createWithDuration.operator, DEFAULT_OPERATOR_FEE_AMOUNT))
@@ -168,7 +168,7 @@ contract CreateWithDeltas__Test is LinearTest {
 
         // Assert that the protocol fee was recorded.
         uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithDuration.token);
-        uint128 expectedProtocolRevenues = previousProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
         // Assert that the next stream id was bumped.

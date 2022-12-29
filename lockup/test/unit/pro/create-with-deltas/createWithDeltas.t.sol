@@ -160,7 +160,7 @@ contract CreateWithDeltas__Test is ProTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - All possible permutations between the funder, recipient, sender, and operator.
+    /// - All possible permutations for the funder, recipient, sender, and operator.
     /// - Protocol fee zero and non-zero.
     /// - Operator fee zero and non-zero.
     function testCreateWithDeltas(
@@ -190,7 +190,7 @@ contract CreateWithDeltas__Test is ProTest {
         IERC20(defaultArgs.createWithDeltas.token).approve({ spender: address(pro), value: UINT256_MAX });
 
         // Load the protocol revenues.
-        uint128 previousProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithDeltas.token);
+        uint128 initialProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithDeltas.token);
 
         // Calculate the fee amounts and the net deposit amount.
         (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 netDepositAmount) = calculateFeeAmounts(
@@ -208,7 +208,7 @@ contract CreateWithDeltas__Test is ProTest {
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), grossDepositAmount))
         );
 
-        // Expect the the operator fee to be paid to the operator, if the fee amount is not zero.
+        // Expect the operator fee to be paid to the operator, if the fee amount is not zero.
         if (operatorFeeAmount > 0) {
             vm.expectCall(
                 defaultArgs.createWithDeltas.token,
@@ -246,7 +246,7 @@ contract CreateWithDeltas__Test is ProTest {
 
         // Assert that the protocol fee was recorded.
         uint128 actualProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithDeltas.token);
-        uint128 expectedProtocolRevenues = previousProtocolRevenues + protocolFeeAmount;
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + protocolFeeAmount;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
 
         // Assert that the next stream id was bumped.

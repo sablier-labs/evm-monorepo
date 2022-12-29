@@ -79,7 +79,8 @@ You will need the following VSCode extensions:
 Tests are organized in two categories:
 
 1. Unit - simple tests that check the behavior of a single function on a local development EMV.
-2. Integration - complex tests that run against a fork of Ethereum Mainnet.
+2. Integration - complex tests that run against a fork of Ethereum Mainnet to check that Sablier V2 works with deployed
+   ERC-20 tokens.
 
 You can run all the tests by using this command:
 
