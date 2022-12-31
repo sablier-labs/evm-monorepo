@@ -152,11 +152,9 @@ abstract contract ProTest is UnitTest {
             }
 
             // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = SD59x18.wrap(int256(uint256(elapsedSegmentTime))).div(
-                SD59x18.wrap(int256(uint256(totalSegmentTime)))
-            );
+            SD59x18 elapsedTimePercentage = sdUint40(elapsedSegmentTime).div(sdUint40(totalSegmentTime));
             SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
-            SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
+            SD59x18 proRataAmount = multiplier.mul(sdUint128(currentSegmentAmount));
             streamedAmount = initialSegmentAmounts + uint128(uint256(SD59x18.unwrap(proRataAmount)));
         }
     }
@@ -169,13 +167,11 @@ abstract contract ProTest is UnitTest {
         SD1x18 segmentExponent
     ) internal view returns (uint128 streamedAmount) {
         unchecked {
-            SD59x18 elapsedSegmentTime = SD59x18.wrap(int256(uint256(currentTime - defaultStream.startTime)));
-            SD59x18 totalSegmentTime = SD59x18.wrap(int256(uint256(DEFAULT_TOTAL_DURATION)));
+            SD59x18 elapsedSegmentTime = sdUint40(currentTime - defaultStream.startTime);
+            SD59x18 totalSegmentTime = sdUint40(DEFAULT_TOTAL_DURATION);
             SD59x18 elapsedTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
             SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(segmentExponent))));
-            streamedAmount = uint128(
-                uint256(SD59x18.unwrap(multiplier.mul(SD59x18.wrap(int256(uint256(depositAmount))))))
-            );
+            streamedAmount = uint128(uint256(SD59x18.unwrap(multiplier.mul(sdUint128(depositAmount)))));
         }
     }
 
