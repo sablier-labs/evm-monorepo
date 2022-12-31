@@ -5,6 +5,8 @@ import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { Range, Segment } from "../types/Structs.sol";
+
 /// @title Events
 /// @notice Library with events used across the core contracts.
 library Events {
@@ -35,16 +37,17 @@ library Events {
     /// @notice Emitted when a linear stream is created.
     /// @param streamId The id of the newly created stream.
     /// @param funder The address which funded the stream.
-    /// @param sender The address from which to stream the tokens, which has the ability to cancel the stream.
+    /// @param sender The address from which to stream the tokens, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
     /// @param depositAmount The amount of tokens to be streamed, in units of the token's decimals.
     /// @param protocolFeeAmount The amount of tokens charged by the protocol, in units of the token's decimals.
+    /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
+    /// received the fee.
     /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable Whether the stream will be cancelable or not.
-    /// @param startTime The unix timestamp in seconds for when the stream will start.
-    /// @param cliffTime The unix timestamp in seconds for when the cliff period will end.
-    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
+    /// @param range The (start, cliff, stop) tuple of unix timestamps in seconds for when the stream will start, when
+    /// the cliff period will end, and when the stream will stop.
     event CreateLinearStream(
         uint256 streamId,
         address indexed funder,
@@ -56,40 +59,36 @@ library Events {
         uint128 operatorFeeAmount,
         address token,
         bool cancelable,
-        uint40 startTime,
-        uint40 cliffTime,
-        uint40 stopTime
+        Range range
     );
 
     /// @notice Emitted when a pro stream is created.
     /// @param streamId The id of the newly created stream.
     /// @param funder The address which funded the stream.
-    /// @param sender The address from which to stream the tokens, which has the ability to cancel the stream.
+    /// @param sender The address from which to stream the tokens, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
     /// @param depositAmount The amount of tokens to be streamed, in units of the token's decimals.
-    /// @param segmentAmounts The amounts used to compose the custom streaming curve, in units of the token's decimals.
-    /// @param segmentExponents The exponents used to compose the custom streaming curve, as SD1x18 numbers.
+    /// @param segments The segments used to compose the custom streaming curve.
     /// @param protocolFeeAmount The amount of tokens charged by the protocol, in units of the token's decimals.
+    /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
+    /// received the fee.
     /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable Whether the stream will be cancelable or not.
     /// @param startTime The unix timestamp in seconds for when the stream will start.
-    /// @param segmentMilestones The unix timestamp milestones used to compose the custom streaming curve.
     event CreateProStream(
         uint256 streamId,
         address indexed funder,
         address indexed sender,
         address indexed recipient,
         uint128 depositAmount,
-        uint128[] segmentAmounts,
-        SD1x18[] segmentExponents,
+        Segment[] segments,
         uint128 protocolFeeAmount,
         address operator,
         uint128 operatorFeeAmount,
         address token,
         bool cancelable,
-        uint40 startTime,
-        uint40[] segmentMilestones
+        uint40 startTime
     );
 
     /// @notice Emitted when a sender makes a stream non-cancelable.
@@ -103,8 +102,8 @@ library Events {
     /// @notice Emitted when the contract owner sets a new protocol fee for the provided token.
     /// @param owner The address of the current contract owner.
     /// @param token The address of the token the new protocol fee was set for.
-    /// @param oldFee The old global fee for the provided token.
-    /// @param newFee The new global fee for the provided token.
+    /// @param oldFee The old global fee for the provided token, as an UD60x18 number.
+    /// @param newFee The new global fee for the provided token, as an UD60x18 number.
     event SetProtocolFee(address indexed owner, address indexed token, UD60x18 oldFee, UD60x18 newFee);
 
     /// @notice Emitted when tokens are withdrawn from a stream.

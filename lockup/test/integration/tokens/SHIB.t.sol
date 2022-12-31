@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { CreateWithMilestones__Test } from "../create/CreateWithMilestones.t.sol";
-import { CreateWithRange__Test } from "../create/CreateWithRange.t.sol";
+import { CreateWithMilestones__Test } from "../create/createWithMilestones.t.sol";
+import { CreateWithRange__Test } from "../create/createWithRange.t.sol";
 
 /// @dev A token with a large total supply.
 address constant token = 0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE;

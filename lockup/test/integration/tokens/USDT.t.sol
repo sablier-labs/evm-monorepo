@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { CreateWithMilestones__Test } from "../create/CreateWithMilestones.t.sol";
-import { CreateWithRange__Test } from "../create/CreateWithRange.t.sol";
+import { CreateWithMilestones__Test } from "../create/createWithMilestones.t.sol";
+import { CreateWithRange__Test } from "../create/createWithRange.t.sol";
 
 /// @dev A token that has the missing return value bug.
 address constant token = 0xdAC17F958D2ee523a2206206994597C13D831ec7;

@@ -3,9 +3,9 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
-import { DataTypes } from "src/types/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
+import { LinearStream } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
@@ -108,8 +108,8 @@ contract Cancel__Test is LinearTest {
         CallerSender
     {
         linear.cancel(defaultStreamId);
-        DataTypes.LinearStream memory deletedStream = linear.getStream(defaultStreamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(defaultStreamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
 
@@ -128,8 +128,8 @@ contract Cancel__Test is LinearTest {
     {
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
         linear.cancel(streamId);
-        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(streamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
 
@@ -149,8 +149,8 @@ contract Cancel__Test is LinearTest {
     {
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
         linear.cancel(streamId);
-        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(streamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
 
@@ -171,8 +171,8 @@ contract Cancel__Test is LinearTest {
     {
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
         linear.cancel(streamId);
-        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(streamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
 
@@ -205,7 +205,7 @@ contract Cancel__Test is LinearTest {
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Expect the tokens to be withdrawn to the recipient.
         uint128 withdrawAmount = linear.getWithdrawableAmount(streamId);
@@ -217,7 +217,7 @@ contract Cancel__Test is LinearTest {
         }
 
         // Expect the tokens to be returned to the sender.
-        uint128 returnAmount = defaultStream.depositAmount - withdrawAmount;
+        uint128 returnAmount = defaultStream.amounts.deposit - withdrawAmount;
         if (returnAmount > 0) {
             vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount)));
         }
@@ -230,8 +230,8 @@ contract Cancel__Test is LinearTest {
         linear.cancel(streamId);
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(streamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
 
         // Assert that the NFT was not burned.
@@ -253,8 +253,8 @@ contract Cancel__Test is LinearTest {
         CallerRecipient
     {
         linear.cancel(defaultStreamId);
-        DataTypes.LinearStream memory deletedStream = linear.getStream(defaultStreamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(defaultStreamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
 
@@ -275,8 +275,8 @@ contract Cancel__Test is LinearTest {
         linear.cancel(streamId);
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(streamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
 
@@ -298,8 +298,8 @@ contract Cancel__Test is LinearTest {
         linear.cancel(streamId);
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(streamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
 
@@ -322,8 +322,8 @@ contract Cancel__Test is LinearTest {
         linear.cancel(streamId);
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(streamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
     }
 
@@ -353,13 +353,13 @@ contract Cancel__Test is LinearTest {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 withdrawAmount = linear.getWithdrawableAmount(streamId);
@@ -368,7 +368,7 @@ contract Cancel__Test is LinearTest {
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
-        uint128 returnAmount = defaultStream.depositAmount - withdrawAmount;
+        uint128 returnAmount = defaultStream.amounts.deposit - withdrawAmount;
         if (returnAmount > 0) {
             vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (address(goodSender), returnAmount)));
         }
@@ -381,8 +381,8 @@ contract Cancel__Test is LinearTest {
         linear.cancel(streamId);
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = linear.getStream(streamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(streamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
 
         // Assert that the NFT was not burned.

@@ -3,13 +3,22 @@ pragma solidity >=0.8.13;
 
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { DataTypes } from "../types/DataTypes.sol";
+import { LinearStream, Range } from "../types/Structs.sol";
 
 import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Linear
-/// @notice Creates streams whose streaming function is $f(x) = x$ after a cliff period, where x is the
-/// elapsed time divided by the total duration of the stream.
+/// @notice Creates streams whose streaming function is:
+///
+/// $$
+/// f(x) = x * d + c
+/// $$
+///
+/// Where:
+///
+/// - x is the elapsed time divided by the total duration of the stream.
+/// - d is the deposit amount.
+/// - c is the cliff amount.
 interface ISablierV2Linear is ISablierV2 {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
@@ -23,7 +32,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// @notice Queries the stream struct.
     /// @param streamId The id of the stream to make the query for.
     /// @return stream The stream struct.
-    function getStream(uint256 streamId) external view returns (DataTypes.LinearStream memory stream);
+    function getStream(uint256 streamId) external view returns (LinearStream memory stream);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
@@ -69,16 +78,15 @@ interface ISablierV2Linear is ISablierV2 {
     /// @dev Emits a {CreateLinearStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - As long as they are ordered, it is not an error to set `startTime` and `stopTime` to past times.
+    /// - As long as they are ordered, it is not an error to set a range in the past.
     ///
     /// Requirements:
     /// - `sender` must not be the zero address.
     /// - `recipient` must not be the zero address.
     /// - `grossDepositAmount` must not be zero.
     /// - `operatorFee` must not be greater than `MAX_FEE`.
-    /// - `startTime` must not be greater than `stopTime`.
-    /// - `startTime` must not be greater than cliffTime`.
-    /// - `cliffTime` must not be greater than `stopTime`.
+    /// - `range.start` must not be greater than `range.cliff`.
+    /// - `range.cliff` must not be greater than `range.stop`.
     /// - `msg.sender` must have allowed this contract to spend at least `grossDepositAmount` tokens.
     ///
     /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
@@ -92,9 +100,8 @@ interface ISablierV2Linear is ISablierV2 {
     /// a percentage with 100% = 1e18.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable Whether the stream will be cancelable or not.
-    /// @param startTime The unix timestamp in seconds for when the stream will start.
-    /// @param cliffTime The unix timestamp in seconds for when the recipient will be able to withdraw tokens.
-    /// @param stopTime The unix timestamp in seconds for when the stream will stop.
+    /// @param range The (start, cliff, stop) tuple of unix timestamps in seconds for when the stream will start, when
+    /// the cliff period will end, and when the stream will stop.
     /// @return streamId The id of the newly created stream.
     function createWithRange(
         address sender,
@@ -104,8 +111,6 @@ interface ISablierV2Linear is ISablierV2 {
         UD60x18 operatorFee,
         address token,
         bool cancelable,
-        uint40 startTime,
-        uint40 cliffTime,
-        uint40 stopTime
+        Range calldata range
     ) external returns (uint256 streamId);
 }

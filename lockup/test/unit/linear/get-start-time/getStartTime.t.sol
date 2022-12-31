@@ -20,7 +20,7 @@ contract GetStartTime__Test is LinearTest {
     function testGetStartTime() external StreamExistent {
         uint256 defaultStreamId = createDefaultStream();
         uint256 actualStartTime = linear.getStartTime(defaultStreamId);
-        uint256 expectedStartTime = defaultStream.startTime;
+        uint256 expectedStartTime = defaultStream.range.start;
         assertEq(actualStartTime, expectedStartTime);
     }
 }

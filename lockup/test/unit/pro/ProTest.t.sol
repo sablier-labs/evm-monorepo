@@ -3,9 +3,10 @@ pragma solidity >=0.8.13;
 
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18, toSD59x18 } from "@prb/math/SD59x18.sol";
-import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { DataTypes } from "src/types/DataTypes.sol";
+import { Amounts, ProStream, Segment } from "src/types/Structs.sol";
+
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
 import { UnitTest } from "../UnitTest.t.sol";
@@ -21,27 +22,24 @@ abstract contract ProTest is UnitTest {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
-        uint128[] segmentAmounts;
-        SD1x18[] segmentExponents;
+        Segment[] segments;
         address operator;
         UD60x18 operatorFee;
         address token;
         bool cancelable;
-        uint40[] segmentDeltas;
+        uint40[] deltas;
     }
 
     struct CreateWithMilestonesArgs {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
-        uint128[] segmentAmounts;
-        SD1x18[] segmentExponents;
+        Segment[] segments;
         address operator;
         UD60x18 operatorFee;
         address token;
         bool cancelable;
         uint40 startTime;
-        uint40[] segmentMilestones;
     }
 
     struct DefaultArgs {
@@ -54,7 +52,7 @@ abstract contract ProTest is UnitTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     DefaultArgs internal defaultArgs;
-    DataTypes.ProStream internal defaultStream;
+    ProStream internal defaultStream;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
@@ -64,48 +62,38 @@ abstract contract ProTest is UnitTest {
         super.setUp();
 
         // Create the default args to be used for the create functions.
-        defaultArgs = DefaultArgs({
-            createWithDeltas: CreateWithDeltasArgs({
-                sender: users.sender,
-                recipient: users.recipient,
-                grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
-                segmentAmounts: DEFAULT_SEGMENT_AMOUNTS,
-                segmentExponents: DEFAULT_SEGMENT_EXPONENTS,
-                operator: users.operator,
-                operatorFee: DEFAULT_OPERATOR_FEE,
-                token: address(dai),
-                cancelable: true,
-                segmentDeltas: DEFAULT_SEGMENT_DELTAS
-            }),
-            createWithMilestones: CreateWithMilestonesArgs({
-                sender: users.sender,
-                recipient: users.recipient,
-                grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
-                segmentAmounts: DEFAULT_SEGMENT_AMOUNTS,
-                segmentExponents: DEFAULT_SEGMENT_EXPONENTS,
-                operator: users.operator,
-                operatorFee: DEFAULT_OPERATOR_FEE,
-                token: address(dai),
-                cancelable: true,
-                startTime: DEFAULT_START_TIME,
-                segmentMilestones: DEFAULT_SEGMENT_MILESTONES
-            })
-        });
+        defaultArgs.createWithDeltas.sender = users.sender;
+        defaultArgs.createWithDeltas.recipient = users.recipient;
+        defaultArgs.createWithDeltas.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
+        defaultArgs.createWithDeltas.operator = users.operator;
+        defaultArgs.createWithDeltas.operatorFee = DEFAULT_OPERATOR_FEE;
+        defaultArgs.createWithDeltas.token = address(dai);
+        defaultArgs.createWithDeltas.cancelable = true;
 
-        // Create the default streams to be used across the tests.
-        defaultStream = DataTypes.ProStream({
-            depositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
-            isCancelable: defaultArgs.createWithMilestones.cancelable,
-            isEntity: true,
-            segmentAmounts: defaultArgs.createWithMilestones.segmentAmounts,
-            segmentExponents: defaultArgs.createWithMilestones.segmentExponents,
-            segmentMilestones: defaultArgs.createWithMilestones.segmentMilestones,
-            sender: defaultArgs.createWithMilestones.sender,
-            startTime: defaultArgs.createWithMilestones.startTime,
-            stopTime: DEFAULT_SEGMENT_MILESTONES[1],
-            token: address(dai),
-            withdrawnAmount: 0
-        });
+        defaultArgs.createWithMilestones.sender = users.sender;
+        defaultArgs.createWithMilestones.recipient = users.recipient;
+        defaultArgs.createWithMilestones.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
+        defaultArgs.createWithMilestones.operator = users.operator;
+        defaultArgs.createWithMilestones.operatorFee = DEFAULT_OPERATOR_FEE;
+        defaultArgs.createWithMilestones.token = address(dai);
+        defaultArgs.createWithMilestones.cancelable = true;
+        defaultArgs.createWithMilestones.startTime = DEFAULT_START_TIME;
+
+        // See https://github.com/ethereum/solidity/issues/12783
+        for (uint256 i = 0; i < DEFAULT_SEGMENTS.length; ++i) {
+            defaultArgs.createWithDeltas.segments.push(DEFAULT_SEGMENTS[i]);
+            defaultArgs.createWithDeltas.deltas.push(DEFAULT_SEGMENT_DELTAS[i]);
+            defaultArgs.createWithMilestones.segments.push(DEFAULT_SEGMENTS[i]);
+        }
+
+        // Create the default stream to be used across the tests.
+        defaultStream.amounts = DEFAULT_AMOUNTS;
+        defaultStream.isCancelable = defaultArgs.createWithMilestones.cancelable;
+        defaultStream.isEntity = true;
+        defaultStream.segments = defaultArgs.createWithMilestones.segments;
+        defaultStream.sender = defaultArgs.createWithMilestones.sender;
+        defaultStream.startTime = defaultArgs.createWithMilestones.startTime;
+        defaultStream.token = defaultArgs.createWithMilestones.token;
 
         // Set the default protocol fee.
         comptroller.setProtocolFee(address(dai), DEFAULT_PROTOCOL_FEE);
@@ -119,31 +107,29 @@ abstract contract ProTest is UnitTest {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function that replicates the logic of the `getWithdrawableAmountForMultipleSegment` function, but
-    /// which does not subtract the withdrawn amount.
+    /// @dev Helper function that partially replicates the logic of the `calculateWithdrawableAmountForMultipleSegments`
+    /// function, but which does not subtract the withdrawn amount.
     function calculateStreamedAmountForMultipleSegments(
         uint40 currentTime,
-        uint128[] memory segmentAmounts,
-        SD1x18[] memory segmentExponents,
-        uint40[] memory segmentMilestones
+        Segment[] memory segments
     ) internal view returns (uint128 streamedAmount) {
         unchecked {
             // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
             // amount such that we avoid adding an if statement in the while loop.
             uint128 initialSegmentAmounts;
-            uint40 currentSegmentMilestone = segmentMilestones[0];
+            uint40 currentSegmentMilestone = segments[0].milestone;
             uint256 index = 1;
             while (currentSegmentMilestone < currentTime) {
-                initialSegmentAmounts += segmentAmounts[index - 1];
-                currentSegmentMilestone = segmentMilestones[index];
+                initialSegmentAmounts += segments[index - 1].amount;
+                currentSegmentMilestone = segments[index].milestone;
                 index += 1;
             }
 
             // After the loop exits, the current segment is found at index `index - 1`, while the initial segment
             // is found at `index - 2`.
-            uint128 currentSegmentAmount = segmentAmounts[index - 1];
-            SD1x18 currentSegmentExponent = segmentExponents[index - 1];
-            currentSegmentMilestone = segmentMilestones[index - 1];
+            uint128 currentSegmentAmount = segments[index - 1].amount;
+            SD1x18 currentSegmentExponent = segments[index - 1].exponent;
+            currentSegmentMilestone = segments[index - 1].milestone;
 
             // Define the time variables.
             uint40 elapsedSegmentTime;
@@ -152,7 +138,7 @@ abstract contract ProTest is UnitTest {
             // If the current segment is at an index that is >= 2, we take the difference between the current
             // segment milestone and the initial segment milestone.
             if (index > 1) {
-                uint40 initialSegmentMilestone = segmentMilestones[index - 2];
+                uint40 initialSegmentMilestone = segments[index - 2].milestone;
                 elapsedSegmentTime = currentTime - initialSegmentMilestone;
 
                 // Calculate the time between the current segment milestone and the initial segment milestone.
@@ -175,8 +161,8 @@ abstract contract ProTest is UnitTest {
         }
     }
 
-    /// @dev Helper function that replicates the logic of the `getWithdrawableAmountForOneSegment` function, but which
-    /// does not subtract the withdrawn amount.
+    /// @dev Helper function that partially replicates the logic of the `calculateWithdrawableAmountForOneSegment`
+    /// function, but which does not subtract the withdrawn amount.
     function calculateStreamedAmountForOneSegment(
         uint40 currentTime,
         uint128 depositAmount,
@@ -184,7 +170,7 @@ abstract contract ProTest is UnitTest {
     ) internal view returns (uint128 streamedAmount) {
         unchecked {
             uint40 elapsedSegmentTime = currentTime - defaultStream.startTime;
-            uint40 totalSegmentTime = defaultStream.stopTime - defaultStream.startTime;
+            uint40 totalSegmentTime = DEFAULT_TOTAL_DURATION;
             SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
                 toSD59x18(int256(uint256(totalSegmentTime)))
             );
@@ -199,37 +185,78 @@ abstract contract ProTest is UnitTest {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function to create a default stream with $DAI used as streaming currency.
+    /// @dev Helper function to create the default stream.
     function createDefaultStream() internal returns (uint256 defaultStreamId) {
         defaultStreamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segmentAmounts,
-            defaultArgs.createWithMilestones.segmentExponents,
+            defaultArgs.createWithMilestones.segments,
             defaultArgs.createWithMilestones.operator,
             defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.segmentMilestones
+            defaultArgs.createWithMilestones.startTime
         );
     }
 
-    /// @dev Helper function to create a default stream with the provided recipient.
+    /// @dev Helper function to create the default stream with the provided gross deposit amount.
+    function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
+        streamId = pro.createWithMilestones(
+            defaultArgs.createWithMilestones.sender,
+            defaultArgs.createWithMilestones.recipient,
+            grossDepositAmount,
+            defaultArgs.createWithMilestones.segments,
+            defaultArgs.createWithMilestones.operator,
+            defaultArgs.createWithMilestones.operatorFee,
+            defaultArgs.createWithMilestones.token,
+            defaultArgs.createWithMilestones.cancelable,
+            defaultArgs.createWithMilestones.startTime
+        );
+    }
+
+    /// @dev Helper function to create the default stream with the provided segments.
+    function createDefaultStreamWithSegments(Segment[] memory segments) internal returns (uint256 streamId) {
+        streamId = pro.createWithMilestones(
+            defaultArgs.createWithMilestones.sender,
+            defaultArgs.createWithMilestones.recipient,
+            defaultArgs.createWithMilestones.grossDepositAmount,
+            segments,
+            defaultArgs.createWithMilestones.operator,
+            defaultArgs.createWithMilestones.operatorFee,
+            defaultArgs.createWithMilestones.token,
+            defaultArgs.createWithMilestones.cancelable,
+            defaultArgs.createWithMilestones.startTime
+        );
+    }
+
+    /// @dev Helper function to create the default stream with the provided deltas.
+    function createDefaultStreamWithDeltas(uint40[] memory deltas) internal returns (uint256 streamId) {
+        streamId = pro.createWithDeltas(
+            defaultArgs.createWithDeltas.sender,
+            defaultArgs.createWithDeltas.recipient,
+            defaultArgs.createWithDeltas.grossDepositAmount,
+            defaultArgs.createWithDeltas.segments,
+            defaultArgs.createWithDeltas.operator,
+            defaultArgs.createWithDeltas.operatorFee,
+            defaultArgs.createWithDeltas.token,
+            defaultArgs.createWithDeltas.cancelable,
+            deltas
+        );
+    }
+
+    /// @dev Helper function to create the default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segmentAmounts,
-            defaultArgs.createWithMilestones.segmentExponents,
+            defaultArgs.createWithMilestones.segments,
             defaultArgs.createWithMilestones.operator,
             defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.segmentMilestones
+            defaultArgs.createWithMilestones.startTime
         );
     }
 
@@ -240,14 +267,12 @@ abstract contract ProTest is UnitTest {
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segmentAmounts,
-            defaultArgs.createWithMilestones.segmentExponents,
+            defaultArgs.createWithMilestones.segments,
             defaultArgs.createWithMilestones.operator,
             defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
             isCancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.segmentMilestones
+            defaultArgs.createWithMilestones.startTime
         );
     }
 }

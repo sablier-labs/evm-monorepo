@@ -2,9 +2,12 @@
 pragma solidity >=0.8.13;
 
 import { SD1x18 } from "@prb/math/SD1x18.sol";
-import { UD60x18, ud, unwrap } from "@prb/math/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
+import { CreateAmounts, Range, Segment } from "../types/Structs.sol";
 import { Errors } from "./Errors.sol";
+
+import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 
 /// @title Helpers
 /// @notice Library with helper functions needed across the Sablier V2 contracts.
@@ -13,16 +16,21 @@ library Helpers {
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Calculates the protocol fee amount, the operator fee amount, and the net deposit amount.
+    /// @dev Checks that neither fee is greater than `MAX_FEE`, and then calculates the protocol fee amount, the
+    /// operator fee amount, and the net deposit amount.
     function checkAndCalculateFees(
+        ISablierV2Comptroller comptroller,
+        address token,
         uint128 grossDepositAmount,
-        UD60x18 protocolFee,
         UD60x18 operatorFee,
         UD60x18 maxFee
-    ) internal pure returns (uint128 protocolFeeAmount, uint128 operatorFeeAmount, uint128 netDepositAmount) {
+    ) internal view returns (CreateAmounts memory amounts) {
         if (grossDepositAmount == 0) {
-            return (0, 0, 0);
+            return CreateAmounts(0, 0, 0);
         }
+
+        // Safe Interactions: query the protocol fee. This is safe because we are querying a Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(token);
 
         // Checks: the protocol fee is not greater than `MAX_FEE`.
         if (protocolFee.gt(maxFee)) {
@@ -30,7 +38,7 @@ library Helpers {
         }
 
         // Calculate the protocol fee amount.
-        protocolFeeAmount = uint128(unwrap(ud(grossDepositAmount).mul(protocolFee)));
+        amounts.protocolFee = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(protocolFee)));
 
         // Checks: the operator fee is not greater than `MAX_FEE`.
         if (operatorFee.gt(maxFee)) {
@@ -38,65 +46,82 @@ library Helpers {
         }
 
         // Calculate the operator fee amount.
-        operatorFeeAmount = uint128(unwrap(ud(grossDepositAmount).mul(operatorFee)));
+        amounts.operatorFee = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(operatorFee)));
 
-        // Calculate the deposit amount (the amount net of fees).
         unchecked {
-            assert(grossDepositAmount > protocolFeeAmount + operatorFeeAmount);
-            netDepositAmount = grossDepositAmount - protocolFeeAmount - operatorFeeAmount;
+            // Assert that the gross deposit amount is always strictly greater than the sum of the protocol fee amount
+            // and the operator fee amount.
+            assert(grossDepositAmount > amounts.protocolFee + amounts.operatorFee);
+
+            // Calculate the deposit amount (the amount net of fees).
+            amounts.netDeposit = grossDepositAmount - amounts.protocolFee - amounts.operatorFee;
         }
     }
 
     /// @dev Checks the arguments of the `create` function in the {SablierV2Linear} contract.
-    function checkCreateLinearArgs(
-        uint128 netDepositAmount,
-        uint40 startTime,
-        uint40 cliffTime,
-        uint40 stopTime
-    ) internal pure {
+    function checkCreateLinearArgs(uint128 netDepositAmount, Range memory range) internal pure {
         // Checks: the net deposit amount is not zero.
         if (netDepositAmount == 0) {
             revert Errors.SablierV2__NetDepositAmountZero();
         }
 
         // Checks: the start time is less than or equal to the cliff time.
-        if (startTime > cliffTime) {
-            revert Errors.SablierV2Linear__StartTimeGreaterThanCliffTime(startTime, cliffTime);
+        if (range.start > range.cliff) {
+            revert Errors.SablierV2Linear__StartTimeGreaterThanCliffTime(range.start, range.cliff);
         }
 
         // Checks: the cliff time is less than or equal to the stop time.
-        if (cliffTime > stopTime) {
-            revert Errors.SablierV2Linear__CliffTimeGreaterThanStopTime(cliffTime, stopTime);
+        if (range.cliff > range.stop) {
+            revert Errors.SablierV2Linear__CliffTimeGreaterThanStopTime(range.cliff, range.stop);
         }
     }
 
     /// @dev Checks the arguments of the `create` function in the {SablierV2Pro} contract.
     function checkCreateProArgs(
         uint128 netDepositAmount,
-        uint128[] memory segmentAmounts,
-        SD1x18[] memory segmentExponents,
-        uint40 startTime,
-        uint40[] memory segmentMilestones,
-        uint256 maxSegmentCount
+        Segment[] memory segments,
+        uint256 maxSegmentCount,
+        uint40 startTime
     ) internal pure {
         // Checks: the net deposit amount is not zero.
         if (netDepositAmount == 0) {
             revert Errors.SablierV2__NetDepositAmountZero();
         }
 
-        // Checks: the segment counts match.
-        _checkSegmentCounts({
-            amountsCount: segmentAmounts.length,
-            exponentsCount: segmentExponents.length,
-            milestonesCount: segmentMilestones.length,
-            maxSegmentCount: maxSegmentCount
-        });
+        // Check that the amount count is not zero.
+        uint256 segmentCount = segments.length;
+        if (segmentCount == 0) {
+            revert Errors.SablierV2Pro__SegmentCountZero();
+        }
 
-        // We can pick any count because they are all equal to each other.
-        uint256 segmentCount = segmentAmounts.length;
+        // Check that the amount count is not greater than the maximum segment count permitted.
+        if (segmentCount > maxSegmentCount) {
+            revert Errors.SablierV2Pro__SegmentCountTooHigh(segmentCount);
+        }
 
         // Checks: requirements of segments variables.
-        _checkProSegments(netDepositAmount, startTime, segmentAmounts, segmentMilestones, segmentCount);
+        _checkProSegments(segments, segmentCount, netDepositAmount, startTime);
+    }
+
+    // @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
+    function checkDeltasAndAdjustSegments(Segment[] memory segments, uint40[] memory deltas) internal view {
+        // Checks: check that the segment array counts match.
+        uint256 deltaCount = deltas.length;
+        if (segments.length != deltaCount) {
+            revert Errors.SablierV2Pro__SegmentArraysNotEqual(segments.length, deltaCount);
+        }
+
+        // Make the current time the start time of the stream.
+        uint40 startTime = uint40(block.timestamp);
+
+        // Calculate the segment milestones and set them in the segments array. It is safe to use unchecked arithmetic
+        // because the `_createWithMilestone` function will nonetheless check the soundness of the segment milestones.
+        unchecked {
+            segments[0].milestone = startTime + deltas[0];
+            for (uint256 i = 1; i < deltaCount; ++i) {
+                segments[i].milestone = segments[i - 1].milestone + deltas[i];
+            }
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -104,40 +129,40 @@ library Helpers {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks that:
+    ///
     /// 1. The first milestone is greater than or equal to the start time.
     /// 2. The milestones are ordered chronologically.
-    /// 3. The deposit amount is equal to the segment amounts summed up.
+    /// 3. There are no duplicate milestones.
+    /// 4. The deposit amount is equal to the segment amounts summed up.
     function _checkProSegments(
+        Segment[] memory segments,
+        uint256 segmentCount,
         uint128 netDepositAmount,
-        uint40 startTime,
-        uint128[] memory segmentAmounts,
-        uint40[] memory segmentMilestones,
-        uint256 segmentCount
+        uint40 startTime
     ) private pure {
         // Check that the first milestone is greater than or equal to the start time.
-        if (startTime > segmentMilestones[0]) {
-            revert Errors.SablierV2Pro__StartTimeGreaterThanFirstMilestone(startTime, segmentMilestones[0]);
+        if (startTime > segments[0].milestone) {
+            revert Errors.SablierV2Pro__StartTimeGreaterThanFirstMilestone(startTime, segments[0].milestone);
         }
 
-        // Define the variables needed in the for loop below.
+        // Pre-declare the variables needed in the for loop.
         uint40 currentMilestone;
         uint40 previousMilestone;
         uint128 segmentAmountsSum;
 
-        // Iterate over the amounts, the exponents and the milestones.
+        // Iterate over the segments to sum up the segment amounts and check that the milestones are ordered.
         uint256 index;
         for (index = 0; index < segmentCount; ) {
             // Add the current segment amount to the sum.
-            segmentAmountsSum = segmentAmountsSum + segmentAmounts[index];
+            segmentAmountsSum = segmentAmountsSum + segments[index].amount;
 
-            // Check that the previous milestone is less than the current milestone.
-            // Note: this can overflow.
-            currentMilestone = segmentMilestones[index];
+            // Check that the previous milestone is less than the current milestone. Note that this can overflow.
+            currentMilestone = segments[index].milestone;
             if (previousMilestone >= currentMilestone) {
                 revert Errors.SablierV2Pro__SegmentMilestonesNotOrdered(index, previousMilestone, currentMilestone);
             }
 
-            // Make the current milestone the previous milestone of the next iteration.
+            // Make the current milestone the previous milestone of the next loop iteration.
             previousMilestone = currentMilestone;
 
             // Increment the for loop iterator.
@@ -152,35 +177,6 @@ library Helpers {
                 netDepositAmount,
                 segmentAmountsSum
             );
-        }
-    }
-
-    /// @dev Checks that the counts of segments match. The counts must be equal and less than or equal to
-    /// the maximum segment count permitted.
-    function _checkSegmentCounts(
-        uint256 amountsCount,
-        uint256 exponentsCount,
-        uint256 milestonesCount,
-        uint256 maxSegmentCount
-    ) private pure {
-        // Check that the amount count is not zero.
-        if (amountsCount == 0) {
-            revert Errors.SablierV2Pro__SegmentCountZero();
-        }
-
-        // Check that the amount count is not greater than the maximum segment count permitted.
-        if (amountsCount > maxSegmentCount) {
-            revert Errors.SablierV2Pro__SegmentCountTooHigh(amountsCount);
-        }
-
-        // Compare the amount count to the exponent count.
-        if (amountsCount != exponentsCount) {
-            revert Errors.SablierV2Pro__SegmentCountsNotEqual(amountsCount, exponentsCount, milestonesCount);
-        }
-
-        // Compare the amount count to the milestone count.
-        if (amountsCount != milestonesCount) {
-            revert Errors.SablierV2Pro__SegmentCountsNotEqual(amountsCount, exponentsCount, milestonesCount);
         }
     }
 }

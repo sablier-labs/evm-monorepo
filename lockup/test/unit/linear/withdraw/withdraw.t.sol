@@ -3,9 +3,9 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
-import { DataTypes } from "src/types/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
+import { LinearStream } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
@@ -80,7 +80,7 @@ contract Withdraw__Test is LinearTest {
     /// @dev it should revert.
     function testCannotWithdraw__ToZeroAddress() external StreamExistent CallerAuthorized {
         vm.expectRevert(Errors.SablierV2__WithdrawToZeroAddress.selector);
-        linear.withdraw({ streamId: defaultStreamId, to: address(0), amount: defaultStream.depositAmount });
+        linear.withdraw({ streamId: defaultStreamId, to: address(0), amount: defaultStream.amounts.deposit });
     }
 
     modifier ToNonZeroAddress() {
@@ -135,7 +135,7 @@ contract Withdraw__Test is LinearTest {
         vm.assume(to != address(0));
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: defaultStream.range.start + DEFAULT_TIME_WARP });
 
         // Run the test.
         linear.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -164,7 +164,7 @@ contract Withdraw__Test is LinearTest {
         changePrank(users.operator);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: defaultStream.range.start + DEFAULT_TIME_WARP });
 
         // Make the withdrawal.
         linear.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -192,14 +192,14 @@ contract Withdraw__Test is LinearTest {
         CallerSender
     {
         // Warp to the end of the stream.
-        vm.warp({ timestamp: defaultStream.stopTime });
+        vm.warp({ timestamp: defaultStream.range.stop });
 
         // Make the withdrawal.
-        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaultStream.depositAmount });
+        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaultStream.amounts.deposit });
 
         // Assert that the stream was deleted.
-        DataTypes.LinearStream memory deletedStream = linear.getStream(defaultStreamId);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory deletedStream = linear.getStream(defaultStreamId);
+        LinearStream memory expectedStream;
         assertEq(deletedStream, expectedStream);
 
         // Assert that the NFT was not burned.
@@ -210,7 +210,7 @@ contract Withdraw__Test is LinearTest {
 
     modifier StreamOngoing() {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: defaultStream.range.start + DEFAULT_TIME_WARP });
         _;
     }
 
@@ -236,7 +236,7 @@ contract Withdraw__Test is LinearTest {
         uint256 streamId = createDefaultStreamWithRecipient(to);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = linear.getWithdrawableAmount(streamId);
@@ -376,7 +376,7 @@ contract Withdraw__Test is LinearTest {
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = linear.getWithdrawableAmount(streamId);

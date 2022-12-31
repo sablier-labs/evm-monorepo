@@ -4,9 +4,9 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
-import { DataTypes } from "src/types/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
+import { LinearStream } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
@@ -36,8 +36,8 @@ contract CancelMultiple__Test is LinearTest {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], nonStreamId);
         linear.cancelMultiple(streamIds);
-        DataTypes.LinearStream memory actualStream = linear.getStream(defaultStreamIds[0]);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory actualStream = linear.getStream(defaultStreamIds[0]);
+        LinearStream memory expectedStream;
         assertEq(actualStream, expectedStream);
     }
 
@@ -63,10 +63,10 @@ contract CancelMultiple__Test is LinearTest {
         // Run the test.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
         linear.cancelMultiple(streamIds);
-        DataTypes.LinearStream memory actualStream0 = linear.getStream(defaultStreamIds[0]);
-        DataTypes.LinearStream memory actualStream1 = linear.getStream(streamId);
-        DataTypes.LinearStream memory expectedStream0;
-        DataTypes.LinearStream memory expectedStream1 = defaultStream;
+        LinearStream memory actualStream0 = linear.getStream(defaultStreamIds[0]);
+        LinearStream memory actualStream1 = linear.getStream(streamId);
+        LinearStream memory expectedStream0;
+        LinearStream memory expectedStream1 = defaultStream;
         expectedStream1.isCancelable = false;
         assertEq(actualStream0, expectedStream0);
         assertEq(actualStream1, expectedStream1);
@@ -199,8 +199,8 @@ contract CancelMultiple__Test is LinearTest {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
         stopTime = boundUint40(
             stopTime,
-            defaultStream.startTime + DEFAULT_TOTAL_DURATION / 2,
-            defaultStream.stopTime + DEFAULT_TOTAL_DURATION / 2
+            defaultStream.range.start + DEFAULT_TOTAL_DURATION / 2,
+            defaultStream.range.stop + DEFAULT_TOTAL_DURATION / 2
         );
 
         // Make the sender the caller in this test.
@@ -210,7 +210,7 @@ contract CancelMultiple__Test is LinearTest {
         uint256 streamId = createDefaultStreamWithStopTime(stopTime);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
@@ -226,11 +226,11 @@ contract CancelMultiple__Test is LinearTest {
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
-        uint128 returnAmount0 = defaultStream.depositAmount - withdrawAmount0;
+        uint128 returnAmount0 = defaultStream.amounts.deposit - withdrawAmount0;
         if (returnAmount0 > 0) {
             vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount0)));
         }
-        uint128 returnAmount1 = defaultStream.depositAmount - withdrawAmount1;
+        uint128 returnAmount1 = defaultStream.amounts.deposit - withdrawAmount1;
         if (returnAmount1 > 0) {
             vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount1)));
         }
@@ -245,9 +245,9 @@ contract CancelMultiple__Test is LinearTest {
         linear.cancelMultiple(streamIds);
 
         // Assert that the streams were deleted.
-        DataTypes.LinearStream memory actualStream0 = linear.getStream(streamIds[0]);
-        DataTypes.LinearStream memory actualStream1 = linear.getStream(streamIds[1]);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory actualStream0 = linear.getStream(streamIds[0]);
+        LinearStream memory actualStream1 = linear.getStream(streamIds[1]);
+        LinearStream memory expectedStream;
         assertEq(actualStream0, expectedStream);
         assertEq(actualStream1, expectedStream);
 
@@ -273,8 +273,8 @@ contract CancelMultiple__Test is LinearTest {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
         stopTime = boundUint40(
             stopTime,
-            defaultStream.startTime + DEFAULT_TOTAL_DURATION / 2,
-            defaultStream.stopTime + DEFAULT_TOTAL_DURATION / 2
+            defaultStream.range.start + DEFAULT_TOTAL_DURATION / 2,
+            defaultStream.range.stop + DEFAULT_TOTAL_DURATION / 2
         );
 
         // Make the recipient the caller in this test.
@@ -284,7 +284,7 @@ contract CancelMultiple__Test is LinearTest {
         uint256 streamId = createDefaultStreamWithStopTime(stopTime);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
@@ -300,11 +300,11 @@ contract CancelMultiple__Test is LinearTest {
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
-        uint128 returnAmount0 = defaultStream.depositAmount - withdrawAmount0;
+        uint128 returnAmount0 = defaultStream.amounts.deposit - withdrawAmount0;
         if (returnAmount0 > 0) {
             vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount0)));
         }
-        uint128 returnAmount1 = defaultStream.depositAmount - withdrawAmount1;
+        uint128 returnAmount1 = defaultStream.amounts.deposit - withdrawAmount1;
         if (returnAmount1 > 0) {
             vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount1)));
         }
@@ -319,9 +319,9 @@ contract CancelMultiple__Test is LinearTest {
         linear.cancelMultiple(streamIds);
 
         // Assert that the streams were deleted.
-        DataTypes.LinearStream memory actualStream0 = linear.getStream(streamIds[0]);
-        DataTypes.LinearStream memory actualStream1 = linear.getStream(streamIds[1]);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory actualStream0 = linear.getStream(streamIds[0]);
+        LinearStream memory actualStream1 = linear.getStream(streamIds[1]);
+        LinearStream memory expectedStream;
         assertEq(actualStream0, expectedStream);
         assertEq(actualStream1, expectedStream);
 

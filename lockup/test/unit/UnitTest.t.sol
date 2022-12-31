@@ -11,19 +11,18 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 import { StdUtils } from "forge-std/StdUtils.sol";
 
-import { DataTypes } from "src/types/DataTypes.sol";
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
 import { BaseTest } from "../BaseTest.t.sol";
-import { Empty } from "../shared/Empty.t.sol";
-import { GoodRecipient } from "../shared/GoodRecipient.t.sol";
-import { GoodSender } from "../shared/GoodSender.t.sol";
-import { ReentrantRecipient } from "../shared/ReentrantRecipient.t.sol";
-import { ReentrantSender } from "../shared/ReentrantSender.t.sol";
-import { RevertingRecipient } from "../shared/RevertingRecipient.t.sol";
-import { RevertingSender } from "../shared/RevertingSender.t.sol";
+import { Empty } from "../helpers/hooks/Empty.t.sol";
+import { GoodRecipient } from "../helpers/hooks/GoodRecipient.t.sol";
+import { GoodSender } from "../helpers/hooks/GoodSender.t.sol";
+import { ReentrantRecipient } from "../helpers/hooks/ReentrantRecipient.t.sol";
+import { ReentrantSender } from "../helpers/hooks/ReentrantSender.t.sol";
+import { RevertingRecipient } from "../helpers/hooks/RevertingRecipient.t.sol";
+import { RevertingSender } from "../helpers/hooks/RevertingSender.t.sol";
 
 abstract contract UnitTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////

@@ -32,7 +32,7 @@ contract GetWithdrawnAmount__Test is LinearTest {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = linear.getWithdrawnAmount(defaultStreamId);
@@ -42,10 +42,10 @@ contract GetWithdrawnAmount__Test is LinearTest {
 
     /// @dev it should return the correct withdrawn amount.
     function testGetWithdrawnAmount__WithWithdrawals(uint256 timeWarp, uint128 withdrawAmount) external StreamExistent {
-        timeWarp = bound(timeWarp, defaultStream.cliffTime, DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, defaultStream.range.cliff, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);

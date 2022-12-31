@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { console2 } from "forge-std/console2.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
+import { Amounts, ProStream, Segment } from "src/types/Structs.sol";
 import { Events } from "src/libraries/Events.sol";
-import { DataTypes } from "src/types/DataTypes.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 
@@ -34,116 +35,131 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
                                    TEST FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    struct Args {
+        address sender;
+        address recipient;
+        uint128 grossDepositAmount;
+        address operator;
+        UD60x18 operatorFee;
+        bool cancelable;
+        uint40 startTime;
+    }
+
+    struct Vars {
+        uint256 initialContractBalance;
+        uint256 initialHolderBalance;
+        uint256 initialOperatorBalance;
+        uint128 operatorFeeAmount;
+        uint128 netDepositAmount;
+        uint256 streamId;
+        uint256 actualNextStreamId;
+        uint256 expectedNextStreamId;
+        address actualNFTOwner;
+        address expectedNFTOwner;
+        uint256 actualContractBalance;
+        uint256 expectedContractBalance;
+        uint256 actualHolderBalance;
+        uint256 expectedHolderBalance;
+        uint256 actualOperatorBalance;
+        uint256 expectedOperatorBalance;
+    }
+
     /// @dev it should perform the ERC-20 transfers, emit a CreateProStream event, create the stream, record the
     /// protocol fee, bump the next stream id, and mint the NFT.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - All possible permutations for the funder, recipient, sender, and operator.
+    /// - Multiple values for the gross deposit amount.
     /// - Operator fee zero and non-zero.
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
-    function testCreateWithMilestones(
-        address sender,
-        address recipient,
-        uint128 grossDepositAmount,
-        address operator,
-        UD60x18 operatorFee,
-        bool cancelable,
-        uint40 startTime
-    ) external {
-        vm.assume(sender != address(0) && recipient != address(0) && operator != address(0));
-        vm.assume(operator != address(pro));
-        vm.assume(grossDepositAmount != 0 && grossDepositAmount <= holderBalance);
-        operatorFee = bound(operatorFee, 0, MAX_FEE);
-        startTime = boundUint40(startTime, 0, DEFAULT_SEGMENT_MILESTONES[0]);
+    function testCreateWithMilestones(Args memory args) external {
+        vm.assume(args.sender != address(0) && args.recipient != address(0) && args.operator != address(0));
+        vm.assume(args.operator != holder && args.operator != address(pro));
+        vm.assume(args.grossDepositAmount != 0 && args.grossDepositAmount <= holderBalance);
+        args.operatorFee = bound(args.operatorFee, 0, MAX_FEE);
+        args.startTime = boundUint40(args.startTime, 0, DEFAULT_SEGMENTS[0].milestone);
 
         // Load the current token balances.
-        uint256 initialProBalance = IERC20(token).balanceOf(address(pro));
-        uint256 initialHolderBalance = IERC20(token).balanceOf(holder);
-        uint256 initialOperatorBalance = IERC20(token).balanceOf(operator);
+        Vars memory vars;
+        vars.initialContractBalance = IERC20(token).balanceOf(address(pro));
+        vars.initialHolderBalance = IERC20(token).balanceOf(holder);
+        vars.initialOperatorBalance = IERC20(token).balanceOf(args.operator);
 
         // Calculate the fee amounts and the net deposit amount.
-        uint128 operatorFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(operatorFee)));
-        uint128 netDepositAmount = grossDepositAmount - operatorFeeAmount;
+        vars.operatorFeeAmount = uint128(UD60x18.unwrap(ud(args.grossDepositAmount).mul(args.operatorFee)));
+        vars.netDepositAmount = args.grossDepositAmount - vars.operatorFeeAmount;
 
-        // Calculate the segment amounts.
-        uint128[] memory segmentAmounts = calculateSegmentAmounts(netDepositAmount);
+        // Adjust the segment amounts based on the fuzzed net deposit amount.
+        Segment[] storage segments = DEFAULT_SEGMENTS;
+        adjustSegmentAmounts(segments, vars.netDepositAmount);
 
         // Expect an event to be emitted.
-        uint256 streamId = pro.nextStreamId();
-        uint128 protocolFeeAmount = 0;
+        vars.streamId = pro.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateProStream(
-            streamId,
+            vars.streamId,
             holder,
-            sender,
-            recipient,
-            netDepositAmount,
-            segmentAmounts,
-            DEFAULT_SEGMENT_EXPONENTS,
-            protocolFeeAmount,
-            operator,
-            operatorFeeAmount,
+            args.sender,
+            args.recipient,
+            vars.netDepositAmount,
+            segments,
+            0,
+            args.operator,
+            vars.operatorFeeAmount,
             token,
-            cancelable,
-            startTime,
-            DEFAULT_SEGMENT_MILESTONES
+            args.cancelable,
+            args.startTime
         );
 
         // Create the stream.
         pro.createWithMilestones(
-            sender,
-            recipient,
-            grossDepositAmount,
-            segmentAmounts,
-            DEFAULT_SEGMENT_EXPONENTS,
-            operator,
-            operatorFee,
+            args.sender,
+            args.recipient,
+            args.grossDepositAmount,
+            segments,
+            args.operator,
+            args.operatorFee,
             token,
-            cancelable,
-            startTime,
-            DEFAULT_SEGMENT_MILESTONES
+            args.cancelable,
+            args.startTime
         );
 
         // Assert that the stream was created.
-        DataTypes.ProStream memory actualStream = pro.getStream(streamId);
-        assertEq(actualStream.depositAmount, netDepositAmount);
-        assertEq(actualStream.isCancelable, cancelable);
+        ProStream memory actualStream = pro.getStream(vars.streamId);
+        assertEq(actualStream.amounts, Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        assertEq(actualStream.isCancelable, args.cancelable);
         assertEq(actualStream.isEntity, true);
-        assertEq(actualStream.sender, sender);
-        assertEqUint128Array(actualStream.segmentAmounts, segmentAmounts);
-        assertEq(actualStream.segmentExponents, DEFAULT_SEGMENT_EXPONENTS);
-        assertEqUint40Array(actualStream.segmentMilestones, DEFAULT_SEGMENT_MILESTONES);
-        assertEq(actualStream.startTime, startTime);
-        assertEq(actualStream.stopTime, DEFAULT_STOP_TIME);
+        assertEq(actualStream.segments, segments);
+        assertEq(actualStream.sender, args.sender);
+        assertEq(actualStream.startTime, args.startTime);
         assertEq(actualStream.token, token);
-        assertEq(actualStream.withdrawnAmount, 0);
-
-        // Assert that the SablierV2Pro contract's balance was updated.
-        uint256 actualProBalance = IERC20(token).balanceOf(address(pro));
-        uint256 expectedProBalance = initialProBalance + netDepositAmount;
-        assertEq(actualProBalance, expectedProBalance);
-
-        // Assert that the holder's balance was updated.
-        uint256 actualHolderBalance = IERC20(token).balanceOf(holder);
-        uint256 expectedHolderBalance = initialHolderBalance - grossDepositAmount;
-        assertEq(actualHolderBalance, expectedHolderBalance);
 
         // Assert that the next stream id was bumped.
-        uint256 actualNextStreamId = pro.nextStreamId();
-        uint256 expectedNextStreamId = streamId + 1;
-        assertEq(actualNextStreamId, expectedNextStreamId);
-
-        // Assert that the operator's balance was updated.
-        uint256 actualOperatorBalance = IERC20(token).balanceOf(operator);
-        uint256 expectedOperatorBalance = initialOperatorBalance + operatorFeeAmount;
-        assertEq(actualOperatorBalance, expectedOperatorBalance);
+        vars.actualNextStreamId = pro.nextStreamId();
+        vars.expectedNextStreamId = vars.streamId + 1;
+        assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the NFT was minted.
-        address actualNFTOwner = pro.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = recipient;
-        assertEq(actualNFTOwner, expectedNFTOwner);
+        vars.actualNFTOwner = pro.ownerOf({ tokenId: vars.streamId });
+        vars.expectedNFTOwner = args.recipient;
+        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
+
+        // Assert that the contract's balance was updated.
+        vars.actualContractBalance = IERC20(token).balanceOf(address(pro));
+        vars.expectedContractBalance = vars.initialContractBalance + vars.netDepositAmount;
+        assertEq(vars.actualContractBalance, vars.expectedContractBalance, "contract balance");
+
+        // Assert that the holder's balance was updated.
+        vars.actualHolderBalance = IERC20(token).balanceOf(holder);
+        vars.expectedHolderBalance = vars.initialHolderBalance - args.grossDepositAmount;
+        assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "holder balance");
+
+        // Assert that the operator's balance was updated.
+        vars.actualOperatorBalance = IERC20(token).balanceOf(args.operator);
+        vars.expectedOperatorBalance = vars.initialOperatorBalance + vars.operatorFeeAmount;
+        assertEq(vars.actualOperatorBalance, vars.expectedOperatorBalance, "operator balance");
     }
 }

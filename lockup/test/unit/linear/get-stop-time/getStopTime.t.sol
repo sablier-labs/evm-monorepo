@@ -20,7 +20,7 @@ contract GetStopTime__Test is LinearTest {
     function testGetStopTime() external StreamExistent {
         uint256 defaultStreamId = createDefaultStream();
         uint256 actualStopTime = linear.getStopTime(defaultStreamId);
-        uint256 expectedStopTime = defaultStream.stopTime;
+        uint256 expectedStopTime = defaultStream.range.stop;
         assertEq(actualStopTime, expectedStopTime);
     }
 }

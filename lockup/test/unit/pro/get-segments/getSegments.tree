@@ -1,5 +1,5 @@
-getSegmentAmounts.t.sol
+getSegments.t.sol
 ├── when the stream does not exist
 │  └── it should return an empty array
 └── when the stream exists
-   └── it should return the correct segment amounts
+   └── it should return the correct segments

@@ -18,9 +18,9 @@ contract GetStopTime__Test is ProTest {
 
     /// @dev it should return the correct stop time.
     function testGetStopTime() external StreamExistent {
-        uint256 defaultStreamId = createDefaultStream();
-        uint256 actualStopTime = pro.getStopTime(defaultStreamId);
-        uint256 expectedStopTime = defaultStream.stopTime;
+        uint256 streamId = createDefaultStream();
+        uint256 actualStopTime = pro.getStopTime(streamId);
+        uint256 expectedStopTime = DEFAULT_STOP_TIME;
         assertEq(actualStopTime, expectedStopTime);
     }
 }

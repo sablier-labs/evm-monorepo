@@ -18,9 +18,9 @@ contract GetDepositAmount__Test is ProTest {
 
     /// @dev it should the correct deposit amount.
     function testGetDepositAmount() external StreamExistent {
-        uint256 defaultStreamId = createDefaultStream();
-        uint128 actualDepositAmount = pro.getDepositAmount(defaultStreamId);
-        uint128 expectedDepositAmount = defaultStream.depositAmount;
+        uint256 streamId = createDefaultStream();
+        uint128 actualDepositAmount = pro.getDepositAmount(streamId);
+        uint128 expectedDepositAmount = defaultStream.amounts.deposit;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
 }

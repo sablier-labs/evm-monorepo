@@ -27,14 +27,14 @@ contract GetReturnableAmount__Test is LinearTest {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Get the withdrawable amount.
         uint128 withdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
 
         // Run the test.
         uint256 actualReturnableAmount = linear.getReturnableAmount(defaultStreamId);
-        uint256 expectedReturnableAmount = defaultStream.depositAmount - withdrawableAmount;
+        uint256 expectedReturnableAmount = defaultStream.amounts.deposit - withdrawableAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
@@ -45,7 +45,7 @@ contract GetReturnableAmount__Test is LinearTest {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Withdraw the entire withdrawable amount.
         uint128 withdrawAmount = linear.getWithdrawableAmount(defaultStreamId);
@@ -53,14 +53,14 @@ contract GetReturnableAmount__Test is LinearTest {
 
         // Run the test.
         uint256 actualReturnableAmount = linear.getReturnableAmount(defaultStreamId);
-        uint256 expectedReturnableAmount = defaultStream.depositAmount - withdrawAmount;
+        uint256 expectedReturnableAmount = defaultStream.amounts.deposit - withdrawAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
     /// @dev it should return the deposit amount.
     function testGetReturnableAmount__WithdrawableAmountZero__NoWithdrawals() external StreamExistent {
         uint256 actualReturnableAmount = linear.getReturnableAmount(defaultStreamId);
-        uint256 expectedReturnableAmount = defaultStream.depositAmount;
+        uint256 expectedReturnableAmount = defaultStream.amounts.deposit;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
@@ -72,7 +72,7 @@ contract GetReturnableAmount__Test is LinearTest {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Bound the withdraw amount.
         uint128 initialWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
@@ -86,7 +86,7 @@ contract GetReturnableAmount__Test is LinearTest {
 
         // Run the test.
         uint256 actualReturnableAmount = linear.getReturnableAmount(defaultStreamId);
-        uint256 expectedReturnableAmount = defaultStream.depositAmount - withdrawAmount - withdrawableAmount;
+        uint256 expectedReturnableAmount = defaultStream.amounts.deposit - withdrawAmount - withdrawableAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 }

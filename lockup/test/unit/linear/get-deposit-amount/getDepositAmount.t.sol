@@ -20,7 +20,7 @@ contract GetDepositAmount__Test is LinearTest {
     function testGetDepositAmount() external StreamExistent {
         uint256 defaultStreamId = createDefaultStream();
         uint128 actualDepositAmount = linear.getDepositAmount(defaultStreamId);
-        uint128 expectedDepositAmount = defaultStream.depositAmount;
+        uint128 expectedDepositAmount = defaultStream.amounts.deposit;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }
 }

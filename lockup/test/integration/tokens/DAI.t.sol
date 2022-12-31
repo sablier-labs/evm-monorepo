@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { CreateWithMilestones__Test } from "../create/CreateWithMilestones.t.sol";
-import { CreateWithRange__Test } from "../create/CreateWithRange.t.sol";
+import { CreateWithMilestones__Test } from "../create/createWithMilestones.t.sol";
+import { CreateWithRange__Test } from "../create/createWithRange.t.sol";
 
 /// @dev A typical 18-decimal token with a normal total supply.
 address constant token = 0x6B175474E89094C44Da98b954EedeAC495271d0F;

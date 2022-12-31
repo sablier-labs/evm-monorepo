@@ -26,7 +26,7 @@ contract GetWithdrawableAmount__Test is LinearTest {
     /// @dev it should return zero.
     function testGetWithdrawableAmount__CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external StreamExistent {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
-        vm.warp({ timestamp: defaultStream.startTime = timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start = timeWarp });
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -48,11 +48,11 @@ contract GetWithdrawableAmount__Test is LinearTest {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.stopTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.stop + timeWarp });
 
         // Run the test.
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
-        uint128 expectedWithdrawableAmount = defaultStream.depositAmount;
+        uint128 expectedWithdrawableAmount = defaultStream.amounts.deposit;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
@@ -68,17 +68,17 @@ contract GetWithdrawableAmount__Test is LinearTest {
         uint128 withdrawAmount
     ) external StreamExistent CliffTimeLessThanOrEqualToCurrentTime {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
-        withdrawAmount = boundUint128(withdrawAmount, 1, defaultStream.depositAmount);
+        withdrawAmount = boundUint128(withdrawAmount, 1, defaultStream.amounts.deposit);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.stopTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.stop + timeWarp });
 
         // Withdraw the amount.
         linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
-        uint128 expectedWithdrawableAmount = defaultStream.depositAmount - withdrawAmount;
+        uint128 expectedWithdrawableAmount = defaultStream.amounts.deposit - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
@@ -113,13 +113,11 @@ contract GetWithdrawableAmount__Test is LinearTest {
             operatorFee,
             defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.startTime,
-            defaultArgs.createWithRange.cliffTime,
-            defaultArgs.createWithRange.stopTime
+            defaultArgs.createWithRange.range
         );
 
         // Warp into the future.
-        uint40 currentTime = defaultStream.startTime + timeWarp;
+        uint40 currentTime = defaultStream.range.start + timeWarp;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
@@ -138,7 +136,7 @@ contract GetWithdrawableAmount__Test is LinearTest {
         depositAmount = boundUint128(depositAmount, 10_000, UINT128_MAX);
 
         // Bound the withdraw amount.
-        uint40 currentTime = defaultStream.startTime + timeWarp;
+        uint40 currentTime = defaultStream.range.start + timeWarp;
         uint128 initialWithdrawableAmount = calculateStreamedAmount(currentTime, depositAmount);
         withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
 
@@ -157,9 +155,7 @@ contract GetWithdrawableAmount__Test is LinearTest {
             operatorFee,
             defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.startTime,
-            defaultArgs.createWithRange.cliffTime,
-            defaultArgs.createWithRange.stopTime
+            defaultArgs.createWithRange.range
         );
 
         // Warp into the future.

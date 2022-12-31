@@ -42,7 +42,7 @@ contract GetWithdrawnAmount__Test is ProTest {
 
     /// @dev it should return the correct withdrawn amount.
     function testGetWithdrawnAmount__WithWithdrawals(uint256 timeWarp, uint128 withdrawAmount) external StreamExistent {
-        timeWarp = bound(timeWarp, defaultStream.segmentMilestones[0], DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, defaultStream.segments[0].milestone, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.
         vm.warp({ timestamp: defaultStream.startTime + timeWarp });

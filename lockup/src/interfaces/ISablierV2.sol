@@ -17,7 +17,7 @@ interface ISablierV2 is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Queries the maximum value that the protocol and the operator fee can each have.
-    /// @dev This is initialized at construction time.
+    /// @dev This is initialized at construction time and cannot be changed later.
     /// @return The maximum fee permitted.
     function MAX_FEE() external view returns (UD60x18);
 
@@ -148,7 +148,7 @@ interface ISablierV2 is
     /// @return The next stream id.
     function nextStreamId() external view returns (uint256);
 
-    /// @notice Makes the stream non-cancelable.
+    /// @notice Makes the stream non-cancelable. This is an irreversible operation.
     ///
     /// @dev Emits a {Renounce} event.
     ///

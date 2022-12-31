@@ -2,16 +2,16 @@
 pragma solidity >=0.8.13;
 
 import { E, SD1x18 } from "@prb/math/SD1x18.sol";
-import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
+import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
+
+import { Segment } from "src/types/Structs.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
 contract GetWithdrawableAmount__Test is ProTest {
     uint256 internal defaultStreamId;
-    uint128[] internal maxSegmentAmounts = new uint128[](MAX_SEGMENT_COUNT);
-    SD1x18[] internal maxSegmentExponents = new SD1x18[](MAX_SEGMENT_COUNT);
-    uint40[] internal maxSegmentMilestones = new uint40[](MAX_SEGMENT_COUNT);
+    Segment[] internal maxSegments;
 
     /// @dev it should return zero.
     function testGetWithdrawableAmount__StreamNonExistent() external {
@@ -59,11 +59,11 @@ contract GetWithdrawableAmount__Test is ProTest {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.stopTime + timeWarp });
+        vm.warp({ timestamp: DEFAULT_STOP_TIME + timeWarp });
 
         // Run the test.
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
-        uint128 expectedWithdrawableAmount = defaultStream.depositAmount;
+        uint128 expectedWithdrawableAmount = defaultStream.amounts.deposit;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
@@ -79,17 +79,17 @@ contract GetWithdrawableAmount__Test is ProTest {
         uint128 withdrawAmount
     ) external StreamExistent StartTimeLessThanCurrentTime {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
-        withdrawAmount = boundUint128(withdrawAmount, 1, defaultStream.depositAmount);
+        withdrawAmount = boundUint128(withdrawAmount, 1, defaultStream.amounts.deposit);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.stopTime + timeWarp });
+        vm.warp({ timestamp: DEFAULT_STOP_TIME + timeWarp });
 
         // Withdraw the amount.
         pro.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
-        uint128 expectedWithdrawableAmount = defaultStream.depositAmount - withdrawAmount;
+        uint128 expectedWithdrawableAmount = defaultStream.amounts.deposit - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
@@ -108,16 +108,11 @@ contract GetWithdrawableAmount__Test is ProTest {
     ) external StreamExistent StartTimeLessThanCurrentTime CurrentTimeLessThanStopTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
-        // Calculate the segment amounts.
-        uint128[] memory segmentAmounts = calculateSegmentAmounts(defaultStream.depositAmount);
-
         // Bound the withdraw amount.
         uint40 currentTime = defaultStream.startTime + timeWarp;
         uint128 initialWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
             currentTime,
-            segmentAmounts,
-            defaultStream.segmentExponents,
-            defaultStream.segmentMilestones
+            defaultStream.segments
         );
         withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
 
@@ -128,15 +123,13 @@ contract GetWithdrawableAmount__Test is ProTest {
         uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
-            defaultStream.depositAmount,
-            segmentAmounts,
-            defaultArgs.createWithMilestones.segmentExponents,
+            defaultStream.amounts.deposit,
+            defaultStream.segments,
             defaultArgs.createWithMilestones.operator,
             operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.segmentMilestones
+            defaultArgs.createWithMilestones.startTime
         );
 
         // Warp into the future.
@@ -161,11 +154,14 @@ contract GetWithdrawableAmount__Test is ProTest {
     ) external StreamExistent StartTimeLessThanCurrentTime CurrentTimeLessThanStopTime NoWithdrawals {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
-        // Create the one-segment arrays.
-        uint128 depositAmount = DEFAULT_SEGMENT_AMOUNTS[0] + DEFAULT_SEGMENT_AMOUNTS[1];
-        uint128[] memory segmentAmounts = Solarray.uint128s(depositAmount);
-        SD1x18[] memory segmentExponents = Solarray.SD1x18s(DEFAULT_SEGMENT_EXPONENTS[1]);
-        uint40[] memory segmentMilestones = Solarray.uint40s(DEFAULT_STOP_TIME);
+        // Create a single-element segment array.
+        uint128 depositAmount = DEFAULT_SEGMENTS[0].amount + DEFAULT_SEGMENTS[1].amount;
+        Segment[] memory segments = new Segment[](1);
+        segments[0] = Segment({
+            amount: depositAmount,
+            exponent: DEFAULT_SEGMENTS[1].exponent,
+            milestone: DEFAULT_STOP_TIME
+        });
 
         // Disable the operator fee so that it doesn't interfere with the calculations.
         UD60x18 operatorFee = ZERO;
@@ -175,14 +171,12 @@ contract GetWithdrawableAmount__Test is ProTest {
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             depositAmount,
-            segmentAmounts,
-            segmentExponents,
+            segments,
             defaultArgs.createWithMilestones.operator,
             operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            segmentMilestones
+            defaultArgs.createWithMilestones.startTime
         );
 
         // Warp into the future.
@@ -194,23 +188,27 @@ contract GetWithdrawableAmount__Test is ProTest {
         uint128 expectedWithdrawableAmount = calculateStreamedAmountForOneSegment(
             currentTime,
             depositAmount,
-            segmentExponents[0]
+            segments[0].exponent
         );
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     modifier MultipleSegments() {
         unchecked {
-            uint128 segmentAmount = defaultStream.depositAmount / uint128(MAX_SEGMENT_COUNT);
-            SD1x18 segmentExponent = E;
-            uint40 segmentDuration = DEFAULT_TOTAL_DURATION / uint40(MAX_SEGMENT_COUNT);
+            uint128 amount = defaultStream.amounts.deposit / uint128(MAX_SEGMENT_COUNT);
+            SD1x18 exponent = E;
+            uint40 duration = DEFAULT_TOTAL_DURATION / uint40(MAX_SEGMENT_COUNT);
 
-            // Generate lots of segments that each have the same amount, same exponent, and with milestones
+            // Generate a bunch of segments that each has the same amount, same exponent, and with milestones
             // evenly spread apart.
             for (uint40 i = 0; i < MAX_SEGMENT_COUNT; i += 1) {
-                maxSegmentAmounts[i] = segmentAmount;
-                maxSegmentExponents[i] = segmentExponent;
-                maxSegmentMilestones[i] = defaultStream.startTime + segmentDuration * (i + 1);
+                maxSegments.push(
+                    Segment({
+                        amount: amount,
+                        exponent: exponent,
+                        milestone: defaultStream.startTime + duration * (i + 1)
+                    })
+                );
             }
         }
         _;
@@ -231,24 +229,20 @@ contract GetWithdrawableAmount__Test is ProTest {
         uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
-            defaultStream.depositAmount,
-            maxSegmentAmounts,
-            maxSegmentExponents,
+            defaultStream.amounts.deposit,
+            maxSegments,
             defaultArgs.createWithMilestones.operator,
             operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            maxSegmentMilestones
+            defaultArgs.createWithMilestones.startTime
         );
 
         // Run the test.
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(streamId);
         uint128 expectedWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
             uint40(block.timestamp),
-            maxSegmentAmounts,
-            maxSegmentExponents,
-            maxSegmentMilestones
+            maxSegments
         );
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -261,7 +255,7 @@ contract GetWithdrawableAmount__Test is ProTest {
     function testGetWithdrawableAmount__CurrentMilestoneNot1st(
         uint40 timeWarp
     ) external StreamExistent CurrentTimeLessThanStopTime NoWithdrawals MultipleSegments CurrentMilestoneNot1st {
-        timeWarp = boundUint40(timeWarp, maxSegmentMilestones[0], DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = boundUint40(timeWarp, maxSegments[0].milestone, DEFAULT_TOTAL_DURATION - 1);
 
         // Disable the operator fee so that it doesn't interfere with the calculations.
         UD60x18 operatorFee = ZERO;
@@ -270,15 +264,13 @@ contract GetWithdrawableAmount__Test is ProTest {
         uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
-            defaultStream.depositAmount,
-            maxSegmentAmounts,
-            maxSegmentExponents,
+            defaultStream.amounts.deposit,
+            maxSegments,
             defaultArgs.createWithMilestones.operator,
             operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            maxSegmentMilestones
+            defaultArgs.createWithMilestones.startTime
         );
 
         // Warp into the future.
@@ -287,12 +279,7 @@ contract GetWithdrawableAmount__Test is ProTest {
 
         // Run the test.
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(streamId);
-        uint128 expectedWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
-            currentTime,
-            maxSegmentAmounts,
-            maxSegmentExponents,
-            maxSegmentMilestones
-        );
+        uint128 expectedWithdrawableAmount = calculateStreamedAmountForMultipleSegments(currentTime, maxSegments);
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 }

@@ -20,7 +20,7 @@ contract GetCliffTime__Test is LinearTest {
     function testGetCliffTime() external StreamExistent {
         uint256 defaultStreamId = createDefaultStream();
         uint256 actualCliffTime = linear.getCliffTime(defaultStreamId);
-        uint256 expectedCliffTime = defaultStream.cliffTime;
+        uint256 expectedCliffTime = defaultStream.range.cliff;
         assertEq(actualCliffTime, expectedCliffTime);
     }
 }

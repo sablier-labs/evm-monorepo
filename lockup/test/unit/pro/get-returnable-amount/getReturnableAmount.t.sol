@@ -23,7 +23,7 @@ contract GetReturnableAmount__Test is ProTest {
     /// @dev it should return the deposit amount.
     function testGetReturnableAmount__WithdrawableAmountZero__NoWithdrawals() external StreamExistent {
         uint256 actualReturnableAmount = pro.getReturnableAmount(defaultStreamId);
-        uint256 expectedReturnableAmount = defaultStream.depositAmount;
+        uint256 expectedReturnableAmount = defaultStream.amounts.deposit;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
@@ -42,7 +42,7 @@ contract GetReturnableAmount__Test is ProTest {
 
         // Run the test.
         uint256 actualReturnableAmount = pro.getReturnableAmount(defaultStreamId);
-        uint256 expectedReturnableAmount = defaultStream.depositAmount - withdrawAmount;
+        uint256 expectedReturnableAmount = defaultStream.amounts.deposit - withdrawAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
@@ -60,7 +60,7 @@ contract GetReturnableAmount__Test is ProTest {
 
         // Run the test.
         uint256 actualReturnableAmount = pro.getReturnableAmount(defaultStreamId);
-        uint256 expectedReturnableAmount = defaultStream.depositAmount - withdrawableAmount;
+        uint256 expectedReturnableAmount = defaultStream.amounts.deposit - withdrawableAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
@@ -86,7 +86,7 @@ contract GetReturnableAmount__Test is ProTest {
 
         // Run the test.
         uint256 actualReturnableAmount = pro.getReturnableAmount(defaultStreamId);
-        uint256 expectedReturnableAmount = defaultStream.depositAmount - withdrawAmount - withdrawableAmount;
+        uint256 expectedReturnableAmount = defaultStream.amounts.deposit - withdrawAmount - withdrawableAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 }

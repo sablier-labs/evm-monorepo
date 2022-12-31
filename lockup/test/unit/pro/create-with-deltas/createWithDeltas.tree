@@ -2,14 +2,18 @@ createWithDeltas.t.sol
 ├── when the loop calculations overflow the block gas limit
 │  └── it should revert
 └── when the loop calculations do not overflow the block gas limit
-   ├── when the segment deltas count are not equal
+   ├── when the delta count is not equal to the segment count
    │  └── it should revert
-   └── when the segment deltas count are equal
-      ├── when the segment milestone calculations overflow uint256
-      │  ├── when the start time is greater than the calculated first segment milestone
-      │  │  └── it should revert
-      │  └── when the segment milestones are not ordered
-      │     └── it should revert
-      └── when the segment milestone calculations do not overflow uint256
-         ├── it should perform the ERC-20 transfers, create the stream, record the protocol fee, and bump the next stream id
-         └── it emit a CreateProStream event
+   └── when the delta count is equal to the segment count
+      ├── when at least one of the deltas at index one or greater is zero
+      │  └── it should revert
+      └── when none of the deltas is zero
+         ├── when the segment milestone calculations overflow uint256
+         │  ├── when the start time is greater than the calculated first segment milestone
+         │  │  └── it should revert
+         │  └── when the segment milestones are not ordered
+         │     └── it should revert
+         └── when the segment milestone calculations do not overflow uint256
+            ├── it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT
+            ├── it should record the protocol fee
+            └── it should emit a CreateProStream event

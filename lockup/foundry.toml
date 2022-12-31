@@ -11,11 +11,7 @@ out = "out"
 solc = "0.8.17"
 src = "src"
 test = "test/unit"
-via_ir = true
-
-[profile.default.optimizer_details.yulDetails]
-optimizerSteps = ""
 
 [profile.ci]
-fuzz = { runs = 10_000 }
+fuzz = { runs = 5_000 }
 test = "test" # run all tests in CI, including integration tests

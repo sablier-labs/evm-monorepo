@@ -75,15 +75,16 @@ library Errors {
                             SABLIER-V2-PRO CUSTOM ERRORS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when attempting to create a stream and the count of the segments does not match the
+    /// count of the deltas.
+    error SablierV2Pro__SegmentArraysNotEqual(uint256 segmentCount, uint256 deltaCount);
+
     /// @notice Emitted when attempting to create a stream with a net deposit amount that does not equal the segment
     /// amounts sum.
     error SablierV2Pro__NetDepositAmountNotEqualToSegmentAmountsSum(
         uint128 netDepositAmount,
         uint128 segmentAmountsSum
     );
-
-    /// @notice Emitted when attempting to create a stream with segment counts that are not equal.
-    error SablierV2Pro__SegmentCountsNotEqual(uint256 amountsCount, uint256 exponentsCount, uint256 milestonesCount);
 
     /// @notice Emitted when attempting to create a stream with one or more segment counts greater than the maximum
     /// permitted.

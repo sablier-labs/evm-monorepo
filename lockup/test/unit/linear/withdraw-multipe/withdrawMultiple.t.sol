@@ -4,9 +4,9 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
-import { DataTypes } from "src/types/DataTypes.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
+import { LinearStream } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
@@ -67,7 +67,7 @@ contract WithdrawMultiple__Test is LinearTest {
         uint256[] memory streamIds = Solarray.uint256s(nonStreamId, defaultStreamIds[0]);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: defaultStream.range.start + DEFAULT_TIME_WARP });
 
         // Run the test.
         linear.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
@@ -142,7 +142,7 @@ contract WithdrawMultiple__Test is LinearTest {
         changePrank(eve);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: defaultStream.range.start + DEFAULT_TIME_WARP });
 
         // Run the test.
         uint256[] memory streamIds = Solarray.uint256s(eveStreamId, defaultStreamIds[0]);
@@ -161,7 +161,7 @@ contract WithdrawMultiple__Test is LinearTest {
         linear.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: defaultStream.range.start + DEFAULT_TIME_WARP });
 
         // Run the test.
         vm.expectRevert(
@@ -187,7 +187,7 @@ contract WithdrawMultiple__Test is LinearTest {
         changePrank(users.operator);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: defaultStream.range.start + DEFAULT_TIME_WARP });
 
         // Expect the withdrawals to be made.
         uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
@@ -219,7 +219,7 @@ contract WithdrawMultiple__Test is LinearTest {
         CallerRecipient
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: defaultStream.range.start + DEFAULT_TIME_WARP });
 
         // Run the test.
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT, 0);
@@ -242,7 +242,7 @@ contract WithdrawMultiple__Test is LinearTest {
         AllAmountsNotZero
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: defaultStream.startTime + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: defaultStream.range.start + DEFAULT_TIME_WARP });
 
         // Run the test.
         uint128 withdrawableAmount = DEFAULT_WITHDRAW_AMOUNT;
@@ -280,26 +280,26 @@ contract WithdrawMultiple__Test is LinearTest {
         vm.assume(to != address(0));
 
         // Warp into the future, past the stop time.
-        vm.warp({ timestamp: defaultStream.stopTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.stop + timeWarp });
 
         // Expect Withdraw events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.Withdraw({ streamId: defaultStreamIds[0], to: to, amount: defaultStream.depositAmount });
+        emit Events.Withdraw({ streamId: defaultStreamIds[0], to: to, amount: defaultStream.amounts.deposit });
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.Withdraw({ streamId: defaultStreamIds[1], to: to, amount: defaultStream.depositAmount });
+        emit Events.Withdraw({ streamId: defaultStreamIds[1], to: to, amount: defaultStream.amounts.deposit });
 
         // Expect the withdrawals to be made.
-        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, defaultStream.depositAmount)));
-        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, defaultStream.depositAmount)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, defaultStream.amounts.deposit)));
+        vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (to, defaultStream.amounts.deposit)));
 
         // Make the withdrawals.
-        uint128[] memory amounts = Solarray.uint128s(defaultStream.depositAmount, defaultStream.depositAmount);
+        uint128[] memory amounts = Solarray.uint128s(defaultStream.amounts.deposit, defaultStream.amounts.deposit);
         linear.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: amounts });
 
         // Assert that the streams were deleted.
-        DataTypes.LinearStream memory actualStream0 = linear.getStream(defaultStreamIds[0]);
-        DataTypes.LinearStream memory actualStream1 = linear.getStream(defaultStreamIds[1]);
-        DataTypes.LinearStream memory expectedStream;
+        LinearStream memory actualStream0 = linear.getStream(defaultStreamIds[0]);
+        LinearStream memory actualStream1 = linear.getStream(defaultStreamIds[1]);
+        LinearStream memory expectedStream;
         assertEq(actualStream0, expectedStream);
         assertEq(actualStream1, expectedStream);
 
@@ -330,7 +330,7 @@ contract WithdrawMultiple__Test is LinearTest {
         vm.assume(to != address(0));
 
         // Warp into the future, before the stop time of the stream.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = linear.getWithdrawableAmount(defaultStreamIds[0]);
@@ -379,14 +379,14 @@ contract WithdrawMultiple__Test is LinearTest {
 
         // Use the first default stream as the ended stream.
         uint256 endedStreamId = defaultStreamIds[0];
-        uint128 endedWithdrawAmount = defaultStream.depositAmount;
+        uint128 endedWithdrawAmount = defaultStream.amounts.deposit;
 
         // Create a new stream with a stop time nearly double that of the default stream.
-        uint40 ongoingStopTime = defaultStream.stopTime + DEFAULT_TOTAL_DURATION;
+        uint40 ongoingStopTime = defaultStream.range.stop + DEFAULT_TOTAL_DURATION;
         uint256 ongoingStreamId = createDefaultStreamWithStopTime(ongoingStopTime);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.startTime + timeWarp });
+        vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Bound the ongoing withdraw amount.
         uint128 ongoingWithdrawableAmount = linear.getWithdrawableAmount(ongoingStreamId);
@@ -404,8 +404,8 @@ contract WithdrawMultiple__Test is LinearTest {
         linear.withdrawMultiple({ streamIds: streamIds, to: to, amounts: amounts });
 
         // Assert that the ended stream was deleted.
-        DataTypes.LinearStream memory actualEndedStream = linear.getStream(endedStreamId);
-        DataTypes.LinearStream memory expectedEndedStream;
+        LinearStream memory actualEndedStream = linear.getStream(endedStreamId);
+        LinearStream memory expectedEndedStream;
         assertEq(actualEndedStream, expectedEndedStream);
 
         // Assert that the ended stream NFT was not burned.
