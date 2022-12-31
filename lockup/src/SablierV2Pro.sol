@@ -279,10 +279,10 @@ contract SablierV2Pro is
         ProStream memory stream = _streams[streamId];
 
         // Calculate the withdraw and the return amounts.
-        uint128 withdrawAmount = getWithdrawableAmount(streamId);
-        uint128 returnAmount;
+        uint128 recipientAmount = getWithdrawableAmount(streamId);
+        uint128 senderAmount;
         unchecked {
-            returnAmount = stream.amounts.deposit - stream.amounts.withdrawn - withdrawAmount;
+            senderAmount = stream.amounts.deposit - stream.amounts.withdrawn - recipientAmount;
         }
 
         // Load the sender and the recipient in memory, we will need them below.
@@ -293,13 +293,13 @@ contract SablierV2Pro is
         delete _streams[streamId];
 
         // Interactions: withdraw the tokens to the recipient, if any.
-        if (withdrawAmount > 0) {
-            IERC20(stream.token).safeTransfer({ to: recipient, amount: withdrawAmount });
+        if (recipientAmount > 0) {
+            IERC20(stream.token).safeTransfer({ to: recipient, amount: recipientAmount });
         }
 
         // Interactions: return the tokens to the sender, if any.
-        if (returnAmount > 0) {
-            IERC20(stream.token).safeTransfer({ to: sender, amount: returnAmount });
+        if (senderAmount > 0) {
+            IERC20(stream.token).safeTransfer({ to: sender, amount: senderAmount });
         }
 
         // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
@@ -311,8 +311,8 @@ contract SablierV2Pro is
                     ISablierV2Recipient(recipient).onStreamCanceled({
                         streamId: streamId,
                         caller: msg.sender,
-                        withdrawAmount: withdrawAmount,
-                        returnAmount: returnAmount
+                        recipientAmount: recipientAmount,
+                        senderAmount: senderAmount
                     })
                 {} catch {}
             }
@@ -326,15 +326,15 @@ contract SablierV2Pro is
                     ISablierV2Sender(sender).onStreamCanceled({
                         streamId: streamId,
                         caller: msg.sender,
-                        withdrawAmount: withdrawAmount,
-                        returnAmount: returnAmount
+                        recipientAmount: recipientAmount,
+                        senderAmount: senderAmount
                     })
                 {} catch {}
             }
         }
 
         // Emit an event.
-        emit Events.Cancel(streamId, sender, recipient, returnAmount, withdrawAmount);
+        emit Events.Cancel(streamId, sender, recipient, senderAmount, recipientAmount);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -528,7 +528,7 @@ contract SablierV2Pro is
                 ISablierV2Recipient(recipient).onStreamWithdrawn({
                     streamId: streamId,
                     caller: msg.sender,
-                    withdrawAmount: amount
+                    amount: amount
                 })
             {} catch {}
         }

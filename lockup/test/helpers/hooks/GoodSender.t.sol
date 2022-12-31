@@ -7,12 +7,12 @@ contract GoodSender is ISablierV2Sender {
     function onStreamCanceled(
         uint256 streamId,
         address caller,
-        uint128 withdrawAmount,
-        uint128 returnAmount
+        uint128 recipientAmount,
+        uint128 senderAmount
     ) external pure {
         streamId;
         caller;
-        withdrawAmount;
-        returnAmount;
+        recipientAmount;
+        senderAmount;
     }
 }

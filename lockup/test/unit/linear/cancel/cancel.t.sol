@@ -208,23 +208,23 @@ contract Cancel__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Expect the tokens to be withdrawn to the recipient.
-        uint128 withdrawAmount = linear.getWithdrawableAmount(streamId);
-        if (withdrawAmount > 0) {
+        uint128 recipientAmount = linear.getWithdrawableAmount(streamId);
+        if (recipientAmount > 0) {
             vm.expectCall(
                 defaultStream.token,
-                abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount))
+                abi.encodeCall(IERC20.transfer, (address(goodRecipient), recipientAmount))
             );
         }
 
         // Expect the tokens to be returned to the sender.
-        uint128 returnAmount = defaultStream.amounts.deposit - withdrawAmount;
-        if (returnAmount > 0) {
-            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, returnAmount)));
+        uint128 senderAmount = defaultStream.amounts.deposit - recipientAmount;
+        if (senderAmount > 0) {
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (defaultStream.sender, senderAmount)));
         }
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.Cancel(streamId, defaultStream.sender, address(goodRecipient), returnAmount, withdrawAmount);
+        emit Events.Cancel(streamId, defaultStream.sender, address(goodRecipient), senderAmount, recipientAmount);
 
         // Cancel the stream.
         linear.cancel(streamId);
@@ -362,20 +362,20 @@ contract Cancel__Test is LinearTest {
         vm.warp({ timestamp: defaultStream.range.start + timeWarp });
 
         // Expect the tokens to be withdrawn to the recipient, if not zero.
-        uint128 withdrawAmount = linear.getWithdrawableAmount(streamId);
-        if (withdrawAmount > 0) {
-            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
+        uint128 recipientAmount = linear.getWithdrawableAmount(streamId);
+        if (recipientAmount > 0) {
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount)));
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
-        uint128 returnAmount = defaultStream.amounts.deposit - withdrawAmount;
-        if (returnAmount > 0) {
-            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (address(goodSender), returnAmount)));
+        uint128 senderAmount = defaultStream.amounts.deposit - recipientAmount;
+        if (senderAmount > 0) {
+            vm.expectCall(defaultStream.token, abi.encodeCall(IERC20.transfer, (address(goodSender), senderAmount)));
         }
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.Cancel(streamId, address(goodSender), users.recipient, returnAmount, withdrawAmount);
+        emit Events.Cancel(streamId, address(goodSender), users.recipient, senderAmount, recipientAmount);
 
         // Cancel the stream.
         linear.cancel(streamId);

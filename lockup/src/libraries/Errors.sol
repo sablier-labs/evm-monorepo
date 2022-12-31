@@ -47,7 +47,7 @@ library Errors {
     /// @notice Emitted when attempting to withdraw more than can be withdrawn.
     error SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(
         uint256 streamId,
-        uint128 withdrawAmount,
+        uint128 amount,
         uint128 withdrawableAmount
     );
 

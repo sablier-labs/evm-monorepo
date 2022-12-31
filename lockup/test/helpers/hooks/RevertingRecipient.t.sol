@@ -7,20 +7,20 @@ contract RevertingRecipient is ISablierV2Recipient {
     function onStreamCanceled(
         uint256 streamId,
         address caller,
-        uint128 withdrawAmount,
-        uint128 returnAmount
+        uint128 recipientAmount,
+        uint128 senderAmount
     ) external pure {
         streamId;
         caller;
-        withdrawAmount;
-        returnAmount;
+        recipientAmount;
+        senderAmount;
         revert("You shall not pass");
     }
 
-    function onStreamWithdrawn(uint256 streamId, address caller, uint128 withdrawAmount) external pure {
+    function onStreamWithdrawn(uint256 streamId, address caller, uint128 amount) external pure {
         streamId;
         caller;
-        withdrawAmount;
+        amount;
         revert("You shall not pass");
     }
 }
