@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
-import { toUD60x18, ud, UD60x18, unwrap } from "@prb/math/UD60x18.sol";
+import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Amounts, LinearStream, Range } from "src/types/Structs.sol";
 
@@ -112,10 +112,10 @@ abstract contract LinearTest is UnitTest {
         uint40 currentTime,
         uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
-        UD60x18 elapsedTime = toUD60x18(currentTime - defaultStream.range.start);
-        UD60x18 totalTime = toUD60x18(defaultStream.range.stop - defaultStream.range.start);
+        UD60x18 elapsedTime = UD60x18.wrap(currentTime - defaultStream.range.start);
+        UD60x18 totalTime = UD60x18.wrap(defaultStream.range.stop - defaultStream.range.start);
         UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-        streamedAmount = uint128(unwrap(elapsedTimePercentage.mul(ud(depositAmount))));
+        streamedAmount = uint128(UD60x18.unwrap(elapsedTimePercentage.mul(ud(depositAmount))));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

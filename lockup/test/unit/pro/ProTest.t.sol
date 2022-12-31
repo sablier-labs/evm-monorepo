@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { SD1x18 } from "@prb/math/SD1x18.sol";
-import { SD59x18, toSD59x18 } from "@prb/math/SD59x18.sol";
+import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Amounts, ProStream, Segment } from "src/types/Structs.sol";
@@ -152,8 +152,8 @@ abstract contract ProTest is UnitTest {
             }
 
             // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
-                toSD59x18(int256(uint256(totalSegmentTime)))
+            SD59x18 elapsedTimePercentage = SD59x18.wrap(int256(uint256(elapsedSegmentTime))).div(
+                SD59x18.wrap(int256(uint256(totalSegmentTime)))
             );
             SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
             SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
@@ -169,11 +169,9 @@ abstract contract ProTest is UnitTest {
         SD1x18 segmentExponent
     ) internal view returns (uint128 streamedAmount) {
         unchecked {
-            uint40 elapsedSegmentTime = currentTime - defaultStream.startTime;
-            uint40 totalSegmentTime = DEFAULT_TOTAL_DURATION;
-            SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
-                toSD59x18(int256(uint256(totalSegmentTime)))
-            );
+            SD59x18 elapsedSegmentTime = SD59x18.wrap(int256(uint256(currentTime - defaultStream.startTime)));
+            SD59x18 totalSegmentTime = SD59x18.wrap(int256(uint256(DEFAULT_TOTAL_DURATION)));
+            SD59x18 elapsedTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
             SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(segmentExponent))));
             streamedAmount = uint128(
                 uint256(SD59x18.unwrap(multiplier.mul(SD59x18.wrap(int256(uint256(depositAmount))))))

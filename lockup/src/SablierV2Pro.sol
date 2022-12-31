@@ -5,7 +5,7 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
-import { SD59x18, toSD59x18 } from "@prb/math/SD59x18.sol";
+import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Amounts, CreateAmounts, CreateWithMilestonesArgs, ProStream, Segment } from "./types/Structs.sol";
@@ -445,8 +445,8 @@ contract SablierV2Pro is
             }
 
             // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
-                toSD59x18(int256(uint256(totalSegmentTime)))
+            SD59x18 elapsedTimePercentage = SD59x18.wrap(int256(uint256(elapsedSegmentTime))).div(
+                SD59x18.wrap(int256(uint256(totalSegmentTime)))
             );
             SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
             SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
@@ -462,14 +462,14 @@ contract SablierV2Pro is
         unchecked {
             uint128 currentSegmentAmount = _streams[streamId].segments[0].amount;
             SD1x18 currentSegmentExponent = _streams[streamId].segments[0].exponent;
-            uint40 elapsedSegmentTime = uint40(block.timestamp) - _streams[streamId].startTime;
+            SD59x18 elapsedSegmentTime = SD59x18.wrap(
+                int256(uint256(uint40(block.timestamp) - _streams[streamId].startTime))
+            );
             uint40 stopTime = _streams[streamId].segments[0].milestone;
-            uint40 totalSegmentTime = stopTime - _streams[streamId].startTime;
+            SD59x18 totalSegmentTime = SD59x18.wrap(int256(uint256(stopTime - _streams[streamId].startTime)));
 
             // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
-                toSD59x18(int256(uint256(totalSegmentTime)))
-            );
+            SD59x18 elapsedTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
             SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
             SD59x18 streamedAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
             withdrawableAmount =

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { UD60x18, unwrap, wrap, ZERO } from "@prb/math/UD60x18.sol";
+import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
