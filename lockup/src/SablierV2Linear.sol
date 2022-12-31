@@ -277,7 +277,7 @@ contract SablierV2Linear is
 
         // Load the sender and the recipient in memory, we will need them below.
         address sender = _streams[streamId].sender;
-        address recipient = getRecipient(streamId);
+        address recipient = _ownerOf(streamId);
 
         // Effects: delete the stream from storage.
         delete _streams[streamId];
@@ -416,7 +416,7 @@ contract SablierV2Linear is
 
         // Load the stream and the recipient in memory, we will need it below.
         LinearStream memory stream = _streams[streamId];
-        address recipient = getRecipient(streamId);
+        address recipient = _ownerOf(streamId);
 
         // Assert that the withdrawn amount cannot get greater than the deposit amount.
         assert(stream.amounts.deposit >= stream.amounts.withdrawn);
