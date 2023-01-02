@@ -97,7 +97,7 @@ contract CancelMultiple__Test is LinearTest {
         vm.assume(operator != address(0) && operator != defaultStream.sender && operator != users.recipient);
 
         // Approve the operator for all streams.
-        linear.setApprovalForAll({ operator: operator, approved: true });
+        linear.setApprovalForAll({ operator: operator, _approved: true });
 
         // Make the approved operator the caller in this test.
         changePrank(users.operator);

@@ -11,6 +11,10 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 import { StdUtils } from "forge-std/StdUtils.sol";
 
+import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
+import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
+import { ISablierV2Linear } from "src/interfaces/ISablierV2Linear.sol";
+import { ISablierV2Pro } from "src/interfaces/ISablierV2Pro.sol";
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
@@ -23,6 +27,7 @@ import { ReentrantRecipient } from "../helpers/hooks/ReentrantRecipient.t.sol";
 import { ReentrantSender } from "../helpers/hooks/ReentrantSender.t.sol";
 import { RevertingRecipient } from "../helpers/hooks/RevertingRecipient.t.sol";
 import { RevertingSender } from "../helpers/hooks/RevertingSender.t.sol";
+import { SablierV2Mock } from "../helpers/mocks/SablierV2Mock.t.sol";
 
 abstract contract UnitTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
@@ -52,9 +57,10 @@ abstract contract UnitTest is BaseTest {
                                  SABLIER CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    SablierV2Comptroller internal comptroller;
-    SablierV2Linear internal linear;
-    SablierV2Pro internal pro;
+    ISablierV2Comptroller internal comptroller;
+    ISablierV2Linear internal linear;
+    ISablierV2Pro internal pro;
+    ISablierV2 internal sablierV2;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
@@ -149,6 +155,7 @@ abstract contract UnitTest is BaseTest {
     function deployContracts() internal {
         vm.startPrank({ msgSender: users.owner });
         comptroller = new SablierV2Comptroller();
+        sablierV2 = new SablierV2Mock({ initialComptroller: comptroller, maxFee: MAX_FEE });
         linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: MAX_FEE });
         pro = new SablierV2Pro({
             initialComptroller: comptroller,

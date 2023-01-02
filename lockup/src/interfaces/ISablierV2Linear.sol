@@ -16,9 +16,9 @@ import { ISablierV2 } from "./ISablierV2.sol";
 ///
 /// Where:
 ///
-/// - x is the elapsed time divided by the total duration of the stream.
-/// - d is the deposit amount.
-/// - c is the cliff amount.
+/// - $x$ is the elapsed time divided by the total duration of the stream.
+/// - $d$ is the deposit amount.
+/// - $c$ is the cliff amount.
 interface ISablierV2Linear is ISablierV2 {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS

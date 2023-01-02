@@ -11,12 +11,14 @@ import { ComptrollerTest } from "../ComptrollerTest.t.sol";
 
 contract SetProtocolFee__Test is ComptrollerTest {
     /// @dev it should revert.
-    function testCannotSetProtocolFee__CallerNotOwner() external {
+    function testCannotSetProtocolFee__CallerNotOwner(address eve) external {
+        vm.assume(eve != users.owner);
+
         // Make Eve the caller in this test.
-        changePrank(users.eve);
+        changePrank(eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IOwnable.Ownable__CallerNotOwner.selector, users.owner, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(IOwnable.Ownable__CallerNotOwner.selector, users.owner, eve));
         comptroller.setProtocolFee(address(dai), MAX_FEE);
     }
 
@@ -26,7 +28,7 @@ contract SetProtocolFee__Test is ComptrollerTest {
         _;
     }
 
-    /// @dev it should set the new global fee.
+    /// @dev it should re-set the protocol fee.
     function testSetProtocolFee__SameFee() external CallerOwner {
         UD60x18 newProtocolFee = ud(0);
         comptroller.setProtocolFee(address(dai), newProtocolFee);
@@ -36,7 +38,7 @@ contract SetProtocolFee__Test is ComptrollerTest {
         assertEq(actualProtocolFee, expectedProtocolFee);
     }
 
-    /// @dev it should set the new global fee.
+    /// @dev it should set the new protocol fee
     function testSetProtocolFee__DifferentFee(UD60x18 newProtocolFee) external CallerOwner {
         newProtocolFee = bound(newProtocolFee, 1, MAX_FEE);
         comptroller.setProtocolFee(address(dai), newProtocolFee);
