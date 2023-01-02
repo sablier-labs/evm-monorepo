@@ -6,7 +6,7 @@ import { ProStream } from "src/types/Structs.sol";
 import { ProTest } from "../ProTest.t.sol";
 
 contract GetStream__Test is ProTest {
-    /// @dev it should return a zeroed out stream struct.
+    /// @dev it should return a zeroed out stream.
     function testGetStream__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         ProStream memory actualStream = pro.getStream(nonStreamId);
@@ -18,7 +18,7 @@ contract GetStream__Test is ProTest {
         _;
     }
 
-    /// @dev it should return the stream struct.
+    /// @dev it should return the stream.
     function testGetStream() external StreamExistent {
         uint256 streamId = createDefaultStream();
         ProStream memory actualStream = pro.getStream(streamId);

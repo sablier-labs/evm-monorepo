@@ -6,7 +6,7 @@ import { LinearStream } from "src/types/Structs.sol";
 import { LinearTest } from "../LinearTest.t.sol";
 
 contract GetStream__Test is LinearTest {
-    /// @dev it should return a zeroed out stream struct.
+    /// @dev it should return a zeroed out stream.
     function testGetStream__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         LinearStream memory actualStream = linear.getStream(nonStreamId);
@@ -18,7 +18,7 @@ contract GetStream__Test is LinearTest {
         _;
     }
 
-    /// @dev it should return the stream struct.
+    /// @dev it should return the stream.
     function testGetStream() external StreamExistent {
         uint256 streamId = createDefaultStream();
         LinearStream memory actualStream = linear.getStream(streamId);

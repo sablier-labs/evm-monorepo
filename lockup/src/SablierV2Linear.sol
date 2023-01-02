@@ -54,6 +54,11 @@ contract SablierV2Linear is
         depositAmount = _streams[streamId].amounts.deposit;
     }
 
+    /// @inheritdoc ISablierV2Linear
+    function getRange(uint256 streamId) external view returns (Range memory range) {
+        range = _streams[streamId].range;
+    }
+
     /// @inheritdoc ISablierV2
     function getRecipient(uint256 streamId) public view override(ISablierV2, SablierV2) returns (address recipient) {
         recipient = _ownerOf(streamId);

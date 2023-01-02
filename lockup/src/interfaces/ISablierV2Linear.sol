@@ -29,6 +29,12 @@ interface ISablierV2Linear is ISablierV2 {
     /// @return cliffTime The cliff time of the stream.
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
+    /// @notice Queries the range of the stream.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return range A (start, cliff, stop) tuple of unix timestamps in seconds for when the stream will start, when
+    /// the cliff period will end, and when the stream will stop.
+    function getRange(uint256 streamId) external view returns (Range memory range);
+
     /// @notice Queries the stream struct.
     /// @param streamId The id of the stream to make the query for.
     /// @return stream The stream struct.
@@ -100,7 +106,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// a percentage with 100% = 1e18.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable Whether the stream will be cancelable or not.
-    /// @param range The (start, cliff, stop) tuple of unix timestamps in seconds for when the stream will start, when
+    /// @param range A (start, cliff, stop) tuple of unix timestamps in seconds for when the stream will start, when
     /// the cliff period will end, and when the stream will stop.
     /// @return streamId The id of the newly created stream.
     function createWithRange(

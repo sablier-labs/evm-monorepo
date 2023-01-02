@@ -47,7 +47,7 @@ library Events {
     /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
     /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable Whether the stream will be cancelable or not.
-    /// @param range The (start, cliff, stop) tuple of unix timestamps in seconds for when the stream will start, when
+    /// @param range A (start, cliff, stop) tuple of unix timestamps in seconds for when the stream will start, when
     /// the cliff period will end, and when the stream will stop.
     event CreateLinearStream(
         uint256 streamId,
