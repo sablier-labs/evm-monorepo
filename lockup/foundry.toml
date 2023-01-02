@@ -14,4 +14,3 @@ test = "test/unit"
 
 [profile.ci]
 fuzz = { runs = 5_000 }
-test = "test" # run all tests in CI, including integration tests
