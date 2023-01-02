@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 
-import { Cancel__Test } from "test/unit/shared/cancel/Cancel.t.sol";
+import { Cancel__Test } from "test/unit/shared/cancel/cancel.t.sol";
 import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
 
 contract Cancel__LinearTest is LinearTest, Cancel__Test {
