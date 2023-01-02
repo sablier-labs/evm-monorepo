@@ -14,4 +14,9 @@ abstract contract ComptrollerTest is UnitTest {
     function createDefaultStream() internal pure override returns (uint256 streamId) {
         streamId = 0;
     }
+
+    /// @dev This function must be overridden for the test contracts to compile, but it is not actually used.
+    function createDefaultStreamNonCancelable() internal pure override returns (uint256 streamId) {
+        streamId = 0;
+    }
 }

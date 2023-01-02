@@ -255,7 +255,7 @@ abstract contract ProTest is UnitTest {
     }
 
     /// @dev Helper function to create a non-cancelable stream.
-    function createDefaultStreamNonCancelable() internal returns (uint256 streamId) {
+    function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
         bool isCancelable = false;
         streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,

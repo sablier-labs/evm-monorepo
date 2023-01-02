@@ -151,7 +151,7 @@ abstract contract LinearTest is UnitTest {
     }
 
     /// @dev Helper function to create the default stream that is non-cancelable.
-    function createDefaultStreamNonCancelable() internal returns (uint256 streamId) {
+    function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
         bool isCancelable = false;
         streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
