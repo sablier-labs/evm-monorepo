@@ -9,7 +9,7 @@ import { LinearStream } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract Withdraw__Test is LinearTest {
+contract Withdraw__LinearTest is LinearTest {
     uint256 internal defaultStreamId;
 
     function setUp() public override {

@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { ProTest } from "../ProTest.t.sol";
 
-contract Constructor__Test is ProTest {
+contract Constructor__ProTest is ProTest {
     function testConstructor() external {
         uint256 actualStreamId = pro.nextStreamId();
         uint256 expectedStreamId = 1;

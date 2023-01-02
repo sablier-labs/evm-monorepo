@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract GetCliffTime__Test is LinearTest {
+contract GetCliffTime__LinearTest is LinearTest {
     /// @dev it should return zero.
     function testGetCliffTime__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

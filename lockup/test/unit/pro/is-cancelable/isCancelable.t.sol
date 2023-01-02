@@ -7,7 +7,7 @@ import { IsCancelable__Test } from "test/unit/shared/is-cancelable/isCancelable.
 import { ProTest } from "test/unit/pro/ProTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract IsCancelable__Pro__Test is ProTest, IsCancelable__Test {
+contract IsCancelable__ProTest is ProTest, IsCancelable__Test {
     function setUp() public virtual override(UnitTest, ProTest) {
         ProTest.setUp();
         sablierV2 = ISablierV2(pro);

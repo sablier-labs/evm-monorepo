@@ -13,7 +13,7 @@ import { Events } from "src/libraries/Events.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
-contract CreateWithMilestones__Test is ProTest {
+contract CreateWithMilestones__ProTest is ProTest {
     /// @dev it should revert.
     function testCannotCreateWithMilestones__RecipientZeroAddress() external {
         vm.expectRevert("ERC721: mint to the zero address");

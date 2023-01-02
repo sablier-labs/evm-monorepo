@@ -7,7 +7,7 @@ import { ClaimProtocolRevenues__Test } from "test/unit/shared/claim-protocol-rev
 import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract ClaimProtocolRevenues__Linear__Test is LinearTest, ClaimProtocolRevenues__Test {
+contract ClaimProtocolRevenues__LinearTest is LinearTest, ClaimProtocolRevenues__Test {
     function setUp() public virtual override(UnitTest, LinearTest) {
         LinearTest.setUp();
         sablierV2 = ISablierV2(linear);

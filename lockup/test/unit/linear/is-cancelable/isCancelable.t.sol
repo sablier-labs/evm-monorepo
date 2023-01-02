@@ -7,7 +7,7 @@ import { IsCancelable__Test } from "test/unit/shared/is-cancelable/isCancelable.
 import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract IsCancelable__Linear__Test is LinearTest, IsCancelable__Test {
+contract IsCancelable__LinearTest is LinearTest, IsCancelable__Test {
     function setUp() public virtual override(UnitTest, LinearTest) {
         LinearTest.setUp();
         sablierV2 = ISablierV2(linear);

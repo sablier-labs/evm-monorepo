@@ -6,7 +6,7 @@ import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 import { Burn__Test } from "test/unit/shared/burn/Burn.t.sol";
 import { ProTest } from "test/unit/pro/ProTest.t.sol";
 
-contract Burn__Pro__Test is ProTest, Burn__Test {
+contract Burn__ProTest is ProTest, Burn__Test {
     function setUp() public virtual override(ProTest, Burn__Test) {
         Burn__Test.setUp();
         sablierV2 = ISablierV2(pro);

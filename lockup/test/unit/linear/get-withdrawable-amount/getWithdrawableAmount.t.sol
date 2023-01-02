@@ -6,7 +6,7 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract GetWithdrawableAmount__Test is LinearTest {
+contract GetWithdrawableAmount__LinearTest is LinearTest {
     uint256 internal defaultStreamId;
 
     /// @dev When the stream does not exist, it should return zero.

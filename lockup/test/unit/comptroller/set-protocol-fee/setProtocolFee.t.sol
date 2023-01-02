@@ -9,7 +9,7 @@ import { Events } from "src/libraries/Events.sol";
 
 import { ComptrollerTest } from "../ComptrollerTest.t.sol";
 
-contract SetProtocolFee__Test is ComptrollerTest {
+contract SetProtocolFee__ComptrollerTest is ComptrollerTest {
     /// @dev it should revert.
     function testCannotSetProtocolFee__CallerNotOwner(address eve) external {
         vm.assume(eve != users.owner);

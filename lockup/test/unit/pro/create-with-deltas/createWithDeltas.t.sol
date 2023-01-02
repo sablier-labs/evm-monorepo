@@ -13,7 +13,7 @@ import { ProStream, Segment } from "src/types/Structs.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
-contract CreateWithDeltas__Test is ProTest {
+contract CreateWithDeltas__ProTest is ProTest {
     /// @dev it should revert.
     function testCannotCreateWithDeltas__LoopCalculationOverflowsBlockGasLimit() external {
         uint40[] memory deltas = new uint40[](1_000_000);

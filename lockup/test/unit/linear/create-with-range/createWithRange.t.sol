@@ -2,8 +2,8 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 
 import { Amounts, LinearStream, Range } from "src/types/Structs.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -13,7 +13,7 @@ import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol"
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract CreateWithRange__Test is LinearTest {
+contract CreateWithRange__LinearTest is LinearTest {
     /// @dev it should revert.
     function testCannotCreateWithRange__RecipientZeroAddress() external {
         vm.expectRevert("ERC721: mint to the zero address");

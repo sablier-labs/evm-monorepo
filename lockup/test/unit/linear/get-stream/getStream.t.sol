@@ -5,7 +5,7 @@ import { LinearStream } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract GetStream__Test is LinearTest {
+contract GetStream__LinearTest is LinearTest {
     /// @dev it should return a zeroed out stream.
     function testGetStream__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

@@ -9,7 +9,7 @@ import { Events } from "src/libraries/Events.sol";
 
 import { ComptrollerTest } from "../ComptrollerTest.t.sol";
 
-contract GetProtocolFee__Test is ComptrollerTest {
+contract GetProtocolFee__ComptrollerTest is ComptrollerTest {
     function setUp() public override {
         ComptrollerTest.setUp();
 

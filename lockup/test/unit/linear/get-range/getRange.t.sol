@@ -5,7 +5,7 @@ import { Range } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract GetRange__Test is LinearTest {
+contract GetRange__LinearTest is LinearTest {
     /// @dev it should return a zeroed out range.
     function testGetRange__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

@@ -7,7 +7,7 @@ import { GetProtocolRevenues__Test } from "test/unit/shared/get-protocol-revenue
 import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract GetProtocolRevenues__Linear__Test is LinearTest, GetProtocolRevenues__Test {
+contract GetProtocolRevenues__LinearTest is LinearTest, GetProtocolRevenues__Test {
     function setUp() public virtual override(UnitTest, LinearTest) {
         LinearTest.setUp();
         sablierV2 = ISablierV2(linear);

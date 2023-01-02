@@ -7,7 +7,7 @@ import { ClaimProtocolRevenues__Test } from "test/unit/shared/claim-protocol-rev
 import { ProTest } from "test/unit/pro/ProTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract ClaimProtocolRevenues__Pro__Test is ProTest, ClaimProtocolRevenues__Test {
+contract ClaimProtocolRevenues__ProTest is ProTest, ClaimProtocolRevenues__Test {
     function setUp() public virtual override(UnitTest, ProTest) {
         ProTest.setUp();
         sablierV2 = ISablierV2(pro);

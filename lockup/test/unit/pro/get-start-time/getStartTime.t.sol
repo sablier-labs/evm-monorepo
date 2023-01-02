@@ -7,7 +7,7 @@ import { GetStartTime__Test } from "test/unit/shared/get-start-time/getStartTime
 import { ProTest } from "test/unit/pro/ProTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract GetStartTime__Pro__Test is ProTest, GetStartTime__Test {
+contract GetStartTime__ProTest is ProTest, GetStartTime__Test {
     function setUp() public virtual override(UnitTest, ProTest) {
         ProTest.setUp();
         sablierV2 = ISablierV2(pro);

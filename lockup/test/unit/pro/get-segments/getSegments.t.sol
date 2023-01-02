@@ -5,7 +5,7 @@ import { Segment } from "src/types/Structs.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
-contract GetSegments__Test is ProTest {
+contract GetSegments__ProTest is ProTest {
     /// @dev it should return an empty array.
     function testGetSegments__StreamNonExistents() external {
         uint256 nonStreamId = 1729;

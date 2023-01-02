@@ -9,7 +9,7 @@ import { Segment } from "src/types/Structs.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
-contract GetWithdrawableAmount__Test is ProTest {
+contract GetWithdrawableAmount__ProTest is ProTest {
     uint256 internal defaultStreamId;
     Segment[] internal maxSegments;
 

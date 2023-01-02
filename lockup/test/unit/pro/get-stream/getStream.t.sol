@@ -5,7 +5,7 @@ import { ProStream } from "src/types/Structs.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
-contract GetStream__Test is ProTest {
+contract GetStream__ProTest is ProTest {
     /// @dev it should return a zeroed out stream.
     function testGetStream__StreamNonExistent() external {
         uint256 nonStreamId = 1729;

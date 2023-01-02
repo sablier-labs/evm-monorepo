@@ -7,7 +7,7 @@ import { GetDepositAmount__Test } from "test/unit/shared/get-deposit-amount/getD
 import { ProTest } from "test/unit/pro/ProTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract GetDepositAmount__Pro__Test is ProTest, GetDepositAmount__Test {
+contract GetDepositAmount__ProTest is ProTest, GetDepositAmount__Test {
     function setUp() public virtual override(UnitTest, ProTest) {
         ProTest.setUp();
         sablierV2 = ISablierV2(pro);

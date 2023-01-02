@@ -10,7 +10,7 @@ import { Events } from "src/libraries/Events.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract CreateWithDuration__Test is LinearTest {
+contract CreateWithDuration__LinearTest is LinearTest {
     /// @dev it should revert due to the start time being greater than the cliff time.
     function testCannotCreateWithDuration__CliffDurationCalculationOverflows(uint40 cliffDuration) external {
         uint40 startTime = getBlockTimestamp();

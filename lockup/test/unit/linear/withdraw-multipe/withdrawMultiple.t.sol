@@ -10,7 +10,7 @@ import { LinearStream } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract WithdrawMultiple__Test is LinearTest {
+contract WithdrawMultiple__LinearTest is LinearTest {
     uint128[] internal defaultAmounts;
     uint256[] internal defaultStreamIds;
 

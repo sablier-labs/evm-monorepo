@@ -7,7 +7,7 @@ import { GetStopTime__Test } from "test/unit/shared/get-stop-time/getStopTime.t.
 import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract GetStopTime__Linear__Test is LinearTest, GetStopTime__Test {
+contract GetStopTime__LinearTest is LinearTest, GetStopTime__Test {
     function setUp() public virtual override(UnitTest, LinearTest) {
         LinearTest.setUp();
         sablierV2 = ISablierV2(linear);

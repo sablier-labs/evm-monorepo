@@ -7,7 +7,7 @@ import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
 import { Renounce__Test } from "test/unit/shared/renounce/renounce.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract Renounce__Linear__Test is LinearTest, Renounce__Test {
+contract Renounce__LinearTest is LinearTest, Renounce__Test {
     function setUp() public virtual override(UnitTest, LinearTest) {
         LinearTest.setUp();
         sablierV2 = ISablierV2(linear);

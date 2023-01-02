@@ -7,7 +7,7 @@ import { GetSender__Test } from "test/unit/shared/get-sender/getSender.t.sol";
 import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract GetSender__Linear__Test is LinearTest, GetSender__Test {
+contract GetSender__LinearTest is LinearTest, GetSender__Test {
     function setUp() public virtual override(UnitTest, LinearTest) {
         LinearTest.setUp();
         sablierV2 = ISablierV2(linear);

@@ -7,7 +7,7 @@ import { GetReturnableAmount__Test } from "test/unit/shared/get-returnable-amoun
 import { ProTest } from "test/unit/pro/ProTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract GetReturnableAmount__Pro__Test is ProTest, GetReturnableAmount__Test {
+contract GetReturnableAmount__ProTest is ProTest, GetReturnableAmount__Test {
     function setUp() public virtual override(UnitTest, ProTest) {
         ProTest.setUp();
         sablierV2 = ISablierV2(pro);

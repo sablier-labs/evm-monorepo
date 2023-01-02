@@ -7,7 +7,7 @@ import { IsEntity__Test } from "test/unit/shared/is-entity/isEntity.t.sol";
 import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract IsEntity__Linear__Test is LinearTest, IsEntity__Test {
+contract IsEntity__LinearTest is LinearTest, IsEntity__Test {
     function setUp() public virtual override(UnitTest, LinearTest) {
         LinearTest.setUp();
         sablierV2 = ISablierV2(linear);

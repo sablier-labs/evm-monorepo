@@ -7,7 +7,7 @@ import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
 import { SetComptroller__Test } from "test/unit/shared/set-comptroller/setComptroller.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract SetComptroller__Linear__Test is LinearTest, SetComptroller__Test {
+contract SetComptroller__LinearTest is LinearTest, SetComptroller__Test {
     function setUp() public virtual override(UnitTest, LinearTest) {
         LinearTest.setUp();
         sablierV2 = ISablierV2(linear);
