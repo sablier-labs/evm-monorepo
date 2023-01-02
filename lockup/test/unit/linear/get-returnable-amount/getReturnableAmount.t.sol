@@ -3,11 +3,11 @@ pragma solidity >=0.8.13;
 
 import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 
-import { GetDepositAmount__Test } from "test/unit/shared/get-deposit-amount/getDepositAmount.t.sol";
+import { GetReturnableAmount__Test } from "test/unit/shared/get-returnable-amount/getReturnableAmount.t.sol";
 import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract GetDepositAmount__Linear__Test is LinearTest, GetDepositAmount__Test {
+contract GetReturnableAmount__Linear__Test is LinearTest, GetReturnableAmount__Test {
     function setUp() public virtual override(UnitTest, LinearTest) {
         LinearTest.setUp();
         sablierV2 = ISablierV2(linear);
