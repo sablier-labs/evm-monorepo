@@ -190,11 +190,15 @@ abstract contract SablierV2 is
     /// @inheritdoc ISablierV2
     function setComptroller(ISablierV2Comptroller newComptroller) external override onlyOwner {
         // Effects: set the comptroller.
-        address oldComptroller = address(newComptroller);
+        ISablierV2Comptroller oldComptroller = comptroller;
         comptroller = newComptroller;
 
         // Emit an event.
-        emit Events.SetComptroller(msg.sender, oldComptroller, address(newComptroller));
+        emit Events.SetComptroller({
+            owner: msg.sender,
+            oldComptroller: oldComptroller,
+            newComptroller: newComptroller
+        });
     }
 
     /// @inheritdoc ISablierV2

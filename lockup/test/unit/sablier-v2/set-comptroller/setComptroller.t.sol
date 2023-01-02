@@ -29,9 +29,16 @@ contract SetComptroller__Test is SablierV2Test {
         _;
     }
 
-    /// @dev it should re-set the comptroller.
+    /// @dev it should emit a SetComptroller event and re-set the comptroller.
     function testSetComptroller__SameComptroller() external CallerOwner {
+        // Expect an event to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true });
+        emit Events.SetComptroller(users.owner, comptroller, comptroller);
+
+        // Re-set the comptroller.
         sablierV2.setComptroller(comptroller);
+
+        // Assert that the comptroller did not change.
         address actualComptroller = address(sablierV2.comptroller());
         address expectedComptroller = address(comptroller);
         assertEq(actualComptroller, expectedComptroller);
@@ -39,11 +46,17 @@ contract SetComptroller__Test is SablierV2Test {
 
     /// @dev it should set the new comptroller.
     function testSetComptroller__NewComptroller() external CallerOwner {
-        // Deploy new comptroller.
+        // Deploy the new comptroller.
         ISablierV2Comptroller newComptroller = new SablierV2Comptroller();
 
-        // Run the test.
+        // Expect an event to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true });
+        emit Events.SetComptroller(users.owner, comptroller, newComptroller);
+
+        // Set the new comptroller.
         sablierV2.setComptroller(newComptroller);
+
+        // Assert that the new comptroller was set.
         address actualComptroller = address(sablierV2.comptroller());
         address expectedComptroller = address(newComptroller);
         assertEq(actualComptroller, expectedComptroller);

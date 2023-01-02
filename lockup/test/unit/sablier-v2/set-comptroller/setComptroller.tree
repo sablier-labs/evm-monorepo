@@ -3,7 +3,7 @@ setProtocolFee.t.sol
 │  └── it should revert
 └── when the caller is the owner
    ├── when the new comptroller is the same as the current comptroller
-  │  └── it should re-set the comptroller
+   │  └── it should emit a SetComptroller event and re-set the comptroller
    └── when the new comptroller is not the same as the current comptroller
-      └── it should set the new comptroller
+      └── it should emit a SetComptroller event and set the new comptroller
 

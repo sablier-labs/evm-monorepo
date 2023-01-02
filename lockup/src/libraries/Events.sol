@@ -5,6 +5,7 @@ import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { Range, Segment } from "../types/Structs.sol";
 
 /// @title Events
@@ -97,7 +98,11 @@ library Events {
 
     /// @notice Emitted when the SablierV2Comptroller contract is set.
     /// @param newComptroller The address of the new SablierV2Comptroller contract.
-    event SetComptroller(address indexed owner, address oldComptroller, address newComptroller);
+    event SetComptroller(
+        address indexed owner,
+        ISablierV2Comptroller oldComptroller,
+        ISablierV2Comptroller newComptroller
+    );
 
     /// @notice Emitted when the contract owner sets a new protocol fee for the provided token.
     /// @param owner The address of the current contract owner.
