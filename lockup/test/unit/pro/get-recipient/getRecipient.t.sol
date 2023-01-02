@@ -7,7 +7,7 @@ import { GetRecipient__Test } from "test/unit/shared/get-recipient/getRecipient.
 import { ProTest } from "test/unit/pro/ProTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-contract GetRecipient__Linear__Test is ProTest, GetRecipient__Test {
+contract GetRecipient__Pro__Test is ProTest, GetRecipient__Test {
     function setUp() public virtual override(UnitTest, ProTest) {
         ProTest.setUp();
         sablierV2 = ISablierV2(pro);

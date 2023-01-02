@@ -134,11 +134,17 @@ abstract contract UnitTest is BaseTest {
         changePrank(users.owner);
     }
 
-    /// @dev Helper function to create the default stream, meant to be overridden by the child test contracts.
+    /// @dev Creates the default stream.
     function createDefaultStream() internal virtual returns (uint256 streamId);
 
-    /// @dev Helper function to create the default stream, meant to be overridden by the child test contracts.
+    /// @dev Creates the default stream but make it non-cancelable.
     function createDefaultStreamNonCancelable() internal virtual returns (uint256 streamId);
+
+    /// @dev Creates the default stream with the provided recipient.
+    function createDefaultStreamWithRecipient(address recipient) internal virtual returns (uint256 streamId);
+
+    /// @dev Creates the default stream with the provided sender.
+    function createDefaultStreamWithSender(address sender) internal virtual returns (uint256 streamId);
 
     /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
     ///  and 1 million non-compliant tokens.

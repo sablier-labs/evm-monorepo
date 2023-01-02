@@ -179,7 +179,14 @@ abstract contract ProTest is UnitTest {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function to create the default stream.
+    /// @dev Checks that the given stream was deleted.
+    function assertDeleted(uint256 streamId) internal override {
+        ProStream memory deletedStream = pro.getStream(streamId);
+        ProStream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
+    }
+
+    /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
@@ -194,7 +201,7 @@ abstract contract ProTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create the default stream with the provided gross deposit amount.
+    /// @dev Creates the default stream with the provided gross deposit amount.
     function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
@@ -209,7 +216,7 @@ abstract contract ProTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create the default stream with the provided segments.
+    /// @dev Creates the default stream with the provided segments.
     function createDefaultStreamWithSegments(Segment[] memory segments) internal returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
@@ -224,7 +231,7 @@ abstract contract ProTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create the default stream with the provided deltas.
+    /// @dev Creates the default stream with the provided deltas.
     function createDefaultStreamWithDeltas(uint40[] memory deltas) internal returns (uint256 streamId) {
         streamId = pro.createWithDeltas(
             defaultArgs.createWithDeltas.sender,
@@ -239,8 +246,8 @@ abstract contract ProTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create the default stream with the provided recipient.
-    function createDefaultStreamWithRecipient(address recipient) internal returns (uint256 streamId) {
+    /// @dev Creates the default stream with the provided recipient.
+    function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             recipient,
@@ -254,7 +261,22 @@ abstract contract ProTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create a non-cancelable stream.
+    /// @dev Creates the default stream with the provided sender.
+    function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
+        streamId = pro.createWithMilestones(
+            sender,
+            defaultArgs.createWithMilestones.recipient,
+            defaultArgs.createWithMilestones.grossDepositAmount,
+            defaultArgs.createWithMilestones.segments,
+            defaultArgs.createWithMilestones.operator,
+            defaultArgs.createWithMilestones.operatorFee,
+            defaultArgs.createWithMilestones.token,
+            defaultArgs.createWithMilestones.cancelable,
+            defaultArgs.createWithMilestones.startTime
+        );
+    }
+
+    /// @dev Creates a non-cancelable stream.
     function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
         bool isCancelable = false;
         streamId = pro.createWithMilestones(

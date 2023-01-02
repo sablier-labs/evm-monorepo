@@ -24,13 +24,20 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
 
     event LogNamedUint40(string key, uint40 value);
 
-    /// @dev Helper function to compare two `Amounts` struct entities.
+    /*//////////////////////////////////////////////////////////////////////////
+                                     ASSERTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Checks that the given stream was deleted.
+    function assertDeleted(uint256 streamId) internal virtual;
+
+    /// @dev Compares two `Amounts` struct entities.
     function assertEq(Amounts memory a, Amounts memory b) internal {
         assertEqUint128(a.deposit, b.deposit);
         assertEqUint128(a.withdrawn, b.withdrawn);
     }
 
-    /// @dev Helper function to compare two `LinearStream` struct entities.
+    /// @dev Compares two `LinearStream` struct entities.
     function assertEq(LinearStream memory a, LinearStream memory b) internal {
         assertEq(a.amounts, b.amounts);
         assertEq(a.isCancelable, b.isCancelable);
@@ -40,7 +47,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.token, b.token);
     }
 
-    /// @dev Helper function to compare two `ProStream` struct entities.
+    /// @dev Compares two `ProStream` struct entities.
     function assertEq(ProStream memory a, ProStream memory b) internal {
         assertEq(a.isCancelable, b.isCancelable);
         assertEq(a.isEntity, b.isEntity);
@@ -50,7 +57,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.token, b.token);
     }
 
-    /// @dev Helper function to compare two `Segment[]` arrays.
+    /// @dev Compares two `Segment[]` arrays.
     function assertEq(Segment[] memory a, Segment[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
             emit Log("Error: a == b not satisfied [Segment[]]");
@@ -60,14 +67,14 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         }
     }
 
-    /// @dev Helper function to compare two `Range` struct entities.
+    /// @dev Compares two `Range` struct entities.
     function assertEq(Range memory a, Range memory b) internal {
         assertEqUint40(a.cliff, b.cliff);
         assertEqUint40(a.start, b.start);
         assertEqUint40(a.stop, b.stop);
     }
 
-    /// @dev Helper function to compare two `uint128` numbers.
+    /// @dev Compares two `uint128` numbers.
     function assertEqUint128(uint128 a, uint128 b) internal {
         if (a != b) {
             emit Log("Error: a == b not satisfied [uint128]");
@@ -77,7 +84,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         }
     }
 
-    /// @dev Helper function to compare two `uint128` arrays.
+    /// @dev Compares two `uint128` arrays.
     function assertEqUint128Array(uint128[] memory a, uint128[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
             emit Log("Error: a == b not satisfied [uint128[]]");
@@ -87,7 +94,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         }
     }
 
-    /// @dev Helper function to compare two `uint40` numbers.
+    /// @dev Compares two `uint40` numbers.
     function assertEqUint40(uint40 a, uint40 b) internal {
         if (a != b) {
             emit Log("Error: a == b not satisfied [uint40]");
@@ -97,7 +104,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         }
     }
 
-    /// @dev Helper function to compare two `uint40` arrays.
+    /// @dev Compares two `uint40` arrays.
     function assertEqUint40Array(uint40[] memory a, uint40[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
             emit Log("Error: a == b not satisfied [uint40[]]");

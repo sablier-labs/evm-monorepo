@@ -90,7 +90,7 @@ abstract contract LinearTest is UnitTest {
             isCancelable: defaultArgs.createWithRange.cancelable,
             isEntity: true,
             sender: defaultArgs.createWithRange.sender,
-            range: DEFAULT_RANGE,
+            range: defaultArgs.createWithRange.range,
             token: defaultArgs.createWithRange.token
         });
 
@@ -122,7 +122,14 @@ abstract contract LinearTest is UnitTest {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function to create the default stream.
+    /// @dev Checks that the given stream was deleted.
+    function assertDeleted(uint256 streamId) internal override {
+        LinearStream memory deletedStream = linear.getStream(streamId);
+        LinearStream memory expectedStream;
+        assertEq(deletedStream, expectedStream);
+    }
+
+    /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
@@ -136,7 +143,7 @@ abstract contract LinearTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create the default stream with the provided gross deposit amount.
+    /// @dev Creates the default stream with the provided gross deposit amount.
     function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
         streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
@@ -150,7 +157,7 @@ abstract contract LinearTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create the default stream that is non-cancelable.
+    /// @dev Creates the default stream that is non-cancelable.
     function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
         bool isCancelable = false;
         streamId = linear.createWithRange(
@@ -165,8 +172,8 @@ abstract contract LinearTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create the default stream with the provided recipient.
-    function createDefaultStreamWithRecipient(address recipient) internal returns (uint256 streamId) {
+    /// @dev Creates the default stream with the provided recipient.
+    function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             recipient,
@@ -179,8 +186,8 @@ abstract contract LinearTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create the default stream with the provided sender.
-    function createDefaultStreamWithSender(address sender) internal returns (uint256 streamId) {
+    /// @dev Creates the default stream with the provided sender.
+    function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
             sender,
             defaultArgs.createWithRange.recipient,
@@ -193,7 +200,7 @@ abstract contract LinearTest is UnitTest {
         );
     }
 
-    /// @dev Helper function to create the default stream with the provided stop time.
+    /// @dev Creates the default stream with the provided stop time.
     function createDefaultStreamWithStopTime(uint40 stopTime) internal returns (uint256 streamId) {
         streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,

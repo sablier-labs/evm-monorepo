@@ -4,19 +4,35 @@ pragma solidity >=0.8.13;
 import { UnitTest } from "../UnitTest.t.sol";
 
 /// @title ComptrollerTest
-/// @notice Dummy contract only needed to provide naming context in the test suites.
+/// @notice Boilerplate contract needed to compile the test contracts.
 abstract contract ComptrollerTest is UnitTest {
     function setUp() public virtual override {
         UnitTest.setUp();
     }
 
-    /// @dev This function must be overridden for the test contracts to compile, but it is not actually used.
+    /*//////////////////////////////////////////////////////////////////////////
+                               COMPILER BOILERPLATE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function assertDeleted(uint256 streamId) internal pure override {
+        streamId;
+    }
+
     function createDefaultStream() internal pure override returns (uint256 streamId) {
         streamId = 0;
     }
 
-    /// @dev This function must be overridden for the test contracts to compile, but it is not actually used.
     function createDefaultStreamNonCancelable() internal pure override returns (uint256 streamId) {
+        streamId = 0;
+    }
+
+    function createDefaultStreamWithRecipient(address recipient) internal pure override returns (uint256 streamId) {
+        recipient;
+        streamId = 0;
+    }
+
+    function createDefaultStreamWithSender(address sender) internal pure override returns (uint256 streamId) {
+        sender;
         streamId = 0;
     }
 }
