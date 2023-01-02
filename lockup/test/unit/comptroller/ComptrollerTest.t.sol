@@ -18,6 +18,10 @@ abstract contract ComptrollerTest is UnitTest {
         streamId;
     }
 
+    function assertDeleted(uint256[] memory streamIds) internal pure override {
+        streamIds;
+    }
+
     function createDefaultStream() internal pure override returns (uint256 streamId) {
         streamId = 0;
     }
@@ -33,6 +37,11 @@ abstract contract ComptrollerTest is UnitTest {
 
     function createDefaultStreamWithSender(address sender) internal pure override returns (uint256 streamId) {
         sender;
+        streamId = 0;
+    }
+
+    function createDefaultStreamWithStopTime(uint40 stopTime) internal pure override returns (uint256 streamId) {
+        stopTime;
         streamId = 0;
     }
 }

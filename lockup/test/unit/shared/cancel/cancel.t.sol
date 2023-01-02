@@ -100,7 +100,7 @@ abstract contract Cancel__Test is SharedTest {
         _;
     }
 
-    /// @dev it should delete the stream.
+    /// @dev it should cancel the stream.
     function testCancel__Sender__RecipientNotContract()
         external
         StreamExistent
@@ -116,7 +116,7 @@ abstract contract Cancel__Test is SharedTest {
         _;
     }
 
-    /// @dev it should delete the stream.
+    /// @dev it should cancel the stream.
     function testCancel__Sender__RecipientDoesNotImplementHook()
         external
         StreamExistent
@@ -232,7 +232,7 @@ abstract contract Cancel__Test is SharedTest {
         _;
     }
 
-    /// @dev it should delete the stream.
+    /// @dev it should cancel the stream.
     function testCancel__Recipient__SenderNotContract()
         external
         StreamExistent
@@ -248,7 +248,7 @@ abstract contract Cancel__Test is SharedTest {
         _;
     }
 
-    /// @dev it should delete the stream.
+    /// @dev it should cancel the stream.
     function testCancel__Recipient__SenderDoesNotImplementHook()
         external
         StreamExistent
@@ -266,7 +266,7 @@ abstract contract Cancel__Test is SharedTest {
         _;
     }
 
-    /// @dev it should delete the stream.
+    /// @dev it should cancel the stream.
     function testCancel__Recipient__SenderReverts()
         external
         StreamExistent

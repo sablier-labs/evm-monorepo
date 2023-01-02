@@ -186,6 +186,15 @@ abstract contract ProTest is UnitTest {
         assertEq(deletedStream, expectedStream);
     }
 
+    /// @dev Checks that the given streams were deleted.
+    function assertDeleted(uint256[] memory streamIds) internal override {
+        for (uint256 i = 0; i < streamIds.length; ++i) {
+            ProStream memory deletedStream = pro.getStream(streamIds[i]);
+            ProStream memory expectedStream;
+            assertEq(deletedStream, expectedStream);
+        }
+    }
+
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
@@ -193,36 +202,6 @@ abstract contract ProTest is UnitTest {
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
-        );
-    }
-
-    /// @dev Creates the default stream with the provided gross deposit amount.
-    function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
-        streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
-            grossDepositAmount,
-            defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
-        );
-    }
-
-    /// @dev Creates the default stream with the provided segments.
-    function createDefaultStreamWithSegments(Segment[] memory segments) internal returns (uint256 streamId) {
-        streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
-            defaultArgs.createWithMilestones.grossDepositAmount,
-            segments,
             defaultArgs.createWithMilestones.operator,
             defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
@@ -243,6 +222,52 @@ abstract contract ProTest is UnitTest {
             defaultArgs.createWithDeltas.token,
             defaultArgs.createWithDeltas.cancelable,
             deltas
+        );
+    }
+
+    /// @dev Creates the default stream with the provided gross deposit amount.
+    function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
+        streamId = pro.createWithMilestones(
+            defaultArgs.createWithMilestones.sender,
+            defaultArgs.createWithMilestones.recipient,
+            grossDepositAmount,
+            defaultArgs.createWithMilestones.segments,
+            defaultArgs.createWithMilestones.operator,
+            defaultArgs.createWithMilestones.operatorFee,
+            defaultArgs.createWithMilestones.token,
+            defaultArgs.createWithMilestones.cancelable,
+            defaultArgs.createWithMilestones.startTime
+        );
+    }
+
+    /// @dev Creates a non-cancelable stream.
+    function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
+        bool isCancelable = false;
+        streamId = pro.createWithMilestones(
+            defaultArgs.createWithMilestones.sender,
+            defaultArgs.createWithMilestones.recipient,
+            defaultArgs.createWithMilestones.grossDepositAmount,
+            defaultArgs.createWithMilestones.segments,
+            defaultArgs.createWithMilestones.operator,
+            defaultArgs.createWithMilestones.operatorFee,
+            defaultArgs.createWithMilestones.token,
+            isCancelable,
+            defaultArgs.createWithMilestones.startTime
+        );
+    }
+
+    /// @dev Creates the default stream with the provided segments.
+    function createDefaultStreamWithSegments(Segment[] memory segments) internal returns (uint256 streamId) {
+        streamId = pro.createWithMilestones(
+            defaultArgs.createWithMilestones.sender,
+            defaultArgs.createWithMilestones.recipient,
+            defaultArgs.createWithMilestones.grossDepositAmount,
+            segments,
+            defaultArgs.createWithMilestones.operator,
+            defaultArgs.createWithMilestones.operatorFee,
+            defaultArgs.createWithMilestones.token,
+            defaultArgs.createWithMilestones.cancelable,
+            defaultArgs.createWithMilestones.startTime
         );
     }
 
@@ -276,18 +301,19 @@ abstract contract ProTest is UnitTest {
         );
     }
 
-    /// @dev Creates a non-cancelable stream.
-    function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
-        bool isCancelable = false;
+    /// @dev Creates the default stream with the provided stop time. In this case, the last milestone is the stop time.
+    function createDefaultStreamWithStopTime(uint40 stopTime) internal override returns (uint256 streamId) {
+        Segment[] memory segments = defaultArgs.createWithMilestones.segments;
+        segments[1].milestone = stopTime;
         streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segments,
+            segments,
             defaultArgs.createWithMilestones.operator,
             defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
-            isCancelable,
+            defaultArgs.createWithMilestones.cancelable,
             defaultArgs.createWithMilestones.startTime
         );
     }

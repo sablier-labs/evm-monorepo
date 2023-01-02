@@ -76,7 +76,7 @@ contract CreateWithDeltas__Test is ProTest {
     {
         uint40 startTime = getBlockTimestamp();
         uint40[] memory deltas = Solarray.uint40s(UINT40_MAX, 1);
-        Segment[] storage segments = defaultArgs.createWithDeltas.segments;
+        Segment[] memory segments = defaultArgs.createWithDeltas.segments;
         unchecked {
             segments[0].milestone = startTime + deltas[0];
             segments[1].milestone = deltas[0] + deltas[1];
@@ -166,7 +166,7 @@ contract CreateWithDeltas__Test is ProTest {
         uint40[] memory deltas = Solarray.uint40s(delta0, delta1);
 
         // Adjust the segment milestones to match the fuzzed deltas.
-        Segment[] storage segments = defaultArgs.createWithDeltas.segments;
+        Segment[] memory segments = defaultArgs.createWithDeltas.segments;
         segments[0].milestone = getBlockTimestamp() + delta0;
         segments[1].milestone = segments[0].milestone + delta1;
 

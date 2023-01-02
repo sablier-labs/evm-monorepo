@@ -93,7 +93,7 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
         vars.netDepositAmount = args.grossDepositAmount - vars.operatorFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
-        Segment[] storage segments = DEFAULT_SEGMENTS;
+        Segment[] memory segments = DEFAULT_SEGMENTS;
         adjustSegmentAmounts(segments, vars.netDepositAmount);
 
         // Expect an event to be emitted.

@@ -86,7 +86,7 @@ contract CreateWithMilestones__Test is ProTest {
         SegmentCountNotTooHigh
         LoopCalculationsDoNotOverflowBlockGasLimit
     {
-        Segment[] storage segments = defaultArgs.createWithMilestones.segments;
+        Segment[] memory segments = defaultArgs.createWithMilestones.segments;
         segments[0].amount = UINT128_MAX;
         segments[1].amount = 1;
         vm.expectRevert(stdError.arithmeticError);
@@ -108,7 +108,7 @@ contract CreateWithMilestones__Test is ProTest {
         SegmentAmountsSumDoesNotOverflow
     {
         // Swap the segment milestones.
-        Segment[] storage segments = defaultArgs.createWithMilestones.segments;
+        Segment[] memory segments = defaultArgs.createWithMilestones.segments;
         (segments[0].milestone, segments[1].milestone) = (segments[1].milestone, segments[0].milestone);
 
         // Expect an error.
@@ -415,7 +415,7 @@ contract CreateWithMilestones__Test is ProTest {
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - operatorFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
-        Segment[] storage segments = defaultArgs.createWithMilestones.segments;
+        Segment[] memory segments = defaultArgs.createWithMilestones.segments;
         adjustSegmentAmounts(segments, netDepositAmount);
 
         // Expect the tokens to be transferred from the funder to the SablierV2Pro contract.
@@ -509,7 +509,7 @@ contract CreateWithMilestones__Test is ProTest {
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
-        Segment[] storage segments = defaultArgs.createWithMilestones.segments;
+        Segment[] memory segments = defaultArgs.createWithMilestones.segments;
         adjustSegmentAmounts(segments, netDepositAmount);
 
         // Disable the operator fee so that it doesn't interfere with the calculations.

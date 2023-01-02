@@ -146,6 +146,9 @@ abstract contract UnitTest is BaseTest {
     /// @dev Creates the default stream with the provided sender.
     function createDefaultStreamWithSender(address sender) internal virtual returns (uint256 streamId);
 
+    /// @dev Creates the default stream with the provided stop time.
+    function createDefaultStreamWithStopTime(uint40 stopTime) internal virtual returns (uint256 streamId);
+
     /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
     ///  and 1 million non-compliant tokens.
     function createUser(string memory name) internal returns (address payable addr) {

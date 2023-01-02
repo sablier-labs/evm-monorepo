@@ -129,6 +129,15 @@ abstract contract LinearTest is UnitTest {
         assertEq(deletedStream, expectedStream);
     }
 
+    /// @dev Checks that the given streams were deleted.
+    function assertDeleted(uint256[] memory streamIds) internal override {
+        for (uint256 i = 0; i < streamIds.length; ++i) {
+            LinearStream memory deletedStream = linear.getStream(streamIds[i]);
+            LinearStream memory expectedStream;
+            assertEq(deletedStream, expectedStream);
+        }
+    }
+
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
@@ -201,7 +210,7 @@ abstract contract LinearTest is UnitTest {
     }
 
     /// @dev Creates the default stream with the provided stop time.
-    function createDefaultStreamWithStopTime(uint40 stopTime) internal returns (uint256 streamId) {
+    function createDefaultStreamWithStopTime(uint40 stopTime) internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,

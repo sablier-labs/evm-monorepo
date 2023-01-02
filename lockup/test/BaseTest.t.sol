@@ -84,12 +84,12 @@ abstract contract BaseTest is Assertions, StdCheats, Utils {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                            INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Adjust the amounts in the default segments as two fractions of the provided net deposit amount,
     /// one 20%, the other 80%.
-    function adjustSegmentAmounts(Segment[] storage segments, uint128 netDepositAmount) internal {
+    function adjustSegmentAmounts(Segment[] memory segments, uint128 netDepositAmount) internal pure {
         segments[0].amount = uint128(UD60x18.unwrap(ud(netDepositAmount).mul(ud(0.2e18))));
         segments[1].amount = netDepositAmount - segments[0].amount;
     }
