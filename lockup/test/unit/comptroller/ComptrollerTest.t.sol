@@ -9,4 +9,9 @@ abstract contract ComptrollerTest is UnitTest {
     function setUp() public virtual override {
         super.setUp();
     }
+
+    /// @dev This function must be overridden for the test contracts to compile, but it is not actually used.
+    function createDefaultStream() internal pure override returns (uint256 streamId) {
+        streamId = 0;
+    }
 }

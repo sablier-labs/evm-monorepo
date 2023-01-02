@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { sd1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
@@ -47,6 +48,12 @@ abstract contract BaseTest is Assertions, StdCheats, Utils {
     Range internal DEFAULT_RANGE;
     Segment[] internal DEFAULT_SEGMENTS;
     uint40[] internal DEFAULT_SEGMENT_DELTAS = [2_500 seconds, 7_500 seconds];
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                   TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    ERC20 internal dai = new ERC20("Dai Stablecoin", "DAI", 18);
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBMathUtils } from "@prb/math/test/Utils.sol";
@@ -56,14 +55,12 @@ abstract contract UnitTest is BaseTest {
     ISablierV2Comptroller internal comptroller;
     ISablierV2Linear internal linear;
     ISablierV2Pro internal pro;
-    ISablierV2 internal sablierV2;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
     Empty internal empty = new Empty();
-    ERC20 internal dai = new ERC20("Dai Stablecoin", "DAI", 18);
     GoodRecipient internal goodRecipient = new GoodRecipient();
     GoodSender internal goodSender = new GoodSender();
     NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Non-Compliant Token", "NCT", 18);
@@ -137,6 +134,8 @@ abstract contract UnitTest is BaseTest {
         changePrank(users.owner);
     }
 
+    function createDefaultStream() internal virtual returns (uint256 streamId);
+
     /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
     ///  and 1 million non-compliant tokens.
     function createUser(string memory name) internal returns (address payable addr) {
@@ -151,7 +150,6 @@ abstract contract UnitTest is BaseTest {
     function deployContracts() internal {
         vm.startPrank({ msgSender: users.owner });
         comptroller = new SablierV2Comptroller();
-        sablierV2 = new SablierV2Mock({ initialComptroller: comptroller, maxFee: MAX_FEE });
         linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: MAX_FEE });
         pro = new SablierV2Pro({
             initialComptroller: comptroller,

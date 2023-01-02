@@ -8,9 +8,9 @@ import { Events } from "src/libraries/Events.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
-import { SablierV2Test } from "../SablierV2.t.sol";
+import { SharedTest } from "../SharedTest.t.sol";
 
-contract SetComptroller__Test is SablierV2Test {
+abstract contract SetComptroller__Test is SharedTest {
     /// @dev it should revert.
     function testCannotSetComptroller__CallerNotOwner(address eve) external {
         vm.assume(eve != users.owner);

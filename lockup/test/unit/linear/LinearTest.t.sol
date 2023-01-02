@@ -123,8 +123,8 @@ abstract contract LinearTest is UnitTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Helper function to create the default stream.
-    function createDefaultStream() internal returns (uint256 defaultStreamId) {
-        defaultStreamId = linear.createWithRange(
+    function createDefaultStream() internal override returns (uint256 streamId) {
+        streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
