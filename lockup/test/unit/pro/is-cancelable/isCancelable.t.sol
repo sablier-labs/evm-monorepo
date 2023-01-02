@@ -1,35 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { ProTest } from "../ProTest.t.sol";
+import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 
-contract IsCancelable__Test is ProTest {
-    /// @dev it should return false.
-    function testIsCancelable__StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        bool isCancelable = pro.isCancelable(nonStreamId);
-        assertFalse(isCancelable);
-    }
+import { IsCancelable__Test } from "test/unit/shared/is-cancelable/isCancelable.t.sol";
+import { ProTest } from "test/unit/pro/ProTest.t.sol";
+import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-    modifier StreamExistent() {
-        _;
-    }
-
-    /// @dev it should return true.
-    function testIsCancelable__CancelableStream() external StreamExistent {
-        uint256 defaultStreamId = createDefaultStream();
-        bool isCancelable = pro.isCancelable(defaultStreamId);
-        assertTrue(isCancelable);
-    }
-
-    modifier NonCancelableStream() {
-        _;
-    }
-
-    /// @dev it should return false.
-    function testIsCancelable() external StreamExistent NonCancelableStream {
-        uint256 streamId = createDefaultStreamNonCancelable();
-        bool isCancelable = pro.isCancelable(streamId);
-        assertFalse(isCancelable);
+contract IsCancelable__Pro__Test is ProTest, IsCancelable__Test {
+    function setUp() public virtual override(UnitTest, ProTest) {
+        ProTest.setUp();
+        sablierV2 = ISablierV2(pro);
     }
 }

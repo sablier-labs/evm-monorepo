@@ -1,24 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { LinearTest } from "../LinearTest.t.sol";
+import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 
-contract IsEntity__Test is LinearTest {
-    /// @dev it should return false.
-    function testIsEntity__StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        bool isEntity = linear.isEntity(nonStreamId);
-        assertFalse(isEntity);
-    }
+import { IsEntity__Test } from "test/unit/shared/is-entity/isEntity.t.sol";
+import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
+import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-    modifier StreamExistent() {
-        _;
-    }
-
-    /// @dev it should return true.
-    function testIsEntity() external StreamExistent {
-        uint256 defaultStreamId = createDefaultStream();
-        bool isEntity = linear.isEntity(defaultStreamId);
-        assertTrue(isEntity);
+contract IsEntity__Linear__Test is LinearTest, IsEntity__Test {
+    function setUp() public virtual override(UnitTest, LinearTest) {
+        LinearTest.setUp();
+        sablierV2 = ISablierV2(linear);
     }
 }
