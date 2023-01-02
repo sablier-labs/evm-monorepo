@@ -43,8 +43,8 @@ contract CreateWithRange__Test is LinearTest {
         RecipientNonZeroAddress
         NetDepositAmountNotZero
     {
-        uint40 startTime = defaultStream.range.cliff;
-        uint40 cliffTime = defaultStream.range.start;
+        uint40 startTime = defaultArgs.createWithRange.range.cliff;
+        uint40 cliffTime = defaultArgs.createWithRange.range.start;
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Linear__StartTimeGreaterThanCliffTime.selector, startTime, cliffTime)
         );

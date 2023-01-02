@@ -1,26 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { LinearTest } from "../LinearTest.t.sol";
+import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 
-contract GetStopTime__Test is LinearTest {
-    /// @dev it should return zero.
-    function testGetStopTime__StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        uint256 actualStopTime = linear.getStopTime(nonStreamId);
-        uint256 expectedStopTime = 0;
-        assertEq(actualStopTime, expectedStopTime);
-    }
+import { GetStopTime__Test } from "test/unit/shared/get-stop-time/getStopTime.t.sol";
+import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
+import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-    modifier StreamExistent() {
-        _;
-    }
-
-    /// @dev it should return the correct stop time.
-    function testGetStopTime() external StreamExistent {
-        uint256 streamId = createDefaultStream();
-        uint256 actualStopTime = linear.getStopTime(streamId);
-        uint256 expectedStopTime = defaultStream.range.stop;
-        assertEq(actualStopTime, expectedStopTime);
+contract GetStopTime__Linear__Test is LinearTest, GetStopTime__Test {
+    function setUp() public virtual override(UnitTest, LinearTest) {
+        LinearTest.setUp();
+        sablierV2 = ISablierV2(linear);
     }
 }

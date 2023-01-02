@@ -1,26 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { ProTest } from "../ProTest.t.sol";
+import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 
-contract GetStartTime__Test is ProTest {
-    /// @dev it should return zero.
-    function testGetStartTime__StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        uint256 actualStartTime = pro.getStartTime(nonStreamId);
-        uint256 expectedStartTime = 0;
-        assertEq(actualStartTime, expectedStartTime);
-    }
+import { GetStartTime__Test } from "test/unit/shared/get-start-time/getStartTime.t.sol";
+import { ProTest } from "test/unit/pro/ProTest.t.sol";
+import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-    modifier StreamExistent() {
-        _;
-    }
-
-    /// @dev it should return the correct start time.
-    function testGetStartTime() external StreamExistent {
-        uint256 streamId = createDefaultStream();
-        uint256 actualStartTime = pro.getStartTime(streamId);
-        uint256 expectedStartTime = defaultStream.startTime;
-        assertEq(actualStartTime, expectedStartTime);
+contract GetStartTime__Pro__Test is ProTest, GetStartTime__Test {
+    function setUp() public virtual override(UnitTest, ProTest) {
+        ProTest.setUp();
+        sablierV2 = ISablierV2(pro);
     }
 }
