@@ -19,21 +19,17 @@ import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
-import { BaseTest } from "../BaseTest.t.sol";
-import { Empty } from "../helpers/hooks/Empty.t.sol";
-import { GoodRecipient } from "../helpers/hooks/GoodRecipient.t.sol";
-import { GoodSender } from "../helpers/hooks/GoodSender.t.sol";
-import { ReentrantRecipient } from "../helpers/hooks/ReentrantRecipient.t.sol";
-import { ReentrantSender } from "../helpers/hooks/ReentrantSender.t.sol";
-import { RevertingRecipient } from "../helpers/hooks/RevertingRecipient.t.sol";
-import { RevertingSender } from "../helpers/hooks/RevertingSender.t.sol";
-import { SablierV2Mock } from "../helpers/mocks/SablierV2Mock.t.sol";
+import { BaseTest } from "test/BaseTest.t.sol";
+import { Empty } from "test/helpers/hooks/Empty.t.sol";
+import { GoodRecipient } from "test/helpers/hooks/GoodRecipient.t.sol";
+import { GoodSender } from "test/helpers/hooks/GoodSender.t.sol";
+import { ReentrantRecipient } from "test/helpers/hooks/ReentrantRecipient.t.sol";
+import { ReentrantSender } from "test/helpers/hooks/ReentrantSender.t.sol";
+import { RevertingRecipient } from "test/helpers/hooks/RevertingRecipient.t.sol";
+import { RevertingSender } from "test/helpers/hooks/RevertingSender.t.sol";
+import { SablierV2Mock } from "test/helpers/mocks/SablierV2Mock.t.sol";
 
 abstract contract UnitTest is BaseTest {
-    /*//////////////////////////////////////////////////////////////////////////
-                                      CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
     //////////////////////////////////////////////////////////////////////////*/

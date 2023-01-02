@@ -5,3 +5,4 @@
 forge-std/=lib/forge-std/src/
 solarray=lib/solarray/src
 src/=src/
+test/=test/
