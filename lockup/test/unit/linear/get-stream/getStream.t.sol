@@ -20,8 +20,8 @@ contract GetStream__Test is LinearTest {
 
     /// @dev it should return the stream struct.
     function testGetStream() external StreamExistent {
-        uint256 defaultStreamId = createDefaultStream();
-        LinearStream memory actualStream = linear.getStream(defaultStreamId);
+        uint256 streamId = createDefaultStream();
+        LinearStream memory actualStream = linear.getStream(streamId);
         LinearStream memory expectedStream = defaultStream;
         assertEq(actualStream, expectedStream);
     }

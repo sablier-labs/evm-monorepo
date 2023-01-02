@@ -180,8 +180,8 @@ abstract contract ProTest is UnitTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Helper function to create the default stream.
-    function createDefaultStream() internal override returns (uint256 defaultStreamId) {
-        defaultStreamId = pro.createWithMilestones(
+    function createDefaultStream() internal override returns (uint256 streamId) {
+        streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,

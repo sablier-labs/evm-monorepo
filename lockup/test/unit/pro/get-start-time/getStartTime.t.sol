@@ -18,8 +18,8 @@ contract GetStartTime__Test is ProTest {
 
     /// @dev it should return the correct start time.
     function testGetStartTime() external StreamExistent {
-        uint256 defaultStreamId = createDefaultStream();
-        uint256 actualStartTime = pro.getStartTime(defaultStreamId);
+        uint256 streamId = createDefaultStream();
+        uint256 actualStartTime = pro.getStartTime(streamId);
         uint256 expectedStartTime = defaultStream.startTime;
         assertEq(actualStartTime, expectedStartTime);
     }

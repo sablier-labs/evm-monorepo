@@ -18,8 +18,8 @@ abstract contract GetDepositAmount__Test is SharedTest {
 
     /// @dev it should return the correct deposit amount.
     function testGetDepositAmount() external StreamExistent {
-        uint256 defaultStreamId = createDefaultStream();
-        uint128 actualDepositAmount = sablierV2.getDepositAmount(defaultStreamId);
+        uint256 streamId = createDefaultStream();
+        uint128 actualDepositAmount = sablierV2.getDepositAmount(streamId);
         uint128 expectedDepositAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
         assertEq(actualDepositAmount, expectedDepositAmount);
     }

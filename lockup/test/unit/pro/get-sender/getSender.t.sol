@@ -1,26 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { ProTest } from "../ProTest.t.sol";
+import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 
-contract GetSender__Test is ProTest {
-    /// @dev it should return zero.
-    function testGetSender__StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        address actualSender = pro.getSender(nonStreamId);
-        address expectedSender = address(0);
-        assertEq(actualSender, expectedSender);
-    }
+import { GetSender__Test } from "test/unit/shared/get-sender/getSender.t.sol";
+import { ProTest } from "test/unit/pro/ProTest.t.sol";
+import { UnitTest } from "test/unit/UnitTest.t.sol";
 
-    modifier StreamExistent() {
-        _;
-    }
-
-    /// @dev it should return the correct sender.
-    function testGetSender() external StreamExistent {
-        uint256 defaultStreamId = createDefaultStream();
-        address actualSender = pro.getSender(defaultStreamId);
-        address expectedSender = defaultStream.sender;
-        assertEq(actualSender, expectedSender);
+contract GetSender__Pro__Test is ProTest, GetSender__Test {
+    function setUp() public virtual override(UnitTest, ProTest) {
+        ProTest.setUp();
+        sablierV2 = ISablierV2(pro);
     }
 }
