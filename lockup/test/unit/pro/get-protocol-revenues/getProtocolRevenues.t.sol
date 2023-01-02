@@ -8,8 +8,8 @@ import { ProTest } from "test/unit/pro/ProTest.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
 contract GetProtocolRevenues__Pro__Test is ProTest, GetProtocolRevenues__Test {
-    function setUp() public virtual override(ProTest, GetProtocolRevenues__Test) {
-        super.setUp();
+    function setUp() public virtual override(UnitTest, ProTest) {
+        ProTest.setUp();
         sablierV2 = ISablierV2(pro);
     }
 }

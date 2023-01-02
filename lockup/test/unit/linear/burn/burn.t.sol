@@ -9,7 +9,7 @@ contract Burn__Test is LinearTest {
     uint256 internal defaultStreamId;
 
     function setUp() public override {
-        super.setUp();
+        LinearTest.setUp();
 
         // Create the default stream, since most tests need it.
         defaultStreamId = createDefaultStream();

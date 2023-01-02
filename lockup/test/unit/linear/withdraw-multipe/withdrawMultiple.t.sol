@@ -15,7 +15,7 @@ contract WithdrawMultiple__Test is LinearTest {
     uint256[] internal defaultStreamIds;
 
     function setUp() public override {
-        super.setUp();
+        LinearTest.setUp();
 
         // Define the default amounts, since most tests need them.
         defaultAmounts.push(DEFAULT_WITHDRAW_AMOUNT);

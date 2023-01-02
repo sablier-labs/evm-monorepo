@@ -21,7 +21,7 @@ abstract contract CreateWithRange__Test is IntegrationTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        super.setUp();
+        IntegrationTest.setUp();
 
         // Approve the SablierV2Linear contract to transfer the token holder's tokens.
         // We use a low-level call to ignore reverts because the token can have the missing return value bug.

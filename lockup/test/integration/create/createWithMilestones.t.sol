@@ -23,7 +23,7 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        super.setUp();
+        IntegrationTest.setUp();
 
         // Approve the SablierV2Pro contract to transfer the token holder's tokens.
         // We use a low-level call to ignore reverts because the token can have the missing return value bug.

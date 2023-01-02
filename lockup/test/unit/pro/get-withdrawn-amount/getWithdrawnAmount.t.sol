@@ -7,7 +7,7 @@ contract GetWithdrawnAmount__Test is ProTest {
     uint256 internal defaultStreamId;
 
     function setUp() public override {
-        super.setUp();
+        ProTest.setUp();
 
         // Make the recipient the caller in this test suite.
         changePrank(users.recipient);

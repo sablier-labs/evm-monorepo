@@ -57,7 +57,7 @@ abstract contract LinearTest is UnitTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        super.setUp();
+        UnitTest.setUp();
 
         // Create the default args to be used for the create functions.
         defaultArgs = DefaultArgs({

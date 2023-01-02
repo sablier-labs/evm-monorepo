@@ -9,7 +9,7 @@ import { UnitTest } from "test/unit/UnitTest.t.sol";
 
 contract SetComptroller__ProTest is ProTest, SetComptroller__Test {
     function setUp() public virtual override(UnitTest, ProTest) {
-        super.setUp();
+        ProTest.setUp();
         sablierV2 = ISablierV2(pro);
     }
 }

@@ -14,7 +14,7 @@ contract CancelMultiple__Test is LinearTest {
     uint256[] internal defaultStreamIds;
 
     function setUp() public override {
-        super.setUp();
+        LinearTest.setUp();
 
         // Create the default streams, since most tests need them.
         defaultStreamIds.push(createDefaultStream());

@@ -13,7 +13,7 @@ contract Cancel__Test is LinearTest {
     uint256 internal defaultStreamId;
 
     function setUp() public override {
-        super.setUp();
+        LinearTest.setUp();
 
         // Make the recipient the caller in this test suite.
         changePrank(users.recipient);

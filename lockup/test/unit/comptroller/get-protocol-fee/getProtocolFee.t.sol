@@ -11,7 +11,7 @@ import { ComptrollerTest } from "../ComptrollerTest.t.sol";
 
 contract GetProtocolFee__Test is ComptrollerTest {
     function setUp() public override {
-        super.setUp();
+        ComptrollerTest.setUp();
 
         // Make the owner the caller in this test suite.
         changePrank(users.owner);
