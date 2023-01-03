@@ -368,7 +368,7 @@ contract SablierV2Linear is
             _protocolRevenues[args.token] += args.amounts.protocolFee;
         }
 
-        // Effects: mint the NFT for the recipient.
+        // Effects: mint the NFT to the recipient.
         _mint({ to: args.recipient, tokenId: streamId });
 
         // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.

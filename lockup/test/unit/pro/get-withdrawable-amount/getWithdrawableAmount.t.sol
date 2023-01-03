@@ -37,7 +37,7 @@ contract GetWithdrawableAmount__ProTest is ProTest {
 
     /// @dev it should return zero.
     function testGetWithdrawableAmount__StartTimeEqualToCurrentTime() external StreamExistent {
-        vm.warp({ timestamp: defaultStream.startTime });
+        vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -63,7 +63,7 @@ contract GetWithdrawableAmount__ProTest is ProTest {
 
         // Run the test.
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
-        uint128 expectedWithdrawableAmount = defaultStream.amounts.deposit;
+        uint128 expectedWithdrawableAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
@@ -79,7 +79,7 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         uint128 withdrawAmount
     ) external StreamExistent StartTimeLessThanCurrentTime {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
-        withdrawAmount = boundUint128(withdrawAmount, 1, defaultStream.amounts.deposit);
+        withdrawAmount = boundUint128(withdrawAmount, 1, DEFAULT_NET_DEPOSIT_AMOUNT);
 
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_STOP_TIME + timeWarp });
@@ -89,14 +89,14 @@ contract GetWithdrawableAmount__ProTest is ProTest {
 
         // Run the test.
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
-        uint128 expectedWithdrawableAmount = defaultStream.amounts.deposit - withdrawAmount;
+        uint128 expectedWithdrawableAmount = DEFAULT_NET_DEPOSIT_AMOUNT - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     modifier CurrentTimeLessThanStopTime() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank(users.owner);
-        comptroller.setProtocolFee(defaultStream.token, ZERO);
+        comptroller.setProtocolFee(dai, ZERO);
         changePrank(users.sender);
         _;
     }
@@ -109,11 +109,8 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
         // Bound the withdraw amount.
-        uint40 currentTime = defaultStream.startTime + timeWarp;
-        uint128 initialWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
-            currentTime,
-            defaultStream.segments
-        );
+        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
+        uint128 initialWithdrawableAmount = calculateStreamedAmountForMultipleSegments(currentTime, DEFAULT_SEGMENTS);
         withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
 
         // Disable the operator fee so that it doesn't interfere with the calculations.
@@ -123,8 +120,8 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
-            defaultStream.amounts.deposit,
-            defaultStream.segments,
+            DEFAULT_NET_DEPOSIT_AMOUNT,
+            defaultArgs.createWithMilestones.segments,
             defaultArgs.createWithMilestones.operator,
             operatorFee,
             defaultArgs.createWithMilestones.token,
@@ -180,7 +177,7 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         );
 
         // Warp into the future.
-        uint40 currentTime = defaultStream.startTime + timeWarp;
+        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
@@ -195,19 +192,15 @@ contract GetWithdrawableAmount__ProTest is ProTest {
 
     modifier MultipleSegments() {
         unchecked {
-            uint128 amount = defaultStream.amounts.deposit / uint128(MAX_SEGMENT_COUNT);
+            uint128 amount = DEFAULT_NET_DEPOSIT_AMOUNT / uint128(DEFAULT_MAX_SEGMENT_COUNT);
             SD1x18 exponent = E;
-            uint40 duration = DEFAULT_TOTAL_DURATION / uint40(MAX_SEGMENT_COUNT);
+            uint40 duration = DEFAULT_TOTAL_DURATION / uint40(DEFAULT_MAX_SEGMENT_COUNT);
 
             // Generate a bunch of segments that each has the same amount, same exponent, and with milestones
             // evenly spread apart.
-            for (uint40 i = 0; i < MAX_SEGMENT_COUNT; i += 1) {
+            for (uint40 i = 0; i < DEFAULT_MAX_SEGMENT_COUNT; i += 1) {
                 maxSegments.push(
-                    Segment({
-                        amount: amount,
-                        exponent: exponent,
-                        milestone: defaultStream.startTime + duration * (i + 1)
-                    })
+                    Segment({ amount: amount, exponent: exponent, milestone: DEFAULT_START_TIME + duration * (i + 1) })
                 );
             }
         }
@@ -229,7 +222,7 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
-            defaultStream.amounts.deposit,
+            DEFAULT_NET_DEPOSIT_AMOUNT,
             maxSegments,
             defaultArgs.createWithMilestones.operator,
             operatorFee,
@@ -264,7 +257,7 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
-            defaultStream.amounts.deposit,
+            DEFAULT_NET_DEPOSIT_AMOUNT,
             maxSegments,
             defaultArgs.createWithMilestones.operator,
             operatorFee,
@@ -274,7 +267,7 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         );
 
         // Warp into the future.
-        uint40 currentTime = defaultStream.startTime + timeWarp;
+        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.

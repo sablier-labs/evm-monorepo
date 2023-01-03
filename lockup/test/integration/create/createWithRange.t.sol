@@ -79,7 +79,7 @@ abstract contract CreateWithRange__Test is IntegrationTest {
         vm.assume(args.operator != holder && args.operator != address(linear));
         vm.assume(args.grossDepositAmount != 0 && args.grossDepositAmount <= holderBalance);
         vm.assume(args.range.start <= args.range.cliff && args.range.cliff <= args.range.stop);
-        args.operatorFee = bound(args.operatorFee, 0, MAX_FEE);
+        args.operatorFee = bound(args.operatorFee, 0, DEFAULT_MAX_FEE);
 
         // Load the current token balances.
         Vars memory vars;

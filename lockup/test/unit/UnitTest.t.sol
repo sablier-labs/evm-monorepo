@@ -163,11 +163,11 @@ abstract contract UnitTest is BaseTest {
     function deployContracts() internal {
         vm.startPrank({ msgSender: users.owner });
         comptroller = new SablierV2Comptroller();
-        linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: MAX_FEE });
+        linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: DEFAULT_MAX_FEE });
         pro = new SablierV2Pro({
             initialComptroller: comptroller,
-            maxFee: MAX_FEE,
-            maxSegmentCount: MAX_SEGMENT_COUNT
+            maxFee: DEFAULT_MAX_FEE,
+            maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
         });
     }
 

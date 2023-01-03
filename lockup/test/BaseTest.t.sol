@@ -18,6 +18,8 @@ abstract contract BaseTest is Assertions, StdCheats, Utils {
 
     uint40 internal constant DEFAULT_CLIFF_DURATION = 2_500 seconds;
     uint128 internal constant DEFAULT_GROSS_DEPOSIT_AMOUNT = 10_040.160642570281124497e18; // net deposit / (1 - fee)
+    UD60x18 internal constant DEFAULT_MAX_FEE = UD60x18.wrap(0.1e18); // 10%
+    uint256 internal constant DEFAULT_MAX_SEGMENT_COUNT = 200;
     uint128 internal constant DEFAULT_NET_DEPOSIT_AMOUNT = 10_000e18;
     UD60x18 internal constant DEFAULT_OPERATOR_FEE = UD60x18.wrap(0.003e18); // 0.3%
     uint128 internal constant DEFAULT_OPERATOR_FEE_AMOUNT = 30.120481927710843373e18; // 0.3% of gross deposit
@@ -26,8 +28,6 @@ abstract contract BaseTest is Assertions, StdCheats, Utils {
     uint40 internal constant DEFAULT_TIME_WARP = 2_600 seconds;
     uint40 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
     uint128 internal constant DEFAULT_WITHDRAW_AMOUNT = 2_600e18;
-    UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
-    uint256 internal constant MAX_SEGMENT_COUNT = 200;
     uint256 internal constant UINT256_MAX = type(uint256).max;
     uint128 internal constant UINT128_MAX = type(uint128).max;
     uint40 internal constant UINT40_MAX = type(uint40).max;

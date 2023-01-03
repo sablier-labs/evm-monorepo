@@ -11,6 +11,8 @@ import { Amounts, ProStream, Segment } from "src/types/Structs.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
+import { ISablierV2Pro } from "src/interfaces/ISablierV2Pro.sol";
+
 import { ProTest } from "../ProTest.t.sol";
 
 contract CreateWithMilestones__ProTest is ProTest {
@@ -58,22 +60,13 @@ contract CreateWithMilestones__ProTest is ProTest {
     function testCannotCreateWithMilestones__SegmentCountTooHigh(
         uint256 segmentCount
     ) external RecipientNonZeroAddress NetDepositAmountNotZero SegmentCountNotZero {
-        segmentCount = bound(segmentCount, MAX_SEGMENT_COUNT + 1, MAX_SEGMENT_COUNT * 10);
+        segmentCount = bound(segmentCount, DEFAULT_MAX_SEGMENT_COUNT + 1, DEFAULT_MAX_SEGMENT_COUNT * 10);
         Segment[] memory segments = new Segment[](segmentCount);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Pro__SegmentCountTooHigh.selector, segmentCount));
         createDefaultStreamWithSegments(segments);
     }
 
     modifier SegmentCountNotTooHigh() {
-        _;
-    }
-
-    /// @dev it should revert.
-    function testCannotCreateWithMilestones__LoopCalculationOverflowsBlockGasLimit() external {
-        // TODO
-    }
-
-    modifier LoopCalculationsDoNotOverflowBlockGasLimit() {
         _;
     }
 
@@ -84,7 +77,6 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountNotZero
         SegmentCountNotZero
         SegmentCountNotTooHigh
-        LoopCalculationsDoNotOverflowBlockGasLimit
     {
         Segment[] memory segments = defaultArgs.createWithMilestones.segments;
         segments[0].amount = UINT128_MAX;
@@ -104,7 +96,6 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountNotZero
         SegmentCountNotZero
         SegmentCountNotTooHigh
-        LoopCalculationsDoNotOverflowBlockGasLimit
         SegmentAmountsSumDoesNotOverflow
     {
         // Swap the segment milestones.
@@ -139,7 +130,6 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountNotZero
         SegmentCountNotZero
         SegmentCountNotTooHigh
-        LoopCalculationsDoNotOverflowBlockGasLimit
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
     {
@@ -190,19 +180,20 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountNotZero
         SegmentCountNotZero
         SegmentCountNotTooHigh
-        LoopCalculationsDoNotOverflowBlockGasLimit
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
     {
-        protocolFee = bound(protocolFee, MAX_FEE.add(ud(1)), MAX_UD60x18);
+        protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
         // Set the protocol fee.
         changePrank(users.owner);
         comptroller.setProtocolFee(defaultStream.token, protocolFee);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__ProtocolFeeTooHigh.selector, protocolFee, MAX_FEE));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2__ProtocolFeeTooHigh.selector, protocolFee, DEFAULT_MAX_FEE)
+        );
         createDefaultStream();
     }
 
@@ -219,14 +210,15 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountNotZero
         SegmentCountNotZero
         SegmentCountNotTooHigh
-        LoopCalculationsDoNotOverflowBlockGasLimit
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
         ProtocolFeeNotTooHigh
     {
-        operatorFee = bound(operatorFee, MAX_FEE.add(ud(1)), MAX_UD60x18);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__OperatorFeeTooHigh.selector, operatorFee, MAX_FEE));
+        operatorFee = bound(operatorFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2__OperatorFeeTooHigh.selector, operatorFee, DEFAULT_MAX_FEE)
+        );
         pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
@@ -253,7 +245,6 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountNotZero
         SegmentCountNotZero
         SegmentCountNotTooHigh
-        LoopCalculationsDoNotOverflowBlockGasLimit
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
@@ -294,7 +285,6 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountNotZero
         SegmentCountNotZero
         SegmentCountNotTooHigh
-        LoopCalculationsDoNotOverflowBlockGasLimit
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
@@ -386,7 +376,6 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountNotZero
         SegmentCountNotZero
         SegmentCountNotTooHigh
-        LoopCalculationsDoNotOverflowBlockGasLimit
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
@@ -397,7 +386,7 @@ contract CreateWithMilestones__ProTest is ProTest {
     {
         vm.assume(funder != address(0) && recipient != address(0) && operator != address(0));
         vm.assume(grossDepositAmount != 0);
-        operatorFee = bound(operatorFee, 0, MAX_FEE);
+        operatorFee = bound(operatorFee, 0, DEFAULT_MAX_FEE);
         startTime = boundUint40(startTime, 0, defaultArgs.createWithMilestones.segments[0].milestone);
 
         // Make the fuzzed funder the caller in this test.
@@ -476,7 +465,6 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountNotZero
         SegmentCountNotZero
         SegmentCountNotTooHigh
-        LoopCalculationsDoNotOverflowBlockGasLimit
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
@@ -486,7 +474,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         TokenERC20Compliant
     {
         vm.assume(grossDepositAmount != 0);
-        protocolFee = bound(protocolFee, 0, MAX_FEE);
+        protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
 
         // Set the fuzzed protocol fee.
         changePrank(users.owner);
@@ -541,7 +529,6 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountNotZero
         SegmentCountNotZero
         SegmentCountNotTooHigh
-        LoopCalculationsDoNotOverflowBlockGasLimit
         SegmentAmountsSumDoesNotOverflow
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum

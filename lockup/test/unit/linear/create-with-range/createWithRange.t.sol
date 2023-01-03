@@ -101,14 +101,16 @@ contract CreateWithRange__LinearTest is LinearTest {
         StartTimeLessThanOrEqualToCliffTime
         CliffLessThanOrEqualToStopTime
     {
-        protocolFee = bound(protocolFee, MAX_FEE.add(ud(1)), MAX_UD60x18);
+        protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
         // Set the protocol fee.
         changePrank(users.owner);
-        comptroller.setProtocolFee(defaultStream.token, protocolFee);
+        comptroller.setProtocolFee(defaultArgs.createWithRange.token, protocolFee);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__ProtocolFeeTooHigh.selector, protocolFee, MAX_FEE));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2__ProtocolFeeTooHigh.selector, protocolFee, DEFAULT_MAX_FEE)
+        );
         createDefaultStream();
     }
 
@@ -127,8 +129,10 @@ contract CreateWithRange__LinearTest is LinearTest {
         CliffLessThanOrEqualToStopTime
         ProtocolFeeNotTooHigh
     {
-        operatorFee = bound(operatorFee, MAX_FEE.add(ud(1)), MAX_UD60x18);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__OperatorFeeTooHigh.selector, operatorFee, MAX_FEE));
+        operatorFee = bound(operatorFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2__OperatorFeeTooHigh.selector, operatorFee, DEFAULT_MAX_FEE)
+        );
         linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
@@ -269,8 +273,8 @@ contract CreateWithRange__LinearTest is LinearTest {
         vm.assume(operator != address(linear));
         vm.assume(grossDepositAmount != 0);
         vm.assume(range.start <= range.cliff && range.cliff <= range.stop);
-        protocolFee = bound(protocolFee, 0, MAX_FEE);
-        operatorFee = bound(operatorFee, 0, MAX_FEE);
+        protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
+        operatorFee = bound(operatorFee, 0, DEFAULT_MAX_FEE);
 
         // Make the fuzzed funder the caller in this test.
         changePrank(funder);
@@ -353,7 +357,7 @@ contract CreateWithRange__LinearTest is LinearTest {
         TokenERC20Compliant
     {
         vm.assume(grossDepositAmount != 0);
-        protocolFee = bound(protocolFee, 0, MAX_FEE);
+        protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
 
         // Set the fuzzed protocol fee.
         changePrank(users.owner);

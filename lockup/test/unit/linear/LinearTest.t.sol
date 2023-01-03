@@ -113,8 +113,8 @@ abstract contract LinearTest is UnitTest {
         uint40 currentTime,
         uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
-        UD60x18 elapsedTime = UD60x18.wrap(currentTime - defaultStream.range.start);
-        UD60x18 totalTime = UD60x18.wrap(defaultStream.range.stop - defaultStream.range.start);
+        UD60x18 elapsedTime = UD60x18.wrap(currentTime - DEFAULT_START_TIME);
+        UD60x18 totalTime = UD60x18.wrap(DEFAULT_STOP_TIME - DEFAULT_START_TIME);
         UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
         streamedAmount = uint128(UD60x18.unwrap(elapsedTimePercentage.mul(ud(depositAmount))));
     }

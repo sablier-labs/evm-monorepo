@@ -10,7 +10,7 @@ contract Constructor__ProTest is ProTest {
         assertEq(actualStreamId, expectedStreamId);
 
         uint256 actualMaxSegmentCount = pro.MAX_SEGMENT_COUNT();
-        uint256 expectedMaxSegmentCount = MAX_SEGMENT_COUNT;
+        uint256 expectedMaxSegmentCount = DEFAULT_MAX_SEGMENT_COUNT;
         assertEq(actualMaxSegmentCount, expectedMaxSegmentCount);
     }
 }

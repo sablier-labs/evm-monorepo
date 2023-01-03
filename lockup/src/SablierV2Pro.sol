@@ -360,7 +360,7 @@ contract SablierV2Pro is
 
         // Effects: create the stream.
         ProStream storage stream = _streams[streamId];
-        stream.amounts = Amounts({ deposit: args.amounts.netDeposit, withdrawn: 0 });
+        stream.amounts.deposit = args.amounts.netDeposit;
         stream.isCancelable = args.cancelable;
         stream.isEntity = true;
         stream.sender = args.sender;
@@ -368,8 +368,8 @@ contract SablierV2Pro is
         stream.token = args.token;
 
         unchecked {
-            // Effects: store the segments. Copying an array from memory to storage is not currently supported, so we
-            // have to do it manually. See https://github.com/ethereum/solidity/issues/12783
+            // Effects: store the segments. Copying an array from memory to storage is not currently supported in
+            // Solidity, so we have to do it manually. See https://github.com/ethereum/solidity/issues/12783
             uint256 segmentCount = args.segments.length;
             for (uint256 i = 0; i < segmentCount; ++i) {
                 stream.segments.push(args.segments[i]);
@@ -381,7 +381,7 @@ contract SablierV2Pro is
             _protocolRevenues[args.token] += args.amounts.protocolFee;
         }
 
-        // Effects: mint the NFT for the recipient.
+        // Effects: mint the NFT to the recipient.
         _mint({ to: args.recipient, tokenId: streamId });
 
         // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.

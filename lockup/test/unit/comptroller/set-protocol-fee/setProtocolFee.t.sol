@@ -19,7 +19,7 @@ contract SetProtocolFee__ComptrollerTest is ComptrollerTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(IOwnable.Ownable__CallerNotOwner.selector, users.owner, eve));
-        comptroller.setProtocolFee(dai, MAX_FEE);
+        comptroller.setProtocolFee(dai, DEFAULT_MAX_FEE);
     }
 
     modifier CallerOwner() {
@@ -40,7 +40,7 @@ contract SetProtocolFee__ComptrollerTest is ComptrollerTest {
 
     /// @dev it should set the new protocol fee
     function testSetProtocolFee__DifferentFee(UD60x18 newProtocolFee) external CallerOwner {
-        newProtocolFee = bound(newProtocolFee, 1, MAX_FEE);
+        newProtocolFee = bound(newProtocolFee, 1, DEFAULT_MAX_FEE);
         comptroller.setProtocolFee(dai, newProtocolFee);
 
         UD60x18 actualProtocolFee = comptroller.getProtocolFee(dai);

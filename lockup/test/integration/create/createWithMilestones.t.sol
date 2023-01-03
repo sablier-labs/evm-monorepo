@@ -78,7 +78,7 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
         vm.assume(args.sender != address(0) && args.recipient != address(0) && args.operator != address(0));
         vm.assume(args.operator != holder && args.operator != address(pro));
         vm.assume(args.grossDepositAmount != 0 && args.grossDepositAmount <= holderBalance);
-        args.operatorFee = bound(args.operatorFee, 0, MAX_FEE);
+        args.operatorFee = bound(args.operatorFee, 0, DEFAULT_MAX_FEE);
         args.startTime = boundUint40(args.startTime, 0, DEFAULT_SEGMENTS[0].milestone);
 
         // Load the current token balances.

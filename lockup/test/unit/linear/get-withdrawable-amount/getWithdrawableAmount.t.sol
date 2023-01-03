@@ -26,7 +26,7 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
     /// @dev it should return zero.
     function testGetWithdrawableAmount__CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external StreamExistent {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
-        vm.warp({ timestamp: defaultStream.range.start = timeWarp });
+        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
@@ -48,11 +48,11 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.range.stop + timeWarp });
+        vm.warp({ timestamp: DEFAULT_STOP_TIME + timeWarp });
 
         // Run the test.
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
-        uint128 expectedWithdrawableAmount = defaultStream.amounts.deposit;
+        uint128 expectedWithdrawableAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
@@ -68,24 +68,24 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
         uint128 withdrawAmount
     ) external StreamExistent CliffTimeLessThanOrEqualToCurrentTime {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
-        withdrawAmount = boundUint128(withdrawAmount, 1, defaultStream.amounts.deposit);
+        withdrawAmount = boundUint128(withdrawAmount, 1, DEFAULT_NET_DEPOSIT_AMOUNT);
 
         // Warp into the future.
-        vm.warp({ timestamp: defaultStream.range.stop + timeWarp });
+        vm.warp({ timestamp: DEFAULT_STOP_TIME + timeWarp });
 
         // Withdraw the amount.
         linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
-        uint128 expectedWithdrawableAmount = defaultStream.amounts.deposit - withdrawAmount;
+        uint128 expectedWithdrawableAmount = DEFAULT_NET_DEPOSIT_AMOUNT - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
     modifier CurrentTimeLessThanStopTime() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank(users.owner);
-        comptroller.setProtocolFee(defaultStream.token, ZERO);
+        comptroller.setProtocolFee(dai, ZERO);
         changePrank(users.sender);
         _;
     }
@@ -99,7 +99,7 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
         vm.assume(depositAmount != 0);
 
         // Mint enough tokens to the sender.
-        deal({ token: address(defaultStream.token), to: defaultStream.sender, give: depositAmount });
+        deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Disable the operator fee so that it doesn't interfere with the calculations.
         UD60x18 operatorFee = ZERO;
@@ -117,7 +117,7 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
         );
 
         // Warp into the future.
-        uint40 currentTime = defaultStream.range.start + timeWarp;
+        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
@@ -136,12 +136,12 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
         depositAmount = boundUint128(depositAmount, 10_000, UINT128_MAX);
 
         // Bound the withdraw amount.
-        uint40 currentTime = defaultStream.range.start + timeWarp;
+        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         uint128 initialWithdrawableAmount = calculateStreamedAmount(currentTime, depositAmount);
         withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
 
         // Mint enough tokens to the sender.
-        deal({ token: address(defaultStream.token), to: defaultStream.sender, give: depositAmount });
+        deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Disable the operator fee so that it doesn't interfere with the calculations.
         UD60x18 operatorFee = ZERO;

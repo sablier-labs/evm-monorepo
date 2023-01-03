@@ -22,7 +22,7 @@ contract GetSegments__ProTest is ProTest {
     function testGetSegments() external StreamExistent {
         uint256 streamId = createDefaultStream();
         Segment[] memory actualSegments = pro.getSegments(streamId);
-        Segment[] memory expectedSegments = defaultStream.segments;
+        Segment[] memory expectedSegments = DEFAULT_SEGMENTS;
         assertEq(actualSegments, expectedSegments);
     }
 }
