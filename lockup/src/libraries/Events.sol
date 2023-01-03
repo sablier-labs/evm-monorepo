@@ -41,7 +41,7 @@ library Events {
     /// @param funder The address which funded the stream.
     /// @param sender The address from which to stream the tokens, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
-    /// @param depositAmount The amount of tokens to be streamed, in units of the token's decimals.
+    /// @param netDepositAmount The amount of tokens to be streamed, net of fees and in units of the token's decimals.
     /// @param protocolFeeAmount The amount of tokens charged by the protocol, in units of the token's decimals.
     /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
     /// received the fee.
@@ -55,7 +55,7 @@ library Events {
         address indexed funder,
         address indexed sender,
         address indexed recipient,
-        uint128 depositAmount,
+        uint128 netDepositAmount,
         uint128 protocolFeeAmount,
         address operator,
         uint128 operatorFeeAmount,
@@ -69,7 +69,7 @@ library Events {
     /// @param funder The address which funded the stream.
     /// @param sender The address from which to stream the tokens, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
-    /// @param depositAmount The amount of tokens to be streamed, in units of the token's decimals.
+    /// @param netDepositAmount The amount of tokens to be streamed, net of fees and in units of the token's decimals.
     /// @param segments The segments used to compose the custom streaming curve.
     /// @param protocolFeeAmount The amount of tokens charged by the protocol, in units of the token's decimals.
     /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
@@ -83,7 +83,7 @@ library Events {
         address indexed funder,
         address indexed sender,
         address indexed recipient,
-        uint128 depositAmount,
+        uint128 netDepositAmount,
         Segment[] segments,
         uint128 protocolFeeAmount,
         address operator,

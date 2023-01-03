@@ -99,7 +99,7 @@ abstract contract CreateWithRange__Test is IntegrationTest {
             funder: holder,
             sender: args.sender,
             recipient: args.recipient,
-            depositAmount: vars.netDepositAmount,
+            netDepositAmount: vars.netDepositAmount,
             protocolFeeAmount: 0,
             operator: args.operator,
             operatorFeeAmount: vars.operatorFeeAmount,

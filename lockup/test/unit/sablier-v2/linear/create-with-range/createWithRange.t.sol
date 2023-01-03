@@ -404,7 +404,7 @@ contract CreateWithRange__LinearTest is LinearTest {
             funder: funder,
             sender: defaultArgs.createWithRange.sender,
             recipient: defaultArgs.createWithRange.recipient,
-            depositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            netDepositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
             protocolFeeAmount: DEFAULT_PROTOCOL_FEE_AMOUNT,
             operator: defaultArgs.createWithRange.operator,
             operatorFeeAmount: DEFAULT_OPERATOR_FEE_AMOUNT,

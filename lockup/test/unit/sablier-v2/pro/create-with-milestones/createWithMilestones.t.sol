@@ -546,7 +546,7 @@ contract CreateWithMilestones__ProTest is ProTest {
             funder: funder,
             sender: defaultArgs.createWithMilestones.sender,
             recipient: defaultArgs.createWithMilestones.recipient,
-            depositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            netDepositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
             segments: defaultArgs.createWithMilestones.segments,
             protocolFeeAmount: DEFAULT_PROTOCOL_FEE_AMOUNT,
             operator: defaultArgs.createWithMilestones.operator,

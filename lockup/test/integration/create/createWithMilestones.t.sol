@@ -103,7 +103,7 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
             funder: holder,
             sender: args.sender,
             recipient: args.recipient,
-            depositAmount: vars.netDepositAmount,
+            netDepositAmount: vars.netDepositAmount,
             segments: segments,
             protocolFeeAmount: 0,
             operator: args.operator,

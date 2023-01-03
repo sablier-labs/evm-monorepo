@@ -398,7 +398,7 @@ contract SablierV2Pro is
             funder: msg.sender,
             sender: args.sender,
             recipient: args.recipient,
-            depositAmount: args.amounts.netDeposit,
+            netDepositAmount: args.amounts.netDeposit,
             segments: args.segments,
             protocolFeeAmount: args.amounts.protocolFee,
             operator: args.operator,
