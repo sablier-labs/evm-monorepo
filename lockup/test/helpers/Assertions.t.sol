@@ -29,12 +29,6 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
                                      ASSERTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks that the given stream was deleted.
-    function assertDeleted(uint256 streamId) internal virtual;
-
-    /// @dev Checks that the given streams were deleted.
-    function assertDeleted(uint256[] memory streamIds) internal virtual;
-
     /// @dev Compares two `Amounts` struct entities.
     function assertEq(Amounts memory a, Amounts memory b) internal {
         assertEqUint128(a.deposit, b.deposit);
