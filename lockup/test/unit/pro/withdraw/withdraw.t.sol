@@ -4,11 +4,11 @@ pragma solidity >=0.8.13;
 import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 
 import { Withdraw__Test } from "test/unit/shared/withdraw/withdraw.t.sol";
-import { LinearTest } from "test/unit/linear/LinearTest.t.sol";
+import { ProTest } from "test/unit/pro/ProTest.t.sol";
 
-contract Withdraw__LinearTest is LinearTest, Withdraw__Test {
-    function setUp() public virtual override(LinearTest, Withdraw__Test) {
+contract Withdraw__ProTest is ProTest, Withdraw__Test {
+    function setUp() public virtual override(ProTest, Withdraw__Test) {
         Withdraw__Test.setUp();
-        sablierV2 = ISablierV2(linear);
+        sablierV2 = ISablierV2(pro);
     }
 }
