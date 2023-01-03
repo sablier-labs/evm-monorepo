@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 
@@ -23,7 +24,7 @@ abstract contract LinearTest is UnitTest {
         uint128 grossDepositAmount;
         address operator;
         UD60x18 operatorFee;
-        address token;
+        IERC20 token;
         bool cancelable;
         uint40 cliffDuration;
         uint40 totalDuration;
@@ -35,7 +36,7 @@ abstract contract LinearTest is UnitTest {
         uint128 grossDepositAmount;
         address operator;
         UD60x18 operatorFee;
-        address token;
+        IERC20 token;
         bool cancelable;
         Range range;
     }
@@ -67,7 +68,7 @@ abstract contract LinearTest is UnitTest {
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
                 operator: users.operator,
                 operatorFee: DEFAULT_OPERATOR_FEE,
-                token: address(dai),
+                token: dai,
                 cancelable: true,
                 cliffDuration: DEFAULT_CLIFF_DURATION,
                 totalDuration: DEFAULT_TOTAL_DURATION
@@ -78,7 +79,7 @@ abstract contract LinearTest is UnitTest {
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
                 operator: users.operator,
                 operatorFee: DEFAULT_OPERATOR_FEE,
-                token: address(dai),
+                token: dai,
                 cancelable: true,
                 range: DEFAULT_RANGE
             })
@@ -95,8 +96,8 @@ abstract contract LinearTest is UnitTest {
         });
 
         // Set the default protocol fee.
-        comptroller.setProtocolFee(address(dai), DEFAULT_PROTOCOL_FEE);
-        comptroller.setProtocolFee(address(nonCompliantToken), DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee(dai, DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee(IERC20(address(nonCompliantToken)), DEFAULT_PROTOCOL_FEE);
 
         // Make the sender the default caller in all subsequent tests.
         changePrank(users.sender);

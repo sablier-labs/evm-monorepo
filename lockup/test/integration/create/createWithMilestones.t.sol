@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { console2 } from "forge-std/console2.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
@@ -16,7 +15,7 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address token_, address holder_) IntegrationTest(token_, holder_) {}
+    constructor(IERC20 token_, address holder_) IntegrationTest(token_, holder_) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
@@ -27,7 +26,7 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
 
         // Approve the SablierV2Pro contract to transfer the token holder's tokens.
         // We use a low-level call to ignore reverts because the token can have the missing return value bug.
-        (bool success, ) = token.call(abi.encodeCall(IERC20.approve, (address(pro), UINT256_MAX)));
+        (bool success, ) = address(token).call(abi.encodeCall(IERC20.approve, (address(pro), UINT256_MAX)));
         success;
     }
 

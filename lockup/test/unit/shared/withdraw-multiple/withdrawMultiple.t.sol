@@ -12,7 +12,6 @@ import { SharedTest } from "../SharedTest.t.sol";
 abstract contract WithdrawMultiple__Test is SharedTest {
     uint128[] internal defaultAmounts;
     uint256[] internal defaultStreamIds;
-    address internal token = address(dai);
 
     function setUp() public virtual override {
         super.setUp();
@@ -191,8 +190,8 @@ abstract contract WithdrawMultiple__Test is SharedTest {
 
         // Expect the withdrawals to be made.
         uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
-        vm.expectCall(token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
-        vm.expectCall(token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
         // Make the withdrawals.
         sablierV2.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: defaultAmounts });
@@ -289,8 +288,8 @@ abstract contract WithdrawMultiple__Test is SharedTest {
         emit Events.Withdraw({ streamId: defaultStreamIds[1], to: to, amount: DEFAULT_NET_DEPOSIT_AMOUNT });
 
         // Expect the withdrawals to be made.
-        vm.expectCall(token, abi.encodeCall(IERC20.transfer, (to, DEFAULT_NET_DEPOSIT_AMOUNT)));
-        vm.expectCall(token, abi.encodeCall(IERC20.transfer, (to, DEFAULT_NET_DEPOSIT_AMOUNT)));
+        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, DEFAULT_NET_DEPOSIT_AMOUNT)));
+        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, DEFAULT_NET_DEPOSIT_AMOUNT)));
 
         // Make the withdrawals.
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_NET_DEPOSIT_AMOUNT, DEFAULT_NET_DEPOSIT_AMOUNT);
@@ -333,8 +332,8 @@ abstract contract WithdrawMultiple__Test is SharedTest {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawals to be made.
-        vm.expectCall(token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
-        vm.expectCall(token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
         // Expect Withdraw events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

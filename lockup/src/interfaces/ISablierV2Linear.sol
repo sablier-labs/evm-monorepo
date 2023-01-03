@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { LinearStream, Range } from "../types/Structs.sol";
@@ -72,7 +73,7 @@ interface ISablierV2Linear is ISablierV2 {
         uint128 grossDepositAmount,
         address operator,
         UD60x18 operatorFee,
-        address token,
+        IERC20 token,
         bool cancelable,
         uint40 cliffDuration,
         uint40 totalDuration
@@ -115,7 +116,7 @@ interface ISablierV2Linear is ISablierV2 {
         uint128 grossDepositAmount,
         address operator,
         UD60x18 operatorFee,
-        address token,
+        IERC20 token,
         bool cancelable,
         Range calldata range
     ) external returns (uint256 streamId);

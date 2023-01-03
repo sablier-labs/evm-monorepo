@@ -166,7 +166,7 @@ contract SablierV2Linear is
         uint128 grossDepositAmount,
         address operator,
         UD60x18 operatorFee,
-        address token,
+        IERC20 token,
         bool cancelable,
         uint40 cliffDuration,
         uint40 totalDuration
@@ -213,7 +213,7 @@ contract SablierV2Linear is
         uint128 grossDepositAmount,
         address operator,
         UD60x18 operatorFee,
-        address token,
+        IERC20 token,
         bool cancelable,
         Range calldata range
     ) external returns (uint256 streamId) {
@@ -289,12 +289,12 @@ contract SablierV2Linear is
 
         // Interactions: withdraw the tokens to the recipient, if any.
         if (recipientAmount > 0) {
-            IERC20(stream.token).safeTransfer({ to: recipient, amount: recipientAmount });
+            stream.token.safeTransfer({ to: recipient, amount: recipientAmount });
         }
 
         // Interactions: return the tokens to the sender, if any.
         if (senderAmount > 0) {
-            IERC20(stream.token).safeTransfer({ to: sender, amount: senderAmount });
+            stream.token.safeTransfer({ to: sender, amount: senderAmount });
         }
 
         // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
@@ -361,15 +361,11 @@ contract SablierV2Linear is
         _mint({ to: args.recipient, tokenId: streamId });
 
         // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.
-        IERC20(args.token).safeTransferFrom({ from: msg.sender, to: address(this), amount: args.amounts.netDeposit });
+        args.token.safeTransferFrom({ from: msg.sender, to: address(this), amount: args.amounts.netDeposit });
 
         // Interactions: perform the ERC-20 transfer to pay the operator fee, if not zero.
         if (args.amounts.operatorFee > 0) {
-            IERC20(args.token).safeTransferFrom({
-                from: msg.sender,
-                to: args.operator,
-                amount: args.amounts.operatorFee
-            });
+            args.token.safeTransferFrom({ from: msg.sender, to: args.operator, amount: args.amounts.operatorFee });
         }
 
         // Emit an event.
@@ -428,7 +424,7 @@ contract SablierV2Linear is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        IERC20(stream.token).safeTransfer({ to: to, amount: amount });
+        stream.token.safeTransfer({ to: to, amount: amount });
 
         // Interactions: if the `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up

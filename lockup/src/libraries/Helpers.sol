@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
@@ -20,7 +21,7 @@ library Helpers {
     /// operator fee amount, and the net deposit amount.
     function checkAndCalculateFees(
         ISablierV2Comptroller comptroller,
-        address token,
+        IERC20 token,
         uint128 grossDepositAmount,
         UD60x18 operatorFee,
         UD60x18 maxFee

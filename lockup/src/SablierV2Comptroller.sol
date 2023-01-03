@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { Ownable } from "@prb/contracts/access/Ownable.sol";
 import { UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
 
@@ -19,13 +20,13 @@ contract SablierV2Comptroller is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Global fees mapped by token addresses.
-    mapping(address => UD60x18) internal _protocolFees;
+    mapping(IERC20 => UD60x18) internal _protocolFees;
 
     /*//////////////////////////////////////////////////////////////////////////
                              PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function getProtocolFee(address token) external view override returns (UD60x18 protocolFee) {
+    function getProtocolFee(IERC20 token) external view override returns (UD60x18 protocolFee) {
         protocolFee = _protocolFees[token];
     }
 
@@ -34,7 +35,7 @@ contract SablierV2Comptroller is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Comptroller
-    function setProtocolFee(address token, UD60x18 newProtocolFee) external onlyOwner {
+    function setProtocolFee(IERC20 token, UD60x18 newProtocolFee) external onlyOwner {
         // Effects: set the new global fee.
         UD60x18 oldProtocolFee = _protocolFees[token];
         _protocolFees[token] = newProtocolFee;

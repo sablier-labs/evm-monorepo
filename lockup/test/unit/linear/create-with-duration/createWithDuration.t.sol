@@ -101,13 +101,13 @@ contract CreateWithDuration__LinearTest is LinearTest {
 
         // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
         vm.expectCall(
-            defaultArgs.createWithDuration.token,
+            address(defaultArgs.createWithDuration.token),
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
         // Expect the operator fee to be paid to the operator, if the amount is not zero.
         vm.expectCall(
-            defaultArgs.createWithDuration.token,
+            address(defaultArgs.createWithDuration.token),
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, defaultArgs.createWithDuration.operator, DEFAULT_OPERATOR_FEE_AMOUNT)

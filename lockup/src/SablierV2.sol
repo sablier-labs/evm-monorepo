@@ -42,7 +42,7 @@ abstract contract SablierV2 is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Protocol revenues mapped by token addresses.
-    mapping(address => uint128) internal _protocolRevenues;
+    mapping(IERC20 => uint128) internal _protocolRevenues;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       MODIFIERS
@@ -89,7 +89,7 @@ abstract contract SablierV2 is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
-    function getProtocolRevenues(address token) external view override returns (uint128 protocolRevenues) {
+    function getProtocolRevenues(IERC20 token) external view override returns (uint128 protocolRevenues) {
         protocolRevenues = _protocolRevenues[token];
     }
 
@@ -155,7 +155,7 @@ abstract contract SablierV2 is
     }
 
     /// @inheritdoc ISablierV2
-    function claimProtocolRevenues(address token) external override onlyOwner {
+    function claimProtocolRevenues(IERC20 token) external override onlyOwner {
         // Checks: the protocol revenues are not zero.
         uint128 protocolRevenues = _protocolRevenues[token];
         if (protocolRevenues == 0) {
@@ -166,7 +166,7 @@ abstract contract SablierV2 is
         _protocolRevenues[token] = 0;
 
         // Interactions: perform the ERC-20 transfer to pay the protocol revenues.
-        IERC20(token).safeTransfer(msg.sender, protocolRevenues);
+        token.safeTransfer(msg.sender, protocolRevenues);
 
         // Emit an event.
         emit Events.ClaimProtocolRevenues(msg.sender, token, protocolRevenues);

@@ -19,7 +19,7 @@ contract SetProtocolFee__ComptrollerTest is ComptrollerTest {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(IOwnable.Ownable__CallerNotOwner.selector, users.owner, eve));
-        comptroller.setProtocolFee(address(dai), MAX_FEE);
+        comptroller.setProtocolFee(dai, MAX_FEE);
     }
 
     modifier CallerOwner() {
@@ -31,9 +31,9 @@ contract SetProtocolFee__ComptrollerTest is ComptrollerTest {
     /// @dev it should re-set the protocol fee.
     function testSetProtocolFee__SameFee() external CallerOwner {
         UD60x18 newProtocolFee = ud(0);
-        comptroller.setProtocolFee(address(dai), newProtocolFee);
+        comptroller.setProtocolFee(dai, newProtocolFee);
 
-        UD60x18 actualProtocolFee = comptroller.getProtocolFee(address(dai));
+        UD60x18 actualProtocolFee = comptroller.getProtocolFee(dai);
         UD60x18 expectedProtocolFee = newProtocolFee;
         assertEq(actualProtocolFee, expectedProtocolFee);
     }
@@ -41,9 +41,9 @@ contract SetProtocolFee__ComptrollerTest is ComptrollerTest {
     /// @dev it should set the new protocol fee
     function testSetProtocolFee__DifferentFee(UD60x18 newProtocolFee) external CallerOwner {
         newProtocolFee = bound(newProtocolFee, 1, MAX_FEE);
-        comptroller.setProtocolFee(address(dai), newProtocolFee);
+        comptroller.setProtocolFee(dai, newProtocolFee);
 
-        UD60x18 actualProtocolFee = comptroller.getProtocolFee(address(dai));
+        UD60x18 actualProtocolFee = comptroller.getProtocolFee(dai);
         UD60x18 expectedProtocolFee = newProtocolFee;
         assertEq(actualProtocolFee, expectedProtocolFee);
     }

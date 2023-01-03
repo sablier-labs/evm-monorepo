@@ -246,7 +246,7 @@ contract CreateWithMilestones__ProTest is ProTest {
 
     /// @dev it should revert.
     function testCannotCreateWithMilestones__TokenNotContract(
-        address nonToken
+        IERC20 nonToken
     )
         external
         RecipientNonZeroAddress
@@ -260,7 +260,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         ProtocolFeeNotTooHigh
         OperatorFeeNotTooHigh
     {
-        vm.assume(nonToken.code.length == 0);
+        vm.assume(address(nonToken).code.length == 0);
 
         // Set the default protocol fee so that the test does not revert due to the net deposit amount not being
         // equal to the segment amounts sum.
@@ -269,7 +269,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         changePrank(users.sender);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, nonToken));
+        vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(nonToken)));
         pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
@@ -331,7 +331,7 @@ contract CreateWithMilestones__ProTest is ProTest {
             defaultArgs.createWithMilestones.segments,
             defaultArgs.createWithMilestones.operator,
             defaultArgs.createWithMilestones.operatorFee,
-            address(nonCompliantToken),
+            IERC20(address(nonCompliantToken)),
             defaultArgs.createWithMilestones.cancelable,
             defaultArgs.createWithMilestones.startTime
         );
@@ -344,7 +344,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.segments, defaultStream.segments);
         assertEq(actualStream.startTime, defaultStream.startTime);
-        assertEq(actualStream.token, address(nonCompliantToken));
+        assertEq(actualStream.token, IERC20(address(nonCompliantToken)));
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = pro.nextStreamId();
@@ -404,10 +404,10 @@ contract CreateWithMilestones__ProTest is ProTest {
         changePrank(funder);
 
         // Mint enough tokens to the funder.
-        deal({ token: defaultArgs.createWithMilestones.token, to: funder, give: grossDepositAmount });
+        deal({ token: address(defaultArgs.createWithMilestones.token), to: funder, give: grossDepositAmount });
 
         // Approve the SablierV2Pro contract to transfer the tokens from the funder.
-        IERC20(defaultArgs.createWithMilestones.token).approve({ spender: address(pro), value: UINT256_MAX });
+        defaultArgs.createWithMilestones.token.approve({ spender: address(pro), value: UINT256_MAX });
 
         // Calculate the operator fee amount and the net deposit amount.
         uint128 protocolFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE)));
@@ -420,14 +420,14 @@ contract CreateWithMilestones__ProTest is ProTest {
 
         // Expect the tokens to be transferred from the funder to the SablierV2Pro contract.
         vm.expectCall(
-            defaultArgs.createWithMilestones.token,
+            address(defaultArgs.createWithMilestones.token),
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), netDepositAmount))
         );
 
         // Expect the operator fee to be paid to the operator, if the fee amount is not zero.
         if (operatorFeeAmount > 0) {
             vm.expectCall(
-                defaultArgs.createWithMilestones.token,
+                address(defaultArgs.createWithMilestones.token),
                 abi.encodeCall(IERC20.transferFrom, (funder, operator, operatorFeeAmount))
             );
         }
@@ -499,7 +499,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         changePrank(funder);
 
         // Mint enough tokens to the funder.
-        deal({ token: defaultArgs.createWithMilestones.token, to: funder, give: grossDepositAmount });
+        deal({ token: address(defaultArgs.createWithMilestones.token), to: funder, give: grossDepositAmount });
 
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithMilestones.token);

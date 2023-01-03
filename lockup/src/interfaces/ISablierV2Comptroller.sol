@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
@@ -13,7 +14,7 @@ interface ISablierV2Comptroller is IOwnable {
     /// @notice Queries the protocol fee charged on all Sablier V2 streams created with the provided token.
     /// @param token The address of the token to make the query for.
     /// @return protocolFee The protocol fee as an UD60x18 number treated as a percentage with 100% = 1e18.
-    function getProtocolFee(address token) external view returns (UD60x18 protocolFee);
+    function getProtocolFee(IERC20 token) external view returns (UD60x18 protocolFee);
 
     /// @notice Sets a new protocol fee that will be charged on all streams created with the provided token.
     ///
@@ -30,5 +31,5 @@ interface ISablierV2Comptroller is IOwnable {
     ///
     /// @param token The address of the token to make the query for.
     /// @param newProtocolFee The new protocol fee to set.
-    function setProtocolFee(address token, UD60x18 newProtocolFee) external;
+    function setProtocolFee(IERC20 token, UD60x18 newProtocolFee) external;
 }

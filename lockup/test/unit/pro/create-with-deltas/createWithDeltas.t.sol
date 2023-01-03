@@ -175,13 +175,13 @@ contract CreateWithDeltas__ProTest is ProTest {
 
         // Expect the tokens to be transferred from the funder to the SablierV2Pro contract.
         vm.expectCall(
-            defaultArgs.createWithDeltas.token,
+            address(defaultArgs.createWithDeltas.token),
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
         // Expect the operator fee to be paid to the operator.
         vm.expectCall(
-            defaultArgs.createWithDeltas.token,
+            address(defaultArgs.createWithDeltas.token),
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, defaultArgs.createWithDeltas.operator, DEFAULT_OPERATOR_FEE_AMOUNT)

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
@@ -31,9 +32,9 @@ library Events {
 
     /// @notice Emitted when the contract owner claims all protocol revenues accrued for the provided token.
     /// @param owner The address of the current contract owner.
-    /// @param token The address of the token the protocol revenues were claimed for.
+    /// @param token The address of the ERC-20 token the protocol revenues were claimed for.
     /// @param protocolRevenues The amount of protocol revenues claimed, in units of the token's decimals.
-    event ClaimProtocolRevenues(address indexed owner, address indexed token, uint128 protocolRevenues);
+    event ClaimProtocolRevenues(address indexed owner, IERC20 indexed token, uint128 protocolRevenues);
 
     /// @notice Emitted when a linear stream is created.
     /// @param streamId The id of the newly created stream.
@@ -58,7 +59,7 @@ library Events {
         uint128 protocolFeeAmount,
         address operator,
         uint128 operatorFeeAmount,
-        address token,
+        IERC20 token,
         bool cancelable,
         Range range
     );
@@ -87,7 +88,7 @@ library Events {
         uint128 protocolFeeAmount,
         address operator,
         uint128 operatorFeeAmount,
-        address token,
+        IERC20 token,
         bool cancelable,
         uint40 startTime
     );
@@ -106,10 +107,10 @@ library Events {
 
     /// @notice Emitted when the contract owner sets a new protocol fee for the provided token.
     /// @param owner The address of the current contract owner.
-    /// @param token The address of the token the new protocol fee was set for.
+    /// @param token The address of the ERC-20 token the new protocol fee was set for.
     /// @param oldFee The old global fee for the provided token, as an UD60x18 number.
     /// @param newFee The new global fee for the provided token, as an UD60x18 number.
-    event SetProtocolFee(address indexed owner, address indexed token, UD60x18 oldFee, UD60x18 newFee);
+    event SetProtocolFee(address indexed owner, IERC20 indexed token, UD60x18 oldFee, UD60x18 newFee);
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The id of the stream.

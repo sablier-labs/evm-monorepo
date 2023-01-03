@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
@@ -25,7 +26,7 @@ abstract contract ProTest is UnitTest {
         Segment[] segments;
         address operator;
         UD60x18 operatorFee;
-        address token;
+        IERC20 token;
         bool cancelable;
         uint40[] deltas;
     }
@@ -37,7 +38,7 @@ abstract contract ProTest is UnitTest {
         Segment[] segments;
         address operator;
         UD60x18 operatorFee;
-        address token;
+        IERC20 token;
         bool cancelable;
         uint40 startTime;
     }
@@ -67,7 +68,7 @@ abstract contract ProTest is UnitTest {
         defaultArgs.createWithDeltas.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
         defaultArgs.createWithDeltas.operator = users.operator;
         defaultArgs.createWithDeltas.operatorFee = DEFAULT_OPERATOR_FEE;
-        defaultArgs.createWithDeltas.token = address(dai);
+        defaultArgs.createWithDeltas.token = dai;
         defaultArgs.createWithDeltas.cancelable = true;
 
         defaultArgs.createWithMilestones.sender = users.sender;
@@ -75,7 +76,7 @@ abstract contract ProTest is UnitTest {
         defaultArgs.createWithMilestones.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
         defaultArgs.createWithMilestones.operator = users.operator;
         defaultArgs.createWithMilestones.operatorFee = DEFAULT_OPERATOR_FEE;
-        defaultArgs.createWithMilestones.token = address(dai);
+        defaultArgs.createWithMilestones.token = dai;
         defaultArgs.createWithMilestones.cancelable = true;
         defaultArgs.createWithMilestones.startTime = DEFAULT_START_TIME;
 
@@ -96,8 +97,8 @@ abstract contract ProTest is UnitTest {
         defaultStream.token = defaultArgs.createWithMilestones.token;
 
         // Set the default protocol fee.
-        comptroller.setProtocolFee(address(dai), DEFAULT_PROTOCOL_FEE);
-        comptroller.setProtocolFee(address(nonCompliantToken), DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee(dai, DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee(IERC20(address(nonCompliantToken)), DEFAULT_PROTOCOL_FEE);
 
         // Make the sender the default caller in all subsequent tests.
         changePrank(users.sender);

@@ -99,7 +99,7 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
         vm.assume(depositAmount != 0);
 
         // Mint enough tokens to the sender.
-        deal({ token: defaultStream.token, to: defaultStream.sender, give: depositAmount });
+        deal({ token: address(defaultStream.token), to: defaultStream.sender, give: depositAmount });
 
         // Disable the operator fee so that it doesn't interfere with the calculations.
         UD60x18 operatorFee = ZERO;
@@ -141,7 +141,7 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
         withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
 
         // Mint enough tokens to the sender.
-        deal({ token: defaultStream.token, to: defaultStream.sender, give: depositAmount });
+        deal({ token: address(defaultStream.token), to: defaultStream.sender, give: depositAmount });
 
         // Disable the operator fee so that it doesn't interfere with the calculations.
         UD60x18 operatorFee = ZERO;

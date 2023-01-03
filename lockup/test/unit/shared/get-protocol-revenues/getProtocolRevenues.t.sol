@@ -10,11 +10,9 @@ import { Events } from "src/libraries/Events.sol";
 import { SharedTest } from "test/unit/shared/SharedTest.t.sol";
 
 abstract contract GetProtocolRevenues__Test is SharedTest {
-    address internal token = address(dai);
-
     /// @dev it should return zero.
     function testGetProtocolRevenues__ProtocolRevenuesZero() external {
-        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(token);
+        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(dai);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -29,7 +27,7 @@ abstract contract GetProtocolRevenues__Test is SharedTest {
 
     /// @dev it should return the correct protocol revenues.
     function testGetProtocolRevenues() external ProtocolRevenuesNotZero {
-        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(token);
+        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(dai);
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }

@@ -11,7 +11,6 @@ import { SharedTest } from "../SharedTest.t.sol";
 
 abstract contract CancelMultiple__Test is SharedTest {
     uint256[] internal defaultStreamIds;
-    address internal token = address(dai);
 
     function setUp() public virtual override {
         super.setUp();
@@ -216,21 +215,21 @@ abstract contract CancelMultiple__Test is SharedTest {
         // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 withdrawAmount0 = sablierV2.getWithdrawableAmount(streamIds[0]);
         if (withdrawAmount0 > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount0)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount0)));
         }
         uint128 withdrawAmount1 = sablierV2.getWithdrawableAmount(streamIds[1]);
         if (withdrawAmount1 > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount1)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount1)));
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
         uint128 returnAmount0 = DEFAULT_NET_DEPOSIT_AMOUNT - withdrawAmount0;
         if (returnAmount0 > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (users.sender, returnAmount0)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.sender, returnAmount0)));
         }
         uint128 returnAmount1 = DEFAULT_NET_DEPOSIT_AMOUNT - withdrawAmount1;
         if (returnAmount1 > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (users.sender, returnAmount1)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.sender, returnAmount1)));
         }
 
         // Expect Cancel events to be emitted.
@@ -286,21 +285,21 @@ abstract contract CancelMultiple__Test is SharedTest {
         // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 withdrawAmount0 = sablierV2.getWithdrawableAmount(streamIds[0]);
         if (withdrawAmount0 > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount0)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount0)));
         }
         uint128 withdrawAmount1 = sablierV2.getWithdrawableAmount(streamIds[1]);
         if (withdrawAmount1 > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount1)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount1)));
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
         uint128 returnAmount0 = DEFAULT_NET_DEPOSIT_AMOUNT - withdrawAmount0;
         if (returnAmount0 > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (users.sender, returnAmount0)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.sender, returnAmount0)));
         }
         uint128 returnAmount1 = DEFAULT_NET_DEPOSIT_AMOUNT - withdrawAmount1;
         if (returnAmount1 > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (users.sender, returnAmount1)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.sender, returnAmount1)));
         }
 
         // Expect Cancel events to be emitted.

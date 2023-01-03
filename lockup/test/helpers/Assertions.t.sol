@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
@@ -38,6 +39,11 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     function assertEq(Amounts memory a, Amounts memory b) internal {
         assertEqUint128(a.deposit, b.deposit);
         assertEqUint128(a.withdrawn, b.withdrawn);
+    }
+
+    /// @dev Compares two `IERC20` addresses.
+    function assertEq(IERC20 a, IERC20 b) internal {
+        assertEq(address(a), address(b));
     }
 
     /// @dev Compares two `LinearStream` struct entities.

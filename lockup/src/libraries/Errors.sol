@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @title Errors
@@ -11,7 +12,7 @@ library Errors {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when attempting to claim protocol revenues for a token that did not accrue any revenues.
-    error SablierV2__ClaimZeroProtocolRevenues(address token);
+    error SablierV2__ClaimZeroProtocolRevenues(IERC20 token);
 
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
     error SablierV2__NetDepositAmountZero();

@@ -18,7 +18,8 @@ abstract contract IntegrationTest is BaseTest {
 
     address internal holder;
     uint256 internal holderBalance;
-    address internal token;
+    IERC20 internal token;
+
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -31,7 +32,7 @@ abstract contract IntegrationTest is BaseTest {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address token_, address holder_) {
+    constructor(IERC20 token_, address holder_) {
         token = token_;
         holder = holder_;
     }

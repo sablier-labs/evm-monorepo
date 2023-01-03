@@ -147,7 +147,7 @@ contract CreateWithRange__LinearTest is LinearTest {
 
     /// @dev it should revert.
     function testCannotCreateWithRange__TokenNotContract(
-        address nonToken
+        IERC20 nonToken
     )
         external
         RecipientNonZeroAddress
@@ -155,7 +155,7 @@ contract CreateWithRange__LinearTest is LinearTest {
         StartTimeLessThanOrEqualToCliffTime
         CliffLessThanOrEqualToStopTime
     {
-        vm.assume(nonToken.code.length == 0);
+        vm.assume(address(nonToken).code.length == 0);
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(nonToken)));
         linear.createWithRange(
             defaultArgs.createWithRange.sender,
@@ -208,7 +208,7 @@ contract CreateWithRange__LinearTest is LinearTest {
             defaultArgs.createWithRange.grossDepositAmount,
             defaultArgs.createWithRange.operator,
             defaultArgs.createWithRange.operatorFee,
-            address(nonCompliantToken),
+            IERC20(address(nonCompliantToken)),
             defaultArgs.createWithRange.cancelable,
             defaultArgs.createWithRange.range
         );
@@ -220,7 +220,7 @@ contract CreateWithRange__LinearTest is LinearTest {
         assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.range, defaultStream.range);
-        assertEq(actualStream.token, address(nonCompliantToken));
+        assertEq(actualStream.token, IERC20(address(nonCompliantToken)));
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
@@ -276,10 +276,10 @@ contract CreateWithRange__LinearTest is LinearTest {
         changePrank(funder);
 
         // Mint enough tokens to the funder.
-        deal({ token: defaultArgs.createWithRange.token, to: funder, give: grossDepositAmount });
+        deal({ token: address(defaultArgs.createWithRange.token), to: funder, give: grossDepositAmount });
 
         // Approve the SablierV2Linear contract to transfer the tokens from the funder.
-        IERC20(defaultArgs.createWithRange.token).approve({ spender: address(linear), value: UINT256_MAX });
+        defaultArgs.createWithRange.token.approve({ spender: address(linear), value: UINT256_MAX });
 
         // Load the stream id.
         uint256 streamId = linear.nextStreamId();
@@ -291,14 +291,14 @@ contract CreateWithRange__LinearTest is LinearTest {
 
         // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
         vm.expectCall(
-            defaultArgs.createWithRange.token,
+            address(defaultArgs.createWithRange.token),
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), netDepositAmount))
         );
 
         // Expect the operator fee to be paid to the operator, if the fee amount is not zero.
         if (operatorFeeAmount > 0) {
             vm.expectCall(
-                defaultArgs.createWithRange.token,
+                address(defaultArgs.createWithRange.token),
                 abi.encodeCall(IERC20.transferFrom, (funder, operator, operatorFeeAmount))
             );
         }
@@ -366,7 +366,7 @@ contract CreateWithRange__LinearTest is LinearTest {
         changePrank(funder);
 
         // Mint enough tokens to the funder.
-        deal({ token: defaultArgs.createWithRange.token, to: funder, give: grossDepositAmount });
+        deal({ token: address(defaultArgs.createWithRange.token), to: funder, give: grossDepositAmount });
 
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithRange.token);

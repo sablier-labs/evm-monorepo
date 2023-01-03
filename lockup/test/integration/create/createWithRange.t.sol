@@ -14,7 +14,7 @@ abstract contract CreateWithRange__Test is IntegrationTest {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address token_, address holder_) IntegrationTest(token_, holder_) {}
+    constructor(IERC20 token_, address holder_) IntegrationTest(token_, holder_) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
@@ -25,7 +25,7 @@ abstract contract CreateWithRange__Test is IntegrationTest {
 
         // Approve the SablierV2Linear contract to transfer the token holder's tokens.
         // We use a low-level call to ignore reverts because the token can have the missing return value bug.
-        (bool success, ) = token.call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
+        (bool success, ) = address(token).call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
         success;
     }
 

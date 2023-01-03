@@ -10,7 +10,6 @@ import { SharedTest } from "../SharedTest.t.sol";
 
 abstract contract Withdraw__Test is SharedTest {
     uint256 internal defaultStreamId;
-    address internal token = address(dai);
 
     function setUp() public virtual override {
         super.setUp();
@@ -241,7 +240,7 @@ abstract contract Withdraw__Test is SharedTest {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawal to be made to the recipient.
-        vm.expectCall(token, abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
@@ -381,7 +380,7 @@ abstract contract Withdraw__Test is SharedTest {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawal to be made to the recipient.
-        vm.expectCall(token, abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount)));
+        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount)));
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

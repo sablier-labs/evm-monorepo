@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
@@ -34,7 +35,7 @@ interface ISablierV2 is
     /// @notice Queries the protocol revenues accrued for the provided token.
     /// @param token The address of the token to make the query for.
     /// @return protocolRevenues The protocol revenues accrued for the provided token, in units of the token's decimals.
-    function getProtocolRevenues(address token) external view returns (uint128 protocolRevenues);
+    function getProtocolRevenues(IERC20 token) external view returns (uint128 protocolRevenues);
 
     /// @notice Queries the recipient of the stream.
     /// @param streamId The id of the stream to make the query for.
@@ -142,7 +143,7 @@ interface ISablierV2 is
     /// - The caller must be the owner of the contract.
     ///
     /// @param token The address of the token to claim the protocol revenues for.
-    function claimProtocolRevenues(address token) external;
+    function claimProtocolRevenues(IERC20 token) external;
 
     /// @notice Counter for stream ids.
     /// @return The next stream id.

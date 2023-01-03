@@ -10,7 +10,6 @@ import { SharedTest } from "../SharedTest.t.sol";
 
 abstract contract Cancel__Test is SharedTest {
     uint256 internal defaultStreamId;
-    address internal token = address(dai);
 
     function setUp() public virtual override {
         super.setUp();
@@ -202,13 +201,13 @@ abstract contract Cancel__Test is SharedTest {
         // Expect the tokens to be withdrawn to the recipient.
         uint128 recipientAmount = sablierV2.getWithdrawableAmount(streamId);
         if (recipientAmount > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (address(goodRecipient), recipientAmount)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodRecipient), recipientAmount)));
         }
 
         // Expect the tokens to be returned to the sender.
         uint128 senderAmount = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount;
         if (senderAmount > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
         }
 
         // Expect an event to be emitted.
@@ -341,13 +340,13 @@ abstract contract Cancel__Test is SharedTest {
         // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 recipientAmount = sablierV2.getWithdrawableAmount(streamId);
         if (recipientAmount > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount)));
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
         uint128 senderAmount = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount;
         if (senderAmount > 0) {
-            vm.expectCall(token, abi.encodeCall(IERC20.transfer, (address(goodSender), senderAmount)));
+            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodSender), senderAmount)));
         }
 
         // Expect an event to be emitted.
