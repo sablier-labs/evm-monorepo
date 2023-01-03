@@ -24,6 +24,6 @@ interface ISablierV2Recipient {
     /// This function may revert, but Sablier V2 will always ignore the revert.
     /// @param streamId The id of the stream that was canceled.
     /// @param caller The address of the original `msg.sender` address that triggered the cancellation.
-    /// @param amount The amount of tokens that were withdrawn, in units of the token's decimals.
+    /// @param amount The amount of tokens that have been withdrawn, in units of the token's decimals.
     function onStreamWithdrawn(uint256 streamId, address caller, uint128 amount) external;
 }

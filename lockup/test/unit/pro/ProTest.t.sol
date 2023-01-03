@@ -13,7 +13,7 @@ import { SablierV2Pro } from "src/SablierV2Pro.sol";
 import { UnitTest } from "../UnitTest.t.sol";
 
 /// @title ProTest
-/// @notice Common contract members needed across SablierV2Pro unit tests.
+/// @notice Common testing logic needed across SablierV2Pro unit tests.
 abstract contract ProTest is UnitTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       STRUCTS

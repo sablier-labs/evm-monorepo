@@ -6,7 +6,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Amounts, CreateAmounts, CreateWithRangeArgs, LinearStream, Range } from "./types/Structs.sol";
+import { Amounts, CreateAmounts, LinearStream, Range } from "./types/Structs.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
@@ -330,6 +330,17 @@ contract SablierV2Linear is
 
         // Emit an event.
         emit Events.Cancel(streamId, sender, recipient, senderAmount, recipientAmount);
+    }
+
+    /// @dev This struct is needed to avoid the "Stack Too Deep" error.
+    struct CreateWithRangeArgs {
+        CreateAmounts amounts;
+        Range range;
+        address sender; // ──┐
+        bool cancelable; // ─┘
+        address recipient;
+        address operator;
+        IERC20 token;
     }
 
     /// @dev See the documentation for the public functions that call this internal function.

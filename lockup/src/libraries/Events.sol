@@ -32,7 +32,7 @@ library Events {
 
     /// @notice Emitted when the contract owner claims all protocol revenues accrued for the provided token.
     /// @param owner The address of the current contract owner.
-    /// @param token The address of the ERC-20 token the protocol revenues were claimed for.
+    /// @param token The address of the ERC-20 token the protocol revenues have been claimed for.
     /// @param protocolRevenues The amount of protocol revenues claimed, in units of the token's decimals.
     event ClaimProtocolRevenues(address indexed owner, IERC20 indexed token, uint128 protocolRevenues);
 
@@ -46,9 +46,9 @@ library Events {
     /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
     /// received the fee.
     /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
-    /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param cancelable Whether the stream will be cancelable or not.
-    /// @param range A (start, cliff, stop) tuple of unix timestamps in seconds for when the stream will start, when
+    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
+    /// @param range A (start, cliff, stop) tuple of Unix timestamps for when the stream will start, when
     /// the cliff period will end, and when the stream will stop.
     event CreateLinearStream(
         uint256 streamId,
@@ -75,9 +75,9 @@ library Events {
     /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
     /// received the fee.
     /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
-    /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param cancelable Whether the stream will be cancelable or not.
-    /// @param startTime The unix timestamp in seconds for when the stream will start.
+    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
+    /// @param startTime The Unix timestamp for when the stream will start.
     event CreateProStream(
         uint256 streamId,
         address indexed funder,

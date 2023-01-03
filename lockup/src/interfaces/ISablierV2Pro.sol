@@ -63,9 +63,9 @@ interface ISablierV2Pro is ISablierV2 {
     /// receives the fee.
     /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
     /// a percentage with 100% = 1e18.
-    /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param cancelable Whether the stream is cancelable or not.
-    /// @param deltas The differences between the unix timestamp milestones used to compose the custom streaming
+    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param cancelable A boolean that indicates whether the stream is cancelable or not.
+    /// @param deltas The differences between the Unix timestamp milestones used to compose the custom streaming
     /// curve.
     /// @return streamId The id of the newly created stream.
     function createWithDeltas(
@@ -109,9 +109,9 @@ interface ISablierV2Pro is ISablierV2 {
     /// receives the fee.
     /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
     /// a percentage with 100% = 1e18.
-    /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param cancelable Whether the stream will be cancelable or not.
-    /// @param startTime The unix timestamp in seconds for when the stream will start.
+    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
+    /// @param startTime The Unix timestamp for when the stream will start.
     /// @return streamId The id of the newly created stream.
     function createWithMilestones(
         address sender,

@@ -8,7 +8,7 @@ import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Amounts, CreateAmounts, CreateWithMilestonesArgs, ProStream, Segment } from "./types/Structs.sol";
+import { Amounts, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
@@ -335,6 +335,19 @@ contract SablierV2Pro is
 
         // Emit an event.
         emit Events.Cancel(streamId, sender, recipient, senderAmount, recipientAmount);
+    }
+
+    /// @dev This struct is needed to avoid the "Stack Too Deep" error.
+
+    struct CreateWithMilestonesArgs {
+        CreateAmounts amounts;
+        Segment[] segments;
+        address sender; // ──┐
+        uint40 startTime; // │
+        bool cancelable; // ─┘
+        address recipient;
+        address operator;
+        IERC20 token;
     }
 
     /// @dev See the documentation for the public functions that call this internal function.

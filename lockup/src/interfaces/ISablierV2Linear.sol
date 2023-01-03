@@ -32,7 +32,7 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// @notice Queries the range of the stream.
     /// @param streamId The id of the stream to make the query for.
-    /// @return range A (start, cliff, stop) tuple of unix timestamps in seconds for when the stream will start, when
+    /// @return range A (start, cliff, stop) tuple of Unix timestamps for when the stream will start, when
     /// the cliff period will end, and when the stream will stop.
     function getRange(uint256 streamId) external view returns (Range memory range);
 
@@ -58,8 +58,8 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param recipient The address toward which to stream the tokens.
     /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the token's
     /// decimals.
-    /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param cancelable Whether the stream will be cancelable or not.
+    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
     /// receives the fee.
     /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
@@ -105,9 +105,9 @@ interface ISablierV2Linear is ISablierV2 {
     /// receives the fee.
     /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
     /// a percentage with 100% = 1e18.
-    /// @param token The address of the ERC-20 token to use for streaming.
-    /// @param cancelable Whether the stream will be cancelable or not.
-    /// @param range A (start, cliff, stop) tuple of unix timestamps in seconds for when the stream will start, when
+    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
+    /// @param range A (start, cliff, stop) tuple of Unix timestamps for when the stream will start, when
     /// the cliff period will end, and when the stream will stop.
     /// @return streamId The id of the newly created stream.
     function createWithRange(

@@ -12,7 +12,7 @@ import { SablierV2Linear } from "src/SablierV2Linear.sol";
 import { UnitTest } from "../UnitTest.t.sol";
 
 /// @title LinearTest
-/// @notice Common contract members needed across SablierV2Linear unit tests.
+/// @notice Common testing logic needed across SablierV2Linear unit tests.
 abstract contract LinearTest is UnitTest {
     /*//////////////////////////////////////////////////////////////////////////
                                       STRUCTS
