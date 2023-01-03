@@ -407,11 +407,7 @@ contract SablierV2Linear is
         // Checks: the amount is not greater than what can be withdrawn.
         uint128 withdrawableAmount = getWithdrawableAmount(streamId);
         if (amount > withdrawableAmount) {
-            revert Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount({
-                streamId: streamId,
-                amount: amount,
-                withdrawableAmount: withdrawableAmount
-            });
+            revert Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);
         }
 
         // Effects: update the withdrawn amount.
@@ -419,7 +415,7 @@ contract SablierV2Linear is
             _streams[streamId].amounts.withdrawn += amount;
         }
 
-        // Load the stream and the recipient in memory, we will need it below.
+        // Load the stream and the recipient in memory, we will need them below.
         LinearStream memory stream = _streams[streamId];
         address recipient = _ownerOf(streamId);
 

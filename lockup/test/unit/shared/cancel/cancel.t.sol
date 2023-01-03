@@ -5,7 +5,6 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { LinearStream } from "src/types/Structs.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 

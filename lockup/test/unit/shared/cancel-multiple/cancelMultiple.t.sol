@@ -6,7 +6,6 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { LinearStream } from "src/types/Structs.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 

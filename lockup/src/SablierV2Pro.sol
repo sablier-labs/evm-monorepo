@@ -505,14 +505,14 @@ contract SablierV2Pro is
             _streams[streamId].amounts.withdrawn += amount;
         }
 
-        // Load the stream in memory, we will need it below.
+        // Load the stream and the recipient in memory, we will need them below.
         ProStream memory stream = _streams[streamId];
         address recipient = _ownerOf(streamId);
 
         // Assert that the withdrawn amount cannot get greater than the deposit amount.
         assert(stream.amounts.deposit >= stream.amounts.withdrawn);
 
-        // Effects: if this stream is done, delete it from storage.
+        // Effects: if the entire deposit amount is now withdrawn, delete the stream entity.
         if (stream.amounts.deposit == stream.amounts.withdrawn) {
             delete _streams[streamId];
         }
