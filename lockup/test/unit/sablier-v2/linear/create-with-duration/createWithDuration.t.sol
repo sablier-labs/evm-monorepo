@@ -181,19 +181,19 @@ contract CreateWithDuration__LinearTest is LinearTest {
         uint256 streamId = linear.nextStreamId();
         address funder = defaultArgs.createWithDuration.sender;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateLinearStream(
-            streamId,
-            funder,
-            defaultArgs.createWithDuration.sender,
-            defaultArgs.createWithDuration.recipient,
-            DEFAULT_NET_DEPOSIT_AMOUNT,
-            DEFAULT_PROTOCOL_FEE_AMOUNT,
-            defaultArgs.createWithDuration.operator,
-            DEFAULT_OPERATOR_FEE_AMOUNT,
-            defaultArgs.createWithDuration.token,
-            defaultArgs.createWithDuration.cancelable,
-            DEFAULT_RANGE
-        );
+        emit Events.CreateLinearStream({
+            streamId: streamId,
+            funder: funder,
+            sender: defaultArgs.createWithDuration.sender,
+            recipient: defaultArgs.createWithDuration.recipient,
+            depositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            protocolFeeAmount: DEFAULT_PROTOCOL_FEE_AMOUNT,
+            operator: defaultArgs.createWithDuration.operator,
+            operatorFeeAmount: DEFAULT_OPERATOR_FEE_AMOUNT,
+            token: defaultArgs.createWithDuration.token,
+            cancelable: defaultArgs.createWithDuration.cancelable,
+            range: DEFAULT_RANGE
+        });
         createDefaultStream();
     }
 }

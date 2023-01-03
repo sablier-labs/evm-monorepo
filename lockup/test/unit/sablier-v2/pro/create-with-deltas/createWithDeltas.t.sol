@@ -252,20 +252,20 @@ contract CreateWithDeltas__ProTest is ProTest {
         uint256 streamId = pro.nextStreamId();
         address funder = defaultArgs.createWithDeltas.sender;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateProStream(
-            streamId,
-            funder,
-            defaultArgs.createWithDeltas.sender,
-            defaultArgs.createWithDeltas.recipient,
-            DEFAULT_NET_DEPOSIT_AMOUNT,
-            defaultArgs.createWithDeltas.segments,
-            DEFAULT_PROTOCOL_FEE_AMOUNT,
-            defaultArgs.createWithDeltas.operator,
-            DEFAULT_OPERATOR_FEE_AMOUNT,
-            defaultArgs.createWithDeltas.token,
-            defaultArgs.createWithDeltas.cancelable,
-            DEFAULT_START_TIME
-        );
+        emit Events.CreateProStream({
+            streamId: streamId,
+            funder: funder,
+            sender: defaultArgs.createWithDeltas.sender,
+            recipient: defaultArgs.createWithDeltas.recipient,
+            depositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            segments: defaultArgs.createWithDeltas.segments,
+            protocolFeeAmount: DEFAULT_PROTOCOL_FEE_AMOUNT,
+            operator: defaultArgs.createWithDeltas.operator,
+            operatorFeeAmount: DEFAULT_OPERATOR_FEE_AMOUNT,
+            token: defaultArgs.createWithDeltas.token,
+            cancelable: defaultArgs.createWithDeltas.cancelable,
+            startTime: DEFAULT_START_TIME
+        });
         createDefaultStream();
     }
 }

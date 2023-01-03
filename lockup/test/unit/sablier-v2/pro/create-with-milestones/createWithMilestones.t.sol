@@ -541,20 +541,20 @@ contract CreateWithMilestones__ProTest is ProTest {
         uint256 streamId = pro.nextStreamId();
         address funder = defaultArgs.createWithMilestones.sender;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateProStream(
-            streamId,
-            funder,
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
-            DEFAULT_NET_DEPOSIT_AMOUNT,
-            defaultArgs.createWithMilestones.segments,
-            DEFAULT_PROTOCOL_FEE_AMOUNT,
-            defaultArgs.createWithMilestones.operator,
-            DEFAULT_OPERATOR_FEE_AMOUNT,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
-        );
+        emit Events.CreateProStream({
+            streamId: streamId,
+            funder: funder,
+            sender: defaultArgs.createWithMilestones.sender,
+            recipient: defaultArgs.createWithMilestones.recipient,
+            depositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            segments: defaultArgs.createWithMilestones.segments,
+            protocolFeeAmount: DEFAULT_PROTOCOL_FEE_AMOUNT,
+            operator: defaultArgs.createWithMilestones.operator,
+            operatorFeeAmount: DEFAULT_OPERATOR_FEE_AMOUNT,
+            token: defaultArgs.createWithMilestones.token,
+            cancelable: defaultArgs.createWithMilestones.cancelable,
+            startTime: defaultArgs.createWithMilestones.startTime
+        });
 
         // Create the stream.
         createDefaultStream();

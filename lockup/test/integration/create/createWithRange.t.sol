@@ -94,19 +94,19 @@ abstract contract CreateWithRange__Test is IntegrationTest {
         // Expect an event to be emitted.
         vars.streamId = linear.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateLinearStream(
-            vars.streamId,
-            holder,
-            args.sender,
-            args.recipient,
-            vars.netDepositAmount,
-            0,
-            args.operator,
-            vars.operatorFeeAmount,
-            token,
-            args.cancelable,
-            args.range
-        );
+        emit Events.CreateLinearStream({
+            streamId: vars.streamId,
+            funder: holder,
+            sender: args.sender,
+            recipient: args.recipient,
+            depositAmount: vars.netDepositAmount,
+            protocolFeeAmount: 0,
+            operator: args.operator,
+            operatorFeeAmount: vars.operatorFeeAmount,
+            token: token,
+            cancelable: args.cancelable,
+            range: args.range
+        });
 
         // Create the stream.
         linear.createWithRange(

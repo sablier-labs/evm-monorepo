@@ -399,19 +399,19 @@ contract CreateWithRange__LinearTest is LinearTest {
         uint256 streamId = linear.nextStreamId();
         address funder = defaultArgs.createWithRange.sender;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateLinearStream(
-            streamId,
-            funder,
-            defaultArgs.createWithRange.sender,
-            defaultArgs.createWithRange.recipient,
-            DEFAULT_NET_DEPOSIT_AMOUNT,
-            DEFAULT_PROTOCOL_FEE_AMOUNT,
-            defaultArgs.createWithRange.operator,
-            DEFAULT_OPERATOR_FEE_AMOUNT,
-            defaultArgs.createWithRange.token,
-            defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range
-        );
+        emit Events.CreateLinearStream({
+            streamId: streamId,
+            funder: funder,
+            sender: defaultArgs.createWithRange.sender,
+            recipient: defaultArgs.createWithRange.recipient,
+            depositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            protocolFeeAmount: DEFAULT_PROTOCOL_FEE_AMOUNT,
+            operator: defaultArgs.createWithRange.operator,
+            operatorFeeAmount: DEFAULT_OPERATOR_FEE_AMOUNT,
+            token: defaultArgs.createWithRange.token,
+            cancelable: defaultArgs.createWithRange.cancelable,
+            range: defaultArgs.createWithRange.range
+        });
         createDefaultStream();
     }
 }
