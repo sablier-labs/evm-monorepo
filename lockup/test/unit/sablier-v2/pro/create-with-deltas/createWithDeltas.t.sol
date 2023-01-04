@@ -233,7 +233,7 @@ contract CreateWithDeltas__ProTest is ProTest {
         uint128 initialProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithDeltas.token);
 
         // Create the default stream.
-        createDefaultStream();
+        createDefaultStreamWithDeltas();
 
         // Assert that the protocol fee was recorded.
         uint128 actualProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithDeltas.token);
@@ -264,6 +264,6 @@ contract CreateWithDeltas__ProTest is ProTest {
             cancelable: defaultArgs.createWithDeltas.cancelable,
             startTime: DEFAULT_START_TIME
         });
-        createDefaultStream();
+        createDefaultStreamWithDeltas();
     }
 }

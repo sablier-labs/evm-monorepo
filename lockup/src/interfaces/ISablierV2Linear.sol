@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { LinearStream, Range } from "../types/Structs.sol";
+import { Durations, LinearStream, Range } from "../types/Structs.sol";
 
 import { ISablierV2 } from "./ISablierV2.sol";
 
@@ -62,12 +62,12 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
     /// receives the fee.
-    /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
-    /// a percentage with 100% = 1e18.
-    /// @param cliffDuration The number of seconds for how long the cliff period will last.
-    /// @param totalDuration The total number of seconds for how long the stream will last.
+    /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number.
+    /// @param durations A tuple of durations in seconds that encapsulates (i) the duration of the cliff period and
+    /// (ii) the total duration of the stream.
+    /// duration of the stream.
     /// @return streamId The id of the newly created stream.
-    function createWithDuration(
+    function createWithDurations(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
@@ -75,8 +75,7 @@ interface ISablierV2Linear is ISablierV2 {
         UD60x18 operatorFee,
         IERC20 token,
         bool cancelable,
-        uint40 cliffDuration,
-        uint40 totalDuration
+        Durations calldata durations
     ) external returns (uint256 streamId);
 
     /// @notice Creates a new stream funded by `msg.sender` wrapped in an ERC-721 NFT, setting the start time and the

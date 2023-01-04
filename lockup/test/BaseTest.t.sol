@@ -6,7 +6,7 @@ import { sd1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 
-import { Amounts, CreateAmounts, Range, Segment } from "src/types/Structs.sol";
+import { Amounts, CreateAmounts, Durations, Range, Segment } from "src/types/Structs.sol";
 
 import { Assertions } from "./helpers/Assertions.t.sol";
 import { Utils } from "./helpers/Utils.t.sol";
@@ -51,6 +51,7 @@ abstract contract BaseTest is Assertions, StdCheats, Utils {
             operatorFee: DEFAULT_OPERATOR_FEE_AMOUNT,
             protocolFee: DEFAULT_PROTOCOL_FEE_AMOUNT
         });
+    Durations internal DEFAULT_DURATIONS = Durations({ cliff: DEFAULT_CLIFF_DURATION, total: DEFAULT_TOTAL_DURATION });
     Range internal DEFAULT_RANGE;
     Segment[] internal DEFAULT_SEGMENTS;
     uint40[] internal DEFAULT_SEGMENT_DELTAS = [2_500 seconds, 7_500 seconds];

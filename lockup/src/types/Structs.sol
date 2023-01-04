@@ -26,6 +26,14 @@ struct CreateAmounts {
     uint128 operatorFee;
 }
 
+/// @notice Simple struct that encapsulates the cliff duration and the total duration.
+/// @custom:field cliff The cliff duration in seconds.
+/// @custom:field cliff The total duration in seconds.
+struct Durations {
+    uint40 cliff;
+    uint40 total;
+}
+
 /// @notice Linear stream struct used in the SablierV2Linear contract.
 /// @dev The fields are arranged like this to save gas via tight variable packing.
 /// @custom:field amounts Simple struct with the deposit and withdrawn amounts.

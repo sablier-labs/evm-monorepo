@@ -4,15 +4,15 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Amounts, LinearStream, Range } from "src/types/Structs.sol";
+import { Amounts, Durations, LinearStream, Range } from "src/types/Structs.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract CreateWithDuration__LinearTest is LinearTest {
+contract CreateWithDurations__LinearTest is LinearTest {
     /// @dev it should revert due to the start time being greater than the cliff time.
-    function testCannotCreateWithDuration__CliffDurationCalculationOverflows(uint40 cliffDuration) external {
+    function testCannotCreateWithDurations__CliffDurationCalculationOverflows(uint40 cliffDuration) external {
         uint40 startTime = getBlockTimestamp();
         cliffDuration = boundUint40(cliffDuration, UINT40_MAX - startTime + 1, UINT40_MAX);
 
@@ -31,17 +31,7 @@ contract CreateWithDuration__LinearTest is LinearTest {
         uint40 totalDuration = cliffDuration;
 
         // Create the stream.
-        linear.createWithDuration(
-            defaultArgs.createWithDuration.sender,
-            defaultArgs.createWithDuration.recipient,
-            defaultArgs.createWithDuration.grossDepositAmount,
-            defaultArgs.createWithDuration.operator,
-            defaultArgs.createWithDuration.operatorFee,
-            defaultArgs.createWithDuration.token,
-            defaultArgs.createWithDuration.cancelable,
-            cliffDuration,
-            totalDuration
-        );
+        createDefaultStreamWithDurations(Durations({ cliff: cliffDuration, total: totalDuration }));
     }
 
     modifier CliffDurationCalculationDoesNotOverflow() {
@@ -49,20 +39,19 @@ contract CreateWithDuration__LinearTest is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithDuration__TotalDurationCalculationOverflows(
-        uint40 cliffDuration,
-        uint40 totalDuration
+    function testCannotCreateWithDurations__TotalDurationCalculationOverflows(
+        Durations memory durations
     ) external CliffDurationCalculationDoesNotOverflow {
         uint40 startTime = getBlockTimestamp();
-        cliffDuration = boundUint40(cliffDuration, 0, UINT40_MAX - startTime);
-        totalDuration = boundUint40(totalDuration, UINT40_MAX - startTime + 1, UINT40_MAX);
+        durations.cliff = boundUint40(durations.cliff, 0, UINT40_MAX - startTime);
+        durations.total = boundUint40(durations.total, UINT40_MAX - startTime + 1, UINT40_MAX);
 
         // Calculate the cliff time and the stop time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
         uint40 stopTime;
         unchecked {
-            cliffTime = startTime + cliffDuration;
-            stopTime = startTime + totalDuration;
+            cliffTime = startTime + durations.cliff;
+            stopTime = startTime + durations.total;
         }
 
         // Expect an error.
@@ -71,17 +60,7 @@ contract CreateWithDuration__LinearTest is LinearTest {
         );
 
         // Create the stream.
-        linear.createWithDuration(
-            defaultArgs.createWithDuration.sender,
-            defaultArgs.createWithDuration.recipient,
-            defaultArgs.createWithDuration.grossDepositAmount,
-            defaultArgs.createWithDuration.operator,
-            defaultArgs.createWithDuration.operatorFee,
-            defaultArgs.createWithDuration.token,
-            defaultArgs.createWithDuration.cancelable,
-            cliffDuration,
-            totalDuration
-        );
+        createDefaultStreamWithDurations(durations);
     }
 
     modifier TotalDurationCalculationDoesNotOverflow() {
@@ -90,49 +69,38 @@ contract CreateWithDuration__LinearTest is LinearTest {
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
     function testCreateWithDuration(
-        uint40 cliffDuration,
-        uint40 totalDuration
+        Durations memory durations
     ) external CliffDurationCalculationDoesNotOverflow TotalDurationCalculationDoesNotOverflow {
-        totalDuration = boundUint40(totalDuration, 0, UINT40_MAX - getBlockTimestamp());
-        vm.assume(cliffDuration <= totalDuration);
+        durations.total = boundUint40(durations.total, 0, UINT40_MAX - getBlockTimestamp());
+        vm.assume(durations.cliff <= durations.total);
 
         // Make the sender the funder in this test.
-        address funder = defaultArgs.createWithDuration.sender;
+        address funder = defaultArgs.createWithDurations.sender;
 
         // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
         vm.expectCall(
-            address(defaultArgs.createWithDuration.token),
+            address(defaultArgs.createWithDurations.token),
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
         // Expect the operator fee to be paid to the operator, if the amount is not zero.
         vm.expectCall(
-            address(defaultArgs.createWithDuration.token),
+            address(defaultArgs.createWithDurations.token),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, defaultArgs.createWithDuration.operator, DEFAULT_OPERATOR_FEE_AMOUNT)
+                (funder, defaultArgs.createWithDurations.operator, DEFAULT_OPERATOR_FEE_AMOUNT)
             )
         );
 
         // Calculate the start time, cliff time and the stop time.
         Range memory range = Range({
             start: getBlockTimestamp(),
-            cliff: getBlockTimestamp() + cliffDuration,
-            stop: getBlockTimestamp() + totalDuration
+            cliff: getBlockTimestamp() + durations.cliff,
+            stop: getBlockTimestamp() + durations.total
         });
 
         // Create the stream.
-        uint256 streamId = linear.createWithDuration(
-            defaultArgs.createWithDuration.sender,
-            defaultArgs.createWithDuration.recipient,
-            defaultArgs.createWithDuration.grossDepositAmount,
-            defaultArgs.createWithDuration.operator,
-            defaultArgs.createWithDuration.operatorFee,
-            defaultArgs.createWithDuration.token,
-            defaultArgs.createWithDuration.cancelable,
-            cliffDuration,
-            totalDuration
-        );
+        uint256 streamId = createDefaultStreamWithDurations(durations);
 
         // Assert that the stream was created.
         LinearStream memory actualStream = linear.getStream(streamId);
@@ -150,48 +118,48 @@ contract CreateWithDuration__LinearTest is LinearTest {
 
         // Assert that the NFT was minted.
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = defaultArgs.createWithDuration.recipient;
+        address expectedNFTOwner = defaultArgs.createWithDurations.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
 
     /// @dev it should record the protocol fee.
-    function testCreateWithDuration__ProtocolFee()
+    function testCreateWithDurations__ProtocolFee()
         external
         CliffDurationCalculationDoesNotOverflow
         TotalDurationCalculationDoesNotOverflow
     {
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithRange.token);
+        uint128 initialProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithDurations.token);
 
         // Create the default stream.
-        createDefaultStream();
+        createDefaultStreamWithDurations();
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithDuration.token);
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithDurations.token);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
 
     /// @dev it should emit a CreateLinearStream event.
-    function testCreateWithDuration__Event()
+    function testCreateWithDurations__Event()
         external
         CliffDurationCalculationDoesNotOverflow
         TotalDurationCalculationDoesNotOverflow
     {
         uint256 streamId = linear.nextStreamId();
-        address funder = defaultArgs.createWithDuration.sender;
+        address funder = defaultArgs.createWithDurations.sender;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLinearStream({
             streamId: streamId,
             funder: funder,
-            sender: defaultArgs.createWithDuration.sender,
-            recipient: defaultArgs.createWithDuration.recipient,
+            sender: defaultArgs.createWithDurations.sender,
+            recipient: defaultArgs.createWithDurations.recipient,
             amounts: DEFAULT_CREATE_AMOUNTS,
-            operator: defaultArgs.createWithDuration.operator,
-            token: defaultArgs.createWithDuration.token,
-            cancelable: defaultArgs.createWithDuration.cancelable,
+            operator: defaultArgs.createWithDurations.operator,
+            token: defaultArgs.createWithDurations.token,
+            cancelable: defaultArgs.createWithDurations.cancelable,
             range: DEFAULT_RANGE
         });
-        createDefaultStream();
+        createDefaultStreamWithDurations();
     }
 }

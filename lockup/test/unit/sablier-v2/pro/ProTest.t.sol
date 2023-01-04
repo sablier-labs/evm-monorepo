@@ -212,6 +212,21 @@ abstract contract ProTest is SablierV2Test {
         );
     }
 
+    /// @dev Creates the default stream with deltas.
+    function createDefaultStreamWithDeltas() internal returns (uint256 streamId) {
+        streamId = pro.createWithDeltas(
+            defaultArgs.createWithDeltas.sender,
+            defaultArgs.createWithDeltas.recipient,
+            defaultArgs.createWithDeltas.grossDepositAmount,
+            defaultArgs.createWithDeltas.segments,
+            defaultArgs.createWithDeltas.operator,
+            defaultArgs.createWithDeltas.operatorFee,
+            defaultArgs.createWithDeltas.token,
+            defaultArgs.createWithDeltas.cancelable,
+            defaultArgs.createWithDeltas.deltas
+        );
+    }
+
     /// @dev Creates the default stream with the provided deltas.
     function createDefaultStreamWithDeltas(uint40[] memory deltas) internal returns (uint256 streamId) {
         streamId = pro.createWithDeltas(

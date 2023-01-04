@@ -5,7 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Amounts, LinearStream, Range } from "src/types/Structs.sol";
+import { Amounts, Durations, LinearStream, Range } from "src/types/Structs.sol";
 
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 
@@ -19,7 +19,7 @@ abstract contract LinearTest is SablierV2Test {
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    struct CreateWithDurationArgs {
+    struct CreateWithDurationsArgs {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
@@ -27,8 +27,7 @@ abstract contract LinearTest is SablierV2Test {
         UD60x18 operatorFee;
         IERC20 token;
         bool cancelable;
-        uint40 cliffDuration;
-        uint40 totalDuration;
+        Durations durations;
     }
 
     struct CreateWithRangeArgs {
@@ -43,7 +42,7 @@ abstract contract LinearTest is SablierV2Test {
     }
 
     struct DefaultArgs {
-        CreateWithDurationArgs createWithDuration;
+        CreateWithDurationsArgs createWithDurations;
         CreateWithRangeArgs createWithRange;
     }
 
@@ -63,7 +62,7 @@ abstract contract LinearTest is SablierV2Test {
 
         // Create the default args to be used for the create functions.
         defaultArgs = DefaultArgs({
-            createWithDuration: CreateWithDurationArgs({
+            createWithDurations: CreateWithDurationsArgs({
                 sender: users.sender,
                 recipient: users.recipient,
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
@@ -71,8 +70,7 @@ abstract contract LinearTest is SablierV2Test {
                 operatorFee: DEFAULT_OPERATOR_FEE,
                 token: dai,
                 cancelable: true,
-                cliffDuration: DEFAULT_CLIFF_DURATION,
-                totalDuration: DEFAULT_TOTAL_DURATION
+                durations: DEFAULT_DURATIONS
             }),
             createWithRange: CreateWithRangeArgs({
                 sender: users.sender,
@@ -151,6 +149,34 @@ abstract contract LinearTest is SablierV2Test {
             defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
             defaultArgs.createWithRange.range
+        );
+    }
+
+    /// @dev Creates the default stream with durations.
+    function createDefaultStreamWithDurations() internal returns (uint256 streamId) {
+        streamId = linear.createWithDurations(
+            defaultArgs.createWithDurations.sender,
+            defaultArgs.createWithDurations.recipient,
+            defaultArgs.createWithDurations.grossDepositAmount,
+            defaultArgs.createWithDurations.operator,
+            defaultArgs.createWithDurations.operatorFee,
+            defaultArgs.createWithDurations.token,
+            defaultArgs.createWithDurations.cancelable,
+            defaultArgs.createWithDurations.durations
+        );
+    }
+
+    /// @dev Creates the default stream with the provided durations.
+    function createDefaultStreamWithDurations(Durations memory durations) internal returns (uint256 streamId) {
+        streamId = linear.createWithDurations(
+            defaultArgs.createWithDurations.sender,
+            defaultArgs.createWithDurations.recipient,
+            defaultArgs.createWithDurations.grossDepositAmount,
+            defaultArgs.createWithDurations.operator,
+            defaultArgs.createWithDurations.operatorFee,
+            defaultArgs.createWithDurations.token,
+            defaultArgs.createWithDurations.cancelable,
+            durations
         );
     }
 

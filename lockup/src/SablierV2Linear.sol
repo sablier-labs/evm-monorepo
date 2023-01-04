@@ -6,7 +6,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Amounts, CreateAmounts, LinearStream, Range } from "./types/Structs.sol";
+import { Amounts, CreateAmounts, Durations, LinearStream, Range } from "./types/Structs.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
@@ -160,7 +160,7 @@ contract SablierV2Linear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Linear
-    function createWithDuration(
+    function createWithDurations(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
@@ -168,8 +168,7 @@ contract SablierV2Linear is
         UD60x18 operatorFee,
         IERC20 token,
         bool cancelable,
-        uint40 cliffDuration,
-        uint40 totalDuration
+        Durations calldata durations
     ) external returns (uint256 streamId) {
         // Set the current block timestamp as the start time of the stream.
         Range memory range;
@@ -179,8 +178,8 @@ contract SablierV2Linear is
         // `_createWithRange` function will nonetheless check that the stop time is greater than or equal to the
         // cliff time, and also that the cliff time is greater than or equal to the start time.
         unchecked {
-            range.cliff = range.start + cliffDuration;
-            range.stop = range.start + totalDuration;
+            range.cliff = range.start + durations.cliff;
+            range.stop = range.start + durations.total;
         }
 
         // Checks: check the fees and calculate the fee amounts.
