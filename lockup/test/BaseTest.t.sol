@@ -99,7 +99,7 @@ abstract contract BaseTest is Assertions, StdCheats, Utils {
         segments[1].amount = netDepositAmount - segments[0].amount;
     }
 
-    /// @dev Helper function to retrieve the current block timestamp as an `uint40`.
+    /// @dev Retrieves the current block timestamp as an `uint40`.
     function getBlockTimestamp() internal view returns (uint40 blockTimestamp) {
         blockTimestamp = uint40(block.timestamp);
     }

@@ -2,6 +2,9 @@
 
 [profile.default]
 auto_detect_solc = false
+fs_permissions = [
+    { access = "read", path = "./optimized-out" },
+]
 fuzz = { max_test_rejects = 100_000, runs = 1_000 }
 libs = ["lib"]
 gas_reports = ["*"]
@@ -12,5 +15,15 @@ solc = "0.8.17"
 src = "src"
 test = "test/unit"
 
+# CI profile
 [profile.ci]
 fuzz = { runs = 5_000 }
+
+[profile.optimized]
+out = "optimized-out"
+test = "src" # compile only the production code with IR
+via_ir = true
+
+[profile.test-optimized]
+fuzz = { runs = 5_000 }
+src = "test/unit" # do not re-compile the production code

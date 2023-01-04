@@ -65,8 +65,11 @@ jobs:
       - name: "Show the Foundry config"
         run: "forge config"
 
-      - name: "Run both the unit and the integration tests"
-        run: "FOUNDRY_PROFILE=ci forge test"
+      - name: "Build the production code with --via-ir"
+        run: "FOUNDRY_PROFILE=optimized forge build"
+
+      - name: "Test the optimized code"
+        run: "FOUNDRY_PROFILE=test-optimized forge test"
 
       - name: "Add test summary"
         run: |

@@ -104,10 +104,29 @@ abstract contract UnitTest is BaseTest {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                            INTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Checks if the `a` string is the same as the `b` string.
+    function eq(string memory a, string memory b) internal pure returns (bool result) {
+        result = keccak256(abi.encode(a)) == keccak256(abi.encode(b));
+    }
+
+    /// @dev Tries to read an environment variable as a string, fallbacking to an empty string if the variable
+    /// is not defined.
+    function tryEnvString(string memory name) internal view returns (string memory) {
+        try vm.envString(name) returns (string memory value) {
+            return value;
+        } catch {
+            return "";
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Approve all Sablier contracts to spend tokens from the sender, recipient, Alice and Eve,
+    /// @dev Approves all Sablier contracts to spend tokens from the sender, recipient, Alice and Eve,
     /// and then change the active prank back to the owner.
     function approveContracts() internal {
         changePrank(users.sender);
@@ -147,16 +166,40 @@ abstract contract UnitTest is BaseTest {
         deal({ token: address(nonCompliantToken), to: addr, give: 1_000_000e18 });
     }
 
-    /// @dev Deploy all contracts with the owner as the caller.
+    /// @dev Conditionally deploy contracts normally or from precompiled source.
     function deployContracts() internal {
+        // We deploy all contracts with the owner as the caller.
         vm.startPrank({ msgSender: users.owner });
-        comptroller = new SablierV2Comptroller();
-        linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: DEFAULT_MAX_FEE });
-        pro = new SablierV2Pro({
-            initialComptroller: comptroller,
-            maxFee: DEFAULT_MAX_FEE,
-            maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
-        });
+
+        // We deploy from precompiled source if the profile is "test-optimized".
+        string memory profile = tryEnvString("FOUNDRY_PROFILE");
+        if (eq(profile, "test-optimized")) {
+            comptroller = ISablierV2Comptroller(
+                deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json")
+            );
+            linear = ISablierV2Linear(
+                deployCode(
+                    "optimized-out/SablierV2Linear.sol/SablierV2Linear.json",
+                    abi.encode(address(comptroller), DEFAULT_MAX_FEE)
+                )
+            );
+            pro = ISablierV2Pro(
+                deployCode(
+                    "optimized-out/SablierV2Pro.sol/SablierV2Pro.json",
+                    abi.encode(address(comptroller), DEFAULT_MAX_FEE, DEFAULT_MAX_SEGMENT_COUNT)
+                )
+            );
+        }
+        // We deploy normally in all other cases.
+        else {
+            comptroller = new SablierV2Comptroller();
+            linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: DEFAULT_MAX_FEE });
+            pro = new SablierV2Pro({
+                initialComptroller: comptroller,
+                maxFee: DEFAULT_MAX_FEE,
+                maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
+            });
+        }
     }
 
     /// @dev Label all contracts, which helps during debugging.
