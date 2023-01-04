@@ -257,11 +257,9 @@ contract CreateWithDeltas__ProTest is ProTest {
             funder: funder,
             sender: defaultArgs.createWithDeltas.sender,
             recipient: defaultArgs.createWithDeltas.recipient,
-            netDepositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            amounts: DEFAULT_CREATE_AMOUNTS,
             segments: defaultArgs.createWithDeltas.segments,
-            protocolFeeAmount: DEFAULT_PROTOCOL_FEE_AMOUNT,
             operator: defaultArgs.createWithDeltas.operator,
-            operatorFeeAmount: DEFAULT_OPERATOR_FEE_AMOUNT,
             token: defaultArgs.createWithDeltas.token,
             cancelable: defaultArgs.createWithDeltas.cancelable,
             startTime: DEFAULT_START_TIME

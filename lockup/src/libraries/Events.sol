@@ -7,7 +7,7 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
-import { Range, Segment } from "../types/Structs.sol";
+import { CreateAmounts, Range, Segment } from "../types/Structs.sol";
 
 /// @title Events
 /// @notice Library with events used across the core contracts.
@@ -41,11 +41,9 @@ library Events {
     /// @param funder The address which funded the stream.
     /// @param sender The address from which to stream the tokens, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
-    /// @param netDepositAmount The amount of tokens to be streamed, net of fees and in units of the token's decimals.
-    /// @param protocolFeeAmount The amount of tokens charged by the protocol, in units of the token's decimals.
+    /// @param amounts A (netDeposit, protocolFee, operatorFee) tuple of amounts, each in units of the token's decimals.
     /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
     /// received the fee.
-    /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
     /// @param token The address of the ERC-20 token used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param range A (start, cliff, stop) tuple of Unix timestamps for when the stream will start, when
@@ -55,10 +53,8 @@ library Events {
         address indexed funder,
         address indexed sender,
         address indexed recipient,
-        uint128 netDepositAmount,
-        uint128 protocolFeeAmount,
+        CreateAmounts amounts,
         address operator,
-        uint128 operatorFeeAmount,
         IERC20 token,
         bool cancelable,
         Range range
@@ -69,12 +65,10 @@ library Events {
     /// @param funder The address which funded the stream.
     /// @param sender The address from which to stream the tokens, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
-    /// @param netDepositAmount The amount of tokens to be streamed, net of fees and in units of the token's decimals.
+    /// @param amounts A (netDeposit, protocolFee, operatorFee) tuple of amounts, each in units of the token's decimals.
     /// @param segments The segments used to compose the custom streaming curve.
-    /// @param protocolFeeAmount The amount of tokens charged by the protocol, in units of the token's decimals.
     /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
     /// received the fee.
-    /// @param operatorFeeAmount The amount of tokens charged by the stream operator, in units of the token's decimals.
     /// @param token The address of the ERC-20 token used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param startTime The Unix timestamp for when the stream will start.
@@ -83,11 +77,9 @@ library Events {
         address indexed funder,
         address indexed sender,
         address indexed recipient,
-        uint128 netDepositAmount,
+        CreateAmounts amounts,
         Segment[] segments,
-        uint128 protocolFeeAmount,
         address operator,
-        uint128 operatorFeeAmount,
         IERC20 token,
         bool cancelable,
         uint40 startTime

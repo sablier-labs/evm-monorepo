@@ -6,7 +6,7 @@ import { sd1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 
-import { Amounts, Range, Segment } from "src/types/Structs.sol";
+import { Amounts, CreateAmounts, Range, Segment } from "src/types/Structs.sol";
 
 import { Assertions } from "./helpers/Assertions.t.sol";
 import { Utils } from "./helpers/Utils.t.sol";
@@ -45,6 +45,12 @@ abstract contract BaseTest is Assertions, StdCheats, Utils {
     //////////////////////////////////////////////////////////////////////////*/
 
     Amounts internal DEFAULT_AMOUNTS = Amounts({ deposit: DEFAULT_NET_DEPOSIT_AMOUNT, withdrawn: 0 });
+    CreateAmounts internal DEFAULT_CREATE_AMOUNTS =
+        CreateAmounts({
+            netDeposit: DEFAULT_NET_DEPOSIT_AMOUNT,
+            operatorFee: DEFAULT_OPERATOR_FEE_AMOUNT,
+            protocolFee: DEFAULT_PROTOCOL_FEE_AMOUNT
+        });
     Range internal DEFAULT_RANGE;
     Segment[] internal DEFAULT_SEGMENTS;
     uint40[] internal DEFAULT_SEGMENT_DELTAS = [2_500 seconds, 7_500 seconds];
@@ -63,7 +69,6 @@ abstract contract BaseTest is Assertions, StdCheats, Utils {
         DEFAULT_START_TIME = getBlockTimestamp();
         DEFAULT_CLIFF_TIME = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION;
         DEFAULT_STOP_TIME = DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION;
-
         DEFAULT_RANGE = Range({ start: DEFAULT_START_TIME, cliff: DEFAULT_CLIFF_TIME, stop: DEFAULT_STOP_TIME });
 
         DEFAULT_SEGMENTS.push(
@@ -73,7 +78,6 @@ abstract contract BaseTest is Assertions, StdCheats, Utils {
                 milestone: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION
             })
         );
-
         DEFAULT_SEGMENTS.push(
             Segment({
                 amount: 7_500e18,

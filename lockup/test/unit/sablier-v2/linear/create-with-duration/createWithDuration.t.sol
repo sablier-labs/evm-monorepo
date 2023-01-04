@@ -186,10 +186,8 @@ contract CreateWithDuration__LinearTest is LinearTest {
             funder: funder,
             sender: defaultArgs.createWithDuration.sender,
             recipient: defaultArgs.createWithDuration.recipient,
-            netDepositAmount: DEFAULT_NET_DEPOSIT_AMOUNT,
-            protocolFeeAmount: DEFAULT_PROTOCOL_FEE_AMOUNT,
+            amounts: DEFAULT_CREATE_AMOUNTS,
             operator: defaultArgs.createWithDuration.operator,
-            operatorFeeAmount: DEFAULT_OPERATOR_FEE_AMOUNT,
             token: defaultArgs.createWithDuration.token,
             cancelable: defaultArgs.createWithDuration.cancelable,
             range: DEFAULT_RANGE

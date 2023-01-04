@@ -5,7 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Amounts, ProStream, Segment } from "src/types/Structs.sol";
+import { Amounts, CreateAmounts, ProStream, Segment } from "src/types/Structs.sol";
 import { Events } from "src/libraries/Events.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
@@ -103,11 +103,14 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
             funder: holder,
             sender: args.sender,
             recipient: args.recipient,
-            netDepositAmount: vars.netDepositAmount,
+            amounts: CreateAmounts({
+                netDeposit: vars.netDepositAmount,
+                protocolFee: 0,
+                operatorFee: vars.operatorFeeAmount
+            }),
             segments: segments,
             protocolFeeAmount: 0,
             operator: args.operator,
-            operatorFeeAmount: vars.operatorFeeAmount,
             token: token,
             cancelable: args.cancelable,
             startTime: args.startTime

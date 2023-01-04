@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Amounts, LinearStream, Segment, Range } from "src/types/Structs.sol";
+import { Amounts, CreateAmounts, LinearStream, Segment, Range } from "src/types/Structs.sol";
 import { Events } from "src/libraries/Events.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
@@ -99,10 +99,12 @@ abstract contract CreateWithRange__Test is IntegrationTest {
             funder: holder,
             sender: args.sender,
             recipient: args.recipient,
-            netDepositAmount: vars.netDepositAmount,
-            protocolFeeAmount: 0,
+            amounts: CreateAmounts({
+                netDeposit: vars.netDepositAmount,
+                protocolFee: 0,
+                operatorFee: vars.operatorFeeAmount
+            }),
             operator: args.operator,
-            operatorFeeAmount: vars.operatorFeeAmount,
             token: token,
             cancelable: args.cancelable,
             range: args.range

@@ -385,10 +385,8 @@ contract SablierV2Linear is
             funder: msg.sender,
             sender: args.sender,
             recipient: args.recipient,
-            netDepositAmount: args.amounts.netDeposit,
-            protocolFeeAmount: args.amounts.protocolFee,
+            amounts: args.amounts,
             operator: args.operator,
-            operatorFeeAmount: args.amounts.operatorFee,
             token: args.token,
             cancelable: args.cancelable,
             range: args.range
