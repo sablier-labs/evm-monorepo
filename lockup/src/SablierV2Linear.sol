@@ -6,7 +6,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Amounts, CreateAmounts, Durations, LinearStream, Range } from "./types/Structs.sol";
+import { Amounts, Broker, CreateAmounts, Durations, LinearStream, Range } from "./types/Structs.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
@@ -164,11 +164,10 @@ contract SablierV2Linear is
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        address operator,
-        UD60x18 operatorFee,
         IERC20 token,
         bool cancelable,
-        Durations calldata durations
+        Durations calldata durations,
+        Broker calldata broker
     ) external returns (uint256 streamId) {
         // Set the current block timestamp as the start time of the stream.
         Range memory range;
@@ -187,7 +186,7 @@ contract SablierV2Linear is
             comptroller,
             token,
             grossDepositAmount,
-            operatorFee,
+            broker.fee,
             MAX_FEE
         );
 
@@ -195,8 +194,8 @@ contract SablierV2Linear is
         streamId = _createWithRange(
             CreateWithRangeArgs({
                 amounts: amounts,
+                broker: broker.addr,
                 cancelable: cancelable,
-                operator: operator,
                 recipient: recipient,
                 sender: sender,
                 range: range,
@@ -210,11 +209,10 @@ contract SablierV2Linear is
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        address operator,
-        UD60x18 operatorFee,
         IERC20 token,
         bool cancelable,
-        Range calldata range
+        Range calldata range,
+        Broker calldata broker
     ) external returns (uint256 streamId) {
         // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
         // deposit amount.
@@ -223,7 +221,7 @@ contract SablierV2Linear is
             comptroller,
             token,
             grossDepositAmount,
-            operatorFee,
+            broker.fee,
             MAX_FEE
         );
 
@@ -231,8 +229,8 @@ contract SablierV2Linear is
         streamId = _createWithRange(
             CreateWithRangeArgs({
                 amounts: amounts,
+                broker: broker.addr,
                 cancelable: cancelable,
-                operator: operator,
                 recipient: recipient,
                 sender: sender,
                 range: range,
@@ -338,8 +336,8 @@ contract SablierV2Linear is
         address sender; // ──┐
         bool cancelable; // ─┘
         address recipient;
-        address operator;
         IERC20 token;
+        address broker;
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -373,9 +371,9 @@ contract SablierV2Linear is
         // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.
         args.token.safeTransferFrom({ from: msg.sender, to: address(this), amount: args.amounts.netDeposit });
 
-        // Interactions: perform the ERC-20 transfer to pay the operator fee, if not zero.
-        if (args.amounts.operatorFee > 0) {
-            args.token.safeTransferFrom({ from: msg.sender, to: args.operator, amount: args.amounts.operatorFee });
+        // Interactions: perform the ERC-20 transfer to pay the broker fee, if not zero.
+        if (args.amounts.brokerFee > 0) {
+            args.token.safeTransferFrom({ from: msg.sender, to: args.broker, amount: args.amounts.brokerFee });
         }
 
         // Emit an event.
@@ -385,10 +383,10 @@ contract SablierV2Linear is
             sender: args.sender,
             recipient: args.recipient,
             amounts: args.amounts,
-            operator: args.operator,
             token: args.token,
             cancelable: args.cancelable,
-            range: args.range
+            range: args.range,
+            broker: args.broker
         });
     }
 

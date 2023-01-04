@@ -5,7 +5,7 @@ import { E, SD1x18 } from "@prb/math/SD1x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
-import { Segment } from "src/types/Structs.sol";
+import { Broker, Segment } from "src/types/Structs.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
@@ -113,20 +113,17 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         uint128 initialWithdrawableAmount = calculateStreamedAmountForMultipleSegments(currentTime, DEFAULT_SEGMENTS);
         withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
 
-        // Disable the operator fee so that it doesn't interfere with the calculations.
-        UD60x18 operatorFee = ZERO;
-
-        // Create the stream with a custom gross deposit amount and operator fee.
+        // Create the stream with a custom gross deposit amount. The broker fee is disabled so that it doesn't interfere
+        // with the calculations.
         uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            Broker({ addr: address(0), fee: ZERO })
         );
 
         // Warp into the future.
@@ -160,20 +157,17 @@ contract GetWithdrawableAmount__ProTest is ProTest {
             milestone: DEFAULT_STOP_TIME
         });
 
-        // Disable the operator fee so that it doesn't interfere with the calculations.
-        UD60x18 operatorFee = ZERO;
-
-        // Create the stream wit the one-segment arrays.
+        // Create the stream wit the one-segment arrays. The broker fee is disabled so that it doesn't interfere
+        // with the calculations.
         uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             depositAmount,
             segments,
-            defaultArgs.createWithMilestones.operator,
-            operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            Broker({ addr: address(0), fee: ZERO })
         );
 
         // Warp into the future.
@@ -215,20 +209,17 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         NoWithdrawals
         MultipleSegments
     {
-        // Disable the operator fee so that it doesn't interfere with the calculations.
-        UD60x18 operatorFee = ZERO;
-
-        // Create the stream with the multiple-segment arrays.
+        // Create the stream with the multiple-segment arrays. The broker fee is disabled so that it doesn't interfere
+        // with the calculations.
         uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             maxSegments,
-            defaultArgs.createWithMilestones.operator,
-            operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            Broker({ addr: address(0), fee: ZERO })
         );
 
         // Run the test.
@@ -250,20 +241,17 @@ contract GetWithdrawableAmount__ProTest is ProTest {
     ) external StreamExistent CurrentTimeLessThanStopTime NoWithdrawals MultipleSegments CurrentMilestoneNot1st {
         timeWarp = boundUint40(timeWarp, maxSegments[0].milestone, DEFAULT_TOTAL_DURATION - 1);
 
-        // Disable the operator fee so that it doesn't interfere with the calculations.
-        UD60x18 operatorFee = ZERO;
-
-        // Create the stream with the multiple-segment arrays.
+        // Create the stream with the multiple-segment arrays. The broker fee is disabled so that it doesn't interfere
+        // with the calculations.
         uint256 streamId = pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             maxSegments,
-            defaultArgs.createWithMilestones.operator,
-            operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            Broker({ addr: address(0), fee: ZERO })
         );
 
         // Warp into the future.

@@ -11,6 +11,9 @@ library Errors {
                               SABLIER-V2 CUSTOM ERRORS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when the broker fee is greater than the maximum fee permitted.
+    error SablierV2__BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxFee);
+
     /// @notice Emitted when attempting to claim protocol revenues for a token that did not accrue any revenues.
     error SablierV2__ClaimZeroProtocolRevenues(IERC20 token);
 
@@ -19,9 +22,6 @@ library Errors {
 
     /// @notice Emitted when the new global fee is greater than the maximum permitted.
     error SablierV2__NewGlobalFeeGreaterThanMaxPermitted(UD60x18 newGlobalFee, UD60x18 maxGlobalFee);
-
-    /// @notice Emitted when the operator fee is greater than the maximum fee permitted.
-    error SablierV2__OperatorFeeTooHigh(UD60x18 operatorFee, UD60x18 maxFee);
 
     /// @notice Emitted when the protocol fee is greater than the maximum fee permitted.
     error SablierV2__ProtocolFeeTooHigh(UD60x18 protocolFee, UD60x18 maxFee);

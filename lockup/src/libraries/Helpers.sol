@@ -18,12 +18,12 @@ library Helpers {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks that neither fee is greater than `MAX_FEE`, and then calculates the protocol fee amount, the
-    /// operator fee amount, and the net deposit amount.
+    /// broker fee amount, and the net deposit amount.
     function checkAndCalculateFees(
         ISablierV2Comptroller comptroller,
         IERC20 token,
         uint128 grossDepositAmount,
-        UD60x18 operatorFee,
+        UD60x18 brokerFee,
         UD60x18 maxFee
     ) internal view returns (CreateAmounts memory amounts) {
         if (grossDepositAmount == 0) {
@@ -41,21 +41,21 @@ library Helpers {
         // Calculate the protocol fee amount.
         amounts.protocolFee = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(protocolFee)));
 
-        // Checks: the operator fee is not greater than `MAX_FEE`.
-        if (operatorFee.gt(maxFee)) {
-            revert Errors.SablierV2__OperatorFeeTooHigh(operatorFee, maxFee);
+        // Checks: the broker fee is not greater than `MAX_FEE`.
+        if (brokerFee.gt(maxFee)) {
+            revert Errors.SablierV2__BrokerFeeTooHigh(brokerFee, maxFee);
         }
 
-        // Calculate the operator fee amount.
-        amounts.operatorFee = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(operatorFee)));
+        // Calculate the broker fee amount.
+        amounts.brokerFee = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(brokerFee)));
 
         unchecked {
             // Assert that the gross deposit amount is always strictly greater than the sum of the protocol fee amount
-            // and the operator fee amount.
-            assert(grossDepositAmount > amounts.protocolFee + amounts.operatorFee);
+            // and the broker fee amount.
+            assert(grossDepositAmount > amounts.protocolFee + amounts.brokerFee);
 
             // Calculate the deposit amount (the amount net of fees).
-            amounts.netDeposit = grossDepositAmount - amounts.protocolFee - amounts.operatorFee;
+            amounts.netDeposit = grossDepositAmount - amounts.protocolFee - amounts.brokerFee;
         }
     }
 

@@ -17,7 +17,7 @@ interface ISablierV2 is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Queries the maximum value that the protocol and the operator fee can each have.
+    /// @notice Queries the maximum value that the protocol and the broker fee can each have.
     /// @dev This is initialized at construction time and cannot be changed later.
     /// @return The maximum fee permitted.
     function MAX_FEE() external view returns (UD60x18);

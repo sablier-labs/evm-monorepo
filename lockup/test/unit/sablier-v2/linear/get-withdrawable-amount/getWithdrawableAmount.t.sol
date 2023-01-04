@@ -4,6 +4,8 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
+import { Broker } from "src/types/Structs.sol";
+
 import { LinearTest } from "../LinearTest.t.sol";
 
 contract GetWithdrawableAmount__LinearTest is LinearTest {
@@ -101,19 +103,15 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
         // Mint enough tokens to the sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
-        // Disable the operator fee so that it doesn't interfere with the calculations.
-        UD60x18 operatorFee = ZERO;
-
-        // Create the stream.
+        // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         uint256 streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             depositAmount,
-            defaultArgs.createWithRange.operator,
-            operatorFee,
             defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range
+            defaultArgs.createWithRange.range,
+            Broker({ addr: address(0), fee: ZERO })
         );
 
         // Warp into the future.
@@ -143,19 +141,16 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
         // Mint enough tokens to the sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
-        // Disable the operator fee so that it doesn't interfere with the calculations.
-        UD60x18 operatorFee = ZERO;
-
-        // Create the stream with a custom gross deposit amount and operator fee.
+        // Create the stream with a custom gross deposit amount. The broker fee is disabled so that it doesn't interfere
+        // with the calculations.
         uint256 streamId = linear.createWithRange(
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             depositAmount,
-            defaultArgs.createWithRange.operator,
-            operatorFee,
             defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range
+            defaultArgs.createWithRange.range,
+            Broker({ addr: address(0), fee: ZERO })
         );
 
         // Warp into the future.

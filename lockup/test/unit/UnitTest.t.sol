@@ -36,15 +36,17 @@ abstract contract UnitTest is BaseTest {
     struct Users {
         // Neutral user.
         address payable alice;
+        // Default stream broker.
+        address payable broker;
         // Malicious user.
         address payable eve;
         // Default NFT operator.
         address payable operator;
         // Default owner of all Sablier V2 contracts.
         address payable owner;
-        // Recipient of the default stream.
+        // Default stream recipient.
         address payable recipient;
-        // Sender of the default stream.
+        // Default stream sender.
         address payable sender;
     }
 
@@ -83,6 +85,7 @@ abstract contract UnitTest is BaseTest {
         // Create users for testing.
         users = Users({
             alice: createUser("Alice"),
+            broker: createUser("Broker"),
             eve: createUser("Eve"),
             operator: createUser("Operator"),
             owner: createUser("Owner"),

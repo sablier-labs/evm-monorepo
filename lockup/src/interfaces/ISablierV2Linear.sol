@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Durations, LinearStream, Range } from "../types/Structs.sol";
+import { Broker, Durations, LinearStream, Range } from "../types/Structs.sol";
 
 import { ISablierV2 } from "./ISablierV2.sol";
 
@@ -32,8 +32,8 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// @notice Queries the range of the stream.
     /// @param streamId The id of the stream to make the query for.
-    /// @return range A (start, cliff, stop) tuple of Unix timestamps for when the stream will start, when
-    /// the cliff period will end, and when the stream will stop.
+    /// @return range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
+    /// and (iii) the stop time of the stream, all as Unix timestamps.
     function getRange(uint256 streamId) external view returns (Range memory range);
 
     /// @notice Queries the stream struct.
@@ -60,22 +60,19 @@ interface ISablierV2Linear is ISablierV2 {
     /// decimals.
     /// @param token The address of the ERC-20 token used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
-    /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
-    /// receives the fee.
-    /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number.
-    /// @param durations A tuple of durations in seconds that encapsulates (i) the duration of the cliff period and
-    /// (ii) the total duration of the stream.
-    /// duration of the stream.
+    /// @param durations A struct that encapsulates (i) the duration of the cliff period and (ii) the total duration of
+    /// the stream, both in seconds.
+    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
+    /// stream and (ii) the percentage fee that the broker is paid from the gross deposit amount, as an UD60x18 number.
     /// @return streamId The id of the newly created stream.
     function createWithDurations(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        address operator,
-        UD60x18 operatorFee,
         IERC20 token,
         bool cancelable,
-        Durations calldata durations
+        Durations calldata durations,
+        Broker calldata broker
     ) external returns (uint256 streamId);
 
     /// @notice Creates a new stream funded by `msg.sender` wrapped in an ERC-721 NFT, setting the start time and the
@@ -90,33 +87,30 @@ interface ISablierV2Linear is ISablierV2 {
     /// - `sender` must not be the zero address.
     /// - `recipient` must not be the zero address.
     /// - `grossDepositAmount` must not be zero.
-    /// - `operatorFee` must not be greater than `MAX_FEE`.
     /// - `range.start` must not be greater than `range.cliff`.
     /// - `range.cliff` must not be greater than `range.stop`.
     /// - `msg.sender` must have allowed this contract to spend at least `grossDepositAmount` tokens.
+    /// - If set, `broker.fee` must not be greater than `MAX_FEE`.
     ///
     /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address toward which to stream the tokens.
     /// @param grossDepositAmount The gross amount of tokens to deposit, inclusive of fees, in units of the token's
     /// decimals.
-    /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
-    /// receives the fee.
-    /// @param operatorFee The fee that the operator charges on the deposit amount, as an UD60x18 number treated as
-    /// a percentage with 100% = 1e18.
     /// @param token The address of the ERC-20 token used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
-    /// @param range A (start, cliff, stop) tuple of Unix timestamps for when the stream will start, when
-    /// the cliff period will end, and when the stream will stop.
+    /// @param range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
+    /// and (iii) the stop time of the stream, all as Unix timestamps.
+    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
+    /// stream and (ii) the percentage fee that the broker is paid from the deposit amount, as an UD60x18 number.
     /// @return streamId The id of the newly created stream.
     function createWithRange(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        address operator,
-        UD60x18 operatorFee,
         IERC20 token,
         bool cancelable,
-        Range calldata range
+        Range calldata range,
+        Broker calldata broker
     ) external returns (uint256 streamId);
 }

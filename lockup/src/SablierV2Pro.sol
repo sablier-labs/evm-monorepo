@@ -8,7 +8,7 @@ import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Amounts, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
+import { Amounts, Broker, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
@@ -178,11 +178,10 @@ contract SablierV2Pro is
         address recipient,
         uint128 grossDepositAmount,
         Segment[] memory segments,
-        address operator,
-        UD60x18 operatorFee,
         IERC20 token,
         bool cancelable,
-        uint40[] calldata deltas
+        uint40[] calldata deltas,
+        Broker calldata broker
     ) external override returns (uint256 streamId) {
         // Checks: check the deltas and adjust the segments accordingly.
         Helpers.checkDeltasAndAdjustSegments(segments, deltas);
@@ -192,7 +191,7 @@ contract SablierV2Pro is
             comptroller,
             token,
             grossDepositAmount,
-            operatorFee,
+            broker.fee,
             MAX_FEE
         );
 
@@ -200,8 +199,8 @@ contract SablierV2Pro is
         streamId = _createWithMilestones(
             CreateWithMilestonesArgs({
                 amounts: amounts,
+                broker: broker.addr,
                 cancelable: cancelable,
-                operator: operator,
                 recipient: recipient,
                 segments: segments,
                 sender: sender,
@@ -217,18 +216,17 @@ contract SablierV2Pro is
         address recipient,
         uint128 grossDepositAmount,
         Segment[] calldata segments,
-        address operator,
-        UD60x18 operatorFee,
         IERC20 token,
         bool cancelable,
-        uint40 startTime
+        uint40 startTime,
+        Broker calldata broker
     ) external returns (uint256 streamId) {
         // Checks: check the fees and calculate the fee amounts.
         CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
             comptroller,
             token,
             grossDepositAmount,
-            operatorFee,
+            broker.fee,
             MAX_FEE
         );
 
@@ -236,8 +234,8 @@ contract SablierV2Pro is
         streamId = _createWithMilestones(
             CreateWithMilestonesArgs({
                 amounts: amounts,
+                broker: broker.addr,
                 cancelable: cancelable,
-                operator: operator,
                 recipient: recipient,
                 segments: segments,
                 sender: sender,
@@ -346,8 +344,8 @@ contract SablierV2Pro is
         uint40 startTime; // │
         bool cancelable; // ─┘
         address recipient;
-        address operator;
         IERC20 token;
+        address broker;
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -387,9 +385,9 @@ contract SablierV2Pro is
         // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.
         args.token.safeTransferFrom({ from: msg.sender, to: address(this), amount: args.amounts.netDeposit });
 
-        // Interactions: perform the ERC-20 transfer to pay the operator fee, if not zero.
-        if (args.amounts.operatorFee > 0) {
-            args.token.safeTransferFrom({ from: msg.sender, to: args.operator, amount: args.amounts.operatorFee });
+        // Interactions: perform the ERC-20 transfer to pay the broker fee, if not zero.
+        if (args.amounts.brokerFee > 0) {
+            args.token.safeTransferFrom({ from: msg.sender, to: args.broker, amount: args.amounts.brokerFee });
         }
 
         // Emit an event.
@@ -400,10 +398,10 @@ contract SablierV2Pro is
             recipient: args.recipient,
             amounts: args.amounts,
             segments: args.segments,
-            operator: args.operator,
             token: args.token,
             cancelable: args.cancelable,
-            startTime: args.startTime
+            startTime: args.startTime,
+            broker: args.broker
         });
     }
 

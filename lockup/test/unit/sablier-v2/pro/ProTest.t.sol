@@ -6,7 +6,7 @@ import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Amounts, ProStream, Segment } from "src/types/Structs.sol";
+import { Amounts, Broker, ProStream, Segment } from "src/types/Structs.sol";
 
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
@@ -25,11 +25,10 @@ abstract contract ProTest is SablierV2Test {
         address recipient;
         uint128 grossDepositAmount;
         Segment[] segments;
-        address operator;
-        UD60x18 operatorFee;
         IERC20 token;
         bool cancelable;
         uint40[] deltas;
+        Broker broker;
     }
 
     struct CreateWithMilestonesArgs {
@@ -37,11 +36,10 @@ abstract contract ProTest is SablierV2Test {
         address recipient;
         uint128 grossDepositAmount;
         Segment[] segments;
-        address operator;
-        UD60x18 operatorFee;
         IERC20 token;
         bool cancelable;
         uint40 startTime;
+        Broker broker;
     }
 
     struct DefaultArgs {
@@ -67,19 +65,17 @@ abstract contract ProTest is SablierV2Test {
         defaultArgs.createWithDeltas.sender = users.sender;
         defaultArgs.createWithDeltas.recipient = users.recipient;
         defaultArgs.createWithDeltas.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
-        defaultArgs.createWithDeltas.operator = users.operator;
-        defaultArgs.createWithDeltas.operatorFee = DEFAULT_OPERATOR_FEE;
         defaultArgs.createWithDeltas.token = dai;
         defaultArgs.createWithDeltas.cancelable = true;
+        defaultArgs.createWithDeltas.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
 
         defaultArgs.createWithMilestones.sender = users.sender;
         defaultArgs.createWithMilestones.recipient = users.recipient;
         defaultArgs.createWithMilestones.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
-        defaultArgs.createWithMilestones.operator = users.operator;
-        defaultArgs.createWithMilestones.operatorFee = DEFAULT_OPERATOR_FEE;
         defaultArgs.createWithMilestones.token = dai;
         defaultArgs.createWithMilestones.cancelable = true;
         defaultArgs.createWithMilestones.startTime = DEFAULT_START_TIME;
+        defaultArgs.createWithMilestones.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
 
         // See https://github.com/ethereum/solidity/issues/12783
         for (uint256 i = 0; i < DEFAULT_SEGMENTS.length; ++i) {
@@ -204,11 +200,10 @@ abstract contract ProTest is SablierV2Test {
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            defaultArgs.createWithMilestones.broker
         );
     }
 
@@ -219,11 +214,10 @@ abstract contract ProTest is SablierV2Test {
             defaultArgs.createWithDeltas.recipient,
             defaultArgs.createWithDeltas.grossDepositAmount,
             defaultArgs.createWithDeltas.segments,
-            defaultArgs.createWithDeltas.operator,
-            defaultArgs.createWithDeltas.operatorFee,
             defaultArgs.createWithDeltas.token,
             defaultArgs.createWithDeltas.cancelable,
-            defaultArgs.createWithDeltas.deltas
+            defaultArgs.createWithDeltas.deltas,
+            defaultArgs.createWithDeltas.broker
         );
     }
 
@@ -234,11 +228,10 @@ abstract contract ProTest is SablierV2Test {
             defaultArgs.createWithDeltas.recipient,
             defaultArgs.createWithDeltas.grossDepositAmount,
             defaultArgs.createWithDeltas.segments,
-            defaultArgs.createWithDeltas.operator,
-            defaultArgs.createWithDeltas.operatorFee,
             defaultArgs.createWithDeltas.token,
             defaultArgs.createWithDeltas.cancelable,
-            deltas
+            deltas,
+            defaultArgs.createWithDeltas.broker
         );
     }
 
@@ -249,11 +242,10 @@ abstract contract ProTest is SablierV2Test {
             defaultArgs.createWithMilestones.recipient,
             grossDepositAmount,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            defaultArgs.createWithMilestones.broker
         );
     }
 
@@ -265,11 +257,10 @@ abstract contract ProTest is SablierV2Test {
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
             isCancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            defaultArgs.createWithMilestones.broker
         );
     }
 
@@ -280,11 +271,10 @@ abstract contract ProTest is SablierV2Test {
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
             segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            defaultArgs.createWithMilestones.broker
         );
     }
 
@@ -295,11 +285,10 @@ abstract contract ProTest is SablierV2Test {
             recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            defaultArgs.createWithMilestones.broker
         );
     }
 
@@ -310,11 +299,10 @@ abstract contract ProTest is SablierV2Test {
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            defaultArgs.createWithMilestones.broker
         );
     }
 
@@ -327,11 +315,10 @@ abstract contract ProTest is SablierV2Test {
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
             segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            defaultArgs.createWithMilestones.broker
         );
     }
 }

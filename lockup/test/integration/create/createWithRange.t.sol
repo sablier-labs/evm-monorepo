@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Amounts, CreateAmounts, LinearStream, Segment, Range } from "src/types/Structs.sol";
+import { Amounts, Broker, CreateAmounts, LinearStream, Segment, Range } from "src/types/Structs.sol";
 import { Events } from "src/libraries/Events.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
@@ -37,17 +37,16 @@ abstract contract CreateWithRange__Test is IntegrationTest {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
-        address operator;
-        UD60x18 operatorFee;
         bool cancelable;
         Range range;
+        Broker broker;
     }
 
     struct Vars {
         uint256 initialContractBalance;
         uint256 initialHolderBalance;
-        uint256 initialOperatorBalance;
-        uint128 operatorFeeAmount;
+        uint256 initialBrokerBalance;
+        uint128 brokerFeeAmount;
         uint128 netDepositAmount;
         uint256 streamId;
         uint256 actualNextStreamId;
@@ -58,8 +57,8 @@ abstract contract CreateWithRange__Test is IntegrationTest {
         uint256 expectedContractBalance;
         uint256 actualHolderBalance;
         uint256 expectedHolderBalance;
-        uint256 actualOperatorBalance;
-        uint256 expectedOperatorBalance;
+        uint256 actualBrokerBalance;
+        uint256 expectedBrokerBalance;
     }
 
     /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, record the
@@ -67,29 +66,29 @@ abstract contract CreateWithRange__Test is IntegrationTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - All possible permutations for the funder, recipient, sender, and operator.
+    /// - All possible permutations for the funder, recipient, sender, and broker.
     /// - Multiple values for the gross deposit amount.
-    /// - Operator fee zero and non-zero.
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
     /// - Cliff time lower than and equal to stop time
+    /// - Broker fee zero and non-zero.
     function testCreateWithRange(Args memory args) external {
-        vm.assume(args.sender != address(0) && args.recipient != address(0) && args.operator != address(0));
-        vm.assume(args.operator != holder && args.operator != address(linear));
+        vm.assume(args.sender != address(0) && args.recipient != address(0) && args.broker.addr != address(0));
+        vm.assume(args.broker.addr != holder && args.broker.addr != address(linear));
         vm.assume(args.grossDepositAmount != 0 && args.grossDepositAmount <= holderBalance);
         vm.assume(args.range.start <= args.range.cliff && args.range.cliff <= args.range.stop);
-        args.operatorFee = bound(args.operatorFee, 0, DEFAULT_MAX_FEE);
+        args.broker.fee = bound(args.broker.fee, 0, DEFAULT_MAX_FEE);
 
         // Load the current token balances.
         Vars memory vars;
         vars.initialContractBalance = IERC20(token).balanceOf(address(linear));
         vars.initialHolderBalance = IERC20(token).balanceOf(holder);
-        vars.initialOperatorBalance = IERC20(token).balanceOf(args.operator);
+        vars.initialBrokerBalance = IERC20(token).balanceOf(args.broker.addr);
 
         // Calculate the fee amounts and the net deposit amount.
-        vars.operatorFeeAmount = uint128(UD60x18.unwrap(ud(args.grossDepositAmount).mul(args.operatorFee)));
-        vars.netDepositAmount = args.grossDepositAmount - vars.operatorFeeAmount;
+        vars.brokerFeeAmount = uint128(UD60x18.unwrap(ud(args.grossDepositAmount).mul(args.broker.fee)));
+        vars.netDepositAmount = args.grossDepositAmount - vars.brokerFeeAmount;
 
         // Expect an event to be emitted.
         vars.streamId = linear.nextStreamId();
@@ -102,12 +101,12 @@ abstract contract CreateWithRange__Test is IntegrationTest {
             amounts: CreateAmounts({
                 netDeposit: vars.netDepositAmount,
                 protocolFee: 0,
-                operatorFee: vars.operatorFeeAmount
+                brokerFee: vars.brokerFeeAmount
             }),
-            operator: args.operator,
             token: token,
             cancelable: args.cancelable,
-            range: args.range
+            range: args.range,
+            broker: args.broker.addr
         });
 
         // Create the stream.
@@ -115,11 +114,10 @@ abstract contract CreateWithRange__Test is IntegrationTest {
             args.sender,
             args.recipient,
             args.grossDepositAmount,
-            args.operator,
-            args.operatorFee,
             token,
             args.cancelable,
-            args.range
+            args.range,
+            args.broker
         );
 
         // Assert that the stream was created.
@@ -134,26 +132,26 @@ abstract contract CreateWithRange__Test is IntegrationTest {
         // Assert that the next stream id was bumped.
         vars.actualNextStreamId = linear.nextStreamId();
         vars.expectedNextStreamId = vars.streamId + 1;
-        assertEq(vars.actualNextStreamId, vars.expectedNextStreamId);
+        assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the NFT was minted.
         vars.actualNFTOwner = linear.ownerOf({ tokenId: vars.streamId });
         vars.expectedNFTOwner = args.recipient;
-        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner);
+        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
         // Assert that the contract's balance was updated.
         vars.actualContractBalance = IERC20(token).balanceOf(address(linear));
         vars.expectedContractBalance = vars.initialContractBalance + vars.netDepositAmount;
-        assertEq(vars.actualContractBalance, vars.expectedContractBalance);
+        assertEq(vars.actualContractBalance, vars.expectedContractBalance, "contract balance");
 
         // Assert that the holder's balance was updated.
         vars.actualHolderBalance = IERC20(token).balanceOf(holder);
         vars.expectedHolderBalance = vars.initialHolderBalance - args.grossDepositAmount;
-        assertEq(vars.actualHolderBalance, vars.expectedHolderBalance);
+        assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "holder balance");
 
-        // Assert that the operator's balance was updated.
-        vars.actualOperatorBalance = IERC20(token).balanceOf(args.operator);
-        vars.expectedOperatorBalance = vars.initialOperatorBalance + vars.operatorFeeAmount;
-        assertEq(vars.actualOperatorBalance, vars.expectedOperatorBalance);
+        // Assert that the broker's balance was updated.
+        vars.actualBrokerBalance = IERC20(token).balanceOf(args.broker.addr);
+        vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.brokerFeeAmount;
+        assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "broker balance");
     }
 }

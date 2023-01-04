@@ -6,9 +6,9 @@ import { SD1x18, sd1x18 } from "@prb/math/SD1x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { Broker, ProStream, Segment } from "src/types/Structs.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { ProStream, Segment } from "src/types/Structs.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
@@ -135,11 +135,10 @@ contract CreateWithDeltas__ProTest is ProTest {
             defaultArgs.createWithDeltas.recipient,
             defaultArgs.createWithDeltas.grossDepositAmount,
             segments,
-            defaultArgs.createWithDeltas.operator,
-            defaultArgs.createWithDeltas.operatorFee,
             defaultArgs.createWithDeltas.token,
             defaultArgs.createWithDeltas.cancelable,
-            deltas
+            deltas,
+            defaultArgs.createWithDeltas.broker
         );
     }
 
@@ -178,12 +177,12 @@ contract CreateWithDeltas__ProTest is ProTest {
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
-        // Expect the operator fee to be paid to the operator.
+        // Expect the broker fee to be paid to the broker.
         vm.expectCall(
             address(defaultArgs.createWithDeltas.token),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, defaultArgs.createWithDeltas.operator, DEFAULT_OPERATOR_FEE_AMOUNT)
+                (funder, defaultArgs.createWithDeltas.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
             )
         );
 
@@ -193,11 +192,10 @@ contract CreateWithDeltas__ProTest is ProTest {
             defaultArgs.createWithDeltas.recipient,
             defaultArgs.createWithDeltas.grossDepositAmount,
             segments,
-            defaultArgs.createWithDeltas.operator,
-            defaultArgs.createWithDeltas.operatorFee,
             defaultArgs.createWithDeltas.token,
             defaultArgs.createWithDeltas.cancelable,
-            deltas
+            deltas,
+            defaultArgs.createWithDeltas.broker
         );
 
         // Assert that the stream was created.
@@ -259,10 +257,10 @@ contract CreateWithDeltas__ProTest is ProTest {
             recipient: defaultArgs.createWithDeltas.recipient,
             amounts: DEFAULT_CREATE_AMOUNTS,
             segments: defaultArgs.createWithDeltas.segments,
-            operator: defaultArgs.createWithDeltas.operator,
             token: defaultArgs.createWithDeltas.token,
             cancelable: defaultArgs.createWithDeltas.cancelable,
-            startTime: DEFAULT_START_TIME
+            startTime: DEFAULT_START_TIME,
+            broker: defaultArgs.createWithDeltas.broker.addr
         });
         createDefaultStreamWithDeltas();
     }

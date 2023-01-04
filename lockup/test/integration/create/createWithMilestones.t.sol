@@ -5,7 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Amounts, CreateAmounts, ProStream, Segment } from "src/types/Structs.sol";
+import { Amounts, Broker, CreateAmounts, ProStream, Segment } from "src/types/Structs.sol";
 import { Events } from "src/libraries/Events.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
@@ -38,17 +38,16 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
-        address operator;
-        UD60x18 operatorFee;
         bool cancelable;
         uint40 startTime;
+        Broker broker;
     }
 
     struct Vars {
         uint256 initialContractBalance;
         uint256 initialHolderBalance;
-        uint256 initialOperatorBalance;
-        uint128 operatorFeeAmount;
+        uint256 initialBrokerBalance;
+        uint128 brokerFeeAmount;
         uint128 netDepositAmount;
         uint256 streamId;
         uint256 actualNextStreamId;
@@ -59,8 +58,8 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
         uint256 expectedContractBalance;
         uint256 actualHolderBalance;
         uint256 expectedHolderBalance;
-        uint256 actualOperatorBalance;
-        uint256 expectedOperatorBalance;
+        uint256 actualBrokerBalance;
+        uint256 expectedBrokerBalance;
     }
 
     /// @dev it should perform the ERC-20 transfers, emit a CreateProStream event, create the stream, record the
@@ -68,28 +67,28 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - All possible permutations for the funder, recipient, sender, and operator.
+    /// - All possible permutations for the funder, recipient, sender, and broker.
     /// - Multiple values for the gross deposit amount.
-    /// - Operator fee zero and non-zero.
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
+    /// - Broker fee zero and non-zero.
     function testCreateWithMilestones(Args memory args) external {
-        vm.assume(args.sender != address(0) && args.recipient != address(0) && args.operator != address(0));
-        vm.assume(args.operator != holder && args.operator != address(pro));
+        vm.assume(args.sender != address(0) && args.recipient != address(0) && args.broker.addr != address(0));
+        vm.assume(args.broker.addr != holder && args.broker.addr != address(pro));
         vm.assume(args.grossDepositAmount != 0 && args.grossDepositAmount <= holderBalance);
-        args.operatorFee = bound(args.operatorFee, 0, DEFAULT_MAX_FEE);
+        args.broker.fee = bound(args.broker.fee, 0, DEFAULT_MAX_FEE);
         args.startTime = boundUint40(args.startTime, 0, DEFAULT_SEGMENTS[0].milestone);
 
         // Load the current token balances.
         Vars memory vars;
         vars.initialContractBalance = IERC20(token).balanceOf(address(pro));
         vars.initialHolderBalance = IERC20(token).balanceOf(holder);
-        vars.initialOperatorBalance = IERC20(token).balanceOf(args.operator);
+        vars.initialBrokerBalance = IERC20(token).balanceOf(args.broker.addr);
 
         // Calculate the fee amounts and the net deposit amount.
-        vars.operatorFeeAmount = uint128(UD60x18.unwrap(ud(args.grossDepositAmount).mul(args.operatorFee)));
-        vars.netDepositAmount = args.grossDepositAmount - vars.operatorFeeAmount;
+        vars.brokerFeeAmount = uint128(UD60x18.unwrap(ud(args.grossDepositAmount).mul(args.broker.fee)));
+        vars.netDepositAmount = args.grossDepositAmount - vars.brokerFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
         Segment[] memory segments = DEFAULT_SEGMENTS;
@@ -106,14 +105,13 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
             amounts: CreateAmounts({
                 netDeposit: vars.netDepositAmount,
                 protocolFee: 0,
-                operatorFee: vars.operatorFeeAmount
+                brokerFee: vars.brokerFeeAmount
             }),
             segments: segments,
-            protocolFeeAmount: 0,
-            operator: args.operator,
             token: token,
             cancelable: args.cancelable,
-            startTime: args.startTime
+            startTime: args.startTime,
+            broker: args.broker.addr
         });
 
         // Create the stream.
@@ -122,11 +120,10 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
             args.recipient,
             args.grossDepositAmount,
             segments,
-            args.operator,
-            args.operatorFee,
             token,
             args.cancelable,
-            args.startTime
+            args.startTime,
+            args.broker
         );
 
         // Assert that the stream was created.
@@ -159,9 +156,9 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
         vars.expectedHolderBalance = vars.initialHolderBalance - args.grossDepositAmount;
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "holder balance");
 
-        // Assert that the operator's balance was updated.
-        vars.actualOperatorBalance = IERC20(token).balanceOf(args.operator);
-        vars.expectedOperatorBalance = vars.initialOperatorBalance + vars.operatorFeeAmount;
-        assertEq(vars.actualOperatorBalance, vars.expectedOperatorBalance, "operator balance");
+        // Assert that the broker's balance was updated.
+        vars.actualBrokerBalance = IERC20(token).balanceOf(args.broker.addr);
+        vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.brokerFeeAmount;
+        assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "broker balance");
     }
 }

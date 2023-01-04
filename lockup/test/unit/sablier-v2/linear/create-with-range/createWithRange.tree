@@ -14,9 +14,9 @@ createWithRange.t.sol
             ├── when the protocol fee is too high
             │  └── it should revert
             └── when the protocol fee is not too high
-               ├── when the operator fee is too high
+               ├── when the broker fee is too high
                │  └── it should revert
-               └── when the operator fee is not too high
+               └── when the broker fee is not too high
                   ├── when the token is not a contract
                   │  └── it should revert
                   └── when the token is a contract

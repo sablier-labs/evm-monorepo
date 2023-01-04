@@ -7,7 +7,7 @@ import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { stdError } from "forge-std/StdError.sol";
 
-import { Amounts, ProStream, Segment } from "src/types/Structs.sol";
+import { Amounts, Broker, ProStream, Segment } from "src/types/Structs.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
@@ -135,10 +135,10 @@ contract CreateWithMilestones__ProTest is ProTest {
     {
         depositDelta = boundUint128(depositDelta, 100, DEFAULT_GROSS_DEPOSIT_AMOUNT);
 
-        // Disable both the protocol and the operator fee so that they don't interfere with the calculations.
+        // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
         changePrank(users.owner);
         comptroller.setProtocolFee(defaultArgs.createWithMilestones.token, ZERO);
-        UD60x18 operatorFee = ZERO;
+        UD60x18 brokerFee = ZERO;
         changePrank(defaultArgs.createWithMilestones.sender);
 
         // Adjust the default net deposit amount.
@@ -159,11 +159,10 @@ contract CreateWithMilestones__ProTest is ProTest {
             defaultArgs.createWithMilestones.recipient,
             netDepositAmount,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            Broker({ addr: address(0), fee: brokerFee })
         );
     }
 
@@ -202,8 +201,8 @@ contract CreateWithMilestones__ProTest is ProTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithMilestones__OperatorFeeTooHigh(
-        UD60x18 operatorFee
+    function testCannotCreateWithMilestones__BrokerFeeTooHigh(
+        UD60x18 brokerFee
     )
         external
         RecipientNonZeroAddress
@@ -215,24 +214,23 @@ contract CreateWithMilestones__ProTest is ProTest {
         NetDepositAmountEqualToSegmentAmountsSum
         ProtocolFeeNotTooHigh
     {
-        operatorFee = bound(operatorFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
+        brokerFee = bound(brokerFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__OperatorFeeTooHigh.selector, operatorFee, DEFAULT_MAX_FEE)
+            abi.encodeWithSelector(Errors.SablierV2__BrokerFeeTooHigh.selector, brokerFee, DEFAULT_MAX_FEE)
         );
         pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            Broker({ addr: users.broker, fee: brokerFee })
         );
     }
 
-    modifier OperatorFeeNotTooHigh() {
+    modifier BrokerFeeNotTooHigh() {
         _;
     }
 
@@ -249,7 +247,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
         ProtocolFeeNotTooHigh
-        OperatorFeeNotTooHigh
+        BrokerFeeNotTooHigh
     {
         vm.assume(address(nonToken).code.length == 0);
 
@@ -266,11 +264,10 @@ contract CreateWithMilestones__ProTest is ProTest {
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
             nonToken,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            defaultArgs.createWithMilestones.broker
         );
     }
 
@@ -289,7 +286,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
         ProtocolFeeNotTooHigh
-        OperatorFeeNotTooHigh
+        BrokerFeeNotTooHigh
         TokenContract
     {
         // Load the stream id.
@@ -304,12 +301,12 @@ contract CreateWithMilestones__ProTest is ProTest {
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
-        // Expect the operator fee to be paid to the operator.
+        // Expect the broker fee to be paid to the broker.
         vm.expectCall(
             address(nonCompliantToken),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, defaultArgs.createWithMilestones.operator, DEFAULT_OPERATOR_FEE_AMOUNT)
+                (funder, defaultArgs.createWithMilestones.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
             )
         );
 
@@ -319,11 +316,10 @@ contract CreateWithMilestones__ProTest is ProTest {
             defaultArgs.createWithMilestones.recipient,
             defaultArgs.createWithMilestones.grossDepositAmount,
             defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.operator,
-            defaultArgs.createWithMilestones.operatorFee,
             IERC20(address(nonCompliantToken)),
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            defaultArgs.createWithMilestones.broker
         );
 
         // Assert that the stream was created.
@@ -356,20 +352,19 @@ contract CreateWithMilestones__ProTest is ProTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - All possible permutations for the funder, recipient, sender, and operator.
+    /// - All possible permutations for the funder, recipient, sender, and broker.
     /// - Multiple values for the gross deposit amount.
-    /// - Operator fee zero and non-zero.
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
+    /// - Broker fee zero and non-zero.
     function testCreateWithMilestones(
         address funder,
         address recipient,
         uint128 grossDepositAmount,
-        address operator,
-        UD60x18 operatorFee,
         bool cancelable,
-        uint40 startTime
+        uint40 startTime,
+        Broker memory broker
     )
         external
         RecipientNonZeroAddress
@@ -380,13 +375,13 @@ contract CreateWithMilestones__ProTest is ProTest {
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
         ProtocolFeeNotTooHigh
-        OperatorFeeNotTooHigh
+        BrokerFeeNotTooHigh
         TokenContract
         TokenERC20Compliant
     {
-        vm.assume(funder != address(0) && recipient != address(0) && operator != address(0));
+        vm.assume(funder != address(0) && recipient != address(0) && broker.addr != address(0));
         vm.assume(grossDepositAmount != 0);
-        operatorFee = bound(operatorFee, 0, DEFAULT_MAX_FEE);
+        broker.fee = bound(broker.fee, 0, DEFAULT_MAX_FEE);
         startTime = boundUint40(startTime, 0, defaultArgs.createWithMilestones.segments[0].milestone);
 
         // Make the fuzzed funder the caller in this test.
@@ -398,10 +393,10 @@ contract CreateWithMilestones__ProTest is ProTest {
         // Approve the SablierV2Pro contract to transfer the tokens from the funder.
         defaultArgs.createWithMilestones.token.approve({ spender: address(pro), value: UINT256_MAX });
 
-        // Calculate the operator fee amount and the net deposit amount.
+        // Calculate the broker fee amount and the net deposit amount.
         uint128 protocolFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE)));
-        uint128 operatorFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(operatorFee)));
-        uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - operatorFeeAmount;
+        uint128 brokerFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(broker.fee)));
+        uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - brokerFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
         Segment[] memory segments = defaultArgs.createWithMilestones.segments;
@@ -413,11 +408,11 @@ contract CreateWithMilestones__ProTest is ProTest {
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), netDepositAmount))
         );
 
-        // Expect the operator fee to be paid to the operator, if the fee amount is not zero.
-        if (operatorFeeAmount > 0) {
+        // Expect the broker fee to be paid to the broker, if the fee amount is not zero.
+        if (brokerFeeAmount > 0) {
             vm.expectCall(
                 address(defaultArgs.createWithMilestones.token),
-                abi.encodeCall(IERC20.transferFrom, (funder, operator, operatorFeeAmount))
+                abi.encodeCall(IERC20.transferFrom, (funder, broker.addr, brokerFeeAmount))
             );
         }
 
@@ -427,11 +422,10 @@ contract CreateWithMilestones__ProTest is ProTest {
             recipient,
             grossDepositAmount,
             segments,
-            operator,
-            operatorFee,
             defaultArgs.createWithMilestones.token,
             cancelable,
-            startTime
+            startTime,
+            broker
         );
 
         // Assert that the stream was created.
@@ -469,7 +463,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
         ProtocolFeeNotTooHigh
-        OperatorFeeNotTooHigh
+        BrokerFeeNotTooHigh
         TokenContract
         TokenERC20Compliant
     {
@@ -500,20 +494,16 @@ contract CreateWithMilestones__ProTest is ProTest {
         Segment[] memory segments = defaultArgs.createWithMilestones.segments;
         adjustSegmentAmounts(segments, netDepositAmount);
 
-        // Disable the operator fee so that it doesn't interfere with the calculations.
-        UD60x18 operatorFee = ZERO;
-
-        // Create the stream.
+        // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         pro.createWithMilestones(
             defaultArgs.createWithMilestones.sender,
             defaultArgs.createWithMilestones.recipient,
             grossDepositAmount,
             segments,
-            defaultArgs.createWithMilestones.operator,
-            operatorFee,
             defaultArgs.createWithMilestones.token,
             defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime
+            defaultArgs.createWithMilestones.startTime,
+            Broker({ addr: address(0), fee: ZERO })
         );
 
         // Assert that the protocol fee was recorded.
@@ -533,7 +523,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         SegmentMilestonesOrdered
         NetDepositAmountEqualToSegmentAmountsSum
         ProtocolFeeNotTooHigh
-        OperatorFeeNotTooHigh
+        BrokerFeeNotTooHigh
         TokenContract
         TokenERC20Compliant
     {
@@ -548,10 +538,10 @@ contract CreateWithMilestones__ProTest is ProTest {
             recipient: defaultArgs.createWithMilestones.recipient,
             amounts: DEFAULT_CREATE_AMOUNTS,
             segments: defaultArgs.createWithMilestones.segments,
-            operator: defaultArgs.createWithMilestones.operator,
             token: defaultArgs.createWithMilestones.token,
             cancelable: defaultArgs.createWithMilestones.cancelable,
-            startTime: defaultArgs.createWithMilestones.startTime
+            startTime: defaultArgs.createWithMilestones.startTime,
+            broker: defaultArgs.createWithMilestones.broker.addr
         });
 
         // Create the stream.

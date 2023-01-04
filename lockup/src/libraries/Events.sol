@@ -10,7 +10,7 @@ import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { CreateAmounts, Range, Segment } from "../types/Structs.sol";
 
 /// @title Events
-/// @notice Library with events used across the core contracts.
+/// @notice Library with events emitted across the core contracts.
 library Events {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -38,40 +38,40 @@ library Events {
 
     /// @notice Emitted when a linear stream is created.
     /// @param streamId The id of the newly created stream.
-    /// @param funder The address which funded the stream.
+    /// @param funder The address which has funded the stream.
     /// @param sender The address from which to stream the tokens, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
-    /// @param amounts A (netDeposit, protocolFee, operatorFee) tuple of amounts, each in units of the token's decimals.
-    /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
-    /// received the fee.
+    /// @param amounts A struct that encapsulates (i) the net deposit amount, (i) the protocol fee amount, and (iii) the
+    /// broker fee amount, each in units of the token's decimals.
     /// @param token The address of the ERC-20 token used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
-    /// @param range A (start, cliff, stop) tuple of Unix timestamps for when the stream will start, when
-    /// the cliff period will end, and when the stream will stop.
+    /// @param range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
+    /// and (iii) the stop time of the stream, all as Unix timestamps.
+    /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateLinearStream(
         uint256 streamId,
         address indexed funder,
         address indexed sender,
         address indexed recipient,
         CreateAmounts amounts,
-        address operator,
         IERC20 token,
         bool cancelable,
-        Range range
+        Range range,
+        address broker
     );
 
     /// @notice Emitted when a pro stream is created.
     /// @param streamId The id of the newly created stream.
-    /// @param funder The address which funded the stream.
+    /// @param funder The address which has funded the stream.
     /// @param sender The address from which to stream the tokens, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the tokens.
-    /// @param amounts A (netDeposit, protocolFee, operatorFee) tuple of amounts, each in units of the token's decimals.
-    /// @param segments The segments used to compose the custom streaming curve.
-    /// @param operator The address of the operator who has helped create the stream, e.g. a front-end website, who
-    /// received the fee.
+    /// @param amounts A struct that encapsulates (i) the net deposit amount, (i) the protocol fee amount, and (iii) the
+    /// broker fee amount, each in units of the token's decimals.
+    /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param token The address of the ERC-20 token used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param startTime The Unix timestamp for when the stream will start.
+    /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateProStream(
         uint256 streamId,
         address indexed funder,
@@ -79,10 +79,10 @@ library Events {
         address indexed recipient,
         CreateAmounts amounts,
         Segment[] segments,
-        address operator,
         IERC20 token,
         bool cancelable,
-        uint40 startTime
+        uint40 startTime,
+        address broker
     );
 
     /// @notice Emitted when a sender makes a stream non-cancelable.
@@ -106,7 +106,7 @@ library Events {
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The id of the stream.
-    /// @param to The address that received the withdrawn tokens.
+    /// @param to The address that has received the withdrawn tokens.
     /// @param amount The amount of tokens withdrawn, in units of the token's decimals.
     event Withdraw(uint256 indexed streamId, address indexed to, uint128 amount);
 }

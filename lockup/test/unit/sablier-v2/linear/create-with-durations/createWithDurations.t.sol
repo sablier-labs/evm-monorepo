@@ -83,12 +83,12 @@ contract CreateWithDurations__LinearTest is LinearTest {
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
-        // Expect the operator fee to be paid to the operator, if the amount is not zero.
+        // Expect the broker fee to be paid to the broker, if the amount is not zero.
         vm.expectCall(
             address(defaultArgs.createWithDurations.token),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, defaultArgs.createWithDurations.operator, DEFAULT_OPERATOR_FEE_AMOUNT)
+                (funder, defaultArgs.createWithDurations.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
             )
         );
 
@@ -155,10 +155,10 @@ contract CreateWithDurations__LinearTest is LinearTest {
             sender: defaultArgs.createWithDurations.sender,
             recipient: defaultArgs.createWithDurations.recipient,
             amounts: DEFAULT_CREATE_AMOUNTS,
-            operator: defaultArgs.createWithDurations.operator,
             token: defaultArgs.createWithDurations.token,
             cancelable: defaultArgs.createWithDurations.cancelable,
-            range: DEFAULT_RANGE
+            range: DEFAULT_RANGE,
+            broker: defaultArgs.createWithDurations.broker.addr
         });
         createDefaultStreamWithDurations();
     }

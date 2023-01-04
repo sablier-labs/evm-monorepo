@@ -5,7 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Amounts, Durations, LinearStream, Range } from "src/types/Structs.sol";
+import { Amounts, Broker, Durations, LinearStream, Range } from "src/types/Structs.sol";
 
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 
@@ -23,22 +23,20 @@ abstract contract LinearTest is SablierV2Test {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
-        address operator;
-        UD60x18 operatorFee;
         IERC20 token;
         bool cancelable;
         Durations durations;
+        Broker broker;
     }
 
     struct CreateWithRangeArgs {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
-        address operator;
-        UD60x18 operatorFee;
         IERC20 token;
         bool cancelable;
         Range range;
+        Broker broker;
     }
 
     struct DefaultArgs {
@@ -66,21 +64,19 @@ abstract contract LinearTest is SablierV2Test {
                 sender: users.sender,
                 recipient: users.recipient,
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
-                operator: users.operator,
-                operatorFee: DEFAULT_OPERATOR_FEE,
                 token: dai,
                 cancelable: true,
-                durations: DEFAULT_DURATIONS
+                durations: DEFAULT_DURATIONS,
+                broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
             }),
             createWithRange: CreateWithRangeArgs({
                 sender: users.sender,
                 recipient: users.recipient,
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
-                operator: users.operator,
-                operatorFee: DEFAULT_OPERATOR_FEE,
                 token: dai,
                 cancelable: true,
-                range: DEFAULT_RANGE
+                range: DEFAULT_RANGE,
+                broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
             })
         });
 
@@ -144,11 +140,10 @@ abstract contract LinearTest is SablierV2Test {
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
-            defaultArgs.createWithRange.operator,
-            defaultArgs.createWithRange.operatorFee,
             defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range
+            defaultArgs.createWithRange.range,
+            defaultArgs.createWithRange.broker
         );
     }
 
@@ -158,11 +153,10 @@ abstract contract LinearTest is SablierV2Test {
             defaultArgs.createWithDurations.sender,
             defaultArgs.createWithDurations.recipient,
             defaultArgs.createWithDurations.grossDepositAmount,
-            defaultArgs.createWithDurations.operator,
-            defaultArgs.createWithDurations.operatorFee,
             defaultArgs.createWithDurations.token,
             defaultArgs.createWithDurations.cancelable,
-            defaultArgs.createWithDurations.durations
+            defaultArgs.createWithDurations.durations,
+            defaultArgs.createWithRange.broker
         );
     }
 
@@ -172,11 +166,10 @@ abstract contract LinearTest is SablierV2Test {
             defaultArgs.createWithDurations.sender,
             defaultArgs.createWithDurations.recipient,
             defaultArgs.createWithDurations.grossDepositAmount,
-            defaultArgs.createWithDurations.operator,
-            defaultArgs.createWithDurations.operatorFee,
             defaultArgs.createWithDurations.token,
             defaultArgs.createWithDurations.cancelable,
-            durations
+            durations,
+            defaultArgs.createWithDurations.broker
         );
     }
 
@@ -186,11 +179,10 @@ abstract contract LinearTest is SablierV2Test {
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             grossDepositAmount,
-            defaultArgs.createWithRange.operator,
-            defaultArgs.createWithRange.operatorFee,
             defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range
+            defaultArgs.createWithRange.range,
+            defaultArgs.createWithRange.broker
         );
     }
 
@@ -201,11 +193,10 @@ abstract contract LinearTest is SablierV2Test {
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
-            defaultArgs.createWithRange.operator,
-            defaultArgs.createWithRange.operatorFee,
             defaultArgs.createWithRange.token,
             isCancelable,
-            defaultArgs.createWithRange.range
+            defaultArgs.createWithRange.range,
+            defaultArgs.createWithRange.broker
         );
     }
 
@@ -215,11 +206,10 @@ abstract contract LinearTest is SablierV2Test {
             defaultArgs.createWithRange.sender,
             recipient,
             defaultArgs.createWithRange.grossDepositAmount,
-            defaultArgs.createWithRange.operator,
-            defaultArgs.createWithRange.operatorFee,
             defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range
+            defaultArgs.createWithRange.range,
+            defaultArgs.createWithRange.broker
         );
     }
 
@@ -229,11 +219,10 @@ abstract contract LinearTest is SablierV2Test {
             sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
-            defaultArgs.createWithRange.operator,
-            defaultArgs.createWithRange.operatorFee,
             defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range
+            defaultArgs.createWithRange.range,
+            defaultArgs.createWithRange.broker
         );
     }
 
@@ -243,15 +232,14 @@ abstract contract LinearTest is SablierV2Test {
             defaultArgs.createWithRange.sender,
             defaultArgs.createWithRange.recipient,
             defaultArgs.createWithRange.grossDepositAmount,
-            defaultArgs.createWithRange.operator,
-            defaultArgs.createWithRange.operatorFee,
             defaultArgs.createWithRange.token,
             defaultArgs.createWithRange.cancelable,
             Range({
                 start: defaultArgs.createWithRange.range.start,
                 cliff: defaultArgs.createWithRange.range.cliff,
                 stop: stopTime
-            })
+            }),
+            defaultArgs.createWithRange.broker
         );
     }
 }
