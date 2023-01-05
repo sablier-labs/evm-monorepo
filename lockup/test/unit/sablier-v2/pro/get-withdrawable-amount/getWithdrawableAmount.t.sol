@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.13 <0.9.0;
 
 import { E, SD1x18 } from "@prb/math/SD1x18.sol";
 import { Solarray } from "solarray/Solarray.sol";

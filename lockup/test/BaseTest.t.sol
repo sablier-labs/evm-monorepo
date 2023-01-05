@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.13 <0.9.0;
 
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { eqString } from "@prb/test/Helpers.sol";

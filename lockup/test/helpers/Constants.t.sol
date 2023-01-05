@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.13 <0.9.0;
 
 import { Amounts, CreateAmounts, Durations } from "src/types/Structs.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
