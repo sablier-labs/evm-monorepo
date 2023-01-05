@@ -27,6 +27,8 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     struct Users {
+        // Default admin of all Sablier V2 contracts.
+        address payable admin;
         // Neutral user.
         address payable alice;
         // Default stream broker.
@@ -35,8 +37,6 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
         address payable eve;
         // Default NFT operator.
         address payable operator;
-        // Default owner of all Sablier V2 contracts.
-        address payable owner;
         // Default stream recipient.
         address payable recipient;
         // Default stream sender.
@@ -102,11 +102,11 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
     function setUp() public virtual {
         // Create users for testing.
         users = Users({
+            admin: createUser("Admin"),
             alice: createUser("Alice"),
             broker: createUser("Broker"),
             eve: createUser("Eve"),
             operator: createUser("Operator"),
-            owner: createUser("Owner"),
             recipient: createUser("Recipient"),
             sender: createUser("Sender")
         });
@@ -149,7 +149,7 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Approves all Sablier contracts to spend tokens from the sender, recipient, Alice and Eve,
-    /// and then change the active prank back to the owner.
+    /// and then change the active prank back to the admin.
     function approveSablierContracts() internal {
         changePrank(users.sender);
         dai.approve({ spender: address(linear), value: UINT256_MAX });
@@ -175,8 +175,8 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
         nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantToken.approve({ spender: address(pro), value: UINT256_MAX });
 
-        // Finally, change the active prank back to the owner.
-        changePrank(users.owner);
+        // Finally, change the active prank back to the admin.
+        changePrank(users.admin);
     }
 
     /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
@@ -191,8 +191,8 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
 
     /// @dev Conditionally deploy contracts normally or from precompiled source.
     function deploySablierContracts() internal {
-        // We deploy all contracts with the owner as the caller.
-        vm.startPrank({ msgSender: users.owner });
+        // We deploy all contracts with the admin as the caller.
+        vm.startPrank({ msgSender: users.admin });
 
         // We deploy from precompiled source if the profile is "test-optimized".
         if (isTestOptimizedProfile()) {

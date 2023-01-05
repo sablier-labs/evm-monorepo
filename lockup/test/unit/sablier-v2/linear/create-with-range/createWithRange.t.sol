@@ -102,7 +102,7 @@ contract CreateWithRange__LinearTest is LinearTest {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
         // Set the protocol fee.
-        changePrank(users.owner);
+        changePrank(users.admin);
         comptroller.setProtocolFee(params.createWithRange.token, protocolFee);
 
         // Run the test.
@@ -349,7 +349,7 @@ contract CreateWithRange__LinearTest is LinearTest {
         protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
 
         // Set the fuzzed protocol fee.
-        changePrank(users.owner);
+        changePrank(users.admin);
         comptroller.setProtocolFee(params.createWithRange.token, protocolFee);
 
         // Make the sender the funder in this test.

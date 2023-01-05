@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { Adminable } from "@prb/contracts/access/Adminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { Ownable } from "@prb/contracts/access/Ownable.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
@@ -15,7 +15,7 @@ import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 /// @title SablierV2
 /// @dev Abstract contract implementing common logic. Implements the ISablierV2 interface.
 abstract contract SablierV2 is
-    Ownable, // one dependency
+    Adminable, // one dependency
     ISablierV2 // three dependencies
 {
     using SafeERC20 for IERC20;
@@ -155,7 +155,7 @@ abstract contract SablierV2 is
     }
 
     /// @inheritdoc ISablierV2
-    function claimProtocolRevenues(IERC20 token) external override onlyOwner {
+    function claimProtocolRevenues(IERC20 token) external override onlyAdmin {
         // Checks: the protocol revenues are not zero.
         uint128 protocolRevenues = _protocolRevenues[token];
         if (protocolRevenues == 0) {
@@ -188,14 +188,14 @@ abstract contract SablierV2 is
     }
 
     /// @inheritdoc ISablierV2
-    function setComptroller(ISablierV2Comptroller newComptroller) external override onlyOwner {
+    function setComptroller(ISablierV2Comptroller newComptroller) external override onlyAdmin {
         // Effects: set the comptroller.
         ISablierV2Comptroller oldComptroller = comptroller;
         comptroller = newComptroller;
 
         // Emit an event.
         emit Events.SetComptroller({
-            owner: msg.sender,
+            admin: msg.sender,
             oldComptroller: oldComptroller,
             newComptroller: newComptroller
         });

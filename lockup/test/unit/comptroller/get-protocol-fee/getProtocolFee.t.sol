@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
+import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
@@ -13,8 +13,8 @@ contract GetProtocolFee__ComptrollerTest is ComptrollerTest {
     function setUp() public override {
         ComptrollerTest.setUp();
 
-        // Make the owner the caller in this test suite.
-        changePrank(users.owner);
+        // Make the admin the caller in this test suite.
+        changePrank(users.admin);
     }
 
     /// @dev it should return zero.

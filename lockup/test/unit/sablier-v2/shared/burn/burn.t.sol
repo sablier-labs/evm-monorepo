@@ -14,7 +14,7 @@ abstract contract Burn__Test is SharedTest {
         // Create the default stream, since most tests need it.
         defaultStreamId = createDefaultStream();
 
-        // Make the owner of the NFT the caller in this test suite.
+        // Make the recipient (owner of the NFT) the caller in this test suite.
         changePrank(users.recipient);
     }
 
