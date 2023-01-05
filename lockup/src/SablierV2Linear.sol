@@ -14,8 +14,8 @@ import { Helpers } from "./libraries/Helpers.sol";
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Linear } from "./interfaces/ISablierV2Linear.sol";
-import { ISablierV2Recipient } from "./hooks/ISablierV2Recipient.sol";
-import { ISablierV2Sender } from "./hooks/ISablierV2Sender.sol";
+import { ISablierV2Recipient } from "./interfaces/hooks/ISablierV2Recipient.sol";
+import { ISablierV2Sender } from "./interfaces/hooks/ISablierV2Sender.sol";
 import { SablierV2 } from "./SablierV2.sol";
 
 /// @title SablierV2Linear

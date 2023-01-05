@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
-import { ISablierV2Recipient } from "src/hooks/ISablierV2Recipient.sol";
+import { ISablierV2Recipient } from "src/interfaces/hooks/ISablierV2Recipient.sol";
 
 contract ReentrantRecipient is ISablierV2Recipient {
     function onStreamCanceled(
