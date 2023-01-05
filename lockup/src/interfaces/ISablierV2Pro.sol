@@ -86,7 +86,6 @@ interface ISablierV2Pro is ISablierV2 {
     /// - As long as they are ordered, it is not an error to set the `startTime` and the milestones to a past range.
     ///
     /// Requirements:
-    /// - `sender` must not be the zero address.
     /// - `recipient` must not be the zero address.
     /// - `grossDepositAmount` must not be zero.
     /// - `segments` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.

@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Amounts, Broker, CreateAmounts, Durations, LinearStream, Range } from "./types/Structs.sol";
 import { Errors } from "./libraries/Errors.sol";
@@ -126,10 +126,10 @@ contract SablierV2Linear is
 
             // In all other cases, calculate how much the recipient can withdraw.
             uint256 startTime = uint256(_streams[streamId].range.start);
-            UD60x18 elapsedTime = UD60x18.wrap(currentTime - startTime);
-            UD60x18 totalTime = UD60x18.wrap(stopTime - startTime);
+            UD60x18 elapsedTime = ud(currentTime - startTime);
+            UD60x18 totalTime = ud(stopTime - startTime);
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-            UD60x18 depositAmount = UD60x18.wrap(_streams[streamId].amounts.deposit);
+            UD60x18 depositAmount = ud(_streams[streamId].amounts.deposit);
             UD60x18 streamedAmount = elapsedTimePercentage.mul(depositAmount);
             withdrawableAmount = uint128(UD60x18.unwrap(streamedAmount)) - _streams[streamId].amounts.withdrawn;
         }

@@ -465,18 +465,16 @@ contract SablierV2Pro is
         uint256 streamId
     ) internal view returns (uint128 withdrawableAmount) {
         unchecked {
-            uint128 currentSegmentAmount = _streams[streamId].segments[0].amount;
-            SD1x18 currentSegmentExponent = _streams[streamId].segments[0].exponent;
-            SD59x18 elapsedSegmentTime = SD59x18.wrap(
-                int256(uint256(uint40(block.timestamp) - _streams[streamId].startTime))
-            );
+            uint128 depositAmount = _streams[streamId].amounts.deposit;
+            SD1x18 exponent = _streams[streamId].segments[0].exponent;
+            SD59x18 elapsedTime = SD59x18.wrap(int256(uint256(uint40(block.timestamp) - _streams[streamId].startTime)));
             uint40 stopTime = _streams[streamId].segments[0].milestone;
-            SD59x18 totalSegmentTime = SD59x18.wrap(int256(uint256(stopTime - _streams[streamId].startTime)));
+            SD59x18 totalTime = SD59x18.wrap(int256(uint256(stopTime - _streams[streamId].startTime)));
 
             // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
-            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
-            SD59x18 streamedAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
+            SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(exponent))));
+            SD59x18 streamedAmount = multiplier.mul(SD59x18.wrap(int256(uint256(depositAmount))));
             withdrawableAmount =
                 uint128(uint256(SD59x18.unwrap(streamedAmount))) -
                 _streams[streamId].amounts.withdrawn;

@@ -5,8 +5,6 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-
 /// @title ISablierV2Controller
 /// @notice This contract is in charge of the Sablier V2 protocol configuration, handling such values as the
 /// protocol fees.

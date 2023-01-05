@@ -84,7 +84,6 @@ interface ISablierV2Linear is ISablierV2 {
     /// - As long as they are ordered, it is not an error to set a range in the past.
     ///
     /// Requirements:
-    /// - `sender` must not be the zero address.
     /// - `recipient` must not be the zero address.
     /// - `grossDepositAmount` must not be zero.
     /// - `range.start` must not be greater than `range.cliff`.
