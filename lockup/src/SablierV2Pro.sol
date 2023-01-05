@@ -199,7 +199,7 @@ contract SablierV2Pro is
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithMilestones(
-            CreateWithMilestonesArgs({
+            CreateWithMilestonesParams({
                 amounts: amounts,
                 broker: broker.addr,
                 cancelable: cancelable,
@@ -236,7 +236,7 @@ contract SablierV2Pro is
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithMilestones(
-            CreateWithMilestonesArgs({
+            CreateWithMilestonesParams({
                 amounts: amounts,
                 broker: broker.addr,
                 cancelable: cancelable,
@@ -341,7 +341,7 @@ contract SablierV2Pro is
 
     /// @dev This struct is needed to avoid the "Stack Too Deep" error.
 
-    struct CreateWithMilestonesArgs {
+    struct CreateWithMilestonesParams {
         CreateAmounts amounts;
         Segment[] segments;
         address sender; // ──┐
@@ -353,59 +353,59 @@ contract SablierV2Pro is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _createWithMilestones(CreateWithMilestonesArgs memory args) internal returns (uint256 streamId) {
+    function _createWithMilestones(CreateWithMilestonesParams memory params) internal returns (uint256 streamId) {
         // Checks: validate the arguments.
-        Helpers.checkCreateProArgs(args.amounts.netDeposit, args.segments, MAX_SEGMENT_COUNT, args.startTime);
+        Helpers.checkCreateProParams(params.amounts.netDeposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
         // Load the stream id.
         streamId = nextStreamId;
 
         // Effects: create the stream.
         ProStream storage stream = _streams[streamId];
-        stream.amounts.deposit = args.amounts.netDeposit;
-        stream.isCancelable = args.cancelable;
+        stream.amounts.deposit = params.amounts.netDeposit;
+        stream.isCancelable = params.cancelable;
         stream.isEntity = true;
-        stream.sender = args.sender;
-        stream.startTime = args.startTime;
-        stream.token = args.token;
+        stream.sender = params.sender;
+        stream.startTime = params.startTime;
+        stream.token = params.token;
 
         unchecked {
             // Effects: store the segments. Copying an array from memory to storage is not currently supported in
             // Solidity, so we have to do it manually. See https://github.com/ethereum/solidity/issues/12783
-            uint256 segmentCount = args.segments.length;
+            uint256 segmentCount = params.segments.length;
             for (uint256 i = 0; i < segmentCount; ++i) {
-                stream.segments.push(args.segments[i]);
+                stream.segments.push(params.segments[i]);
             }
 
             // Effects: bump the next stream id and record the protocol fee.
             // We're using unchecked arithmetic here because theses calculations cannot realistically overflow, ever.
             nextStreamId = streamId + 1;
-            _protocolRevenues[args.token] += args.amounts.protocolFee;
+            _protocolRevenues[params.token] += params.amounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.
-        _mint({ to: args.recipient, tokenId: streamId });
+        _mint({ to: params.recipient, tokenId: streamId });
 
         // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.
-        args.token.safeTransferFrom({ from: msg.sender, to: address(this), amount: args.amounts.netDeposit });
+        params.token.safeTransferFrom({ from: msg.sender, to: address(this), amount: params.amounts.netDeposit });
 
         // Interactions: perform the ERC-20 transfer to pay the broker fee, if not zero.
-        if (args.amounts.brokerFee > 0) {
-            args.token.safeTransferFrom({ from: msg.sender, to: args.broker, amount: args.amounts.brokerFee });
+        if (params.amounts.brokerFee > 0) {
+            params.token.safeTransferFrom({ from: msg.sender, to: params.broker, amount: params.amounts.brokerFee });
         }
 
         // Emit an event.
         emit Events.CreateProStream({
             streamId: streamId,
             funder: msg.sender,
-            sender: args.sender,
-            recipient: args.recipient,
-            amounts: args.amounts,
-            segments: args.segments,
-            token: args.token,
-            cancelable: args.cancelable,
-            startTime: args.startTime,
-            broker: args.broker
+            sender: params.sender,
+            recipient: params.recipient,
+            amounts: params.amounts,
+            segments: params.segments,
+            token: params.token,
+            cancelable: params.cancelable,
+            startTime: params.startTime,
+            broker: params.broker
         });
     }
 

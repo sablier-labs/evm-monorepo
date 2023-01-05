@@ -7,7 +7,6 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Amounts, Broker, ProStream, Segment } from "src/types/Structs.sol";
-
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
 import { SablierV2Test } from "test/unit/sablier-v2/SablierV2.t.sol";
@@ -20,7 +19,7 @@ abstract contract ProTest is SablierV2Test {
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    struct CreateWithDeltasArgs {
+    struct CreateWithDeltasParams {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
@@ -31,7 +30,7 @@ abstract contract ProTest is SablierV2Test {
         Broker broker;
     }
 
-    struct CreateWithMilestonesArgs {
+    struct CreateWithMilestonesParams {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
@@ -42,17 +41,17 @@ abstract contract ProTest is SablierV2Test {
         Broker broker;
     }
 
-    struct DefaultArgs {
-        CreateWithDeltasArgs createWithDeltas;
-        CreateWithMilestonesArgs createWithMilestones;
+    struct DefaultParams {
+        CreateWithDeltasParams createWithDeltas;
+        CreateWithMilestonesParams createWithMilestones;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   TESTING VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    DefaultArgs internal defaultArgs;
     ProStream internal defaultStream;
+    DefaultParams internal params;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
@@ -61,37 +60,37 @@ abstract contract ProTest is SablierV2Test {
     function setUp() public virtual override {
         UnitTest.setUp();
 
-        // Create the default args to be used for the create functions.
-        defaultArgs.createWithDeltas.sender = users.sender;
-        defaultArgs.createWithDeltas.recipient = users.recipient;
-        defaultArgs.createWithDeltas.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
-        defaultArgs.createWithDeltas.token = dai;
-        defaultArgs.createWithDeltas.cancelable = true;
-        defaultArgs.createWithDeltas.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
+        // Initialize the default params to be used for the create functions.
+        params.createWithDeltas.sender = users.sender;
+        params.createWithDeltas.recipient = users.recipient;
+        params.createWithDeltas.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
+        params.createWithDeltas.token = dai;
+        params.createWithDeltas.cancelable = true;
+        params.createWithDeltas.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
 
-        defaultArgs.createWithMilestones.sender = users.sender;
-        defaultArgs.createWithMilestones.recipient = users.recipient;
-        defaultArgs.createWithMilestones.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
-        defaultArgs.createWithMilestones.token = dai;
-        defaultArgs.createWithMilestones.cancelable = true;
-        defaultArgs.createWithMilestones.startTime = DEFAULT_START_TIME;
-        defaultArgs.createWithMilestones.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
+        params.createWithMilestones.sender = users.sender;
+        params.createWithMilestones.recipient = users.recipient;
+        params.createWithMilestones.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
+        params.createWithMilestones.token = dai;
+        params.createWithMilestones.cancelable = true;
+        params.createWithMilestones.startTime = DEFAULT_START_TIME;
+        params.createWithMilestones.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
 
         // See https://github.com/ethereum/solidity/issues/12783
         for (uint256 i = 0; i < DEFAULT_SEGMENTS.length; ++i) {
-            defaultArgs.createWithDeltas.segments.push(DEFAULT_SEGMENTS[i]);
-            defaultArgs.createWithDeltas.deltas.push(DEFAULT_SEGMENT_DELTAS[i]);
-            defaultArgs.createWithMilestones.segments.push(DEFAULT_SEGMENTS[i]);
+            params.createWithDeltas.segments.push(DEFAULT_SEGMENTS[i]);
+            params.createWithDeltas.deltas.push(DEFAULT_SEGMENT_DELTAS[i]);
+            params.createWithMilestones.segments.push(DEFAULT_SEGMENTS[i]);
         }
 
         // Create the default stream to be used across the tests.
         defaultStream.amounts = DEFAULT_AMOUNTS;
-        defaultStream.isCancelable = defaultArgs.createWithMilestones.cancelable;
+        defaultStream.isCancelable = params.createWithMilestones.cancelable;
         defaultStream.isEntity = true;
-        defaultStream.segments = defaultArgs.createWithMilestones.segments;
-        defaultStream.sender = defaultArgs.createWithMilestones.sender;
-        defaultStream.startTime = defaultArgs.createWithMilestones.startTime;
-        defaultStream.token = defaultArgs.createWithMilestones.token;
+        defaultStream.segments = params.createWithMilestones.segments;
+        defaultStream.sender = params.createWithMilestones.sender;
+        defaultStream.startTime = params.createWithMilestones.startTime;
+        defaultStream.token = params.createWithMilestones.token;
 
         // Set the default protocol fee.
         comptroller.setProtocolFee(dai, DEFAULT_PROTOCOL_FEE);
@@ -196,56 +195,56 @@ abstract contract ProTest is SablierV2Test {
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
-            defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.broker
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
+            params.createWithMilestones.grossDepositAmount,
+            params.createWithMilestones.segments,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
+            params.createWithMilestones.broker
         );
     }
 
     /// @dev Creates the default stream with deltas.
     function createDefaultStreamWithDeltas() internal returns (uint256 streamId) {
         streamId = pro.createWithDeltas(
-            defaultArgs.createWithDeltas.sender,
-            defaultArgs.createWithDeltas.recipient,
-            defaultArgs.createWithDeltas.grossDepositAmount,
-            defaultArgs.createWithDeltas.segments,
-            defaultArgs.createWithDeltas.token,
-            defaultArgs.createWithDeltas.cancelable,
-            defaultArgs.createWithDeltas.deltas,
-            defaultArgs.createWithDeltas.broker
+            params.createWithDeltas.sender,
+            params.createWithDeltas.recipient,
+            params.createWithDeltas.grossDepositAmount,
+            params.createWithDeltas.segments,
+            params.createWithDeltas.token,
+            params.createWithDeltas.cancelable,
+            params.createWithDeltas.deltas,
+            params.createWithDeltas.broker
         );
     }
 
     /// @dev Creates the default stream with the provided deltas.
     function createDefaultStreamWithDeltas(uint40[] memory deltas) internal returns (uint256 streamId) {
         streamId = pro.createWithDeltas(
-            defaultArgs.createWithDeltas.sender,
-            defaultArgs.createWithDeltas.recipient,
-            defaultArgs.createWithDeltas.grossDepositAmount,
-            defaultArgs.createWithDeltas.segments,
-            defaultArgs.createWithDeltas.token,
-            defaultArgs.createWithDeltas.cancelable,
+            params.createWithDeltas.sender,
+            params.createWithDeltas.recipient,
+            params.createWithDeltas.grossDepositAmount,
+            params.createWithDeltas.segments,
+            params.createWithDeltas.token,
+            params.createWithDeltas.cancelable,
             deltas,
-            defaultArgs.createWithDeltas.broker
+            params.createWithDeltas.broker
         );
     }
 
     /// @dev Creates the default stream with the provided gross deposit amount.
     function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
             grossDepositAmount,
-            defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.broker
+            params.createWithMilestones.segments,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
+            params.createWithMilestones.broker
         );
     }
 
@@ -253,42 +252,42 @@ abstract contract ProTest is SablierV2Test {
     function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
         bool isCancelable = false;
         streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
-            defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.token,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
+            params.createWithMilestones.grossDepositAmount,
+            params.createWithMilestones.segments,
+            params.createWithMilestones.token,
             isCancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.broker
+            params.createWithMilestones.startTime,
+            params.createWithMilestones.broker
         );
     }
 
     /// @dev Creates the default stream with the provided segments.
     function createDefaultStreamWithSegments(Segment[] memory segments) internal returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
-            defaultArgs.createWithMilestones.grossDepositAmount,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
+            params.createWithMilestones.grossDepositAmount,
             segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.broker
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
+            params.createWithMilestones.broker
         );
     }
 
     /// @dev Creates the default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
+            params.createWithMilestones.sender,
             recipient,
-            defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.broker
+            params.createWithMilestones.grossDepositAmount,
+            params.createWithMilestones.segments,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
+            params.createWithMilestones.broker
         );
     }
 
@@ -296,29 +295,29 @@ abstract contract ProTest is SablierV2Test {
     function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
             sender,
-            defaultArgs.createWithMilestones.recipient,
-            defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.broker
+            params.createWithMilestones.recipient,
+            params.createWithMilestones.grossDepositAmount,
+            params.createWithMilestones.segments,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
+            params.createWithMilestones.broker
         );
     }
 
     /// @dev Creates the default stream with the provided stop time. In this case, the last milestone is the stop time.
     function createDefaultStreamWithStopTime(uint40 stopTime) internal override returns (uint256 streamId) {
-        Segment[] memory segments = defaultArgs.createWithMilestones.segments;
+        Segment[] memory segments = params.createWithMilestones.segments;
         segments[1].milestone = stopTime;
         streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
-            defaultArgs.createWithMilestones.grossDepositAmount,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
+            params.createWithMilestones.grossDepositAmount,
             segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.broker
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
+            params.createWithMilestones.broker
         );
     }
 }

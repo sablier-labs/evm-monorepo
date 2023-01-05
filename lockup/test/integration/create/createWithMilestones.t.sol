@@ -34,7 +34,7 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
                                    TEST FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    struct Args {
+    struct Params {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
@@ -73,22 +73,22 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
     /// - Broker fee zero and non-zero.
-    function testCreateWithMilestones(Args memory args) external {
-        vm.assume(args.sender != address(0) && args.recipient != address(0) && args.broker.addr != address(0));
-        vm.assume(args.broker.addr != holder && args.broker.addr != address(pro));
-        vm.assume(args.grossDepositAmount != 0 && args.grossDepositAmount <= holderBalance);
-        args.broker.fee = bound(args.broker.fee, 0, DEFAULT_MAX_FEE);
-        args.startTime = boundUint40(args.startTime, 0, DEFAULT_SEGMENTS[0].milestone);
+    function testCreateWithMilestones(Params memory params) external {
+        vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
+        vm.assume(params.broker.addr != holder && params.broker.addr != address(pro));
+        vm.assume(params.grossDepositAmount != 0 && params.grossDepositAmount <= holderBalance);
+        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
+        params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone);
 
         // Load the current token balances.
         Vars memory vars;
         vars.initialContractBalance = IERC20(token).balanceOf(address(pro));
         vars.initialHolderBalance = IERC20(token).balanceOf(holder);
-        vars.initialBrokerBalance = IERC20(token).balanceOf(args.broker.addr);
+        vars.initialBrokerBalance = IERC20(token).balanceOf(params.broker.addr);
 
         // Calculate the fee amounts and the net deposit amount.
-        vars.brokerFeeAmount = uint128(UD60x18.unwrap(ud(args.grossDepositAmount).mul(args.broker.fee)));
-        vars.netDepositAmount = args.grossDepositAmount - vars.brokerFeeAmount;
+        vars.brokerFeeAmount = uint128(UD60x18.unwrap(ud(params.grossDepositAmount).mul(params.broker.fee)));
+        vars.netDepositAmount = params.grossDepositAmount - vars.brokerFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
         Segment[] memory segments = DEFAULT_SEGMENTS;
@@ -100,8 +100,8 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
         emit Events.CreateProStream({
             streamId: vars.streamId,
             funder: holder,
-            sender: args.sender,
-            recipient: args.recipient,
+            sender: params.sender,
+            recipient: params.recipient,
             amounts: CreateAmounts({
                 netDeposit: vars.netDepositAmount,
                 protocolFee: 0,
@@ -109,31 +109,31 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
             }),
             segments: segments,
             token: token,
-            cancelable: args.cancelable,
-            startTime: args.startTime,
-            broker: args.broker.addr
+            cancelable: params.cancelable,
+            startTime: params.startTime,
+            broker: params.broker.addr
         });
 
         // Create the stream.
         pro.createWithMilestones(
-            args.sender,
-            args.recipient,
-            args.grossDepositAmount,
+            params.sender,
+            params.recipient,
+            params.grossDepositAmount,
             segments,
             token,
-            args.cancelable,
-            args.startTime,
-            args.broker
+            params.cancelable,
+            params.startTime,
+            params.broker
         );
 
         // Assert that the stream was created.
         ProStream memory actualStream = pro.getStream(vars.streamId);
         assertEq(actualStream.amounts, Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
-        assertEq(actualStream.isCancelable, args.cancelable);
+        assertEq(actualStream.isCancelable, params.cancelable);
         assertEq(actualStream.isEntity, true);
         assertEq(actualStream.segments, segments);
-        assertEq(actualStream.sender, args.sender);
-        assertEq(actualStream.startTime, args.startTime);
+        assertEq(actualStream.sender, params.sender);
+        assertEq(actualStream.startTime, params.startTime);
         assertEq(actualStream.token, token);
 
         // Assert that the next stream id was bumped.
@@ -143,7 +143,7 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
 
         // Assert that the NFT was minted.
         vars.actualNFTOwner = pro.ownerOf({ tokenId: vars.streamId });
-        vars.expectedNFTOwner = args.recipient;
+        vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
         // Assert that the contract's balance was updated.
@@ -153,11 +153,11 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
 
         // Assert that the holder's balance was updated.
         vars.actualHolderBalance = IERC20(token).balanceOf(holder);
-        vars.expectedHolderBalance = vars.initialHolderBalance - args.grossDepositAmount;
+        vars.expectedHolderBalance = vars.initialHolderBalance - params.grossDepositAmount;
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "holder balance");
 
         // Assert that the broker's balance was updated.
-        vars.actualBrokerBalance = IERC20(token).balanceOf(args.broker.addr);
+        vars.actualBrokerBalance = IERC20(token).balanceOf(params.broker.addr);
         vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.brokerFeeAmount;
         assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "broker balance");
     }

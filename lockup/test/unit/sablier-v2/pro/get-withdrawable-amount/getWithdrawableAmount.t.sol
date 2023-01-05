@@ -116,13 +116,13 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         // Create the stream with a custom gross deposit amount. The broker fee is disabled so that it doesn't interfere
         // with the calculations.
         uint256 streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
-            defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
+            params.createWithMilestones.segments,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })
         );
 
@@ -160,13 +160,13 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         // Create the stream wit the one-segment arrays. The broker fee is disabled so that it doesn't interfere
         // with the calculations.
         uint256 streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
             depositAmount,
             segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })
         );
 
@@ -212,13 +212,13 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         // Create the stream with the multiple-segment arrays. The broker fee is disabled so that it doesn't interfere
         // with the calculations.
         uint256 streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             maxSegments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })
         );
 
@@ -244,13 +244,13 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         // Create the stream with the multiple-segment arrays. The broker fee is disabled so that it doesn't interfere
         // with the calculations.
         uint256 streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             maxSegments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })
         );
 

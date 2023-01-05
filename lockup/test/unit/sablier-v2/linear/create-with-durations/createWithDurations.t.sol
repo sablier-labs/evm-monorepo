@@ -75,20 +75,20 @@ contract CreateWithDurations__LinearTest is LinearTest {
         vm.assume(durations.cliff <= durations.total);
 
         // Make the sender the funder in this test.
-        address funder = defaultArgs.createWithDurations.sender;
+        address funder = params.createWithDurations.sender;
 
         // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
         vm.expectCall(
-            address(defaultArgs.createWithDurations.token),
+            address(params.createWithDurations.token),
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
         // Expect the broker fee to be paid to the broker, if the amount is not zero.
         vm.expectCall(
-            address(defaultArgs.createWithDurations.token),
+            address(params.createWithDurations.token),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, defaultArgs.createWithDurations.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
+                (funder, params.createWithDurations.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
             )
         );
 
@@ -118,7 +118,7 @@ contract CreateWithDurations__LinearTest is LinearTest {
 
         // Assert that the NFT was minted.
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = defaultArgs.createWithDurations.recipient;
+        address expectedNFTOwner = params.createWithDurations.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
 
@@ -129,13 +129,13 @@ contract CreateWithDurations__LinearTest is LinearTest {
         TotalDurationCalculationDoesNotOverflow
     {
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithDurations.token);
+        uint128 initialProtocolRevenues = linear.getProtocolRevenues(params.createWithDurations.token);
 
         // Create the default stream.
         createDefaultStreamWithDurations();
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(defaultArgs.createWithDurations.token);
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(params.createWithDurations.token);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -147,18 +147,18 @@ contract CreateWithDurations__LinearTest is LinearTest {
         TotalDurationCalculationDoesNotOverflow
     {
         uint256 streamId = linear.nextStreamId();
-        address funder = defaultArgs.createWithDurations.sender;
+        address funder = params.createWithDurations.sender;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLinearStream({
             streamId: streamId,
             funder: funder,
-            sender: defaultArgs.createWithDurations.sender,
-            recipient: defaultArgs.createWithDurations.recipient,
+            sender: params.createWithDurations.sender,
+            recipient: params.createWithDurations.recipient,
             amounts: DEFAULT_CREATE_AMOUNTS,
-            token: defaultArgs.createWithDurations.token,
-            cancelable: defaultArgs.createWithDurations.cancelable,
+            token: params.createWithDurations.token,
+            cancelable: params.createWithDurations.cancelable,
             range: DEFAULT_RANGE,
-            broker: defaultArgs.createWithDurations.broker.addr
+            broker: params.createWithDurations.broker.addr
         });
         createDefaultStreamWithDurations();
     }

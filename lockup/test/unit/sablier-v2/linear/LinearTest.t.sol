@@ -6,7 +6,6 @@ import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Amounts, Broker, Durations, LinearStream, Range } from "src/types/Structs.sol";
-
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
 
 import { SablierV2Test } from "test/unit/sablier-v2/SablierV2.t.sol";
@@ -19,7 +18,7 @@ abstract contract LinearTest is SablierV2Test {
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    struct CreateWithDurationsArgs {
+    struct CreateWithDurationsParams {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
@@ -29,7 +28,7 @@ abstract contract LinearTest is SablierV2Test {
         Broker broker;
     }
 
-    struct CreateWithRangeArgs {
+    struct CreateWithRangeParams {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
@@ -39,17 +38,17 @@ abstract contract LinearTest is SablierV2Test {
         Broker broker;
     }
 
-    struct DefaultArgs {
-        CreateWithDurationsArgs createWithDurations;
-        CreateWithRangeArgs createWithRange;
+    struct DefaultParams {
+        CreateWithDurationsParams createWithDurations;
+        CreateWithRangeParams createWithRange;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   TESTING VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    DefaultArgs internal defaultArgs;
     LinearStream internal defaultStream;
+    DefaultParams internal params;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
@@ -58,9 +57,9 @@ abstract contract LinearTest is SablierV2Test {
     function setUp() public virtual override {
         UnitTest.setUp();
 
-        // Create the default args to be used for the create functions.
-        defaultArgs = DefaultArgs({
-            createWithDurations: CreateWithDurationsArgs({
+        // Initialize the default params to be used for the create functions.
+        params = DefaultParams({
+            createWithDurations: CreateWithDurationsParams({
                 sender: users.sender,
                 recipient: users.recipient,
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
@@ -69,7 +68,7 @@ abstract contract LinearTest is SablierV2Test {
                 durations: DEFAULT_DURATIONS,
                 broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
             }),
-            createWithRange: CreateWithRangeArgs({
+            createWithRange: CreateWithRangeParams({
                 sender: users.sender,
                 recipient: users.recipient,
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
@@ -83,11 +82,11 @@ abstract contract LinearTest is SablierV2Test {
         // Create the default stream to be used across the tests.
         defaultStream = LinearStream({
             amounts: DEFAULT_AMOUNTS,
-            isCancelable: defaultArgs.createWithRange.cancelable,
+            isCancelable: params.createWithRange.cancelable,
             isEntity: true,
-            sender: defaultArgs.createWithRange.sender,
-            range: defaultArgs.createWithRange.range,
-            token: defaultArgs.createWithRange.token
+            sender: params.createWithRange.sender,
+            range: params.createWithRange.range,
+            token: params.createWithRange.token
         });
 
         // Set the default protocol fee.
@@ -137,52 +136,52 @@ abstract contract LinearTest is SablierV2Test {
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
-            defaultArgs.createWithRange.sender,
-            defaultArgs.createWithRange.recipient,
-            defaultArgs.createWithRange.grossDepositAmount,
-            defaultArgs.createWithRange.token,
-            defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range,
-            defaultArgs.createWithRange.broker
+            params.createWithRange.sender,
+            params.createWithRange.recipient,
+            params.createWithRange.grossDepositAmount,
+            params.createWithRange.token,
+            params.createWithRange.cancelable,
+            params.createWithRange.range,
+            params.createWithRange.broker
         );
     }
 
     /// @dev Creates the default stream with durations.
     function createDefaultStreamWithDurations() internal returns (uint256 streamId) {
         streamId = linear.createWithDurations(
-            defaultArgs.createWithDurations.sender,
-            defaultArgs.createWithDurations.recipient,
-            defaultArgs.createWithDurations.grossDepositAmount,
-            defaultArgs.createWithDurations.token,
-            defaultArgs.createWithDurations.cancelable,
-            defaultArgs.createWithDurations.durations,
-            defaultArgs.createWithRange.broker
+            params.createWithDurations.sender,
+            params.createWithDurations.recipient,
+            params.createWithDurations.grossDepositAmount,
+            params.createWithDurations.token,
+            params.createWithDurations.cancelable,
+            params.createWithDurations.durations,
+            params.createWithRange.broker
         );
     }
 
     /// @dev Creates the default stream with the provided durations.
     function createDefaultStreamWithDurations(Durations memory durations) internal returns (uint256 streamId) {
         streamId = linear.createWithDurations(
-            defaultArgs.createWithDurations.sender,
-            defaultArgs.createWithDurations.recipient,
-            defaultArgs.createWithDurations.grossDepositAmount,
-            defaultArgs.createWithDurations.token,
-            defaultArgs.createWithDurations.cancelable,
+            params.createWithDurations.sender,
+            params.createWithDurations.recipient,
+            params.createWithDurations.grossDepositAmount,
+            params.createWithDurations.token,
+            params.createWithDurations.cancelable,
             durations,
-            defaultArgs.createWithDurations.broker
+            params.createWithDurations.broker
         );
     }
 
     /// @dev Creates the default stream with the provided gross deposit amount.
     function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
         streamId = linear.createWithRange(
-            defaultArgs.createWithRange.sender,
-            defaultArgs.createWithRange.recipient,
+            params.createWithRange.sender,
+            params.createWithRange.recipient,
             grossDepositAmount,
-            defaultArgs.createWithRange.token,
-            defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range,
-            defaultArgs.createWithRange.broker
+            params.createWithRange.token,
+            params.createWithRange.cancelable,
+            params.createWithRange.range,
+            params.createWithRange.broker
         );
     }
 
@@ -190,26 +189,26 @@ abstract contract LinearTest is SablierV2Test {
     function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
         bool isCancelable = false;
         streamId = linear.createWithRange(
-            defaultArgs.createWithRange.sender,
-            defaultArgs.createWithRange.recipient,
-            defaultArgs.createWithRange.grossDepositAmount,
-            defaultArgs.createWithRange.token,
+            params.createWithRange.sender,
+            params.createWithRange.recipient,
+            params.createWithRange.grossDepositAmount,
+            params.createWithRange.token,
             isCancelable,
-            defaultArgs.createWithRange.range,
-            defaultArgs.createWithRange.broker
+            params.createWithRange.range,
+            params.createWithRange.broker
         );
     }
 
     /// @dev Creates the default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
-            defaultArgs.createWithRange.sender,
+            params.createWithRange.sender,
             recipient,
-            defaultArgs.createWithRange.grossDepositAmount,
-            defaultArgs.createWithRange.token,
-            defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range,
-            defaultArgs.createWithRange.broker
+            params.createWithRange.grossDepositAmount,
+            params.createWithRange.token,
+            params.createWithRange.cancelable,
+            params.createWithRange.range,
+            params.createWithRange.broker
         );
     }
 
@@ -217,29 +216,29 @@ abstract contract LinearTest is SablierV2Test {
     function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
             sender,
-            defaultArgs.createWithRange.recipient,
-            defaultArgs.createWithRange.grossDepositAmount,
-            defaultArgs.createWithRange.token,
-            defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range,
-            defaultArgs.createWithRange.broker
+            params.createWithRange.recipient,
+            params.createWithRange.grossDepositAmount,
+            params.createWithRange.token,
+            params.createWithRange.cancelable,
+            params.createWithRange.range,
+            params.createWithRange.broker
         );
     }
 
     /// @dev Creates the default stream with the provided stop time.
     function createDefaultStreamWithStopTime(uint40 stopTime) internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
-            defaultArgs.createWithRange.sender,
-            defaultArgs.createWithRange.recipient,
-            defaultArgs.createWithRange.grossDepositAmount,
-            defaultArgs.createWithRange.token,
-            defaultArgs.createWithRange.cancelable,
+            params.createWithRange.sender,
+            params.createWithRange.recipient,
+            params.createWithRange.grossDepositAmount,
+            params.createWithRange.token,
+            params.createWithRange.cancelable,
             Range({
-                start: defaultArgs.createWithRange.range.start,
-                cliff: defaultArgs.createWithRange.range.cliff,
+                start: params.createWithRange.range.start,
+                cliff: params.createWithRange.range.cliff,
                 stop: stopTime
             }),
-            defaultArgs.createWithRange.broker
+            params.createWithRange.broker
         );
     }
 }

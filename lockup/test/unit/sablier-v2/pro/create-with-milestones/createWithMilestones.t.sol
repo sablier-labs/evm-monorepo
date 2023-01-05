@@ -78,7 +78,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         SegmentCountNotZero
         SegmentCountNotTooHigh
     {
-        Segment[] memory segments = defaultArgs.createWithMilestones.segments;
+        Segment[] memory segments = params.createWithMilestones.segments;
         segments[0].amount = UINT128_MAX;
         segments[1].amount = 1;
         vm.expectRevert(stdError.arithmeticError);
@@ -99,7 +99,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         SegmentAmountsSumDoesNotOverflow
     {
         // Swap the segment milestones.
-        Segment[] memory segments = defaultArgs.createWithMilestones.segments;
+        Segment[] memory segments = params.createWithMilestones.segments;
         (segments[0].milestone, segments[1].milestone) = (segments[1].milestone, segments[0].milestone);
 
         // Expect an error.
@@ -137,9 +137,9 @@ contract CreateWithMilestones__ProTest is ProTest {
 
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
         changePrank(users.owner);
-        comptroller.setProtocolFee(defaultArgs.createWithMilestones.token, ZERO);
+        comptroller.setProtocolFee(params.createWithMilestones.token, ZERO);
         UD60x18 brokerFee = ZERO;
-        changePrank(defaultArgs.createWithMilestones.sender);
+        changePrank(params.createWithMilestones.sender);
 
         // Adjust the default net deposit amount.
         uint128 netDepositAmount = DEFAULT_NET_DEPOSIT_AMOUNT + depositDelta;
@@ -155,13 +155,13 @@ contract CreateWithMilestones__ProTest is ProTest {
 
         // Create the stream.
         pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
             netDepositAmount,
-            defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
+            params.createWithMilestones.segments,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: brokerFee })
         );
     }
@@ -219,13 +219,13 @@ contract CreateWithMilestones__ProTest is ProTest {
             abi.encodeWithSelector(Errors.SablierV2__BrokerFeeTooHigh.selector, brokerFee, DEFAULT_MAX_FEE)
         );
         pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
-            defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
+            params.createWithMilestones.grossDepositAmount,
+            params.createWithMilestones.segments,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
             Broker({ addr: users.broker, fee: brokerFee })
         );
     }
@@ -260,14 +260,14 @@ contract CreateWithMilestones__ProTest is ProTest {
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(nonToken)));
         pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
-            defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segments,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
+            params.createWithMilestones.grossDepositAmount,
+            params.createWithMilestones.segments,
             nonToken,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.broker
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
+            params.createWithMilestones.broker
         );
     }
 
@@ -293,7 +293,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         uint256 streamId = pro.nextStreamId();
 
         // Make the sender the funder in this test.
-        address funder = defaultArgs.createWithMilestones.sender;
+        address funder = params.createWithMilestones.sender;
 
         // Expect the tokens to be transferred from the funder to the SablierV2Pro contract.
         vm.expectCall(
@@ -306,20 +306,20 @@ contract CreateWithMilestones__ProTest is ProTest {
             address(nonCompliantToken),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, defaultArgs.createWithMilestones.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
+                (funder, params.createWithMilestones.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
             )
         );
 
         // Create the stream.
         pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
-            defaultArgs.createWithMilestones.grossDepositAmount,
-            defaultArgs.createWithMilestones.segments,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
+            params.createWithMilestones.grossDepositAmount,
+            params.createWithMilestones.segments,
             IERC20(address(nonCompliantToken)),
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
-            defaultArgs.createWithMilestones.broker
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
+            params.createWithMilestones.broker
         );
 
         // Assert that the stream was created.
@@ -339,7 +339,7 @@ contract CreateWithMilestones__ProTest is ProTest {
 
         // Assert that the NFT was minted.
         address actualNFTOwner = pro.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = defaultArgs.createWithMilestones.recipient;
+        address expectedNFTOwner = params.createWithMilestones.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
 
@@ -382,16 +382,16 @@ contract CreateWithMilestones__ProTest is ProTest {
         vm.assume(funder != address(0) && recipient != address(0) && broker.addr != address(0));
         vm.assume(grossDepositAmount != 0);
         broker.fee = bound(broker.fee, 0, DEFAULT_MAX_FEE);
-        startTime = boundUint40(startTime, 0, defaultArgs.createWithMilestones.segments[0].milestone);
+        startTime = boundUint40(startTime, 0, params.createWithMilestones.segments[0].milestone);
 
         // Make the fuzzed funder the caller in this test.
         changePrank(funder);
 
         // Mint enough tokens to the funder.
-        deal({ token: address(defaultArgs.createWithMilestones.token), to: funder, give: grossDepositAmount });
+        deal({ token: address(params.createWithMilestones.token), to: funder, give: grossDepositAmount });
 
         // Approve the SablierV2Pro contract to transfer the tokens from the funder.
-        defaultArgs.createWithMilestones.token.approve({ spender: address(pro), value: UINT256_MAX });
+        params.createWithMilestones.token.approve({ spender: address(pro), value: UINT256_MAX });
 
         // Calculate the broker fee amount and the net deposit amount.
         uint128 protocolFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE)));
@@ -399,30 +399,30 @@ contract CreateWithMilestones__ProTest is ProTest {
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - brokerFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
-        Segment[] memory segments = defaultArgs.createWithMilestones.segments;
+        Segment[] memory segments = params.createWithMilestones.segments;
         adjustSegmentAmounts(segments, netDepositAmount);
 
         // Expect the tokens to be transferred from the funder to the SablierV2Pro contract.
         vm.expectCall(
-            address(defaultArgs.createWithMilestones.token),
+            address(params.createWithMilestones.token),
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), netDepositAmount))
         );
 
         // Expect the broker fee to be paid to the broker, if the fee amount is not zero.
         if (brokerFeeAmount > 0) {
             vm.expectCall(
-                address(defaultArgs.createWithMilestones.token),
+                address(params.createWithMilestones.token),
                 abi.encodeCall(IERC20.transferFrom, (funder, broker.addr, brokerFeeAmount))
             );
         }
 
         // Create the stream.
         uint256 streamId = pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
+            params.createWithMilestones.sender,
             recipient,
             grossDepositAmount,
             segments,
-            defaultArgs.createWithMilestones.token,
+            params.createWithMilestones.token,
             cancelable,
             startTime,
             broker
@@ -472,42 +472,42 @@ contract CreateWithMilestones__ProTest is ProTest {
 
         // Set the fuzzed protocol fee.
         changePrank(users.owner);
-        comptroller.setProtocolFee(defaultArgs.createWithMilestones.token, protocolFee);
+        comptroller.setProtocolFee(params.createWithMilestones.token, protocolFee);
 
         // Make the sender the funder in this test.
-        address funder = defaultArgs.createWithMilestones.sender;
+        address funder = params.createWithMilestones.sender;
 
         // Make the funder the caller in the rest of this test.
         changePrank(funder);
 
         // Mint enough tokens to the funder.
-        deal({ token: address(defaultArgs.createWithMilestones.token), to: funder, give: grossDepositAmount });
+        deal({ token: address(params.createWithMilestones.token), to: funder, give: grossDepositAmount });
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithMilestones.token);
+        uint128 initialProtocolRevenues = pro.getProtocolRevenues(params.createWithMilestones.token);
 
         // Calculate the protocol fee amount and the net deposit amount.
         uint128 protocolFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(protocolFee)));
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
-        Segment[] memory segments = defaultArgs.createWithMilestones.segments;
+        Segment[] memory segments = params.createWithMilestones.segments;
         adjustSegmentAmounts(segments, netDepositAmount);
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         pro.createWithMilestones(
-            defaultArgs.createWithMilestones.sender,
-            defaultArgs.createWithMilestones.recipient,
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
             grossDepositAmount,
             segments,
-            defaultArgs.createWithMilestones.token,
-            defaultArgs.createWithMilestones.cancelable,
-            defaultArgs.createWithMilestones.startTime,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })
         );
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithMilestones.token);
+        uint128 actualProtocolRevenues = pro.getProtocolRevenues(params.createWithMilestones.token);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + protocolFeeAmount;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -529,19 +529,19 @@ contract CreateWithMilestones__ProTest is ProTest {
     {
         // Expect an event to be emitted.
         uint256 streamId = pro.nextStreamId();
-        address funder = defaultArgs.createWithMilestones.sender;
+        address funder = params.createWithMilestones.sender;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateProStream({
             streamId: streamId,
             funder: funder,
-            sender: defaultArgs.createWithMilestones.sender,
-            recipient: defaultArgs.createWithMilestones.recipient,
+            sender: params.createWithMilestones.sender,
+            recipient: params.createWithMilestones.recipient,
             amounts: DEFAULT_CREATE_AMOUNTS,
-            segments: defaultArgs.createWithMilestones.segments,
-            token: defaultArgs.createWithMilestones.token,
-            cancelable: defaultArgs.createWithMilestones.cancelable,
-            startTime: defaultArgs.createWithMilestones.startTime,
-            broker: defaultArgs.createWithMilestones.broker.addr
+            segments: params.createWithMilestones.segments,
+            token: params.createWithMilestones.token,
+            cancelable: params.createWithMilestones.cancelable,
+            startTime: params.createWithMilestones.startTime,
+            broker: params.createWithMilestones.broker.addr
         });
 
         // Create the stream.

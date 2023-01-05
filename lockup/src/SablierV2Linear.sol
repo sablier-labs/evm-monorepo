@@ -194,7 +194,7 @@ contract SablierV2Linear is
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithRange(
-            CreateWithRangeArgs({
+            CreateWithRangeParams({
                 amounts: amounts,
                 broker: broker.addr,
                 cancelable: cancelable,
@@ -230,7 +230,7 @@ contract SablierV2Linear is
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithRange(
-            CreateWithRangeArgs({
+            CreateWithRangeParams({
                 amounts: amounts,
                 broker: broker.addr,
                 cancelable: cancelable,
@@ -333,7 +333,7 @@ contract SablierV2Linear is
     }
 
     /// @dev This struct is needed to avoid the "Stack Too Deep" error.
-    struct CreateWithRangeArgs {
+    struct CreateWithRangeParams {
         CreateAmounts amounts;
         Range range;
         address sender; // ──┐
@@ -344,52 +344,52 @@ contract SablierV2Linear is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _createWithRange(CreateWithRangeArgs memory args) internal returns (uint256 streamId) {
+    function _createWithRange(CreateWithRangeParams memory params) internal returns (uint256 streamId) {
         // Checks: validate the arguments.
-        Helpers.checkCreateLinearArgs(args.amounts.netDeposit, args.range);
+        Helpers.checkCreateLinearParams(params.amounts.netDeposit, params.range);
 
         // Load the stream id.
         streamId = nextStreamId;
 
         // Effects: create the stream.
         _streams[streamId] = LinearStream({
-            amounts: Amounts({ deposit: args.amounts.netDeposit, withdrawn: 0 }),
-            isCancelable: args.cancelable,
+            amounts: Amounts({ deposit: params.amounts.netDeposit, withdrawn: 0 }),
+            isCancelable: params.cancelable,
             isEntity: true,
-            sender: args.sender,
-            range: args.range,
-            token: args.token
+            sender: params.sender,
+            range: params.range,
+            token: params.token
         });
 
         // Effects: bump the next stream id and record the protocol fee.
         // We're using unchecked arithmetic here because theses calculations cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
-            _protocolRevenues[args.token] += args.amounts.protocolFee;
+            _protocolRevenues[params.token] += params.amounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.
-        _mint({ to: args.recipient, tokenId: streamId });
+        _mint({ to: params.recipient, tokenId: streamId });
 
         // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.
-        args.token.safeTransferFrom({ from: msg.sender, to: address(this), amount: args.amounts.netDeposit });
+        params.token.safeTransferFrom({ from: msg.sender, to: address(this), amount: params.amounts.netDeposit });
 
         // Interactions: perform the ERC-20 transfer to pay the broker fee, if not zero.
-        if (args.amounts.brokerFee > 0) {
-            args.token.safeTransferFrom({ from: msg.sender, to: args.broker, amount: args.amounts.brokerFee });
+        if (params.amounts.brokerFee > 0) {
+            params.token.safeTransferFrom({ from: msg.sender, to: params.broker, amount: params.amounts.brokerFee });
         }
 
         // Emit an event.
         emit Events.CreateLinearStream({
             streamId: streamId,
             funder: msg.sender,
-            sender: args.sender,
-            recipient: args.recipient,
-            amounts: args.amounts,
-            token: args.token,
-            cancelable: args.cancelable,
-            range: args.range,
-            broker: args.broker
+            sender: params.sender,
+            recipient: params.recipient,
+            amounts: params.amounts,
+            token: params.token,
+            cancelable: params.cancelable,
+            range: params.range,
+            broker: params.broker
         });
     }
 

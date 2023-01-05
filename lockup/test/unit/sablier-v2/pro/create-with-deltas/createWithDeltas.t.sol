@@ -49,13 +49,13 @@ contract CreateWithDeltas__ProTest is ProTest {
         uint256 deltaCount
     ) external LoopCalculationsDoNotOverflowBlockGasLimit DeltasNotZero {
         deltaCount = bound(deltaCount, 1, 1_000);
-        vm.assume(deltaCount != defaultArgs.createWithDeltas.segments.length);
+        vm.assume(deltaCount != params.createWithDeltas.segments.length);
 
         uint40[] memory deltas = new uint40[](deltaCount);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2Pro__SegmentArraysNotEqual.selector,
-                defaultArgs.createWithDeltas.segments.length,
+                params.createWithDeltas.segments.length,
                 deltaCount
             )
         );
@@ -75,7 +75,7 @@ contract CreateWithDeltas__ProTest is ProTest {
     {
         uint40 startTime = getBlockTimestamp();
         uint40[] memory deltas = Solarray.uint40s(UINT40_MAX, 1);
-        Segment[] memory segments = defaultArgs.createWithDeltas.segments;
+        Segment[] memory segments = params.createWithDeltas.segments;
         unchecked {
             segments[0].milestone = startTime + deltas[0];
             segments[1].milestone = deltas[0] + deltas[1];
@@ -131,14 +131,14 @@ contract CreateWithDeltas__ProTest is ProTest {
 
         // Create the stream.
         pro.createWithDeltas(
-            defaultArgs.createWithDeltas.sender,
-            defaultArgs.createWithDeltas.recipient,
-            defaultArgs.createWithDeltas.grossDepositAmount,
+            params.createWithDeltas.sender,
+            params.createWithDeltas.recipient,
+            params.createWithDeltas.grossDepositAmount,
             segments,
-            defaultArgs.createWithDeltas.token,
-            defaultArgs.createWithDeltas.cancelable,
+            params.createWithDeltas.token,
+            params.createWithDeltas.cancelable,
             deltas,
-            defaultArgs.createWithDeltas.broker
+            params.createWithDeltas.broker
         );
     }
 
@@ -164,38 +164,38 @@ contract CreateWithDeltas__ProTest is ProTest {
         uint40[] memory deltas = Solarray.uint40s(delta0, delta1);
 
         // Adjust the segment milestones to match the fuzzed deltas.
-        Segment[] memory segments = defaultArgs.createWithDeltas.segments;
+        Segment[] memory segments = params.createWithDeltas.segments;
         segments[0].milestone = getBlockTimestamp() + delta0;
         segments[1].milestone = segments[0].milestone + delta1;
 
         // Make the sender the funder in this test.
-        address funder = defaultArgs.createWithDeltas.sender;
+        address funder = params.createWithDeltas.sender;
 
         // Expect the tokens to be transferred from the funder to the SablierV2Pro contract.
         vm.expectCall(
-            address(defaultArgs.createWithDeltas.token),
+            address(params.createWithDeltas.token),
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
         // Expect the broker fee to be paid to the broker.
         vm.expectCall(
-            address(defaultArgs.createWithDeltas.token),
+            address(params.createWithDeltas.token),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, defaultArgs.createWithDeltas.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
+                (funder, params.createWithDeltas.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
             )
         );
 
         // Create the stream.
         uint256 streamId = pro.createWithDeltas(
-            defaultArgs.createWithDeltas.sender,
-            defaultArgs.createWithDeltas.recipient,
-            defaultArgs.createWithDeltas.grossDepositAmount,
+            params.createWithDeltas.sender,
+            params.createWithDeltas.recipient,
+            params.createWithDeltas.grossDepositAmount,
             segments,
-            defaultArgs.createWithDeltas.token,
-            defaultArgs.createWithDeltas.cancelable,
+            params.createWithDeltas.token,
+            params.createWithDeltas.cancelable,
             deltas,
-            defaultArgs.createWithDeltas.broker
+            params.createWithDeltas.broker
         );
 
         // Assert that the stream was created.
@@ -215,7 +215,7 @@ contract CreateWithDeltas__ProTest is ProTest {
 
         // Assert that the NFT was minted.
         address actualNFTOwner = pro.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = defaultArgs.createWithDeltas.recipient;
+        address expectedNFTOwner = params.createWithDeltas.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
 
@@ -228,13 +228,13 @@ contract CreateWithDeltas__ProTest is ProTest {
         MilestonesCalculationsDoNotOverflow
     {
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithDeltas.token);
+        uint128 initialProtocolRevenues = pro.getProtocolRevenues(params.createWithDeltas.token);
 
         // Create the default stream.
         createDefaultStreamWithDeltas();
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = pro.getProtocolRevenues(defaultArgs.createWithDeltas.token);
+        uint128 actualProtocolRevenues = pro.getProtocolRevenues(params.createWithDeltas.token);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -248,19 +248,19 @@ contract CreateWithDeltas__ProTest is ProTest {
         MilestonesCalculationsDoNotOverflow
     {
         uint256 streamId = pro.nextStreamId();
-        address funder = defaultArgs.createWithDeltas.sender;
+        address funder = params.createWithDeltas.sender;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateProStream({
             streamId: streamId,
             funder: funder,
-            sender: defaultArgs.createWithDeltas.sender,
-            recipient: defaultArgs.createWithDeltas.recipient,
+            sender: params.createWithDeltas.sender,
+            recipient: params.createWithDeltas.recipient,
             amounts: DEFAULT_CREATE_AMOUNTS,
-            segments: defaultArgs.createWithDeltas.segments,
-            token: defaultArgs.createWithDeltas.token,
-            cancelable: defaultArgs.createWithDeltas.cancelable,
+            segments: params.createWithDeltas.segments,
+            token: params.createWithDeltas.token,
+            cancelable: params.createWithDeltas.cancelable,
             startTime: DEFAULT_START_TIME,
-            broker: defaultArgs.createWithDeltas.broker.addr
+            broker: params.createWithDeltas.broker.addr
         });
         createDefaultStreamWithDeltas();
     }

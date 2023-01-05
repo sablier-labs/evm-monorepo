@@ -105,12 +105,12 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         uint256 streamId = linear.createWithRange(
-            defaultArgs.createWithRange.sender,
-            defaultArgs.createWithRange.recipient,
+            params.createWithRange.sender,
+            params.createWithRange.recipient,
             depositAmount,
-            defaultArgs.createWithRange.token,
-            defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range,
+            params.createWithRange.token,
+            params.createWithRange.cancelable,
+            params.createWithRange.range,
             Broker({ addr: address(0), fee: ZERO })
         );
 
@@ -144,12 +144,12 @@ contract GetWithdrawableAmount__LinearTest is LinearTest {
         // Create the stream with a custom gross deposit amount. The broker fee is disabled so that it doesn't interfere
         // with the calculations.
         uint256 streamId = linear.createWithRange(
-            defaultArgs.createWithRange.sender,
-            defaultArgs.createWithRange.recipient,
+            params.createWithRange.sender,
+            params.createWithRange.recipient,
             depositAmount,
-            defaultArgs.createWithRange.token,
-            defaultArgs.createWithRange.cancelable,
-            defaultArgs.createWithRange.range,
+            params.createWithRange.token,
+            params.createWithRange.cancelable,
+            params.createWithRange.range,
             Broker({ addr: address(0), fee: ZERO })
         );
 
