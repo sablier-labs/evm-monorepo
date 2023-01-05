@@ -11,10 +11,14 @@
   path = "lib/prb-contracts"
   url = "https://github.com/paulrberg/prb-contracts"
 [submodule "lib/prb-math"]
-  branch = "v3"
+  branch = "main"
   path = "lib/prb-math"
   url = "https://github.com/paulrberg/prb-math"
 [submodule "lib/prb-test"]
-	branch = "0.3.1"
-	path = "lib/prb-test"
-	url = "https://github.com/paulrberg/prb-test"
+  branch = "main"
+  path = "lib/prb-test"
+  url = "https://github.com/paulrberg/prb-test"
+[submodule "lib/solarray"]
+  branch = "master"
+  path = "lib/solarray"
+  url = "https://github.com/paulrberg/solarray"

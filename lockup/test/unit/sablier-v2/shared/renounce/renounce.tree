@@ -1,0 +1,8 @@
+renounce.t.sol
+├── when the stream does not exist
+│  └── it should revert
+└── when the stream exists
+   ├── when the caller is not the sender
+   │  └── it should revert
+   └── when the caller is the sender
+      └── it should emit a Renounce event and renounce the stream

@@ -5,17 +5,19 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
-import { SD59x18, toSD59x18 } from "@prb/math/SD59x18.sol";
+import { SD59x18 } from "@prb/math/SD59x18.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { DataTypes } from "./libraries/DataTypes.sol";
+import { Broker, CreateAmounts, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
-import { Validations } from "./libraries/Validations.sol";
+import { Helpers } from "./libraries/Helpers.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
+import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Pro } from "./interfaces/ISablierV2Pro.sol";
-import { ISablierV2Recipient } from "./interfaces/ISablierV2Recipient.sol";
-import { ISablierV2Sender } from "./interfaces/ISablierV2Sender.sol";
+import { ISablierV2Recipient } from "./interfaces/hooks/ISablierV2Recipient.sol";
+import { ISablierV2Sender } from "./interfaces/hooks/ISablierV2Sender.sol";
 import { SablierV2 } from "./SablierV2.sol";
 
 /// @title SablierV2Pro
@@ -31,22 +33,25 @@ contract SablierV2Pro is
                                       CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum number of segments allowed in a stream.
-    /// @dev This is initialized at construction time.
-    uint256 public immutable MAX_SEGMENT_COUNT;
+    /// @inheritdoc ISablierV2Pro
+    uint256 public immutable override MAX_SEGMENT_COUNT;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 pro streams mapped by unsigned integers.
-    mapping(uint256 => DataTypes.ProStream) internal _streams;
+    mapping(uint256 => ProStream) internal _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(uint256 maxSegmentCount) {
+    constructor(
+        ISablierV2Comptroller initialComptroller,
+        UD60x18 maxFee,
+        uint256 maxSegmentCount
+    ) SablierV2(initialComptroller, maxFee) {
         MAX_SEGMENT_COUNT = maxSegmentCount;
     }
 
@@ -56,7 +61,7 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2
     function getDepositAmount(uint256 streamId) external view override returns (uint128 depositAmount) {
-        depositAmount = _streams[streamId].depositAmount;
+        depositAmount = _streams[streamId].amounts.deposit;
     }
 
     /// @inheritdoc ISablierV2
@@ -74,30 +79,20 @@ contract SablierV2Pro is
         unchecked {
             uint128 withdrawableAmount = getWithdrawableAmount(streamId);
             returnableAmount =
-                _streams[streamId].depositAmount -
-                _streams[streamId].withdrawnAmount -
+                _streams[streamId].amounts.deposit -
+                _streams[streamId].amounts.withdrawn -
                 withdrawableAmount;
         }
+    }
+
+    /// @inheritdoc ISablierV2Pro
+    function getSegments(uint256 streamId) external view override returns (Segment[] memory segments) {
+        segments = _streams[streamId].segments;
     }
 
     /// @inheritdoc ISablierV2
     function getSender(uint256 streamId) external view override returns (address sender) {
         sender = _streams[streamId].sender;
-    }
-
-    /// @inheritdoc ISablierV2Pro
-    function getSegmentAmounts(uint256 streamId) external view override returns (uint128[] memory segmentAmounts) {
-        segmentAmounts = _streams[streamId].segmentAmounts;
-    }
-
-    /// @inheritdoc ISablierV2Pro
-    function getSegmentExponents(uint256 streamId) external view override returns (SD1x18[] memory segmentExponents) {
-        segmentExponents = _streams[streamId].segmentExponents;
-    }
-
-    /// @inheritdoc ISablierV2Pro
-    function getSegmentMilestones(uint256 streamId) external view override returns (uint40[] memory segmentMilestones) {
-        segmentMilestones = _streams[streamId].segmentMilestones;
     }
 
     /// @inheritdoc ISablierV2
@@ -107,12 +102,17 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2
     function getStopTime(uint256 streamId) external view override returns (uint40 stopTime) {
-        stopTime = _streams[streamId].stopTime;
+        unchecked {
+            uint256 segmentCount = _streams[streamId].segments.length;
+            if (segmentCount > 0) {
+                stopTime = _streams[streamId].segments[segmentCount - 1].milestone;
+            }
+        }
     }
 
     /// @inheritdoc ISablierV2Pro
-    function getStream(uint256 streamId) external view returns (DataTypes.ProStream memory stream) {
-        return _streams[streamId];
+    function getStream(uint256 streamId) external view returns (ProStream memory stream) {
+        stream = _streams[streamId];
     }
 
     /// @inheritdoc ISablierV2
@@ -124,87 +124,38 @@ contract SablierV2Pro is
 
         // If the start time is greater than or equal to the block timestamp, return zero.
         uint40 currentTime = uint40(block.timestamp);
-
         if (_streams[streamId].startTime >= currentTime) {
             return 0;
         }
 
         unchecked {
-            // If the current time is greater than or equal to the stop time, return the deposit minus
+            uint256 segmentCount = _streams[streamId].segments.length;
+            uint40 stopTime = _streams[streamId].segments[segmentCount - 1].milestone;
+
+            // If the current time is greater than or equal to the stop time, we return the deposit minus
             // the withdrawn amount.
-            if (currentTime >= _streams[streamId].stopTime) {
-                return _streams[streamId].depositAmount - _streams[streamId].withdrawnAmount;
+            if (currentTime >= stopTime) {
+                return _streams[streamId].amounts.deposit - _streams[streamId].amounts.withdrawn;
             }
 
-            // Define the common variables used in the calculations below.
-            SD1x18 currentSegmentExponent;
-            uint128 currentSegmentAmount;
-            uint128 previousSegmentAmounts;
-            uint40 elapsedSegmentTime;
-            uint40 totalSegmentTime;
-
-            // If there's more than one segment, we have to iterate over all of them.
-            uint256 segmentCount = _streams[streamId].segmentAmounts.length;
             if (segmentCount > 1) {
-                // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
-                // amount such that we avoid adding an if statement in the while loop.
-                uint40 currentSegmentMilestone = _streams[streamId].segmentMilestones[0];
-                uint256 index = 1;
-                while (currentSegmentMilestone < currentTime) {
-                    previousSegmentAmounts += _streams[streamId].segmentAmounts[index - 1];
-                    currentSegmentMilestone = _streams[streamId].segmentMilestones[index];
-                    index += 1;
-                }
-
-                // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
-                // is found at `index - 2`.
-                currentSegmentAmount = _streams[streamId].segmentAmounts[index - 1];
-                currentSegmentExponent = _streams[streamId].segmentExponents[index - 1];
-                currentSegmentMilestone = _streams[streamId].segmentMilestones[index - 1];
-
-                // If the current segment is at an index that is >= 2, take the difference between the current segment
-                // milestone and the previous segment milestone.
-                if (index > 1) {
-                    uint40 previousSegmentMilestone = _streams[streamId].segmentMilestones[index - 2];
-                    elapsedSegmentTime = currentTime - previousSegmentMilestone;
-
-                    // Calculate the time between the current segment milestone and the previous segment milestone.
-                    totalSegmentTime = currentSegmentMilestone - previousSegmentMilestone;
-                }
-                // If the current segment is at index 1, take the difference between the current segment milestone and
-                // the start time of the stream.
-                else {
-                    elapsedSegmentTime = currentTime - _streams[streamId].startTime;
-                    totalSegmentTime = currentSegmentMilestone - _streams[streamId].startTime;
-                }
+                // If there's more than one segment, we have to iterate over all of them.
+                withdrawableAmount = _calculateWithdrawableAmountForMultipleSegments(streamId);
+            } else {
+                // Otherwise, there is only one segment, and the calculation is simple.
+                withdrawableAmount = _calculateWithdrawableAmountForOneSegment(streamId);
             }
-            // Otherwise, if there's only one segment, we use the start time of the stream in the calculations.
-            else {
-                currentSegmentAmount = _streams[streamId].segmentAmounts[0];
-                currentSegmentExponent = _streams[streamId].segmentExponents[0];
-                elapsedSegmentTime = currentTime - _streams[streamId].startTime;
-                totalSegmentTime = _streams[streamId].stopTime - _streams[streamId].startTime;
-            }
-
-            // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = toSD59x18(int256(uint256(elapsedSegmentTime))).div(
-                toSD59x18(int256(uint256(totalSegmentTime)))
-            );
-            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
-            SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
-            SD59x18 streamedAmount = SD59x18.wrap(int256(uint256(previousSegmentAmounts))).add(proRataAmount);
-            withdrawableAmount = uint128(uint256(SD59x18.unwrap(streamedAmount))) - _streams[streamId].withdrawnAmount;
         }
     }
 
     /// @inheritdoc ISablierV2
     function getWithdrawnAmount(uint256 streamId) external view override returns (uint128 withdrawnAmount) {
-        withdrawnAmount = _streams[streamId].withdrawnAmount;
+        withdrawnAmount = _streams[streamId].amounts.withdrawn;
     }
 
     /// @inheritdoc ISablierV2
     function isCancelable(uint256 streamId) public view override(ISablierV2, SablierV2) returns (bool result) {
-        result = _streams[streamId].cancelable;
+        result = _streams[streamId].isCancelable;
     }
 
     /// @inheritdoc ISablierV2
@@ -222,67 +173,79 @@ contract SablierV2Pro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Pro
-    function create(
+    function createWithDeltas(
         address sender,
         address recipient,
-        uint128 depositAmount,
-        address token,
-        uint40 startTime,
-        uint128[] memory segmentAmounts,
-        SD1x18[] memory segmentExponents,
-        uint40[] memory segmentMilestones,
-        bool cancelable
+        uint128 grossDepositAmount,
+        Segment[] memory segments,
+        IERC20 token,
+        bool cancelable,
+        uint40[] calldata deltas,
+        Broker calldata broker
     ) external override returns (uint256 streamId) {
+        // Checks: check the deltas and adjust the segments accordingly.
+        Helpers.checkDeltasAndAdjustSegments(segments, deltas);
+
+        // Safe Interactions: query the protocol fee. This is safe because we are querying a Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(token);
+
+        // Checks: check the fees and calculate the fee amounts.
+        CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
+            grossDepositAmount,
+            protocolFee,
+            broker.fee,
+            MAX_FEE
+        );
+
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(
-            sender,
-            recipient,
-            depositAmount,
-            token,
-            startTime,
-            segmentAmounts,
-            segmentExponents,
-            segmentMilestones,
-            cancelable
+        streamId = _createWithMilestones(
+            CreateWithMilestonesParams({
+                amounts: amounts,
+                broker: broker.addr,
+                cancelable: cancelable,
+                recipient: recipient,
+                segments: segments,
+                sender: sender,
+                token: token,
+                startTime: uint40(block.timestamp)
+            })
         );
     }
 
     /// @inheritdoc ISablierV2Pro
-    function createWithDuration(
+    function createWithMilestones(
         address sender,
         address recipient,
-        uint128 depositAmount,
-        address token,
-        uint128[] memory segmentAmounts,
-        SD1x18[] memory segmentExponents,
-        uint40[] memory segmentDeltas,
-        bool cancelable
-    ) external override returns (uint256 streamId) {
-        uint40 startTime = uint40(block.timestamp);
-        uint256 deltaCount = segmentDeltas.length;
+        uint128 grossDepositAmount,
+        Segment[] calldata segments,
+        IERC20 token,
+        bool cancelable,
+        uint40 startTime,
+        Broker calldata broker
+    ) external returns (uint256 streamId) {
+        // Safe Interactions: query the protocol fee. This is safe because we are querying a Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(token);
 
-        // Calculate the segment milestones. It is fine to use unchecked arithmetic because the `_create`
-        // function will nonetheless check the segments.
-        uint40[] memory segmentMilestones = new uint40[](deltaCount);
-        unchecked {
-            segmentMilestones[0] = startTime + segmentDeltas[0];
-            for (uint256 i = 1; i < deltaCount; ) {
-                segmentMilestones[i] = segmentMilestones[i - 1] + segmentDeltas[i];
-                i += 1;
-            }
-        }
+        // Checks: check the fees and calculate the fee amounts.
+        CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
+            grossDepositAmount,
+            protocolFee,
+            broker.fee,
+            MAX_FEE
+        );
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(
-            sender,
-            recipient,
-            depositAmount,
-            token,
-            startTime,
-            segmentAmounts,
-            segmentExponents,
-            segmentMilestones,
-            cancelable
+        streamId = _createWithMilestones(
+            CreateWithMilestonesParams({
+                amounts: amounts,
+                broker: broker.addr,
+                cancelable: cancelable,
+                recipient: recipient,
+                segments: segments,
+                sender: sender,
+                token: token,
+                startTime: startTime
+            })
         );
     }
 
@@ -315,30 +278,30 @@ contract SablierV2Pro is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
-        DataTypes.ProStream memory stream = _streams[streamId];
+        ProStream memory stream = _streams[streamId];
 
         // Calculate the withdraw and the return amounts.
-        uint128 withdrawAmount = getWithdrawableAmount(streamId);
-        uint128 returnAmount;
+        uint128 recipientAmount = getWithdrawableAmount(streamId);
+        uint128 senderAmount;
         unchecked {
-            returnAmount = stream.depositAmount - stream.withdrawnAmount - withdrawAmount;
+            senderAmount = stream.amounts.deposit - stream.amounts.withdrawn - recipientAmount;
         }
 
         // Load the sender and the recipient in memory, we will need them below.
         address sender = _streams[streamId].sender;
-        address recipient = getRecipient(streamId);
+        address recipient = _ownerOf(streamId);
 
         // Effects: delete the stream from storage.
         delete _streams[streamId];
 
         // Interactions: withdraw the tokens to the recipient, if any.
-        if (withdrawAmount > 0) {
-            IERC20(stream.token).safeTransfer({ to: recipient, amount: withdrawAmount });
+        if (recipientAmount > 0) {
+            stream.token.safeTransfer({ to: recipient, amount: recipientAmount });
         }
 
         // Interactions: return the tokens to the sender, if any.
-        if (returnAmount > 0) {
-            IERC20(stream.token).safeTransfer({ to: sender, amount: returnAmount });
+        if (senderAmount > 0) {
+            stream.token.safeTransfer({ to: sender, amount: senderAmount });
         }
 
         // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
@@ -350,8 +313,8 @@ contract SablierV2Pro is
                     ISablierV2Recipient(recipient).onStreamCanceled({
                         streamId: streamId,
                         caller: msg.sender,
-                        withdrawAmount: withdrawAmount,
-                        returnAmount: returnAmount
+                        recipientAmount: recipientAmount,
+                        senderAmount: senderAmount
                     })
                 {} catch {}
             }
@@ -365,94 +328,167 @@ contract SablierV2Pro is
                     ISablierV2Sender(sender).onStreamCanceled({
                         streamId: streamId,
                         caller: msg.sender,
-                        withdrawAmount: withdrawAmount,
-                        returnAmount: returnAmount
+                        recipientAmount: recipientAmount,
+                        senderAmount: senderAmount
                     })
                 {} catch {}
             }
         }
 
         // Emit an event.
-        emit Events.Cancel(streamId, sender, recipient, withdrawAmount, returnAmount);
+        emit Events.Cancel(streamId, sender, recipient, senderAmount, recipientAmount);
+    }
+
+    /// @dev This struct is needed to avoid the "Stack Too Deep" error.
+
+    struct CreateWithMilestonesParams {
+        CreateAmounts amounts;
+        Segment[] segments;
+        address sender; // ──┐
+        uint40 startTime; // │
+        bool cancelable; // ─┘
+        address recipient;
+        IERC20 token;
+        address broker;
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _create(
-        address sender,
-        address recipient,
-        uint128 depositAmount,
-        address token,
-        uint40 startTime,
-        uint128[] memory segmentAmounts,
-        SD1x18[] memory segmentExponents,
-        uint40[] memory segmentMilestones,
-        bool cancelable
-    ) internal returns (uint256 streamId) {
-        // Checks: the arguments of the function.
-        Validations.checkCreateProArgs(
-            depositAmount,
-            startTime,
-            segmentAmounts,
-            segmentExponents,
-            segmentMilestones,
-            MAX_SEGMENT_COUNT
-        );
+    function _createWithMilestones(CreateWithMilestonesParams memory params) internal returns (uint256 streamId) {
+        // Checks: validate the arguments.
+        Helpers.checkCreateProParams(params.amounts.netDeposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
-        // We can use any count because they are all equal to each other.
-        uint256 segmentCount = segmentAmounts.length;
-        uint40 stopTime;
-        unchecked {
-            stopTime = segmentMilestones[segmentCount - 1];
-        }
+        // Load the stream id.
+        streamId = nextStreamId;
 
         // Effects: create the stream.
-        streamId = nextStreamId;
-        _streams[streamId] = DataTypes.ProStream({
-            cancelable: cancelable,
-            depositAmount: depositAmount,
-            isEntity: true,
-            segmentAmounts: segmentAmounts,
-            segmentExponents: segmentExponents,
-            segmentMilestones: segmentMilestones,
-            sender: sender,
-            startTime: startTime,
-            stopTime: stopTime,
-            token: token,
-            withdrawnAmount: 0
-        });
+        ProStream storage stream = _streams[streamId];
+        stream.amounts.deposit = params.amounts.netDeposit;
+        stream.isCancelable = params.cancelable;
+        stream.isEntity = true;
+        stream.sender = params.sender;
+        stream.startTime = params.startTime;
+        stream.token = params.token;
 
-        // Effects: mint the NFT for the recipient by setting the stream id as the token id.
-        _mint({ to: recipient, tokenId: streamId });
-
-        // Effects: bump the next stream id. This cannot realistically overflow, ever.
         unchecked {
+            // Effects: store the segments. Copying an array from memory to storage is not currently supported in
+            // Solidity, so we have to do it manually. See https://github.com/ethereum/solidity/issues/12783
+            uint256 segmentCount = params.segments.length;
+            for (uint256 i = 0; i < segmentCount; ++i) {
+                stream.segments.push(params.segments[i]);
+            }
+
+            // Effects: bump the next stream id and record the protocol fee.
+            // We're using unchecked arithmetic here because theses calculations cannot realistically overflow, ever.
             nextStreamId = streamId + 1;
+            _protocolRevenues[params.token] += params.amounts.protocolFee;
         }
 
-        // Interactions: safely perform the ERC-20 transfer.
-        IERC20(token).safeTransferFrom({ from: msg.sender, to: address(this), amount: depositAmount });
+        // Effects: mint the NFT to the recipient.
+        _mint({ to: params.recipient, tokenId: streamId });
+
+        // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.
+        params.token.safeTransferFrom({ from: msg.sender, to: address(this), amount: params.amounts.netDeposit });
+
+        // Interactions: perform the ERC-20 transfer to pay the broker fee, if not zero.
+        if (params.amounts.brokerFee > 0) {
+            params.token.safeTransferFrom({ from: msg.sender, to: params.broker, amount: params.amounts.brokerFee });
+        }
 
         // Emit an event.
         emit Events.CreateProStream({
             streamId: streamId,
             funder: msg.sender,
-            sender: sender,
-            recipient: recipient,
-            depositAmount: depositAmount,
-            token: token,
-            startTime: startTime,
-            stopTime: stopTime,
-            segmentAmounts: segmentAmounts,
-            segmentExponents: segmentExponents,
-            segmentMilestones: segmentMilestones,
-            cancelable: cancelable
+            sender: params.sender,
+            recipient: params.recipient,
+            amounts: params.amounts,
+            segments: params.segments,
+            token: params.token,
+            cancelable: params.cancelable,
+            startTime: params.startTime,
+            broker: params.broker
         });
+    }
+
+    /// @dev Calculates the withdrawable amount for a stream with multiple segments.
+    function _calculateWithdrawableAmountForMultipleSegments(
+        uint256 streamId
+    ) internal view returns (uint128 withdrawableAmount) {
+        unchecked {
+            uint40 currentTime = uint40(block.timestamp);
+
+            // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
+            // amount such that we avoid adding an if statement in the while loop.
+            uint128 previousSegmentAmounts;
+            uint40 currentSegmentMilestone = _streams[streamId].segments[0].milestone;
+            uint256 index = 1;
+            while (currentSegmentMilestone < currentTime) {
+                previousSegmentAmounts += _streams[streamId].segments[index - 1].amount;
+                currentSegmentMilestone = _streams[streamId].segments[index].milestone;
+                index += 1;
+            }
+
+            // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
+            // is found at `index - 2`.
+            uint128 currentSegmentAmount = _streams[streamId].segments[index - 1].amount;
+            SD1x18 currentSegmentExponent = _streams[streamId].segments[index - 1].exponent;
+            currentSegmentMilestone = _streams[streamId].segments[index - 1].milestone;
+
+            // Define the time variables.
+            uint40 elapsedSegmentTime;
+            uint40 totalSegmentTime;
+
+            // If the current segment is at an index that is >= 2, we take the difference between the current
+            // segment milestone and the previous segment milestone.
+            if (index > 1) {
+                uint40 previousSegmentMilestone = _streams[streamId].segments[index - 2].milestone;
+                elapsedSegmentTime = currentTime - previousSegmentMilestone;
+
+                // Calculate the time between the current segment milestone and the previous segment milestone.
+                totalSegmentTime = currentSegmentMilestone - previousSegmentMilestone;
+            }
+            // If the current segment is at index 1, we take the difference between the current segment milestone
+            // and the start time of the stream.
+            else {
+                elapsedSegmentTime = currentTime - _streams[streamId].startTime;
+                totalSegmentTime = currentSegmentMilestone - _streams[streamId].startTime;
+            }
+
+            // Calculate the streamed amount.
+            SD59x18 elapsedTimePercentage = SD59x18.wrap(int256(uint256(elapsedSegmentTime))).div(
+                SD59x18.wrap(int256(uint256(totalSegmentTime)))
+            );
+            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
+            SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
+            uint128 streamedAmount = previousSegmentAmounts + uint128(uint256(SD59x18.unwrap(proRataAmount)));
+            withdrawableAmount = streamedAmount - _streams[streamId].amounts.withdrawn;
+        }
+    }
+
+    /// @dev Calculates the withdrawable amount for a stream with one segment.
+    function _calculateWithdrawableAmountForOneSegment(
+        uint256 streamId
+    ) internal view returns (uint128 withdrawableAmount) {
+        unchecked {
+            uint128 depositAmount = _streams[streamId].amounts.deposit;
+            SD1x18 exponent = _streams[streamId].segments[0].exponent;
+            SD59x18 elapsedTime = SD59x18.wrap(int256(uint256(uint40(block.timestamp) - _streams[streamId].startTime)));
+            uint40 stopTime = _streams[streamId].segments[0].milestone;
+            SD59x18 totalTime = SD59x18.wrap(int256(uint256(stopTime - _streams[streamId].startTime)));
+
+            // Calculate the streamed amount.
+            SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(exponent))));
+            SD59x18 streamedAmount = multiplier.mul(SD59x18.wrap(int256(uint256(depositAmount))));
+            withdrawableAmount =
+                uint128(uint256(SD59x18.unwrap(streamedAmount))) -
+                _streams[streamId].amounts.withdrawn;
+        }
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _renounce(uint256 streamId) internal override {
         // Effects: make the stream non-cancelable.
-        _streams[streamId].cancelable = false;
+        _streams[streamId].isCancelable = false;
 
         // Emit an event.
         emit Events.Renounce(streamId);
@@ -473,20 +509,23 @@ contract SablierV2Pro is
 
         // Effects: update the withdrawn amount.
         unchecked {
-            _streams[streamId].withdrawnAmount += amount;
+            _streams[streamId].amounts.withdrawn += amount;
         }
 
-        // Load the stream in memory, we will need it below.
-        DataTypes.ProStream memory stream = _streams[streamId];
-        address recipient = getRecipient(streamId);
+        // Load the stream and the recipient in memory, we will need them below.
+        ProStream memory stream = _streams[streamId];
+        address recipient = _ownerOf(streamId);
 
-        // Effects: if this stream is done, delete it from storage.
-        if (stream.depositAmount == stream.withdrawnAmount) {
+        // Assert that the withdrawn amount cannot get greater than the deposit amount.
+        assert(stream.amounts.deposit >= stream.amounts.withdrawn);
+
+        // Effects: if the entire deposit amount is now withdrawn, delete the stream entity.
+        if (stream.amounts.deposit == stream.amounts.withdrawn) {
             delete _streams[streamId];
         }
 
-        // Interactions: safely perform the ERC-20 transfer.
-        IERC20(stream.token).safeTransfer(to, amount);
+        // Interactions: perform the ERC-20 transfer.
+        stream.token.safeTransfer({ to: to, amount: amount });
 
         // Interactions: if the `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up
@@ -496,7 +535,7 @@ contract SablierV2Pro is
                 ISablierV2Recipient(recipient).onStreamWithdrawn({
                     streamId: streamId,
                     caller: msg.sender,
-                    withdrawAmount: amount
+                    amount: amount
                 })
             {} catch {}
         }

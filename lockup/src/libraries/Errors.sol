@@ -1,20 +1,36 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
+
 /// @title Errors
 /// @notice Library with custom errors used across the core contracts.
 library Errors {
     /*//////////////////////////////////////////////////////////////////////////
                               SABLIER-V2 CUSTOM ERRORS
     //////////////////////////////////////////////////////////////////////////*/
-    /// @notice Emitted when attempting to create a stream with a zero deposit amount.
-    error SablierV2__DepositAmountZero();
 
-    /// @notice Emitted when the stream id points to an existent stream.
-    error SablierV2__StreamExistent(uint256 streamId);
+    /// @notice Emitted when the broker fee is greater than the maximum fee permitted.
+    error SablierV2__BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxFee);
+
+    /// @notice Emitted when attempting to claim protocol revenues for a token that did not accrue any revenues.
+    error SablierV2__ClaimZeroProtocolRevenues(IERC20 token);
+
+    /// @notice Emitted when attempting to create a stream with a zero deposit amount.
+    error SablierV2__NetDepositAmountZero();
+
+    /// @notice Emitted when the new global fee is greater than the maximum permitted.
+    error SablierV2__NewGlobalFeeGreaterThanMaxPermitted(UD60x18 newGlobalFee, UD60x18 maxGlobalFee);
+
+    /// @notice Emitted when the protocol fee is greater than the maximum fee permitted.
+    error SablierV2__ProtocolFeeTooHigh(UD60x18 protocolFee, UD60x18 maxFee);
 
     /// @notice Emitted when attempting to renounce an already non-cancelable stream.
     error SablierV2__RenounceNonCancelableStream(uint256 streamId);
+
+    /// @notice Emitted when the stream id points to an existent stream.
+    error SablierV2__StreamExistent(uint256 streamId);
 
     /// @notice Emitted when attempting to cancel a stream that is already non-cancelable.
     error SablierV2__StreamNonCancelable(uint256 streamId);
@@ -27,12 +43,12 @@ library Errors {
 
     /// @notice Emitted when attempting to withdraw from multiple streams and the count of the stream ids does
     /// not match the count of the amounts.
-    error SablierV2__WithdrawAllArraysNotEqual(uint256 streamIdsCount, uint256 amountsCount);
+    error SablierV2__WithdrawArraysNotEqual(uint256 streamIdsCount, uint256 amountsCount);
 
     /// @notice Emitted when attempting to withdraw more than can be withdrawn.
     error SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(
         uint256 streamId,
-        uint128 withdrawAmount,
+        uint128 amount,
         uint128 withdrawableAmount
     );
 
@@ -60,15 +76,20 @@ library Errors {
                             SABLIER-V2-PRO CUSTOM ERRORS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when attempting to create a stream with a deposit amount that does not qual the segment
+    /// @notice Emitted when attempting to create a stream and the count of the segments does not match the
+    /// count of the deltas.
+    error SablierV2Pro__SegmentArraysNotEqual(uint256 segmentCount, uint256 deltaCount);
+
+    /// @notice Emitted when attempting to create a stream with a net deposit amount that does not equal the segment
     /// amounts sum.
-    error SablierV2Pro__DepositAmountNotEqualToSegmentAmountsSum(uint128 depositAmount, uint128 segmentAmountsSum);
+    error SablierV2Pro__NetDepositAmountNotEqualToSegmentAmountsSum(
+        uint128 netDepositAmount,
+        uint128 segmentAmountsSum
+    );
 
-    /// @notice Emitted when attempting to create a stream with segment counts that are not equal.
-    error SablierV2Pro__SegmentCountsNotEqual(uint256 amountsCount, uint256 exponentsCount, uint256 milestonesCount);
-
-    /// @notice Emitted when attempting to create a stream with one or more out-of-bounds segment count.
-    error SablierV2Pro__SegmentCountOutOfBounds(uint256 count);
+    /// @notice Emitted when attempting to create a stream with one or more segment counts greater than the maximum
+    /// permitted.
+    error SablierV2Pro__SegmentCountTooHigh(uint256 count);
 
     /// @notice Emitted when attempting to create a stream with zero segments.
     error SablierV2Pro__SegmentCountZero();

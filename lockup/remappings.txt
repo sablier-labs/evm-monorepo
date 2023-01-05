@@ -3,4 +3,6 @@
 @prb/math/=lib/prb-math/src/
 @prb/test/=lib/prb-test/src/
 forge-std/=lib/forge-std/src/
+solarray=lib/solarray/src
 src/=src/
+test/=test/

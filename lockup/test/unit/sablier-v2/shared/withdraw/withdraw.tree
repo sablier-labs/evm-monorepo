@@ -1,0 +1,42 @@
+withdraw.t.sol
+├── when the stream does not exist
+│  └── it should revert
+└── when the stream exists
+   ├── when the caller is unauthorized
+   │  ├── when the caller is a malicious third-party
+   │  │  └── it should revert
+   │  ├── when the caller is the sender
+   │  │  └── it should revert
+   │  └── when the caller is a former recipient
+   │     └── it should revert
+   └── when the caller is authorized
+      ├── when the provided address is zero
+      │  └── it should revert
+      └── when the provided address is not zero
+         ├── when the withdraw amount is zero
+         │  └── it should revert
+         └── when the withdraw amount is not zero
+            ├── when the amount is greater than the withdrawable amount
+            │  └── it should revert
+            └── when the amount is less than or equal to the withdrawable amount
+               ├── when the caller is the recipient
+               │  └── it should make the withdrawal and update the withdrawn amount
+               ├── when the caller is an approved operator
+               │  └── it should make the withdrawal and update the withdrawn amount
+               └── when the caller is the sender
+                  ├── when the stream ended
+                  │  └── it should make the withdrawal and delete the stream
+                  └── when the stream did not end
+                     ├── when the recipient is not a contract
+                     │  └── it should make the withdrawal and update the withdrawn amount
+                     └── when the recipient is a contract
+                        ├── when the recipient does not implement the hook
+                        │  └── it should ignore the revert and make the withdrawal and update the withdrawn amount
+                        └── when the recipient implements the hook
+                           ├── when the recipient reverts
+                           │  └── it should ignore the revert and make the withdrawal and update the withdrawn amount
+                           └── when the recipient does not revert
+                              ├── when there is reentrancy
+                              │  └── it should make the multiple withdrawals and update the withdrawn amounts
+                              └── when there is no reentrancy
+                                 └── it should make the withdrawal, emit a Withdraw event, and update the withdrawn amount

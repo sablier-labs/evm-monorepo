@@ -1,26 +1,55 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { Ownable } from "@prb/contracts/access/Ownable.sol";
+import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
+
 import { Errors } from "./libraries/Errors.sol";
+import { Events } from "./libraries/Events.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
+import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 
 /// @title SablierV2
 /// @dev Abstract contract implementing common logic. Implements the ISablierV2 interface.
-abstract contract SablierV2 is ISablierV2 {
+abstract contract SablierV2 is
+    Ownable, // one dependency
+    ISablierV2 // three dependencies
+{
+    using SafeERC20 for IERC20;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     CONSTANTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierV2
+    UD60x18 public immutable override MAX_FEE;
+
     /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
+    ISablierV2Comptroller public override comptroller;
+
+    /// @inheritdoc ISablierV2
     uint256 public override nextStreamId;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  INTERNAL STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Protocol revenues mapped by token addresses.
+    mapping(IERC20 => uint128) internal _protocolRevenues;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Checks that `msg.sender` is the sender of the stream, an approved operator, or the owner of the
-    /// NFT (also known as the recipient of the stream).
+    /// @notice Checks that `msg.sender` is the sender of the stream, the recipient of the stream (also known as
+    /// the owner of the NFT), or an approved operator.
     modifier isAuthorizedForStream(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
             revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
@@ -28,8 +57,8 @@ abstract contract SablierV2 is ISablierV2 {
         _;
     }
 
-    /// @notice Checks that `msg.sender` is either the sender of the stream or the owner of the NFT (also known as
-    /// the recipient of the stream).
+    /// @notice Checks that `msg.sender` is either the sender of the stream or the recipient of the stream (also known
+    /// as the owner of the NFT).
     modifier onlySenderOrRecipient(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && msg.sender != getRecipient(streamId)) {
             revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
@@ -49,13 +78,20 @@ abstract contract SablierV2 is ISablierV2 {
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor() {
+    constructor(ISablierV2Comptroller initialComptroller, UD60x18 maxFee) {
+        comptroller = initialComptroller;
+        MAX_FEE = maxFee;
         nextStreamId = 1;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                               PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierV2
+    function getProtocolRevenues(IERC20 token) external view override returns (uint128 protocolRevenues) {
+        protocolRevenues = _protocolRevenues[token];
+    }
 
     /// @inheritdoc ISablierV2
     function getRecipient(uint256 streamId) public view virtual override returns (address recipient);
@@ -99,7 +135,7 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function cancelAll(uint256[] calldata streamIds) external override {
+    function cancelMultiple(uint256[] calldata streamIds) external override {
         // Iterate over the provided array of stream ids and cancel each stream that exists and is cancelable.
         uint256 count = streamIds.length;
         uint256 streamId;
@@ -119,6 +155,24 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// @inheritdoc ISablierV2
+    function claimProtocolRevenues(IERC20 token) external override onlyOwner {
+        // Checks: the protocol revenues are not zero.
+        uint128 protocolRevenues = _protocolRevenues[token];
+        if (protocolRevenues == 0) {
+            revert Errors.SablierV2__ClaimZeroProtocolRevenues(token);
+        }
+
+        // Effects: set the protocol revenues to zero.
+        _protocolRevenues[token] = 0;
+
+        // Interactions: perform the ERC-20 transfer to pay the protocol revenues.
+        token.safeTransfer(msg.sender, protocolRevenues);
+
+        // Emit an event.
+        emit Events.ClaimProtocolRevenues(msg.sender, token, protocolRevenues);
+    }
+
+    /// @inheritdoc ISablierV2
     function renounce(uint256 streamId) external override streamExists(streamId) {
         // Checks: the `msg.sender` is the sender of the stream.
         if (!_isCallerStreamSender(streamId)) {
@@ -131,6 +185,20 @@ abstract contract SablierV2 is ISablierV2 {
         }
 
         _renounce(streamId);
+    }
+
+    /// @inheritdoc ISablierV2
+    function setComptroller(ISablierV2Comptroller newComptroller) external override onlyOwner {
+        // Effects: set the comptroller.
+        ISablierV2Comptroller oldComptroller = comptroller;
+        comptroller = newComptroller;
+
+        // Emit an event.
+        emit Events.SetComptroller({
+            owner: msg.sender,
+            oldComptroller: oldComptroller,
+            newComptroller: newComptroller
+        });
     }
 
     /// @inheritdoc ISablierV2
@@ -154,7 +222,7 @@ abstract contract SablierV2 is ISablierV2 {
     }
 
     /// @inheritdoc ISablierV2
-    function withdrawAll(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external override {
+    function withdrawMultiple(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external override {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
             revert Errors.SablierV2__WithdrawToZeroAddress();
@@ -164,7 +232,7 @@ abstract contract SablierV2 is ISablierV2 {
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
         if (streamIdsCount != amountsCount) {
-            revert Errors.SablierV2__WithdrawAllArraysNotEqual(streamIdsCount, amountsCount);
+            revert Errors.SablierV2__WithdrawArraysNotEqual(streamIdsCount, amountsCount);
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
