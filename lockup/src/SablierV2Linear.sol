@@ -181,11 +181,13 @@ contract SablierV2Linear is
             range.stop = range.start + durations.total;
         }
 
+        // Safe Interactions: query the protocol fee. This is safe because we are querying a Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(token);
+
         // Checks: check the fees and calculate the fee amounts.
         CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
-            comptroller,
-            token,
             grossDepositAmount,
+            protocolFee,
             broker.fee,
             MAX_FEE
         );
@@ -214,13 +216,14 @@ contract SablierV2Linear is
         Range calldata range,
         Broker calldata broker
     ) external returns (uint256 streamId) {
+        // Safe Interactions: query the protocol fee. This is safe because we are querying a Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(token);
+
         // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
         // deposit amount.
-        // Checks: check the fees and calculate the fee amounts.
         CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
-            comptroller,
-            token,
             grossDepositAmount,
+            protocolFee,
             broker.fee,
             MAX_FEE
         );

@@ -8,7 +8,7 @@ import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Amounts, Broker, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
+import { Broker, CreateAmounts, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
@@ -186,11 +186,13 @@ contract SablierV2Pro is
         // Checks: check the deltas and adjust the segments accordingly.
         Helpers.checkDeltasAndAdjustSegments(segments, deltas);
 
+        // Safe Interactions: query the protocol fee. This is safe because we are querying a Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(token);
+
         // Checks: check the fees and calculate the fee amounts.
         CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
-            comptroller,
-            token,
             grossDepositAmount,
+            protocolFee,
             broker.fee,
             MAX_FEE
         );
@@ -221,11 +223,13 @@ contract SablierV2Pro is
         uint40 startTime,
         Broker calldata broker
     ) external returns (uint256 streamId) {
+        // Safe Interactions: query the protocol fee. This is safe because we are querying a Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(token);
+
         // Checks: check the fees and calculate the fee amounts.
         CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
-            comptroller,
-            token,
             grossDepositAmount,
+            protocolFee,
             broker.fee,
             MAX_FEE
         );

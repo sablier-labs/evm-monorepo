@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { CreateAmounts, Range, Segment } from "../types/Structs.sol";
 import { Errors } from "./Errors.sol";
-
-import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 
 /// @title Helpers
 /// @notice Library with helper functions needed across the Sablier V2 contracts.
@@ -20,18 +17,14 @@ library Helpers {
     /// @dev Checks that neither fee is greater than `MAX_FEE`, and then calculates the protocol fee amount, the
     /// broker fee amount, and the net deposit amount.
     function checkAndCalculateFees(
-        ISablierV2Comptroller comptroller,
-        IERC20 token,
         uint128 grossDepositAmount,
+        UD60x18 protocolFee,
         UD60x18 brokerFee,
         UD60x18 maxFee
-    ) internal view returns (CreateAmounts memory amounts) {
+    ) internal pure returns (CreateAmounts memory amounts) {
         if (grossDepositAmount == 0) {
             return CreateAmounts(0, 0, 0);
         }
-
-        // Safe Interactions: query the protocol fee. This is safe because we are querying a Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(token);
 
         // Checks: the protocol fee is not greater than `MAX_FEE`.
         if (protocolFee.gt(maxFee)) {
