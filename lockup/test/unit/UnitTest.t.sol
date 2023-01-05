@@ -1,23 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
-import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
-import { PRBMathUtils } from "@prb/math/test/Utils.sol";
-import { PRBTest } from "@prb/test/PRBTest.sol";
-import { SD1x18 } from "@prb/math/SD1x18.sol";
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { StdCheats } from "forge-std/StdCheats.sol";
-import { StdUtils } from "forge-std/StdUtils.sol";
-
-import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
-import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
-import { ISablierV2Linear } from "src/interfaces/ISablierV2Linear.sol";
-import { ISablierV2Pro } from "src/interfaces/ISablierV2Pro.sol";
-import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
-import { SablierV2Linear } from "src/SablierV2Linear.sol";
-import { SablierV2Pro } from "src/SablierV2Pro.sol";
-
 import { BaseTest } from "test/BaseTest.t.sol";
 import { Empty } from "test/helpers/hooks/Empty.t.sol";
 import { GoodRecipient } from "test/helpers/hooks/GoodRecipient.t.sol";
@@ -30,186 +13,43 @@ import { SablierV2Mock } from "test/helpers/mocks/SablierV2Mock.t.sol";
 
 abstract contract UnitTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////
-                                       STRUCTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    struct Users {
-        // Neutral user.
-        address payable alice;
-        // Default stream broker.
-        address payable broker;
-        // Malicious user.
-        address payable eve;
-        // Default NFT operator.
-        address payable operator;
-        // Default owner of all Sablier V2 contracts.
-        address payable owner;
-        // Default stream recipient.
-        address payable recipient;
-        // Default stream sender.
-        address payable sender;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER CONTRACTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    ISablierV2Comptroller internal comptroller;
-    ISablierV2Linear internal linear;
-    ISablierV2Pro internal pro;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
     Empty internal empty = new Empty();
     GoodRecipient internal goodRecipient = new GoodRecipient();
     GoodSender internal goodSender = new GoodSender();
-    NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Non-Compliant Token", "NCT", 18);
     ReentrantRecipient internal reentrantRecipient = new ReentrantRecipient();
     ReentrantSender internal reentrantSender = new ReentrantSender();
     RevertingRecipient internal revertingRecipient = new RevertingRecipient();
     RevertingSender internal revertingSender = new RevertingSender();
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    Users internal users;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public virtual {
-        // Create users for testing.
-        users = Users({
-            alice: createUser("Alice"),
-            broker: createUser("Broker"),
-            eve: createUser("Eve"),
-            operator: createUser("Operator"),
-            owner: createUser("Owner"),
-            recipient: createUser("Recipient"),
-            sender: createUser("Sender")
-        });
+    function setUp() public virtual override {
+        BaseTest.setUp();
 
-        // Deploy all contracts.
-        deployContracts();
+        // Deploy all Sablier contracts.
+        deploySablierContracts();
 
-        // Label all contracts.
-        labelContracts();
+        // Approve all contracts to spend tokens fromm the users.
+        approveSablierContracts();
 
-        // Approve all contracts.
-        approveContracts();
-    }
+        // Label the test contracts.
+        labelTestContracts();
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Checks if the `a` string is the same as the `b` string.
-    function eq(string memory a, string memory b) internal pure returns (bool result) {
-        result = keccak256(abi.encode(a)) == keccak256(abi.encode(b));
-    }
-
-    /// @dev Tries to read an environment variable as a string, fallbacking to an empty string if the variable
-    /// is not defined.
-    function tryEnvString(string memory name) internal view returns (string memory) {
-        try vm.envString(name) returns (string memory value) {
-            return value;
-        } catch {
-            return "";
-        }
+        // Finally, change the active prank back to the owner.
+        changePrank(users.owner);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Approves all Sablier contracts to spend tokens from the sender, recipient, Alice and Eve,
-    /// and then change the active prank back to the owner.
-    function approveContracts() internal {
-        changePrank(users.sender);
-        dai.approve({ spender: address(linear), value: UINT256_MAX });
-        dai.approve({ spender: address(pro), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(pro), value: UINT256_MAX });
-
-        changePrank(users.recipient);
-        dai.approve({ spender: address(linear), value: UINT256_MAX });
-        dai.approve({ spender: address(pro), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(pro), value: UINT256_MAX });
-
-        changePrank(users.alice);
-        dai.approve({ spender: address(linear), value: UINT256_MAX });
-        dai.approve({ spender: address(pro), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(pro), value: UINT256_MAX });
-
-        changePrank(users.eve);
-        dai.approve({ spender: address(linear), value: UINT256_MAX });
-        dai.approve({ spender: address(pro), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(pro), value: UINT256_MAX });
-
-        changePrank(users.owner);
-    }
-
-    /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
-    /// and 1 million non-compliant tokens.
-    function createUser(string memory name) internal returns (address payable addr) {
-        addr = payable(address(uint160(uint256(keccak256(abi.encodePacked(name))))));
-        vm.label({ account: addr, newLabel: name });
-        vm.deal({ account: addr, newBalance: 100 ether });
-        deal({ token: address(dai), to: addr, give: 1_000_000e18 });
-        deal({ token: address(nonCompliantToken), to: addr, give: 1_000_000e18 });
-    }
-
-    /// @dev Conditionally deploy contracts normally or from precompiled source.
-    function deployContracts() internal {
-        // We deploy all contracts with the owner as the caller.
-        vm.startPrank({ msgSender: users.owner });
-
-        // We deploy from precompiled source if the profile is "test-optimized".
-        string memory profile = tryEnvString("FOUNDRY_PROFILE");
-        if (eq(profile, "test-optimized")) {
-            comptroller = ISablierV2Comptroller(
-                deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json")
-            );
-            linear = ISablierV2Linear(
-                deployCode(
-                    "optimized-out/SablierV2Linear.sol/SablierV2Linear.json",
-                    abi.encode(address(comptroller), DEFAULT_MAX_FEE)
-                )
-            );
-            pro = ISablierV2Pro(
-                deployCode(
-                    "optimized-out/SablierV2Pro.sol/SablierV2Pro.json",
-                    abi.encode(address(comptroller), DEFAULT_MAX_FEE, DEFAULT_MAX_SEGMENT_COUNT)
-                )
-            );
-        }
-        // We deploy normally in all other cases.
-        else {
-            comptroller = new SablierV2Comptroller();
-            linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: DEFAULT_MAX_FEE });
-            pro = new SablierV2Pro({
-                initialComptroller: comptroller,
-                maxFee: DEFAULT_MAX_FEE,
-                maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
-            });
-        }
-    }
-
-    /// @dev Label all contracts, which helps during debugging.
-    function labelContracts() internal {
-        // Label the Sablier contracts.
-        vm.label({ account: address(comptroller), newLabel: "Comptroller" });
-        vm.label({ account: address(linear), newLabel: "SablierV2Linear" });
-        vm.label({ account: address(pro), newLabel: "SablierV2Pro" });
-
-        // Label the test contracts.
+    /// @dev Label the test contracts.
+    function labelTestContracts() internal {
         vm.label({ account: address(empty), newLabel: "Empty" });
         vm.label({ account: address(dai), newLabel: "Dai" });
         vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });

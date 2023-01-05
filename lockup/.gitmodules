@@ -15,7 +15,7 @@
   path = "lib/prb-math"
   url = "https://github.com/paulrberg/prb-math"
 [submodule "lib/prb-test"]
-  branch = "0.3.1"
+  branch = "main"
   path = "lib/prb-test"
   url = "https://github.com/paulrberg/prb-test"
 [submodule "lib/solarray"]

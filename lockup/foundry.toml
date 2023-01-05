@@ -15,7 +15,6 @@ solc = "0.8.17"
 src = "src"
 test = "test/unit"
 
-# CI profile
 [profile.ci]
 fuzz = { runs = 5_000 }
 

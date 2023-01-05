@@ -42,16 +42,11 @@ abstract contract IntegrationTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
+        // Fork Ethereum Mainnet.
         vm.createSelectFork({ urlOrAlias: vm.envString("ETH_RPC_URL"), blockNumber: 16_126_000 });
 
-        // Deploy all contracts.
-        comptroller = new SablierV2Comptroller();
-        linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: DEFAULT_MAX_FEE });
-        pro = new SablierV2Pro({
-            initialComptroller: comptroller,
-            maxFee: DEFAULT_MAX_FEE,
-            maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
-        });
+        // Deploy all Sablier contracts.
+        deploySablierContracts();
 
         // Make the token holder the caller in this test suite.
         vm.startPrank({ msgSender: holder });
