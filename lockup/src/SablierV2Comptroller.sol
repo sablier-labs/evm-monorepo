@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
+import { Adminable } from "@prb/contracts/access/Adminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { Ownable } from "@prb/contracts/access/Ownable.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Events } from "./libraries/Events.sol";
@@ -13,7 +13,7 @@ import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 /// @dev This contract implements the ISablierV2Comptroller interface.
 contract SablierV2Comptroller is
     ISablierV2Comptroller, // one dependency
-    Ownable // one dependency
+    Adminable // one dependency
 {
     /*//////////////////////////////////////////////////////////////////////////
                                   INTERNAL STORAGE
@@ -36,12 +36,12 @@ contract SablierV2Comptroller is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Comptroller
-    function setProtocolFee(IERC20 token, UD60x18 newProtocolFee) external onlyOwner {
+    function setProtocolFee(IERC20 token, UD60x18 newProtocolFee) external onlyAdmin {
         // Effects: set the new global fee.
         UD60x18 oldProtocolFee = _protocolFees[token];
         _protocolFees[token] = newProtocolFee;
 
         // Emit an event.
-        emit Events.SetProtocolFee(owner, token, oldProtocolFee, newProtocolFee);
+        emit Events.SetProtocolFee(msg.sender, token, oldProtocolFee, newProtocolFee);
     }
 }

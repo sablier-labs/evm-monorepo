@@ -95,7 +95,7 @@ contract GetWithdrawableAmount__ProTest is ProTest {
 
     modifier CurrentTimeLessThanStopTime() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
-        changePrank(users.owner);
+        changePrank(users.admin);
         comptroller.setProtocolFee(dai, ZERO);
         changePrank(users.sender);
         _;

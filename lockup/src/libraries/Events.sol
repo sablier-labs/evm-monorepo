@@ -91,20 +91,22 @@ library Events {
     /// @param streamId The id of the stream.
     event Renounce(uint256 indexed streamId);
 
-    /// @notice Emitted when the SablierV2Comptroller contract is set.
+    /// @notice Emitted when the contract admin sets a new comptroller contract.
+    /// @param admin The address of the current contract admin.
+    /// @param oldComptroller The address of the old SablierV2Comptroller contract.
     /// @param newComptroller The address of the new SablierV2Comptroller contract.
     event SetComptroller(
-        address indexed owner,
+        address indexed admin,
         ISablierV2Comptroller oldComptroller,
         ISablierV2Comptroller newComptroller
     );
 
-    /// @notice Emitted when the contract owner sets a new protocol fee for the provided token.
-    /// @param owner The address of the current contract owner.
+    /// @notice Emitted when the contract admin sets a new protocol fee for the provided token.
+    /// @param admin The address of the current contract admin.
     /// @param token The address of the ERC-20 token the new protocol fee was set for.
     /// @param oldFee The old global fee for the provided token, as an UD60x18 number.
     /// @param newFee The new global fee for the provided token, as an UD60x18 number.
-    event SetProtocolFee(address indexed owner, IERC20 indexed token, UD60x18 oldFee, UD60x18 newFee);
+    event SetProtocolFee(address indexed admin, IERC20 indexed token, UD60x18 oldFee, UD60x18 newFee);
 
     /// @notice Emitted when tokens are withdrawn from a stream.
     /// @param streamId The id of the stream.

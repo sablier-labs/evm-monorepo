@@ -136,7 +136,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         depositDelta = boundUint128(depositDelta, 100, DEFAULT_GROSS_DEPOSIT_AMOUNT);
 
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
-        changePrank(users.owner);
+        changePrank(users.admin);
         comptroller.setProtocolFee(params.createWithMilestones.token, ZERO);
         UD60x18 brokerFee = ZERO;
         changePrank(params.createWithMilestones.sender);
@@ -186,7 +186,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
         // Set the protocol fee.
-        changePrank(users.owner);
+        changePrank(users.admin);
         comptroller.setProtocolFee(defaultStream.token, protocolFee);
 
         // Run the test.
@@ -253,7 +253,7 @@ contract CreateWithMilestones__ProTest is ProTest {
 
         // Set the default protocol fee so that the test does not revert due to the net deposit amount not being
         // equal to the segment amounts sum.
-        changePrank(users.owner);
+        changePrank(users.admin);
         comptroller.setProtocolFee(nonToken, DEFAULT_PROTOCOL_FEE);
         changePrank(users.sender);
 
@@ -471,7 +471,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
 
         // Set the fuzzed protocol fee.
-        changePrank(users.owner);
+        changePrank(users.admin);
         comptroller.setProtocolFee(params.createWithMilestones.token, protocolFee);
 
         // Make the sender the funder in this test.

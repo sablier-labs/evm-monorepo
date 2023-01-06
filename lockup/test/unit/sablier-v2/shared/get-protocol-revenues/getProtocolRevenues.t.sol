@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13;
 
-import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
+import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
@@ -21,7 +21,7 @@ abstract contract GetProtocolRevenues__Test is SharedTest {
         // Create the default stream, which will accrue revenues for the protocol.
         changePrank(users.sender);
         createDefaultStream();
-        changePrank(users.owner);
+        changePrank(users.admin);
         _;
     }
 

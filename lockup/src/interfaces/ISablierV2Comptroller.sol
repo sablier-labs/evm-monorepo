@@ -2,13 +2,13 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
+import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @title ISablierV2Controller
 /// @notice This contract is in charge of the Sablier V2 protocol configuration, handling such values as the
 /// protocol fees.
-interface ISablierV2Comptroller is IOwnable {
+interface ISablierV2Comptroller is IAdminable {
     /// @notice Queries the protocol fee charged on all Sablier V2 streams created with the provided token.
     /// @param token The address of the token to make the query for.
     /// @return protocolFee The protocol fee as an UD60x18 number where 100% = 1e18.
@@ -24,7 +24,7 @@ interface ISablierV2Comptroller is IOwnable {
     /// - Does not revert if the fee is the same.
     ///
     /// Requirements:
-    /// - The caller must be the owner.
+    /// - The caller must be the admin of the contract.
     /// - The new protocol fee cannot be greater than `MAX_FEE`.
     ///
     /// @param token The address of the token to make the query for.

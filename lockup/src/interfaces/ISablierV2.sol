@@ -3,14 +3,14 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import { IOwnable } from "@prb/contracts/access/IOwnable.sol";
+import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @title ISablierV2
 /// @notice The common interface between all Sablier V2 streaming contracts.
 interface ISablierV2 is
-    IOwnable, // no dependencies
+    IAdminable, // no dependencies
     IERC721 // one dependency
 {
     /*//////////////////////////////////////////////////////////////////////////
@@ -170,7 +170,7 @@ interface ISablierV2 is
     /// - It is not an error to set the same comptroller.
     ///
     /// Requirements:
-    /// - The caller must be the owner of the contract.
+    /// - The caller must be the admin of the contract.
     ///
     /// @param newComptroller The address of the new SablierV2Comptroller contract.
     function setComptroller(ISablierV2Comptroller newComptroller) external;
@@ -184,8 +184,8 @@ interface ISablierV2 is
     ///
     /// Requirements:
     /// - `streamId` must point to an existent stream.
-    /// - `msg.sender` must be the sender of the stream, an approved operator, or the owner of the
-    /// NFT (also known as the recipient of the stream).
+    /// - `msg.sender` must be the sender of the stream, an approved operator, or the owner of the NFT (also known
+    /// as the recipient of the stream).
     /// - `to` must be the recipient if `msg.sender` is the sender of the stream.
     /// - `amount` must not be zero and must not exceed the withdrawable amount.
     ///

@@ -40,8 +40,8 @@ abstract contract UnitTest is BaseTest {
         // Label the test contracts.
         labelTestContracts();
 
-        // Finally, change the active prank back to the owner.
-        changePrank(users.owner);
+        // Finally, change the active prank back to the admin.
+        changePrank(users.admin);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
