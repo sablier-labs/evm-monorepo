@@ -102,12 +102,7 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2
     function getStopTime(uint256 streamId) external view override returns (uint40 stopTime) {
-        unchecked {
-            uint256 segmentCount = _streams[streamId].segments.length;
-            if (segmentCount > 0) {
-                stopTime = _streams[streamId].segments[segmentCount - 1].milestone;
-            }
-        }
+        stopTime = _streams[streamId].stopTime;
     }
 
     /// @inheritdoc ISablierV2Pro
@@ -130,7 +125,7 @@ contract SablierV2Pro is
 
         unchecked {
             uint256 segmentCount = _streams[streamId].segments.length;
-            uint40 stopTime = _streams[streamId].segments[segmentCount - 1].milestone;
+            uint40 stopTime = _streams[streamId].stopTime;
 
             // If the current time is greater than or equal to the stop time, we return the deposit minus
             // the withdrawn amount.
@@ -340,7 +335,6 @@ contract SablierV2Pro is
     }
 
     /// @dev This struct is needed to avoid the "Stack Too Deep" error.
-
     struct CreateWithMilestonesParams {
         CreateAmounts amounts;
         Segment[] segments;
@@ -360,6 +354,9 @@ contract SablierV2Pro is
         // Load the stream id.
         streamId = nextStreamId;
 
+        // Load the segment count.
+        uint256 segmentCount = params.segments.length;
+
         // Effects: create the stream.
         ProStream storage stream = _streams[streamId];
         stream.amounts.deposit = params.amounts.netDeposit;
@@ -367,12 +364,12 @@ contract SablierV2Pro is
         stream.isEntity = true;
         stream.sender = params.sender;
         stream.startTime = params.startTime;
+        stream.stopTime = params.segments[segmentCount - 1].milestone;
         stream.token = params.token;
 
         unchecked {
             // Effects: store the segments. Copying an array from memory to storage is not currently supported in
             // Solidity, so we have to do it manually. See https://github.com/ethereum/solidity/issues/12783
-            uint256 segmentCount = params.segments.length;
             for (uint256 i = 0; i < segmentCount; ++i) {
                 stream.segments.push(params.segments[i]);
             }
@@ -405,6 +402,7 @@ contract SablierV2Pro is
             token: params.token,
             cancelable: params.cancelable,
             startTime: params.startTime,
+            stopTime: stream.stopTime,
             broker: params.broker
         });
     }
@@ -472,8 +470,9 @@ contract SablierV2Pro is
             uint128 depositAmount = _streams[streamId].amounts.deposit;
             SD1x18 exponent = _streams[streamId].segments[0].exponent;
             SD59x18 elapsedTime = SD59x18.wrap(int256(uint256(uint40(block.timestamp) - _streams[streamId].startTime)));
-            uint40 stopTime = _streams[streamId].segments[0].milestone;
-            SD59x18 totalTime = SD59x18.wrap(int256(uint256(stopTime - _streams[streamId].startTime)));
+            SD59x18 totalTime = SD59x18.wrap(
+                int256(uint256(_streams[streamId].stopTime - _streams[streamId].startTime))
+            );
 
             // Calculate the streamed amount.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);

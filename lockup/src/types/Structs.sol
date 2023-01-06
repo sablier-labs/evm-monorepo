@@ -63,6 +63,8 @@ struct LinearStream {
 /// @custom:field amounts Simple struct with the deposit and withdrawn amounts.
 /// @custom:field segments The segments the protocol uses to compose the custom streaming curve.
 /// @custom:field sender The address of the sender of the stream.
+/// @custom:field startTime The Unix timestamp for when the stream will start.
+/// @custom:field stopTime The Unix timestamp for when the stream will stop.
 /// @custom:field isCancelable A boolean that indicates whether the stream is cancelable or not.
 /// @custom:field isEntity A boolean that signals the existence of the instance of the struct.
 /// @custom:field token The address of the ERC-20 token used for streaming.
@@ -71,6 +73,7 @@ struct ProStream {
     Segment[] segments;
     address sender; // ───┐
     uint40 startTime; //  │
+    uint40 stopTime; //   │
     bool isCancelable; // │
     bool isEntity; // ────┘
     IERC20 token;

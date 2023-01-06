@@ -111,6 +111,7 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
             token: token,
             cancelable: params.cancelable,
             startTime: params.startTime,
+            stopTime: DEFAULT_STOP_TIME,
             broker: params.broker.addr
         });
 

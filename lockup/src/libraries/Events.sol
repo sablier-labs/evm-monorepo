@@ -71,6 +71,7 @@ library Events {
     /// @param token The address of the ERC-20 token used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param startTime The Unix timestamp for when the stream will start.
+    /// @param stopTime The Unix timestamp for when the stream will stop.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateProStream(
         uint256 streamId,
@@ -82,6 +83,7 @@ library Events {
         IERC20 token,
         bool cancelable,
         uint40 startTime,
+        uint40 stopTime,
         address broker
     );
 

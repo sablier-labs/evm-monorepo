@@ -541,6 +541,7 @@ contract CreateWithMilestones__ProTest is ProTest {
             token: params.createWithMilestones.token,
             cancelable: params.createWithMilestones.cancelable,
             startTime: params.createWithMilestones.startTime,
+            stopTime: DEFAULT_STOP_TIME,
             broker: params.createWithMilestones.broker.addr
         });
 

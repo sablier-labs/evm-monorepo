@@ -260,6 +260,7 @@ contract CreateWithDeltas__ProTest is ProTest {
             token: params.createWithDeltas.token,
             cancelable: params.createWithDeltas.cancelable,
             startTime: DEFAULT_START_TIME,
+            stopTime: DEFAULT_STOP_TIME,
             broker: params.createWithDeltas.broker.addr
         });
         createDefaultStreamWithDeltas();
