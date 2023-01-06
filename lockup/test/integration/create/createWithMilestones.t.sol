@@ -11,7 +11,7 @@ import { Amounts, Broker, CreateAmounts, ProStream, Segment } from "src/types/St
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 
-abstract contract CreateWithMilestones__Test is IntegrationTest {
+abstract contract CreateWithMilestones_Test is IntegrationTest {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/

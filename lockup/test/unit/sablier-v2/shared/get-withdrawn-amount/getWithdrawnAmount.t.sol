@@ -3,7 +3,7 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract GetWithdrawnAmount__Test is SharedTest {
+abstract contract GetWithdrawnAmount_Test is SharedTest {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {
@@ -14,7 +14,7 @@ abstract contract GetWithdrawnAmount__Test is SharedTest {
     }
 
     /// @dev it should return zero.
-    function testGetWithdrawnAmount__StreamNonExistent() external {
+    function test_GetWithdrawnAmount_StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         uint128 actualWithdrawnAmount = sablierV2.getWithdrawnAmount(nonStreamId);
         uint128 expectedWithdrawnAmount = 0;
@@ -28,7 +28,7 @@ abstract contract GetWithdrawnAmount__Test is SharedTest {
     }
 
     /// @dev it should return zero.
-    function testGetWithdrawnAmount__NoWithdrawals(uint256 timeWarp) external StreamExistent {
+    function testFuzz_GetWithdrawnAmount_NoWithdrawals(uint256 timeWarp) external StreamExistent {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -41,7 +41,10 @@ abstract contract GetWithdrawnAmount__Test is SharedTest {
     }
 
     /// @dev it should return the correct withdrawn amount.
-    function testGetWithdrawnAmount__WithWithdrawals(uint256 timeWarp, uint128 withdrawAmount) external StreamExistent {
+    function testFuzz_GetWithdrawnAmount_WithWithdrawals(
+        uint256 timeWarp,
+        uint128 withdrawAmount
+    ) external StreamExistent {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_TIME, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.

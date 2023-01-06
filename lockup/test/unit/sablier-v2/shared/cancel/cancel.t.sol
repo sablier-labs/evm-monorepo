@@ -8,7 +8,7 @@ import { Events } from "src/libraries/Events.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract Cancel__Test is SharedTest {
+abstract contract Cancel_Test is SharedTest {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {
@@ -19,9 +19,9 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancel__StreamNonExistent() external {
+    function test_RevertWhen_StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonExistent.selector, nonStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNonExistent.selector, nonStreamId));
         sablierV2.cancel(nonStreamId);
     }
 
@@ -32,12 +32,12 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancel__StreamNonCancelable() external StreamExistent {
+    function test_RevertWhen_StreamNonCancelable() external StreamExistent {
         // Create the non-cancelable stream.
         uint256 streamId = createDefaultStreamNonCancelable();
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonCancelable.selector, streamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNonCancelable.selector, streamId));
         sablierV2.cancel(streamId);
     }
 
@@ -46,7 +46,7 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function testCannotCancel__CallerUnauthorized__MaliciousThirdParty(
+    function testFuzz_RevertWhen_CallerUnauthorized_MaliciousThirdParty(
         address eve
     ) external StreamExistent StreamCancelable {
         vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
@@ -55,12 +55,12 @@ abstract contract Cancel__Test is SharedTest {
         changePrank(eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamId, eve));
         sablierV2.cancel(defaultStreamId);
     }
 
     /// @dev it should revert.
-    function testCannotCancel__CallerUnauthorized__ApprovedOperator(
+    function testFuzz_RevertWhen_CallerUnauthorized_ApprovedOperator(
         address operator
     ) external StreamExistent StreamCancelable {
         vm.assume(operator != address(0) && operator != users.sender && operator != users.recipient);
@@ -72,18 +72,18 @@ abstract contract Cancel__Test is SharedTest {
         changePrank(operator);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, operator));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamId, operator));
         sablierV2.cancel(defaultStreamId);
     }
 
     /// @dev it should revert.
-    function testCannotCancel__CallerUnauthorized__FormerRecipient() external StreamExistent StreamCancelable {
+    function test_RevertWhen_CallerUnauthorized_FormerRecipient() external StreamExistent StreamCancelable {
         // Transfer the stream to Alice.
         sablierV2.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, users.recipient)
+            abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamId, users.recipient)
         );
         sablierV2.cancel(defaultStreamId);
     }
@@ -99,7 +99,7 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should cancel the stream.
-    function testCancel__Sender__RecipientNotContract()
+    function test_Cancel_Sender_RecipientNotContract()
         external
         StreamExistent
         StreamCancelable
@@ -115,7 +115,7 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should cancel the stream.
-    function testCancel__Sender__RecipientDoesNotImplementHook()
+    function testCancel_Sender_RecipientDoesNotImplementHook()
         external
         StreamExistent
         StreamCancelable
@@ -133,7 +133,7 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should ignore the revert and cancel the stream.
-    function testCancel__Sender__RecipientReverts()
+    function testCancel_Sender_RecipientReverts()
         external
         StreamExistent
         StreamCancelable
@@ -152,7 +152,7 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should ignore the revert and cancel the stream.
-    function testCancel__Sender__RecipientReentrancy()
+    function testCancel_Sender_RecipientReentrancy()
         external
         StreamExistent
         StreamCancelable
@@ -177,7 +177,7 @@ abstract contract Cancel__Test is SharedTest {
     ///
     /// - Stream ongoing.
     /// - Stream ended.
-    function testCancel__Sender(
+    function testFuzz_Cancel_Sender(
         uint256 timeWarp
     )
         external
@@ -231,7 +231,7 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should cancel the stream.
-    function testCancel__Recipient__SenderNotContract()
+    function testCancel_Recipient_SenderNotContract()
         external
         StreamExistent
         StreamCancelable
@@ -247,7 +247,7 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should cancel the stream.
-    function testCancel__Recipient__SenderDoesNotImplementHook()
+    function testCancel_Recipient_SenderDoesNotImplementHook()
         external
         StreamExistent
         StreamCancelable
@@ -265,7 +265,7 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should cancel the stream.
-    function testCancel__Recipient__SenderReverts()
+    function testCancel_Recipient_SenderReverts()
         external
         StreamExistent
         StreamCancelable
@@ -286,7 +286,7 @@ abstract contract Cancel__Test is SharedTest {
     }
 
     /// @dev it should ignore the revert and make the withdrawal and cancel the stream.
-    function testCancel__Recipient__SenderReentrancy()
+    function testCancel_Recipient_SenderReentrancy()
         external
         StreamExistent
         StreamCancelable
@@ -313,7 +313,7 @@ abstract contract Cancel__Test is SharedTest {
     ///
     /// - Stream ongoing.
     /// - Stream ended.
-    function testCancel__Recipient(
+    function testFuzz_Cancel_Recipient(
         uint256 timeWarp
     )
         external

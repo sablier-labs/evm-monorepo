@@ -9,7 +9,7 @@ import { Events } from "src/libraries/Events.sol";
 
 import { ComptrollerTest } from "../ComptrollerTest.t.sol";
 
-contract GetProtocolFee__ComptrollerTest is ComptrollerTest {
+contract GetProtocolFee_ComptrollerTest is ComptrollerTest {
     function setUp() public override {
         ComptrollerTest.setUp();
 
@@ -18,7 +18,7 @@ contract GetProtocolFee__ComptrollerTest is ComptrollerTest {
     }
 
     /// @dev it should return zero.
-    function testGetProtocolFee__ProtocolFeeNotSet() external {
+    function test_GetProtocolFee_ProtocolFeeNotSet() external {
         UD60x18 actualProtocolFee = comptroller.getProtocolFee(dai);
         UD60x18 expectedProtocolFee = ZERO;
         assertEq(actualProtocolFee, expectedProtocolFee);
@@ -30,7 +30,7 @@ contract GetProtocolFee__ComptrollerTest is ComptrollerTest {
     }
 
     /// @dev it should return the correct protocol fee.
-    function testGetProtocolFee() external ProtocolFeeSet {
+    function test_GetProtocolFee() external ProtocolFeeSet {
         UD60x18 actualProtocolFee = comptroller.getProtocolFee(dai);
         UD60x18 expectedProtocolFee = DEFAULT_PROTOCOL_FEE;
         assertEq(actualProtocolFee, expectedProtocolFee);

@@ -3,7 +3,7 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
+import { SafeERC20_CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
@@ -11,9 +11,9 @@ import { Amounts, Broker, LinearStream, Range } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract CreateWithRange__LinearTest is LinearTest {
+contract CreateWithRange_LinearTest is LinearTest {
     /// @dev it should revert.
-    function testCannotCreateWithRange__RecipientZeroAddress() external {
+    function test_RevertWhen_RecipientZeroAddress() external {
         vm.expectRevert("ERC721: mint to the zero address");
         createDefaultStreamWithRecipient({ recipient: address(0) });
     }
@@ -26,8 +26,8 @@ contract CreateWithRange__LinearTest is LinearTest {
     ///
     /// It is not possible to obtain a zero net deposit amount from a non-zero gross deposit amount, because the
     /// `MAX_FEE` is hard coded to 10%.
-    function testCannotCreateWithRange__NetDepositAmountZero() external RecipientNonZeroAddress {
-        vm.expectRevert(Errors.SablierV2__NetDepositAmountZero.selector);
+    function test_RevertWhen_NetDepositAmountZero() external RecipientNonZeroAddress {
+        vm.expectRevert(Errors.SablierV2_NetDepositAmountZero.selector);
         createDefaultStreamWithGrossDepositAmount(0);
     }
 
@@ -36,15 +36,11 @@ contract CreateWithRange__LinearTest is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithRange__StartTimeGreaterThanCliffTime()
-        external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-    {
+    function test_RevertWhen_StartTimeGreaterThanCliffTime() external RecipientNonZeroAddress NetDepositAmountNotZero {
         uint40 startTime = params.createWithRange.range.cliff;
         uint40 cliffTime = params.createWithRange.range.start;
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Linear__StartTimeGreaterThanCliffTime.selector, startTime, cliffTime)
+            abi.encodeWithSelector(Errors.SablierV2Linear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime)
         );
         linear.createWithRange(
             params.createWithRange.sender,
@@ -62,7 +58,7 @@ contract CreateWithRange__LinearTest is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithRange__CliffTimeGreaterThanStopTime(
+    function testFuzz_RevertWhen_CliffTimeGreaterThanStopTime(
         uint40 cliffTime,
         uint40 stopTime
     ) external RecipientNonZeroAddress NetDepositAmountNotZero StartTimeLessThanOrEqualToCliffTime {
@@ -70,7 +66,7 @@ contract CreateWithRange__LinearTest is LinearTest {
         vm.assume(stopTime > params.createWithRange.range.start);
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Linear__CliffTimeGreaterThanStopTime.selector, cliffTime, stopTime)
+            abi.encodeWithSelector(Errors.SablierV2Linear_CliffTimeGreaterThanStopTime.selector, cliffTime, stopTime)
         );
         linear.createWithRange(
             params.createWithRange.sender,
@@ -88,7 +84,7 @@ contract CreateWithRange__LinearTest is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithRange__ProtocolFeeTooHigh(
+    function testFuzz_RevertWhen_ProtocolFeeTooHigh(
         UD60x18 protocolFee
     )
         external
@@ -105,7 +101,7 @@ contract CreateWithRange__LinearTest is LinearTest {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__ProtocolFeeTooHigh.selector, protocolFee, DEFAULT_MAX_FEE)
+            abi.encodeWithSelector(Errors.SablierV2_ProtocolFeeTooHigh.selector, protocolFee, DEFAULT_MAX_FEE)
         );
         createDefaultStream();
     }
@@ -115,7 +111,7 @@ contract CreateWithRange__LinearTest is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithRange__BrokerFeeTooHigh(
+    function testFuzz_RevertWhen_BrokerFeeTooHigh(
         UD60x18 brokerFee
     )
         external
@@ -126,9 +122,7 @@ contract CreateWithRange__LinearTest is LinearTest {
         ProtocolFeeNotTooHigh
     {
         brokerFee = bound(brokerFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__BrokerFeeTooHigh.selector, brokerFee, DEFAULT_MAX_FEE)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_BrokerFeeTooHigh.selector, brokerFee, DEFAULT_MAX_FEE));
         linear.createWithRange(
             params.createWithRange.sender,
             params.createWithRange.recipient,
@@ -145,7 +139,7 @@ contract CreateWithRange__LinearTest is LinearTest {
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithRange__TokenNotContract(
+    function testFuzz_RevertWhen_TokenNotContract(
         IERC20 nonToken
     )
         external
@@ -155,7 +149,7 @@ contract CreateWithRange__LinearTest is LinearTest {
         CliffLessThanOrEqualToStopTime
     {
         vm.assume(address(nonToken).code.length == 0);
-        vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(nonToken)));
+        vm.expectRevert(abi.encodeWithSelector(SafeERC20_CallToNonContract.selector, address(nonToken)));
         linear.createWithRange(
             params.createWithRange.sender,
             params.createWithRange.recipient,
@@ -172,7 +166,7 @@ contract CreateWithRange__LinearTest is LinearTest {
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
-    function testCreateWithRange__TokenMissingReturnValue()
+    function test_CreateWithRange_TokenMissingReturnValue()
         external
         RecipientNonZeroAddress
         NetDepositAmountNotZero
@@ -242,7 +236,7 @@ contract CreateWithRange__LinearTest is LinearTest {
     /// - Start time lower than and equal to cliff time.
     /// - Cliff time lower than and equal to stop time.
     /// - Broker fee zero and non-zero.
-    function testCreateWithRange(
+    function testFuzz_CreateWithRange(
         address funder,
         address recipient,
         uint128 grossDepositAmount,
@@ -332,7 +326,7 @@ contract CreateWithRange__LinearTest is LinearTest {
     ///
     /// - Multiple values for the gross deposit amount.
     /// - Protocol fee zero and non-zero.
-    function testCreateWithRange__ProtocolFee(
+    function testFuzz_CreateWithRange_ProtocolFee(
         uint128 grossDepositAmount,
         UD60x18 protocolFee
     )
@@ -375,7 +369,7 @@ contract CreateWithRange__LinearTest is LinearTest {
     }
 
     /// @dev it should emit a CreateLinearStream event.
-    function testCreateWithRange__Event()
+    function test_CreateWithRange_Event()
         external
         NetDepositAmountNotZero
         StartTimeLessThanOrEqualToCliffTime

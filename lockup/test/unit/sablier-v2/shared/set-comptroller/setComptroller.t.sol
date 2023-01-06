@@ -10,16 +10,16 @@ import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract SetComptroller__Test is SharedTest {
+abstract contract SetComptroller_Test is SharedTest {
     /// @dev it should revert.
-    function testCannotSetComptroller__CallerNotAdmin(address eve) external {
+    function test_RevertWhen_CallerNotAdmin(address eve) external {
         vm.assume(eve != users.admin);
 
         // Make Eve the caller in this test.
         changePrank(eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable__CallerNotAdmin.selector, users.admin, eve));
+        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, eve));
         sablierV2.setComptroller(ISablierV2Comptroller(eve));
     }
 
@@ -30,7 +30,7 @@ abstract contract SetComptroller__Test is SharedTest {
     }
 
     /// @dev it should emit a SetComptroller event and re-set the comptroller.
-    function testSetComptroller__SameComptroller() external CallerAdmin {
+    function test_SetComptroller_SameComptroller() external CallerAdmin {
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true });
         emit Events.SetComptroller(users.admin, comptroller, comptroller);
@@ -45,7 +45,7 @@ abstract contract SetComptroller__Test is SharedTest {
     }
 
     /// @dev it should set the new comptroller.
-    function testSetComptroller__NewComptroller() external CallerAdmin {
+    function test_SetComptroller_NewComptroller() external CallerAdmin {
         // Deploy the new comptroller.
         ISablierV2Comptroller newComptroller = new SablierV2Comptroller();
 

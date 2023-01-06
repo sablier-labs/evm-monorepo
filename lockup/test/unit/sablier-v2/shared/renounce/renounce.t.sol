@@ -6,13 +6,13 @@ import { Events } from "src/libraries/Events.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract Renounce__Test is SharedTest {
+abstract contract Renounce_Test is SharedTest {
     uint256 internal defaultStreamId;
 
     /// @dev it should revert.
-    function testCannotRenounce__StreamNonExistent() external {
+    function test_RevertWhen_StreamNonExistent() external {
         uint256 nonStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamNonExistent.selector, nonStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNonExistent.selector, nonStreamId));
         sablierV2.renounce(nonStreamId);
     }
 
@@ -23,14 +23,14 @@ abstract contract Renounce__Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function testCannotRenounce__CallerNotSender(address eve) external StreamExistent {
+    function test_RevertWhen_CallerNotSender(address eve) external StreamExistent {
         vm.assume(eve != address(0) && eve != users.sender);
 
         // Make Eve the caller in this test.
         changePrank(eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamId, eve));
         sablierV2.renounce(defaultStreamId);
     }
 
@@ -39,19 +39,19 @@ abstract contract Renounce__Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function testCannotRenounce__NonCancelableStream() external StreamExistent CallerSender {
+    function test_RevertWhen_NonCancelableStream() external StreamExistent CallerSender {
         // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__RenounceNonCancelableStream.selector, nonCancelableStreamId)
+            abi.encodeWithSelector(Errors.SablierV2_RenounceNonCancelableStream.selector, nonCancelableStreamId)
         );
         sablierV2.renounce(nonCancelableStreamId);
     }
 
     /// @dev it should emit a Renounce event and renounce the stream.
-    function testRenounce() external StreamExistent CallerSender {
+    function test_Renounce() external StreamExistent CallerSender {
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: false });
         emit Events.Renounce(defaultStreamId);

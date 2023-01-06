@@ -3,9 +3,9 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract GetSender__Test is SharedTest {
+abstract contract GetSender_Test is SharedTest {
     /// @dev it should return zero.
-    function testGetSender__StreamNonExistent() external {
+    function test_GetSender_StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         address actualSender = sablierV2.getSender(nonStreamId);
         address expectedSender = address(0);
@@ -17,7 +17,7 @@ abstract contract GetSender__Test is SharedTest {
     }
 
     /// @dev it should return the correct sender.
-    function testGetSender() external StreamExistent {
+    function test_GetSender() external StreamExistent {
         uint256 streamId = createDefaultStream();
         address actualSender = sablierV2.getSender(streamId);
         address expectedSender = users.sender;

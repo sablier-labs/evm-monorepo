@@ -10,7 +10,7 @@ import { Amounts, Broker, CreateAmounts, LinearStream, Segment, Range } from "sr
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 
-abstract contract CreateWithRange__Test is IntegrationTest {
+abstract contract CreateWithRange_Test is IntegrationTest {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/

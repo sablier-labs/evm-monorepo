@@ -3,11 +3,11 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract GetReturnableAmount__Test is SharedTest {
+abstract contract GetReturnableAmount_Test is SharedTest {
     uint256 internal defaultStreamId;
 
     /// @dev it should return zero.
-    function testGetReturnableAmount__StreamNonExistent() external {
+    function test_GetReturnableAmount_StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         uint256 actualReturnableAmount = sablierV2.getReturnableAmount(nonStreamId);
         uint256 expectedReturnableAmount = 0;
@@ -21,7 +21,7 @@ abstract contract GetReturnableAmount__Test is SharedTest {
     }
 
     /// @dev it should return the correct returnable amount.
-    function testGetReturnableAmount__WithdrawableAmountNotZero__NoWithdrawals(
+    function testFuzz_GetReturnableAmount_WithdrawableAmountNotZero_NoWithdrawals(
         uint256 timeWarp
     ) external StreamExistent {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
@@ -39,7 +39,7 @@ abstract contract GetReturnableAmount__Test is SharedTest {
     }
 
     /// @dev it should return the correct returnable amount.
-    function testGetReturnableAmount__WithdrawableAmountZero__WithWithdrawals(
+    function testFuzz_GetReturnableAmount_WithdrawableAmountZero_WithWithdrawals(
         uint256 timeWarp
     ) external StreamExistent {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
@@ -58,14 +58,14 @@ abstract contract GetReturnableAmount__Test is SharedTest {
     }
 
     /// @dev it should return the deposit amount.
-    function testGetReturnableAmount__WithdrawableAmountZero__NoWithdrawals() external StreamExistent {
+    function test_GetReturnableAmount_WithdrawableAmountZero_NoWithdrawals() external StreamExistent {
         uint256 actualReturnableAmount = sablierV2.getReturnableAmount(defaultStreamId);
         uint256 expectedReturnableAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
     /// @dev it should return the correct returnable amount.
-    function testGetReturnableAmount__WithdrawableAmountNotZero__WithWithdrawals(
+    function testFuzz_GetReturnableAmount_WithdrawableAmountNotZero_WithWithdrawals(
         uint256 timeWarp,
         uint128 withdrawAmount
     ) external StreamExistent {
