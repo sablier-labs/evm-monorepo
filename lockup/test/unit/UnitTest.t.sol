@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.13 <0.9.0;
 
 import { BaseTest } from "test/BaseTest.t.sol";
 import { Empty } from "test/helpers/hooks/Empty.t.sol";
