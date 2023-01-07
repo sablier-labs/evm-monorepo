@@ -84,6 +84,8 @@ contract SablierV2Linear is
             return 0;
         }
 
+        // No need for an assertion here, since the calculation below is equivalent to subtracting the streamed
+        // amount from the deposit amount, which is already asserted in the `getWithdrawableAmount` function.
         unchecked {
             uint128 withdrawableAmount = getWithdrawableAmount(streamId);
             returnableAmount =
@@ -129,21 +131,31 @@ contract SablierV2Linear is
             return 0;
         }
 
-        uint256 stopTime = uint256(_streams[streamId].range.stop);
         unchecked {
-            // If the current time is greater than or equal to the stop time, return the deposit minus
+            uint256 stopTime = uint256(_streams[streamId].range.stop);
+
+            // If the current time is greater than or equal to the stop time, we simply return the deposit minus
             // the withdrawn amount.
             if (currentTime >= stopTime) {
                 return _streams[streamId].amounts.deposit - _streams[streamId].amounts.withdrawn;
             }
 
-            // In all other cases, calculate how much the recipient can withdraw.
+            // In all other cases, calculate how much was streamed so far.
+            // First, calculate how much time has elapsed since the stream started, and the total time of the stream.
             uint256 startTime = uint256(_streams[streamId].range.start);
             UD60x18 elapsedTime = ud(currentTime - startTime);
             UD60x18 totalTime = ud(stopTime - startTime);
+
+            // Then, calculate the streamed amount.
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             UD60x18 depositAmount = ud(_streams[streamId].amounts.deposit);
             UD60x18 streamedAmount = elapsedTimePercentage.mul(depositAmount);
+
+            // Assert that the streamed amount is lower than or equal to the deposit amount.
+            assert(streamedAmount.lte(depositAmount));
+
+            // Finally, calculate the withdrawable amount by subtracting the withdrawn amount from the streamed amount.
+            // Casting to uint128 is safe thanks for the assertion above.
             withdrawableAmount = uint128(UD60x18.unwrap(streamedAmount)) - _streams[streamId].amounts.withdrawn;
         }
     }
@@ -286,7 +298,7 @@ contract SablierV2Linear is
     function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
         LinearStream memory stream = _streams[streamId];
 
-        // Calculate the withdraw and the return amounts.
+        // Calculate the recipient's and the sender's amount.
         uint128 recipientAmount = getWithdrawableAmount(streamId);
         uint128 senderAmount;
         unchecked {
@@ -359,7 +371,7 @@ contract SablierV2Linear is
     /// @dev See the documentation for the public functions that call this internal function.
     function _createWithRange(CreateWithRangeParams memory params) internal returns (uint256 streamId) {
         // Checks: validate the arguments.
-        Helpers.checkCreateLinearParams(params.amounts.netDeposit, params.range);
+        Helpers.checkCreateLinearArgs(params.amounts.netDeposit, params.range);
 
         // Load the stream id.
         streamId = nextStreamId;
@@ -437,7 +449,7 @@ contract SablierV2Linear is
         LinearStream memory stream = _streams[streamId];
         address recipient = _ownerOf(streamId);
 
-        // Assert that the withdrawn amount cannot get greater than the deposit amount.
+        // Assert that the withdrawn amount is greater than or equal to the deposit amount.
         assert(stream.amounts.deposit >= stream.amounts.withdrawn);
 
         // Effects: if the entire deposit amount is now withdrawn, delete the stream entity.

@@ -104,6 +104,8 @@ abstract contract ProTest is SablierV2Test {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    // TODO: rewrite these functions to match the production contracts
+
     /// @dev Helper function that partially replicates the logic of the `calculateWithdrawableAmountForMultipleSegments`
     /// function, but which does not subtract the withdrawn amount.
     function calculateStreamedAmountForMultipleSegments(
@@ -263,20 +265,6 @@ abstract contract ProTest is SablierV2Test {
         );
     }
 
-    /// @dev Creates the default stream with the provided segments.
-    function createDefaultStreamWithSegments(Segment[] memory segments) internal returns (uint256 streamId) {
-        streamId = pro.createWithMilestones(
-            params.createWithMilestones.sender,
-            params.createWithMilestones.recipient,
-            params.createWithMilestones.grossDepositAmount,
-            segments,
-            params.createWithMilestones.token,
-            params.createWithMilestones.cancelable,
-            params.createWithMilestones.startTime,
-            params.createWithMilestones.broker
-        );
-    }
-
     /// @dev Creates the default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
@@ -284,6 +272,20 @@ abstract contract ProTest is SablierV2Test {
             recipient,
             params.createWithMilestones.grossDepositAmount,
             params.createWithMilestones.segments,
+            params.createWithMilestones.token,
+            params.createWithMilestones.cancelable,
+            params.createWithMilestones.startTime,
+            params.createWithMilestones.broker
+        );
+    }
+
+    /// @dev Creates the default stream with the provided segments.
+    function createDefaultStreamWithSegments(Segment[] memory segments) internal returns (uint256 streamId) {
+        streamId = pro.createWithMilestones(
+            params.createWithMilestones.sender,
+            params.createWithMilestones.recipient,
+            params.createWithMilestones.grossDepositAmount,
+            segments,
             params.createWithMilestones.token,
             params.createWithMilestones.cancelable,
             params.createWithMilestones.startTime,

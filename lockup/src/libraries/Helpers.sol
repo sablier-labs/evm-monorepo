@@ -32,6 +32,7 @@ library Helpers {
         }
 
         // Calculate the protocol fee amount.
+        // The cast to uint128 is safe because we control the maximum fee and it is always less than 1e18.
         amounts.protocolFee = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(protocolFee)));
 
         // Checks: the broker fee is not greater than `MAX_FEE`.
@@ -40,20 +41,21 @@ library Helpers {
         }
 
         // Calculate the broker fee amount.
+        // The cast to uint128 is safe because we control the maximum fee and it is always less than 1e18.
         amounts.brokerFee = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(brokerFee)));
 
         unchecked {
-            // Assert that the gross deposit amount is always strictly greater than the sum of the protocol fee amount
+            // Assert that the gross deposit amount is strictly greater than the sum of the protocol fee amount
             // and the broker fee amount.
             assert(grossDepositAmount > amounts.protocolFee + amounts.brokerFee);
 
-            // Calculate the deposit amount (the amount net of fees).
+            // Calculate the net deposit amount (the amount net of fees).
             amounts.netDeposit = grossDepositAmount - amounts.protocolFee - amounts.brokerFee;
         }
     }
 
-    /// @dev Checks the arguments of the `create` function in the {SablierV2Linear} contract.
-    function checkCreateLinearParams(uint128 netDepositAmount, Range memory range) internal pure {
+    /// @dev Checks the arguments of the `create` function in the SablierV2Linear contract.
+    function checkCreateLinearArgs(uint128 netDepositAmount, Range memory range) internal pure {
         // Checks: the net deposit amount is not zero.
         if (netDepositAmount == 0) {
             revert Errors.SablierV2_NetDepositAmountZero();
@@ -70,8 +72,8 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the arguments of the `create` function in the {SablierV2Pro} contract.
-    function checkCreateProParams(
+    /// @dev Checks the arguments of the `create` function in the SablierV2Pro contract.
+    function checkCreateProArgs(
         uint128 netDepositAmount,
         Segment[] memory segments,
         uint256 maxSegmentCount,
@@ -94,7 +96,7 @@ library Helpers {
         }
 
         // Checks: requirements of segments variables.
-        _checkProSegments(segments, segmentCount, netDepositAmount, startTime);
+        _checkProSegments(segments, netDepositAmount, startTime);
     }
 
     // @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
@@ -108,10 +110,13 @@ library Helpers {
         // Make the current time the start time of the stream.
         uint40 startTime = uint40(block.timestamp);
 
-        // Calculate the segment milestones and set them in the segments array. It is safe to use unchecked arithmetic
-        // because the `_createWithMilestone` function will nonetheless check the soundness of the segment milestones.
+        // It is safe to use unchecked arithmetic because the `_createWithMilestone` function will nonetheless check
+        // the soundness of the calculated segment milestones.
         unchecked {
+            // Calculate the first iteration of the loop in advance.
             segments[0].milestone = startTime + deltas[0];
+
+            // Calculate the segment milestones and set them in the segments array.
             for (uint256 i = 1; i < deltaCount; ++i) {
                 segments[i].milestone = segments[i - 1].milestone + deltas[i];
             }
@@ -127,25 +132,21 @@ library Helpers {
     /// 1. The first milestone is greater than or equal to the start time.
     /// 2. The milestones are ordered chronologically.
     /// 3. There are no duplicate milestones.
-    /// 4. The deposit amount is equal to the segment amounts summed up.
-    function _checkProSegments(
-        Segment[] memory segments,
-        uint256 segmentCount,
-        uint128 netDepositAmount,
-        uint40 startTime
-    ) private pure {
+    /// 4. The net deposit amount is equal to the segment amounts summed up.
+    function _checkProSegments(Segment[] memory segments, uint128 netDepositAmount, uint40 startTime) private pure {
         // Check that the first milestone is greater than or equal to the start time.
         if (startTime > segments[0].milestone) {
             revert Errors.SablierV2Pro_StartTimeGreaterThanFirstMilestone(startTime, segments[0].milestone);
         }
 
         // Pre-declare the variables needed in the for loop.
+        uint128 segmentAmountsSum;
         uint40 currentMilestone;
         uint40 previousMilestone;
-        uint128 segmentAmountsSum;
 
         // Iterate over the segments to sum up the segment amounts and check that the milestones are ordered.
         uint256 index;
+        uint256 segmentCount = segments.length;
         for (index = 0; index < segmentCount; ) {
             // Add the current segment amount to the sum.
             segmentAmountsSum = segmentAmountsSum + segments[index].amount;
