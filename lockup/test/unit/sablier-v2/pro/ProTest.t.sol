@@ -109,6 +109,8 @@ abstract contract ProTest is SablierV2Test {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    // TODO: rewrite these functions to match the production contracts
+
     /// @dev Helper function that partially replicates the logic of the `calculateWithdrawableAmountForMultipleSegments`
     /// function, but which does not subtract the withdrawn amount.
     function calculateStreamedAmountForMultipleSegments(
