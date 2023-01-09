@@ -58,7 +58,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param recipient The address toward which to stream the tokens.
     /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the token's
     /// decimals.
-    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param durations A struct that encapsulates (i) the duration of the cliff period and (ii) the total duration of
     /// the stream, both in seconds.
@@ -96,7 +96,7 @@ interface ISablierV2Linear is ISablierV2 {
     /// @param recipient The address toward which to stream the tokens.
     /// @param grossDepositAmount The gross amount of tokens to deposit, inclusive of fees, in units of the token's
     /// decimals.
-    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
     /// and (iii) the stop time of the stream, all as Unix timestamps.

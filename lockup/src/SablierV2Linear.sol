@@ -54,6 +54,11 @@ contract SablierV2Linear is
         depositAmount = _streams[streamId].amounts.deposit;
     }
 
+    /// @inheritdoc ISablierV2
+    function getERC20Token(uint256 streamId) external view override returns (IERC20 token) {
+        token = _streams[streamId].token;
+    }
+
     /// @inheritdoc ISablierV2Linear
     function getRange(uint256 streamId) external view returns (Range memory range) {
         range = _streams[streamId].range;

@@ -59,7 +59,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the token's
     /// decimals.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
-    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable A boolean that indicates whether the stream is cancelable or not.
     /// @param deltas The differences between the Unix timestamp milestones used to compose the custom streaming
     /// curve.
@@ -101,7 +101,7 @@ interface ISablierV2Pro is ISablierV2 {
     /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the token's
     /// decimals.
     /// @param segments  The segments the protocol uses to compose the custom streaming curve.
-    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param token The address of the ERC-20 token to use for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param startTime The Unix timestamp for when the stream will start.
     /// @return streamId The id of the newly created stream.

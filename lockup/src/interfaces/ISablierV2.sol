@@ -63,6 +63,11 @@ interface ISablierV2 is
     /// @return stopTime The stop time of the stream.
     function getStopTime(uint256 streamId) external view returns (uint40 stopTime);
 
+    /// @notice Queries the ERC-20 token used for streaming.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return token The ERC-20 token used for streaming.
+    function getERC20Token(uint256 streamId) external view returns (IERC20 token);
+
     /// @notice Calculates the amount that the recipient can withdraw from the stream.
     /// @param streamId The id of the stream to make the query for.
     /// @return withdrawableAmount The amount of tokens that the recipient can withdraw from the stream, in units of
