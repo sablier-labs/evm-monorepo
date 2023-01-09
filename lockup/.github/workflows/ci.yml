@@ -65,10 +65,16 @@ jobs:
       - name: "Show the Foundry config"
         run: "forge config"
 
-      - name: "Build the production code with --via-ir"
+      - name: "Generate fuzz seed that changes weekly to avoid burning through RPC allowance"
+        run: >
+          echo "FOUNDRY_FUZZ_SEED=$(
+            echo $(($EPOCHSECONDS - $EPOCHSECONDS % 604800))
+          )" >> $GITHUB_ENV
+
+      - name: "Build the production contracts with --via-ir"
         run: "FOUNDRY_PROFILE=optimized forge build"
 
-      - name: "Test the optimized code"
+      - name: "Run the unit and the integration tests against the optimized build"
         run: "FOUNDRY_PROFILE=test-optimized forge test"
 
       - name: "Add test summary"

@@ -21,6 +21,7 @@ abstract contract Constants {
     uint40 internal constant DEFAULT_TIME_WARP = 2_600 seconds;
     uint40 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
     uint128 internal constant DEFAULT_WITHDRAW_AMOUNT = 2_600e18;
+    address internal constant MULTICALL3_ADDRESS = 0xcA11bde05977b3631167028862bE2a173976CA11;
     uint256 internal constant UINT256_MAX = type(uint256).max;
     uint128 internal constant UINT128_MAX = type(uint128).max;
     uint40 internal constant UINT40_MAX = type(uint40).max;

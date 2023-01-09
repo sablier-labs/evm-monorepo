@@ -2,6 +2,7 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { Solarray } from "solarray/Solarray.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Amounts, Broker, CreateAmounts, LinearStream, Segment, Range } from "src/types/Structs.sol";
@@ -43,8 +44,8 @@ abstract contract CreateWithRange__Test is IntegrationTest {
     }
 
     struct Vars {
-        uint256 initialContractBalance;
-        uint256 initialHolderBalance;
+        uint256[] initialBalances;
+        uint256 initialLinearBalance;
         uint256 initialBrokerBalance;
         uint128 brokerFeeAmount;
         uint128 netDepositAmount;
@@ -53,8 +54,9 @@ abstract contract CreateWithRange__Test is IntegrationTest {
         uint256 expectedNextStreamId;
         address actualNFTOwner;
         address expectedNFTOwner;
-        uint256 actualContractBalance;
-        uint256 expectedContractBalance;
+        uint256[] actualBalances;
+        uint256 actualLinearBalance;
+        uint256 expectedLinearBalance;
         uint256 actualHolderBalance;
         uint256 expectedHolderBalance;
         uint256 actualBrokerBalance;
@@ -76,15 +78,15 @@ abstract contract CreateWithRange__Test is IntegrationTest {
     function testCreateWithRange(Params memory params) external {
         vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(params.broker.addr != holder && params.broker.addr != address(linear));
-        vm.assume(params.grossDepositAmount != 0 && params.grossDepositAmount <= holderBalance);
+        vm.assume(params.grossDepositAmount != 0 && params.grossDepositAmount <= initialHolderBalance);
         vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.stop);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
 
-        // Load the current token balances.
+        // Load the initial token balances.
         Vars memory vars;
-        vars.initialContractBalance = IERC20(token).balanceOf(address(linear));
-        vars.initialHolderBalance = IERC20(token).balanceOf(holder);
-        vars.initialBrokerBalance = IERC20(token).balanceOf(params.broker.addr);
+        vars.initialBalances = getTokenBalances(Solarray.addresses(address(linear), params.broker.addr));
+        vars.initialLinearBalance = vars.initialBalances[0];
+        vars.initialBrokerBalance = vars.initialBalances[1];
 
         // Calculate the fee amounts and the net deposit amount.
         vars.brokerFeeAmount = uint128(UD60x18.unwrap(ud(params.grossDepositAmount).mul(params.broker.fee)));
@@ -139,18 +141,21 @@ abstract contract CreateWithRange__Test is IntegrationTest {
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
+        // Load the actual token balances.
+        vars.actualBalances = getTokenBalances(Solarray.addresses(address(linear), holder, params.broker.addr));
+        vars.actualLinearBalance = vars.actualBalances[0];
+        vars.actualHolderBalance = vars.actualBalances[1];
+        vars.actualBrokerBalance = vars.actualBalances[2];
+
         // Assert that the contract's balance was updated.
-        vars.actualContractBalance = IERC20(token).balanceOf(address(linear));
-        vars.expectedContractBalance = vars.initialContractBalance + vars.netDepositAmount;
-        assertEq(vars.actualContractBalance, vars.expectedContractBalance, "contract balance");
+        vars.expectedLinearBalance = vars.initialLinearBalance + vars.netDepositAmount;
+        assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "contract balance");
 
         // Assert that the holder's balance was updated.
-        vars.actualHolderBalance = IERC20(token).balanceOf(holder);
-        vars.expectedHolderBalance = vars.initialHolderBalance - params.grossDepositAmount;
+        vars.expectedHolderBalance = initialHolderBalance - params.grossDepositAmount;
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "holder balance");
 
         // Assert that the broker's balance was updated.
-        vars.actualBrokerBalance = IERC20(token).balanceOf(params.broker.addr);
         vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.brokerFeeAmount;
         assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "broker balance");
     }

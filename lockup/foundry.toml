@@ -17,6 +17,7 @@ test = "test/unit"
 
 [profile.ci]
 fuzz = { runs = 5_000 }
+test = "test" # run both unit and integration tests
 
 [profile.optimized]
 out = "optimized-out"
@@ -25,4 +26,5 @@ via_ir = true
 
 [profile.test-optimized]
 fuzz = { runs = 5_000 }
-src = "test/unit" # do not re-compile the production code
+src = "test" # do not re-compile the production code
+test = "test"  # run both unit and integration tests
