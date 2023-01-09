@@ -77,6 +77,27 @@ jobs:
       - name: "Run the unit and the integration tests against the optimized build"
         run: "FOUNDRY_PROFILE=test-optimized forge test"
 
+      - name: "Store contract ABIs as artifacts in GitHub Actions"
+        uses: "actions/upload-artifact@v3"
+        with:
+          name: contract-abis
+          path: |
+            optimized-out/Errors.sol/Errors.json
+            optimized-out/Events.sol/Events.json
+            optimized-out/IERC20.sol/IERC20.json
+            optimized-out/IERC721.sol/IERC721.json
+            optimized-out/IERC721Metadata.sol/IERC721Metadata.json
+            optimized-out/ISablierV2.sol/ISablierV2.json
+            optimized-out/ISablierV2Comptroller.sol/ISablierV2Comptroller.json
+            optimized-out/ISablierV2Linear.sol/ISablierV2Linear.json
+            optimized-out/ISablierV2Pro.sol/ISablierV2Pro.json
+            optimized-out/ISablierV2Recipient.sol/ISablierV2Recipient.json
+            optimized-out/ISablierV2Sender.sol/ISablierV2Sender.json
+            optimized-out/SablierV2.sol/ISablierV2.json
+            optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json
+            optimized-out/SablierV2Linear.sol/SablierV2Linear.json
+            optimized-out/SablierV2Pro.sol/SablierV2Pro.json
+
       - name: "Add test summary"
         run: |
           echo "## Test results" >> $GITHUB_STEP_SUMMARY
@@ -97,6 +118,10 @@ jobs:
 
       - name: "Generate the coverage report"
         run: "forge coverage --report lcov"
+
+      # See discussion in https://github.com/foundry-rs/foundry/issues/1961
+      - name: "Delete the coverage report generated for the test contracts"
+        run: "git clean -f -- ./test"
 
       - name: "Upload coverage report to Coveralls"
         uses: "coverallsapp/github-action@master"
