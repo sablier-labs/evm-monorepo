@@ -33,7 +33,7 @@
   "packageManager": "yarn@3.3.0",
   "private": true,
   "scripts": {
-    "clean": "rimraf cache optimized-out out",
+    "clean": "rimraf broadcast cache optimized-out out",
     "lint": "yarn prettier:check && yarn solhint \"{src,test}/**/*.sol\"",
     "postinstall": "husky install",
     "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",

@@ -9,9 +9,9 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 /// @notice This contract is in charge of the Sablier V2 protocol configuration, handling such values as the
 /// protocol fees.
 interface ISablierV2Comptroller is IAdminable {
-    /// @notice Queries the protocol fee charged on all Sablier V2 streams created with the provided token.
+    /// @notice Queries the protocol fee charged on all Sablier V2 streams created with the provided token, as an
+    /// UD60x18 number where 100% = 1e18.
     /// @param token The address of the token to make the query for.
-    /// @return protocolFee The protocol fee as an UD60x18 number where 100% = 1e18.
     function getProtocolFee(IERC20 token) external view returns (UD60x18 protocolFee);
 
     /// @notice Sets a new protocol fee that will be charged on all streams created with the provided token.

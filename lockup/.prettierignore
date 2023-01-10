@@ -1,4 +1,5 @@
 # directories
+.github/workflows/
 .yarn/
 **/cache
 **/lib

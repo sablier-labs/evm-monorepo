@@ -13,7 +13,7 @@ abstract contract Constants {
     uint40 internal constant DEFAULT_CLIFF_DURATION = 2_500 seconds;
     uint128 internal constant DEFAULT_GROSS_DEPOSIT_AMOUNT = 10_040.160642570281124497e18; // net deposit / (1 - fee)
     UD60x18 internal constant DEFAULT_MAX_FEE = UD60x18.wrap(0.1e18); // 10%
-    uint256 internal constant DEFAULT_MAX_SEGMENT_COUNT = 200;
+    uint256 internal constant DEFAULT_MAX_SEGMENT_COUNT = 1_000;
     uint128 internal constant DEFAULT_NET_DEPOSIT_AMOUNT = 10_000e18;
     UD60x18 internal constant DEFAULT_BROKER_FEE = UD60x18.wrap(0.003e18); // 0.3%
     UD60x18 internal constant DEFAULT_PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%

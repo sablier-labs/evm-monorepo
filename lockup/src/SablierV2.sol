@@ -78,6 +78,9 @@ abstract contract SablierV2 is
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @param initialComptroller The address of the SablierV2Comptroller contract.
+    /// @param maxFee The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
+    /// where 100% = 1e18.
     constructor(ISablierV2Comptroller initialComptroller, UD60x18 maxFee) {
         comptroller = initialComptroller;
         MAX_FEE = maxFee;

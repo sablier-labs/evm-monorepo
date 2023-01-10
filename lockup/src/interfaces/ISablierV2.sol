@@ -17,9 +17,9 @@ interface ISablierV2 is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Queries the maximum value that the protocol and the broker fee can each have.
+    /// @notice The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
+    /// where 100% = 1e18.
     /// @dev This is initialized at construction time and cannot be changed later.
-    /// @return The maximum fee permitted.
     function MAX_FEE() external view returns (UD60x18);
 
     /// @notice Queries the address of the SablierV2Comptroller contract. The comptroller is in charge of the Sablier V2
@@ -27,40 +27,33 @@ interface ISablierV2 is
     /// @return The address of the SablierV2Comptroller contract.
     function comptroller() external view returns (ISablierV2Comptroller);
 
-    /// @notice Queries the amount deposited in the stream.
+    /// @notice Queries the amount deposited in the stream, in units of the token's decimals.
     /// @param streamId The id of the stream to make the query for.
-    /// @return depositAmount The amount deposited in the stream, in units of the token's decimals.
     function getDepositAmount(uint256 streamId) external view returns (uint128 depositAmount);
 
-    /// @notice Queries the protocol revenues accrued for the provided token.
+    /// @notice Queries the protocol revenues accrued for the provided token, in units of the token's decimals.
     /// @param token The address of the token to make the query for.
-    /// @return protocolRevenues The protocol revenues accrued for the provided token, in units of the token's decimals.
     function getProtocolRevenues(IERC20 token) external view returns (uint128 protocolRevenues);
 
     /// @notice Queries the recipient of the stream.
     /// @param streamId The id of the stream to make the query for.
-    /// @return recipient The recipient of the stream.
     function getRecipient(uint256 streamId) external view returns (address recipient);
 
-    /// @notice Calculates the amount that the sender would be returned if the stream was canceled.
+    /// @notice Calculates the amount that the sender would be returned if the stream was canceled, in units of the
+    /// token's decimals.
     /// @param streamId The id of the stream to make the query for.
-    /// @return returnableAmount The amount of tokens that would be returned if the stream was canceled, in units of
-    /// the token's decimals.
     function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount);
 
     /// @notice Queries the sender of the stream.
     /// @param streamId The id of the stream to make the query for.
-    /// @return sender The sender of the stream.
     function getSender(uint256 streamId) external view returns (address sender);
 
     /// @notice Queries the start time of the stream.
     /// @param streamId The id of the stream to make the query for.
-    /// @return startTime The start time of the stream.
     function getStartTime(uint256 streamId) external view returns (uint40 startTime);
 
     /// @notice Queries the stop time of the stream.
     /// @param streamId The id of the stream to make the query for.
-    /// @return stopTime The stop time of the stream.
     function getStopTime(uint256 streamId) external view returns (uint40 stopTime);
 
     /// @notice Queries the ERC-20 token used for streaming.
@@ -68,25 +61,20 @@ interface ISablierV2 is
     /// @return token The ERC-20 token used for streaming.
     function getERC20Token(uint256 streamId) external view returns (IERC20 token);
 
-    /// @notice Calculates the amount that the recipient can withdraw from the stream.
+    /// @notice Calculates the amount that the recipient can withdraw from the stream, in units of the token's decimals.
     /// @param streamId The id of the stream to make the query for.
-    /// @return withdrawableAmount The amount of tokens that the recipient can withdraw from the stream, in units of
-    /// the token's decimals.
     function getWithdrawableAmount(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
-    /// @notice Queries the amount withdrawn from the stream.
+    /// @notice Queries the amount withdrawn from the stream, in units of the token's decimals.
     /// @param streamId The id of the stream to make the query for.
-    /// @return withdrawnAmount The amount withdrawn from the stream, in units of the token's decimals.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
     /// @notice Checks whether the stream is cancelable or not.
     /// @param streamId The id of the stream to make the query for.
-    /// @return result Whether the stream is cancelable or not.
     function isCancelable(uint256 streamId) external view returns (bool result);
 
     /// @notice Checks whether the stream entity exists or not.
     /// @param streamId The id of the stream to make the query for.
-    /// @return result Whether the stream entity exists or not.
     function isEntity(uint256 streamId) external view returns (bool result);
 
     /*//////////////////////////////////////////////////////////////////////////

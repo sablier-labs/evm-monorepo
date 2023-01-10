@@ -27,18 +27,16 @@ interface ISablierV2Pro is ISablierV2 {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum number of segments allowed in a stream.
+    /// @notice The maximum number of segments permitted in a stream.
     /// @dev This is initialized at construction time and cannot be changed later.
     function MAX_SEGMENT_COUNT() external view returns (uint256);
 
     /// @notice Queries the segments the protocol uses to compose the custom streaming curve.
     /// @param streamId The id of the stream to make the query for.
-    /// @return segments The segments the protocol uses to compose the custom streaming curve.
     function getSegments(uint256 streamId) external view returns (Segment[] memory segments);
 
-    /// @notice Queries the stream struct.
+    /// @notice Queries the stream struct entity.
     /// @param streamId The id of the stream to make the query for.
-    /// @return stream The stream struct.
     function getStream(uint256 streamId) external view returns (ProStream memory stream);
 
     /*//////////////////////////////////////////////////////////////////////////

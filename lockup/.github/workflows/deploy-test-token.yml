@@ -1,0 +1,40 @@
+name: "Deploy Test Token"
+
+env:
+  ETHERSCAN_API_KEY: "${{ secrets.ETHERSCAN_API_KEY }}"
+  INFURA_API_KEY: "${{ secrets.INFURA_API_KEY }}"
+  MNEMNONIC: "${{ secrets.MNEMONIC }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      chain:
+        default: "goerli"
+        description: 'Chain name, defaults to "goerli" if unspecified'
+        required: false
+
+jobs:
+  ci:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+        with:
+          version: "nightly"
+
+      - name: "Deploy a test token contract"
+        run: >-
+          forge script script/DeployTestToken.s.sol
+          --broadcast
+          --rpc-url ${{ github.event.inputs.chain }}"
+
+      - name: "Add summary"
+        run: |
+          echo "## Deployment result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+

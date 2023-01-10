@@ -1,5 +1,5 @@
 getERC20Token.t.sol
 ├── when the stream does not exist
-│  └── it should return address zero
+│  └── it should return the zero address
 └── when the stream exists
    └── it should return the correct ERC-20 token

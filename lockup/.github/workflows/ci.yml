@@ -71,7 +71,7 @@ jobs:
             echo $(($EPOCHSECONDS - $EPOCHSECONDS % 604800))
           )" >> $GITHUB_ENV
 
-      - name: "Build the production contracts with --via-ir"
+      - name: "Produce an optimized build with --via-ir"
         run: "FOUNDRY_PROFILE=optimized forge build"
 
       - name: "Run the unit and the integration tests against the optimized build"

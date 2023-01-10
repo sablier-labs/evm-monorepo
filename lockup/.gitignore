@@ -5,6 +5,7 @@
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+**/broadcast
 **/cache
 **/node_modules
 **/optimized-out

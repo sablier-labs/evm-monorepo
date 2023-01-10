@@ -1,5 +1,9 @@
 # Full reference https://github.com/foundry-rs/foundry/tree/master/config
 
+[etherscan]
+ethereum = { key = "${ETHERSCAN_API_KEY}" }
+goerli = { key = "${ETHERSCAN_API_KEY}" }
+
 [profile.default]
 auto_detect_solc = false
 fs_permissions = [
@@ -11,6 +15,7 @@ gas_reports = ["*"]
 optimizer = true
 optimizer_runs = 10_000
 out = "out"
+script = "script"
 solc = "0.8.17"
 src = "src"
 test = "test/unit"
@@ -21,6 +26,7 @@ test = "test/unit" # run both unit and integration tests
 
 [profile.optimized]
 out = "optimized-out"
+script = "src" # compile only the production code with IR
 test = "src" # compile only the production code with IR
 via_ir = true
 
@@ -28,3 +34,8 @@ via_ir = true
 fuzz = { runs = 5_000 }
 src = "test/unit" # do not re-compile the production code
 test = "test/unit"  # run both unit and integration tests
+
+[rpc_endpoints]
+ethereum="https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}"
+localhost="http://localhost:8545"
+goerli="https://goerli.infura.io/v3/${INFURA_API_KEY}"

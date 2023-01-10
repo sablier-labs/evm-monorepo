@@ -44,7 +44,7 @@ abstract contract IntegrationTest is BaseTest {
         BaseTest.setUp();
 
         // Fork Ethereum Mainnet.
-        vm.createSelectFork({ urlOrAlias: vm.envString("ETH_RPC_URL"), blockNumber: 16_126_000 });
+        vm.createSelectFork({ urlOrAlias: "ethereum", blockNumber: 16_126_000 });
 
         // Deploy all Sablier contracts.
         deploySablierContracts();
@@ -58,8 +58,6 @@ abstract contract IntegrationTest is BaseTest {
         // Query the initial holder's balance.
         initialHolderBalance = IERC20(token).balanceOf(holder);
     }
-
-    event LogBytesArray(bytes[] arr);
 
     /// @dev Performs a single call with Multicall3 to query the ERC-20 token balances of the given addresses.
     function getTokenBalances(address[] memory addresses) internal returns (uint256[] memory balances) {

@@ -21,6 +21,8 @@ import { Assertions } from "./helpers/Assertions.t.sol";
 import { Constants } from "./helpers/Constants.t.sol";
 import { Utils } from "./helpers/Utils.t.sol";
 
+/// @title BaseTest
+/// @notice Base test contract that contains common logic needed by all test contracts.
 abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
@@ -49,9 +51,9 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
 
     uint40 internal immutable DEFAULT_CLIFF_TIME;
     Range internal DEFAULT_RANGE;
+    Segment[] internal DEFAULT_SEGMENTS;
     uint40 internal immutable DEFAULT_START_TIME;
     uint40 internal immutable DEFAULT_STOP_TIME;
-    Segment[] internal DEFAULT_SEGMENTS;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       STORAGE

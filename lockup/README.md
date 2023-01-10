@@ -67,12 +67,110 @@ $ yarn install
 
 Now you can start making changes.
 
+### Environment Variables
+
+Some of the features of this repository, such as deployments, require environment variables to be set up.
+
+Follow the [`.env.example`](./.env.example) file to create a `.env` file at the root of the repo and populate it with
+the appropriate environment values. You need to provide your mnemonic phrase and a few API keys.
+
 ### Syntax Highlighting
 
-You will need the following VSCode extensions:
+You may want to install the following VSCode extensions to get syntax highlighting in VSCode:
 
 - [vscode-solidity](https://marketplace.visualstudio.com/items?itemName=JuanBlanco.solidity)
 - [vscode-tree-language](https://marketplace.visualstudio.com/items?itemName=CTC.vscode-tree-extension)
+
+## Deployments
+
+You can deploy the contracts in this repository in two ways: (i) programmatically with Forge, or (ii) manually using the
+GitHub UI.
+
+### Programmatically
+
+To be able to deploy contracts programmatically, you need to have your environment variables correctly set up, as
+explained above.
+
+The examples below deploy to the Goerli testnet, but you can pick any other chain defined under the `[rpc_endpoints]`
+section in [`foundry.toml`](./foundry.toml).
+
+If you want to deploy to a local development chain, you can spin up an instance of
+[Anvil](https://book.getfoundry.sh/anvil).
+
+#### Deploy SablierV2Comptroller
+
+```sh
+forge script scripts/DeployComptroller.s.sol \
+  --broadcast \
+  --rpc-url goerli
+```
+
+#### Deploy SablierV2Linear
+
+You should replace the placeholders with the actual arguments you want to pass.
+
+```sh
+forge script script/DeployLinear.s.sol \
+  --broadcast \
+  --rpc-url goerli \
+  --sig "run(address,uint256)" \
+  COMPTROLLER_ADDRESS
+  MAX_FEE
+```
+
+#### Deploy SablierV2Pro
+
+You should replace the placeholders with the actual arguments you want to pass.
+
+```sh
+forge script script/DeployPro.s.sol \
+  --broadcast \
+  --rpc-url goerli \
+  --sig "run(address,uint256,uint256)" \
+  COMPTROLLER_ADDRESS
+  MAX_FEE
+  MAX_SEGMENT_COUNT
+```
+
+#### Deploy Protocol
+
+```sh
+forge script script/DeployProtocol.s.sol \
+  --broadcast \
+  --rpc-url goerli \
+  --sig "run(uint256,uint256)" \
+  MAX_FEE
+  MAX_SEGMENT_COUNT
+```
+
+#### Deploy Test Token
+
+```sh
+forge script script/DeployTestToken.s.sol \
+  --broadcast \
+  --rpc-url goerli
+```
+
+#### GitHub UI
+
+Just switch to the [Actions tab](https://github.com/sablierhq/v2-core/actions) and pick one of the workflows from the
+left sidebar. Then, provide the required inputs and click on the "Run workflow" button.
+
+Note: write access to the repository is required to deploy using the GitHub UI.
+
+## Via IR
+
+We deploy our contracts with the [`--via-ir`](https://docs.soliditylang.org/en/v0.8.17/ir-breaking-changes.html) flag
+enabled.
+
+This means that the contracts are compiled with a lot of powerful optimizations, but the cost is very slow compile
+times. Nonetheless, we have to run our tests against this optimized version of the contracts, since this is what end
+users will ultimately interact with.
+
+To get the best of both worlds, we have come up with a set-up where on our local machines we build and test the
+contracts normally, but in CI we build and test the contracts with IR enabled. This gives us the freedom to develop and
+test the contracts rapidly, but also the peace of mind that they work as expected when deployed (tests pass with and
+without IR enabled).
 
 ## Tests
 
@@ -82,30 +180,33 @@ Tests are organized in two categories:
 2. Integration - complex tests that run against a fork of Ethereum Mainnet to check that Sablier V2 works with deployed
    ERC-20 tokens.
 
-You can run all the tests by using this command:
+You can run all tests by using this command:
 
 ```sh
 forge test
 ```
 
-By default, only unit tests run. To run all tests, including integration tests, you can use the `--match-path` flag and
-pass the path to the `test` directory:
+By default, only unit tests run. To run all tests, including integration tests, you can use this command:
 
 ```sh
-forge test --match-path ./test/integration
+yarn test:optimized
 ```
 
-To filter tests by name, you can use the `--match-test` flag. Here's an example for the `create` function tests:
+Alternatively, you could change the value of the `test` configuration option in the [`foundry.toml`](./foundry.toml)
+file to `test/integration`.
+
+To filter tests by name, you can use the `--match-test` flag. Here's an example for the `createWithRange` function
+tests:
 
 ```sh
-forge test --match-test testCreate
+forge test --match-test testCreateWithRange
 ```
 
-You can also filter the tests by test contract name with the `--match-contract` flag. Here's an example for the `create`
-function test contract:
+You can also filter the tests by test contract name with the `--match-contract` flag. Here's an example for the
+`createWithRange` function test contracts:
 
 ```sh
-forge test --match-contract Create__Test
+forge test --match-contract CreateWithRange
 ```
 
 ## Commands

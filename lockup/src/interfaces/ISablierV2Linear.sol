@@ -27,18 +27,15 @@ interface ISablierV2Linear is ISablierV2 {
 
     /// @notice Queries the cliff time of the stream.
     /// @param streamId The id of the stream to make the query for.
-    /// @return cliffTime The cliff time of the stream.
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
-    /// @notice Queries the range of the stream.
+    /// @notice Queries the range of the stream, a struct that encapsulates (i) the start time of the stream,
+    //// (ii) the cliff time of the stream, and (iii) the stop time of the stream, all as Unix timestamps.
     /// @param streamId The id of the stream to make the query for.
-    /// @return range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
-    /// and (iii) the stop time of the stream, all as Unix timestamps.
     function getRange(uint256 streamId) external view returns (Range memory range);
 
-    /// @notice Queries the stream struct.
+    /// @notice Queries the stream struct entity.
     /// @param streamId The id of the stream to make the query for.
-    /// @return stream The stream struct.
     function getStream(uint256 streamId) external view returns (LinearStream memory stream);
 
     /*//////////////////////////////////////////////////////////////////////////
