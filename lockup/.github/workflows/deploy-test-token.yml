@@ -10,7 +10,7 @@ on:
     inputs:
       chain:
         default: "goerli"
-        description: 'Chain name, defaults to "goerli" if unspecified'
+        description: 'Chain name. Defaults to "goerli" if unspecified'
         required: false
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
         run: >-
           forge script script/DeployTestToken.s.sol
           --broadcast
-          --rpc-url ${{ github.event.inputs.chain }}"
+          --rpc-url "${{ github.event.inputs.chain }}"
 
       - name: "Add summary"
         run: |

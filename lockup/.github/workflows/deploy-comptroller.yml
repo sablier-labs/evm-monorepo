@@ -34,7 +34,7 @@ jobs:
         run: >-
           forge script script/DeployComptroller.s.sol
           --broadcast
-          --rpc-url ${{ github.event.inputs.chain }}"
+          --rpc-url "${{ github.event.inputs.chain }}"
 
       - name: "Add summary"
         run: |

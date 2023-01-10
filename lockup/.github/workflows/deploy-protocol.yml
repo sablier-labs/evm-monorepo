@@ -47,7 +47,7 @@ jobs:
         run: >-
           forge script script/DeployProtocol.s.sol
           --broadcast
-          --rpc-url ${{ github.event.inputs.chain }}
+          --rpc-url "${{ github.event.inputs.chain }}"
           --sig "run(uint256,uint256)"
           "${{ github.event.inputs.max-fee }}"
           "${{ github.event.inputs.max-segment-count }}"

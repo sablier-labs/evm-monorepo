@@ -51,7 +51,7 @@ jobs:
         run: >-
           forge script script/DeployPro.s.sol
           --broadcast
-          --rpc-url ${{ github.event.inputs.chain }}
+          --rpc-url "${{ github.event.inputs.chain }}""
           --sig "run(address,uint256,uint256)"
           "${{ github.event.inputs.comptroller }}"
           "${{ github.event.inputs.max-fee }}"
