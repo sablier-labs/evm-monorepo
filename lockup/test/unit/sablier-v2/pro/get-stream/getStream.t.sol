@@ -14,12 +14,12 @@ contract GetStream_ProTest is ProTest {
         assertEq(actualStream, expectedStream);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the stream.
-    function test_GetStream() external StreamExistent {
+    function test_GetStream() external streamExistent {
         uint256 streamId = createDefaultStream();
         ProStream memory actualStream = pro.getStream(streamId);
         ProStream memory expectedStream = defaultStream;

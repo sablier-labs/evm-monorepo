@@ -12,12 +12,12 @@ abstract contract GetRecipient_Test is SharedTest {
         assertEq(actualRecipient, expectedRecipient);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the correct recipient.
-    function test_GetRecipient() external StreamExistent {
+    function test_GetRecipient() external streamExistent {
         uint256 streamId = createDefaultStream();
         address actualRecipient = sablierV2.getRecipient(streamId);
         address expectedRecipient = users.recipient;

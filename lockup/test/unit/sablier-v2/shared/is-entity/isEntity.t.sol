@@ -11,12 +11,12 @@ abstract contract IsEntity_Test is SharedTest {
         assertFalse(isEntity);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return true.
-    function test_IsEntity() external StreamExistent {
+    function test_IsEntity() external streamExistent {
         uint256 streamId = createDefaultStream();
         bool isEntity = sablierV2.isEntity(streamId);
         assertTrue(isEntity);

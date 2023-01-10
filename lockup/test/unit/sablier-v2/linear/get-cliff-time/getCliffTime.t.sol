@@ -12,12 +12,12 @@ contract GetCliffTime_LinearTest is LinearTest {
         assertEq(actualCliffTime, expectedCliffTime);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the correct cliff time.
-    function test_GetCliffTime() external StreamExistent {
+    function test_GetCliffTime() external streamExistent {
         uint256 streamId = createDefaultStream();
         uint40 actualCliffTime = linear.getCliffTime(streamId);
         uint40 expectedCliffTime = DEFAULT_CLIFF_TIME;

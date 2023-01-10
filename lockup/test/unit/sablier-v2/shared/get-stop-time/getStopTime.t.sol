@@ -12,12 +12,12 @@ abstract contract GetStopTime_Test is SharedTest {
         assertEq(actualStopTime, expectedStopTime);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the correct stop time.
-    function test_GetStopTime() external StreamExistent {
+    function test_GetStopTime() external streamExistent {
         uint256 streamId = createDefaultStream();
         uint40 actualStopTime = sablierV2.getStopTime(streamId);
         uint40 expectedStopTime = DEFAULT_STOP_TIME;

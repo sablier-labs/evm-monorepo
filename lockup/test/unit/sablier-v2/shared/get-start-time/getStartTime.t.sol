@@ -12,12 +12,12 @@ abstract contract GetStartTime_Test is SharedTest {
         assertEq(actualStartTime, expectedStartTime);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the correct start time.
-    function test_GetStartTime() external StreamExistent {
+    function test_GetStartTime() external streamExistent {
         uint256 streamId = createDefaultStream();
         uint40 actualStartTime = sablierV2.getStartTime(streamId);
         uint40 expectedStartTime = DEFAULT_START_TIME;

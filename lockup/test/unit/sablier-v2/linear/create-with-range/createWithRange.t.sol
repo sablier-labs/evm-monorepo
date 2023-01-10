@@ -18,7 +18,7 @@ contract CreateWithRange_LinearTest is LinearTest {
         createDefaultStreamWithRecipient({ recipient: address(0) });
     }
 
-    modifier RecipientNonZeroAddress() {
+    modifier recipientNonZeroAddress() {
         _;
     }
 
@@ -26,17 +26,17 @@ contract CreateWithRange_LinearTest is LinearTest {
     ///
     /// It is not possible to obtain a zero net deposit amount from a non-zero gross deposit amount, because the
     /// `MAX_FEE` is hard coded to 10%.
-    function test_RevertWhen_NetDepositAmountZero() external RecipientNonZeroAddress {
+    function test_RevertWhen_NetDepositAmountZero() external recipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2_NetDepositAmountZero.selector);
         createDefaultStreamWithGrossDepositAmount(0);
     }
 
-    modifier NetDepositAmountNotZero() {
+    modifier netDepositAmountNotZero() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StartTimeGreaterThanCliffTime() external RecipientNonZeroAddress NetDepositAmountNotZero {
+    function test_RevertWhen_StartTimeGreaterThanCliffTime() external recipientNonZeroAddress netDepositAmountNotZero {
         uint40 startTime = params.createWithRange.range.cliff;
         uint40 cliffTime = params.createWithRange.range.start;
         vm.expectRevert(
@@ -53,7 +53,7 @@ contract CreateWithRange_LinearTest is LinearTest {
         );
     }
 
-    modifier StartTimeLessThanOrEqualToCliffTime() {
+    modifier startTimeLessThanOrEqualToCliffTime() {
         _;
     }
 
@@ -61,7 +61,7 @@ contract CreateWithRange_LinearTest is LinearTest {
     function testFuzz_RevertWhen_CliffTimeGreaterThanStopTime(
         uint40 cliffTime,
         uint40 stopTime
-    ) external RecipientNonZeroAddress NetDepositAmountNotZero StartTimeLessThanOrEqualToCliffTime {
+    ) external recipientNonZeroAddress netDepositAmountNotZero startTimeLessThanOrEqualToCliffTime {
         vm.assume(cliffTime > stopTime);
         vm.assume(stopTime > params.createWithRange.range.start);
 
@@ -79,7 +79,7 @@ contract CreateWithRange_LinearTest is LinearTest {
         );
     }
 
-    modifier CliffLessThanOrEqualToStopTime() {
+    modifier cliffLessThanOrEqualToStopTime() {
         _;
     }
 
@@ -88,10 +88,10 @@ contract CreateWithRange_LinearTest is LinearTest {
         UD60x18 protocolFee
     )
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        StartTimeLessThanOrEqualToCliffTime
-        CliffLessThanOrEqualToStopTime
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        startTimeLessThanOrEqualToCliffTime
+        cliffLessThanOrEqualToStopTime
     {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
@@ -106,7 +106,7 @@ contract CreateWithRange_LinearTest is LinearTest {
         createDefaultStream();
     }
 
-    modifier ProtocolFeeNotTooHigh() {
+    modifier protocolFeeNotTooHigh() {
         _;
     }
 
@@ -115,11 +115,11 @@ contract CreateWithRange_LinearTest is LinearTest {
         UD60x18 brokerFee
     )
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        StartTimeLessThanOrEqualToCliffTime
-        CliffLessThanOrEqualToStopTime
-        ProtocolFeeNotTooHigh
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        startTimeLessThanOrEqualToCliffTime
+        cliffLessThanOrEqualToStopTime
+        protocolFeeNotTooHigh
     {
         brokerFee = bound(brokerFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_BrokerFeeTooHigh.selector, brokerFee, DEFAULT_MAX_FEE));
@@ -134,7 +134,7 @@ contract CreateWithRange_LinearTest is LinearTest {
         );
     }
 
-    modifier BrokerFeeNotTooHigh() {
+    modifier brokerFeeNotTooHigh() {
         _;
     }
 
@@ -143,10 +143,12 @@ contract CreateWithRange_LinearTest is LinearTest {
         IERC20 nonToken
     )
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        StartTimeLessThanOrEqualToCliffTime
-        CliffLessThanOrEqualToStopTime
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        startTimeLessThanOrEqualToCliffTime
+        cliffLessThanOrEqualToStopTime
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
     {
         vm.assume(address(nonToken).code.length == 0);
         vm.expectRevert(abi.encodeWithSelector(SafeERC20_CallToNonContract.selector, address(nonToken)));
@@ -161,18 +163,20 @@ contract CreateWithRange_LinearTest is LinearTest {
         );
     }
 
-    modifier TokenContract() {
+    modifier tokenContract() {
         _;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
     function test_CreateWithRange_TokenMissingReturnValue()
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        StartTimeLessThanOrEqualToCliffTime
-        CliffLessThanOrEqualToStopTime
-        TokenContract
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        startTimeLessThanOrEqualToCliffTime
+        cliffLessThanOrEqualToStopTime
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
+        tokenContract
     {
         // Load the stream id.
         uint256 streamId = linear.nextStreamId();
@@ -221,7 +225,7 @@ contract CreateWithRange_LinearTest is LinearTest {
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
 
-    modifier TokenERC20Compliant() {
+    modifier tokenERC20Compliant() {
         _;
     }
 
@@ -246,11 +250,13 @@ contract CreateWithRange_LinearTest is LinearTest {
         Broker memory broker
     )
         external
-        NetDepositAmountNotZero
-        StartTimeLessThanOrEqualToCliffTime
-        CliffLessThanOrEqualToStopTime
-        TokenContract
-        TokenERC20Compliant
+        netDepositAmountNotZero
+        startTimeLessThanOrEqualToCliffTime
+        cliffLessThanOrEqualToStopTime
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
+        tokenContract
+        tokenERC20Compliant
     {
         vm.assume(funder != address(0) && recipient != address(0) && broker.addr != address(0));
         vm.assume(grossDepositAmount != 0);
@@ -331,11 +337,13 @@ contract CreateWithRange_LinearTest is LinearTest {
         UD60x18 protocolFee
     )
         external
-        NetDepositAmountNotZero
-        StartTimeLessThanOrEqualToCliffTime
-        CliffLessThanOrEqualToStopTime
-        TokenContract
-        TokenERC20Compliant
+        netDepositAmountNotZero
+        startTimeLessThanOrEqualToCliffTime
+        cliffLessThanOrEqualToStopTime
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
+        tokenContract
+        tokenERC20Compliant
     {
         vm.assume(grossDepositAmount != 0);
         protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
@@ -371,11 +379,13 @@ contract CreateWithRange_LinearTest is LinearTest {
     /// @dev it should emit a CreateLinearStream event.
     function test_CreateWithRange_Event()
         external
-        NetDepositAmountNotZero
-        StartTimeLessThanOrEqualToCliffTime
-        CliffLessThanOrEqualToStopTime
-        TokenContract
-        TokenERC20Compliant
+        netDepositAmountNotZero
+        startTimeLessThanOrEqualToCliffTime
+        cliffLessThanOrEqualToStopTime
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
+        tokenContract
+        tokenERC20Compliant
     {
         uint256 streamId = linear.nextStreamId();
         address funder = params.createWithRange.sender;

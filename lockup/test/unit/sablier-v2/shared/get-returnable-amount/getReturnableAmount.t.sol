@@ -14,7 +14,7 @@ abstract contract GetReturnableAmount_Test is SharedTest {
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
@@ -23,7 +23,7 @@ abstract contract GetReturnableAmount_Test is SharedTest {
     /// @dev it should return the correct returnable amount.
     function testFuzz_GetReturnableAmount_WithdrawableAmountNotZero_NoWithdrawals(
         uint256 timeWarp
-    ) external StreamExistent {
+    ) external streamExistent {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -41,7 +41,7 @@ abstract contract GetReturnableAmount_Test is SharedTest {
     /// @dev it should return the correct returnable amount.
     function testFuzz_GetReturnableAmount_WithdrawableAmountZero_WithWithdrawals(
         uint256 timeWarp
-    ) external StreamExistent {
+    ) external streamExistent {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -58,7 +58,7 @@ abstract contract GetReturnableAmount_Test is SharedTest {
     }
 
     /// @dev it should return the deposit amount.
-    function test_GetReturnableAmount_WithdrawableAmountZero_NoWithdrawals() external StreamExistent {
+    function test_GetReturnableAmount_WithdrawableAmountZero_NoWithdrawals() external streamExistent {
         uint256 actualReturnableAmount = sablierV2.getReturnableAmount(defaultStreamId);
         uint256 expectedReturnableAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
@@ -68,7 +68,7 @@ abstract contract GetReturnableAmount_Test is SharedTest {
     function testFuzz_GetReturnableAmount_WithdrawableAmountNotZero_WithWithdrawals(
         uint256 timeWarp,
         uint128 withdrawAmount
-    ) external StreamExistent {
+    ) external streamExistent {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.

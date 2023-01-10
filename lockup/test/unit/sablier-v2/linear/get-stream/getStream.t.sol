@@ -14,12 +14,12 @@ contract GetStream_LinearTest is LinearTest {
         assertEq(actualStream, expectedStream);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the stream.
-    function test_GetStream() external StreamExistent {
+    function test_GetStream() external streamExistent {
         uint256 streamId = createDefaultStream();
         LinearStream memory actualStream = linear.getStream(streamId);
         LinearStream memory expectedStream = defaultStream;

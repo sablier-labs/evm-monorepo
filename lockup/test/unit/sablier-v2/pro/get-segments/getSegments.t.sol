@@ -14,12 +14,12 @@ contract GetSegments_ProTest is ProTest {
         assertEq(actualSegments, expectedSegments);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the correct segments.
-    function test_GetSegments() external StreamExistent {
+    function test_GetSegments() external streamExistent {
         uint256 streamId = createDefaultStream();
         Segment[] memory actualSegments = pro.getSegments(streamId);
         Segment[] memory expectedSegments = DEFAULT_SEGMENTS;

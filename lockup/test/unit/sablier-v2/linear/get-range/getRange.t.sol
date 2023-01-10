@@ -14,12 +14,12 @@ contract GetRange_LinearTest is LinearTest {
         assertEq(actualRange, expectedRange);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the range.
-    function test_GetRange() external StreamExistent {
+    function test_GetRange() external streamExistent {
         uint256 streamId = createDefaultStream();
         Range memory actualRange = linear.getRange(streamId);
         Range memory expectedRange = DEFAULT_RANGE;

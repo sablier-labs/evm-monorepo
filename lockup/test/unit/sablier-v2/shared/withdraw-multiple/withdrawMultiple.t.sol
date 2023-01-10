@@ -34,12 +34,12 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         sablierV2.withdrawMultiple({ streamIds: defaultStreamIds, to: address(0), amounts: defaultAmounts });
     }
 
-    modifier ToNonZeroAddress() {
+    modifier toNonZeroAddress() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_ArraysNotEqual() external ToNonZeroAddress {
+    function test_RevertWhen_ArraysNotEqual() external toNonZeroAddress {
         uint256[] memory streamIds = new uint256[](2);
         uint128[] memory amounts = new uint128[](1);
         vm.expectRevert(
@@ -48,12 +48,12 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         sablierV2.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
     }
 
-    modifier ArraysEqual() {
+    modifier arraysEqual() {
         _;
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_OnlyNonExistentStreams() external ToNonZeroAddress ArraysEqual {
+    function test_RevertWhen_OnlyNonExistentStreams() external toNonZeroAddress arraysEqual {
         uint256 nonStreamId = 1729;
         uint256[] memory nonStreamIds = Solarray.uint256s(nonStreamId);
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT);
@@ -61,7 +61,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
     }
 
     /// @dev it should ignore the non-existent streams and make the withdrawals for the existent streams.
-    function test_RevertWhen_SomeNonExistentStreams() external ToNonZeroAddress ArraysEqual {
+    function test_RevertWhen_SomeNonExistentStreams() external toNonZeroAddress arraysEqual {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(nonStreamId, defaultStreamIds[0]);
 
@@ -75,14 +75,14 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
-    modifier OnlyExistentStreams() {
+    modifier onlyExistentStreams() {
         _;
     }
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty(
         address eve
-    ) external ToNonZeroAddress ArraysEqual OnlyExistentStreams {
+    ) external toNonZeroAddress arraysEqual onlyExistentStreams {
         vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
 
         // Make Eve the caller in this test.
@@ -96,9 +96,9 @@ abstract contract WithdrawMultiple_Test is SharedTest {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_Sender()
         external
-        ToNonZeroAddress
-        ArraysEqual
-        OnlyExistentStreams
+        toNonZeroAddress
+        arraysEqual
+        onlyExistentStreams
     {
         // Make the sender the caller in this test.
         changePrank(users.sender);
@@ -113,9 +113,9 @@ abstract contract WithdrawMultiple_Test is SharedTest {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
-        ToNonZeroAddress
-        ArraysEqual
-        OnlyExistentStreams
+        toNonZeroAddress
+        arraysEqual
+        onlyExistentStreams
     {
         // Transfer all streams to Alice.
         sablierV2.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -131,7 +131,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
     /// @dev it should revert.
     function testFuzz_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty(
         address eve
-    ) external ToNonZeroAddress ArraysEqual OnlyExistentStreams {
+    ) external toNonZeroAddress arraysEqual onlyExistentStreams {
         vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
 
         // Create a stream with Eve as the recipient.
@@ -152,9 +152,9 @@ abstract contract WithdrawMultiple_Test is SharedTest {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
-        ToNonZeroAddress
-        ArraysEqual
-        OnlyExistentStreams
+        toNonZeroAddress
+        arraysEqual
+        onlyExistentStreams
     {
         // Transfer one of the streams to Eve.
         sablierV2.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -169,14 +169,14 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         sablierV2.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
-    modifier CallerAuthorizedAllStreams() {
+    modifier callerAuthorizedAllStreams() {
         _;
     }
 
     /// @dev it should make the withdrawals and update the withdrawn amounts.
     function testFuzz_WithdrawMultiple_CallerApprovedOperator(
         address to
-    ) external ToNonZeroAddress ArraysEqual OnlyExistentStreams CallerAuthorizedAllStreams {
+    ) external toNonZeroAddress arraysEqual onlyExistentStreams callerAuthorizedAllStreams {
         vm.assume(to != address(0));
 
         // Approve the operator for all streams.
@@ -204,18 +204,18 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount);
     }
 
-    modifier CallerRecipient() {
+    modifier callerRecipient() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_SomeAmountsZero()
         external
-        ToNonZeroAddress
-        ArraysEqual
-        OnlyExistentStreams
-        CallerAuthorizedAllStreams
-        CallerRecipient
+        toNonZeroAddress
+        arraysEqual
+        onlyExistentStreams
+        callerAuthorizedAllStreams
+        callerRecipient
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -226,19 +226,19 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         sablierV2.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
     }
 
-    modifier AllAmountsNotZero() {
+    modifier allAmountsNotZero() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_SomeAmountsGreaterThanWithdrawableAmount()
         external
-        ToNonZeroAddress
-        ArraysEqual
-        OnlyExistentStreams
-        CallerAuthorizedAllStreams
-        CallerRecipient
-        AllAmountsNotZero
+        toNonZeroAddress
+        arraysEqual
+        onlyExistentStreams
+        callerAuthorizedAllStreams
+        callerRecipient
+        allAmountsNotZero
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -257,7 +257,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         sablierV2.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
     }
 
-    modifier AllAmountsLessThanOrEqualToWithdrawableAmounts() {
+    modifier allAmountsLessThanOrEqualToWithdrawableAmounts() {
         _;
     }
 
@@ -267,13 +267,13 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         address to
     )
         external
-        ToNonZeroAddress
-        ArraysEqual
-        OnlyExistentStreams
-        CallerAuthorizedAllStreams
-        CallerRecipient
-        AllAmountsNotZero
-        AllAmountsLessThanOrEqualToWithdrawableAmounts
+        toNonZeroAddress
+        arraysEqual
+        onlyExistentStreams
+        callerAuthorizedAllStreams
+        callerRecipient
+        allAmountsNotZero
+        allAmountsLessThanOrEqualToWithdrawableAmounts
     {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
         vm.assume(to != address(0));
@@ -313,13 +313,13 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         uint128 withdrawAmount
     )
         external
-        ToNonZeroAddress
-        ArraysEqual
-        OnlyExistentStreams
-        CallerAuthorizedAllStreams
-        CallerRecipient
-        AllAmountsNotZero
-        AllAmountsLessThanOrEqualToWithdrawableAmounts
+        toNonZeroAddress
+        arraysEqual
+        onlyExistentStreams
+        callerAuthorizedAllStreams
+        callerRecipient
+        allAmountsNotZero
+        allAmountsLessThanOrEqualToWithdrawableAmounts
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(to != address(0));
@@ -361,13 +361,13 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         uint128 ongoingWithdrawAmount
     )
         external
-        ToNonZeroAddress
-        ArraysEqual
-        OnlyExistentStreams
-        CallerAuthorizedAllStreams
-        CallerRecipient
-        AllAmountsNotZero
-        AllAmountsLessThanOrEqualToWithdrawableAmounts
+        toNonZeroAddress
+        arraysEqual
+        onlyExistentStreams
+        callerAuthorizedAllStreams
+        callerRecipient
+        allAmountsNotZero
+        allAmountsLessThanOrEqualToWithdrawableAmounts
     {
         timeWarp = bound(timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1);
         vm.assume(to != address(0));

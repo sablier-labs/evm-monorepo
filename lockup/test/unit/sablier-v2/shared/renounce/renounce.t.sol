@@ -16,14 +16,14 @@ abstract contract Renounce_Test is SharedTest {
         sablierV2.renounce(nonStreamId);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerNotSender(address eve) external StreamExistent {
+    function test_RevertWhen_CallerNotSender(address eve) external streamExistent {
         vm.assume(eve != address(0) && eve != users.sender);
 
         // Make Eve the caller in this test.
@@ -34,12 +34,12 @@ abstract contract Renounce_Test is SharedTest {
         sablierV2.renounce(defaultStreamId);
     }
 
-    modifier CallerSender() {
+    modifier callerSender() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_NonCancelableStream() external StreamExistent CallerSender {
+    function test_RevertWhen_NonCancelableStream() external streamExistent callerSender {
         // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
 
@@ -51,7 +51,7 @@ abstract contract Renounce_Test is SharedTest {
     }
 
     /// @dev it should emit a Renounce event and renounce the stream.
-    function test_Renounce() external StreamExistent CallerSender {
+    function test_Renounce() external streamExistent callerSender {
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: false });
         emit Events.Renounce(defaultStreamId);

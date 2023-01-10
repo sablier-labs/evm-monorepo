@@ -14,12 +14,12 @@ abstract contract GetERC20Token__Test is SharedTest {
         assertEq(actualToken, expectedToken);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the correct ERC-20 token.
-    function test_GetERC20Token() external StreamExistent {
+    function test_GetERC20Token() external streamExistent {
         uint256 streamId = createDefaultStream();
         IERC20 actualToken = sablierV2.getERC20Token(streamId);
         IERC20 expectedToken = dai;

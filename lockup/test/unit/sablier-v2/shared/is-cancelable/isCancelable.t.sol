@@ -11,12 +11,12 @@ abstract contract IsCancelable_Test is SharedTest {
         assertFalse(isCancelable);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return true.
-    function test_IsCancelable_CancelableStream() external StreamExistent {
+    function test_IsCancelable_CancelableStream() external streamExistent {
         uint256 streamId = createDefaultStream();
         bool isCancelable = sablierV2.isCancelable(streamId);
         assertTrue(isCancelable);
@@ -27,7 +27,7 @@ abstract contract IsCancelable_Test is SharedTest {
     }
 
     /// @dev it should return false.
-    function test_IsCancelable() external StreamExistent NonCancelableStream {
+    function test_IsCancelable() external streamExistent NonCancelableStream {
         uint256 streamId = createDefaultStreamNonCancelable();
         bool isCancelable = sablierV2.isCancelable(streamId);
         assertFalse(isCancelable);

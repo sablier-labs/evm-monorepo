@@ -23,14 +23,14 @@ abstract contract SetComptroller_Test is SharedTest {
         sablierV2.setComptroller(ISablierV2Comptroller(eve));
     }
 
-    modifier CallerAdmin() {
+    modifier callerAdmin() {
         // Make the admin the caller in the rest of this test suite.
         changePrank(users.admin);
         _;
     }
 
     /// @dev it should emit a SetComptroller event and re-set the comptroller.
-    function test_SetComptroller_SameComptroller() external CallerAdmin {
+    function test_SetComptroller_SameComptroller() external callerAdmin {
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true });
         emit Events.SetComptroller(users.admin, comptroller, comptroller);
@@ -45,7 +45,7 @@ abstract contract SetComptroller_Test is SharedTest {
     }
 
     /// @dev it should set the new comptroller.
-    function test_SetComptroller_NewComptroller() external CallerAdmin {
+    function test_SetComptroller_NewComptroller() external callerAdmin {
         // Deploy the new comptroller.
         ISablierV2Comptroller newComptroller = new SablierV2Comptroller();
 

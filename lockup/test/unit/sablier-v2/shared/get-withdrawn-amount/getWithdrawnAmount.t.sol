@@ -21,14 +21,14 @@ abstract contract GetWithdrawnAmount_Test is SharedTest {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function testFuzz_GetWithdrawnAmount_NoWithdrawals(uint256 timeWarp) external StreamExistent {
+    function testFuzz_GetWithdrawnAmount_NoWithdrawals(uint256 timeWarp) external streamExistent {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -44,7 +44,7 @@ abstract contract GetWithdrawnAmount_Test is SharedTest {
     function testFuzz_GetWithdrawnAmount_WithWithdrawals(
         uint256 timeWarp,
         uint128 withdrawAmount
-    ) external StreamExistent {
+    ) external streamExistent {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_TIME, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.

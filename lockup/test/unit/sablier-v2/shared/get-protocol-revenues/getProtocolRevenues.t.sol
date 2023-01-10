@@ -17,7 +17,7 @@ abstract contract GetProtocolRevenues_Test is SharedTest {
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
 
-    modifier ProtocolRevenuesNotZero() {
+    modifier protocolRevenuesNotZero() {
         // Create the default stream, which will accrue revenues for the protocol.
         changePrank(users.sender);
         createDefaultStream();
@@ -26,7 +26,7 @@ abstract contract GetProtocolRevenues_Test is SharedTest {
     }
 
     /// @dev it should return the correct protocol revenues.
-    function test_GetProtocolRevenues() external ProtocolRevenuesNotZero {
+    function test_GetProtocolRevenues() external protocolRevenuesNotZero {
         uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(dai);
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);

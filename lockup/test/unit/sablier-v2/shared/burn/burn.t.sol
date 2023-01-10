@@ -24,25 +24,25 @@ abstract contract Burn_Test is SharedTest {
         sablierV2.burn(defaultStreamId);
     }
 
-    modifier StreamNonExistent() {
+    modifier streamNonExistent() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_NFTNonExistent() external StreamNonExistent {
+    function test_RevertWhen_NFTNonExistent() external streamNonExistent {
         uint256 nonStreamId = 1729;
         vm.expectRevert("ERC721: invalid token ID");
         sablierV2.burn(nonStreamId);
     }
 
-    modifier NFTExistent() {
+    modifier nftExistent() {
         // Cancel the stream so that the stream entity gets deleted.
         sablierV2.cancel(defaultStreamId);
         _;
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CallerUnauthorized(address eve) external StreamNonExistent NFTExistent {
+    function testFuzz_RevertWhen_CallerUnauthorized(address eve) external streamNonExistent nftExistent {
         vm.assume(eve != address(0) && eve != users.recipient);
 
         // Make Eve the caller in the rest of this test.
@@ -53,14 +53,14 @@ abstract contract Burn_Test is SharedTest {
         sablierV2.burn(defaultStreamId);
     }
 
-    modifier CallerAuthorized() {
+    modifier callerAuthorized() {
         _;
     }
 
     /// @dev it should burn the NFT.
     function testFuzz_Burn_CallerApprovedOperator(
         address operator
-    ) external StreamNonExistent NFTExistent CallerAuthorized {
+    ) external streamNonExistent nftExistent callerAuthorized {
         vm.assume(operator != address(0) && operator != users.recipient);
 
         // Approve the operator to handle the stream.
@@ -79,7 +79,7 @@ abstract contract Burn_Test is SharedTest {
     }
 
     /// @dev it should burn the NFT.
-    function test_Burn_CallerNFTOwner() external StreamNonExistent NFTExistent CallerAuthorized {
+    function test_Burn_CallerNFTOwner() external streamNonExistent nftExistent callerAuthorized {
         sablierV2.burn(defaultStreamId);
         address actualOwner = sablierV2.getRecipient(defaultStreamId);
         address expectedOwner = address(0);

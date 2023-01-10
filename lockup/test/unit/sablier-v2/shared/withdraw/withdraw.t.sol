@@ -25,14 +25,14 @@ abstract contract Withdraw_Test is SharedTest {
         sablierV2.withdraw({ streamId: nonStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty(address eve) external StreamExistent {
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty(address eve) external streamExistent {
         vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
 
         // Make Eve the caller in this test.
@@ -44,7 +44,7 @@ abstract contract Withdraw_Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_Sender() external StreamExistent {
+    function test_RevertWhen_CallerUnauthorized_Sender() external streamExistent {
         // Make the sender the caller in this test.
         changePrank(users.sender);
 
@@ -61,7 +61,7 @@ abstract contract Withdraw_Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_FormerRecipient() external StreamExistent {
+    function test_RevertWhen_FormerRecipient() external streamExistent {
         // Transfer the stream to Alice.
         sablierV2.transferFrom(users.recipient, users.alice, defaultStreamId);
 
@@ -72,37 +72,37 @@ abstract contract Withdraw_Test is SharedTest {
         sablierV2.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    modifier CallerAuthorized() {
+    modifier callerAuthorized() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_ToZeroAddress() external StreamExistent CallerAuthorized {
+    function test_RevertWhen_ToZeroAddress() external streamExistent callerAuthorized {
         vm.expectRevert(Errors.SablierV2_WithdrawToZeroAddress.selector);
         sablierV2.withdraw({ streamId: defaultStreamId, to: address(0), amount: DEFAULT_NET_DEPOSIT_AMOUNT });
     }
 
-    modifier ToNonZeroAddress() {
+    modifier toNonZeroAddress() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_WithdrawAmountZero() external StreamExistent CallerAuthorized ToNonZeroAddress {
+    function test_RevertWhen_WithdrawAmountZero() external streamExistent callerAuthorized toNonZeroAddress {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_WithdrawAmountZero.selector, defaultStreamId));
         sablierV2.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
     }
 
-    modifier WithdrawAmountNotZero() {
+    modifier withdrawAmountNotZero() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_WithdrawAmountGreaterThanWithdrawableAmount()
         external
-        StreamExistent
-        CallerAuthorized
-        ToNonZeroAddress
-        WithdrawAmountNotZero
+        streamExistent
+        callerAuthorized
+        toNonZeroAddress
+        withdrawAmountNotZero
     {
         uint128 withdrawableAmount = 0;
         vm.expectRevert(
@@ -116,7 +116,7 @@ abstract contract Withdraw_Test is SharedTest {
         sablierV2.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: UINT128_MAX });
     }
 
-    modifier WithdrawAmountLessThanOrEqualToWithdrawableAmount() {
+    modifier withdrawAmountLessThanOrEqualToWithdrawableAmount() {
         _;
     }
 
@@ -125,11 +125,11 @@ abstract contract Withdraw_Test is SharedTest {
         address to
     )
         external
-        StreamExistent
-        CallerAuthorized
-        ToNonZeroAddress
-        WithdrawAmountNotZero
-        WithdrawAmountLessThanOrEqualToWithdrawableAmount
+        streamExistent
+        callerAuthorized
+        toNonZeroAddress
+        withdrawAmountNotZero
+        withdrawAmountLessThanOrEqualToWithdrawableAmount
     {
         vm.assume(to != address(0));
 
@@ -148,11 +148,11 @@ abstract contract Withdraw_Test is SharedTest {
         address to
     )
         external
-        StreamExistent
-        CallerAuthorized
-        ToNonZeroAddress
-        WithdrawAmountNotZero
-        WithdrawAmountLessThanOrEqualToWithdrawableAmount
+        streamExistent
+        callerAuthorized
+        toNonZeroAddress
+        withdrawAmountNotZero
+        withdrawAmountLessThanOrEqualToWithdrawableAmount
     {
         vm.assume(to != address(0));
 
@@ -174,7 +174,7 @@ abstract contract Withdraw_Test is SharedTest {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
-    modifier CallerSender() {
+    modifier callerSender() {
         // Make the sender the caller in this test suite.
         changePrank(users.sender);
         _;
@@ -183,12 +183,12 @@ abstract contract Withdraw_Test is SharedTest {
     /// @dev it should make the withdrawal and delete the stream.
     function test_Withdraw_StreamEnded()
         external
-        StreamExistent
-        CallerAuthorized
-        ToNonZeroAddress
-        WithdrawAmountNotZero
-        WithdrawAmountLessThanOrEqualToWithdrawableAmount
-        CallerSender
+        streamExistent
+        callerAuthorized
+        toNonZeroAddress
+        withdrawAmountNotZero
+        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        callerSender
     {
         // Warp to the end of the stream.
         vm.warp({ timestamp: DEFAULT_STOP_TIME });
@@ -205,7 +205,7 @@ abstract contract Withdraw_Test is SharedTest {
         assertEq(actualNFTowner, expectedNFTOwner);
     }
 
-    modifier StreamOngoing() {
+    modifier streamOngoing() {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
         _;
@@ -218,13 +218,13 @@ abstract contract Withdraw_Test is SharedTest {
         uint128 withdrawAmount
     )
         external
-        StreamExistent
-        CallerAuthorized
-        ToNonZeroAddress
-        WithdrawAmountNotZero
-        WithdrawAmountLessThanOrEqualToWithdrawableAmount
-        CallerSender
-        StreamOngoing
+        streamExistent
+        callerAuthorized
+        toNonZeroAddress
+        withdrawAmountNotZero
+        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        callerSender
+        streamOngoing
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(to != address(0) && to.code.length == 0);
@@ -255,21 +255,21 @@ abstract contract Withdraw_Test is SharedTest {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
-    modifier RecipientContract() {
+    modifier recipientContract() {
         _;
     }
 
     /// @dev it should ignore the revert and make the withdrawal and update the withdrawn amount.
     function testWithdraw_RecipientDoesNotImplementHook()
         external
-        StreamExistent
-        CallerAuthorized
-        ToNonZeroAddress
-        WithdrawAmountNotZero
-        WithdrawAmountLessThanOrEqualToWithdrawableAmount
-        CallerSender
-        StreamOngoing
-        RecipientContract
+        streamExistent
+        callerAuthorized
+        toNonZeroAddress
+        withdrawAmountNotZero
+        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        callerSender
+        streamOngoing
+        recipientContract
     {
         // Create the stream with the recipient as a contract.
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
@@ -283,22 +283,22 @@ abstract contract Withdraw_Test is SharedTest {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
-    modifier RecipientImplementsHook() {
+    modifier recipientImplementsHook() {
         _;
     }
 
     /// @dev it should ignore the revert and make the withdrawal and update the withdrawn amount.
     function testWithdraw_RecipientReverts()
         external
-        StreamExistent
-        CallerAuthorized
-        ToNonZeroAddress
-        WithdrawAmountNotZero
-        WithdrawAmountLessThanOrEqualToWithdrawableAmount
-        CallerSender
-        StreamOngoing
-        RecipientContract
-        RecipientImplementsHook
+        streamExistent
+        callerAuthorized
+        toNonZeroAddress
+        withdrawAmountNotZero
+        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        callerSender
+        streamOngoing
+        recipientContract
+        recipientImplementsHook
     {
         // Create the stream with the recipient as a contract.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
@@ -312,23 +312,23 @@ abstract contract Withdraw_Test is SharedTest {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
-    modifier RecipientDoesNotRevert() {
+    modifier recipientDoesNotRevert() {
         _;
     }
 
     /// @dev it should make multiple withdrawals and update the withdrawn amounts.
     function testWithdraw_RecipientReentrancy()
         external
-        StreamExistent
-        CallerAuthorized
-        ToNonZeroAddress
-        WithdrawAmountNotZero
-        WithdrawAmountLessThanOrEqualToWithdrawableAmount
-        CallerSender
-        StreamOngoing
-        RecipientContract
-        RecipientImplementsHook
-        RecipientDoesNotRevert
+        streamExistent
+        callerAuthorized
+        toNonZeroAddress
+        withdrawAmountNotZero
+        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        callerSender
+        streamOngoing
+        recipientContract
+        recipientImplementsHook
+        recipientDoesNotRevert
     {
         // Create the stream with the recipient as a contract.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
@@ -345,7 +345,7 @@ abstract contract Withdraw_Test is SharedTest {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
-    modifier NoRecipientReentrancy() {
+    modifier noRecipientReentrancy() {
         _;
     }
 
@@ -355,17 +355,17 @@ abstract contract Withdraw_Test is SharedTest {
         uint128 withdrawAmount
     )
         external
-        StreamExistent
-        CallerAuthorized
-        ToNonZeroAddress
-        WithdrawAmountNotZero
-        WithdrawAmountLessThanOrEqualToWithdrawableAmount
-        CallerSender
-        StreamOngoing
-        RecipientContract
-        RecipientImplementsHook
-        RecipientDoesNotRevert
-        NoRecipientReentrancy
+        streamExistent
+        callerAuthorized
+        toNonZeroAddress
+        withdrawAmountNotZero
+        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        callerSender
+        streamOngoing
+        recipientContract
+        recipientImplementsHook
+        recipientDoesNotRevert
+        noRecipientReentrancy
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 

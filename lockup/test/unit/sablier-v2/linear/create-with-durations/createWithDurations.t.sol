@@ -34,14 +34,14 @@ contract CreateWithDurations_LinearTest is LinearTest {
         createDefaultStreamWithDurations(Durations({ cliff: cliffDuration, total: totalDuration }));
     }
 
-    modifier CliffDurationCalculationDoesNotOverflow() {
+    modifier cliffDurationCalculationDoesNotOverflow() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_TotalDurationCalculationOverflows(
         Durations memory durations
-    ) external CliffDurationCalculationDoesNotOverflow {
+    ) external cliffDurationCalculationDoesNotOverflow {
         uint40 startTime = getBlockTimestamp();
         durations.cliff = boundUint40(durations.cliff, 0, UINT40_MAX - startTime);
         durations.total = boundUint40(durations.total, UINT40_MAX - startTime + 1, UINT40_MAX);
@@ -63,14 +63,14 @@ contract CreateWithDurations_LinearTest is LinearTest {
         createDefaultStreamWithDurations(durations);
     }
 
-    modifier TotalDurationCalculationDoesNotOverflow() {
+    modifier totalDurationCalculationDoesNotOverflow() {
         _;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
     function testFuzz_CreateWithDuration(
         Durations memory durations
-    ) external CliffDurationCalculationDoesNotOverflow TotalDurationCalculationDoesNotOverflow {
+    ) external cliffDurationCalculationDoesNotOverflow totalDurationCalculationDoesNotOverflow {
         durations.total = boundUint40(durations.total, 0, UINT40_MAX - getBlockTimestamp());
         vm.assume(durations.cliff <= durations.total);
 
@@ -125,8 +125,8 @@ contract CreateWithDurations_LinearTest is LinearTest {
     /// @dev it should record the protocol fee.
     function testFuzz_CreateWithDurations_ProtocolFee()
         external
-        CliffDurationCalculationDoesNotOverflow
-        TotalDurationCalculationDoesNotOverflow
+        cliffDurationCalculationDoesNotOverflow
+        totalDurationCalculationDoesNotOverflow
     {
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = linear.getProtocolRevenues(params.createWithDurations.token);
@@ -143,8 +143,8 @@ contract CreateWithDurations_LinearTest is LinearTest {
     /// @dev it should emit a CreateLinearStream event.
     function test_CreateWithDurations_Event()
         external
-        CliffDurationCalculationDoesNotOverflow
-        TotalDurationCalculationDoesNotOverflow
+        cliffDurationCalculationDoesNotOverflow
+        totalDurationCalculationDoesNotOverflow
     {
         uint256 streamId = linear.nextStreamId();
         address funder = params.createWithDurations.sender;

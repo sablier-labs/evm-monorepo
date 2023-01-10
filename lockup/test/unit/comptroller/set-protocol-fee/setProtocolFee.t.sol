@@ -22,14 +22,14 @@ contract SetProtocolFee_ComptrollerTest is ComptrollerTest {
         comptroller.setProtocolFee(dai, DEFAULT_MAX_FEE);
     }
 
-    modifier CallerAdmin() {
+    modifier callerAdmin() {
         // Make the admin the caller in the rest of this test suite.
         changePrank(users.admin);
         _;
     }
 
     /// @dev it should re-set the protocol fee.
-    function test_SetProtocolFee_SameFee() external CallerAdmin {
+    function test_SetProtocolFee_SameFee() external callerAdmin {
         UD60x18 newProtocolFee = ud(0);
         comptroller.setProtocolFee(dai, newProtocolFee);
 
@@ -39,7 +39,7 @@ contract SetProtocolFee_ComptrollerTest is ComptrollerTest {
     }
 
     /// @dev it should set the new protocol fee
-    function testFuzz_SetProtocolFee_DifferentFee(UD60x18 newProtocolFee) external CallerAdmin {
+    function testFuzz_SetProtocolFee_DifferentFee(UD60x18 newProtocolFee) external callerAdmin {
         newProtocolFee = bound(newProtocolFee, 1, DEFAULT_MAX_FEE);
         comptroller.setProtocolFee(dai, newProtocolFee);
 

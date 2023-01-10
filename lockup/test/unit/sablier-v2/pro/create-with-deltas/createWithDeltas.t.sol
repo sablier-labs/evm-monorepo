@@ -20,12 +20,12 @@ contract CreateWithDeltas_ProTest is ProTest {
         createDefaultStreamWithDeltas(deltas);
     }
 
-    modifier LoopCalculationsDoNotOverflowBlockGasLimit() {
+    modifier loopCalculationsDoNotOverflowBlockGasLimit() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_DeltasZero() external LoopCalculationsDoNotOverflowBlockGasLimit {
+    function test_RevertWhen_DeltasZero() external loopCalculationsDoNotOverflowBlockGasLimit {
         uint40 startTime = getBlockTimestamp();
         uint40[] memory deltas = Solarray.uint40s(DEFAULT_SEGMENT_DELTAS[0], 0);
         uint256 index = 1;
@@ -40,14 +40,14 @@ contract CreateWithDeltas_ProTest is ProTest {
         createDefaultStreamWithDeltas(deltas);
     }
 
-    modifier DeltasNotZero() {
+    modifier deltasNotZero() {
         _;
     }
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_SegmentArraysNotEqual(
         uint256 deltaCount
-    ) external LoopCalculationsDoNotOverflowBlockGasLimit DeltasNotZero {
+    ) external loopCalculationsDoNotOverflowBlockGasLimit deltasNotZero {
         deltaCount = bound(deltaCount, 1, 1_000);
         vm.assume(deltaCount != params.createWithDeltas.segments.length);
 
@@ -62,16 +62,16 @@ contract CreateWithDeltas_ProTest is ProTest {
         createDefaultStreamWithDeltas(deltas);
     }
 
-    modifier SegmentArraysEqual() {
+    modifier segmentArraysEqual() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeGreaterThanCalculatedFirstMilestone()
         external
-        LoopCalculationsDoNotOverflowBlockGasLimit
-        DeltasNotZero
-        SegmentArraysEqual
+        loopCalculationsDoNotOverflowBlockGasLimit
+        deltasNotZero
+        segmentArraysEqual
     {
         uint40 startTime = getBlockTimestamp();
         uint40[] memory deltas = Solarray.uint40s(UINT40_MAX, 1);
@@ -93,9 +93,9 @@ contract CreateWithDeltas_ProTest is ProTest {
     /// @dev it should revert.
     function test_RevertWhen_MilestonesCalculationsOverflows_SegmentMilestonesNotOrdered()
         external
-        LoopCalculationsDoNotOverflowBlockGasLimit
-        DeltasNotZero
-        SegmentArraysEqual
+        loopCalculationsDoNotOverflowBlockGasLimit
+        deltasNotZero
+        segmentArraysEqual
     {
         uint40 startTime = getBlockTimestamp();
 
@@ -142,7 +142,7 @@ contract CreateWithDeltas_ProTest is ProTest {
         );
     }
 
-    modifier MilestonesCalculationsDoNotOverflow() {
+    modifier milestonesCalculationsDoNotOverflow() {
         _;
     }
 
@@ -152,10 +152,10 @@ contract CreateWithDeltas_ProTest is ProTest {
         uint40 delta1
     )
         external
-        LoopCalculationsDoNotOverflowBlockGasLimit
-        DeltasNotZero
-        SegmentArraysEqual
-        MilestonesCalculationsDoNotOverflow
+        loopCalculationsDoNotOverflowBlockGasLimit
+        deltasNotZero
+        segmentArraysEqual
+        milestonesCalculationsDoNotOverflow
     {
         delta0 = boundUint40(delta0, 0, 100);
         delta1 = boundUint40(delta1, 1, UINT40_MAX - getBlockTimestamp() - delta0);
@@ -222,10 +222,10 @@ contract CreateWithDeltas_ProTest is ProTest {
     /// @dev it should record the protocol fee.
     function test_CreateWithDeltas_ProtocolFee()
         external
-        LoopCalculationsDoNotOverflowBlockGasLimit
-        DeltasNotZero
-        SegmentArraysEqual
-        MilestonesCalculationsDoNotOverflow
+        loopCalculationsDoNotOverflowBlockGasLimit
+        deltasNotZero
+        segmentArraysEqual
+        milestonesCalculationsDoNotOverflow
     {
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = pro.getProtocolRevenues(params.createWithDeltas.token);
@@ -242,10 +242,10 @@ contract CreateWithDeltas_ProTest is ProTest {
     /// @dev it should create a CreateProStream event.
     function test_CreateWithDeltas_Event()
         external
-        LoopCalculationsDoNotOverflowBlockGasLimit
-        DeltasNotZero
-        SegmentArraysEqual
-        MilestonesCalculationsDoNotOverflow
+        loopCalculationsDoNotOverflowBlockGasLimit
+        deltasNotZero
+        segmentArraysEqual
+        milestonesCalculationsDoNotOverflow
     {
         uint256 streamId = pro.nextStreamId();
         address funder = params.createWithDeltas.sender;
