@@ -131,19 +131,9 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
     }
 
     /// @dev Checks if the Foundry profile is "test-optimized".
-    function isTestOptimizedProfile() internal view returns (bool result) {
-        string memory profile = tryEnvString("FOUNDRY_PROFILE");
+    function isTestOptimizedProfile() internal returns (bool result) {
+        string memory profile = vm.envOr("FOUNDRY_PROFILE", string(""));
         result = eqString(profile, "test-optimized");
-    }
-
-    /// @dev Tries to read an environment variable as a string, returning an empty string if the variable
-    /// is not defined.
-    function tryEnvString(string memory name) internal view returns (string memory) {
-        try vm.envString(name) returns (string memory value) {
-            return value;
-        } catch {
-            return "";
-        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

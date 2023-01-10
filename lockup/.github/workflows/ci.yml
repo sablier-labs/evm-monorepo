@@ -5,7 +5,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ETH_RPC_URL: "${{ secrets.ETH_RPC_URL }}"
+  INFURA_API_KEY: "${{ secrets.INFURA_API_KEY }}"
 
 on:
   pull_request:

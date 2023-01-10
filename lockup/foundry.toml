@@ -26,7 +26,6 @@ test = "test/unit" # run both unit and integration tests
 
 [profile.optimized]
 out = "optimized-out"
-script = "src" # compile only the production code with IR
 test = "src" # compile only the production code with IR
 via_ir = true
 

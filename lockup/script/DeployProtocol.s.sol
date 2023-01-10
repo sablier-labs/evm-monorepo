@@ -4,9 +4,9 @@ pragma solidity >=0.8.13 <0.9.0;
 import { Script } from "forge-std/Script.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
-import { ISablierV2Linear } from "src/interfaces/ISablierV2Linear.sol";
-import { ISablierV2Pro } from "src/interfaces/ISablierV2Pro.sol";
+import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
+import { SablierV2Linear } from "src/SablierV2Linear.sol";
+import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
 import { Common } from "./helpers/Common.s.sol";
 import { DeployComptroller } from "./DeployComptroller.s.sol";
@@ -22,20 +22,9 @@ contract DeployProtocol is Script, Common {
     function run(
         UD60x18 maxFee,
         uint256 maxSegmentCount
-    ) public broadcaster returns (ISablierV2Comptroller comptroller, ISablierV2Linear linear, ISablierV2Pro pro) {
-        comptroller = ISablierV2Comptroller(
-            deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json")
-        );
-
-        linear = ISablierV2Linear(
-            deployCode("optimized-out/SablierV2Linear.sol/SablierV2Linear.json", abi.encode(comptroller, maxFee))
-        );
-
-        pro = ISablierV2Pro(
-            deployCode(
-                "optimized-out/SablierV2Pro.sol/SablierV2Pro.json",
-                abi.encode(comptroller, maxFee, maxSegmentCount)
-            )
-        );
+    ) public broadcaster returns (SablierV2Comptroller comptroller, SablierV2Linear linear, SablierV2Pro pro) {
+        comptroller = new SablierV2Comptroller();
+        linear = new SablierV2Linear(comptroller, maxFee);
+        pro = new SablierV2Pro(comptroller, maxFee, maxSegmentCount);
     }
 }

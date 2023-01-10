@@ -1,9 +1,10 @@
 name: "Deploy Protocol"
 
 env:
-  ETHERSCAN_API_KEY: "${{ secrets.ETHERSCAN_API_KEY }}"
-  INFURA_API_KEY: "${{ secrets.INFURA_API_KEY }}"
-  MNEMNONIC: "${{ secrets.MNEMONIC }}"
+  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+  FOUNDRY_PROFILE: "optimized"
+  INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+  MNEMONIC: ${{ secrets.MNEMONIC }}
 
 on:
   workflow_dispatch:
@@ -27,7 +28,7 @@ on:
         required: false
 
 jobs:
-  ci:
+  deploy-protocol:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
@@ -39,10 +40,6 @@ jobs:
         uses: "foundry-rs/foundry-toolchain@v1"
         with:
           version: "nightly"
-
-      - name: "Produce an optimized build with --via-ir"
-        run: "FOUNDRY_PROFILE=optimized forge build"
-
       - name: "Deploy the entire Sablier V2 protocol"
         run: >-
           forge script script/DeployProtocol.s.sol
@@ -51,6 +48,7 @@ jobs:
           --sig "run(uint256,uint256)"
           "${{ github.event.inputs.max-fee }}"
           "${{ github.event.inputs.max-segment-count }}"
+          -vvvv
 
       - name: "Add summary"
         run: |

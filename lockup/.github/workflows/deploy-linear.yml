@@ -1,9 +1,10 @@
 name: "Deploy Linear"
 
 env:
-  ETHERSCAN_API_KEY: "${{ secrets.ETHERSCAN_API_KEY }}"
-  INFURA_API_KEY: "${{ secrets.INFURA_API_KEY }}"
-  MNEMNONIC: "${{ secrets.MNEMONIC }}"
+  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+  FOUNDRY_PROFILE: "optimized"
+  INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+  MNEMONIC: ${{ secrets.MNEMONIC }}
 
 on:
   workflow_dispatch:
@@ -24,7 +25,7 @@ on:
         required: false
 
 jobs:
-  ci:
+  deploy-linear:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
@@ -37,9 +38,6 @@ jobs:
         with:
           version: "nightly"
 
-      - name: "Produce an optimized build with --via-ir"
-        run: "FOUNDRY_PROFILE=optimized forge build"
-
       - name: "Deploy the SablierV2Linear contract"
         run: >-
           forge script script/DeployLinear.s.sol
@@ -48,6 +46,7 @@ jobs:
           --sig "run(address,uint256)"
           "${{ github.event.inputs.comptroller }}"
           "${{ github.event.inputs.max-fee }}"
+          -vvvv
 
       - name: "Add summary"
         run: |

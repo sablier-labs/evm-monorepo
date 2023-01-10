@@ -1,9 +1,10 @@
 name: "Deploy Pro"
 
 env:
-  ETHERSCAN_API_KEY: "${{ secrets.ETHERSCAN_API_KEY }}"
-  INFURA_API_KEY: "${{ secrets.INFURA_API_KEY }}"
-  MNEMNONIC: "${{ secrets.MNEMONIC }}"
+  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+  FOUNDRY_PROFILE: "optimized"
+  INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+  MNEMONIC: ${{ secrets.MNEMONIC }}
 
 on:
   workflow_dispatch:
@@ -31,7 +32,7 @@ on:
         required: false
 
 jobs:
-  ci:
+  deploy-pro:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
@@ -44,9 +45,6 @@ jobs:
         with:
           version: "nightly"
 
-      - name: "Produce an optimized build with --via-ir"
-        run: "FOUNDRY_PROFILE=optimized forge build"
-
       - name: "Deploy the SablierV2Pro contract"
         run: >-
           forge script script/DeployPro.s.sol
@@ -56,6 +54,7 @@ jobs:
           "${{ github.event.inputs.comptroller }}"
           "${{ github.event.inputs.max-fee }}"
           "${{ github.event.inputs.max-segment-count }}"
+          -vvvv
 
       - name: "Add summary"
         run: |
