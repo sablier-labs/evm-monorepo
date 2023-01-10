@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
+import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
@@ -26,6 +27,11 @@ contract SablierV2Mock is SablierV2 {
     function getDepositAmount(uint256 streamId) external pure override returns (uint128) {
         streamId;
         return 0;
+    }
+
+    function getERC20Token(uint256 streamId) external pure override returns (IERC20 token) {
+        streamId;
+        return IERC20(address(0));
     }
 
     function getRecipient(uint256 streamId) public pure override returns (address) {

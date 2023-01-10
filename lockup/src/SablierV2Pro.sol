@@ -65,6 +65,11 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2
+    function getERC20Token(uint256 streamId) external view override returns (IERC20 token) {
+        token = _streams[streamId].token;
+    }
+
+    /// @inheritdoc ISablierV2
     function getRecipient(uint256 streamId) public view override(ISablierV2, SablierV2) returns (address recipient) {
         recipient = _ownerOf(streamId);
     }
