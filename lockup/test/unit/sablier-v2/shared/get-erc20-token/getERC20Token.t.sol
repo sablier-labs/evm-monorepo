@@ -5,9 +5,9 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract GetERC20Token__Test is SharedTest {
+abstract contract GetERC20Token_Test is SharedTest {
     /// @dev it should return the zero address.
-    function testGetERC20Token__StreamNonExistent() external {
+    function test_GetERC20Token__StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         IERC20 actualToken = sablierV2.getERC20Token(nonStreamId);
         IERC20 expectedToken = IERC20(address(0));
