@@ -8,10 +8,10 @@ import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Broker, CreateAmounts, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
+import { Broker, CreateAmounts, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";

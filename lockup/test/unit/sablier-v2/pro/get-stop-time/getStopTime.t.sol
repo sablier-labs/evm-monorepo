@@ -3,8 +3,8 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 
-import { GetStopTime__Test } from "test/unit/sablier-v2/shared/get-stop-time/getStopTime.t.sol";
 import { ProTest } from "test/unit/sablier-v2/pro/ProTest.t.sol";
+import { GetStopTime__Test } from "test/unit/sablier-v2/shared/get-stop-time/getStopTime.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
 contract GetStopTime__ProTest is ProTest, GetStopTime__Test {

@@ -2,20 +2,20 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
-import { eqString } from "@prb/test/Helpers.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
 import { sd1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { eqString } from "@prb/test/Helpers.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 
-import { Range, Segment } from "src/types/Structs.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Linear } from "src/interfaces/ISablierV2Linear.sol";
 import { ISablierV2Pro } from "src/interfaces/ISablierV2Pro.sol";
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
-import { SablierV2Linear } from "src/SablierV2Linear.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
+import { SablierV2Linear } from "src/SablierV2Linear.sol";
+import { Range, Segment } from "src/types/Structs.sol";
 
 import { Assertions } from "./helpers/Assertions.t.sol";
 import { Constants } from "./helpers/Constants.t.sol";

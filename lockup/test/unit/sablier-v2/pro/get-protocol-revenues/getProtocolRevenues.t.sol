@@ -3,8 +3,8 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 
-import { GetProtocolRevenues__Test } from "test/unit/sablier-v2/shared/get-protocol-revenues/getProtocolRevenues.t.sol";
 import { ProTest } from "test/unit/sablier-v2/pro/ProTest.t.sol";
+import { GetProtocolRevenues__Test } from "test/unit/sablier-v2/shared/get-protocol-revenues/getProtocolRevenues.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
 
 contract GetProtocolRevenues__ProTest is ProTest, GetProtocolRevenues__Test {

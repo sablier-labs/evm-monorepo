@@ -2,14 +2,14 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
+import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { stdError } from "forge-std/StdError.sol";
 
-import { Amounts, Broker, ProStream, Segment } from "src/types/Structs.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
+import { Amounts, Broker, ProStream, Segment } from "src/types/Structs.sol";
 
 import { ISablierV2Pro } from "src/interfaces/ISablierV2Pro.sol";
 

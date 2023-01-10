@@ -2,8 +2,8 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { E, SD1x18 } from "@prb/math/SD1x18.sol";
-import { Solarray } from "solarray/Solarray.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
+import { Solarray } from "solarray/Solarray.sol";
 
 import { Broker, Segment } from "src/types/Structs.sol";
 

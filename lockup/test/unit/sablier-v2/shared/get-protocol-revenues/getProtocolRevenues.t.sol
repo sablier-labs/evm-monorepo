@@ -7,7 +7,7 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { SharedTest } from "test/unit/sablier-v2/shared/SharedTest.t.sol";
+import { SharedTest } from "../SharedTest.t.sol";
 
 abstract contract GetProtocolRevenues__Test is SharedTest {
     /// @dev it should return zero.

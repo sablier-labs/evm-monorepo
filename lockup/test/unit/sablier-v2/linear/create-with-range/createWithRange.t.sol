@@ -5,11 +5,9 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 
-import { Amounts, Broker, LinearStream, Range } from "src/types/Structs.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-
-import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
+import { Amounts, Broker, LinearStream, Range } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 

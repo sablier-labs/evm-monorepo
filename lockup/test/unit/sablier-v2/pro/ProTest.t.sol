@@ -2,8 +2,8 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SD1x18 } from "@prb/math/SD1x18.sol";
-import { SD59x18 } from "@prb/math/SD59x18.sol";
+import { sd1x18, SD1x18 } from "@prb/math/SD1x18.sol";
+import { sd, SD59x18, unwrap } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Amounts, Broker, ProStream, Segment } from "src/types/Structs.sol";
@@ -150,9 +150,9 @@ abstract contract ProTest is SablierV2Test {
 
             // Calculate the streamed amount.
             SD59x18 elapsedTimePercentage = sdUint40(elapsedSegmentTime).div(sdUint40(totalSegmentTime));
-            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
+            SD59x18 multiplier = elapsedTimePercentage.pow(sd(int256(SD1x18.unwrap(currentSegmentExponent))));
             SD59x18 proRataAmount = multiplier.mul(sdUint128(currentSegmentAmount));
-            streamedAmount = initialSegmentAmounts + uint128(uint256(SD59x18.unwrap(proRataAmount)));
+            streamedAmount = initialSegmentAmounts + uint128(uint256(unwrap(proRataAmount)));
         }
     }
 
@@ -167,8 +167,8 @@ abstract contract ProTest is SablierV2Test {
             SD59x18 elapsedSegmentTime = sdUint40(currentTime - defaultStream.startTime);
             SD59x18 totalSegmentTime = sdUint40(DEFAULT_TOTAL_DURATION);
             SD59x18 elapsedTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
-            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(segmentExponent))));
-            streamedAmount = uint128(uint256(SD59x18.unwrap(multiplier.mul(sdUint128(depositAmount)))));
+            SD59x18 multiplier = elapsedTimePercentage.pow(sd(int256(SD1x18.unwrap(segmentExponent))));
+            streamedAmount = uint128(uint256(unwrap(multiplier.mul(sdUint128(depositAmount)))));
         }
     }
 

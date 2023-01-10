@@ -4,8 +4,8 @@ pragma solidity >=0.8.13;
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { CreateAmounts, Range, Segment } from "../types/Structs.sol";
 import { Errors } from "./Errors.sol";
+import { CreateAmounts, Range, Segment } from "../types/Structs.sol";
 
 /// @title Helpers
 /// @notice Library with helper functions needed across the Sablier V2 contracts.

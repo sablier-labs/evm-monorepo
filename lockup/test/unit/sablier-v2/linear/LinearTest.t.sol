@@ -2,11 +2,10 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
-import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
+import { ud, UD60x18, unwrap } from "@prb/math/UD60x18.sol";
 
-import { Amounts, Broker, Durations, LinearStream, Range } from "src/types/Structs.sol";
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
+import { Amounts, Broker, Durations, LinearStream, Range } from "src/types/Structs.sol";
 
 import { SablierV2Test } from "test/unit/sablier-v2/SablierV2.t.sol";
 import { UnitTest } from "test/unit/UnitTest.t.sol";
@@ -107,10 +106,10 @@ abstract contract LinearTest is SablierV2Test {
         uint40 currentTime,
         uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
-        UD60x18 elapsedTime = UD60x18.wrap(currentTime - DEFAULT_START_TIME);
-        UD60x18 totalTime = UD60x18.wrap(DEFAULT_STOP_TIME - DEFAULT_START_TIME);
+        UD60x18 elapsedTime = ud(currentTime - DEFAULT_START_TIME);
+        UD60x18 totalTime = ud(DEFAULT_STOP_TIME - DEFAULT_START_TIME);
         UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-        streamedAmount = uint128(UD60x18.unwrap(elapsedTimePercentage.mul(ud(depositAmount))));
+        streamedAmount = uint128(unwrap(elapsedTimePercentage.mul(ud(depositAmount))));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -4,9 +4,9 @@ pragma solidity >=0.8.13 <0.9.0;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Amounts, Durations, LinearStream, Range } from "src/types/Structs.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
+import { Amounts, Durations, LinearStream, Range } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 

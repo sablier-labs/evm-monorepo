@@ -6,10 +6,10 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Amounts, Broker, CreateAmounts, Durations, LinearStream, Range } from "./types/Structs.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
+import { Amounts, Broker, CreateAmounts, Durations, LinearStream, Range } from "./types/Structs.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
