@@ -506,13 +506,13 @@ contract SablierV2Pro is
     function _withdraw(uint256 streamId, address to, uint128 amount) internal override {
         // Checks: the amount is not zero.
         if (amount == 0) {
-            revert Errors.SablierV2__WithdrawAmountZero(streamId);
+            revert Errors.SablierV2_WithdrawAmountZero(streamId);
         }
 
         // Checks: the amount is not greater than what can be withdrawn.
         uint128 withdrawableAmount = getWithdrawableAmount(streamId);
         if (amount > withdrawableAmount) {
-            revert Errors.SablierV2__WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);
+            revert Errors.SablierV2_WithdrawAmountGreaterThanWithdrawableAmount(streamId, amount, withdrawableAmount);
         }
 
         // Effects: update the withdrawn amount.

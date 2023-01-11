@@ -52,7 +52,7 @@ abstract contract SablierV2 is
     /// the owner of the NFT), or an approved operator.
     modifier isAuthorizedForStream(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
-            revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
+            revert Errors.SablierV2_Unauthorized(streamId, msg.sender);
         }
         _;
     }
@@ -61,7 +61,7 @@ abstract contract SablierV2 is
     /// as the owner of the NFT).
     modifier onlySenderOrRecipient(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && msg.sender != getRecipient(streamId)) {
-            revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
+            revert Errors.SablierV2_Unauthorized(streamId, msg.sender);
         }
         _;
     }
@@ -69,7 +69,7 @@ abstract contract SablierV2 is
     /// @dev Checks that `streamId` points to a stream that exists.
     modifier streamExists(uint256 streamId) {
         if (!isEntity(streamId)) {
-            revert Errors.SablierV2__StreamNonExistent(streamId);
+            revert Errors.SablierV2_StreamNonExistent(streamId);
         }
         _;
     }
@@ -113,14 +113,14 @@ abstract contract SablierV2 is
     function burn(uint256 streamId) external override {
         // Checks: the stream does not exist.
         if (isEntity(streamId)) {
-            revert Errors.SablierV2__StreamExistent(streamId);
+            revert Errors.SablierV2_StreamExistent(streamId);
         }
 
         // Checks:
         // 1. The NFT exists (see `getApproved`).
         // 2. The `msg.sender` is either the owner of the NFT or an approved operator.
         if (!_isApprovedOrOwner(streamId, msg.sender)) {
-            revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
+            revert Errors.SablierV2_Unauthorized(streamId, msg.sender);
         }
 
         // Effects: burn the NFT.
@@ -131,7 +131,7 @@ abstract contract SablierV2 is
     function cancel(uint256 streamId) external override streamExists(streamId) {
         // Checks: the stream is cancelable.
         if (!isCancelable(streamId)) {
-            revert Errors.SablierV2__StreamNonCancelable(streamId);
+            revert Errors.SablierV2_StreamNonCancelable(streamId);
         }
 
         _cancel(streamId);
@@ -162,7 +162,7 @@ abstract contract SablierV2 is
         // Checks: the protocol revenues are not zero.
         uint128 protocolRevenues = _protocolRevenues[token];
         if (protocolRevenues == 0) {
-            revert Errors.SablierV2__ClaimZeroProtocolRevenues(token);
+            revert Errors.SablierV2_ClaimZeroProtocolRevenues(token);
         }
 
         // Effects: set the protocol revenues to zero.
@@ -179,12 +179,12 @@ abstract contract SablierV2 is
     function renounce(uint256 streamId) external override streamExists(streamId) {
         // Checks: the `msg.sender` is the sender of the stream.
         if (!_isCallerStreamSender(streamId)) {
-            revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
+            revert Errors.SablierV2_Unauthorized(streamId, msg.sender);
         }
 
         // Checks: the stream is cancelable.
         if (!isCancelable(streamId)) {
-            revert Errors.SablierV2__RenounceNonCancelableStream(streamId);
+            revert Errors.SablierV2_RenounceNonCancelableStream(streamId);
         }
 
         _renounce(streamId);
@@ -212,12 +212,12 @@ abstract contract SablierV2 is
     ) external override streamExists(streamId) isAuthorizedForStream(streamId) {
         // Checks: the provided address is the recipient if `msg.sender` is the sender of the stream.
         if (_isCallerStreamSender(streamId) && to != getRecipient(streamId)) {
-            revert Errors.SablierV2__WithdrawSenderUnauthorized(streamId, msg.sender, to);
+            revert Errors.SablierV2_WithdrawSenderUnauthorized(streamId, msg.sender, to);
         }
 
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
-            revert Errors.SablierV2__WithdrawToZeroAddress();
+            revert Errors.SablierV2_WithdrawToZeroAddress();
         }
 
         // Checks, Effects and Interactions: make the withdrawal.
@@ -228,14 +228,14 @@ abstract contract SablierV2 is
     function withdrawMultiple(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external override {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
-            revert Errors.SablierV2__WithdrawToZeroAddress();
+            revert Errors.SablierV2_WithdrawToZeroAddress();
         }
 
         // Checks: count of `streamIds` matches count of `amounts`.
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
         if (streamIdsCount != amountsCount) {
-            revert Errors.SablierV2__WithdrawArraysNotEqual(streamIdsCount, amountsCount);
+            revert Errors.SablierV2_WithdrawArraysNotEqual(streamIdsCount, amountsCount);
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
@@ -248,7 +248,7 @@ abstract contract SablierV2 is
                 // Checks: the `msg.sender` is an approved operator or the owner of the NFT (also known as the recipient
                 // of the stream).
                 if (!_isApprovedOrOwner(streamId, msg.sender)) {
-                    revert Errors.SablierV2__Unauthorized(streamId, msg.sender);
+                    revert Errors.SablierV2_Unauthorized(streamId, msg.sender);
                 }
 
                 // Checks, Effects and Interactions: make the withdrawal.

@@ -10,30 +10,30 @@ import { Events } from "src/libraries/Events.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract ClaimProtocolRevenues__Test is SharedTest {
+abstract contract ClaimProtocolRevenues_Test is SharedTest {
     /// @dev it should revert.
-    function testCannotClaimProtocolRevenues__CallerNotAdmin() external {
+    function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         changePrank(users.eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable__CallerNotAdmin.selector, users.admin, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
         sablierV2.claimProtocolRevenues(dai);
     }
 
-    modifier CallerAdmin() {
+    modifier callerAdmin() {
         // Make the admin the caller in the rest of this test suite.
         changePrank(users.admin);
         _;
     }
 
     /// @dev it should revert.
-    function testCannotClaimProtocolRevenues__ProtocolRevenuesZero() external CallerAdmin {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__ClaimZeroProtocolRevenues.selector, dai));
+    function test_RevertWhen_ProtocolRevenuesZero() external callerAdmin {
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_ClaimZeroProtocolRevenues.selector, dai));
         sablierV2.claimProtocolRevenues(dai);
     }
 
-    modifier ProtocolRevenuesNotZero() {
+    modifier protocolRevenuesNotZero() {
         // Create the default stream, which will accrue revenues for the protocol.
         changePrank(users.sender);
         createDefaultStream();
@@ -42,7 +42,7 @@ abstract contract ClaimProtocolRevenues__Test is SharedTest {
     }
 
     /// @dev it should claim the protocol revenues.
-    function testClaimProtocolRevenues() external CallerAdmin ProtocolRevenuesNotZero {
+    function test_ClaimProtocolRevenues() external callerAdmin protocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.admin, protocolRevenues)));
@@ -52,7 +52,7 @@ abstract contract ClaimProtocolRevenues__Test is SharedTest {
     }
 
     /// @dev it should set the protocol revenues to zero.
-    function testClaimProtocolRevenues__SetToZero() external CallerAdmin ProtocolRevenuesNotZero {
+    function test_ClaimProtocolRevenues_SetToZero() external callerAdmin protocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.admin, protocolRevenues)));
@@ -67,7 +67,7 @@ abstract contract ClaimProtocolRevenues__Test is SharedTest {
     }
 
     /// @dev it should emit a ClaimProtocolRevenues event.
-    function testClaimProtocolRevenues__Event() external CallerAdmin ProtocolRevenuesNotZero {
+    function test_ClaimProtocolRevenues_Event() external callerAdmin protocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

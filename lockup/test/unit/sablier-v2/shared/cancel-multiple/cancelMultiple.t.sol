@@ -9,7 +9,7 @@ import { Events } from "src/libraries/Events.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract CancelMultiple__Test is SharedTest {
+abstract contract CancelMultiple_Test is SharedTest {
     uint256[] internal defaultStreamIds;
 
     function setUp() public virtual override {
@@ -24,26 +24,26 @@ abstract contract CancelMultiple__Test is SharedTest {
     }
 
     /// @dev it should do nothing.
-    function testCannotCancelMultiple__OnlyNonExistentStreams() external {
+    function test_RevertWhen_OnlyNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(nonStreamId);
         sablierV2.cancelMultiple(streamIds);
     }
 
     /// @dev it should ignore the non-existent streams and cancel the existent streams.
-    function testCannotCancelMultiple__SomeNonExistentStreams() external {
+    function test_RevertWhen_SomeNonExistentStreams() external {
         uint256 nonStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], nonStreamId);
         sablierV2.cancelMultiple(streamIds);
         assertDeleted(defaultStreamIds[0]);
     }
 
-    modifier OnlyExistentStreams() {
+    modifier onlyExistentStreams() {
         _;
     }
 
     /// @dev it should do nothing.
-    function testCannotCancelMultiple__AllStreamsNonCancelable() external OnlyExistentStreams {
+    function test_RevertWhen_AllStreamsNonCancelable() external onlyExistentStreams {
         // Create the non-cancelable stream.
         uint256 streamId = createDefaultStreamNonCancelable();
 
@@ -53,7 +53,7 @@ abstract contract CancelMultiple__Test is SharedTest {
     }
 
     /// @dev it should ignore the non-cancelable streams and cancel the cancelable streams.
-    function testCannotCancelMultiple__SomeStreamsNonCancelable() external OnlyExistentStreams {
+    function test_RevertWhen_SomeStreamsNonCancelable() external onlyExistentStreams {
         // Create the non-cancelable stream.
         uint256 streamId = createDefaultStreamNonCancelable();
 
@@ -69,28 +69,28 @@ abstract contract CancelMultiple__Test is SharedTest {
         assertTrue(isEntity);
     }
 
-    modifier AllStreamsCancelable() {
+    modifier allStreamsCancelable() {
         _;
     }
 
     /// @dev it should revert.
-    function testCannotCancelMultiple__CallerUnauthorizedAllStreams__MaliciousThirdParty(
+    function testFuzz_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty(
         address eve
-    ) external OnlyExistentStreams AllStreamsCancelable {
+    ) external onlyExistentStreams allStreamsCancelable {
         vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
 
         // Make Eve the caller in this test.
         changePrank(eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamIds[0], eve));
         sablierV2.cancelMultiple(defaultStreamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelMultiple__CallerUnauthorizedAllStreams__ApprovedOperator(
+    function testFuzz_RevertWhen_CallerUnauthorizedAllStreams_ApprovedOperator(
         address operator
-    ) external OnlyExistentStreams AllStreamsCancelable {
+    ) external onlyExistentStreams allStreamsCancelable {
         vm.assume(operator != address(0) && operator != users.sender && operator != users.recipient);
 
         // Approve the operator for all streams.
@@ -101,16 +101,16 @@ abstract contract CancelMultiple__Test is SharedTest {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.operator)
+            abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamIds[0], users.operator)
         );
         sablierV2.cancelMultiple(defaultStreamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelMultiple__CallerUnauthorizedAllStreams__FormerRecipient()
+    function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
-        OnlyExistentStreams
-        AllStreamsCancelable
+        onlyExistentStreams
+        allStreamsCancelable
     {
         // Transfer the streams to Alice.
         sablierV2.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -118,15 +118,15 @@ abstract contract CancelMultiple__Test is SharedTest {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.recipient)
+            abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamIds[0], users.recipient)
         );
         sablierV2.cancelMultiple(defaultStreamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelMultiple__CallerUnauthorizedSomeStreams__MaliciousThirdParty(
+    function testFuzz_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty(
         address eve
-    ) external OnlyExistentStreams AllStreamsCancelable {
+    ) external onlyExistentStreams allStreamsCancelable {
         vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
 
         // Make Eve the caller in this test.
@@ -137,16 +137,14 @@ abstract contract CancelMultiple__Test is SharedTest {
 
         // Run the test.
         uint256[] memory streamIds = Solarray.uint256s(eveStreamId, defaultStreamIds[0]);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.eve)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamIds[0], users.eve));
         sablierV2.cancelMultiple(streamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelMultiple__CallerUnauthorizedSomeStreams__ApprovedOperator(
+    function testFuzz_RevertWhen_CallerUnauthorizedSomeStreams_ApprovedOperator(
         address operator
-    ) external OnlyExistentStreams AllStreamsCancelable {
+    ) external onlyExistentStreams allStreamsCancelable {
         vm.assume(operator != address(0) && operator != users.sender && operator != users.recipient);
 
         // Approve the operator to handle the first stream.
@@ -157,28 +155,28 @@ abstract contract CancelMultiple__Test is SharedTest {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.operator)
+            abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamIds[0], users.operator)
         );
         sablierV2.cancelMultiple(defaultStreamIds);
     }
 
     /// @dev it should revert.
-    function testCannotCancelMultiple__CallerUnauthorizedSomeStreams__FormerRecipient()
+    function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
-        OnlyExistentStreams
-        AllStreamsCancelable
+        onlyExistentStreams
+        allStreamsCancelable
     {
         // Transfer the first stream to Eve.
         sablierV2.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamIds[0], users.recipient)
+            abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamIds[0], users.recipient)
         );
         sablierV2.cancelMultiple(defaultStreamIds);
     }
 
-    modifier CallerAuthorizedAllStreams() {
+    modifier callerAuthorizedAllStreams() {
         _;
     }
 
@@ -189,10 +187,10 @@ abstract contract CancelMultiple__Test is SharedTest {
     /// - All streams ended.
     /// - All streams ongoing.
     /// - Some streams ended, some streams ongoing.
-    function testCancelMultiple__Sender(
+    function testFuzz_CancelMultiple_Sender(
         uint256 timeWarp,
         uint40 stopTime
-    ) external OnlyExistentStreams AllStreamsCancelable CallerAuthorizedAllStreams {
+    ) external onlyExistentStreams allStreamsCancelable callerAuthorizedAllStreams {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
         stopTime = boundUint40(
             stopTime,
@@ -259,10 +257,10 @@ abstract contract CancelMultiple__Test is SharedTest {
     /// - All streams ended.
     /// - All streams ongoing.
     /// - Some streams ended, some streams ongoing.
-    function testCancelMultiple__Recipient(
+    function testFuzz_CancelMultiple_Recipient(
         uint256 timeWarp,
         uint40 stopTime
-    ) external OnlyExistentStreams AllStreamsCancelable CallerAuthorizedAllStreams {
+    ) external onlyExistentStreams allStreamsCancelable callerAuthorizedAllStreams {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
         stopTime = boundUint40(
             stopTime,

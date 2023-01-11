@@ -9,26 +9,26 @@ import { Broker, Segment } from "src/types/Structs.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
-contract GetWithdrawableAmount__ProTest is ProTest {
+contract GetWithdrawableAmount_ProTest is ProTest {
     uint256 internal defaultStreamId;
     Segment[] internal maxSegments;
 
     /// @dev it should return zero.
-    function testGetWithdrawableAmount__StreamNonExistent() external {
+    function test_GetWithdrawableAmount_StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(nonStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function testGetWithdrawableAmount__StartTimeGreaterThanCurrentTime() external StreamExistent {
+    function test_GetWithdrawableAmount_StartTimeGreaterThanCurrentTime() external streamExistent {
         vm.warp({ timestamp: 0 });
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
@@ -36,14 +36,14 @@ contract GetWithdrawableAmount__ProTest is ProTest {
     }
 
     /// @dev it should return zero.
-    function testGetWithdrawableAmount__StartTimeEqualToCurrentTime() external StreamExistent {
+    function test_GetWithdrawableAmount_StartTimeEqualToCurrentTime() external streamExistent {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    modifier StartTimeLessThanCurrentTime() {
+    modifier startTimeLessThanCurrentTime() {
         _;
     }
 
@@ -53,9 +53,9 @@ contract GetWithdrawableAmount__ProTest is ProTest {
     ///
     /// - Current time > stop time
     /// - Current time = stop time
-    function testGetWithdrawableAmount__CurrentTimeGreaterThanOrEqualToStopTime__NoWithdrawals(
+    function testFuzz_GetWithdrawableAmount_CurrentTimeGreaterThanOrEqualToStopTime_NoWithdrawals(
         uint256 timeWarp
-    ) external StreamExistent StartTimeLessThanCurrentTime {
+    ) external streamExistent startTimeLessThanCurrentTime {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
 
         // Warp into the future.
@@ -74,10 +74,10 @@ contract GetWithdrawableAmount__ProTest is ProTest {
     /// - Current time > stop time
     /// - Current time = stop time
     /// - Withdraw amount equal to deposit amount and not
-    function testGetWithdrawableAmount__CurrentTimeGreaterThanOrEqualToStopTime__WithWithdrawals(
+    function testFuzz_GetWithdrawableAmount_CurrentTimeGreaterThanOrEqualToStopTime_WithWithdrawals(
         uint256 timeWarp,
         uint128 withdrawAmount
-    ) external StreamExistent StartTimeLessThanCurrentTime {
+    ) external streamExistent startTimeLessThanCurrentTime {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
         withdrawAmount = boundUint128(withdrawAmount, 1, DEFAULT_NET_DEPOSIT_AMOUNT);
 
@@ -93,7 +93,7 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    modifier CurrentTimeLessThanStopTime() {
+    modifier currentTimeLessThanStopTime() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank(users.admin);
         comptroller.setProtocolFee(dai, ZERO);
@@ -102,10 +102,10 @@ contract GetWithdrawableAmount__ProTest is ProTest {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__WithWithdrawals(
+    function testFuzz_GetWithdrawableAmount_WithWithdrawals(
         uint40 timeWarp,
         uint128 withdrawAmount
-    ) external StreamExistent StartTimeLessThanCurrentTime CurrentTimeLessThanStopTime {
+    ) external streamExistent startTimeLessThanCurrentTime currentTimeLessThanStopTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
         // Bound the withdraw amount.
@@ -138,14 +138,14 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    modifier NoWithdrawals() {
+    modifier noWithdrawals() {
         _;
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__OneSegment(
+    function testFuzz_GetWithdrawableAmount_OneSegment(
         uint40 timeWarp
-    ) external StreamExistent StartTimeLessThanCurrentTime CurrentTimeLessThanStopTime NoWithdrawals {
+    ) external streamExistent startTimeLessThanCurrentTime currentTimeLessThanStopTime noWithdrawals {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
         // Create a single-element segment array.
@@ -184,7 +184,7 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    modifier MultipleSegments() {
+    modifier multipleSegments() {
         unchecked {
             uint128 amount = DEFAULT_NET_DEPOSIT_AMOUNT / uint128(DEFAULT_MAX_SEGMENT_COUNT);
             SD1x18 exponent = E;
@@ -202,12 +202,12 @@ contract GetWithdrawableAmount__ProTest is ProTest {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__CurrentMilestone1st()
+    function test_GetWithdrawableAmount_CurrentMilestone1st()
         external
-        StreamExistent
-        CurrentTimeLessThanStopTime
-        NoWithdrawals
-        MultipleSegments
+        streamExistent
+        currentTimeLessThanStopTime
+        noWithdrawals
+        multipleSegments
     {
         // Create the stream with the multiple-segment arrays. The broker fee is disabled so that it doesn't interfere
         // with the calculations.
@@ -231,14 +231,14 @@ contract GetWithdrawableAmount__ProTest is ProTest {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    modifier CurrentMilestoneNot1st() {
+    modifier currentMilestoneNot1st() {
         _;
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testGetWithdrawableAmount__CurrentMilestoneNot1st(
+    function testFuzz_GetWithdrawableAmount_CurrentMilestoneNot1st(
         uint40 timeWarp
-    ) external StreamExistent CurrentTimeLessThanStopTime NoWithdrawals MultipleSegments CurrentMilestoneNot1st {
+    ) external streamExistent currentTimeLessThanStopTime noWithdrawals multipleSegments currentMilestoneNot1st {
         timeWarp = boundUint40(timeWarp, maxSegments[0].milestone, DEFAULT_TOTAL_DURATION - 1);
 
         // Create the stream with the multiple-segment arrays. The broker fee is disabled so that it doesn't interfere

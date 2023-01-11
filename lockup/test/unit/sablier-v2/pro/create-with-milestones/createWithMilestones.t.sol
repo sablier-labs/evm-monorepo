@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SafeERC20__CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
+import { SafeERC20_CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { stdError } from "forge-std/StdError.sol";
@@ -15,15 +15,15 @@ import { ISablierV2Pro } from "src/interfaces/ISablierV2Pro.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
-contract CreateWithMilestones__ProTest is ProTest {
+contract CreateWithMilestones_ProTest is ProTest {
     /// @dev it should revert.
-    function testCannotCreateWithMilestones__RecipientZeroAddress() external {
+    function test_RevertWhen_RecipientZeroAddress() external {
         vm.expectRevert("ERC721: mint to the zero address");
         address recipient = address(0);
         createDefaultStreamWithRecipient(recipient);
     }
 
-    modifier RecipientNonZeroAddress() {
+    modifier recipientNonZeroAddress() {
         _;
     }
 
@@ -31,52 +31,48 @@ contract CreateWithMilestones__ProTest is ProTest {
     ///
     /// It is not possible (in principle) to obtain a zero net deposit amount from a non-zero gross deposit amount,
     /// because we hard-code the `MAX_FEE` to 10%.
-    function testCannotCreateWithMilestones__NetDepositAmountZero() external RecipientNonZeroAddress {
-        vm.expectRevert(Errors.SablierV2__NetDepositAmountZero.selector);
+    function test_RevertWhen_NetDepositAmountZero() external recipientNonZeroAddress {
+        vm.expectRevert(Errors.SablierV2_NetDepositAmountZero.selector);
         uint128 grossDepositAmount = 0;
         createDefaultStreamWithGrossDepositAmount(grossDepositAmount);
     }
 
-    modifier NetDepositAmountNotZero() {
+    modifier netDepositAmountNotZero() {
         _;
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithMilestones__SegmentCountZero()
-        external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-    {
+    function test_RevertWhen_SegmentCountZero() external recipientNonZeroAddress netDepositAmountNotZero {
         Segment[] memory segments;
-        vm.expectRevert(Errors.SablierV2Pro__SegmentCountZero.selector);
+        vm.expectRevert(Errors.SablierV2Pro_SegmentCountZero.selector);
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier SegmentCountNotZero() {
+    modifier segmentCountNotZero() {
         _;
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithMilestones__SegmentCountTooHigh(
+    function testFuzz_RevertWhen_SegmentCountTooHigh(
         uint256 segmentCount
-    ) external RecipientNonZeroAddress NetDepositAmountNotZero SegmentCountNotZero {
+    ) external recipientNonZeroAddress netDepositAmountNotZero segmentCountNotZero {
         segmentCount = bound(segmentCount, DEFAULT_MAX_SEGMENT_COUNT + 1, DEFAULT_MAX_SEGMENT_COUNT * 10);
         Segment[] memory segments = new Segment[](segmentCount);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Pro__SegmentCountTooHigh.selector, segmentCount));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Pro_SegmentCountTooHigh.selector, segmentCount));
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier SegmentCountNotTooHigh() {
+    modifier segmentCountNotTooHigh() {
         _;
     }
 
     /// @dev When the segment amounts sum overflows, it should revert.
-    function testCannotCreateWithMilestones__SegmentAmountsSumOverflows()
+    function test_RevertWhen_SegmentAmountsSumOverflows()
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountNotTooHigh
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
     {
         Segment[] memory segments = params.createWithMilestones.segments;
         segments[0].amount = UINT128_MAX;
@@ -85,18 +81,18 @@ contract CreateWithMilestones__ProTest is ProTest {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier SegmentAmountsSumDoesNotOverflow() {
+    modifier segmentAmountsSumDoesNotOverflow() {
         _;
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithMilestones__SegmentMilestonesNotOrdered()
+    function test_RevertWhen_SegmentMilestonesNotOrdered()
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountNotTooHigh
-        SegmentAmountsSumDoesNotOverflow
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
     {
         // Swap the segment milestones.
         Segment[] memory segments = params.createWithMilestones.segments;
@@ -106,7 +102,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Pro__SegmentMilestonesNotOrdered.selector,
+                Errors.SablierV2Pro_SegmentMilestonesNotOrdered.selector,
                 index,
                 segments[0].milestone,
                 segments[1].milestone
@@ -117,21 +113,21 @@ contract CreateWithMilestones__ProTest is ProTest {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier SegmentMilestonesOrdered() {
+    modifier segmentMilestonesOrdered() {
         _;
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithMilestones__NetDepositAmountNotEqualToSegmentAmountsSum(
+    function testFuzz_RevertWhen_NetDepositAmountNotEqualToSegmentAmountsSum(
         uint128 depositDelta
     )
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountNotTooHigh
-        SegmentAmountsSumDoesNotOverflow
-        SegmentMilestonesOrdered
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+        segmentMilestonesOrdered
     {
         depositDelta = boundUint128(depositDelta, 100, DEFAULT_GROSS_DEPOSIT_AMOUNT);
 
@@ -147,7 +143,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         // Expect an error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Pro__NetDepositAmountNotEqualToSegmentAmountsSum.selector,
+                Errors.SablierV2Pro_NetDepositAmountNotEqualToSegmentAmountsSum.selector,
                 netDepositAmount,
                 DEFAULT_NET_DEPOSIT_AMOUNT
             )
@@ -166,22 +162,22 @@ contract CreateWithMilestones__ProTest is ProTest {
         );
     }
 
-    modifier NetDepositAmountEqualToSegmentAmountsSum() {
+    modifier netDepositAmountEqualToSegmentAmountsSum() {
         _;
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithMilestones__ProtocolFeeTooHigh(
+    function testFuzz_RevertWhen_ProtocolFeeTooHigh(
         UD60x18 protocolFee
     )
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountNotTooHigh
-        SegmentAmountsSumDoesNotOverflow
-        SegmentMilestonesOrdered
-        NetDepositAmountEqualToSegmentAmountsSum
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+        segmentMilestonesOrdered
+        netDepositAmountEqualToSegmentAmountsSum
     {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
@@ -191,33 +187,31 @@ contract CreateWithMilestones__ProTest is ProTest {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__ProtocolFeeTooHigh.selector, protocolFee, DEFAULT_MAX_FEE)
+            abi.encodeWithSelector(Errors.SablierV2_ProtocolFeeTooHigh.selector, protocolFee, DEFAULT_MAX_FEE)
         );
         createDefaultStream();
     }
 
-    modifier ProtocolFeeNotTooHigh() {
+    modifier protocolFeeNotTooHigh() {
         _;
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithMilestones__BrokerFeeTooHigh(
+    function testFuzz_RevertWhen_BrokerFeeTooHigh(
         UD60x18 brokerFee
     )
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountNotTooHigh
-        SegmentAmountsSumDoesNotOverflow
-        SegmentMilestonesOrdered
-        NetDepositAmountEqualToSegmentAmountsSum
-        ProtocolFeeNotTooHigh
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+        segmentMilestonesOrdered
+        netDepositAmountEqualToSegmentAmountsSum
+        protocolFeeNotTooHigh
     {
         brokerFee = bound(brokerFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2__BrokerFeeTooHigh.selector, brokerFee, DEFAULT_MAX_FEE)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_BrokerFeeTooHigh.selector, brokerFee, DEFAULT_MAX_FEE));
         pro.createWithMilestones(
             params.createWithMilestones.sender,
             params.createWithMilestones.recipient,
@@ -230,24 +224,24 @@ contract CreateWithMilestones__ProTest is ProTest {
         );
     }
 
-    modifier BrokerFeeNotTooHigh() {
+    modifier brokerFeeNotTooHigh() {
         _;
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithMilestones__TokenNotContract(
+    function test_RevertWhen_TokenNotContract(
         IERC20 nonToken
     )
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountNotTooHigh
-        SegmentAmountsSumDoesNotOverflow
-        SegmentMilestonesOrdered
-        NetDepositAmountEqualToSegmentAmountsSum
-        ProtocolFeeNotTooHigh
-        BrokerFeeNotTooHigh
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+        segmentMilestonesOrdered
+        netDepositAmountEqualToSegmentAmountsSum
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
     {
         vm.assume(address(nonToken).code.length == 0);
 
@@ -258,7 +252,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         changePrank(users.sender);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(SafeERC20__CallToNonContract.selector, address(nonToken)));
+        vm.expectRevert(abi.encodeWithSelector(SafeERC20_CallToNonContract.selector, address(nonToken)));
         pro.createWithMilestones(
             params.createWithMilestones.sender,
             params.createWithMilestones.recipient,
@@ -271,23 +265,23 @@ contract CreateWithMilestones__ProTest is ProTest {
         );
     }
 
-    modifier TokenContract() {
+    modifier tokenContract() {
         _;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
-    function testCreateWithMilestones__TokenMissingReturnValue()
+    function test_CreateWithMilestones_TokenMissingReturnValue()
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountNotTooHigh
-        SegmentAmountsSumDoesNotOverflow
-        SegmentMilestonesOrdered
-        NetDepositAmountEqualToSegmentAmountsSum
-        ProtocolFeeNotTooHigh
-        BrokerFeeNotTooHigh
-        TokenContract
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+        segmentMilestonesOrdered
+        netDepositAmountEqualToSegmentAmountsSum
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
+        tokenContract
     {
         // Load the stream id.
         uint256 streamId = pro.nextStreamId();
@@ -343,7 +337,7 @@ contract CreateWithMilestones__ProTest is ProTest {
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
 
-    modifier TokenERC20Compliant() {
+    modifier tokenERC20Compliant() {
         _;
     }
 
@@ -358,7 +352,7 @@ contract CreateWithMilestones__ProTest is ProTest {
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
     /// - Broker fee zero and non-zero.
-    function testCreateWithMilestones(
+    function testFuzz_CreateWithMilestones(
         address funder,
         address recipient,
         uint128 grossDepositAmount,
@@ -367,17 +361,17 @@ contract CreateWithMilestones__ProTest is ProTest {
         Broker memory broker
     )
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountNotTooHigh
-        SegmentAmountsSumDoesNotOverflow
-        SegmentMilestonesOrdered
-        NetDepositAmountEqualToSegmentAmountsSum
-        ProtocolFeeNotTooHigh
-        BrokerFeeNotTooHigh
-        TokenContract
-        TokenERC20Compliant
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+        segmentMilestonesOrdered
+        netDepositAmountEqualToSegmentAmountsSum
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
+        tokenContract
+        tokenERC20Compliant
     {
         vm.assume(funder != address(0) && recipient != address(0) && broker.addr != address(0));
         vm.assume(grossDepositAmount != 0);
@@ -450,22 +444,22 @@ contract CreateWithMilestones__ProTest is ProTest {
     }
 
     /// @dev it should record the protocol fee.
-    function testCreateWithMilestones__ProtocolFee(
+    function testFuzz_CreateWithMilestones_ProtocolFee(
         uint128 grossDepositAmount,
         UD60x18 protocolFee
     )
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountNotTooHigh
-        SegmentAmountsSumDoesNotOverflow
-        SegmentMilestonesOrdered
-        NetDepositAmountEqualToSegmentAmountsSum
-        ProtocolFeeNotTooHigh
-        BrokerFeeNotTooHigh
-        TokenContract
-        TokenERC20Compliant
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+        segmentMilestonesOrdered
+        netDepositAmountEqualToSegmentAmountsSum
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
+        tokenContract
+        tokenERC20Compliant
     {
         vm.assume(grossDepositAmount != 0);
         protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
@@ -513,19 +507,19 @@ contract CreateWithMilestones__ProTest is ProTest {
     }
 
     /// @dev it should emit a CreateProStream event.
-    function testCreateWithMilestones__Event()
+    function test_CreateWithMilestones_Event()
         external
-        RecipientNonZeroAddress
-        NetDepositAmountNotZero
-        SegmentCountNotZero
-        SegmentCountNotTooHigh
-        SegmentAmountsSumDoesNotOverflow
-        SegmentMilestonesOrdered
-        NetDepositAmountEqualToSegmentAmountsSum
-        ProtocolFeeNotTooHigh
-        BrokerFeeNotTooHigh
-        TokenContract
-        TokenERC20Compliant
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+        segmentMilestonesOrdered
+        netDepositAmountEqualToSegmentAmountsSum
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
+        tokenContract
+        tokenERC20Compliant
     {
         // Expect an event to be emitted.
         uint256 streamId = pro.nextStreamId();

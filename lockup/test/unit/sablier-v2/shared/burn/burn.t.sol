@@ -5,7 +5,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract Burn__Test is SharedTest {
+abstract contract Burn_Test is SharedTest {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {
@@ -19,46 +19,48 @@ abstract contract Burn__Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function testCannotBurn__StreamExistent() external {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__StreamExistent.selector, defaultStreamId));
+    function test_RevertWhen_StreamExistent() external {
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamExistent.selector, defaultStreamId));
         sablierV2.burn(defaultStreamId);
     }
 
-    modifier StreamNonExistent() {
+    modifier streamNonExistent() {
         _;
     }
 
     /// @dev it should revert.
-    function testCannotBurn__NFTNonExistent() external StreamNonExistent {
+    function test_RevertWhen_NFTNonExistent() external streamNonExistent {
         uint256 nonStreamId = 1729;
         vm.expectRevert("ERC721: invalid token ID");
         sablierV2.burn(nonStreamId);
     }
 
-    modifier NFTExistent() {
+    modifier nftExistent() {
         // Cancel the stream so that the stream entity gets deleted.
         sablierV2.cancel(defaultStreamId);
         _;
     }
 
     /// @dev it should revert.
-    function testCannotBurn__CallerUnauthorized() external StreamNonExistent NFTExistent {
+    function testFuzz_RevertWhen_CallerUnauthorized(address eve) external streamNonExistent nftExistent {
+        vm.assume(eve != address(0) && eve != users.recipient);
+
         // Make Eve the caller in the rest of this test.
-        changePrank(users.eve);
+        changePrank(eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2__Unauthorized.selector, defaultStreamId, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_Unauthorized.selector, defaultStreamId, eve));
         sablierV2.burn(defaultStreamId);
     }
 
-    modifier CallerAuthorized() {
+    modifier callerAuthorized() {
         _;
     }
 
     /// @dev it should burn the NFT.
-    function testBurn__CallerApprovedOperator(
+    function testFuzz_Burn_CallerApprovedOperator(
         address operator
-    ) external StreamNonExistent NFTExistent CallerAuthorized {
+    ) external streamNonExistent nftExistent callerAuthorized {
         vm.assume(operator != address(0) && operator != users.recipient);
 
         // Approve the operator to handle the stream.
@@ -77,7 +79,7 @@ abstract contract Burn__Test is SharedTest {
     }
 
     /// @dev it should burn the NFT.
-    function testBurn__CallerNFTOwner() external StreamNonExistent NFTExistent CallerAuthorized {
+    function test_Burn_CallerNFTOwner() external streamNonExistent nftExistent callerAuthorized {
         sablierV2.burn(defaultStreamId);
         address actualOwner = sablierV2.getRecipient(defaultStreamId);
         address expectedOwner = address(0);

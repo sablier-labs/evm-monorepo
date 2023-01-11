@@ -9,27 +9,27 @@ import { Events } from "src/libraries/Events.sol";
 
 import { ComptrollerTest } from "../ComptrollerTest.t.sol";
 
-contract SetProtocolFee__ComptrollerTest is ComptrollerTest {
+contract SetProtocolFee_ComptrollerTest is ComptrollerTest {
     /// @dev it should revert.
-    function testCannotSetProtocolFee__CallerNotAdmin(address eve) external {
+    function test_RevertWhen_CallerNotAdmin(address eve) external {
         vm.assume(eve != users.admin);
 
         // Make Eve the caller in this test.
         changePrank(eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable__CallerNotAdmin.selector, users.admin, eve));
+        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, eve));
         comptroller.setProtocolFee(dai, DEFAULT_MAX_FEE);
     }
 
-    modifier CallerAdmin() {
+    modifier callerAdmin() {
         // Make the admin the caller in the rest of this test suite.
         changePrank(users.admin);
         _;
     }
 
     /// @dev it should re-set the protocol fee.
-    function testSetProtocolFee__SameFee() external CallerAdmin {
+    function test_SetProtocolFee_SameFee() external callerAdmin {
         UD60x18 newProtocolFee = ud(0);
         comptroller.setProtocolFee(dai, newProtocolFee);
 
@@ -39,7 +39,7 @@ contract SetProtocolFee__ComptrollerTest is ComptrollerTest {
     }
 
     /// @dev it should set the new protocol fee
-    function testSetProtocolFee__DifferentFee(UD60x18 newProtocolFee) external CallerAdmin {
+    function testFuzz_SetProtocolFee_DifferentFee(UD60x18 newProtocolFee) external callerAdmin {
         newProtocolFee = bound(newProtocolFee, 1, DEFAULT_MAX_FEE);
         comptroller.setProtocolFee(dai, newProtocolFee);
 

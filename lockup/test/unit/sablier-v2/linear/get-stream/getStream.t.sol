@@ -5,21 +5,21 @@ import { LinearStream } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract GetStream__LinearTest is LinearTest {
+contract GetStream_LinearTest is LinearTest {
     /// @dev it should return a zeroed out stream.
-    function testGetStream__StreamNonExistent() external {
+    function test_GetStream_StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         LinearStream memory actualStream = linear.getStream(nonStreamId);
         LinearStream memory expectedStream;
         assertEq(actualStream, expectedStream);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the stream.
-    function testGetStream() external StreamExistent {
+    function test_GetStream() external streamExistent {
         uint256 streamId = createDefaultStream();
         LinearStream memory actualStream = linear.getStream(streamId);
         LinearStream memory expectedStream = defaultStream;

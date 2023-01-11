@@ -10,7 +10,7 @@ import { Amounts, Broker, CreateAmounts, LinearStream, Segment, Range } from "sr
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 
-abstract contract CreateWithRange__Test is IntegrationTest {
+abstract contract CreateWithRange_Test is IntegrationTest {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -75,7 +75,7 @@ abstract contract CreateWithRange__Test is IntegrationTest {
     /// - Start time lower than and equal to cliff time.
     /// - Cliff time lower than and equal to stop time
     /// - Broker fee zero and non-zero.
-    function testCreateWithRange(Params memory params) external {
+    function testForkFuzz_testCreateWithRange(Params memory params) external {
         vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(params.broker.addr != holder && params.broker.addr != address(linear));
         vm.assume(params.grossDepositAmount != 0 && params.grossDepositAmount <= initialHolderBalance);

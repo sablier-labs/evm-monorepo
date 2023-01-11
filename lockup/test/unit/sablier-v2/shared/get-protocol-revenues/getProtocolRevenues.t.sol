@@ -9,15 +9,15 @@ import { Events } from "src/libraries/Events.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract GetProtocolRevenues__Test is SharedTest {
+abstract contract GetProtocolRevenues_Test is SharedTest {
     /// @dev it should return zero.
-    function testGetProtocolRevenues__ProtocolRevenuesZero() external {
+    function test_GetProtocolRevenues_ProtocolRevenuesZero() external {
         uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(dai);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
 
-    modifier ProtocolRevenuesNotZero() {
+    modifier protocolRevenuesNotZero() {
         // Create the default stream, which will accrue revenues for the protocol.
         changePrank(users.sender);
         createDefaultStream();
@@ -26,7 +26,7 @@ abstract contract GetProtocolRevenues__Test is SharedTest {
     }
 
     /// @dev it should return the correct protocol revenues.
-    function testGetProtocolRevenues() external ProtocolRevenuesNotZero {
+    function test_GetProtocolRevenues() external protocolRevenuesNotZero {
         uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(dai);
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);

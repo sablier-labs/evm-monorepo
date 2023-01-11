@@ -11,7 +11,7 @@ import { Amounts, Broker, CreateAmounts, ProStream, Segment } from "src/types/St
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 
-abstract contract CreateWithMilestones__Test is IntegrationTest {
+abstract contract CreateWithMilestones_Test is IntegrationTest {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -75,7 +75,7 @@ abstract contract CreateWithMilestones__Test is IntegrationTest {
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
     /// - Broker fee zero and non-zero.
-    function testCreateWithMilestones(Params memory params) external {
+    function testForkFuzz_CreateWithMilestones(Params memory params) external {
         vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(params.broker.addr != holder && params.broker.addr != address(pro));
         vm.assume(params.grossDepositAmount != 0 && params.grossDepositAmount <= initialHolderBalance);

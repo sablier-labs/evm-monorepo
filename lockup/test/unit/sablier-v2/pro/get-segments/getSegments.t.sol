@@ -5,21 +5,21 @@ import { Segment } from "src/types/Structs.sol";
 
 import { ProTest } from "../ProTest.t.sol";
 
-contract GetSegments__ProTest is ProTest {
+contract GetSegments_ProTest is ProTest {
     /// @dev it should return an empty array.
-    function testGetSegments__StreamNonExistents() external {
+    function test_GetSegments_StreamNonExistents() external {
         uint256 nonStreamId = 1729;
         Segment[] memory actualSegments = pro.getSegments(nonStreamId);
         Segment[] memory expectedSegments;
         assertEq(actualSegments, expectedSegments);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return the correct segments.
-    function testGetSegments() external StreamExistent {
+    function test_GetSegments() external streamExistent {
         uint256 streamId = createDefaultStream();
         Segment[] memory actualSegments = pro.getSegments(streamId);
         Segment[] memory expectedSegments = DEFAULT_SEGMENTS;

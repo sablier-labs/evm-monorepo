@@ -3,20 +3,20 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { SharedTest } from "../SharedTest.t.sol";
 
-abstract contract IsCancelable__Test is SharedTest {
+abstract contract IsCancelable_Test is SharedTest {
     /// @dev it should return false.
-    function testIsCancelable__StreamNonExistent() external {
+    function test_IsCancelable_StreamNonExistent() external {
         uint256 nonStreamId = 1729;
         bool isCancelable = sablierV2.isCancelable(nonStreamId);
         assertFalse(isCancelable);
     }
 
-    modifier StreamExistent() {
+    modifier streamExistent() {
         _;
     }
 
     /// @dev it should return true.
-    function testIsCancelable__CancelableStream() external StreamExistent {
+    function test_IsCancelable_CancelableStream() external streamExistent {
         uint256 streamId = createDefaultStream();
         bool isCancelable = sablierV2.isCancelable(streamId);
         assertTrue(isCancelable);
@@ -27,7 +27,7 @@ abstract contract IsCancelable__Test is SharedTest {
     }
 
     /// @dev it should return false.
-    function testIsCancelable() external StreamExistent NonCancelableStream {
+    function test_IsCancelable() external streamExistent NonCancelableStream {
         uint256 streamId = createDefaultStreamNonCancelable();
         bool isCancelable = sablierV2.isCancelable(streamId);
         assertFalse(isCancelable);

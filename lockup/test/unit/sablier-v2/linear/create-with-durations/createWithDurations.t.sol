@@ -10,9 +10,9 @@ import { Amounts, Durations, LinearStream, Range } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
 
-contract CreateWithDurations__LinearTest is LinearTest {
+contract CreateWithDurations_LinearTest is LinearTest {
     /// @dev it should revert due to the start time being greater than the cliff time.
-    function testCannotCreateWithDurations__CliffDurationCalculationOverflows(uint40 cliffDuration) external {
+    function test_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration) external {
         uint40 startTime = getBlockTimestamp();
         cliffDuration = boundUint40(cliffDuration, UINT40_MAX - startTime + 1, UINT40_MAX);
 
@@ -24,7 +24,7 @@ contract CreateWithDurations__LinearTest is LinearTest {
 
         // Expect an error.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Linear__StartTimeGreaterThanCliffTime.selector, startTime, cliffTime)
+            abi.encodeWithSelector(Errors.SablierV2Linear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime)
         );
 
         // Set the total duration to be the same as the cliff duration.
@@ -34,14 +34,14 @@ contract CreateWithDurations__LinearTest is LinearTest {
         createDefaultStreamWithDurations(Durations({ cliff: cliffDuration, total: totalDuration }));
     }
 
-    modifier CliffDurationCalculationDoesNotOverflow() {
+    modifier cliffDurationCalculationDoesNotOverflow() {
         _;
     }
 
     /// @dev it should revert.
-    function testCannotCreateWithDurations__TotalDurationCalculationOverflows(
+    function test_RevertWhen_TotalDurationCalculationOverflows(
         Durations memory durations
-    ) external CliffDurationCalculationDoesNotOverflow {
+    ) external cliffDurationCalculationDoesNotOverflow {
         uint40 startTime = getBlockTimestamp();
         durations.cliff = boundUint40(durations.cliff, 0, UINT40_MAX - startTime);
         durations.total = boundUint40(durations.total, UINT40_MAX - startTime + 1, UINT40_MAX);
@@ -56,21 +56,21 @@ contract CreateWithDurations__LinearTest is LinearTest {
 
         // Expect an error.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Linear__CliffTimeGreaterThanStopTime.selector, cliffTime, stopTime)
+            abi.encodeWithSelector(Errors.SablierV2Linear_CliffTimeGreaterThanStopTime.selector, cliffTime, stopTime)
         );
 
         // Create the stream.
         createDefaultStreamWithDurations(durations);
     }
 
-    modifier TotalDurationCalculationDoesNotOverflow() {
+    modifier totalDurationCalculationDoesNotOverflow() {
         _;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
-    function testCreateWithDuration(
+    function testFuzz_CreateWithDuration(
         Durations memory durations
-    ) external CliffDurationCalculationDoesNotOverflow TotalDurationCalculationDoesNotOverflow {
+    ) external cliffDurationCalculationDoesNotOverflow totalDurationCalculationDoesNotOverflow {
         durations.total = boundUint40(durations.total, 0, UINT40_MAX - getBlockTimestamp());
         vm.assume(durations.cliff <= durations.total);
 
@@ -123,10 +123,10 @@ contract CreateWithDurations__LinearTest is LinearTest {
     }
 
     /// @dev it should record the protocol fee.
-    function testCreateWithDurations__ProtocolFee()
+    function testFuzz_CreateWithDurations_ProtocolFee()
         external
-        CliffDurationCalculationDoesNotOverflow
-        TotalDurationCalculationDoesNotOverflow
+        cliffDurationCalculationDoesNotOverflow
+        totalDurationCalculationDoesNotOverflow
     {
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = linear.getProtocolRevenues(params.createWithDurations.token);
@@ -141,10 +141,10 @@ contract CreateWithDurations__LinearTest is LinearTest {
     }
 
     /// @dev it should emit a CreateLinearStream event.
-    function testCreateWithDurations__Event()
+    function test_CreateWithDurations_Event()
         external
-        CliffDurationCalculationDoesNotOverflow
-        TotalDurationCalculationDoesNotOverflow
+        cliffDurationCalculationDoesNotOverflow
+        totalDurationCalculationDoesNotOverflow
     {
         uint256 streamId = linear.nextStreamId();
         address funder = params.createWithDurations.sender;
