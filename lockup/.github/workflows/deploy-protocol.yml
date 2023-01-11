@@ -21,6 +21,7 @@ on:
           Defaults to 10%.
         required: false
       max-segment-count:
+        default: "1000"
         description: |
           The maximum number of segments permitted in a stream.
 
@@ -40,6 +41,7 @@ jobs:
         uses: "foundry-rs/foundry-toolchain@v1"
         with:
           version: "nightly"
+
       - name: "Deploy the entire Sablier V2 protocol"
         run: >-
           forge script script/DeployProtocol.s.sol
