@@ -4,6 +4,7 @@
 **/cache
 **/lib
 **/out
+**/optimized-out
 **/node_modules
 
 # files
