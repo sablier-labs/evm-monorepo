@@ -8,7 +8,11 @@ import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol"
 import { SablierV2 } from "src/SablierV2.sol";
 
 contract SablierV2Mock is SablierV2 {
-    constructor(ISablierV2Comptroller initialComptroller, UD60x18 maxFee) SablierV2(initialComptroller, maxFee) {}
+    constructor(
+        address initialAdmin,
+        ISablierV2Comptroller initialComptroller,
+        UD60x18 maxFee
+    ) SablierV2(initialAdmin, initialComptroller, maxFee) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                               PUBLIC CONSTANT FUNCTIONS

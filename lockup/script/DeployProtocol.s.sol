@@ -18,17 +18,24 @@ import { DeployComptroller } from "./DeployComptroller.s.sol";
 /// 3. SablierV2Pro
 contract DeployProtocol is Script, Common {
     function run(
+        address admin,
         UD60x18 maxFee,
         uint256 maxSegmentCount
     ) public broadcaster returns (SablierV2Comptroller comptroller, SablierV2Linear linear, SablierV2Pro pro) {
-        comptroller = new SablierV2Comptroller();
-        linear = new SablierV2Linear(comptroller, maxFee);
-        pro = new SablierV2Pro(comptroller, maxFee, maxSegmentCount);
+        comptroller = new SablierV2Comptroller({ initialAdmin: admin });
+        linear = new SablierV2Linear({ initialAdmin: admin, initialComptroller: comptroller, maxFee: maxFee });
+        pro = new SablierV2Pro({
+            initialAdmin: admin,
+            initialComptroller: comptroller,
+            maxFee: maxFee,
+            maxSegmentCount: maxSegmentCount
+        });
     }
 
     /// @dev Deploys the contracts at deterministic addresses across all chains. Reverts if any contract has already
     /// been deployed via the deterministic CREATE2 factory.
     function runDeterministic(
+        address admin,
         UD60x18 maxFee,
         uint256 maxSegmentCount
     )
@@ -37,23 +44,24 @@ contract DeployProtocol is Script, Common {
         returns (bool success, SablierV2Comptroller comptroller, SablierV2Linear linear, SablierV2Pro pro)
     {
         // Deploy the SablierV2Comptroller contract.
-        bytes memory comptrollerCreationBytecode = type(SablierV2Comptroller).creationCode;
+        bytes memory comptrollerCallData = abi.encodePacked(type(SablierV2Comptroller).creationCode, abi.encode(admin));
         bytes memory comptrollerReturnData;
-        (success, comptrollerReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(comptrollerCreationBytecode);
+        (success, comptrollerReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(comptrollerCallData);
         comptroller = SablierV2Comptroller(address(uint160(bytes20(comptrollerReturnData))));
 
         // Deploy the SablierV2Linear contract.
-        bytes memory linearCreationBytecode = type(SablierV2Comptroller).creationCode;
-        bytes memory linearCallData = abi.encodePacked(linearCreationBytecode, abi.encode(comptroller, maxFee));
+        bytes memory linearCallData = abi.encodePacked(
+            type(SablierV2Comptroller).creationCode,
+            abi.encode(admin, comptroller, maxFee)
+        );
         bytes memory linearReturnData;
         (success, linearReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(linearCallData);
         linear = SablierV2Linear(address(uint160(bytes20(linearReturnData))));
 
         // Deploy the SablierV2Pro contract.
-        bytes memory proCreationBytecode = type(SablierV2Comptroller).creationCode;
         bytes memory proCallData = abi.encodePacked(
-            proCreationBytecode,
-            abi.encode(comptroller, maxFee, maxSegmentCount)
+            type(SablierV2Comptroller).creationCode,
+            abi.encode(admin, comptroller, maxFee, maxSegmentCount)
         );
         bytes memory proReturnData;
         (success, proReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(proCallData);

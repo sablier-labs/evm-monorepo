@@ -189,26 +189,31 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
         // We deploy from precompiled source if the profile is "test-optimized".
         if (isTestOptimizedProfile()) {
             comptroller = ISablierV2Comptroller(
-                deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json")
+                deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json", abi.encode(users.admin))
             );
             linear = ISablierV2Linear(
                 deployCode(
                     "optimized-out/SablierV2Linear.sol/SablierV2Linear.json",
-                    abi.encode(address(comptroller), DEFAULT_MAX_FEE)
+                    abi.encode(users.admin, address(comptroller), DEFAULT_MAX_FEE)
                 )
             );
             pro = ISablierV2Pro(
                 deployCode(
                     "optimized-out/SablierV2Pro.sol/SablierV2Pro.json",
-                    abi.encode(address(comptroller), DEFAULT_MAX_FEE, DEFAULT_MAX_SEGMENT_COUNT)
+                    abi.encode(users.admin, address(comptroller), DEFAULT_MAX_FEE, DEFAULT_MAX_SEGMENT_COUNT)
                 )
             );
         }
         // We deploy normally in all other cases.
         else {
-            comptroller = new SablierV2Comptroller();
-            linear = new SablierV2Linear({ initialComptroller: comptroller, maxFee: DEFAULT_MAX_FEE });
+            comptroller = new SablierV2Comptroller({ initialAdmin: users.admin });
+            linear = new SablierV2Linear({
+                initialAdmin: users.admin,
+                initialComptroller: comptroller,
+                maxFee: DEFAULT_MAX_FEE
+            });
             pro = new SablierV2Pro({
+                initialAdmin: users.admin,
                 initialComptroller: comptroller,
                 maxFee: DEFAULT_MAX_FEE,
                 maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
