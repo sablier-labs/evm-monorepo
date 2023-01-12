@@ -59,6 +59,10 @@ abstract contract IntegrationTest is BaseTest {
         initialHolderBalance = IERC20(token).balanceOf(holder);
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                      HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @dev Performs a single call with Multicall3 to query the ERC-20 token balances of the given addresses.
     function getTokenBalances(address[] memory addresses) internal returns (uint256[] memory balances) {
         // ABI encode the aggregate call to Multicall3.

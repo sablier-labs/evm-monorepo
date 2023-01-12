@@ -175,10 +175,11 @@ abstract contract Cancel_Test is SharedTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Stream ongoing.
-    /// - Stream ended.
+    /// - Stream ongoing and ended.
+    /// - With and without withdrawals
     function testFuzz_Cancel_Sender(
-        uint256 timeWarp
+        uint256 timeWarp,
+        uint128 withdrawAmount
     )
         external
         streamExistent
@@ -190,7 +191,7 @@ abstract contract Cancel_Test is SharedTest {
         recipientDoesNotRevert
         noRecipientReentrancy
     {
-        timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
@@ -198,14 +199,21 @@ abstract contract Cancel_Test is SharedTest {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
-        // Expect the tokens to be withdrawn to the recipient.
+        // Bound the withdraw amount.
+        uint128 withdrawableAmount = sablierV2.getWithdrawableAmount(streamId);
+        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount - 1);
+
+        // Make the withdrawal.
+        sablierV2.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
+
+        // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 recipientAmount = sablierV2.getWithdrawableAmount(streamId);
         if (recipientAmount > 0) {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodRecipient), recipientAmount)));
         }
 
-        // Expect the tokens to be returned to the sender.
-        uint128 senderAmount = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount;
+        // Expect the tokens to be returned to the sender, if not zero.
+        uint128 senderAmount = sablierV2.getReturnableAmount(streamId);
         if (senderAmount > 0) {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
         }
@@ -311,10 +319,11 @@ abstract contract Cancel_Test is SharedTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Stream ongoing.
-    /// - Stream ended.
+    /// - Stream ongoing and ended.
+    /// - With and without withdrawals.
     function testFuzz_Cancel_Recipient(
-        uint256 timeWarp
+        uint256 timeWarp,
+        uint128 withdrawAmount
     )
         external
         streamExistent
@@ -326,16 +335,20 @@ abstract contract Cancel_Test is SharedTest {
         senderDoesNotRevert
         noSenderReentrancy
     {
-        timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
-
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+
+        // Bound the withdraw amount.
+        uint128 withdrawableAmount = sablierV2.getWithdrawableAmount(streamId);
+        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount - 1);
+
+        // Make the withdrawal.
+        sablierV2.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Expect the tokens to be withdrawn to the recipient, if not zero.
         uint128 recipientAmount = sablierV2.getWithdrawableAmount(streamId);
@@ -344,7 +357,7 @@ abstract contract Cancel_Test is SharedTest {
         }
 
         // Expect the tokens to be returned to the sender, if not zero.
-        uint128 senderAmount = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount;
+        uint128 senderAmount = sablierV2.getReturnableAmount(streamId);
         if (senderAmount > 0) {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodSender), senderAmount)));
         }
