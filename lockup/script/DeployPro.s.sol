@@ -9,7 +9,7 @@ import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
 import { Common } from "./helpers/Common.s.sol";
 
-/// @notice Deploys the SablierV2Linear contract from precompiled source (build optimized with --via-ir).
+/// @notice Deploys the SablierV2Pro contract.
 contract DeployPro is Script, Common {
     function run(
         ISablierV2Comptroller comptroller,
@@ -17,5 +17,19 @@ contract DeployPro is Script, Common {
         uint256 maxSegmentCount
     ) public broadcaster returns (SablierV2Pro pro) {
         pro = new SablierV2Pro(comptroller, maxFee, maxSegmentCount);
+    }
+
+    /// @dev Deploys the contract at a deterministic address across all chains. Reverts if the contract has already
+    /// been deployed via the deterministic CREATE2 factory.
+    function runDeterministic(
+        ISablierV2Comptroller comptroller,
+        UD60x18 maxFee,
+        uint256 maxSegmentCount
+    ) public broadcaster returns (bool success, SablierV2Pro pro) {
+        bytes memory creationBytecode = type(SablierV2Pro).creationCode;
+        bytes memory callData = abi.encodePacked(creationBytecode, abi.encode(comptroller, maxFee, maxSegmentCount));
+        bytes memory returnData;
+        (success, returnData) = DETERMINISTIC_CREATE2_FACTORY.call(callData);
+        pro = SablierV2Pro(address(uint160(bytes20(returnData))));
     }
 }
