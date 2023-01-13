@@ -20,7 +20,7 @@ import { ISablierV2 } from "./ISablierV2.sol";
 ///
 /// - $x$ is the elapsed time divided by the total time in the current segment.
 /// - $exp$ is the current segment exponent.
-/// - $csa* is the current segment amount.
+/// - $csa$ is the current segment amount.
 /// - $esas$ are the elapsed segment amounts summed up.
 interface ISablierV2Pro is ISablierV2 {
     /*//////////////////////////////////////////////////////////////////////////
