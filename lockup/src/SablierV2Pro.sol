@@ -5,13 +5,13 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { SD1x18 } from "@prb/math/SD1x18.sol";
-import { SD59x18 } from "@prb/math/SD59x18.sol";
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { sd, SD59x18, unwrap } from "@prb/math/SD59x18.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
-import { Broker, CreateAmounts, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
+import { Broker, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
 
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
@@ -271,6 +271,79 @@ contract SablierV2Pro is
         result = msg.sender == _streams[streamId].sender;
     }
 
+    /// @dev Calculates the withdrawable amount for a stream with multiple segments.
+    function _calculateWithdrawableAmountForMultipleSegments(
+        uint256 streamId
+    ) internal view returns (uint128 withdrawableAmount) {
+        unchecked {
+            uint40 currentTime = uint40(block.timestamp);
+
+            // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
+            // amount such that we avoid adding an if statement in the while loop.
+            uint128 previousSegmentAmounts;
+            uint40 currentSegmentMilestone = _streams[streamId].segments[0].milestone;
+            uint256 index = 1;
+            while (currentSegmentMilestone < currentTime) {
+                previousSegmentAmounts += _streams[streamId].segments[index - 1].amount;
+                currentSegmentMilestone = _streams[streamId].segments[index].milestone;
+                index += 1;
+            }
+
+            // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
+            // is found at `index - 2`.
+            uint128 currentSegmentAmount = _streams[streamId].segments[index - 1].amount;
+            SD1x18 currentSegmentExponent = _streams[streamId].segments[index - 1].exponent;
+            currentSegmentMilestone = _streams[streamId].segments[index - 1].milestone;
+
+            // Define the time variables.
+            uint40 elapsedSegmentTime;
+            uint40 totalSegmentTime;
+
+            // If the current segment is at an index that is >= 2, we take the difference between the current
+            // segment milestone and the previous segment milestone.
+            if (index > 1) {
+                uint40 previousSegmentMilestone = _streams[streamId].segments[index - 2].milestone;
+                elapsedSegmentTime = currentTime - previousSegmentMilestone;
+
+                // Calculate the time between the current segment milestone and the previous segment milestone.
+                totalSegmentTime = currentSegmentMilestone - previousSegmentMilestone;
+            }
+            // If the current segment is at index 1, we take the difference between the current segment milestone
+            // and the start time of the stream.
+            else {
+                elapsedSegmentTime = currentTime - _streams[streamId].startTime;
+                totalSegmentTime = currentSegmentMilestone - _streams[streamId].startTime;
+            }
+
+            // Calculate the streamed amount.
+            SD59x18 elapsedTimePercentage = sd(int256(uint256(elapsedSegmentTime))).div(
+                sd(int256(uint256(totalSegmentTime)))
+            );
+            SD59x18 multiplier = elapsedTimePercentage.pow(sd(int256(SD1x18.unwrap(currentSegmentExponent))));
+            SD59x18 proRataAmount = multiplier.mul(sd(int256(uint256(currentSegmentAmount))));
+            uint128 streamedAmount = previousSegmentAmounts + uint128(uint256(unwrap(proRataAmount)));
+            withdrawableAmount = streamedAmount - _streams[streamId].amounts.withdrawn;
+        }
+    }
+
+    /// @dev Calculates the withdrawable amount for a stream with one segment.
+    function _calculateWithdrawableAmountForOneSegment(
+        uint256 streamId
+    ) internal view returns (uint128 withdrawableAmount) {
+        unchecked {
+            uint128 depositAmount = _streams[streamId].amounts.deposit;
+            SD1x18 exponent = _streams[streamId].segments[0].exponent;
+            SD59x18 elapsedTime = sd(int256(uint256(uint40(block.timestamp) - _streams[streamId].startTime)));
+            SD59x18 totalTime = sd(int256(uint256(_streams[streamId].stopTime - _streams[streamId].startTime)));
+
+            // Calculate the streamed amount.
+            SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+            SD59x18 multiplier = elapsedTimePercentage.pow(sd(int256(SD1x18.unwrap(exponent))));
+            SD59x18 streamedAmount = multiplier.mul(sd(int256(uint256(depositAmount))));
+            withdrawableAmount = uint128(uint256(unwrap(streamedAmount))) - _streams[streamId].amounts.withdrawn;
+        }
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -414,83 +487,6 @@ contract SablierV2Pro is
             stopTime: stream.stopTime,
             broker: params.broker
         });
-    }
-
-    /// @dev Calculates the withdrawable amount for a stream with multiple segments.
-    function _calculateWithdrawableAmountForMultipleSegments(
-        uint256 streamId
-    ) internal view returns (uint128 withdrawableAmount) {
-        unchecked {
-            uint40 currentTime = uint40(block.timestamp);
-
-            // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
-            // amount such that we avoid adding an if statement in the while loop.
-            uint128 previousSegmentAmounts;
-            uint40 currentSegmentMilestone = _streams[streamId].segments[0].milestone;
-            uint256 index = 1;
-            while (currentSegmentMilestone < currentTime) {
-                previousSegmentAmounts += _streams[streamId].segments[index - 1].amount;
-                currentSegmentMilestone = _streams[streamId].segments[index].milestone;
-                index += 1;
-            }
-
-            // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
-            // is found at `index - 2`.
-            uint128 currentSegmentAmount = _streams[streamId].segments[index - 1].amount;
-            SD1x18 currentSegmentExponent = _streams[streamId].segments[index - 1].exponent;
-            currentSegmentMilestone = _streams[streamId].segments[index - 1].milestone;
-
-            // Define the time variables.
-            uint40 elapsedSegmentTime;
-            uint40 totalSegmentTime;
-
-            // If the current segment is at an index that is >= 2, we take the difference between the current
-            // segment milestone and the previous segment milestone.
-            if (index > 1) {
-                uint40 previousSegmentMilestone = _streams[streamId].segments[index - 2].milestone;
-                elapsedSegmentTime = currentTime - previousSegmentMilestone;
-
-                // Calculate the time between the current segment milestone and the previous segment milestone.
-                totalSegmentTime = currentSegmentMilestone - previousSegmentMilestone;
-            }
-            // If the current segment is at index 1, we take the difference between the current segment milestone
-            // and the start time of the stream.
-            else {
-                elapsedSegmentTime = currentTime - _streams[streamId].startTime;
-                totalSegmentTime = currentSegmentMilestone - _streams[streamId].startTime;
-            }
-
-            // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = SD59x18.wrap(int256(uint256(elapsedSegmentTime))).div(
-                SD59x18.wrap(int256(uint256(totalSegmentTime)))
-            );
-            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(currentSegmentExponent))));
-            SD59x18 proRataAmount = multiplier.mul(SD59x18.wrap(int256(uint256(currentSegmentAmount))));
-            uint128 streamedAmount = previousSegmentAmounts + uint128(uint256(SD59x18.unwrap(proRataAmount)));
-            withdrawableAmount = streamedAmount - _streams[streamId].amounts.withdrawn;
-        }
-    }
-
-    /// @dev Calculates the withdrawable amount for a stream with one segment.
-    function _calculateWithdrawableAmountForOneSegment(
-        uint256 streamId
-    ) internal view returns (uint128 withdrawableAmount) {
-        unchecked {
-            uint128 depositAmount = _streams[streamId].amounts.deposit;
-            SD1x18 exponent = _streams[streamId].segments[0].exponent;
-            SD59x18 elapsedTime = SD59x18.wrap(int256(uint256(uint40(block.timestamp) - _streams[streamId].startTime)));
-            SD59x18 totalTime = SD59x18.wrap(
-                int256(uint256(_streams[streamId].stopTime - _streams[streamId].startTime))
-            );
-
-            // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-            SD59x18 multiplier = elapsedTimePercentage.pow(SD59x18.wrap(int256(SD1x18.unwrap(exponent))));
-            SD59x18 streamedAmount = multiplier.mul(SD59x18.wrap(int256(uint256(depositAmount))));
-            withdrawableAmount =
-                uint128(uint256(SD59x18.unwrap(streamedAmount))) -
-                _streams[streamId].amounts.withdrawn;
-        }
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
