@@ -260,7 +260,7 @@ abstract contract Withdraw_Test is SharedTest {
     }
 
     /// @dev it should ignore the revert and make the withdrawal and update the withdrawn amount.
-    function testWithdraw_RecipientDoesNotImplementHook()
+    function test_Withdraw_RecipientDoesNotImplementHook()
         external
         streamExistent
         callerAuthorized
@@ -288,7 +288,7 @@ abstract contract Withdraw_Test is SharedTest {
     }
 
     /// @dev it should ignore the revert and make the withdrawal and update the withdrawn amount.
-    function testWithdraw_RecipientReverts()
+    function test_Withdraw_RecipientReverts()
         external
         streamExistent
         callerAuthorized
@@ -317,7 +317,7 @@ abstract contract Withdraw_Test is SharedTest {
     }
 
     /// @dev it should make multiple withdrawals and update the withdrawn amounts.
-    function testWithdraw_RecipientReentrancy()
+    function test_Withdraw_RecipientReentrancy()
         external
         streamExistent
         callerAuthorized

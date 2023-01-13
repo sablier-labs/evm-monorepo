@@ -115,7 +115,7 @@ abstract contract Cancel_Test is SharedTest {
     }
 
     /// @dev it should cancel the stream.
-    function testCancel_Sender_RecipientDoesNotImplementHook()
+    function test_Cancel_Sender_RecipientDoesNotImplementHook()
         external
         streamExistent
         streamCancelable
@@ -133,7 +133,7 @@ abstract contract Cancel_Test is SharedTest {
     }
 
     /// @dev it should ignore the revert and cancel the stream.
-    function testCancel_Sender_RecipientReverts()
+    function test_Cancel_Sender_RecipientReverts()
         external
         streamExistent
         streamCancelable
@@ -152,7 +152,7 @@ abstract contract Cancel_Test is SharedTest {
     }
 
     /// @dev it should ignore the revert and cancel the stream.
-    function testCancel_Sender_RecipientReentrancy()
+    function test_Cancel_Sender_RecipientReentrancy()
         external
         streamExistent
         streamCancelable
@@ -239,7 +239,7 @@ abstract contract Cancel_Test is SharedTest {
     }
 
     /// @dev it should cancel the stream.
-    function testCancel_Recipient_SenderNotContract()
+    function test_Cancel_Recipient_SenderNotContract()
         external
         streamExistent
         streamCancelable
@@ -255,7 +255,7 @@ abstract contract Cancel_Test is SharedTest {
     }
 
     /// @dev it should cancel the stream.
-    function testCancel_Recipient_SenderDoesNotImplementHook()
+    function test_Cancel_Recipient_SenderDoesNotImplementHook()
         external
         streamExistent
         streamCancelable
@@ -273,7 +273,7 @@ abstract contract Cancel_Test is SharedTest {
     }
 
     /// @dev it should cancel the stream.
-    function testCancel_Recipient_SenderReverts()
+    function test_Cancel_Recipient_SenderReverts()
         external
         streamExistent
         streamCancelable
@@ -294,7 +294,7 @@ abstract contract Cancel_Test is SharedTest {
     }
 
     /// @dev it should ignore the revert and make the withdrawal and cancel the stream.
-    function testCancel_Recipient_SenderReentrancy()
+    function test_Cancel_Recipient_SenderReentrancy()
         external
         streamExistent
         streamCancelable
