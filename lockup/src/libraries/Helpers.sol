@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { SD1x18 } from "@prb/math/SD1x18.sol";
+import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./Errors.sol";
@@ -33,7 +33,7 @@ library Helpers {
 
         // Calculate the protocol fee amount.
         // The cast to uint128 is safe because we control the maximum fee and it is always less than 1e18.
-        amounts.protocolFee = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(protocolFee)));
+        amounts.protocolFee = uint128(ud(grossDepositAmount).mul(protocolFee).unwrap());
 
         // Checks: the broker fee is not greater than `MAX_FEE`.
         if (brokerFee.gt(maxFee)) {
@@ -42,7 +42,7 @@ library Helpers {
 
         // Calculate the broker fee amount.
         // The cast to uint128 is safe because we control the maximum fee and it is always less than 1e18.
-        amounts.brokerFee = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(brokerFee)));
+        amounts.brokerFee = uint128(ud(grossDepositAmount).mul(brokerFee).unwrap());
 
         unchecked {
             // Assert that the gross deposit amount is strictly greater than the sum of the protocol fee amount

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SD1x18 } from "@prb/math/SD1x18.sol";
+import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 
@@ -12,12 +12,6 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
-
-    event LogNamedArray(string key, SD1x18[] value);
-
-    event LogNamedArray(string key, uint40[] value);
-
-    event LogNamedArray(string key, uint128[] value);
 
     event LogNamedArray(string key, Segment[] segments);
 
@@ -87,32 +81,12 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         }
     }
 
-    /// @dev Compares two `uint128` arrays.
-    function assertEqUint128Array(uint128[] memory a, uint128[] memory b) internal {
-        if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit Log("Error: a == b not satisfied [uint128[]]");
-            emit LogNamedArray("  Expected", b);
-            emit LogNamedArray("    Actual", a);
-            fail();
-        }
-    }
-
     /// @dev Compares two `uint40` numbers.
     function assertEqUint40(uint40 a, uint40 b) internal {
         if (a != b) {
             emit Log("Error: a == b not satisfied [uint40]");
             emit LogNamedUint40("  Expected", b);
             emit LogNamedUint40("    Actual", a);
-            fail();
-        }
-    }
-
-    /// @dev Compares two `uint40` arrays.
-    function assertEqUint40Array(uint40[] memory a, uint40[] memory b) internal {
-        if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit Log("Error: a == b not satisfied [uint40[]]");
-            emit LogNamedArray("  Expected", b);
-            emit LogNamedArray("    Actual", a);
             fail();
         }
     }

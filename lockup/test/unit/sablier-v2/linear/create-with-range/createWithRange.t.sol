@@ -277,8 +277,8 @@ contract CreateWithRange_LinearTest is LinearTest {
         uint256 streamId = linear.nextStreamId();
 
         // Calculate the broker fee amount and the net deposit amount.
-        uint128 protocolFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE)));
-        uint128 brokerFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(broker.fee)));
+        uint128 protocolFeeAmount = uint128(ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE).unwrap());
+        uint128 brokerFeeAmount = uint128(ud(grossDepositAmount).mul(broker.fee).unwrap());
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - brokerFeeAmount;
 
         // Expect the tokens to be transferred from the funder to the SablierV2Linear contract.
@@ -368,7 +368,7 @@ contract CreateWithRange_LinearTest is LinearTest {
         createDefaultStreamWithGrossDepositAmount(grossDepositAmount);
 
         // Calculate the protocol fee amount.
-        uint128 protocolFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(protocolFee)));
+        uint128 protocolFeeAmount = uint128(ud(grossDepositAmount).mul(protocolFee).unwrap());
 
         // Assert that the protocol fee was recorded.
         uint128 actualProtocolRevenues = linear.getProtocolRevenues(params.createWithRange.token);

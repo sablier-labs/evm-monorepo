@@ -156,7 +156,7 @@ contract SablierV2Linear is
 
             // Finally, calculate the withdrawable amount by subtracting the withdrawn amount from the streamed amount.
             // Casting to uint128 is safe thanks for the assertion above.
-            withdrawableAmount = uint128(UD60x18.unwrap(streamedAmount)) - _streams[streamId].amounts.withdrawn;
+            withdrawableAmount = uint128(streamedAmount.unwrap()) - _streams[streamId].amounts.withdrawn;
         }
     }
 

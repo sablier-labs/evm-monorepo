@@ -4,7 +4,7 @@ pragma solidity >=0.8.13 <0.9.0;
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
-import { sd1x18 } from "@prb/math/SD1x18.sol";
+import { ud2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { eqString } from "@prb/test/Helpers.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
@@ -84,14 +84,14 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
         DEFAULT_SEGMENTS.push(
             Segment({
                 amount: 2_500e18,
-                exponent: sd1x18(3.14e18),
+                exponent: ud2x18(3.14e18),
                 milestone: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION
             })
         );
         DEFAULT_SEGMENTS.push(
             Segment({
                 amount: 7_500e18,
-                exponent: sd1x18(0.5e18),
+                exponent: ud2x18(0.5e18),
                 milestone: DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION
             })
         );
@@ -121,7 +121,7 @@ abstract contract BaseTest is Assertions, Constants, Utils, StdCheats {
     /// @dev Adjust the amounts in the default segments as two fractions of the provided net deposit amount,
     /// one 20%, the other 80%.
     function adjustSegmentAmounts(Segment[] memory segments, uint128 netDepositAmount) internal pure {
-        segments[0].amount = uint128(UD60x18.unwrap(ud(netDepositAmount).mul(ud(0.2e18))));
+        segments[0].amount = uint128(ud(netDepositAmount).mul(ud(0.2e18)).unwrap());
         segments[1].amount = netDepositAmount - segments[0].amount;
     }
 

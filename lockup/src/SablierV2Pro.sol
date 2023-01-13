@@ -6,8 +6,8 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.sol";
-import { SD1x18 } from "@prb/math/SD1x18.sol";
 import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
+import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";
@@ -29,6 +29,8 @@ contract SablierV2Pro is
     SablierV2, // two dependencies
     ERC721("Sablier V2 Pro NFT", "SAB-V2-PRO") // six dependencies
 {
+    using CastingUint128 for uint128;
+    using CastingUint40 for uint40;
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -296,7 +298,7 @@ contract SablierV2Pro is
 
             // After the loop exits, the current segment is found at index `index - 1`, whereas the previous segment
             // is found at `index - 2` (if there are at least two segments).
-            SD59x18 currentSegmentAmount = CastingUint128.intoSD59x18(_streams[streamId].segments[index - 1].amount);
+            SD59x18 currentSegmentAmount = _streams[streamId].segments[index - 1].amount.intoSD59x18();
             SD59x18 currentSegmentExponent = _streams[streamId].segments[index - 1].exponent.intoSD59x18();
             currentSegmentMilestone = _streams[streamId].segments[index - 1].milestone;
 
@@ -310,8 +312,8 @@ contract SablierV2Pro is
             }
 
             // Calculate how much time has elapsed since the segment started, and the total time of the segment.
-            SD59x18 elapsedSegmentTime = CastingUint40.intoSD59x18(currentTime - previousMilestone);
-            SD59x18 totalSegmentTime = CastingUint40.intoSD59x18(currentSegmentMilestone - previousMilestone);
+            SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
+            SD59x18 totalSegmentTime = (currentSegmentMilestone - previousMilestone).intoSD59x18();
 
             // Calculate the streamed amount.
             SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
@@ -337,12 +339,12 @@ contract SablierV2Pro is
     ) internal view returns (uint128 withdrawableAmount) {
         unchecked {
             // Load the stream fields as SD59x18 numbers.
-            SD59x18 depositAmount = CastingUint128.intoSD59x18(_streams[streamId].amounts.deposit);
+            SD59x18 depositAmount = _streams[streamId].amounts.deposit.intoSD59x18();
             SD59x18 exponent = _streams[streamId].segments[0].exponent.intoSD59x18();
 
             // Calculate how much time has elapsed since the stream started, and the total time of the stream.
-            SD59x18 elapsedTime = CastingUint40.intoSD59x18(uint40(block.timestamp) - _streams[streamId].startTime);
-            SD59x18 totalTime = CastingUint40.intoSD59x18(_streams[streamId].stopTime - _streams[streamId].startTime);
+            SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
+            SD59x18 totalTime = (_streams[streamId].stopTime - _streams[streamId].startTime).intoSD59x18();
 
             // Calculate the streamed amount.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);

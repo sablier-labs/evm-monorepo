@@ -2,8 +2,10 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { sd1x18, SD1x18 } from "@prb/math/SD1x18.sol";
-import { sd, SD59x18, unwrap } from "@prb/math/SD59x18.sol";
+import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
+import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.sol";
+import { ud2x18, UD2x18 } from "@prb/math/UD2x18.sol";
+import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Amounts, Broker, ProStream, Segment } from "src/types/Structs.sol";
@@ -15,6 +17,9 @@ import { UnitTest } from "test/unit/UnitTest.t.sol";
 /// @title ProTest
 /// @notice Common testing logic needed across SablierV2Pro unit tests.
 abstract contract ProTest is SablierV2Test {
+    using CastingUint128 for uint128;
+    using CastingUint40 for uint40;
+
     /*//////////////////////////////////////////////////////////////////////////
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -104,8 +109,6 @@ abstract contract ProTest is SablierV2Test {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    // TODO: rewrite these functions to match the production contracts
-
     /// @dev Helper function that partially replicates the logic of the `calculateWithdrawableAmountForMultipleSegments`
     /// function, but which does not subtract the withdrawn amount.
     function calculateStreamedAmountForMultipleSegments(
@@ -113,48 +116,39 @@ abstract contract ProTest is SablierV2Test {
         Segment[] memory segments
     ) internal view returns (uint128 streamedAmount) {
         unchecked {
-            // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
-            // amount such that we avoid adding an if statement in the while loop.
-            uint128 initialSegmentAmounts;
+            // Sum up the amounts found in all preceding segments.
+            uint128 previousSegmentAmounts;
             uint40 currentSegmentMilestone = segments[0].milestone;
             uint256 index = 1;
             while (currentSegmentMilestone < currentTime) {
-                initialSegmentAmounts += segments[index - 1].amount;
+                previousSegmentAmounts += segments[index - 1].amount;
                 currentSegmentMilestone = segments[index].milestone;
                 index += 1;
             }
 
-            // After the loop exits, the current segment is found at index `index - 1`, while the initial segment
-            // is found at `index - 2`.
-            uint128 currentSegmentAmount = segments[index - 1].amount;
-            SD1x18 currentSegmentExponent = segments[index - 1].exponent;
+            // After the loop exits, the current segment is found at index `index - 1`, whereas the previous segment
+            // is found at `index - 2` (if there are at least two segments).
+            SD59x18 currentSegmentAmount = segments[index - 1].amount.intoSD59x18();
+            SD59x18 currentSegmentExponent = segments[index - 1].exponent.intoSD59x18();
             currentSegmentMilestone = segments[index - 1].milestone;
 
-            // Define the time variables.
-            uint40 elapsedSegmentTime;
-            uint40 totalSegmentTime;
-
-            // If the current segment is at an index that is >= 2, we take the difference between the current
-            // segment milestone and the initial segment milestone.
+            uint40 previousMilestone;
             if (index > 1) {
-                uint40 initialSegmentMilestone = segments[index - 2].milestone;
-                elapsedSegmentTime = currentTime - initialSegmentMilestone;
+                // If the current segment is at an index that is >= 2, we use the previous segment's milestone.
+                previousMilestone = segments[index - 2].milestone;
+            } else {
+                // Otherwise, there is only one segment, so we use the start of the stream as the previous milestone.
+                previousMilestone = DEFAULT_START_TIME;
+            }
 
-                // Calculate the time between the current segment milestone and the initial segment milestone.
-                totalSegmentTime = currentSegmentMilestone - initialSegmentMilestone;
-            }
-            // If the current segment is at index 1, we take the difference between the current segment milestone
-            // and the start time of the stream.
-            else {
-                elapsedSegmentTime = currentTime - defaultStream.startTime;
-                totalSegmentTime = currentSegmentMilestone - defaultStream.startTime;
-            }
+            // Calculate how much time has elapsed since the segment started, and the total time of the segment.
+            SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
+            SD59x18 totalSegmentTime = (currentSegmentMilestone - previousMilestone).intoSD59x18();
 
             // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = sdUint40(elapsedSegmentTime).div(sdUint40(totalSegmentTime));
-            SD59x18 multiplier = elapsedTimePercentage.pow(sd(int256(SD1x18.unwrap(currentSegmentExponent))));
-            SD59x18 proRataAmount = multiplier.mul(sdUint128(currentSegmentAmount));
-            streamedAmount = initialSegmentAmounts + uint128(uint256(unwrap(proRataAmount)));
+            SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
+            SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
+            streamedAmount = previousSegmentAmounts + uint128(multiplier.mul(currentSegmentAmount).intoUint256());
         }
     }
 
@@ -162,15 +156,18 @@ abstract contract ProTest is SablierV2Test {
     /// function, but which does not subtract the withdrawn amount.
     function calculateStreamedAmountForOneSegment(
         uint40 currentTime,
-        uint128 depositAmount,
-        SD1x18 segmentExponent
+        UD2x18 exponent,
+        uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
         unchecked {
-            SD59x18 elapsedSegmentTime = sdUint40(currentTime - defaultStream.startTime);
-            SD59x18 totalSegmentTime = sdUint40(DEFAULT_TOTAL_DURATION);
-            SD59x18 elapsedTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
-            SD59x18 multiplier = elapsedTimePercentage.pow(sd(int256(SD1x18.unwrap(segmentExponent))));
-            streamedAmount = uint128(uint256(unwrap(multiplier.mul(sdUint128(depositAmount)))));
+            // Calculate how much time has elapsed since the stream started, and the total time of the stream.
+            SD59x18 elapsedTime = (currentTime - DEFAULT_START_TIME).intoSD59x18();
+            SD59x18 totalTime = DEFAULT_TOTAL_DURATION.intoSD59x18();
+
+            // Calculate the streamed amount.
+            SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+            SD59x18 multiplier = elapsedTimePercentage.pow(exponent.intoSD59x18());
+            streamedAmount = uint128(multiplier.mul(depositAmount.intoSD59x18()).intoUint256());
         }
     }
 

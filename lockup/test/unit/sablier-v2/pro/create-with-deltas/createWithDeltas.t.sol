@@ -2,7 +2,7 @@
 // solhint-disable max-line-length
 pragma solidity >=0.8.13 <0.9.0;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SD1x18, sd1x18 } from "@prb/math/SD1x18.sol";
+import { UD2x18, ud2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
@@ -105,7 +105,7 @@ contract CreateWithDeltas_ProTest is ProTest {
         // Create new segments that overflow when the milestones are eventually calculated.
         Segment[] memory segments = new Segment[](3);
         unchecked {
-            segments[0] = Segment({ amount: 0, exponent: sd1x18(1e18), milestone: startTime + deltas[0] });
+            segments[0] = Segment({ amount: 0, exponent: ud2x18(1e18), milestone: startTime + deltas[0] });
             segments[1] = Segment({
                 amount: DEFAULT_SEGMENTS[0].amount,
                 exponent: DEFAULT_SEGMENTS[0].exponent,
