@@ -102,6 +102,9 @@ abstract contract SablierV2 is
     function getRecipient(uint256 streamId) public view virtual override returns (address recipient);
 
     /// @inheritdoc ISablierV2
+    function getWithdrawableAmount(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
+
+    /// @inheritdoc ISablierV2
     function isCancelable(uint256 streamId) public view virtual override returns (bool result);
 
     /// @inheritdoc ISablierV2
@@ -211,7 +214,7 @@ abstract contract SablierV2 is
         uint256 streamId,
         address to,
         uint128 amount
-    ) external override streamExists(streamId) isAuthorizedForStream(streamId) {
+    ) public override streamExists(streamId) isAuthorizedForStream(streamId) {
         // Checks: the provided address is the recipient if `msg.sender` is the sender of the stream.
         if (_isCallerStreamSender(streamId) && to != getRecipient(streamId)) {
             revert Errors.SablierV2_WithdrawSenderUnauthorized(streamId, msg.sender, to);
@@ -224,6 +227,11 @@ abstract contract SablierV2 is
 
         // Checks, Effects and Interactions: make the withdrawal.
         _withdraw(streamId, to, amount);
+    }
+
+    /// @inheritdoc ISablierV2
+    function withdrawMax(uint256 streamId, address to) external override {
+        withdraw(streamId, to, getWithdrawableAmount(streamId));
     }
 
     /// @inheritdoc ISablierV2

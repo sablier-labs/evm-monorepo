@@ -68,7 +68,7 @@ contract SablierV2Mock is SablierV2 {
         return 0;
     }
 
-    function getWithdrawableAmount(uint256 streamId) external pure override returns (uint128) {
+    function getWithdrawableAmount(uint256 streamId) public pure override returns (uint128) {
         streamId;
         return 0;
     }
