@@ -84,14 +84,11 @@ contract SablierV2Linear is
             return 0;
         }
 
-        // No need for an assertion here, since the calculation below is equivalent to subtracting the streamed
-        // amount from the deposit amount, which is already asserted in the `getWithdrawableAmount` function.
+        // No need for an assertion here, since the `getStreamedAmount` function checks that the deposit amount
+        // is greater than or equal to the streamed amount.
         unchecked {
-            uint128 withdrawableAmount = getWithdrawableAmount(streamId);
-            returnableAmount =
-                _streams[streamId].amounts.deposit -
-                _streams[streamId].amounts.withdrawn -
-                withdrawableAmount;
+            uint128 streamedAmount = getStreamedAmount(streamId);
+            returnableAmount = _streams[streamId].amounts.deposit - streamedAmount;
         }
     }
 
@@ -116,7 +113,7 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2
-    function getWithdrawableAmount(uint256 streamId) public view returns (uint128 withdrawableAmount) {
+    function getStreamedAmount(uint256 streamId) public view override returns (uint128 streamedAmount) {
         // If the stream does not exist, return zero.
         if (!_streams[streamId].isEntity) {
             return 0;
@@ -137,7 +134,7 @@ contract SablierV2Linear is
             // If the current time is greater than or equal to the stop time, we simply return the deposit minus
             // the withdrawn amount.
             if (currentTime >= stopTime) {
-                return _streams[streamId].amounts.deposit - _streams[streamId].amounts.withdrawn;
+                return _streams[streamId].amounts.deposit;
             }
 
             // In all other cases, calculate how much was streamed so far.
@@ -149,14 +146,20 @@ contract SablierV2Linear is
             // Then, calculate the streamed amount.
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             UD60x18 depositAmount = ud(_streams[streamId].amounts.deposit);
-            UD60x18 streamedAmount = elapsedTimePercentage.mul(depositAmount);
+            UD60x18 streamedAmountUd = elapsedTimePercentage.mul(depositAmount);
 
             // Assert that the streamed amount is lower than or equal to the deposit amount.
-            assert(streamedAmount.lte(depositAmount));
+            assert(streamedAmountUd.lte(depositAmount));
 
-            // Finally, calculate the withdrawable amount by subtracting the withdrawn amount from the streamed amount.
-            // Casting to uint128 is safe thanks for the assertion above.
-            withdrawableAmount = uint128(streamedAmount.unwrap()) - _streams[streamId].amounts.withdrawn;
+            // Casting to uint128 is safe thanks to the assertion above.
+            streamedAmount = uint128(streamedAmountUd.unwrap());
+        }
+    }
+
+    /// @inheritdoc ISablierV2
+    function getWithdrawableAmount(uint256 streamId) public view override returns (uint128 withdrawableAmount) {
+        unchecked {
+            withdrawableAmount = getStreamedAmount(streamId) - _streams[streamId].amounts.withdrawn;
         }
     }
 

@@ -62,6 +62,10 @@ interface ISablierV2 is
     /// @return token The ERC-20 token used for streaming.
     function getERC20Token(uint256 streamId) external view returns (IERC20 token);
 
+    /// @notice Calculates the amount that has been streamed to the recipient, in units of the token's decimals.
+    /// @param streamId The id of the stream to make the query for.
+    function getStreamedAmount(uint256 streamId) external view returns (uint128 streamedAmount);
+
     /// @notice Calculates the amount that the recipient can withdraw from the stream, in units of the token's decimals.
     /// @param streamId The id of the stream to make the query for.
     function getWithdrawableAmount(uint256 streamId) external view returns (uint128 withdrawableAmount);

@@ -2,13 +2,7 @@ getReturnableAmount.t.sol
 ├── when the stream does not exist
 │  └── it should return zero
 └── when the stream exists
-   ├── when the withdrawable amount is zero
-   │  ├── when there weren't withdrawals
-   │  │  └── it should return the deposit amount
-   │  └── when there were withdrawals
-   │     └── it should return the correct returnable amount
-   └── when the withdrawable amount is not zero
-      ├── when there weren't withdrawals
-      │  └── it should return the correct returnable amount
-      └── when there were withdrawals
-         └── it should return the correct returnable amount
+   ├── when the streamed amount is zero
+   │  └── it should return the correct returnable amount
+   └── when the streamed amount is not zero
+      └── it should return the correct returnable amount

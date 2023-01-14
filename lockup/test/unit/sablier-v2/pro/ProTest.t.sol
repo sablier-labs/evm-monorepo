@@ -109,14 +109,17 @@ abstract contract ProTest is SablierV2Test {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    // TODO: rewrite these functions to match the production contracts
-
-    /// @dev Helper function that partially replicates the logic of the `calculateWithdrawableAmountForMultipleSegments`
+    /// @dev Helper function that partially replicates the logic of the `calculateStreamedAmountForMultipleSegments`
     /// function, but which does not subtract the withdrawn amount.
     function calculateStreamedAmountForMultipleSegments(
         uint40 currentTime,
-        Segment[] memory segments
+        Segment[] memory segments,
+        uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
+        if (currentTime >= segments[segments.length - 1].milestone) {
+            return depositAmount;
+        }
+
         unchecked {
             // Sum up the amounts found in all preceding segments.
             uint128 previousSegmentAmounts;
@@ -154,13 +157,16 @@ abstract contract ProTest is SablierV2Test {
         }
     }
 
-    /// @dev Helper function that partially replicates the logic of the `calculateWithdrawableAmountForOneSegment`
+    /// @dev Helper function that partially replicates the logic of the `calculateStreamedAmountForOneSegment`
     /// function, but which does not subtract the withdrawn amount.
     function calculateStreamedAmountForOneSegment(
         uint40 currentTime,
         UD2x18 exponent,
         uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
+        if (currentTime >= DEFAULT_STOP_TIME) {
+            return depositAmount;
+        }
         unchecked {
             // Calculate how much time has elapsed since the stream started, and the total time of the stream.
             SD59x18 elapsedTime = (currentTime - DEFAULT_START_TIME).intoSD59x18();
