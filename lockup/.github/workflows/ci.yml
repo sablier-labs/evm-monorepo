@@ -49,18 +49,6 @@ jobs:
 
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
-        with:
-          version: "nightly"
-
-      # Always load the latest valid cache, and always create a new one with the updated cache.
-      # When the fork tests are updated and there are new RPC requests, the RPC cache is updated as well.
-      - name: "Cache RPC Responses"
-        uses: "actions/cache@v3"
-        with:
-          key: "${{ runner.os }}-foundry-chain-fork-${{ github.sha }}"
-          path: "~/.foundry/cache/rpc"
-          restore-keys: |
-            "${{ runner.os }}-foundry-chain-fork-"
 
       - name: "Show the Foundry config"
         run: "forge config"
@@ -113,8 +101,6 @@ jobs:
 
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
-        with:
-          version: "nightly"
 
       - name: "Generate the coverage report"
         run: "forge coverage --report lcov"

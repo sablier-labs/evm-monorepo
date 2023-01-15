@@ -35,8 +35,6 @@ jobs:
 
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
-        with:
-          version: "nightly"
 
       - name: "Deploy the SablierV2Linear contract"
         run: >-
