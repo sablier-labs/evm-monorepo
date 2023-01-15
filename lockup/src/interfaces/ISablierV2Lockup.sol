@@ -2,6 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
@@ -14,7 +15,8 @@ import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 /// @notice The common interface between all Sablier V2 lockup streaming contracts.
 interface ISablierV2Lockup is
     ISablierV2, // no dependencies
-    IERC721 // one dependency
+    IERC721, // one dependency
+    IERC721Metadata // two dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS

@@ -2,6 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
@@ -190,7 +191,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ERC721
-    function tokenURI(uint256 streamId) public pure override returns (string memory uri) {
+    function tokenURI(uint256 streamId) public pure override(IERC721Metadata, ERC721) returns (string memory uri) {
         streamId;
         uri = "";
     }
