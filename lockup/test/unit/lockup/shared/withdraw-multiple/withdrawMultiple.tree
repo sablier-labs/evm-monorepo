@@ -1,0 +1,40 @@
+withdrawMultiple.t.sol
+├── when the provided address is zero
+│  └── it should revert
+└── when the provided address is not zero
+   ├── when the array counts are not equal
+   │  └── it should revert
+   └── when the array counts are equal
+      ├── when the stream ids array points only to null streams
+      │  └── it should do nothing
+      ├── when the stream ids array points to some null streams
+      │  └── it should ignore the null streams and make the withdrawals for the non-null ones
+      └── when the stream ids array points only to non-null streams
+         ├── when the caller is unauthorized for any stream
+         │  ├── when the caller is the sender
+         │  │  └── it should revert
+         │  ├── when the caller is a malicious third-party
+         │  │  └── it should revert
+         │  └── when the caller is a former recipient
+         │     └── it should revert
+         ├── when the caller is unauthorized for some streams
+         │  ├── when the caller is a malicious third-party
+         │  │  └── it should revert
+         │  └── when the caller is a former recipient
+         │     └── it should revert
+         └── when the caller is authorized for all streams
+            ├── when some amounts are zero
+            │  └── it should revert
+            └── when none of the amounts are zero
+               ├── when some amounts are greater than the withdrawable amounts
+               │  └── it should revert
+               └── when all amounts are less than or equal to the withdrawable amounts
+                  ├── when the caller is an approved operator
+                  │  └── it should make the withdrawals and update the withdrawn amounts
+                  └── when the caller is the recipient
+                     ├── when all streams are ended
+                     │  └── it should make the withdrawals, emit multiple WithdrawFromLockupStream events, and mark the streams as depleted
+                     ├── when all streams are ongoing
+                     │  └── it should make the withdrawals, emit multiple WithdrawFromLockupStream events, and update the withdrawn amounts
+                     └── when some streams are ended and some streams are ongoing
+                        └── it should make the withdrawals, emit multiple WithdrawFromLockupStream events, mark the ended streams as depleted, and update the withdrawn amounts

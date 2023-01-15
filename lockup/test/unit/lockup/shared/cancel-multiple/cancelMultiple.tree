@@ -1,0 +1,30 @@
+cancelMultiple.t.sol
+├── when the stream ids array points only to null streams
+│  └── it should do nothing
+├── when the stream ids array points to some null streams
+│  └── it should ignore the null streams and cancel the non-null ones
+└── when the stream ids array points only to non-null streams
+   ├── when all streams are non-cancelable
+   │  └── it should do nothing
+   ├── when some of the streams are non-cancelable
+   │  └── it should ignore the non-cancelable streams and cancel the cancelable streams
+   └── when all streams are cancelable
+      ├── when the caller is unauthorized for any stream
+      │  ├── when the caller is a malicious third-party
+      │  │  └── it should revert
+      │  ├── when the caller is an approved operator
+      │  │  └── it should revert
+      │  └── when the caller is a former recipient
+      │     └── it should revert
+      ├── when the caller is unauthorized for some streams
+      │  ├── when the caller is a malicious third-party
+      │  │  └── it should revert
+      │  ├── when the caller is an approved operator
+      │  │  └── it should revert
+      │  └── when the caller is a former recipient
+      │     └── it should revert
+      └── when the caller is authorized for all streams
+         ├── when the caller is the sender
+         │  └── it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit CancelLockupStream events
+         └── when the caller is the recipient
+            └── it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit CancelLockupStream events

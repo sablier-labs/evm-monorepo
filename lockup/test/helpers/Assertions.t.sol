@@ -6,7 +6,7 @@ import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 
 import { Status } from "src/types/Enums.sol";
-import { Amounts, LinearStream, ProStream, Range, Segment } from "src/types/Structs.sol";
+import { LockupAmounts, LockupLinearStream, LockupProStream, Range, Segment } from "src/types/Structs.sol";
 
 abstract contract Assertions is PRBTest, PRBMathAssertions {
     /*//////////////////////////////////////////////////////////////////////////
@@ -23,8 +23,8 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
                                      ASSERTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Compares two `Amounts` struct entities.
-    function assertEq(Amounts memory a, Amounts memory b) internal {
+    /// @dev Compares two `LockupAmounts` struct entities.
+    function assertEq(LockupAmounts memory a, LockupAmounts memory b) internal {
         assertEqUint128(a.deposit, b.deposit);
         assertEqUint128(a.withdrawn, b.withdrawn);
     }
@@ -34,8 +34,8 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(address(a), address(b));
     }
 
-    /// @dev Compares two `LinearStream` struct entities.
-    function assertEq(LinearStream memory a, LinearStream memory b) internal {
+    /// @dev Compares two `LockupLinearStream` struct entities.
+    function assertEq(LockupLinearStream memory a, LockupLinearStream memory b) internal {
         assertEq(a.amounts, b.amounts);
         assertEq(a.isCancelable, b.isCancelable);
         assertEq(a.sender, b.sender);
@@ -44,8 +44,8 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.token, b.token);
     }
 
-    /// @dev Compares two `ProStream` struct entities.
-    function assertEq(ProStream memory a, ProStream memory b) internal {
+    /// @dev Compares two `LockupProStream` struct entities.
+    function assertEq(LockupProStream memory a, LockupProStream memory b) internal {
         assertEq(a.isCancelable, b.isCancelable);
         assertEq(a.segments, b.segments);
         assertEq(a.sender, b.sender);

@@ -4,15 +4,15 @@ pragma solidity >=0.8.13 <0.9.0;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
-import { SablierV2Linear } from "src/SablierV2Linear.sol";
-import { SablierV2Pro } from "src/SablierV2Pro.sol";
+import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
+import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
-import { BaseTest } from "test/BaseTest.t.sol";
+import { Base_Test } from "test/Base.t.sol";
 import { IMulticall3 } from "test/helpers/IMulticall3.t.sol";
 
 /// @title IntegrationTest
 /// @notice Collections of tests run against an Ethereum Mainnet fork.
-abstract contract IntegrationTest is BaseTest {
+abstract contract IntegrationTest is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                       STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -41,7 +41,7 @@ abstract contract IntegrationTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        BaseTest.setUp();
+        Base_Test.setUp();
 
         // Fork Ethereum Mainnet.
         vm.createSelectFork({ urlOrAlias: "ethereum", blockNumber: 16_126_000 });

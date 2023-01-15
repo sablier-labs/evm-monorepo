@@ -7,33 +7,12 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Status } from "./Enums.sol";
 
-/// @notice Simple struct that encapsulates the deposit and the withdrawn amounts.
-/// @custom:field deposit The amount of tokens that have been originally deposited in the stream, net of fees and
-/// in units of the token's decimals.
-/// @custom:field withdrawn The amount of tokens that have been withdrawn from the stream, in units of the token's
-/// decimals.
-struct Amounts {
-    uint128 deposit; // ───┐
-    uint128 withdrawn; // ─┘
-}
-
 /// @notice Simple struct that encapsulates the broker parameters that can be optionally passed to the create functions.
 /// @custom:field addr The address of the broker the fee will be paid to.
 /// @custom:field fee The percentage fee that the broker is paid from the gross deposit amount, as an UD60x18 number.
 struct Broker {
     address addr;
     UD60x18 fee;
-}
-
-/// @notice Simple struct that encapsulates (i) the net deposit amount, (i) the protocol fee amount, and (iii) the
-/// broker fee amount, each in units of the token's decimals.
-/// @custom:field netDeposit The deposit amount net of fees, in units of the token's decimals.
-/// @custom:field protocolFee The protocol fee amount, in units of the token's decimals.
-/// @custom:field brokerFee The broker fee amount, in units of the token's decimals.
-struct CreateAmounts {
-    uint128 netDeposit; // ──┐
-    uint128 protocolFee; // ─┘
-    uint128 brokerFee;
 }
 
 /// @notice Simple struct that encapsulates (i) the cliff duration and (ii) the total duration.
@@ -44,15 +23,36 @@ struct Durations {
     uint40 total;
 }
 
-/// @notice Linear stream struct used in the SablierV2Linear contract.
+/// @notice Simple struct that encapsulates the deposit and the withdrawn amounts.
+/// @custom:field deposit The amount of tokens that have been originally deposited in the stream, net of fees and
+/// in units of the token's decimals.
+/// @custom:field withdrawn The amount of tokens that have been withdrawn from the stream, in units of the token's
+/// decimals.
+struct LockupAmounts {
+    uint128 deposit; // ───┐
+    uint128 withdrawn; // ─┘
+}
+
+/// @notice Simple struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii) the
+/// broker fee amount, each in units of the token's decimals.
+/// @custom:field netDeposit The deposit amount net of fees, in units of the token's decimals.
+/// @custom:field protocolFee The protocol fee amount, in units of the token's decimals.
+/// @custom:field brokerFee The broker fee amount, in units of the token's decimals.
+struct LockupCreateAmounts {
+    uint128 netDeposit; // ──┐
+    uint128 protocolFee; // ─┘
+    uint128 brokerFee;
+}
+
+/// @notice Lockup linear stream struct used in the SablierV2LockupLinear contract.
 /// @dev The fields are arranged like this to save gas via tight variable packing.
 /// @custom:field amounts Simple struct with the deposit and withdrawn amounts.
 /// @custom:field sender The address of the sender of the stream.
 /// @custom:field isCancelable A boolean that indicates whether the stream is cancelable or not.
 /// @custom:field status An enum that indicates the status of the stream.
 /// @custom:field token The address of the ERC-20 token used for streaming.
-struct LinearStream {
-    Amounts amounts;
+struct LockupLinearStream {
+    LockupAmounts amounts;
     Range range;
     address sender; // ───┐
     bool isCancelable; // │
@@ -60,7 +60,7 @@ struct LinearStream {
     IERC20 token;
 }
 
-/// @notice Pro stream struct used in the SablierV2Pro contract.
+/// @notice Pro stream struct used in the SablierV2LockupPro contract.
 /// @dev The fields are arranged like this to save gas via tight variable packing.
 /// @custom:field amounts Simple struct with the deposit and withdrawn amounts.
 /// @custom:field segments The segments the protocol uses to compose the custom streaming curve.
@@ -70,8 +70,8 @@ struct LinearStream {
 /// @custom:field isCancelable A boolean that indicates whether the stream is cancelable or not.
 /// @custom:field status An enum that indicates the status of the stream.
 /// @custom:field token The address of the ERC-20 token used for streaming.
-struct ProStream {
-    Amounts amounts;
+struct LockupProStream {
+    LockupAmounts amounts;
     Segment[] segments;
     address sender; // ───┐
     uint40 startTime; //  │
@@ -81,7 +81,7 @@ struct ProStream {
     IERC20 token;
 }
 
-/// @notice Range struct used as a field in the linear stream.
+/// @notice Range struct used as a field in the lockup linear stream.
 /// @custom:field cliff The Unix timestamp for when the cliff period will end.
 /// @custom:field start The Unix timestamp for when the stream will start.
 /// @custom:field stop The Unix timestamp for when the stream will stop.
@@ -91,7 +91,7 @@ struct Range {
     uint40 stop;
 }
 
-/// @notice Segment struct used in the SablierV2Pro contract.
+/// @notice Segment struct used in the SablierV2LockupPro contract.
 /// @custom:field amount The amounts of tokens to be streamed in this segment, in units of the token's decimals.
 /// @custom:field exponent The exponent in this segment, whose base is the elapsed time as a percentage.
 /// @custom:field milestone The Unix timestamp for when this segment ends.

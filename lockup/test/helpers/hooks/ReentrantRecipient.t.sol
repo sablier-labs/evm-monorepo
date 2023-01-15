@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
-import { ISablierV2Recipient } from "src/interfaces/hooks/ISablierV2Recipient.sol";
+import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
+import { ISablierV2LockupRecipient } from "src/interfaces/hooks/ISablierV2LockupRecipient.sol";
 
-contract ReentrantRecipient is ISablierV2Recipient {
+contract ReentrantRecipient is ISablierV2LockupRecipient {
     function onStreamCanceled(
         uint256 streamId,
         address caller,
@@ -15,13 +15,13 @@ contract ReentrantRecipient is ISablierV2Recipient {
         caller;
         recipientAmount;
         senderAmount;
-        ISablierV2(msg.sender).cancel(streamId);
+        ISablierV2Lockup(msg.sender).cancel(streamId);
     }
 
     function onStreamWithdrawn(uint256 streamId, address caller, uint128 amount) external {
         streamId;
         caller;
         amount;
-        ISablierV2(msg.sender).withdraw(streamId, address(this), amount);
+        ISablierV2Lockup(msg.sender).withdraw(streamId, address(this), amount);
     }
 }

@@ -7,7 +7,7 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
-import { Amounts, Broker, CreateAmounts, ProStream, Segment } from "src/types/Structs.sol";
+import { LockupAmounts, Broker, LockupCreateAmounts, LockupProStream, Segment } from "src/types/Structs.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 
@@ -25,7 +25,7 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
     function setUp() public virtual override {
         IntegrationTest.setUp();
 
-        // Approve the SablierV2Pro contract to transfer the token holder's tokens.
+        // Approve the SablierV2LockupPro contract to transfer the token holder's tokens.
         // We use a low-level call to ignore reverts because the token can have the missing return value bug.
         (bool success, ) = address(token).call(abi.encodeCall(IERC20.approve, (address(pro), UINT256_MAX)));
         success;
@@ -64,7 +64,7 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
         uint256 expectedBrokerBalance;
     }
 
-    /// @dev it should perform the ERC-20 transfers, emit a CreateProStream event, create the stream, record the
+    /// @dev it should perform the ERC-20 transfers, emit a CreateLockupProStream event, create the stream, record the
     /// protocol fee, bump the next stream id, and mint the NFT.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
@@ -99,12 +99,12 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
         // Expect an event to be emitted.
         vars.streamId = pro.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateProStream({
+        emit Events.CreateLockupProStream({
             streamId: vars.streamId,
             funder: holder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: CreateAmounts({
+            amounts: LockupCreateAmounts({
                 netDeposit: vars.netDepositAmount,
                 protocolFee: 0,
                 brokerFee: vars.brokerFeeAmount
@@ -130,8 +130,8 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
         );
 
         // Assert that the stream was created.
-        ProStream memory actualStream = pro.getStream(vars.streamId);
-        assertEq(actualStream.amounts, Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        LockupProStream memory actualStream = pro.getStream(vars.streamId);
+        assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.isCancelable, defaultStream.cancelable);
         assertEq(actualStream.segments, segments);
         assertEq(actualStream.sender, defaultStream.sender);

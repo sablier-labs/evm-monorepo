@@ -5,19 +5,19 @@ import { Script } from "forge-std/Script.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
-import { SablierV2Pro } from "src/SablierV2Pro.sol";
+import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
 import { Common } from "./helpers/Common.s.sol";
 
-/// @notice Deploys the SablierV2Pro contract.
+/// @notice Deploys the SablierV2LockupPro contract.
 contract DeployPro is Script, Common {
     function run(
         address admin,
         ISablierV2Comptroller comptroller,
         UD60x18 maxFee,
         uint256 maxSegmentCount
-    ) public broadcaster returns (SablierV2Pro pro) {
-        pro = new SablierV2Pro({
+    ) public broadcaster returns (SablierV2LockupPro pro) {
+        pro = new SablierV2LockupPro({
             initialAdmin: admin,
             initialComptroller: comptroller,
             maxFee: maxFee,
@@ -32,14 +32,14 @@ contract DeployPro is Script, Common {
         ISablierV2Comptroller comptroller,
         UD60x18 maxFee,
         uint256 maxSegmentCount
-    ) public broadcaster returns (bool success, SablierV2Pro pro) {
-        bytes memory creationBytecode = type(SablierV2Pro).creationCode;
+    ) public broadcaster returns (bool success, SablierV2LockupPro pro) {
+        bytes memory creationBytecode = type(SablierV2LockupPro).creationCode;
         bytes memory callData = abi.encodePacked(
             creationBytecode,
             abi.encode(admin, comptroller, maxFee, maxSegmentCount)
         );
         bytes memory returnData;
         (success, returnData) = DETERMINISTIC_CREATE2_FACTORY.call(callData);
-        pro = SablierV2Pro(address(uint160(bytes20(returnData))));
+        pro = SablierV2LockupPro(address(uint160(bytes20(returnData))));
     }
 }
