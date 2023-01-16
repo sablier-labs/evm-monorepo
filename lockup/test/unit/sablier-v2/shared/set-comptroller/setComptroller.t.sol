@@ -47,7 +47,7 @@ abstract contract SetComptroller_Test is SharedTest {
     /// @dev it should set the new comptroller.
     function test_SetComptroller_NewComptroller() external callerAdmin {
         // Deploy the new comptroller.
-        ISablierV2Comptroller newComptroller = new SablierV2Comptroller();
+        ISablierV2Comptroller newComptroller = new SablierV2Comptroller({ initialAdmin: users.admin });
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true });

@@ -9,6 +9,10 @@ env:
 on:
   workflow_dispatch:
     inputs:
+      admin:
+        default: "0x0E109f35926575FC64Ec73735101966d434Ed591"
+        description: 'Contract admin. Defaults to 0x0E10...d591'
+        required: false
       chain:
         default: "goerli"
         description: 'Chain name. Defaults to "goerli" if unspecified'
@@ -41,7 +45,8 @@ jobs:
           forge script script/DeployLinear.s.sol
           --broadcast
           --rpc-url ${{ github.event.inputs.chain }}
-          --sig "run(address,uint256)"
+          --sig "run(address,address,uint256)"
+          "${{ github.event.inputs.admin }}"
           "${{ github.event.inputs.comptroller }}"
           "${{ github.event.inputs.max-fee }}"
           -vvvv

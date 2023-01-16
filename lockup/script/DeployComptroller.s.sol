@@ -7,9 +7,21 @@ import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
 import { Common } from "./helpers/Common.s.sol";
 
-/// @notice Deploys the SablierV2Comptroller contract from precompiled source (build optimized with --via-ir).
+/// @notice Deploys the SablierV2Comptroller contract.
 contract DeployComptroller is Script, Common {
-    function run() public broadcaster returns (SablierV2Comptroller comptroller) {
-        comptroller = new SablierV2Comptroller();
+    function run(address admin) public broadcaster returns (SablierV2Comptroller comptroller) {
+        comptroller = new SablierV2Comptroller({ initialAdmin: admin });
+    }
+
+    /// @dev Deploys the contract at a deterministic address across all chains. Reverts if the contract has already
+    /// been deployed via the deterministic CREATE2 factory.
+    function runDeterministic(
+        address admin
+    ) public broadcaster returns (bool success, SablierV2Comptroller comptroller) {
+        bytes memory creationBytecode = type(SablierV2Comptroller).creationCode;
+        bytes memory callData = abi.encodePacked(creationBytecode, abi.encode(admin));
+        bytes memory returnData;
+        (success, returnData) = DETERMINISTIC_CREATE2_FACTORY.call(callData);
+        comptroller = SablierV2Comptroller(address(uint160(bytes20(returnData))));
     }
 }
