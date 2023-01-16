@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./Errors.sol";

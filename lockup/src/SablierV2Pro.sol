@@ -7,7 +7,6 @@ import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.sol";
 import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
-import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";

@@ -2,7 +2,6 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 
