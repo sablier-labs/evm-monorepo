@@ -109,8 +109,7 @@ abstract contract ProTest is SablierV2Test {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function that partially replicates the logic of the `calculateStreamedAmountForMultipleSegments`
-    /// function, but which does not subtract the withdrawn amount.
+    /// @dev Helper function that replicates the logic of the `calculateStreamedAmountForMultipleSegments`.
     function calculateStreamedAmountForMultipleSegments(
         uint40 currentTime,
         Segment[] memory segments,
@@ -157,8 +156,7 @@ abstract contract ProTest is SablierV2Test {
         }
     }
 
-    /// @dev Helper function that partially replicates the logic of the `calculateStreamedAmountForOneSegment`
-    /// function, but which does not subtract the withdrawn amount.
+    /// @dev Helper function that replicates the logic of the `calculateStreamedAmountForOneSegment`.
     function calculateStreamedAmountForOneSegment(
         uint40 currentTime,
         UD2x18 exponent,

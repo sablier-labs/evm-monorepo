@@ -93,8 +93,7 @@ contract SablierV2Pro is
         // No need for an assertion here, since the `getStreamedAmount` function checks that the deposit amount
         // is greater than or equal to the streamed amount.
         unchecked {
-            uint128 streamedAmount = getStreamedAmount(streamId);
-            returnableAmount = _streams[streamId].amounts.deposit - streamedAmount;
+            returnableAmount = _streams[streamId].amounts.deposit - getStreamedAmount(streamId);
         }
     }
 
@@ -136,23 +135,21 @@ contract SablierV2Pro is
             return 0;
         }
 
-        unchecked {
-            uint256 segmentCount = _streams[streamId].segments.length;
-            uint40 stopTime = _streams[streamId].stopTime;
+        uint256 segmentCount = _streams[streamId].segments.length;
+        uint40 stopTime = _streams[streamId].stopTime;
 
-            // If the current time is greater than or equal to the stop time, we simply return the deposit minus
-            // the withdrawn amount.
-            if (currentTime >= stopTime) {
-                return _streams[streamId].amounts.deposit;
-            }
+        // If the current time is greater than or equal to the stop time, we simply return the deposit minus
+        // the withdrawn amount.
+        if (currentTime >= stopTime) {
+            return _streams[streamId].amounts.deposit;
+        }
 
-            if (segmentCount > 1) {
-                // If there's more than one segment, we have to iterate over all of them.
-                streamedAmount = _calculateStreamedAmountForMultipleSegments(streamId);
-            } else {
-                // Otherwise, there is only one segment, and the calculation is simple.
-                streamedAmount = _calculateStreamedAmountForOneSegment(streamId);
-            }
+        if (segmentCount > 1) {
+            // If there's more than one segment, we have to iterate over all of them.
+            streamedAmount = _calculateStreamedAmountForMultipleSegments(streamId);
+        } else {
+            // Otherwise, there is only one segment, and the calculation is simple.
+            streamedAmount = _calculateStreamedAmountForOneSegment(streamId);
         }
     }
 

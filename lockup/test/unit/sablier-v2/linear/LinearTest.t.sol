@@ -100,8 +100,7 @@ abstract contract LinearTest is SablierV2Test {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function that replicates the logic of the `getStreamedAmount` function, but which
-    /// does not subtract the withdrawn amount.
+    /// @dev Helper function that replicates the logic of the `getStreamedAmount` function.
     function calculateStreamedAmount(
         uint40 currentTime,
         uint128 depositAmount

@@ -87,8 +87,7 @@ contract SablierV2Linear is
         // No need for an assertion here, since the `getStreamedAmount` function checks that the deposit amount
         // is greater than or equal to the streamed amount.
         unchecked {
-            uint128 streamedAmount = getStreamedAmount(streamId);
-            returnableAmount = _streams[streamId].amounts.deposit - streamedAmount;
+            returnableAmount = _streams[streamId].amounts.deposit - getStreamedAmount(streamId);
         }
     }
 
@@ -128,18 +127,19 @@ contract SablierV2Linear is
             return 0;
         }
 
+        uint256 stopTime = uint256(_streams[streamId].range.stop);
+
+        // If the current time is greater than or equal to the stop time, we simply return the deposit minus
+        // the withdrawn amount.
+        if (currentTime >= stopTime) {
+            return _streams[streamId].amounts.deposit;
+        }
+
+        uint256 startTime = uint256(_streams[streamId].range.start);
+
+        // In all other cases, calculate how much was streamed so far.
+        // First, calculate how much time has elapsed since the stream started, and the total time of the stream.
         unchecked {
-            uint256 stopTime = uint256(_streams[streamId].range.stop);
-
-            // If the current time is greater than or equal to the stop time, we simply return the deposit minus
-            // the withdrawn amount.
-            if (currentTime >= stopTime) {
-                return _streams[streamId].amounts.deposit;
-            }
-
-            // In all other cases, calculate how much was streamed so far.
-            // First, calculate how much time has elapsed since the stream started, and the total time of the stream.
-            uint256 startTime = uint256(_streams[streamId].range.start);
             UD60x18 elapsedTime = ud(currentTime - startTime);
             UD60x18 totalTime = ud(stopTime - startTime);
 
