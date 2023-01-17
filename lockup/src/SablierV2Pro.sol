@@ -4,8 +4,9 @@ pragma solidity >=0.8.13;
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
-import { SD1x18 } from "@prb/math/SD1x18.sol";
-import { sd, SD59x18, unwrap } from "@prb/math/SD59x18.sol";
+import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
+import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.sol";
+import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";
@@ -27,6 +28,8 @@ contract SablierV2Pro is
     SablierV2, // two dependencies
     ERC721("Sablier V2 Pro NFT", "SAB-V2-PRO") // six dependencies
 {
+    using CastingUint128 for uint128;
+    using CastingUint40 for uint40;
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -87,6 +90,8 @@ contract SablierV2Pro is
             return 0;
         }
 
+        // No need for an assertion here, since the calculation below is equivalent to subtracting the streamed
+        // amount from the deposit amount, which is already asserted in the `getWithdrawableAmount` function.
         unchecked {
             uint128 withdrawableAmount = getWithdrawableAmount(streamId);
             returnableAmount =
@@ -138,7 +143,7 @@ contract SablierV2Pro is
             uint256 segmentCount = _streams[streamId].segments.length;
             uint40 stopTime = _streams[streamId].stopTime;
 
-            // If the current time is greater than or equal to the stop time, we return the deposit minus
+            // If the current time is greater than or equal to the stop time, we simply return the deposit minus
             // the withdrawn amount.
             if (currentTime >= stopTime) {
                 return _streams[streamId].amounts.deposit - _streams[streamId].amounts.withdrawn;
@@ -280,8 +285,7 @@ contract SablierV2Pro is
         unchecked {
             uint40 currentTime = uint40(block.timestamp);
 
-            // Sum up the amounts found in all preceding segments. Set the sum to the negation of the first segment
-            // amount such that we avoid adding an if statement in the while loop.
+            // Sum up the amounts found in all preceding segments.
             uint128 previousSegmentAmounts;
             uint40 currentSegmentMilestone = _streams[streamId].segments[0].milestone;
             uint256 index = 1;
@@ -291,40 +295,40 @@ contract SablierV2Pro is
                 index += 1;
             }
 
-            // After the loop exits, the current segment is found at index `index - 1`, while the previous segment
-            // is found at `index - 2`.
-            uint128 currentSegmentAmount = _streams[streamId].segments[index - 1].amount;
-            SD1x18 currentSegmentExponent = _streams[streamId].segments[index - 1].exponent;
+            // After the loop exits, the current segment is found at index `index - 1`, whereas the previous segment
+            // is found at `index - 2` (if there are at least two segments).
+            SD59x18 currentSegmentAmount = _streams[streamId].segments[index - 1].amount.intoSD59x18();
+            SD59x18 currentSegmentExponent = _streams[streamId].segments[index - 1].exponent.intoSD59x18();
             currentSegmentMilestone = _streams[streamId].segments[index - 1].milestone;
 
-            // Define the time variables.
-            uint40 elapsedSegmentTime;
-            uint40 totalSegmentTime;
-
-            // If the current segment is at an index that is >= 2, we take the difference between the current
-            // segment milestone and the previous segment milestone.
+            uint40 previousMilestone;
             if (index > 1) {
-                uint40 previousSegmentMilestone = _streams[streamId].segments[index - 2].milestone;
-                elapsedSegmentTime = currentTime - previousSegmentMilestone;
+                // If the current segment is at an index that is >= 2, we use the previous segment's milestone.
+                previousMilestone = _streams[streamId].segments[index - 2].milestone;
+            } else {
+                // Otherwise, there is only one segment, so we use the start of the stream as the previous milestone.
+                previousMilestone = _streams[streamId].startTime;
+            }
 
-                // Calculate the time between the current segment milestone and the previous segment milestone.
-                totalSegmentTime = currentSegmentMilestone - previousSegmentMilestone;
-            }
-            // If the current segment is at index 1, we take the difference between the current segment milestone
-            // and the start time of the stream.
-            else {
-                elapsedSegmentTime = currentTime - _streams[streamId].startTime;
-                totalSegmentTime = currentSegmentMilestone - _streams[streamId].startTime;
-            }
+            // Calculate how much time has elapsed since the segment started, and the total time of the segment.
+            SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
+            SD59x18 totalSegmentTime = (currentSegmentMilestone - previousMilestone).intoSD59x18();
 
             // Calculate the streamed amount.
-            SD59x18 elapsedTimePercentage = sd(int256(uint256(elapsedSegmentTime))).div(
-                sd(int256(uint256(totalSegmentTime)))
-            );
-            SD59x18 multiplier = elapsedTimePercentage.pow(sd(int256(SD1x18.unwrap(currentSegmentExponent))));
-            SD59x18 proRataAmount = multiplier.mul(sd(int256(uint256(currentSegmentAmount))));
-            uint128 streamedAmount = previousSegmentAmounts + uint128(uint256(unwrap(proRataAmount)));
-            withdrawableAmount = streamedAmount - _streams[streamId].amounts.withdrawn;
+            SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
+            SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
+            SD59x18 streamedAmount = multiplier.mul(currentSegmentAmount);
+
+            // Assert that the streamed amount is lower than or equal to the current segment amount.
+            assert(streamedAmount.lte(currentSegmentAmount));
+
+            // Finally, calculate the withdrawable amount by adding up the previous segment amounts and the amount
+            // streamed in this segment, and subtracting the withdrawn amount. Casting to uint128 is safe thanks for
+            // the assertion above.
+            withdrawableAmount =
+                previousSegmentAmounts +
+                uint128(streamedAmount.intoUint256()) -
+                _streams[streamId].amounts.withdrawn;
         }
     }
 
@@ -333,16 +337,25 @@ contract SablierV2Pro is
         uint256 streamId
     ) internal view returns (uint128 withdrawableAmount) {
         unchecked {
-            uint128 depositAmount = _streams[streamId].amounts.deposit;
-            SD1x18 exponent = _streams[streamId].segments[0].exponent;
-            SD59x18 elapsedTime = sd(int256(uint256(uint40(block.timestamp) - _streams[streamId].startTime)));
-            SD59x18 totalTime = sd(int256(uint256(_streams[streamId].stopTime - _streams[streamId].startTime)));
+            // Load the stream fields as SD59x18 numbers.
+            SD59x18 depositAmount = _streams[streamId].amounts.deposit.intoSD59x18();
+            SD59x18 exponent = _streams[streamId].segments[0].exponent.intoSD59x18();
+
+            // Calculate how much time has elapsed since the stream started, and the total time of the stream.
+            SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
+            SD59x18 totalTime = (_streams[streamId].stopTime - _streams[streamId].startTime).intoSD59x18();
 
             // Calculate the streamed amount.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-            SD59x18 multiplier = elapsedTimePercentage.pow(sd(int256(SD1x18.unwrap(exponent))));
-            SD59x18 streamedAmount = multiplier.mul(sd(int256(uint256(depositAmount))));
-            withdrawableAmount = uint128(uint256(unwrap(streamedAmount))) - _streams[streamId].amounts.withdrawn;
+            SD59x18 multiplier = elapsedTimePercentage.pow(exponent);
+            SD59x18 streamedAmount = multiplier.mul(depositAmount);
+
+            // Assert that the streamed amount is lower than or equal to the deposit amount.
+            assert(streamedAmount.lte(depositAmount));
+
+            // Finally, calculate the withdrawable amount by subtracting the withdrawn amount from the streamed amount.
+            // Casting to uint128 is safe thanks for the assertion above.
+            withdrawableAmount = uint128(streamedAmount.intoUint256()) - _streams[streamId].amounts.withdrawn;
         }
     }
 
@@ -359,7 +372,7 @@ contract SablierV2Pro is
     function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
         ProStream memory stream = _streams[streamId];
 
-        // Calculate the withdraw and the return amounts.
+        // Calculate the recipient's and the sender's amount.
         uint128 recipientAmount = getWithdrawableAmount(streamId);
         uint128 senderAmount;
         unchecked {
@@ -522,7 +535,7 @@ contract SablierV2Pro is
         ProStream memory stream = _streams[streamId];
         address recipient = _ownerOf(streamId);
 
-        // Assert that the withdrawn amount cannot get greater than the deposit amount.
+        // Assert that the withdrawn amount is greater than or equal to the deposit amount.
         assert(stream.amounts.deposit >= stream.amounts.withdrawn);
 
         // Effects: if the entire deposit amount is now withdrawn, delete the stream entity.

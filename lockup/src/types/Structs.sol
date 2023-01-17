@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SD1x18 } from "@prb/math/SD1x18.sol";
+import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @notice Simple struct that encapsulates the deposit and the withdrawn amounts.
@@ -95,6 +95,6 @@ struct Range {
 /// @custom:field milestone The Unix timestamp for when this segment ends.
 struct Segment {
     uint128 amount;
-    SD1x18 exponent;
+    UD2x18 exponent;
     uint40 milestone;
 }

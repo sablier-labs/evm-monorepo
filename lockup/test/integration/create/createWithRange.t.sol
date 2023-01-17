@@ -89,7 +89,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         vars.initialBrokerBalance = vars.initialBalances[1];
 
         // Calculate the fee amounts and the net deposit amount.
-        vars.brokerFeeAmount = uint128(UD60x18.unwrap(ud(params.grossDepositAmount).mul(params.broker.fee)));
+        vars.brokerFeeAmount = uint128(ud(params.grossDepositAmount).mul(params.broker.fee).unwrap());
         vars.netDepositAmount = params.grossDepositAmount - vars.brokerFeeAmount;
 
         // Expect an event to be emitted.

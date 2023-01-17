@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
+import { console2 } from "forge-std/console2.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20_CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
-import { SD1x18 } from "@prb/math/SD1x18.sol";
+import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { stdError } from "forge-std/StdError.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
@@ -388,8 +389,8 @@ contract CreateWithMilestones_ProTest is ProTest {
         params.createWithMilestones.token.approve({ spender: address(pro), value: UINT256_MAX });
 
         // Calculate the broker fee amount and the net deposit amount.
-        uint128 protocolFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE)));
-        uint128 brokerFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(broker.fee)));
+        uint128 protocolFeeAmount = uint128(ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE).unwrap());
+        uint128 brokerFeeAmount = uint128(ud(grossDepositAmount).mul(broker.fee).unwrap());
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - brokerFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
@@ -481,7 +482,7 @@ contract CreateWithMilestones_ProTest is ProTest {
         uint128 initialProtocolRevenues = pro.getProtocolRevenues(params.createWithMilestones.token);
 
         // Calculate the protocol fee amount and the net deposit amount.
-        uint128 protocolFeeAmount = uint128(UD60x18.unwrap(ud(grossDepositAmount).mul(protocolFee)));
+        uint128 protocolFeeAmount = uint128(ud(grossDepositAmount).mul(protocolFee).unwrap());
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.

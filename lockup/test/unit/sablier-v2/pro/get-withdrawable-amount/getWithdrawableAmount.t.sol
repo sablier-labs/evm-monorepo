@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { E, SD1x18 } from "@prb/math/SD1x18.sol";
+import { E, UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
@@ -178,8 +178,8 @@ contract GetWithdrawableAmount_ProTest is ProTest {
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(streamId);
         uint128 expectedWithdrawableAmount = calculateStreamedAmountForOneSegment(
             currentTime,
-            depositAmount,
-            segments[0].exponent
+            segments[0].exponent,
+            depositAmount
         );
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
@@ -187,7 +187,7 @@ contract GetWithdrawableAmount_ProTest is ProTest {
     modifier multipleSegments() {
         unchecked {
             uint128 amount = DEFAULT_NET_DEPOSIT_AMOUNT / uint128(DEFAULT_MAX_SEGMENT_COUNT);
-            SD1x18 exponent = E;
+            UD2x18 exponent = E;
             uint40 duration = DEFAULT_TOTAL_DURATION / uint40(DEFAULT_MAX_SEGMENT_COUNT);
 
             // Generate a bunch of segments that each has the same amount, same exponent, and with milestones
