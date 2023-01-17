@@ -446,7 +446,7 @@ contract SablierV2Pro is
     /// @dev See the documentation for the public functions that call this internal function.
     function _createWithMilestones(CreateWithMilestonesParams memory params) internal returns (uint256 streamId) {
         // Checks: validate the arguments.
-        Helpers.checkCreateProArgs(params.amounts.netDeposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
+        Helpers.checkCreateProParams(params.amounts.netDeposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
         // Load the stream id.
         streamId = nextStreamId;

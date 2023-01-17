@@ -371,7 +371,7 @@ contract SablierV2Linear is
     /// @dev See the documentation for the public functions that call this internal function.
     function _createWithRange(CreateWithRangeParams memory params) internal returns (uint256 streamId) {
         // Checks: validate the arguments.
-        Helpers.checkCreateLinearArgs(params.amounts.netDeposit, params.range);
+        Helpers.checkCreateLinearParams(params.amounts.netDeposit, params.range);
 
         // Load the stream id.
         streamId = nextStreamId;

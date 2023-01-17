@@ -54,7 +54,7 @@ library Helpers {
     }
 
     /// @dev Checks the arguments of the `create` function in the SablierV2Linear contract.
-    function checkCreateLinearArgs(uint128 netDepositAmount, Range memory range) internal pure {
+    function checkCreateLinearParams(uint128 netDepositAmount, Range memory range) internal pure {
         // Checks: the net deposit amount is not zero.
         if (netDepositAmount == 0) {
             revert Errors.SablierV2_NetDepositAmountZero();
@@ -72,7 +72,7 @@ library Helpers {
     }
 
     /// @dev Checks the arguments of the `create` function in the SablierV2Pro contract.
-    function checkCreateProArgs(
+    function checkCreateProParams(
         uint128 netDepositAmount,
         Segment[] memory segments,
         uint256 maxSegmentCount,
