@@ -1,4 +1,4 @@
-name: "Deploy Test Token"
+name: "Deploy Test Asset"
 
 env:
   ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
@@ -15,7 +15,7 @@ on:
         required: false
 
 jobs:
-  deploy-test-token:
+  deploy-test-asset:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
@@ -26,9 +26,9 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Deploy a test token contract"
+      - name: "Deploy a test ERC-20 asset contract"
         run: >-
-          forge script script/DeployTestToken.s.sol
+          forge script script/DeployTestAsset.s.sol
           --broadcast
           --rpc-url "${{ github.event.inputs.chain }}"
           -vvvv

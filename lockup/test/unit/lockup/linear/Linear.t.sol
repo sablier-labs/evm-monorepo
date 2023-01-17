@@ -22,7 +22,7 @@ abstract contract Linear_Test is Lockup_Test {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
-        IERC20 token;
+        IERC20 asset;
         bool cancelable;
         Durations durations;
         Broker broker;
@@ -32,7 +32,7 @@ abstract contract Linear_Test is Lockup_Test {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
-        IERC20 token;
+        IERC20 asset;
         bool cancelable;
         Range range;
         Broker broker;
@@ -63,7 +63,7 @@ abstract contract Linear_Test is Lockup_Test {
                 sender: users.sender,
                 recipient: users.recipient,
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
-                token: dai,
+                asset: dai,
                 cancelable: true,
                 durations: DEFAULT_DURATIONS,
                 broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
@@ -72,7 +72,7 @@ abstract contract Linear_Test is Lockup_Test {
                 sender: users.sender,
                 recipient: users.recipient,
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
-                token: dai,
+                asset: dai,
                 cancelable: true,
                 range: DEFAULT_RANGE,
                 broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
@@ -86,12 +86,12 @@ abstract contract Linear_Test is Lockup_Test {
             sender: params.createWithRange.sender,
             status: Status.ACTIVE,
             range: params.createWithRange.range,
-            token: params.createWithRange.token
+            asset: params.createWithRange.asset
         });
 
         // Set the default protocol fee.
         comptroller.setProtocolFee(dai, DEFAULT_PROTOCOL_FEE);
-        comptroller.setProtocolFee(IERC20(address(nonCompliantToken)), DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee(IERC20(address(nonCompliantAsset)), DEFAULT_PROTOCOL_FEE);
 
         // Make the sender the default caller in all subsequent tests.
         changePrank(users.sender);
@@ -127,7 +127,7 @@ abstract contract Linear_Test is Lockup_Test {
             params.createWithRange.sender,
             params.createWithRange.recipient,
             params.createWithRange.grossDepositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             params.createWithRange.cancelable,
             params.createWithRange.range,
             params.createWithRange.broker
@@ -140,7 +140,7 @@ abstract contract Linear_Test is Lockup_Test {
             params.createWithDurations.sender,
             params.createWithDurations.recipient,
             params.createWithDurations.grossDepositAmount,
-            params.createWithDurations.token,
+            params.createWithDurations.asset,
             params.createWithDurations.cancelable,
             params.createWithDurations.durations,
             params.createWithRange.broker
@@ -153,7 +153,7 @@ abstract contract Linear_Test is Lockup_Test {
             params.createWithDurations.sender,
             params.createWithDurations.recipient,
             params.createWithDurations.grossDepositAmount,
-            params.createWithDurations.token,
+            params.createWithDurations.asset,
             params.createWithDurations.cancelable,
             durations,
             params.createWithDurations.broker
@@ -166,7 +166,7 @@ abstract contract Linear_Test is Lockup_Test {
             params.createWithRange.sender,
             params.createWithRange.recipient,
             grossDepositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             params.createWithRange.cancelable,
             params.createWithRange.range,
             params.createWithRange.broker
@@ -180,7 +180,7 @@ abstract contract Linear_Test is Lockup_Test {
             params.createWithRange.sender,
             params.createWithRange.recipient,
             params.createWithRange.grossDepositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             isCancelable,
             params.createWithRange.range,
             params.createWithRange.broker
@@ -193,7 +193,7 @@ abstract contract Linear_Test is Lockup_Test {
             params.createWithRange.sender,
             recipient,
             params.createWithRange.grossDepositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             params.createWithRange.cancelable,
             params.createWithRange.range,
             params.createWithRange.broker
@@ -206,7 +206,7 @@ abstract contract Linear_Test is Lockup_Test {
             sender,
             params.createWithRange.recipient,
             params.createWithRange.grossDepositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             params.createWithRange.cancelable,
             params.createWithRange.range,
             params.createWithRange.broker
@@ -219,7 +219,7 @@ abstract contract Linear_Test is Lockup_Test {
             params.createWithRange.sender,
             params.createWithRange.recipient,
             params.createWithRange.grossDepositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             params.createWithRange.cancelable,
             Range({
                 start: params.createWithRange.range.start,

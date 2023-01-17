@@ -51,7 +51,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
             params.createWithRange.sender,
             params.createWithRange.recipient,
             params.createWithRange.grossDepositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             params.createWithRange.cancelable,
             Range({ start: startTime, cliff: cliffTime, stop: params.createWithRange.range.stop }),
             params.createWithRange.broker
@@ -81,7 +81,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
             params.createWithRange.sender,
             params.createWithRange.recipient,
             params.createWithRange.grossDepositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             params.createWithRange.cancelable,
             Range({ start: params.createWithRange.range.start, cliff: cliffTime, stop: stopTime }),
             params.createWithRange.broker
@@ -106,7 +106,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
 
         // Set the protocol fee.
         changePrank(users.admin);
-        comptroller.setProtocolFee(params.createWithRange.token, protocolFee);
+        comptroller.setProtocolFee(params.createWithRange.asset, protocolFee);
 
         // Run the test.
         vm.expectRevert(
@@ -138,7 +138,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
             params.createWithRange.sender,
             params.createWithRange.recipient,
             params.createWithRange.grossDepositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             params.createWithRange.cancelable,
             params.createWithRange.range,
             Broker({ addr: users.broker, fee: brokerFee })
@@ -150,8 +150,8 @@ contract CreateWithRange_Linear_Test is Linear_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_TokenNotContract(
-        IERC20 nonToken
+    function testFuzz_RevertWhen_AssetNotContract(
+        IERC20 nonContract
     )
         external
         recipientNonZeroAddress
@@ -161,25 +161,25 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
     {
-        vm.assume(address(nonToken).code.length == 0);
-        vm.expectRevert(abi.encodeWithSelector(SafeERC20_CallToNonContract.selector, address(nonToken)));
+        vm.assume(address(nonContract).code.length == 0);
+        vm.expectRevert(abi.encodeWithSelector(SafeERC20_CallToNonContract.selector, address(nonContract)));
         linear.createWithRange(
             params.createWithRange.sender,
             params.createWithRange.recipient,
             params.createWithRange.grossDepositAmount,
-            nonToken,
+            nonContract,
             params.createWithRange.cancelable,
             params.createWithRange.range,
             params.createWithRange.broker
         );
     }
 
-    modifier tokenContract() {
+    modifier assetContract() {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
-    function test_CreateWithRange_TokenMissingReturnValue()
+    /// @dev it should perform the ERC-20 asset transfers, create the stream, bump the next stream id, and mint the NFT.
+    function test_CreateWithRange_AssetMissingReturnValue()
         external
         recipientNonZeroAddress
         netDepositAmountNotZero
@@ -187,21 +187,21 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         cliffLessThanOrEqualToStopTime
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
-        tokenContract
+        assetContract
     {
         // Load the stream id.
         uint256 streamId = linear.nextStreamId();
 
-        // Expect the tokens to be transferred from the funder to the SablierV2LockupLinear contract.
+        // Expect the assets to be transferred from the funder to the SablierV2LockupLinear contract.
         address funder = params.createWithRange.sender;
         vm.expectCall(
-            address(nonCompliantToken),
+            address(nonCompliantAsset),
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
         // Expect the broker fee to be paid to the broker.
         vm.expectCall(
-            address(nonCompliantToken),
+            address(nonCompliantAsset),
             abi.encodeCall(IERC20.transferFrom, (funder, params.createWithRange.broker.addr, DEFAULT_BROKER_FEE_AMOUNT))
         );
 
@@ -210,7 +210,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
             params.createWithRange.sender,
             params.createWithRange.recipient,
             params.createWithRange.grossDepositAmount,
-            IERC20(address(nonCompliantToken)),
+            IERC20(address(nonCompliantAsset)),
             params.createWithRange.cancelable,
             params.createWithRange.range,
             params.createWithRange.broker
@@ -222,7 +222,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         assertEq(actualStream.isCancelable, defaultStream.isCancelable);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.range, defaultStream.range);
-        assertEq(actualStream.token, IERC20(address(nonCompliantToken)));
+        assertEq(actualStream.asset, IERC20(address(nonCompliantAsset)));
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
@@ -235,7 +235,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         assertEq(actualNFTOwner, expectedNFTOwner);
     }
 
-    modifier tokenERC20Compliant() {
+    modifier assetERC20Compliant() {
         _;
     }
 
@@ -265,8 +265,8 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         cliffLessThanOrEqualToStopTime
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
-        tokenContract
-        tokenERC20Compliant
+        assetContract
+        assetERC20Compliant
     {
         vm.assume(funder != address(0) && recipient != address(0) && broker.addr != address(0));
         vm.assume(grossDepositAmount != 0);
@@ -277,11 +277,11 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         // Make the fuzzed funder the caller in this test.
         changePrank(funder);
 
-        // Mint enough tokens to the funder.
-        deal({ token: address(params.createWithRange.token), to: funder, give: grossDepositAmount });
+        // Mint enough assets to the funder.
+        deal({ token: address(params.createWithRange.asset), to: funder, give: grossDepositAmount });
 
-        // Approve the SablierV2LockupLinear contract to transfer the tokens from the funder.
-        params.createWithRange.token.approve({ spender: address(linear), value: UINT256_MAX });
+        // Approve the SablierV2LockupLinear contract to transfer the assets from the funder.
+        params.createWithRange.asset.approve({ spender: address(linear), value: UINT256_MAX });
 
         // Load the stream id.
         uint256 streamId = linear.nextStreamId();
@@ -291,16 +291,16 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         uint128 brokerFeeAmount = uint128(ud(grossDepositAmount).mul(broker.fee).unwrap());
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - brokerFeeAmount;
 
-        // Expect the tokens to be transferred from the funder to the SablierV2LockupLinear contract.
+        // Expect the assets to be transferred from the funder to the SablierV2LockupLinear contract.
         vm.expectCall(
-            address(params.createWithRange.token),
+            address(params.createWithRange.asset),
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), netDepositAmount))
         );
 
         // Expect the broker fee to be paid to the broker, if the fee amount is not zero.
         if (brokerFeeAmount > 0) {
             vm.expectCall(
-                address(params.createWithRange.token),
+                address(params.createWithRange.asset),
                 abi.encodeCall(IERC20.transferFrom, (funder, broker.addr, brokerFeeAmount))
             );
         }
@@ -310,7 +310,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
             params.createWithRange.sender,
             recipient,
             grossDepositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             cancelable,
             range,
             broker
@@ -323,7 +323,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         assertEq(actualStream.range, range);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.status, defaultStream.status);
-        assertEq(actualStream.token, defaultStream.token);
+        assertEq(actualStream.asset, defaultStream.asset);
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
@@ -352,15 +352,15 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         cliffLessThanOrEqualToStopTime
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
-        tokenContract
-        tokenERC20Compliant
+        assetContract
+        assetERC20Compliant
     {
         vm.assume(grossDepositAmount != 0);
         protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
 
         // Set the fuzzed protocol fee.
         changePrank(users.admin);
-        comptroller.setProtocolFee(params.createWithRange.token, protocolFee);
+        comptroller.setProtocolFee(params.createWithRange.asset, protocolFee);
 
         // Make the sender the funder in this test.
         address funder = params.createWithRange.sender;
@@ -368,11 +368,11 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         // Make the funder the caller in the rest of this test.
         changePrank(funder);
 
-        // Mint enough tokens to the funder.
-        deal({ token: address(params.createWithRange.token), to: funder, give: grossDepositAmount });
+        // Mint enough assets to the funder.
+        deal({ token: address(params.createWithRange.asset), to: funder, give: grossDepositAmount });
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = linear.getProtocolRevenues(params.createWithRange.token);
+        uint128 initialProtocolRevenues = linear.getProtocolRevenues(params.createWithRange.asset);
 
         // Create the stream with the fuzzed gross deposit amount.
         createDefaultStreamWithGrossDepositAmount(grossDepositAmount);
@@ -381,7 +381,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         uint128 protocolFeeAmount = uint128(ud(grossDepositAmount).mul(protocolFee).unwrap());
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(params.createWithRange.token);
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(params.createWithRange.asset);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + protocolFeeAmount;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -394,8 +394,8 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         cliffLessThanOrEqualToStopTime
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
-        tokenContract
-        tokenERC20Compliant
+        assetContract
+        assetERC20Compliant
     {
         uint256 streamId = linear.nextStreamId();
         address funder = params.createWithRange.sender;
@@ -406,7 +406,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
             sender: params.createWithRange.sender,
             recipient: params.createWithRange.recipient,
             amounts: DEFAULT_CREATE_AMOUNTS,
-            token: params.createWithRange.token,
+            asset: params.createWithRange.asset,
             cancelable: params.createWithRange.cancelable,
             range: params.createWithRange.range,
             broker: params.createWithRange.broker.addr

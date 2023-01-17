@@ -78,7 +78,7 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
             params.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             segments,
-            params.createWithMilestones.token,
+            params.createWithMilestones.asset,
             params.createWithMilestones.cancelable,
             params.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })
@@ -129,7 +129,7 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
             params.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             maxSegments,
-            params.createWithMilestones.token,
+            params.createWithMilestones.asset,
             params.createWithMilestones.cancelable,
             params.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })
@@ -168,7 +168,7 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
             params.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             maxSegments,
-            params.createWithMilestones.token,
+            params.createWithMilestones.asset,
             params.createWithMilestones.cancelable,
             params.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })

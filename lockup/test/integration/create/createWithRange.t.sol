@@ -15,7 +15,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 token_, address holder_) IntegrationTest(token_, holder_) {}
+    constructor(IERC20 asset_, address holder_) IntegrationTest(asset_, holder_) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
@@ -24,9 +24,9 @@ abstract contract CreateWithRange_Test is IntegrationTest {
     function setUp() public virtual override {
         IntegrationTest.setUp();
 
-        // Approve the SablierV2LockupLinear contract to transfer the token holder's tokens.
-        // We use a low-level call to ignore reverts because the token can have the missing return value bug.
-        (bool success, ) = address(token).call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
+        // Approve the SablierV2LockupLinear contract to transfer the asset holder's assets.
+        // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
+        (bool success, ) = address(asset).call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
         success;
     }
 
@@ -82,7 +82,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.stop);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
 
-        // Load the initial token balances.
+        // Load the initial asset balances.
         Vars memory vars;
         vars.initialBalances = getTokenBalances(Solarray.addresses(address(linear), params.broker.addr));
         vars.initialLinearBalance = vars.initialBalances[0];
@@ -105,7 +105,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
                 protocolFee: 0,
                 brokerFee: vars.brokerFeeAmount
             }),
-            token: token,
+            asset: asset,
             cancelable: params.cancelable,
             range: params.range,
             broker: params.broker.addr
@@ -116,7 +116,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
             params.sender,
             params.recipient,
             params.grossDepositAmount,
-            token,
+            asset,
             params.cancelable,
             params.range,
             params.broker
@@ -129,7 +129,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         assertEq(actualStream.range, params.range);
         assertEq(actualStream.sender, params.sender);
         assertEq(actualStream.status, defaultStream.status);
-        assertEq(actualStream.token, token);
+        assertEq(actualStream.asset, asset);
 
         // Assert that the next stream id was bumped.
         vars.actualNextStreamId = linear.nextStreamId();
@@ -141,7 +141,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
-        // Load the actual token balances.
+        // Load the actual asset balances.
         vars.actualBalances = getTokenBalances(Solarray.addresses(address(linear), holder, params.broker.addr));
         vars.actualLinearBalance = vars.actualBalances[0];
         vars.actualHolderBalance = vars.actualBalances[1];

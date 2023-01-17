@@ -143,10 +143,10 @@ forge script script/DeployProtocol.s.sol \
   MAX_SEGMENT_COUNT
 ```
 
-#### Deploy Test Token
+#### Deploy Test Asset
 
 ```sh
-forge script script/DeployTestToken.s.sol \
+forge script script/DeployTestAsset.s.sol \
   --broadcast \
   --rpc-url goerli
 ```
@@ -178,7 +178,7 @@ Tests are organized in two categories:
 
 1. Unit - simple tests that check the behavior of a single function on a local development EMV.
 2. Integration - complex tests that run against a fork of Ethereum Mainnet to check that Sablier V2 works with deployed
-   ERC-20 tokens.
+   ERC-20 assets.
 
 You can run all tests by using this command:
 

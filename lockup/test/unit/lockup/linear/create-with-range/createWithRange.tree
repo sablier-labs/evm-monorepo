@@ -17,12 +17,12 @@ createWithRange.t.sol
                ├── when the broker fee is too high
                │  └── it should revert
                └── when the broker fee is not too high
-                  ├── when the token is not a contract
+                  ├── when the asset is not a contract
                   │  └── it should revert
-                  └── when the token is a contract
-                     ├── when the token misses the return value
+                  └── when the asset is a contract
+                     ├── when the asset misses the return value
                      │  └── it should perform the ERC-20 transfers, create the stream, bump the next stream id and mint the NFT
-                     └── when the token is ERC-20 compliant
+                     └── when the asset is ERC-20 compliant
                         ├── it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT
                         ├── it should record the protocol fee
                         └── it should emit a CreateLockupLinearStream event

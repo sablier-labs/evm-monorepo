@@ -17,9 +17,9 @@ abstract contract IntegrationTest is Base_Test {
                                       STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    IERC20 internal asset;
     address internal holder;
     uint256 internal initialHolderBalance;
-    IERC20 internal token;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
@@ -31,8 +31,8 @@ abstract contract IntegrationTest is Base_Test {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 token_, address holder_) {
-        token = token_;
+    constructor(IERC20 asset_, address holder_) {
+        asset = asset_;
         holder = holder_;
     }
 
@@ -52,25 +52,25 @@ abstract contract IntegrationTest is Base_Test {
         // Load the Multicall3 contract at the deterministic deployment address.
         multicall = IMulticall3(MULTICALL3_ADDRESS);
 
-        // Make the token holder the caller in this test suite.
+        // Make the asset holder the caller in this test suite.
         changePrank(holder);
 
         // Query the initial holder's balance.
-        initialHolderBalance = IERC20(token).balanceOf(holder);
+        initialHolderBalance = IERC20(asset).balanceOf(holder);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Performs a single call with Multicall3 to query the ERC-20 token balances of the given addresses.
+    /// @dev Performs a single call with Multicall3 to query the ERC-20 asset balances of the given addresses.
     function getTokenBalances(address[] memory addresses) internal returns (uint256[] memory balances) {
         // ABI encode the aggregate call to Multicall3.
         uint256 length = addresses.length;
         IMulticall3.Call[] memory calls = new IMulticall3.Call[](length);
         for (uint256 i = 0; i < length; ++i) {
             calls[i] = IMulticall3.Call({
-                target: address(token),
+                target: address(asset),
                 callData: abi.encodeCall(IERC20.balanceOf, (addresses[i]))
             });
         }

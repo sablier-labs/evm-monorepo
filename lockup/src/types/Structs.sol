@@ -24,9 +24,9 @@ struct Durations {
 }
 
 /// @notice Simple struct that encapsulates the deposit and the withdrawn amounts.
-/// @custom:field deposit The amount of tokens that have been originally deposited in the stream, net of fees and
-/// in units of the token's decimals.
-/// @custom:field withdrawn The amount of tokens that have been withdrawn from the stream, in units of the token's
+/// @custom:field deposit The amount of assets that have been originally deposited in the stream, net of fees and
+/// in units of the asset's decimals.
+/// @custom:field withdrawn The amount of assets that have been withdrawn from the stream, in units of the asset's
 /// decimals.
 struct LockupAmounts {
     uint128 deposit; // ───┐
@@ -34,10 +34,10 @@ struct LockupAmounts {
 }
 
 /// @notice Simple struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii) the
-/// broker fee amount, each in units of the token's decimals.
-/// @custom:field netDeposit The deposit amount net of fees, in units of the token's decimals.
-/// @custom:field protocolFee The protocol fee amount, in units of the token's decimals.
-/// @custom:field brokerFee The broker fee amount, in units of the token's decimals.
+/// broker fee amount, each in units of the asset's decimals.
+/// @custom:field netDeposit The deposit amount net of fees, in units of the asset's decimals.
+/// @custom:field protocolFee The protocol fee amount, in units of the asset's decimals.
+/// @custom:field brokerFee The broker fee amount, in units of the asset's decimals.
 struct LockupCreateAmounts {
     uint128 netDeposit; // ──┐
     uint128 protocolFee; // ─┘
@@ -50,14 +50,14 @@ struct LockupCreateAmounts {
 /// @custom:field sender The address of the sender of the stream.
 /// @custom:field isCancelable A boolean that indicates whether the stream is cancelable or not.
 /// @custom:field status An enum that indicates the status of the stream.
-/// @custom:field token The address of the ERC-20 token used for streaming.
+/// @custom:field asset The contract address of the ERC-20 asset used for streaming.
 struct LockupLinearStream {
     LockupAmounts amounts;
     Range range;
     address sender; // ───┐
     bool isCancelable; // │
     Status status; // ────┘
-    IERC20 token;
+    IERC20 asset;
 }
 
 /// @notice Pro stream struct used in the SablierV2LockupPro contract.
@@ -69,7 +69,7 @@ struct LockupLinearStream {
 /// @custom:field stopTime The Unix timestamp for when the stream will stop.
 /// @custom:field isCancelable A boolean that indicates whether the stream is cancelable or not.
 /// @custom:field status An enum that indicates the status of the stream.
-/// @custom:field token The address of the ERC-20 token used for streaming.
+/// @custom:field asset The contract address of the ERC-20 asset used for streaming.
 struct LockupProStream {
     LockupAmounts amounts;
     Segment[] segments;
@@ -78,7 +78,7 @@ struct LockupProStream {
     uint40 stopTime; //   │
     bool isCancelable; // │
     Status status; // ────┘
-    IERC20 token;
+    IERC20 asset;
 }
 
 /// @notice Range struct used as a field in the lockup linear stream.
@@ -92,7 +92,7 @@ struct Range {
 }
 
 /// @notice Segment struct used in the SablierV2LockupPro contract.
-/// @custom:field amount The amounts of tokens to be streamed in this segment, in units of the token's decimals.
+/// @custom:field amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
 /// @custom:field exponent The exponent in this segment, whose base is the elapsed time as a percentage.
 /// @custom:field milestone The Unix timestamp for when this segment ends.
 struct Segment {

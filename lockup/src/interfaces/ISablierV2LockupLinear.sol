@@ -49,12 +49,12 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// Requirements:
     /// - All from `createWithRange`.
     ///
-    /// @param sender The address from which to stream the tokens with a cliff period, which will have the ability to
+    /// @param sender The address from which to stream the assets, which will have the ability to
     /// cancel the stream. It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address toward which to stream the tokens.
-    /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the token's
+    /// @param recipient The address toward which to stream the assets.
+    /// @param grossDepositAmount The gross amount of assets to be deposited, inclusive of fees, in units of the asset's
     /// decimals.
-    /// @param token The address of the ERC-20 token to use for streaming.
+    /// @param asset The contract address of the ERC-20 asset to use for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param durations A struct that encapsulates (i) the duration of the cliff period and (ii) the total duration of
     /// the stream, both in seconds.
@@ -65,7 +65,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        IERC20 token,
+        IERC20 asset,
         bool cancelable,
         Durations calldata durations,
         Broker calldata broker
@@ -84,15 +84,15 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - `grossDepositAmount` must not be zero.
     /// - `range.start` must not be greater than `range.cliff`.
     /// - `range.cliff` must not be greater than `range.stop`.
-    /// - `msg.sender` must have allowed this contract to spend at least `grossDepositAmount` tokens.
+    /// - `msg.sender` must have allowed this contract to spend at least `grossDepositAmount` assets.
     /// - If set, `broker.fee` must not be greater than `MAX_FEE`.
     ///
-    /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
+    /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address toward which to stream the tokens.
-    /// @param grossDepositAmount The gross amount of tokens to deposit, inclusive of fees, in units of the token's
+    /// @param recipient The address toward which to stream the assets.
+    /// @param grossDepositAmount The gross amount of assets to deposit, inclusive of fees, in units of the asset's
     /// decimals.
-    /// @param token The address of the ERC-20 token to use for streaming.
+    /// @param asset The contract address of the ERC-20 asset to use for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
     /// and (iii) the stop time of the stream, all as Unix timestamps.
@@ -103,7 +103,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        IERC20 token,
+        IERC20 asset,
         bool cancelable,
         Range calldata range,
         Broker calldata broker

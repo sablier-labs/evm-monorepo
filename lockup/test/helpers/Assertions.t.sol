@@ -41,7 +41,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.sender, b.sender);
         assertEq(a.status, b.status);
         assertEq(a.range, b.range);
-        assertEq(a.token, b.token);
+        assertEq(a.asset, b.asset);
     }
 
     /// @dev Compares two `LockupProStream` struct entities.
@@ -51,7 +51,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.sender, b.sender);
         assertEq(a.startTime, b.startTime);
         assertEq(a.status, b.status);
-        assertEq(a.token, b.token);
+        assertEq(a.asset, b.asset);
     }
 
     /// @dev Compares two `Range` struct entities.

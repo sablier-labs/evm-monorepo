@@ -68,7 +68,7 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
     ISablierV2Comptroller internal comptroller;
     IERC20 internal dai = new ERC20("Dai Stablecoin", "DAI", 18);
     ISablierV2LockupLinear internal linear;
-    NonCompliantERC20 internal nonCompliantToken = new NonCompliantERC20("Non-Compliant Token", "NCT", 18);
+    NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
     ISablierV2LockupPro internal pro;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -140,45 +140,45 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Approves all Sablier contracts to spend tokens from the sender, recipient, Alice and Eve,
+    /// @dev Approves all Sablier contracts to spend ERC-20 assets from the sender, recipient, Alice and Eve,
     /// and then change the active prank back to the admin.
     function approveSablierContracts() internal {
         changePrank(users.sender);
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(pro), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         changePrank(users.recipient);
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(pro), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         changePrank(users.alice);
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(pro), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         changePrank(users.eve);
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantToken.approve({ spender: address(pro), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         // Finally, change the active prank back to the admin.
         changePrank(users.admin);
     }
 
     /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
-    /// and 1 million non-compliant tokens.
+    /// and 1 million non-compliant assets.
     function createUser(string memory name) internal returns (address payable addr) {
         addr = payable(address(uint160(uint256(keccak256(abi.encodePacked(name))))));
         vm.label({ account: addr, newLabel: name });
         vm.deal({ account: addr, newBalance: 100 ether });
         deal({ token: address(dai), to: addr, give: 1_000_000e18 });
-        deal({ token: address(nonCompliantToken), to: addr, give: 1_000_000e18 });
+        deal({ token: address(nonCompliantAsset), to: addr, give: 1_000_000e18 });
     }
 
     /// @dev Conditionally deploy contracts normally or from precompiled source.
