@@ -5,20 +5,22 @@ import { Adminable } from "@prb/contracts/access/Adminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { SablierV2 } from "./abstracts/SablierV2.sol";
+import { SablierV2FlashLoan } from "./abstracts/SablierV2FlashLoan.sol";
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "./interfaces/ISablierV2Lockup.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Status } from "./types/Enums.sol";
-import { SablierV2 } from "./SablierV2.sol";
 
 /// @title SablierV2Lockup
-/// @dev Abstract contract that implements the ISablierV2Lockup interface and other common logic.
+/// @dev Abstract contract that implements the {ISablierV2Lockup} interface and other common logic.
 abstract contract SablierV2Lockup is
     Adminable, // one dependency
-    SablierV2, // two dependencies
-    ISablierV2Lockup // three dependencies
+    SablierV2, // three dependencies
+    ISablierV2Lockup, // three dependencies
+    SablierV2FlashLoan // five dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE

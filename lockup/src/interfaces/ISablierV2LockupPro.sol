@@ -48,7 +48,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// @dev Emits a {CreateLockupProStream} and a {Transfer} event.
     ///
     /// Requirements:
-    /// - All from `createWithMilestones`.
+    /// - All from {createWithMilestones}.
     ///
     /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.

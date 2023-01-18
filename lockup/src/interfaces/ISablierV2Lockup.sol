@@ -68,7 +68,11 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream to make the query for.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
-    /// @notice Checks whether the stream is cancelable or not. Always returns `false` if the stream is not active.
+    /// @notice Checks whether the stream is cancelable or not.
+    ///
+    /// Notes:
+    /// - Always returns `false` if the stream is not active.
+    ///
     /// @param streamId The id of the stream to make the query for.
     function isCancelable(uint256 streamId) external view returns (bool result);
 
@@ -168,10 +172,10 @@ interface ISablierV2Lockup is
     /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - All from `withdraw`.
+    /// - All from {withdraw}.
     ///
     /// Requirements:
-    /// - All from `withdraw`.
+    /// - All from {withdraw}.
     ///
     /// @param streamId The id of the stream to withdraw.
     /// @param to The address that receives the withdrawn assets.

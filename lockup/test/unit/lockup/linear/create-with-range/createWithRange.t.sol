@@ -192,7 +192,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         // Load the stream id.
         uint256 streamId = linear.nextStreamId();
 
-        // Expect the assets to be transferred from the funder to the SablierV2LockupLinear contract.
+        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
         address funder = params.createWithRange.sender;
         vm.expectCall(
             address(nonCompliantAsset),
@@ -249,7 +249,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
     /// - Cliff time lower than and equal to stop time.
-    /// - Broker fee zero and non-zero.
+    /// - Multiple values for the broker fee, including zero.
     function testFuzz_CreateWithRange(
         address funder,
         address recipient,
@@ -280,18 +280,18 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         // Mint enough assets to the funder.
         deal({ token: address(params.createWithRange.asset), to: funder, give: grossDepositAmount });
 
-        // Approve the SablierV2LockupLinear contract to transfer the assets from the funder.
+        // Approve the {SablierV2LockupLinear} contract to transfer the assets from the funder.
         params.createWithRange.asset.approve({ spender: address(linear), value: UINT256_MAX });
 
         // Load the stream id.
         uint256 streamId = linear.nextStreamId();
 
         // Calculate the broker fee amount and the net deposit amount.
-        uint128 protocolFeeAmount = uint128(ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE).unwrap());
-        uint128 brokerFeeAmount = uint128(ud(grossDepositAmount).mul(broker.fee).unwrap());
+        uint128 protocolFeeAmount = ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE).intoUint128();
+        uint128 brokerFeeAmount = ud(grossDepositAmount).mul(broker.fee).intoUint128();
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - brokerFeeAmount;
 
-        // Expect the assets to be transferred from the funder to the SablierV2LockupLinear contract.
+        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
         vm.expectCall(
             address(params.createWithRange.asset),
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), netDepositAmount))
@@ -341,7 +341,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - Multiple values for the gross deposit amount.
-    /// - Protocol fee zero and non-zero.
+    /// - Multiple values for the protocol fee, including zero.
     function testFuzz_CreateWithRange_ProtocolFee(
         uint128 grossDepositAmount,
         UD60x18 protocolFee
@@ -378,7 +378,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         createDefaultStreamWithGrossDepositAmount(grossDepositAmount);
 
         // Calculate the protocol fee amount.
-        uint128 protocolFeeAmount = uint128(ud(grossDepositAmount).mul(protocolFee).unwrap());
+        uint128 protocolFeeAmount = ud(grossDepositAmount).mul(protocolFee).intoUint128();
 
         // Assert that the protocol fee was recorded.
         uint128 actualProtocolRevenues = linear.getProtocolRevenues(params.createWithRange.asset);

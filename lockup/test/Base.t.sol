@@ -121,7 +121,7 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
     /// @dev Adjust the amounts in the default segments as two fractions of the provided net deposit amount,
     /// one 20%, the other 80%.
     function adjustSegmentAmounts(Segment[] memory segments, uint128 netDepositAmount) internal pure {
-        segments[0].amount = uint128(ud(netDepositAmount).mul(ud(0.2e18)).unwrap());
+        segments[0].amount = ud(netDepositAmount).mul(ud(0.2e18)).intoUint128();
         segments[1].amount = netDepositAmount - segments[0].amount;
     }
 

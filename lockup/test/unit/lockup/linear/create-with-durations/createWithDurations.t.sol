@@ -86,7 +86,7 @@ contract CreateWithDurations_Linear_Test is Linear_Test {
         // Make the sender the funder in this test.
         address funder = params.createWithDurations.sender;
 
-        // Expect the assets to be transferred from the funder to the SablierV2LockupLinear contract.
+        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
         vm.expectCall(
             address(params.createWithDurations.asset),
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT))

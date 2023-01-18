@@ -21,7 +21,7 @@ import { ISablierV2LockupSender } from "./interfaces/hooks/ISablierV2LockupSende
 import { SablierV2Lockup } from "./SablierV2Lockup.sol";
 
 /// @title SablierV2LockupLinear
-/// @dev This contract implements the ISablierV2LockupLinear interface.
+/// @dev This contract implements the {ISablierV2LockupLinear} interface.
 contract SablierV2LockupLinear is
     ISablierV2LockupLinear, // one dependency
     SablierV2Lockup, // two dependencies
@@ -70,7 +70,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2LockupLinear
-    function getRange(uint256 streamId) external view returns (Range memory range) {
+    function getRange(uint256 streamId) external view override returns (Range memory range) {
         range = _streams[streamId].range;
     }
 
@@ -88,7 +88,7 @@ contract SablierV2LockupLinear is
             return 0;
         }
 
-        // No need for an assertion here, since the `getStreamedAmount` function checks that the deposit amount
+        // No need for an assertion here, since the {getStreamedAmount} function checks that the deposit amount
         // is greater than or equal to the streamed amount.
         unchecked {
             returnableAmount = _streams[streamId].amounts.deposit - getStreamedAmount(streamId);
@@ -162,7 +162,7 @@ contract SablierV2LockupLinear is
             assert(streamedAmountUd.lte(depositAmount));
 
             // Casting to uint128 is safe thanks to the assertion above.
-            streamedAmount = uint128(streamedAmountUd.unwrap());
+            streamedAmount = uint128(streamedAmountUd.intoUint256());
         }
     }
 
@@ -215,7 +215,7 @@ contract SablierV2LockupLinear is
         range.start = uint40(block.timestamp);
 
         // Calculate the cliff time and the stop time. It is safe to use unchecked arithmetic because the
-        // `_createWithRange` function will nonetheless check that the stop time is greater than or equal to the
+        // {_createWithRange} function will nonetheless check that the stop time is greater than or equal to the
         // cliff time, and also that the cliff time is greater than or equal to the start time.
         unchecked {
             range.cliff = range.start + durations.cliff;

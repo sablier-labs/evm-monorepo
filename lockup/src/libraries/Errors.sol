@@ -8,6 +8,25 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 /// @notice Library with custom errors used across the core contracts.
 library Errors {
     /*//////////////////////////////////////////////////////////////////////////
+                               SABLIER-V2-FLASH-LOAN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when attempting to flash loan an amount that is greater than or equal to 2^128.
+    error SablierV2FlashLoan_AmountTooHigh(uint256 amount);
+
+    /// @notice Emitted when attempting to flash loan an asset that is not supported.
+    error SablierV2FlashLoan_AssetNotFlashLoanable(IERC20 asset);
+
+    /// @notice Emitted when during a flash loan the calculated fee is greater than or equal to 2^128.
+    error SablierV2FlashLoan_FeeTooHigh(uint256 amount);
+
+    /// @notice Emitted when the callback to the flash borrower failed.
+    error SablierV2FlashLoan_FlashBorrowFail();
+
+    /// @notice Emitted when attempting to flash loan more than is available for lending.
+    error SablierV2FlashLoan_InsufficientAssetLiquidity(IERC20 asset, uint256 amountAvailable, uint256 amountRequested);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 

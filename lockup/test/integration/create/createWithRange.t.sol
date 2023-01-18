@@ -24,7 +24,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
     function setUp() public virtual override {
         IntegrationTest.setUp();
 
-        // Approve the SablierV2LockupLinear contract to transfer the asset holder's assets.
+        // Approve the {SablierV2LockupLinear} contract to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
         (bool success, ) = address(asset).call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
         success;
@@ -74,7 +74,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
     /// - Cliff time lower than and equal to stop time
-    /// - Broker fee zero and non-zero.
+    /// - Multiple values for the broker fee, including zero.
     function testForkFuzz_testCreateWithRange(Params memory params) external {
         vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(params.broker.addr != holder && params.broker.addr != address(linear));
@@ -89,7 +89,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         vars.initialBrokerBalance = vars.initialBalances[1];
 
         // Calculate the fee amounts and the net deposit amount.
-        vars.brokerFeeAmount = uint128(ud(params.grossDepositAmount).mul(params.broker.fee).unwrap());
+        vars.brokerFeeAmount = ud(params.grossDepositAmount).mul(params.broker.fee).intoUint128();
         vars.netDepositAmount = params.grossDepositAmount - vars.brokerFeeAmount;
 
         // Expect an event to be emitted.

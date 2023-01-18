@@ -1,0 +1,20 @@
+flashLoan.t.sol
+├── when the flash loan amount is too high
+│  └── it should revert
+└── when the flash loan amount is not too high
+   ├── when the ERC-20 asset is not flash loanable
+   │  └── it should revert
+   └── when the ERC-20 asset is flash loanable
+      ├── when the calculated fee is too high
+      │  └── it should revert
+      └── when the calculated fee is not too high
+         ├── when the flash loan amount is greater than the available liquidity
+         │  └── it should revert
+         └── when the flash loan amount is less than or equal to the available liquidity
+            ├── when the receiver does not return the correct response
+            │  └── it should revert
+            └── when the receiver returns the correct response
+               ├── when there is reentrancy
+               │  └── it should revert
+               └── when there is no reentrancy
+                  └── it should execute the flash loan, make the ERC-20 transfers, update the protocol revenues, and emit a FlashLoan event

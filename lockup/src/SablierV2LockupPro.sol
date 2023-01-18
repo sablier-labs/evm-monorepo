@@ -23,7 +23,7 @@ import { Broker, LockupCreateAmounts, LockupProStream, Segment } from "./types/S
 import { SablierV2Lockup } from "./SablierV2Lockup.sol";
 
 /// @title SablierV2LockupPro
-/// @dev This contract implements the ISablierV2LockupPro interface.
+/// @dev This contract implements the {ISablierV2LockupPro} interface.
 contract SablierV2LockupPro is
     ISablierV2LockupPro, // one dependency
     SablierV2Lockup, // two dependencies
@@ -87,13 +87,13 @@ contract SablierV2LockupPro is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount) {
+    function getReturnableAmount(uint256 streamId) external view override returns (uint128 returnableAmount) {
         // If the stream is null, return zero.
         if (_streams[streamId].status == Status.NULL) {
             return 0;
         }
 
-        // No need for an assertion here, since the `getStreamedAmount` function checks that the deposit amount
+        // No need for an assertion here, since the {getStreamedAmount} function checks that the deposit amount
         // is greater than or equal to the streamed amount.
         unchecked {
             returnableAmount = _streams[streamId].amounts.deposit - getStreamedAmount(streamId);

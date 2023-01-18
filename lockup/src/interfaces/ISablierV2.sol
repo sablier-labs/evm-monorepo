@@ -22,9 +22,8 @@ interface ISablierV2 is IAdminable {
     /// @dev This is initialized at construction time and cannot be changed later.
     function MAX_FEE() external view returns (UD60x18);
 
-    /// @notice Queries the address of the SablierV2Comptroller contract. The comptroller is in charge of the Sablier V2
+    /// @notice The address of the {SablierV2Comptroller} contract. The comptroller is in charge of the Sablier V2
     /// protocol configuration, handling such values as the protocol fees.
-    /// @return The address of the SablierV2Comptroller contract.
     function comptroller() external view returns (ISablierV2Comptroller);
 
     /// @notice Queries the protocol revenues accrued for the provided ERC-20 asset, in units of the asset's decimals.
@@ -45,7 +44,7 @@ interface ISablierV2 is IAdminable {
     /// @param asset The contract address of the ERC-20 asset to claim the protocol revenues for.
     function claimProtocolRevenues(IERC20 asset) external;
 
-    /// @notice Sets the SablierV2Comptroller contract. The comptroller is in charge of the protocol configuration,
+    /// @notice Sets the {SablierV2Comptroller} contract. The comptroller is in charge of the protocol configuration,
     /// handling such values as the protocol fees.
     ///
     /// @dev Emits a {SetComptroller} event.
@@ -54,8 +53,8 @@ interface ISablierV2 is IAdminable {
     /// - It is not an error to set the same comptroller.
     ///
     /// Requirements:
-    /// - The caller must be the admin of the contract.
+    /// - The caller must be the contract admin.
     ///
-    /// @param newComptroller The address of the new SablierV2Comptroller contract.
+    /// @param newComptroller The address of the new {SablierV2Comptroller} contract.
     function setComptroller(ISablierV2Comptroller newComptroller) external;
 }
