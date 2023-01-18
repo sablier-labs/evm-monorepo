@@ -105,15 +105,11 @@ jobs:
       - name: "Generate the coverage report"
         run: "forge coverage --report lcov"
 
-      # See discussion in https://github.com/foundry-rs/foundry/issues/1961
-      - name: "Delete the coverage report generated for the test contracts"
-        run: "git clean -f -- ./test"
-
-      - name: "Upload coverage report to Coveralls"
-        uses: "coverallsapp/github-action@master"
+      - name: "Upload coverage report to Codecov"
+        uses: "codecov/codecov-action@v3"
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-          path-to-lcov: "./lcov.info"
+          files: "./lcov.info"
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: "Add coverage summary"
         run: |
