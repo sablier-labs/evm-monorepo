@@ -200,8 +200,8 @@ abstract contract Cancel_Test is SharedTest {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Bound the withdraw amount.
-        uint128 withdrawableAmount = sablierV2.getWithdrawableAmount(streamId);
-        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount - 1);
+        uint128 streamedAmount = sablierV2.getStreamedAmount(streamId);
+        withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount - 1);
 
         // Make the withdrawal.
         sablierV2.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
@@ -344,8 +344,8 @@ abstract contract Cancel_Test is SharedTest {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Bound the withdraw amount.
-        uint128 withdrawableAmount = sablierV2.getWithdrawableAmount(streamId);
-        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount - 1);
+        uint128 streamedAmount = sablierV2.getStreamedAmount(streamId);
+        withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount - 1);
 
         // Make the withdrawal.
         sablierV2.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });

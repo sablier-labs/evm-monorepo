@@ -90,14 +90,10 @@ contract SablierV2Pro is
             return 0;
         }
 
-        // No need for an assertion here, since the calculation below is equivalent to subtracting the streamed
-        // amount from the deposit amount, which is already asserted in the `getWithdrawableAmount` function.
+        // No need for an assertion here, since the `getStreamedAmount` function checks that the deposit amount
+        // is greater than or equal to the streamed amount.
         unchecked {
-            uint128 withdrawableAmount = getWithdrawableAmount(streamId);
-            returnableAmount =
-                _streams[streamId].amounts.deposit -
-                _streams[streamId].amounts.withdrawn -
-                withdrawableAmount;
+            returnableAmount = _streams[streamId].amounts.deposit - getStreamedAmount(streamId);
         }
     }
 
@@ -127,7 +123,7 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2
-    function getWithdrawableAmount(uint256 streamId) public view returns (uint128 withdrawableAmount) {
+    function getStreamedAmount(uint256 streamId) public view override returns (uint128 streamedAmount) {
         // If the stream does not exist, return zero.
         if (!_streams[streamId].isEntity) {
             return 0;
@@ -139,23 +135,28 @@ contract SablierV2Pro is
             return 0;
         }
 
+        uint256 segmentCount = _streams[streamId].segments.length;
+        uint40 stopTime = _streams[streamId].stopTime;
+
+        // If the current time is greater than or equal to the stop time, we simply return the deposit minus
+        // the withdrawn amount.
+        if (currentTime >= stopTime) {
+            return _streams[streamId].amounts.deposit;
+        }
+
+        if (segmentCount > 1) {
+            // If there's more than one segment, we have to iterate over all of them.
+            streamedAmount = _calculateStreamedAmountForMultipleSegments(streamId);
+        } else {
+            // Otherwise, there is only one segment, and the calculation is simple.
+            streamedAmount = _calculateStreamedAmountForOneSegment(streamId);
+        }
+    }
+
+    /// @inheritdoc ISablierV2
+    function getWithdrawableAmount(uint256 streamId) public view override returns (uint128 withdrawableAmount) {
         unchecked {
-            uint256 segmentCount = _streams[streamId].segments.length;
-            uint40 stopTime = _streams[streamId].stopTime;
-
-            // If the current time is greater than or equal to the stop time, we simply return the deposit minus
-            // the withdrawn amount.
-            if (currentTime >= stopTime) {
-                return _streams[streamId].amounts.deposit - _streams[streamId].amounts.withdrawn;
-            }
-
-            if (segmentCount > 1) {
-                // If there's more than one segment, we have to iterate over all of them.
-                withdrawableAmount = _calculateWithdrawableAmountForMultipleSegments(streamId);
-            } else {
-                // Otherwise, there is only one segment, and the calculation is simple.
-                withdrawableAmount = _calculateWithdrawableAmountForOneSegment(streamId);
-            }
+            withdrawableAmount = getStreamedAmount(streamId) - _streams[streamId].amounts.withdrawn;
         }
     }
 
@@ -264,24 +265,10 @@ contract SablierV2Pro is
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc SablierV2
-    function _isApprovedOrOwner(
-        uint256 streamId,
-        address spender
-    ) internal view override returns (bool isApprovedOrOwner) {
-        address owner = _ownerOf(streamId);
-        isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
-    }
-
-    /// @inheritdoc SablierV2
-    function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
-        result = msg.sender == _streams[streamId].sender;
-    }
-
     /// @dev Calculates the withdrawable amount for a stream with multiple segments.
-    function _calculateWithdrawableAmountForMultipleSegments(
+    function _calculateStreamedAmountForMultipleSegments(
         uint256 streamId
-    ) internal view returns (uint128 withdrawableAmount) {
+    ) internal view returns (uint128 streamedAmount) {
         unchecked {
             uint40 currentTime = uint40(block.timestamp);
 
@@ -317,25 +304,19 @@ contract SablierV2Pro is
             // Calculate the streamed amount.
             SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
             SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
-            SD59x18 streamedAmount = multiplier.mul(currentSegmentAmount);
+            SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
 
             // Assert that the streamed amount is lower than or equal to the current segment amount.
-            assert(streamedAmount.lte(currentSegmentAmount));
+            assert(segmentStreamedAmount.lte(currentSegmentAmount));
 
-            // Finally, calculate the withdrawable amount by adding up the previous segment amounts and the amount
-            // streamed in this segment, and subtracting the withdrawn amount. Casting to uint128 is safe thanks for
-            // the assertion above.
-            withdrawableAmount =
-                previousSegmentAmounts +
-                uint128(streamedAmount.intoUint256()) -
-                _streams[streamId].amounts.withdrawn;
+            // Finally, calculate the streamed amount by adding up the previous segment amounts and the amount
+            // streamed in this segment. Casting to uint128 is safe thanks to the assertion above.
+            streamedAmount = previousSegmentAmounts + uint128(segmentStreamedAmount.intoUint256());
         }
     }
 
     /// @dev Calculates the withdrawable amount for a stream with one segment.
-    function _calculateWithdrawableAmountForOneSegment(
-        uint256 streamId
-    ) internal view returns (uint128 withdrawableAmount) {
+    function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128 streamedAmount) {
         unchecked {
             // Load the stream fields as SD59x18 numbers.
             SD59x18 depositAmount = _streams[streamId].amounts.deposit.intoSD59x18();
@@ -348,15 +329,28 @@ contract SablierV2Pro is
             // Calculate the streamed amount.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             SD59x18 multiplier = elapsedTimePercentage.pow(exponent);
-            SD59x18 streamedAmount = multiplier.mul(depositAmount);
+            SD59x18 streamedAmountUd = multiplier.mul(depositAmount);
 
             // Assert that the streamed amount is lower than or equal to the deposit amount.
-            assert(streamedAmount.lte(depositAmount));
+            assert(streamedAmountUd.lte(depositAmount));
 
-            // Finally, calculate the withdrawable amount by subtracting the withdrawn amount from the streamed amount.
             // Casting to uint128 is safe thanks for the assertion above.
-            withdrawableAmount = uint128(streamedAmount.intoUint256()) - _streams[streamId].amounts.withdrawn;
+            streamedAmount = uint128(streamedAmountUd.intoUint256());
         }
+    }
+
+    /// @inheritdoc SablierV2
+    function _isApprovedOrOwner(
+        uint256 streamId,
+        address spender
+    ) internal view override returns (bool isApprovedOrOwner) {
+        address owner = _ownerOf(streamId);
+        isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
+    }
+
+    /// @inheritdoc SablierV2
+    function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
+        result = msg.sender == _streams[streamId].sender;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -100,16 +100,20 @@ abstract contract LinearTest is SablierV2Test {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function that replicates the logic of the `getWithdrawableAmount` function, but which
-    /// does not subtract the withdrawn amount.
+    /// @dev Helper function that replicates the logic of the `getStreamedAmount` function.
     function calculateStreamedAmount(
         uint40 currentTime,
         uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
-        UD60x18 elapsedTime = ud(currentTime - DEFAULT_START_TIME);
-        UD60x18 totalTime = ud(DEFAULT_STOP_TIME - DEFAULT_START_TIME);
-        UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-        streamedAmount = uint128(elapsedTimePercentage.mul(ud(depositAmount)).unwrap());
+        if (currentTime > DEFAULT_STOP_TIME) {
+            return depositAmount;
+        }
+        unchecked {
+            UD60x18 elapsedTime = ud(currentTime - DEFAULT_START_TIME);
+            UD60x18 totalTime = ud(DEFAULT_TOTAL_DURATION);
+            UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+            streamedAmount = uint128(elapsedTimePercentage.mul(ud(depositAmount)).unwrap());
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

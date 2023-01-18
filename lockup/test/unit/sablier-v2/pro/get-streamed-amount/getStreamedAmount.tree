@@ -1,0 +1,16 @@
+getStreamedAmount.t.sol
+├── when the stream does not exist
+│  └── it should return zero
+└── when the stream exists
+   ├── when the start time is greater than the current time
+   │  └── it should return zero
+   ├── when the start time is equal to the current time
+   │  └── it should return zero
+   └── when the start time is less than the current time
+      ├── when there is one segment
+      │  └── it should return the correct streamed amount
+      └── when there are multiple segments
+         ├── when the current milestone is the 1st in the array
+         │  └── it should return the correct streamed amount
+         └── when the current milestone is not the 1st in the array
+            └── it should return the correct streamed amount

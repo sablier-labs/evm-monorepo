@@ -35,56 +35,6 @@ contract GetWithdrawableAmount_LinearTest is LinearTest {
     }
 
     modifier cliffTimeLessThanOrEqualToCurrentTime() {
-        _;
-    }
-
-    /// @dev it should return the deposit amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Current time > stop time
-    /// - Current time = stop time
-    function testFuzz_GetWithdrawableAmount_CurrentTimeGreaterThanOrEqualToStopTime_NoWithdrawals(
-        uint256 timeWarp
-    ) external streamExistent cliffTimeLessThanOrEqualToCurrentTime {
-        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
-
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_STOP_TIME + timeWarp });
-
-        // Run the test.
-        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
-        uint128 expectedWithdrawableAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-    }
-
-    /// @dev it should return the deposit amount minus the withdrawn amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Current time > stop time
-    /// - Current time = stop time
-    /// - Withdraw amount equal to deposit amount and not
-    function testFuzz_GetWithdrawableAmount_CurrentTimeGreaterThanOrEqualToStopTime_WithWithdrawals(
-        uint256 timeWarp,
-        uint128 withdrawAmount
-    ) external streamExistent cliffTimeLessThanOrEqualToCurrentTime {
-        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
-        withdrawAmount = boundUint128(withdrawAmount, 1, DEFAULT_NET_DEPOSIT_AMOUNT);
-
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_STOP_TIME + timeWarp });
-
-        // Withdraw the amount.
-        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
-
-        // Run the test.
-        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
-        uint128 expectedWithdrawableAmount = DEFAULT_NET_DEPOSIT_AMOUNT - withdrawAmount;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
-    }
-
-    modifier currentTimeLessThanStopTime() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank(users.admin);
         comptroller.setProtocolFee(dai, ZERO);
@@ -93,11 +43,18 @@ contract GetWithdrawableAmount_LinearTest is LinearTest {
     }
 
     /// @dev it should return the correct withdrawable amount.
+    ///
+    /// The fuzzing ensures that all of the following scenarios are tested:
+    ///
+    /// - Current time < stop time
+    /// - Current time = stop time
+    /// - Current time > stop time
+    /// - Multiple values for the deposit amount
     function testFuzz_GetWithdrawableAmount_NoWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount
-    ) external streamExistent cliffTimeLessThanOrEqualToCurrentTime currentTimeLessThanStopTime {
-        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+    ) external streamExistent cliffTimeLessThanOrEqualToCurrentTime {
+        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         vm.assume(depositAmount != 0);
 
         // Mint enough tokens to the sender.
@@ -125,24 +82,31 @@ contract GetWithdrawableAmount_LinearTest is LinearTest {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function testFuzz_GetWithdrawableAmount_CurrentTimeLessThanStopTime_WithWithdrawals(
+    ///
+    /// The fuzzing ensures that all of the following scenarios are tested:
+    ///
+    /// - Current time < stop time
+    /// - Current time = stop time
+    /// - Current time > stop time
+    /// - Multiple values for the deposit amount
+    /// - Withdraw amount equal to deposit amount and not
+    function testFuzz_GetWithdrawableAmount_WithWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount,
         uint128 withdrawAmount
-    ) external streamExistent cliffTimeLessThanOrEqualToCurrentTime currentTimeLessThanStopTime {
-        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+    ) external streamExistent cliffTimeLessThanOrEqualToCurrentTime {
+        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         depositAmount = boundUint128(depositAmount, 10_000, UINT128_MAX);
 
         // Bound the withdraw amount.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
-        uint128 initialWithdrawableAmount = calculateStreamedAmount(currentTime, depositAmount);
-        withdrawAmount = boundUint128(withdrawAmount, 1, initialWithdrawableAmount);
+        uint128 streamedAmount = calculateStreamedAmount(currentTime, depositAmount);
+        withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Mint enough tokens to the sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
-        // Create the stream with a custom gross deposit amount. The broker fee is disabled so that it doesn't interfere
-        // with the calculations.
+        // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         uint256 streamId = linear.createWithRange(
             params.createWithRange.sender,
             params.createWithRange.recipient,
@@ -161,7 +125,7 @@ contract GetWithdrawableAmount_LinearTest is LinearTest {
 
         // Run the test.
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(streamId);
-        uint128 expectedWithdrawableAmount = initialWithdrawableAmount - withdrawAmount;
+        uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 }
