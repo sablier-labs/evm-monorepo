@@ -84,7 +84,7 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
 
         // Load the initial asset balances.
         Vars memory vars;
-        vars.initialBalances = getTokenBalances(Solarray.addresses(address(pro), params.broker.addr));
+        vars.initialBalances = getTokenBalances(address(asset), Solarray.addresses(address(pro), params.broker.addr));
         vars.initialProBalance = vars.initialBalances[0];
         vars.initialBrokerBalance = vars.initialBalances[1];
 
@@ -132,12 +132,12 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
         // Assert that the stream was created.
         LockupProStream memory actualStream = pro.getStream(vars.streamId);
         assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
-        assertEq(actualStream.isCancelable, defaultStream.cancelable);
-        assertEq(actualStream.segments, segments);
-        assertEq(actualStream.sender, defaultStream.sender);
-        assertEq(actualStream.startTime, defaultStream.startTime);
-        assertEq(actualStream.status, defaultStream.status);
         assertEq(actualStream.asset, asset);
+        assertEq(actualStream.isCancelable, params.cancelable);
+        assertEq(actualStream.segments, segments);
+        assertEq(actualStream.sender, params.sender);
+        assertEq(actualStream.startTime, params.startTime);
+        assertEq(actualStream.status, Status.ACTIVE);
 
         // Assert that the next stream id was bumped.
         vars.actualNextStreamId = pro.nextStreamId();
@@ -150,7 +150,10 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
         // Load the actual asset balances.
-        vars.actualBalances = getTokenBalances(Solarray.addresses(address(pro), holder, params.broker.addr));
+        vars.actualBalances = getTokenBalances(
+            address(asset),
+            Solarray.addresses(address(pro), holder, params.broker.addr)
+        );
         vars.actualProBalance = vars.actualBalances[0];
         vars.actualHolderBalance = vars.actualBalances[1];
         vars.actualBrokerBalance = vars.actualBalances[2];

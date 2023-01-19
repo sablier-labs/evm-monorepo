@@ -1,40 +1,48 @@
 # Full reference https://github.com/foundry-rs/foundry/tree/master/config
 
-[etherscan]
-ethereum = { key = "${ETHERSCAN_API_KEY}" }
-goerli = { key = "${ETHERSCAN_API_KEY}" }
-
 [profile.default]
-auto_detect_solc = false
-fs_permissions = [
-    { access = "read", path = "./optimized-out" },
-]
-fuzz = { max_test_rejects = 100_000, runs = 1_000 }
-libs = ["lib"]
-gas_reports = ["*"]
-optimizer = true
-optimizer_runs = 10_000
-out = "out"
-script = "script"
-solc = "0.8.17"
-src = "src"
-test = "test/unit"
+  auto_detect_solc = false
+  fs_permissions = [{ access = "read", path = "./optimized-out" }]
+  fuzz = { max_test_rejects = 100_000, runs = 1_000 }
+  libs = ["lib"]
+  gas_reports = ["*"]
+  optimizer = true
+  optimizer_runs = 10_000
+  out = "out"
+  script = "script"
+  solc = "0.8.17"
+  src = "src"
+  test = "test/unit"
 
+# Run both unit and integration tests
 [profile.ci]
-fuzz = { runs = 5_000 }
-test = "test/unit" # run both unit and integration tests
+  fuzz = { runs = 5_000 }
+  test = "test"
 
+# Speed up compilation and tests during development.
+[profile.lite]
+  fuzz = { runs = 50 }
+  invariant = { runs = 10 }
+  optimizer = false
+
+# Compile only the production code with IR
 [profile.optimized]
-out = "optimized-out"
-test = "src" # compile only the production code with IR
-via_ir = true
+  out = "optimized-out"
+  test = "src"
+  via_ir = true
 
+# Test the optimized contracts without re-compiling them
 [profile.test-optimized]
-fuzz = { runs = 5_000 }
-src = "test/unit" # do not re-compile the production code
-test = "test/unit"  # run both unit and integration tests
+  fuzz = { runs = 5_000 }
+  src = "test"
+  test = "test"
+
+[etherscan]
+  ethereum = { key = "${ETHERSCAN_API_KEY}" }
+  goerli = { key = "${ETHERSCAN_API_KEY}" }
+
 
 [rpc_endpoints]
-ethereum="https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}"
-localhost="http://localhost:8545"
-goerli="https://goerli.infura.io/v3/${INFURA_API_KEY}"
+  ethereum = "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}"
+  localhost = "http://localhost:8545"
+  goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"

@@ -6,6 +6,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
+import { Status } from "src/types/Enums.sol";
 import { LockupAmounts, Broker, LockupCreateAmounts, LockupLinearStream, Segment, Range } from "src/types/Structs.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
@@ -84,7 +85,10 @@ abstract contract CreateWithRange_Test is IntegrationTest {
 
         // Load the initial asset balances.
         Vars memory vars;
-        vars.initialBalances = getTokenBalances(Solarray.addresses(address(linear), params.broker.addr));
+        vars.initialBalances = getTokenBalances(
+            address(asset),
+            Solarray.addresses(address(linear), params.broker.addr)
+        );
         vars.initialLinearBalance = vars.initialBalances[0];
         vars.initialBrokerBalance = vars.initialBalances[1];
 
@@ -125,11 +129,11 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         // Assert that the stream was created.
         LockupLinearStream memory actualStream = linear.getStream(vars.streamId);
         assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        assertEq(actualStream.asset, asset);
         assertEq(actualStream.isCancelable, params.cancelable);
         assertEq(actualStream.range, params.range);
         assertEq(actualStream.sender, params.sender);
-        assertEq(actualStream.status, defaultStream.status);
-        assertEq(actualStream.asset, asset);
+        assertEq(actualStream.status, Status.ACTIVE);
 
         // Assert that the next stream id was bumped.
         vars.actualNextStreamId = linear.nextStreamId();
@@ -142,7 +146,10 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
         // Load the actual asset balances.
-        vars.actualBalances = getTokenBalances(Solarray.addresses(address(linear), holder, params.broker.addr));
+        vars.actualBalances = getTokenBalances(
+            address(asset),
+            Solarray.addresses(address(linear), holder, params.broker.addr)
+        );
         vars.actualLinearBalance = vars.actualBalances[0];
         vars.actualHolderBalance = vars.actualBalances[1];
         vars.actualBrokerBalance = vars.actualBalances[2];

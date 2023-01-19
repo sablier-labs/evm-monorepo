@@ -8,7 +8,6 @@ import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
 import { Base_Test } from "test/Base.t.sol";
-import { IMulticall3 } from "test/helpers/IMulticall3.t.sol";
 
 /// @title IntegrationTest
 /// @notice Collections of tests run against an Ethereum Mainnet fork.
@@ -20,12 +19,6 @@ abstract contract IntegrationTest is Base_Test {
     IERC20 internal asset;
     address internal holder;
     uint256 internal initialHolderBalance;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   TEST CONTRACTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    IMulticall3 internal multicall;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -49,39 +42,10 @@ abstract contract IntegrationTest is Base_Test {
         // Deploy all Sablier contracts.
         deploySablierContracts();
 
-        // Load the Multicall3 contract at the deterministic deployment address.
-        multicall = IMulticall3(MULTICALL3_ADDRESS);
-
         // Make the asset holder the caller in this test suite.
         changePrank(holder);
 
         // Query the initial holder's balance.
         initialHolderBalance = IERC20(asset).balanceOf(holder);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Performs a single call with Multicall3 to query the ERC-20 asset balances of the given addresses.
-    function getTokenBalances(address[] memory addresses) internal returns (uint256[] memory balances) {
-        // ABI encode the aggregate call to Multicall3.
-        uint256 length = addresses.length;
-        IMulticall3.Call[] memory calls = new IMulticall3.Call[](length);
-        for (uint256 i = 0; i < length; ++i) {
-            calls[i] = IMulticall3.Call({
-                target: address(asset),
-                callData: abi.encodeCall(IERC20.balanceOf, (addresses[i]))
-            });
-        }
-
-        // Make the aggregate call.
-        (, bytes[] memory returnData) = multicall.aggregate(calls);
-
-        // ABI decode the return data and return the balances.
-        balances = new uint256[](length);
-        for (uint256 i = 0; i < length; ++i) {
-            balances[i] = abi.decode(returnData[i], (uint256));
-        }
     }
 }

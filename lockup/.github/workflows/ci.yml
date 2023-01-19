@@ -5,7 +5,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  INFURA_API_KEY: "${{ secrets.INFURA_API_KEY }}"
+  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+  INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
 
 on:
   pull_request:
