@@ -10,7 +10,7 @@ interface ISablierV2LockupSender {
     /// cancellation triggered by the recipient.
     ///
     /// @dev Notes:
-    /// - This function may revert, but Sablier V2 will always ignore the revert.
+    /// - This function may revert, but the {SablierV2Lockup} contract will always ignore the revert.
     ///
     /// @param streamId The id of the stream that was canceled.
     /// @param caller The address of the original `msg.sender` address that triggered the cancellation.

@@ -10,7 +10,7 @@ interface ISablierV2LockupRecipient {
     /// after a cancellation triggered by the sender or an approved operator.
     ///
     /// @dev Notes:
-    /// - This function may revert, but Sablier V2 will always ignore the revert.
+    /// - This function may revert, but the {SablierV2Lockup} contract will always ignore the revert.
     ///
     /// @param streamId The id of the stream that was canceled.
     /// @param caller The address of the original `msg.sender` address that triggered the cancellation.
@@ -21,7 +21,7 @@ interface ISablierV2LockupRecipient {
     /// @notice Reacts to a withdrawal from a stream.
     /// @dev Sablier V2 invokes this function on the recipient after a withdrawal triggered by the sender or
     /// an approved operator.
-    /// This function may revert, but Sablier V2 will always ignore the revert.
+    /// This function may revert, but the {SablierV2Lockup} contract will always ignore the revert.
     /// @param streamId The id of the stream that was canceled.
     /// @param caller The address of the original `msg.sender` address that triggered the cancellation.
     /// @param amount The amount of assets that have been withdrawn, in units of the asset's decimals.

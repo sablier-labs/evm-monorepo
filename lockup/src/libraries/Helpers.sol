@@ -98,7 +98,7 @@ library Helpers {
         _checkProSegments(segments, netDepositAmount, startTime);
     }
 
-    // @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
+    /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
     function checkDeltasAndAdjustSegments(Segment[] memory segments, uint40[] memory deltas) internal view {
         // Checks: check that the segment array counts match.
         uint256 deltaCount = deltas.length;
