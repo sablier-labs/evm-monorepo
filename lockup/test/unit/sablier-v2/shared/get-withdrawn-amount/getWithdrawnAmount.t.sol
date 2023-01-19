@@ -51,8 +51,8 @@ abstract contract GetWithdrawnAmount_Test is SharedTest {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Bound the withdraw amount.
-        uint128 withdrawableAmount = sablierV2.getWithdrawableAmount(defaultStreamId);
-        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
+        uint128 streamedAmount = sablierV2.getStreamedAmount(defaultStreamId);
+        withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.
         sablierV2.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });

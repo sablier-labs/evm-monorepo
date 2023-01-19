@@ -181,7 +181,7 @@ abstract contract Withdraw_Test is SharedTest {
     }
 
     /// @dev it should make the withdrawal and delete the stream.
-    function test_Withdraw_StreamEnded()
+    function test_Withdraw_CurrentTimeEqualToStopTime()
         external
         streamExistent
         callerAuthorized
@@ -205,7 +205,7 @@ abstract contract Withdraw_Test is SharedTest {
         assertEq(actualNFTowner, expectedNFTOwner);
     }
 
-    modifier streamOngoing() {
+    modifier currentTimeLessThanStopTime() {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
         _;
@@ -224,7 +224,7 @@ abstract contract Withdraw_Test is SharedTest {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        streamOngoing
+        currentTimeLessThanStopTime
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(to != address(0) && to.code.length == 0);
@@ -268,7 +268,7 @@ abstract contract Withdraw_Test is SharedTest {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        streamOngoing
+        currentTimeLessThanStopTime
         recipientContract
     {
         // Create the stream with the recipient as a contract.
@@ -296,7 +296,7 @@ abstract contract Withdraw_Test is SharedTest {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        streamOngoing
+        currentTimeLessThanStopTime
         recipientContract
         recipientImplementsHook
     {
@@ -325,7 +325,7 @@ abstract contract Withdraw_Test is SharedTest {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        streamOngoing
+        currentTimeLessThanStopTime
         recipientContract
         recipientImplementsHook
         recipientDoesNotRevert
@@ -361,7 +361,7 @@ abstract contract Withdraw_Test is SharedTest {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        streamOngoing
+        currentTimeLessThanStopTime
         recipientContract
         recipientImplementsHook
         recipientDoesNotRevert

@@ -157,7 +157,9 @@ contract SablierV2Linear is
     }
 
     /// @inheritdoc ISablierV2
-    function getWithdrawableAmount(uint256 streamId) public view override returns (uint128 withdrawableAmount) {
+    function getWithdrawableAmount(
+        uint256 streamId
+    ) public view override(ISablierV2, SablierV2) returns (uint128 withdrawableAmount) {
         unchecked {
             withdrawableAmount = getStreamedAmount(streamId) - _streams[streamId].amounts.withdrawn;
         }

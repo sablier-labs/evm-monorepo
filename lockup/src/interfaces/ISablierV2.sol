@@ -173,7 +173,7 @@ interface ISablierV2 is
     /// @param newComptroller The address of the new SablierV2Comptroller contract.
     function setComptroller(ISablierV2Comptroller newComptroller) external;
 
-    /// @notice Withdraws tokens from the stream to the recipient's account.
+    /// @notice Withdraws the provided amount of tokens from the stream to the provide address `to`.
     ///
     /// @dev Emits a {Withdraw} and a {Transfer} event.
     ///
@@ -188,9 +188,23 @@ interface ISablierV2 is
     /// - `amount` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamId The id of the stream to withdraw.
-    /// @param to The address that receives the withdrawn tokens, if the `msg.sender` is not the stream sender.
+    /// @param to The address that receives the withdrawn tokens.
     /// @param amount The amount to withdraw, in units of the token's decimals.
     function withdraw(uint256 streamId, address to, uint128 amount) external;
+
+    /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.
+    ///
+    /// @dev Emits a {Withdraw} and a {Transfer} event.
+    ///
+    /// Notes:
+    /// - All from `withdraw`.
+    ///
+    /// Requirements:
+    /// - All from `withdraw`.
+    ///
+    /// @param streamId The id of the stream to withdraw.
+    /// @param to The address that receives the withdrawn tokens.
+    function withdrawMax(uint256 streamId, address to) external;
 
     /// @notice Withdraws tokens from multiple streams to the provided address `to`.
     ///
