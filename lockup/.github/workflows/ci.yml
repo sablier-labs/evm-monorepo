@@ -41,7 +41,7 @@ jobs:
           echo "## Lint results" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
-  test:
+  build-and-test:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
@@ -118,4 +118,4 @@ jobs:
       - name: "Add coverage summary"
         run: |
           echo "## Coverage results" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Uploaded to Codecov" >> $GITHUB_STEP_SUMMARY

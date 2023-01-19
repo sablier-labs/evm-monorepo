@@ -211,15 +211,25 @@ forge test --match-contract CreateWithRange
 
 ## Commands
 
-Here's a list of the most frequently needed commands.
+Here's a list of the most frequently needed commands, which are run either with Forge or with Yarn.
 
 ### Build
 
-Build the contracts:
+Build the contracts using the default profile:
 
 ```sh
 $ forge build
 ```
+
+### Build Optimized
+
+Build the contracts using the optimized profile:
+
+```sh
+$ yarn build:optimized
+```
+
+This will compile the contracts with the `--via-ir` flag enabled.
 
 ### Clean
 
@@ -245,12 +255,36 @@ Format the contracts with Prettier:
 $ yarn prettier
 ```
 
-### Gas Usage
+### Gas Report
 
 Get a gas report:
 
 ```sh
-$ forge test --gas-report
+$ yarn gas:report
+```
+
+### Gas Report Optimized
+
+Get a gas report for the optimized version of the contracts:
+
+```sh
+$ yarn gas:report:optimized
+```
+
+### Gas Snapshot
+
+Take a gas snapshot:
+
+```sh
+$ yarn gas:snapshot
+```
+
+### Gas Snapshot Optimized
+
+Take a gas snapshot for the optimized version of the contracts:
+
+```sh
+$ yarn gas:snapshot:optimized
 ```
 
 ### Lint
@@ -267,6 +301,14 @@ Run the tests:
 
 ```sh
 $ forge test
+```
+
+### Test Optimized
+
+Run the tests against the optimized version of the contracts:
+
+```sh
+$ yarn test:optimized
 ```
 
 ### Other

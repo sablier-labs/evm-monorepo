@@ -33,13 +33,18 @@
   "packageManager": "yarn@3.3.0",
   "private": true,
   "scripts": {
+    "build": "forge build",
+    "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
     "clean": "rimraf broadcast cache optimized-out out",
+    "gas:report": "forge test --gas-report --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:report:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge test --gas-report --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:snapshot": "forge snapshot --desc --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:snapshot:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --desc --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "yarn prettier:check && yarn solhint \"{src,test}/**/*.sol\"",
     "postinstall": "husky install",
     "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
     "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",
-    "snapshot": "forge snapshot --desc --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "test": "forge test",
-    "test:optimized": "FOUNDRY_PROFILE=optimized forge build && FOUNDRY_PROFILE=test-optimized forge test"
+    "test:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   }
 }

@@ -1,11 +1,13 @@
-# Full reference https://github.com/foundry-rs/foundry/tree/master/config
-
 [profile.default]
   auto_detect_solc = false
   fs_permissions = [{ access = "read", path = "./optimized-out" }]
   fuzz = { max_test_rejects = 100_000, runs = 1_000 }
   libs = ["lib"]
-  gas_reports = ["*"]
+  gas_reports = [
+    "SablierV2Comptroller",
+    "SablierV2LockupLinear",
+    "SablierV2LockupPro",
+  ]
   optimizer = true
   optimizer_runs = 10_000
   out = "out"
