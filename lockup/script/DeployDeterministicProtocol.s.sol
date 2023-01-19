@@ -9,7 +9,6 @@ import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
 import { Common } from "./helpers/Common.s.sol";
-import { DeployComptroller } from "./DeployComptroller.s.sol";
 
 /// @dev Deploys the entire Sablier V2 protocol at deterministic addresses across all chains. Reverts if
 /// any contract has already been deployed via the deterministic CREATE2 factory.
@@ -19,7 +18,9 @@ import { DeployComptroller } from "./DeployComptroller.s.sol";
 /// 1. SablierV2Comptroller
 /// 2. SablierV2LockupLinear
 /// 3. SablierV2LockupPro
-contract DeployProtocol is Script, Common {
+contract DeployDeterministicProtocol is Script, Common {
+    /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.
+    /// https://github.com/Arachnid/deterministic-deployment-proxy
     function run(
         address admin,
         UD60x18 maxFee,
@@ -27,30 +28,15 @@ contract DeployProtocol is Script, Common {
     )
         public
         broadcaster
-        returns (bool success, SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro)
+        returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro)
     {
         // Deploy the SablierV2Comptroller contract.
-        bytes memory comptrollerCallData = abi.encodePacked(type(SablierV2Comptroller).creationCode, abi.encode(admin));
-        bytes memory comptrollerReturnData;
-        (success, comptrollerReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(comptrollerCallData);
-        comptroller = SablierV2Comptroller(address(uint160(bytes20(comptrollerReturnData))));
+        comptroller = new SablierV2Comptroller{ salt: ZERO_SALT }(admin);
 
         // Deploy the SablierV2LockupLinear contract.
-        bytes memory linearCallData = abi.encodePacked(
-            type(SablierV2Comptroller).creationCode,
-            abi.encode(admin, comptroller, maxFee)
-        );
-        bytes memory linearReturnData;
-        (success, linearReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(linearCallData);
-        linear = SablierV2LockupLinear(address(uint160(bytes20(linearReturnData))));
+        linear = new SablierV2LockupLinear{ salt: ZERO_SALT }(admin, comptroller, maxFee);
 
         // Deploy the SablierV2LockupPro contract.
-        bytes memory proCallData = abi.encodePacked(
-            type(SablierV2Comptroller).creationCode,
-            abi.encode(admin, comptroller, maxFee, maxSegmentCount)
-        );
-        bytes memory proReturnData;
-        (success, proReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(proCallData);
-        pro = SablierV2LockupPro(address(uint160(bytes20(proReturnData))));
+        pro = new SablierV2LockupPro{ salt: ZERO_SALT }(admin, comptroller, maxFee, maxSegmentCount);
     }
 }
