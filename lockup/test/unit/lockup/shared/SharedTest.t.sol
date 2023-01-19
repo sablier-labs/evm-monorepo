@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
+import { SablierV2Lockup } from "src/abstracts/SablierV2Lockup.sol";
 import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
-import { SablierV2Lockup } from "src/SablierV2Lockup.sol";
 
 import { Lockup_Test } from "../Lockup.t.sol";
 

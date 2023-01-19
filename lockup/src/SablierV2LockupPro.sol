@@ -10,6 +10,7 @@ import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.
 import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "./interfaces/ISablierV2Lockup.sol";
 import { ISablierV2LockupPro } from "./interfaces/ISablierV2LockupPro.sol";
@@ -20,7 +21,6 @@ import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Status } from "./types/Enums.sol";
 import { Broker, LockupCreateAmounts, LockupProStream, Segment } from "./types/Structs.sol";
-import { SablierV2Lockup } from "./SablierV2Lockup.sol";
 
 /// @title SablierV2LockupPro
 /// @dev This contract implements the {ISablierV2LockupPro} interface.
