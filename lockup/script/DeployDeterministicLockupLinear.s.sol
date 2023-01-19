@@ -9,24 +9,16 @@ import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 
 import { Common } from "./helpers/Common.s.sol";
 
-/// @notice Deploys the SablierV2LockupLinear contract.
-contract DeployLinear is Script, Common {
+/// @dev Deploys the {SablierV2LockupLinear} contract at a deterministic address across all chains. Reverts if
+/// the contract has already been deployed via the deterministic CREATE2 factory.
+contract DeployDeterministicLinear is Script, Common {
     function run(
         address admin,
         ISablierV2Comptroller comptroller,
         UD60x18 maxFee
-    ) public broadcaster returns (SablierV2LockupLinear linear) {
-        linear = new SablierV2LockupLinear({ initialAdmin: admin, initialComptroller: comptroller, maxFee: maxFee });
-    }
-
-    /// @dev Deploys the contract at a deterministic address across all chains. Reverts if the contract has already
-    /// been deployed via the deterministic CREATE2 factory.
-    function runDeterministic(
-        ISablierV2Comptroller comptroller,
-        UD60x18 maxFee
     ) public broadcaster returns (bool success, SablierV2LockupLinear linear) {
         bytes memory creationBytecode = type(SablierV2LockupLinear).creationCode;
-        bytes memory callData = abi.encodePacked(creationBytecode, abi.encode(comptroller, maxFee));
+        bytes memory callData = abi.encodePacked(creationBytecode, abi.encode(admin, comptroller, maxFee));
         bytes memory returnData;
         (success, returnData) = DETERMINISTIC_CREATE2_FACTORY.call(callData);
         linear = SablierV2LockupLinear(address(uint160(bytes20(returnData))));

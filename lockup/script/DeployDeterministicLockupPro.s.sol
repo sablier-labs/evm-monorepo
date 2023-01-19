@@ -9,25 +9,10 @@ import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
 import { Common } from "./helpers/Common.s.sol";
 
-/// @notice Deploys the SablierV2LockupPro contract.
+/// @dev Deploys the {SablierV2LockupPro} contract at a deterministic address across all chains. Reverts if
+/// the contract has already been deployed via the deterministic CREATE2 factory.
 contract DeployPro is Script, Common {
     function run(
-        address admin,
-        ISablierV2Comptroller comptroller,
-        UD60x18 maxFee,
-        uint256 maxSegmentCount
-    ) public broadcaster returns (SablierV2LockupPro pro) {
-        pro = new SablierV2LockupPro({
-            initialAdmin: admin,
-            initialComptroller: comptroller,
-            maxFee: maxFee,
-            maxSegmentCount: maxSegmentCount
-        });
-    }
-
-    /// @dev Deploys the contract at a deterministic address across all chains. Reverts if the contract has already
-    /// been deployed via the deterministic CREATE2 factory.
-    function runDeterministic(
         address admin,
         ISablierV2Comptroller comptroller,
         UD60x18 maxFee,
