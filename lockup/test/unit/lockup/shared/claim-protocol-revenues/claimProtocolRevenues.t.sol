@@ -18,7 +18,7 @@ abstract contract ClaimProtocolRevenues_Test is Shared_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
-        sablierV2.claimProtocolRevenues(dai);
+        sablierV2.claimProtocolRevenues(DEFAULT_ASSET);
     }
 
     modifier callerAdmin() {
@@ -29,8 +29,8 @@ abstract contract ClaimProtocolRevenues_Test is Shared_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_ProtocolRevenuesZero() external callerAdmin {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_NoProtocolRevenues.selector, dai));
-        sablierV2.claimProtocolRevenues(dai);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_NoProtocolRevenues.selector, DEFAULT_ASSET));
+        sablierV2.claimProtocolRevenues(DEFAULT_ASSET);
     }
 
     modifier protocolRevenuesNotZero() {
@@ -41,39 +41,23 @@ abstract contract ClaimProtocolRevenues_Test is Shared_Test {
         _;
     }
 
-    /// @dev it should claim the protocol revenues.
+    /// @dev it should claim the protocol revenues, update the protocol revenues, and emit a
+    /// ClaimProtocolRevenues event.
     function test_ClaimProtocolRevenues() external callerAdmin protocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.admin, protocolRevenues)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.admin, protocolRevenues)));
+
+        // Expect an event to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        emit Events.ClaimProtocolRevenues(users.admin, DEFAULT_ASSET, protocolRevenues);
 
         // Claim the protocol revenues.
-        sablierV2.claimProtocolRevenues(dai);
-    }
-
-    /// @dev it should set the protocol revenues to zero.
-    function test_ClaimProtocolRevenues_SetToZero() external callerAdmin protocolRevenuesNotZero {
-        // Expect the protocol revenues to be claimed.
-        uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.admin, protocolRevenues)));
-
-        // Claim the protocol revenues.
-        sablierV2.claimProtocolRevenues(dai);
+        sablierV2.claimProtocolRevenues(DEFAULT_ASSET);
 
         // Assert that the protocol revenues were set to zero.
-        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(dai);
+        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
-    }
-
-    /// @dev it should emit a ClaimProtocolRevenues event.
-    function test_ClaimProtocolRevenues_Event() external callerAdmin protocolRevenuesNotZero {
-        // Expect the protocol revenues to be claimed.
-        uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.ClaimProtocolRevenues(users.admin, dai, protocolRevenues);
-
-        // Claim the protocol revenues.
-        sablierV2.claimProtocolRevenues(dai);
     }
 }

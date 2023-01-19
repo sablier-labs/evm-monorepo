@@ -195,8 +195,8 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
 
         // Expect the withdrawals to be made.
         uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
         // Make the withdrawals.
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: defaultAmounts });
@@ -304,8 +304,8 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         });
 
         // Expect the withdrawals to be made.
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, DEFAULT_NET_DEPOSIT_AMOUNT)));
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, DEFAULT_NET_DEPOSIT_AMOUNT)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, DEFAULT_NET_DEPOSIT_AMOUNT)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, DEFAULT_NET_DEPOSIT_AMOUNT)));
 
         // Make the withdrawals.
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_NET_DEPOSIT_AMOUNT, DEFAULT_NET_DEPOSIT_AMOUNT);
@@ -353,8 +353,8 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawals to be made.
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
         // Expect WithdrawFromLockupStream events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

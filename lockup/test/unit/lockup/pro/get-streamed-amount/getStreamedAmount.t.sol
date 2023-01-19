@@ -46,7 +46,7 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
     modifier startTimeLessThanCurrentTime() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank(users.admin);
-        comptroller.setProtocolFee(dai, ZERO);
+        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
         changePrank(users.sender);
         _;
     }
@@ -74,13 +74,13 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
         // Create the stream wit the one-segment arrays. The broker fee is disabled so that it doesn't interfere
         // with the calculations.
         uint256 streamId = pro.createWithMilestones(
-            params.createWithMilestones.sender,
-            params.createWithMilestones.recipient,
+            defaultParams.createWithMilestones.sender,
+            defaultParams.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             segments,
-            params.createWithMilestones.asset,
-            params.createWithMilestones.cancelable,
-            params.createWithMilestones.startTime,
+            defaultParams.createWithMilestones.asset,
+            defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })
         );
 
@@ -125,13 +125,13 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
         // Create the stream with the multiple-segment arrays. The broker fee is disabled so that it doesn't interfere
         // with the calculations.
         uint256 streamId = pro.createWithMilestones(
-            params.createWithMilestones.sender,
-            params.createWithMilestones.recipient,
+            defaultParams.createWithMilestones.sender,
+            defaultParams.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             maxSegments,
-            params.createWithMilestones.asset,
-            params.createWithMilestones.cancelable,
-            params.createWithMilestones.startTime,
+            defaultParams.createWithMilestones.asset,
+            defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })
         );
 
@@ -164,13 +164,13 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
         // Create the stream with the multiple-segment arrays. The broker fee is disabled so that it doesn't interfere
         // with the calculations.
         uint256 streamId = pro.createWithMilestones(
-            params.createWithMilestones.sender,
-            params.createWithMilestones.recipient,
+            defaultParams.createWithMilestones.sender,
+            defaultParams.createWithMilestones.recipient,
             DEFAULT_NET_DEPOSIT_AMOUNT,
             maxSegments,
-            params.createWithMilestones.asset,
-            params.createWithMilestones.cancelable,
-            params.createWithMilestones.startTime,
+            defaultParams.createWithMilestones.asset,
+            defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.startTime,
             Broker({ addr: address(0), fee: ZERO })
         );
 

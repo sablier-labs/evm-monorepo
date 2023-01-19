@@ -11,7 +11,7 @@ import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Status } from "./types/Enums.sol";
-import { LockupAmounts, Broker, LockupCreateAmounts, Durations, LockupLinearStream, Range } from "./types/Structs.sol";
+import { Broker, CreateLockupAmounts, Durations, LockupAmounts, LockupLinearStream, Range } from "./types/Structs.sol";
 
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
@@ -226,7 +226,7 @@ contract SablierV2LockupLinear is
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 
         // Checks: check the fees and calculate the fee amounts.
-        LockupCreateAmounts memory amounts = Helpers.checkAndCalculateFees(
+        CreateLockupAmounts memory amounts = Helpers.checkAndCalculateFees(
             grossDepositAmount,
             protocolFee,
             broker.fee,
@@ -262,7 +262,7 @@ contract SablierV2LockupLinear is
 
         // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
         // deposit amount.
-        LockupCreateAmounts memory amounts = Helpers.checkAndCalculateFees(
+        CreateLockupAmounts memory amounts = Helpers.checkAndCalculateFees(
             grossDepositAmount,
             protocolFee,
             broker.fee,
@@ -380,7 +380,7 @@ contract SablierV2LockupLinear is
 
     /// @dev This struct is needed to avoid the "Stack Too Deep" error.
     struct CreateWithRangeParams {
-        LockupCreateAmounts amounts;
+        CreateLockupAmounts amounts;
         Range range;
         address sender; // ──┐
         bool cancelable; // ─┘

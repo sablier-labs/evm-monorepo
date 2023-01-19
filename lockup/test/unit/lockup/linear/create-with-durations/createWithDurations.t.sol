@@ -7,11 +7,18 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
-import { LockupAmounts, Durations, LockupLinearStream, Range } from "src/types/Structs.sol";
+import { Durations, LockupAmounts, LockupLinearStream, Range } from "src/types/Structs.sol";
 
 import { Linear_Test } from "../Linear.t.sol";
 
 contract CreateWithDurations_Linear_Test is Linear_Test {
+    uint256 internal streamId;
+
+    function setUp() public virtual override {
+        Linear_Test.setUp();
+        streamId = linear.nextStreamId();
+    }
+
     /// @dev it should revert due to the start time being greater than the cliff time.
     function test_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration) external {
         uint40 startTime = getBlockTimestamp();
@@ -76,19 +83,23 @@ contract CreateWithDurations_Linear_Test is Linear_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
-    function testFuzz_CreateWithDuration(
+    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT,
+    /// record the protocol fee, and emit a CreateLockupLinearStream event
+    function testFuzz_CreateWithDurations(
         Durations memory durations
     ) external cliffDurationCalculationDoesNotOverflow totalDurationCalculationDoesNotOverflow {
         durations.total = boundUint40(durations.total, 0, UINT40_MAX - getBlockTimestamp());
         vm.assume(durations.cliff <= durations.total);
 
         // Make the sender the funder in this test.
-        address funder = params.createWithDurations.sender;
+        address funder = defaultParams.createWithDurations.sender;
+
+        // Load the initial protocol revenues.
+        uint128 initialProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
         vm.expectCall(
-            address(params.createWithDurations.asset),
+            address(DEFAULT_ASSET),
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
@@ -97,10 +108,10 @@ contract CreateWithDurations_Linear_Test is Linear_Test {
 
         // Expect the broker fee to be paid to the broker, if the amount is not zero.
         vm.expectCall(
-            address(params.createWithDurations.asset),
+            address(DEFAULT_ASSET),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, params.createWithDurations.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
+                (funder, defaultParams.createWithDurations.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
             )
         );
 
@@ -111,67 +122,45 @@ contract CreateWithDurations_Linear_Test is Linear_Test {
             stop: getBlockTimestamp() + durations.total
         });
 
+        // Expect an event to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        emit Events.CreateLockupLinearStream({
+            streamId: streamId,
+            funder: funder,
+            sender: defaultParams.createWithDurations.sender,
+            recipient: defaultParams.createWithDurations.recipient,
+            amounts: DEFAULT_CREATE_AMOUNTS,
+            asset: DEFAULT_ASSET,
+            cancelable: defaultParams.createWithDurations.cancelable,
+            range: range,
+            broker: defaultParams.createWithDurations.broker.addr
+        });
+
         // Create the stream.
-        uint256 streamId = createDefaultStreamWithDurations(durations);
+        createDefaultStreamWithDurations(durations);
 
         // Assert that the stream was created.
         LockupLinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
-        assertEq(actualStream.isCancelable, defaultStream.isCancelable);
+        assertEq(actualStream.asset, defaultStream.asset, "asset");
+        assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
         assertEq(actualStream.range, range);
-        assertEq(actualStream.sender, defaultStream.sender);
+        assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.status, defaultStream.status);
-        assertEq(actualStream.asset, defaultStream.asset);
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId);
 
-        // Assert that the NFT was minted.
-        address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = params.createWithDurations.recipient;
-        assertEq(actualNFTOwner, expectedNFTOwner);
-    }
-
-    /// @dev it should record the protocol fee.
-    function testFuzz_CreateWithDurations_ProtocolFee()
-        external
-        cliffDurationCalculationDoesNotOverflow
-        totalDurationCalculationDoesNotOverflow
-    {
-        // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = linear.getProtocolRevenues(params.createWithDurations.asset);
-
-        // Create the default stream.
-        createDefaultStreamWithDurations();
-
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(params.createWithDurations.asset);
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
-    }
 
-    /// @dev it should emit a CreateLockupLinearStream event.
-    function test_CreateWithDurations_Event()
-        external
-        cliffDurationCalculationDoesNotOverflow
-        totalDurationCalculationDoesNotOverflow
-    {
-        uint256 streamId = linear.nextStreamId();
-        address funder = params.createWithDurations.sender;
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateLockupLinearStream({
-            streamId: streamId,
-            funder: funder,
-            sender: params.createWithDurations.sender,
-            recipient: params.createWithDurations.recipient,
-            amounts: DEFAULT_CREATE_AMOUNTS,
-            asset: params.createWithDurations.asset,
-            cancelable: params.createWithDurations.cancelable,
-            range: DEFAULT_RANGE,
-            broker: params.createWithDurations.broker.addr
-        });
-        createDefaultStreamWithDurations();
+        // Assert that the NFT was minted.
+        address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
+        address expectedNFTOwner = defaultParams.createWithDurations.recipient;
+        assertEq(actualNFTOwner, expectedNFTOwner);
     }
 }

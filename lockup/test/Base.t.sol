@@ -49,6 +49,7 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    IERC20 internal immutable DEFAULT_ASSET;
     uint40 internal immutable DEFAULT_CLIFF_TIME;
     Range internal DEFAULT_RANGE;
     Segment[] internal DEFAULT_SEGMENTS;
@@ -76,6 +77,7 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
+        DEFAULT_ASSET = dai;
         DEFAULT_START_TIME = getBlockTimestamp();
         DEFAULT_CLIFF_TIME = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION;
         DEFAULT_STOP_TIME = DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION;

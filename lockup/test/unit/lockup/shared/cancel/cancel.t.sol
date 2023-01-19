@@ -243,13 +243,16 @@ abstract contract Cancel_Test is Shared_Test {
         // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
         uint128 recipientAmount = lockup.getWithdrawableAmount(streamId);
         if (recipientAmount > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodRecipient), recipientAmount)));
+            vm.expectCall(
+                address(DEFAULT_ASSET),
+                abi.encodeCall(IERC20.transfer, (address(goodRecipient), recipientAmount))
+            );
         }
 
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
         uint128 senderAmount = lockup.getReturnableAmount(streamId);
         if (senderAmount > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
+            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
         }
 
         // Expect an event to be emitted.
@@ -405,13 +408,13 @@ abstract contract Cancel_Test is Shared_Test {
         // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
         uint128 recipientAmount = lockup.getWithdrawableAmount(streamId);
         if (recipientAmount > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount)));
+            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount)));
         }
 
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
         uint128 senderAmount = lockup.getReturnableAmount(streamId);
         if (senderAmount > 0) {
-            vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodSender), senderAmount)));
+            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (address(goodSender), senderAmount)));
         }
 
         // Expect an event to be emitted.

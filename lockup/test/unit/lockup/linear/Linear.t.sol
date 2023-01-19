@@ -6,7 +6,7 @@ import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { Status } from "src/types/Enums.sol";
-import { LockupAmounts, Broker, Durations, LockupLinearStream, Range } from "src/types/Structs.sol";
+import { Broker, Durations, LockupAmounts, LockupLinearStream, Range } from "src/types/Structs.sol";
 
 import { Lockup_Test } from "test/unit/lockup/Lockup.t.sol";
 import { Unit_Test } from "test/unit/Unit.t.sol";
@@ -48,7 +48,7 @@ abstract contract Linear_Test is Lockup_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     LockupLinearStream internal defaultStream;
-    DefaultParams internal params;
+    DefaultParams internal defaultParams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
@@ -57,13 +57,13 @@ abstract contract Linear_Test is Lockup_Test {
     function setUp() public virtual override {
         Unit_Test.setUp();
 
-        // Initialize the default params to be used for the create functions.
-        params = DefaultParams({
+        // Initialize the default defaultParams to be used for the create functions.
+        defaultParams = DefaultParams({
             createWithDurations: CreateWithDurationsParams({
                 sender: users.sender,
                 recipient: users.recipient,
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
-                asset: dai,
+                asset: DEFAULT_ASSET,
                 cancelable: true,
                 durations: DEFAULT_DURATIONS,
                 broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
@@ -72,7 +72,7 @@ abstract contract Linear_Test is Lockup_Test {
                 sender: users.sender,
                 recipient: users.recipient,
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
-                asset: dai,
+                asset: DEFAULT_ASSET,
                 cancelable: true,
                 range: DEFAULT_RANGE,
                 broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
@@ -81,17 +81,17 @@ abstract contract Linear_Test is Lockup_Test {
 
         // Create the default stream to be used across the tests.
         defaultStream = LockupLinearStream({
-            amounts: DEFAULT_AMOUNTS,
-            isCancelable: params.createWithRange.cancelable,
-            sender: params.createWithRange.sender,
+            amounts: DEFAULT_LOCKUP_AMOUNTS,
+            isCancelable: defaultParams.createWithRange.cancelable,
+            sender: defaultParams.createWithRange.sender,
             status: Status.ACTIVE,
-            range: params.createWithRange.range,
-            asset: params.createWithRange.asset
+            range: defaultParams.createWithRange.range,
+            asset: defaultParams.createWithRange.asset
         });
 
         // Set the default protocol fee.
-        comptroller.setProtocolFee(dai, DEFAULT_PROTOCOL_FEE);
-        comptroller.setProtocolFee(IERC20(address(nonCompliantAsset)), DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: DEFAULT_PROTOCOL_FEE });
+        comptroller.setProtocolFee({ asset: IERC20(address(nonCompliantAsset)), newProtocolFee: DEFAULT_PROTOCOL_FEE });
 
         // Make the sender the default caller in all subsequent tests.
         changePrank(users.sender);
@@ -124,52 +124,52 @@ abstract contract Linear_Test is Lockup_Test {
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            params.createWithRange.recipient,
-            params.createWithRange.grossDepositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            params.createWithRange.range,
-            params.createWithRange.broker
+            defaultParams.createWithRange.sender,
+            defaultParams.createWithRange.recipient,
+            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.asset,
+            defaultParams.createWithRange.cancelable,
+            defaultParams.createWithRange.range,
+            defaultParams.createWithRange.broker
         );
     }
 
     /// @dev Creates the default stream with durations.
     function createDefaultStreamWithDurations() internal returns (uint256 streamId) {
         streamId = linear.createWithDurations(
-            params.createWithDurations.sender,
-            params.createWithDurations.recipient,
-            params.createWithDurations.grossDepositAmount,
-            params.createWithDurations.asset,
-            params.createWithDurations.cancelable,
-            params.createWithDurations.durations,
-            params.createWithRange.broker
+            defaultParams.createWithDurations.sender,
+            defaultParams.createWithDurations.recipient,
+            defaultParams.createWithDurations.grossDepositAmount,
+            defaultParams.createWithDurations.asset,
+            defaultParams.createWithDurations.cancelable,
+            defaultParams.createWithDurations.durations,
+            defaultParams.createWithRange.broker
         );
     }
 
     /// @dev Creates the default stream with the provided durations.
     function createDefaultStreamWithDurations(Durations memory durations) internal returns (uint256 streamId) {
         streamId = linear.createWithDurations(
-            params.createWithDurations.sender,
-            params.createWithDurations.recipient,
-            params.createWithDurations.grossDepositAmount,
-            params.createWithDurations.asset,
-            params.createWithDurations.cancelable,
+            defaultParams.createWithDurations.sender,
+            defaultParams.createWithDurations.recipient,
+            defaultParams.createWithDurations.grossDepositAmount,
+            defaultParams.createWithDurations.asset,
+            defaultParams.createWithDurations.cancelable,
             durations,
-            params.createWithDurations.broker
+            defaultParams.createWithDurations.broker
         );
     }
 
     /// @dev Creates the default stream with the provided gross deposit amount.
     function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
         streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            params.createWithRange.recipient,
+            defaultParams.createWithRange.sender,
+            defaultParams.createWithRange.recipient,
             grossDepositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            params.createWithRange.range,
-            params.createWithRange.broker
+            defaultParams.createWithRange.asset,
+            defaultParams.createWithRange.cancelable,
+            defaultParams.createWithRange.range,
+            defaultParams.createWithRange.broker
         );
     }
 
@@ -177,26 +177,26 @@ abstract contract Linear_Test is Lockup_Test {
     function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
         bool isCancelable = false;
         streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            params.createWithRange.recipient,
-            params.createWithRange.grossDepositAmount,
-            params.createWithRange.asset,
+            defaultParams.createWithRange.sender,
+            defaultParams.createWithRange.recipient,
+            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.asset,
             isCancelable,
-            params.createWithRange.range,
-            params.createWithRange.broker
+            defaultParams.createWithRange.range,
+            defaultParams.createWithRange.broker
         );
     }
 
     /// @dev Creates the default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
-            params.createWithRange.sender,
+            defaultParams.createWithRange.sender,
             recipient,
-            params.createWithRange.grossDepositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            params.createWithRange.range,
-            params.createWithRange.broker
+            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.asset,
+            defaultParams.createWithRange.cancelable,
+            defaultParams.createWithRange.range,
+            defaultParams.createWithRange.broker
         );
     }
 
@@ -204,29 +204,29 @@ abstract contract Linear_Test is Lockup_Test {
     function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
             sender,
-            params.createWithRange.recipient,
-            params.createWithRange.grossDepositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            params.createWithRange.range,
-            params.createWithRange.broker
+            defaultParams.createWithRange.recipient,
+            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.asset,
+            defaultParams.createWithRange.cancelable,
+            defaultParams.createWithRange.range,
+            defaultParams.createWithRange.broker
         );
     }
 
     /// @dev Creates the default stream with the provided stop time.
     function createDefaultStreamWithStopTime(uint40 stopTime) internal override returns (uint256 streamId) {
         streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            params.createWithRange.recipient,
-            params.createWithRange.grossDepositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
+            defaultParams.createWithRange.sender,
+            defaultParams.createWithRange.recipient,
+            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.asset,
+            defaultParams.createWithRange.cancelable,
             Range({
-                start: params.createWithRange.range.start,
-                cliff: params.createWithRange.range.cliff,
+                start: defaultParams.createWithRange.range.start,
+                cliff: defaultParams.createWithRange.range.cliff,
                 stop: stopTime
             }),
-            params.createWithRange.broker
+            defaultParams.createWithRange.broker
         );
     }
 }

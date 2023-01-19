@@ -22,7 +22,7 @@ abstract contract GetAsset_Test is Shared_Test {
     function test_GetAsset() external streamNonNull {
         uint256 streamId = createDefaultStream();
         IERC20 actualAsset = lockup.getAsset(streamId);
-        IERC20 expectedAsset = dai;
+        IERC20 expectedAsset = DEFAULT_ASSET;
         assertEq(actualAsset, expectedAsset);
     }
 }

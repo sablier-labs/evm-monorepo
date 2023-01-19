@@ -55,7 +55,7 @@ abstract contract WithdrawMax_Test is Shared_Test {
         uint128 withdrawAmount = lockup.getWithdrawableAmount(defaultStreamId);
 
         // Expect the withdrawal to be made to the recipient.
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

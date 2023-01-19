@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { LockupCreateAmounts, Range, Segment } from "../types/Structs.sol";
+import { CreateLockupAmounts, Range, Segment } from "../types/Structs.sol";
 import { Errors } from "./Errors.sol";
 
 /// @title Helpers
@@ -20,9 +20,9 @@ library Helpers {
         UD60x18 protocolFee,
         UD60x18 brokerFee,
         UD60x18 maxFee
-    ) internal pure returns (LockupCreateAmounts memory amounts) {
+    ) internal pure returns (CreateLockupAmounts memory amounts) {
         if (grossDepositAmount == 0) {
-            return LockupCreateAmounts(0, 0, 0);
+            return CreateLockupAmounts(0, 0, 0);
         }
 
         // Checks: the protocol fee is not greater than `MAX_FEE`.

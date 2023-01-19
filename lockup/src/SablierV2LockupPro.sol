@@ -20,7 +20,7 @@ import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Status } from "./types/Enums.sol";
-import { Broker, LockupCreateAmounts, LockupProStream, Segment } from "./types/Structs.sol";
+import { Broker, CreateLockupAmounts, LockupProStream, Segment } from "./types/Structs.sol";
 
 /// @title SablierV2LockupPro
 /// @dev This contract implements the {ISablierV2LockupPro} interface.
@@ -215,7 +215,7 @@ contract SablierV2LockupPro is
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 
         // Checks: check the fees and calculate the fee amounts.
-        LockupCreateAmounts memory amounts = Helpers.checkAndCalculateFees(
+        CreateLockupAmounts memory amounts = Helpers.checkAndCalculateFees(
             grossDepositAmount,
             protocolFee,
             broker.fee,
@@ -252,7 +252,7 @@ contract SablierV2LockupPro is
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 
         // Checks: check the fees and calculate the fee amounts.
-        LockupCreateAmounts memory amounts = Helpers.checkAndCalculateFees(
+        CreateLockupAmounts memory amounts = Helpers.checkAndCalculateFees(
             grossDepositAmount,
             protocolFee,
             broker.fee,
@@ -448,7 +448,7 @@ contract SablierV2LockupPro is
 
     /// @dev This struct is needed to avoid the "Stack Too Deep" error.
     struct CreateWithMilestonesParams {
-        LockupCreateAmounts amounts;
+        CreateLockupAmounts amounts;
         Segment[] segments;
         address sender; // ──┐
         uint40 startTime; // │

@@ -13,6 +13,13 @@ import { Broker, LockupProStream, Segment } from "src/types/Structs.sol";
 import { Pro_Test } from "../Pro.t.sol";
 
 contract CreateWithDeltas_Pro_Test is Pro_Test {
+    uint256 internal streamId;
+
+    function setUp() public virtual override {
+        Pro_Test.setUp();
+        streamId = pro.nextStreamId();
+    }
+
     /// @dev it should revert.
     function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external {
         uint40[] memory deltas = new uint40[](1_000_000);
@@ -49,13 +56,13 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
         uint256 deltaCount
     ) external loopCalculationsDoNotOverflowBlockGasLimit deltasNotZero {
         deltaCount = bound(deltaCount, 1, 1_000);
-        vm.assume(deltaCount != params.createWithDeltas.segments.length);
+        vm.assume(deltaCount != defaultParams.createWithDeltas.segments.length);
 
         uint40[] memory deltas = new uint40[](deltaCount);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupPro_SegmentArraysNotEqual.selector,
-                params.createWithDeltas.segments.length,
+                defaultParams.createWithDeltas.segments.length,
                 deltaCount
             )
         );
@@ -75,7 +82,7 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
     {
         uint40 startTime = getBlockTimestamp();
         uint40[] memory deltas = Solarray.uint40s(UINT40_MAX, 1);
-        Segment[] memory segments = params.createWithDeltas.segments;
+        Segment[] memory segments = defaultParams.createWithDeltas.segments;
         unchecked {
             segments[0].milestone = startTime + deltas[0];
             segments[1].milestone = deltas[0] + deltas[1];
@@ -131,14 +138,14 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
 
         // Create the stream.
         pro.createWithDeltas(
-            params.createWithDeltas.sender,
-            params.createWithDeltas.recipient,
-            params.createWithDeltas.grossDepositAmount,
+            defaultParams.createWithDeltas.sender,
+            defaultParams.createWithDeltas.recipient,
+            defaultParams.createWithDeltas.grossDepositAmount,
             segments,
-            params.createWithDeltas.asset,
-            params.createWithDeltas.cancelable,
+            defaultParams.createWithDeltas.asset,
+            defaultParams.createWithDeltas.cancelable,
             deltas,
-            params.createWithDeltas.broker
+            defaultParams.createWithDeltas.broker
         );
     }
 
@@ -146,7 +153,8 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
+    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, mint the NFT,
+    /// record the protocol fee, and emit a CreateLockupProStream event.
     function testFuzz_CreateWithDeltas(
         uint40 delta0,
         uint40 delta1
@@ -164,16 +172,19 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
         uint40[] memory deltas = Solarray.uint40s(delta0, delta1);
 
         // Adjust the segment milestones to match the fuzzed deltas.
-        Segment[] memory segments = params.createWithDeltas.segments;
+        Segment[] memory segments = defaultParams.createWithDeltas.segments;
         segments[0].milestone = getBlockTimestamp() + delta0;
         segments[1].milestone = segments[0].milestone + delta1;
 
         // Make the sender the funder in this test.
-        address funder = params.createWithDeltas.sender;
+        address funder = defaultParams.createWithDeltas.sender;
+
+        // Load the initial protocol revenues.
+        uint128 initialProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
         vm.expectCall(
-            address(params.createWithDeltas.asset),
+            address(DEFAULT_ASSET),
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, address(pro), DEFAULT_NET_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
@@ -182,90 +193,65 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
 
         // Expect the broker fee to be paid to the broker.
         vm.expectCall(
-            address(params.createWithDeltas.asset),
+            address(DEFAULT_ASSET),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, params.createWithDeltas.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
+                (funder, defaultParams.createWithDeltas.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
             )
         );
 
+        // Expect an event to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        emit Events.CreateLockupProStream({
+            streamId: streamId,
+            funder: funder,
+            sender: defaultParams.createWithDeltas.sender,
+            recipient: defaultParams.createWithDeltas.recipient,
+            amounts: DEFAULT_CREATE_AMOUNTS,
+            segments: segments,
+            asset: DEFAULT_ASSET,
+            cancelable: defaultParams.createWithDeltas.cancelable,
+            startTime: DEFAULT_START_TIME,
+            stopTime: segments[1].milestone,
+            broker: defaultParams.createWithDeltas.broker.addr
+        });
+
         // Create the stream.
-        uint256 streamId = pro.createWithDeltas(
-            params.createWithDeltas.sender,
-            params.createWithDeltas.recipient,
-            params.createWithDeltas.grossDepositAmount,
+        pro.createWithDeltas(
+            defaultParams.createWithDeltas.sender,
+            defaultParams.createWithDeltas.recipient,
+            defaultParams.createWithDeltas.grossDepositAmount,
             segments,
-            params.createWithDeltas.asset,
-            params.createWithDeltas.cancelable,
+            DEFAULT_ASSET,
+            defaultParams.createWithDeltas.cancelable,
             deltas,
-            params.createWithDeltas.broker
+            defaultParams.createWithDeltas.broker
         );
 
         // Assert that the stream was created.
         LockupProStream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
-        assertEq(actualStream.isCancelable, defaultStream.isCancelable);
-        assertEq(actualStream.sender, defaultStream.sender);
+        assertEq(actualStream.asset, defaultStream.asset, "asset");
+        assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
         assertEq(actualStream.segments, segments);
-        assertEq(actualStream.startTime, defaultStream.startTime);
+        assertEq(actualStream.sender, defaultStream.sender, "sender");
+        assertEq(actualStream.startTime, defaultStream.startTime, "startTime");
         assertEq(actualStream.status, defaultStream.status);
-        assertEq(actualStream.asset, defaultStream.asset);
+        assertEq(actualStream.stopTime, segments[1].milestone, "stopTime");
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = pro.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
-        assertEq(actualNextStreamId, expectedNextStreamId);
+        assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
+
+        // Assert that the protocol fee was recorded.
+        uint128 actualProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT was minted.
         address actualNFTOwner = pro.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = params.createWithDeltas.recipient;
-        assertEq(actualNFTOwner, expectedNFTOwner);
-    }
-
-    /// @dev it should record the protocol fee.
-    function test_CreateWithDeltas_ProtocolFee()
-        external
-        loopCalculationsDoNotOverflowBlockGasLimit
-        deltasNotZero
-        segmentArraysEqual
-        milestonesCalculationsDoNotOverflow
-    {
-        // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = pro.getProtocolRevenues(params.createWithDeltas.asset);
-
-        // Create the default stream.
-        createDefaultStreamWithDeltas();
-
-        // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = pro.getProtocolRevenues(params.createWithDeltas.asset);
-        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
-    }
-
-    /// @dev it should create a CreateLockupProStream event.
-    function test_CreateWithDeltas_Event()
-        external
-        loopCalculationsDoNotOverflowBlockGasLimit
-        deltasNotZero
-        segmentArraysEqual
-        milestonesCalculationsDoNotOverflow
-    {
-        uint256 streamId = pro.nextStreamId();
-        address funder = params.createWithDeltas.sender;
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateLockupProStream({
-            streamId: streamId,
-            funder: funder,
-            sender: params.createWithDeltas.sender,
-            recipient: params.createWithDeltas.recipient,
-            amounts: DEFAULT_CREATE_AMOUNTS,
-            segments: params.createWithDeltas.segments,
-            asset: params.createWithDeltas.asset,
-            cancelable: params.createWithDeltas.cancelable,
-            startTime: DEFAULT_START_TIME,
-            stopTime: DEFAULT_STOP_TIME,
-            broker: params.createWithDeltas.broker.addr
-        });
-        createDefaultStreamWithDeltas();
+        address expectedNFTOwner = defaultParams.createWithDeltas.recipient;
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

@@ -263,7 +263,7 @@ abstract contract Withdraw_Test is Shared_Test {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawal to be made to the recipient.
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
@@ -403,7 +403,10 @@ abstract contract Withdraw_Test is Shared_Test {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawal to be made to the recipient.
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount)));
+        vm.expectCall(
+            address(DEFAULT_ASSET),
+            abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount))
+        );
 
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

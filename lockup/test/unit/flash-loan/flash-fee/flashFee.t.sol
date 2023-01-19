@@ -9,22 +9,16 @@ import { Errors } from "src/libraries/Errors.sol";
 import { FlashLoan_Test } from "../FlashLoan.t.sol";
 
 contract FlashFee_Test is FlashLoan_Test {
-    address internal asset = address(dai);
-
-    function setUp() public override {
-        FlashLoan_Test.setUp();
-    }
-
     /// @dev it should revert.
     function test_RevertWhen_AssetNotFlashLoanable() external {
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, IERC20(asset))
+            abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, DEFAULT_ASSET)
         );
-        flashLoan.flashFee({ asset: asset, amount: 0 });
+        flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: 0 });
     }
 
     modifier assetFlashLoanable() {
-        comptroller.toggleFlashAsset(IERC20(asset));
+        comptroller.toggleFlashAsset(DEFAULT_ASSET);
         _;
     }
 
@@ -37,7 +31,7 @@ contract FlashFee_Test is FlashLoan_Test {
     function testFuzz_FlashFee(UD60x18 comptrollerFlashFee, uint256 amount) external assetFlashLoanable {
         comptrollerFlashFee = bound(comptrollerFlashFee, 0, DEFAULT_MAX_FEE);
         comptroller.setFlashFee(comptrollerFlashFee);
-        uint256 actualFee = flashLoan.flashFee(asset, amount);
+        uint256 actualFee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: amount });
         uint256 expectedFee = ud(amount).mul(comptrollerFlashFee).intoUint256();
         assertEq(actualFee, expectedFee);
     }

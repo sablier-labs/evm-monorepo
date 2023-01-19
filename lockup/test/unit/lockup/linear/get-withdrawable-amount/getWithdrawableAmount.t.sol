@@ -37,7 +37,7 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
     modifier cliffTimeLessThanOrEqualToCurrentTime() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank(users.admin);
-        comptroller.setProtocolFee(dai, ZERO);
+        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
         changePrank(users.sender);
         _;
     }
@@ -58,16 +58,16 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
         vm.assume(depositAmount != 0);
 
         // Mint enough assets to the sender.
-        deal({ token: address(dai), to: users.sender, give: depositAmount });
+        deal({ token: address(DEFAULT_ASSET), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         uint256 streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            params.createWithRange.recipient,
+            defaultParams.createWithRange.sender,
+            defaultParams.createWithRange.recipient,
             depositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            params.createWithRange.range,
+            defaultParams.createWithRange.asset,
+            defaultParams.createWithRange.cancelable,
+            defaultParams.createWithRange.range,
             Broker({ addr: address(0), fee: ZERO })
         );
 
@@ -104,16 +104,16 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Mint enough assets to the sender.
-        deal({ token: address(dai), to: users.sender, give: depositAmount });
+        deal({ token: address(DEFAULT_ASSET), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         uint256 streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            params.createWithRange.recipient,
+            defaultParams.createWithRange.sender,
+            defaultParams.createWithRange.recipient,
             depositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            params.createWithRange.range,
+            defaultParams.createWithRange.asset,
+            defaultParams.createWithRange.cancelable,
+            defaultParams.createWithRange.range,
             Broker({ addr: address(0), fee: ZERO })
         );
 

@@ -9,28 +9,22 @@ import { Errors } from "src/libraries/Errors.sol";
 import { FlashLoan_Test } from "../FlashLoan.t.sol";
 
 contract MaxFlashLoan_Test is FlashLoan_Test {
-    address internal asset = address(dai);
-
-    function setUp() public override {
-        FlashLoan_Test.setUp();
-    }
-
     /// @dev it should revert.
     function test_MaxFlashLoan_AssetNotFlashLoanable() external {
-        uint256 actualAmount = flashLoan.maxFlashLoan(asset);
+        uint256 actualAmount = flashLoan.maxFlashLoan(address(DEFAULT_ASSET));
         uint256 expectedAmount = 0;
         assertEq(actualAmount, expectedAmount);
     }
 
     modifier assetFlashLoanable() {
-        comptroller.toggleFlashAsset(IERC20(asset));
+        comptroller.toggleFlashAsset(DEFAULT_ASSET);
         _;
     }
 
     /// @dev it should return the correct flash fee.
     function testFuzz_MaxFlashLoan(uint256 dealAmount) external assetFlashLoanable {
-        deal({ token: asset, to: address(flashLoan), give: dealAmount });
-        uint256 actualAmount = flashLoan.maxFlashLoan(asset);
+        deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: dealAmount });
+        uint256 actualAmount = flashLoan.maxFlashLoan(address(DEFAULT_ASSET));
         uint256 expectedAmount = dealAmount;
         assertEq(actualAmount, expectedAmount);
     }

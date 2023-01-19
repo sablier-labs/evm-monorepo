@@ -19,19 +19,19 @@ contract GetProtocolFee_Test is Comptroller_Test {
 
     /// @dev it should return zero.
     function test_GetProtocolFee_ProtocolFeeNotSet() external {
-        UD60x18 actualProtocolFee = comptroller.getProtocolFee(dai);
+        UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = ZERO;
         assertEq(actualProtocolFee, expectedProtocolFee);
     }
 
     modifier protocolFeeSet() {
-        comptroller.setProtocolFee(dai, DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: DEFAULT_PROTOCOL_FEE });
         _;
     }
 
     /// @dev it should return the correct protocol fee.
     function test_GetProtocolFee() external protocolFeeSet {
-        UD60x18 actualProtocolFee = comptroller.getProtocolFee(dai);
+        UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = DEFAULT_PROTOCOL_FEE;
         assertEq(actualProtocolFee, expectedProtocolFee);
     }

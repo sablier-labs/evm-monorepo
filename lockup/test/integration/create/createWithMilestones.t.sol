@@ -7,7 +7,7 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
-import { LockupAmounts, Broker, LockupCreateAmounts, LockupProStream, Segment } from "src/types/Structs.sol";
+import { Broker, CreateLockupAmounts, LockupAmounts, LockupProStream, Segment } from "src/types/Structs.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 
@@ -104,7 +104,7 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
             funder: holder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: LockupCreateAmounts({
+            amounts: CreateLockupAmounts({
                 netDeposit: vars.netDepositAmount,
                 protocolFee: 0,
                 brokerFee: vars.brokerFeeAmount

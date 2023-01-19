@@ -12,7 +12,7 @@ import { Shared_Test } from "../SharedTest.t.sol";
 abstract contract GetProtocolRevenues_Test is Shared_Test {
     /// @dev it should return zero.
     function test_GetProtocolRevenues_ProtocolRevenuesZero() external {
-        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(dai);
+        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -27,7 +27,7 @@ abstract contract GetProtocolRevenues_Test is Shared_Test {
 
     /// @dev it should return the correct protocol revenues.
     function test_GetProtocolRevenues() external protocolRevenuesNotZero {
-        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(dai);
+        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }

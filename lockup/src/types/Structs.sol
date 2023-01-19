@@ -15,6 +15,17 @@ struct Broker {
     UD60x18 fee;
 }
 
+/// @notice Simple struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii) the
+/// broker fee amount, each in units of the asset's decimals.
+/// @custom:field netDeposit The deposit amount net of fees, in units of the asset's decimals.
+/// @custom:field protocolFee The protocol fee amount, in units of the asset's decimals.
+/// @custom:field brokerFee The broker fee amount, in units of the asset's decimals.
+struct CreateLockupAmounts {
+    uint128 netDeposit; // ──┐
+    uint128 protocolFee; // ─┘
+    uint128 brokerFee;
+}
+
 /// @notice Simple struct that encapsulates (i) the cliff duration and (ii) the total duration.
 /// @custom:field cliff The cliff duration in seconds.
 /// @custom:field cliff The total duration in seconds.
@@ -31,17 +42,6 @@ struct Durations {
 struct LockupAmounts {
     uint128 deposit; // ───┐
     uint128 withdrawn; // ─┘
-}
-
-/// @notice Simple struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii) the
-/// broker fee amount, each in units of the asset's decimals.
-/// @custom:field netDeposit The deposit amount net of fees, in units of the asset's decimals.
-/// @custom:field protocolFee The protocol fee amount, in units of the asset's decimals.
-/// @custom:field brokerFee The broker fee amount, in units of the asset's decimals.
-struct LockupCreateAmounts {
-    uint128 netDeposit; // ──┐
-    uint128 protocolFee; // ─┘
-    uint128 brokerFee;
 }
 
 /// @notice Lockup linear stream struct used in the {SablierV2LockupLinear} contract.

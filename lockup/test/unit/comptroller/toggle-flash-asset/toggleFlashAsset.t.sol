@@ -19,7 +19,7 @@ contract ToggleFlashAsset_Test is Comptroller_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, eve));
-        comptroller.toggleFlashAsset(dai);
+        comptroller.toggleFlashAsset(DEFAULT_ASSET);
     }
 
     modifier callerAdmin() {
@@ -30,34 +30,35 @@ contract ToggleFlashAsset_Test is Comptroller_Test {
 
     /// @dev it should toggle the flash asset.
     function test_ToggleFlashAsset_FlagNotEnabled() external callerAdmin {
-        comptroller.toggleFlashAsset(dai);
-        bool isFlashLoanable = comptroller.isFlashLoanable(dai);
+        // Expect an event to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        emit Events.ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: true });
+
+        // Toggle the flash asset.
+        comptroller.toggleFlashAsset(DEFAULT_ASSET);
+
+        // Assert that the flash asset was toggled.
+        bool isFlashLoanable = comptroller.isFlashLoanable(DEFAULT_ASSET);
         assertTrue(isFlashLoanable);
     }
 
-    /// @dev it should emit a ToggleFlashAsset event.
-    function test_ToggleFlashAsset_FlagNotEnabled_Event() external callerAdmin {
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.ToggleFlashAsset({ admin: users.admin, asset: dai, newFlag: true });
-        comptroller.toggleFlashAsset(dai);
-    }
-
     modifier flagEnabled() {
-        comptroller.toggleFlashAsset(dai);
+        comptroller.toggleFlashAsset(DEFAULT_ASSET);
         _;
     }
 
-    /// @dev it should toggle the flash asset.
-    function test_ToggleFlashAsset_FlagEnabled() external callerAdmin flagEnabled {
-        comptroller.toggleFlashAsset(dai);
-        bool isFlashLoanable = comptroller.isFlashLoanable(dai);
-        assertFalse(isFlashLoanable);
-    }
-
-    /// @dev it should emit a ToggleFlashAsset event.
-    function test_ToggleFlashAsset_FlagEnabled_Event() external callerAdmin flagEnabled {
+    /// @dev it should toggle the flash asset and emit a ToggleFlashAsset event.
+    function test_ToggleFlashAsset() external callerAdmin flagEnabled {
+        // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.ToggleFlashAsset({ admin: users.admin, asset: dai, newFlag: false });
-        comptroller.toggleFlashAsset(dai);
+        emit Events.ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: false });
+
+        // Toggle the flash asset.
+        comptroller.toggleFlashAsset(DEFAULT_ASSET);
+
+        // Assert that the flash asset was toggled.
+
+        bool isFlashLoanable = comptroller.isFlashLoanable(DEFAULT_ASSET);
+        assertFalse(isFlashLoanable);
     }
 }

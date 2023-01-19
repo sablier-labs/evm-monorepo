@@ -58,7 +58,7 @@ abstract contract Unit_Test is Base_Test {
     /// @dev Label the test contracts.
     function labelTestContracts() internal {
         vm.label({ account: address(empty), newLabel: "Empty" });
-        vm.label({ account: address(dai), newLabel: "Dai" });
+        vm.label({ account: address(DEFAULT_ASSET), newLabel: "Dai" });
         vm.label({ account: address(faultyFlashLoanReceiver), newLabel: "Faulty Flash Loan Receiver" });
         vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
         vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
