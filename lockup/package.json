@@ -38,6 +38,7 @@
     "postinstall": "husky install",
     "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
     "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",
+    "snapshot": "forge snapshot --desc --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "test": "forge test",
     "test:optimized": "FOUNDRY_PROFILE=optimized forge build && FOUNDRY_PROFILE=test-optimized forge test"
   }
