@@ -26,8 +26,8 @@ import { SablierV2Lockup } from "./SablierV2Lockup.sol";
 /// @dev This contract implements the {ISablierV2LockupPro} interface.
 contract SablierV2LockupPro is
     ISablierV2LockupPro, // one dependency
-    SablierV2Lockup, // two dependencies
-    ERC721("Sablier V2 Pro NFT", "SAB-V2-PRO") // six dependencies
+    ERC721("Sablier V2 Pro NFT", "SAB-V2-PRO"), // six dependencies
+    SablierV2Lockup // ten dependencies
 {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;

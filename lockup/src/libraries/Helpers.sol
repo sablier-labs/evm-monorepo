@@ -148,7 +148,7 @@ library Helpers {
         uint256 segmentCount = segments.length;
         for (index = 0; index < segmentCount; ) {
             // Add the current segment amount to the sum.
-            segmentAmountsSum = segmentAmountsSum + segments[index].amount;
+            segmentAmountsSum += segments[index].amount;
 
             // Check that the previous milestone is less than the current milestone. Note that this can overflow.
             currentMilestone = segments[index].milestone;

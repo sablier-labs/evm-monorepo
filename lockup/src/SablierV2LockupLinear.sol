@@ -24,8 +24,8 @@ import { SablierV2Lockup } from "./SablierV2Lockup.sol";
 /// @dev This contract implements the {ISablierV2LockupLinear} interface.
 contract SablierV2LockupLinear is
     ISablierV2LockupLinear, // one dependency
-    SablierV2Lockup, // two dependencies
-    ERC721("SablierV2LockupLinear NFT", "SAB-V2-LOCKUP-LIN") // six dependencies
+    ERC721("SablierV2LockupLinear NFT", "SAB-V2-LOCKUP-LIN"), // six dependencies
+    SablierV2Lockup // ten dependencies
 {
     using SafeERC20 for IERC20;
 

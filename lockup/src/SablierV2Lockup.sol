@@ -14,12 +14,15 @@ import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Status } from "./types/Enums.sol";
 
+/// 3
+/// SablierV2 - 3
+/// ISablierV2Lockup - 3
+///SablierV2FlashLoan - 1
 /// @title SablierV2Lockup
 /// @dev Abstract contract that implements the {ISablierV2Lockup} interface and other common logic.
 abstract contract SablierV2Lockup is
-    Adminable, // one dependency
     SablierV2, // three dependencies
-    ISablierV2Lockup, // three dependencies
+    ISablierV2Lockup, // four dependencies
     SablierV2FlashLoan // five dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
