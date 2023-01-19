@@ -47,9 +47,9 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Deploy the SablierV2Pro contract"
+      - name: "Deploy the SablierV2LockupPro contract"
         run: >-
-          forge script script/DeployPro.s.sol
+          forge script script/DeployLockupPro.s.sol
           --broadcast
           --rpc-url "${{ github.event.inputs.chain }}"
           --sig "run(address,address,uint256,uint256)"

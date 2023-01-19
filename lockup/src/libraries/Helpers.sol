@@ -53,7 +53,7 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the arguments of the {SablierV2Linear-_createWithRange} function.
+    /// @dev Checks the arguments of the {SablierV2LockupLinear-_createWithRange} function.
     function checkCreateLinearParams(uint128 netDepositAmount, Range memory range) internal pure {
         // Checks: the net deposit amount is not zero.
         if (netDepositAmount == 0) {
@@ -71,7 +71,7 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the arguments of the {SablierV2Pro-_createWithRange} function.
+    /// @dev Checks the arguments of the {SablierV2LockupPro-_createWithRange} function.
     function checkCreateProParams(
         uint128 netDepositAmount,
         Segment[] memory segments,
