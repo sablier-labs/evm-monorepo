@@ -372,7 +372,7 @@ abstract contract Withdraw_Test is Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawal, update the withdrawn amount, and emit a WithdrawFromLockupStream event.
+    /// @dev it should make the withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream} event.
     function testFuzz_Withdraw(
         uint256 timeWarp,
         uint128 withdrawAmount

@@ -375,7 +375,7 @@ contract CreateWithMilestones_Pro_Test is Pro_Test {
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
-    /// fee, mint the NFT, and emit a CreateLockupProStream event.
+    /// fee, mint the NFT, and emit a {CreateLockupProStream} event.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///

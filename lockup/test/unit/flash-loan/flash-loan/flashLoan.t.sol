@@ -145,7 +145,7 @@ contract FlashLoanFunction_Test is FlashLoan_Test {
     }
 
     /// @dev it should execute the flash loan, make the ERC-20 transfers, update the protocol revenues, and emit
-    /// a FlashLoan event.
+    /// a {FlashLoan} event.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///

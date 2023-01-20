@@ -41,7 +41,7 @@ contract SetFlashFee_Test is Comptroller_Test {
         _;
     }
 
-    /// @dev it should set the new flash fee and emit a SetFlashFee event.
+    /// @dev it should set the new flash fee and emit a {SetFlashFee} event.
     function testFuzz_SetFlashFee(UD60x18 newFlashFee) external callerAdmin newFee {
         newFlashFee = bound(newFlashFee, 1, DEFAULT_MAX_FEE);
 

@@ -40,7 +40,7 @@ contract SetProtocolFee_Test is Comptroller_Test {
         _;
     }
 
-    /// @dev it should set the new protocol fee and emit a SetProtocolFee event.
+    /// @dev it should set the new protocol fee and emit a {SetProtocolFee} event.
     function testFuzz_SetProtocolFee(UD60x18 newProtocolFee) external callerAdmin newFee {
         newProtocolFee = bound(newProtocolFee, 1, DEFAULT_MAX_FEE);
 

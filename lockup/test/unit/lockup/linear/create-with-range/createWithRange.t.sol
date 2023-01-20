@@ -275,7 +275,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
-    /// fee, mint the NFT, and emit a CreateLockupLinearStream event.
+    /// fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///

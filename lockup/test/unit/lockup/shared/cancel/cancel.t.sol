@@ -203,7 +203,7 @@ abstract contract Cancel_Test is Shared_Test {
     }
 
     /// @dev it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, and emit a
-    /// CancelLockupStream event.
+    /// {CancelLockupStream} event.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
@@ -368,7 +368,7 @@ abstract contract Cancel_Test is Shared_Test {
     }
 
     /// @dev it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, and emit a
-    /// CancelLockupStream event.
+    /// {CancelLockupStream} event.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///

@@ -154,7 +154,7 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, mint the NFT,
-    /// record the protocol fee, and emit a CreateLockupProStream event.
+    /// record the protocol fee, and emit a {CreateLockupProStream} event.
     function testFuzz_CreateWithDeltas(
         uint40 delta0,
         uint40 delta1

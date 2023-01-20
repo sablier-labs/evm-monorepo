@@ -93,11 +93,11 @@ abstract contract Linear_Integration_Test is IntegrationTest {
     /// - Bump the next stream id.
     /// - Record the protocol fee.
     /// - Mint the NFT.
-    /// - Emit a CreateLockupLinearStream event.
+    /// - Emit a {CreateLockupLinearStream} event.
     /// - Make a withdrawal.
-    /// - Emit a WithdrawFromLockupStream event.
+    /// - Emit a {WithdrawFromLockupStream} event.
     /// - Cancel the stream.
-    /// - Emit a CancelLockupStream event.
+    /// - Emit a {CancelLockupStream} event.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
@@ -142,7 +142,7 @@ abstract contract Linear_Integration_Test is IntegrationTest {
         vars.brokerFeeAmount = ud(params.grossDepositAmount).mul(params.broker.fee).intoUint128();
         vars.netDepositAmount = params.grossDepositAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
 
-        // Expect a CreateLockupLinearStream event to be emitted.
+        // Expect a {CreateLockupLinearStream} event to be emitted.
         vars.streamId = linear.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLockupLinearStream({
@@ -235,7 +235,7 @@ abstract contract Linear_Integration_Test is IntegrationTest {
             vars.initialLinearBalance = vars.actualLinearBalance;
             vars.initialRecipientBalance = asset.balanceOf(params.recipient);
 
-            // Expect a WithdrawFromLockupStream event to be emitted.
+            // Expect a {WithdrawFromLockupStream} event to be emitted.
             vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
             emit Events.WithdrawFromLockupStream({
                 streamId: vars.streamId,

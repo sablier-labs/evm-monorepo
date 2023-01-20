@@ -29,7 +29,7 @@ abstract contract SetComptroller_Test is Shared_Test {
         _;
     }
 
-    /// @dev it should re-set the comptroller and emit a SetComptroller event.
+    /// @dev it should re-set the comptroller and emit a {SetComptroller} event.
     function test_SetComptroller_SameComptroller() external callerAdmin {
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: true });
@@ -44,7 +44,7 @@ abstract contract SetComptroller_Test is Shared_Test {
         assertEq(actualComptroller, expectedComptroller);
     }
 
-    /// @dev it should set the new comptroller and emit a SetComptroller event.
+    /// @dev it should set the new comptroller and emit a {SetComptroller} event.
     function test_SetComptroller_NewComptroller() external callerAdmin {
         // Deploy the new comptroller.
         ISablierV2Comptroller newComptroller = new SablierV2Comptroller({ initialAdmin: users.admin });

@@ -5,5 +5,5 @@ claimProtocolRevenues.t.sol
    ├── when the protocol revenues are zero
    │  └── it should revert
    └── when the protocol revenues are not zero
-      └── it should claim the protocol revenues, update the protocol revenues, and emit a ClaimProtocolRevenues event
+      └── it should claim the protocol revenues, update the protocol revenues, and emit a {ClaimProtocolRevenues} event
 

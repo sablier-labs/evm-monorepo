@@ -47,7 +47,7 @@ contract ToggleFlashAsset_Test is Comptroller_Test {
         _;
     }
 
-    /// @dev it should toggle the flash asset and emit a ToggleFlashAsset event.
+    /// @dev it should toggle the flash asset and emit a {ToggleFlashAsset} event.
     function test_ToggleFlashAsset() external callerAdmin flagEnabled {
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

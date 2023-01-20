@@ -374,7 +374,7 @@ contract SablierV2LockupLinear is
             }
         }
 
-        // Emit an event.
+        // Emit a {CancelLockupStream} event.
         emit Events.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
     }
 
@@ -432,7 +432,7 @@ contract SablierV2LockupLinear is
             params.asset.safeTransferFrom({ from: msg.sender, to: params.broker, amount: params.amounts.brokerFee });
         }
 
-        // Emit an event.
+        // Emit a {CreateLockupLinearStream} event.
         emit Events.CreateLockupLinearStream({
             streamId: streamId,
             funder: msg.sender,
@@ -451,7 +451,7 @@ contract SablierV2LockupLinear is
         // Effects: make the stream non-cancelable.
         _streams[streamId].isCancelable = false;
 
-        // Emit an event.
+        // Emit a {RenounceLockupStream} event.
         emit Events.RenounceLockupStream(streamId);
     }
 
@@ -505,7 +505,7 @@ contract SablierV2LockupLinear is
             {} catch {}
         }
 
-        // Emit an event.
+        // Emit a {WithdrawFromLockupStream} event.
         emit Events.WithdrawFromLockupStream(streamId, to, amount);
     }
 }
