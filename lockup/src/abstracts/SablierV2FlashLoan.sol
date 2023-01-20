@@ -133,7 +133,7 @@ abstract contract SablierV2FlashLoan is
 
         uint256 returnAmount;
 
-        // Using unchecked arithmetic here because the checks above prevent these calculations from overflowing.
+        // Using unchecked arithmetic because the checks above prevent these calculations from overflowing.
         unchecked {
             // Effects: record the flash fee amount in the protocol revenues. The casting to uint128 is safe thanks
             // to the check at the start of the function.

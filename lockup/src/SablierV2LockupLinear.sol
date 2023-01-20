@@ -408,7 +408,7 @@ contract SablierV2LockupLinear is
         });
 
         // Effects: bump the next stream id and record the protocol fee.
-        // Using unchecked arithmetic here because theses calculations cannot realistically overflow, ever.
+        // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
             _protocolRevenues[params.asset] += params.amounts.protocolFee;
@@ -417,8 +417,15 @@ contract SablierV2LockupLinear is
         // Effects: mint the NFT to the recipient.
         _mint({ to: params.recipient, tokenId: streamId });
 
-        // Interactions: perform the ERC-20 transfer to deposit the net amount of assets.
-        params.asset.safeTransferFrom({ from: msg.sender, to: address(this), amount: params.amounts.netDeposit });
+        // Interactions: perform the ERC-20 transfer to deposit the net amount of assets, and also the protocol fee.
+        // Using unchecked arithmetic because the net deposit and the protocol fee are bounded by the gross deposit.
+        unchecked {
+            params.asset.safeTransferFrom({
+                from: msg.sender,
+                to: address(this),
+                amount: params.amounts.netDeposit + params.amounts.protocolFee
+            });
+        }
 
         // Interactions: perform the ERC-20 transfer to pay the broker fee, if not zero.
         if (params.amounts.brokerFee > 0) {

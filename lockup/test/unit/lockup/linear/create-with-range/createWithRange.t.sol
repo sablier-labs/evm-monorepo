@@ -196,7 +196,10 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         address funder = params.createWithRange.sender;
         vm.expectCall(
             address(nonCompliantAsset),
-            abi.encodeCall(IERC20.transferFrom, (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT))
+            abi.encodeCall(
+                IERC20.transferFrom,
+                (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
+            )
         );
 
         // Expect the broker fee to be paid to the broker.
@@ -294,7 +297,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
         vm.expectCall(
             address(params.createWithRange.asset),
-            abi.encodeCall(IERC20.transferFrom, (funder, address(linear), netDepositAmount))
+            abi.encodeCall(IERC20.transferFrom, (funder, address(linear), netDepositAmount + protocolFeeAmount))
         );
 
         // Expect the broker fee to be paid to the broker, if the fee amount is not zero.
