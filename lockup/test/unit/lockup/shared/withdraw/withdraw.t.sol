@@ -372,7 +372,7 @@ abstract contract Withdraw_Test is Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawal, emit a WithdrawFromLockupStream event, and update the withdrawn amount.
+    /// @dev it should make the withdrawal, update the withdrawn amount, and emit a WithdrawFromLockupStream event.
     function testFuzz_Withdraw(
         uint256 timeWarp,
         uint128 withdrawAmount
@@ -390,7 +390,7 @@ abstract contract Withdraw_Test is Shared_Test {
         recipientDoesNotRevert
         noRecipientReentrancy
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Create the stream with the recipient as a contract.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
@@ -417,7 +417,7 @@ abstract contract Withdraw_Test is Shared_Test {
         });
 
         // Make the withdrawal.
-        lockup.withdraw(streamId, address(goodRecipient), withdrawAmount);
+        lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
 
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);

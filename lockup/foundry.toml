@@ -24,7 +24,6 @@
 # Speed up compilation and tests during development.
 [profile.lite]
   fuzz = { runs = 50 }
-  invariant = { runs = 10 }
   optimizer = false
 
 # Compile only the production code with IR
@@ -37,7 +36,7 @@
 [profile.test-optimized]
   fuzz = { runs = 5_000 }
   src = "test"
-  test = "test"
+  test = "test/unit"
 
 [etherscan]
   ethereum = { key = "${ETHERSCAN_API_KEY}" }

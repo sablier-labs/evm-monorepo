@@ -41,8 +41,8 @@ abstract contract ClaimProtocolRevenues_Test is Shared_Test {
         _;
     }
 
-    /// @dev it should claim the protocol revenues, update the protocol revenues, and emit a
-    /// ClaimProtocolRevenues event.
+    /// @dev it should claim the protocol revenues, update the protocol revenues, and emit a ClaimProtocolRevenues
+    /// event.
     function test_ClaimProtocolRevenues() external callerAdmin protocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;

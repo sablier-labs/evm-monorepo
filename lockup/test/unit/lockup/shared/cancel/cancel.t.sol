@@ -259,7 +259,7 @@ abstract contract Cancel_Test is Shared_Test {
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CancelLockupStream(streamId, users.sender, address(goodRecipient), senderAmount, recipientAmount);
 
-        // CancelLockupStream the stream.
+        // Cancel the stream.
         lockup.cancel(streamId);
 
         // Assert that the stream was marked as canceled.
@@ -421,7 +421,7 @@ abstract contract Cancel_Test is Shared_Test {
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CancelLockupStream(streamId, address(goodSender), users.recipient, senderAmount, recipientAmount);
 
-        // CancelLockupStream the stream.
+        // Cancel the stream.
         lockup.cancel(streamId);
 
         // Assert that the stream was marked as canceled.

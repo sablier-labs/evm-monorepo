@@ -49,21 +49,19 @@ abstract contract CancelMultiple_Test is Shared_Test {
     /// @dev it should do nothing.
     function test_RevertWhen_AllStreamsNonCancelable() external onlyNonNullStreams {
         // Create the non-cancelable stream.
-        uint256 streamId = createDefaultStreamNonCancelable();
+        uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
 
         // Run the test.
-        uint256[] memory nonCancelableStreamIds = Solarray.uint256s(streamId);
-        lockup.cancelMultiple(nonCancelableStreamIds);
+        lockup.cancelMultiple({ streamIds: Solarray.uint256s(nonCancelableStreamId) });
     }
 
     /// @dev it should ignore the non-cancelable streams and cancel the cancelable streams.
     function test_RevertWhen_SomeStreamsNonCancelable() external onlyNonNullStreams {
         // Create the non-cancelable stream.
-        uint256 streamId = createDefaultStreamNonCancelable();
+        uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
 
         // Run the test.
-        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
-        lockup.cancelMultiple(streamIds);
+        lockup.cancelMultiple({ streamIds: Solarray.uint256s(defaultStreamIds[0], nonCancelableStreamId) });
 
         // Assert that the cancelable stream was canceled.
         Status actualStatus = lockup.getStatus(defaultStreamIds[0]);
@@ -71,7 +69,7 @@ abstract contract CancelMultiple_Test is Shared_Test {
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the non-cancelable stream was not canceled.
-        Status status = lockup.getStatus(defaultStreamIds[1]);
+        Status status = lockup.getStatus(nonCancelableStreamId);
         assertEq(status, Status.ACTIVE);
     }
 

@@ -83,8 +83,8 @@ contract CreateWithDurations_Linear_Test is Linear_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT,
-    /// record the protocol fee, and emit a CreateLockupLinearStream event
+    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the
+    /// protocol fee, mint the NFT, and emit a CreateLockupLinearStream event.
     function testFuzz_CreateWithDurations(
         Durations memory durations
     ) external cliffDurationCalculationDoesNotOverflow totalDurationCalculationDoesNotOverflow {

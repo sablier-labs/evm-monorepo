@@ -44,7 +44,7 @@ abstract contract SetComptroller_Test is Shared_Test {
         assertEq(actualComptroller, expectedComptroller);
     }
 
-    /// @dev it should set the new comptroller and emit a SetComptroller event
+    /// @dev it should set the new comptroller and emit a SetComptroller event.
     function test_SetComptroller_NewComptroller() external callerAdmin {
         // Deploy the new comptroller.
         ISablierV2Comptroller newComptroller = new SablierV2Comptroller({ initialAdmin: users.admin });
