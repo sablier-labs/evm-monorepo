@@ -78,7 +78,7 @@ abstract contract Renounce_Test is Shared_Test {
 
     /// @dev it should renounce the stream and emit a {RenounceLockupStream} event.
     function test_Renounce() external streamActive callerSender {
-        // Expect an event to be emitted.
+        // Expect a {RenounceLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: false });
         emit Events.RenounceLockupStream(defaultStreamId);
 

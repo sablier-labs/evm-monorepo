@@ -200,7 +200,7 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
             )
         );
 
-        // Expect an event to be emitted.
+        // Expect a {CreateLockupProStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLockupProStream({
             streamId: streamId,

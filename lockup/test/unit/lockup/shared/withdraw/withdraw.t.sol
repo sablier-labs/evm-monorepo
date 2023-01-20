@@ -265,7 +265,7 @@ abstract contract Withdraw_Test is Shared_Test {
         // Expect the withdrawal to be made to the recipient.
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
-        // Expect an event to be emitted.
+        // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
         emit Events.WithdrawFromLockupStream({ streamId: streamId, to: to, amount: withdrawAmount });
 
@@ -408,7 +408,7 @@ abstract contract Withdraw_Test is Shared_Test {
             abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount))
         );
 
-        // Expect an event to be emitted.
+        // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
         emit Events.WithdrawFromLockupStream({
             streamId: streamId,

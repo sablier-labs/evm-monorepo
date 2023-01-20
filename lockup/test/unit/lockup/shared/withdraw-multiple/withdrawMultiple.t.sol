@@ -268,7 +268,7 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawals, emit multiple WithdrawFromLockupStream events, and mark the streams as
+    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, and mark the streams as
     /// depleted.
     function testFuzz_WithdrawMultiple_AllStreamsEnded(
         uint256 timeWarp,
@@ -289,7 +289,7 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         // Warp into the future, past the stop time.
         vm.warp({ timestamp: DEFAULT_STOP_TIME + timeWarp });
 
-        // Expect WithdrawFromLockupStream events to be emitted.
+        // Expect two {WithdrawFromLockupStream} events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
         emit Events.WithdrawFromLockupStream({
             streamId: defaultStreamIds[0],
@@ -326,7 +326,7 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         assertEq(actualNFTOwner1, actualNFTOwner);
     }
 
-    /// @dev it should make the withdrawals, emit multiple WithdrawFromLockupStream events, and update the withdrawn
+    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, and update the withdrawn
     /// amounts.
     function testFuzz_WithdrawMultiple_AllStreamsOngoing(
         uint256 timeWarp,
@@ -356,7 +356,7 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
 
-        // Expect WithdrawFromLockupStream events to be emitted.
+        // Expect two {WithdrawFromLockupStream} events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
         emit Events.WithdrawFromLockupStream({ streamId: defaultStreamIds[0], to: to, amount: withdrawAmount });
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
@@ -374,7 +374,7 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount);
     }
 
-    /// @dev it should make the withdrawals, emit multiple WithdrawFromLockupStream events, mark the ended streams as
+    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, mark the ended streams as
     /// depleted, and update the withdrawn amounts.
     function testFuzz_WithdrawMultiple_SomeStreamsEndedSomeStreamsOngoing(
         uint256 timeWarp,
@@ -408,7 +408,7 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         uint128 ongoingWithdrawableAmount = lockup.getWithdrawableAmount(ongoingStreamId);
         ongoingWithdrawAmount = boundUint128(ongoingWithdrawAmount, 1, ongoingWithdrawableAmount);
 
-        // Expect WithdrawFromLockupStream events to be emitted.
+        // Expect two {WithdrawFromLockupStream} events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
         emit Events.WithdrawFromLockupStream({ streamId: endedStreamId, to: to, amount: endedWithdrawAmount });
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

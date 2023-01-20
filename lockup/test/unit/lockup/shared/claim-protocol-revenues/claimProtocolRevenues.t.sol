@@ -41,14 +41,14 @@ abstract contract ClaimProtocolRevenues_Test is Shared_Test {
         _;
     }
 
-    /// @dev it should claim the protocol revenues, update the protocol revenues, and emit a ClaimProtocolRevenues
+    /// @dev it should claim the protocol revenues, update the protocol revenues, and emit a {ClaimProtocolRevenues}
     /// event.
     function test_ClaimProtocolRevenues() external callerAdmin protocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.admin, protocolRevenues)));
 
-        // Expect an event to be emitted.
+        // Expect a {ClaimProtocolRevenues} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
         emit Events.ClaimProtocolRevenues(users.admin, DEFAULT_ASSET, protocolRevenues);
 

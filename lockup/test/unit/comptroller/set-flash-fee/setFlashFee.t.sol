@@ -45,7 +45,7 @@ contract SetFlashFee_Test is Comptroller_Test {
     function testFuzz_SetFlashFee(UD60x18 newFlashFee) external callerAdmin newFee {
         newFlashFee = bound(newFlashFee, 1, DEFAULT_MAX_FEE);
 
-        // Expect an event to be emitted.
+        // Expect a {SetFlashFee} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: newFlashFee });
 

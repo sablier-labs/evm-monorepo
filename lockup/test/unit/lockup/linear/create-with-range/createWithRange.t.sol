@@ -344,7 +344,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
             );
         }
 
-        // Expect an event to be emitted.
+        // Expect a {CreateLockupLinearStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLockupLinearStream({
             streamId: streamId,

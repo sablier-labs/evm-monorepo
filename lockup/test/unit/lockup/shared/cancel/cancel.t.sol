@@ -255,7 +255,7 @@ abstract contract Cancel_Test is Shared_Test {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
         }
 
-        // Expect an event to be emitted.
+        // Expect a {CancelLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CancelLockupStream(streamId, users.sender, address(goodRecipient), senderAmount, recipientAmount);
 
@@ -417,7 +417,7 @@ abstract contract Cancel_Test is Shared_Test {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (address(goodSender), senderAmount)));
         }
 
-        // Expect an event to be emitted.
+        // Expect a {CancelLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CancelLockupStream(streamId, address(goodSender), users.recipient, senderAmount, recipientAmount);
 

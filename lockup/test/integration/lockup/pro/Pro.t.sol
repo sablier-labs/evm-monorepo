@@ -146,7 +146,7 @@ abstract contract Pro_Integration_Test is IntegrationTest {
         Segment[] memory segments = DEFAULT_SEGMENTS;
         adjustSegmentAmounts(segments, vars.netDepositAmount);
 
-        // Expect an event to be emitted.
+        // Expect a {CreateLockupProStream} event to be emitted.
         vars.streamId = pro.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLockupProStream({
@@ -287,7 +287,7 @@ abstract contract Pro_Integration_Test is IntegrationTest {
             vars.initialSenderBalance = vars.balances[1];
             vars.initialRecipientBalance = vars.balances[2];
 
-            // Expect an event to be emitted.
+            // Expect a {CancelLockupStream} event to be emitted.
             vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
             vars.senderAmount = pro.getReturnableAmount(vars.streamId);
             vars.recipientAmount = pro.getWithdrawableAmount(vars.streamId);

@@ -44,7 +44,8 @@ abstract contract WithdrawMax_Test is Shared_Test {
         _;
     }
 
-    /// @dev it should make the max withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream} event.
+    /// @dev it should make the max withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream}
+    /// event.
     function testFuzz_WithdrawMax(uint256 timeWarp) external currentTimeLessThanStopTime {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
@@ -57,7 +58,7 @@ abstract contract WithdrawMax_Test is Shared_Test {
         // Expect the withdrawal to be made to the recipient.
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
 
-        // Expect an event to be emitted.
+        // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
         emit Events.WithdrawFromLockupStream({
             streamId: defaultStreamId,

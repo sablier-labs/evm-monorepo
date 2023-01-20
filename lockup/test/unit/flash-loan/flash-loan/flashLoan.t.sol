@@ -193,7 +193,7 @@ contract FlashLoanFunction_Test is FlashLoan_Test {
             abi.encodeCall(IERC20.transferFrom, (address(goodFlashLoanReceiver), address(flashLoan), returnAmount))
         );
 
-        // Expect an event to be emitted.
+        // Expect a {FlashLoan} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.FlashLoan({
             initiator: users.admin,
