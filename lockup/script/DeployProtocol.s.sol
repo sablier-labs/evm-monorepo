@@ -18,7 +18,7 @@ import { DeployComptroller } from "./DeployComptroller.s.sol";
 /// 3. SablierV2LockupPro
 contract DeployProtocol is Script, Common {
     function run(
-        address admin,
+        address initialAdmin,
         UD60x18 maxFee,
         uint256 maxSegmentCount
     )
@@ -26,13 +26,8 @@ contract DeployProtocol is Script, Common {
         broadcaster
         returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro)
     {
-        comptroller = new SablierV2Comptroller({ initialAdmin: admin });
-        linear = new SablierV2LockupLinear({ initialAdmin: admin, initialComptroller: comptroller, maxFee: maxFee });
-        pro = new SablierV2LockupPro({
-            initialAdmin: admin,
-            initialComptroller: comptroller,
-            maxFee: maxFee,
-            maxSegmentCount: maxSegmentCount
-        });
+        comptroller = new SablierV2Comptroller(initialAdmin);
+        linear = new SablierV2LockupLinear(initialAdmin, comptroller, maxFee);
+        pro = new SablierV2LockupPro(initialAdmin, comptroller, maxFee, maxSegmentCount);
     }
 }

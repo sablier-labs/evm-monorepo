@@ -15,11 +15,11 @@ contract DeployDeterministicLockupPro is Script, Common {
     /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.
     /// https://github.com/Arachnid/deterministic-deployment-proxy
     function run(
-        address admin,
-        ISablierV2Comptroller comptroller,
+        address initialAdmin,
+        ISablierV2Comptroller initialComptroller,
         UD60x18 maxFee,
         uint256 maxSegmentCount
     ) public broadcaster returns (SablierV2LockupPro pro) {
-        pro = new SablierV2LockupPro{ salt: ZERO_SALT }(admin, comptroller, maxFee, maxSegmentCount);
+        pro = new SablierV2LockupPro{ salt: ZERO_SALT }(initialAdmin, initialComptroller, maxFee, maxSegmentCount);
     }
 }

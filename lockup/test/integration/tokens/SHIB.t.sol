@@ -3,8 +3,8 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
-import { Linear_Integration_Test } from "test/integration/lockup/Linear.t.sol";
-import { Pro_Integration_Test } from "test/integration/lockup/Pro.t.sol";
+import { Linear_Integration_Test } from "test/integration/lockup/linear/Linear.t.sol";
+import { Pro_Integration_Test } from "test/integration/lockup/pro/Pro.t.sol";
 
 /// @dev An ERC-20 asset with a large total supply.
 IERC20 constant asset = IERC20(0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE);

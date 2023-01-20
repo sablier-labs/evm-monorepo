@@ -38,17 +38,17 @@ abstract contract Unit_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Deploy all Sablier contracts.
-        deploySablierContracts();
+        // Deploy all protocol contracts.
+        deployProtocol();
+
+        // Make the admin the default caller in this test suite.
+        vm.startPrank({ msgSender: users.admin });
 
         // Approve all contracts to spend ERC-20 assets fromm the users.
-        approveSablierContracts();
+        approveProtocol();
 
         // Label the test contracts.
         labelTestContracts();
-
-        // Finally, change the active prank back to the admin.
-        changePrank(users.admin);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

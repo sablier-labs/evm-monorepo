@@ -9,6 +9,9 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { eqString } from "@prb/test/Helpers.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 
+import { DeployComptroller } from "script/DeployComptroller.s.sol";
+import { DeployLockupLinear } from "script/DeployLockupLinear.s.sol";
+import { DeployLockupPro } from "script/DeployLockupPro.s.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
@@ -57,7 +60,7 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
     uint40 internal immutable DEFAULT_STOP_TIME;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      STORAGE
+                                    TEST VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     Users internal users;
@@ -144,7 +147,7 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
 
     /// @dev Approves all Sablier contracts to spend ERC-20 assets from the sender, recipient, Alice and Eve,
     /// and then change the active prank back to the admin.
-    function approveSablierContracts() internal {
+    function approveProtocol() internal {
         changePrank(users.sender);
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
@@ -184,10 +187,7 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
     }
 
     /// @dev Conditionally deploy contracts normally or from precompiled source.
-    function deploySablierContracts() internal {
-        // We deploy all contracts with the admin as the caller.
-        vm.startPrank({ msgSender: users.admin });
-
+    function deployProtocol() internal {
         // We deploy from precompiled source if the profile is "test-optimized".
         if (isTestOptimizedProfile()) {
             comptroller = ISablierV2Comptroller(
@@ -208,13 +208,13 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
         }
         // We deploy normally in all other cases.
         else {
-            comptroller = new SablierV2Comptroller({ initialAdmin: users.admin });
-            linear = new SablierV2LockupLinear({
+            comptroller = new DeployComptroller().run({ initialAdmin: users.admin });
+            linear = new DeployLockupLinear().run({
                 initialAdmin: users.admin,
                 initialComptroller: comptroller,
                 maxFee: DEFAULT_MAX_FEE
             });
-            pro = new SablierV2LockupPro({
+            pro = new DeployLockupPro().run({
                 initialAdmin: users.admin,
                 initialComptroller: comptroller,
                 maxFee: DEFAULT_MAX_FEE,
@@ -223,7 +223,7 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
         }
 
         // Finally, label all the contracts just deployed.
-        vm.label({ account: address(comptroller), newLabel: "Comptroller" });
+        vm.label({ account: address(comptroller), newLabel: "SablierV2Comptroller" });
         vm.label({ account: address(linear), newLabel: "SablierV2LockupLinear" });
         vm.label({ account: address(pro), newLabel: "SablierV2LockupPro" });
     }

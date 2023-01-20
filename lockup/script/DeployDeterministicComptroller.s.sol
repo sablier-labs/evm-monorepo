@@ -12,7 +12,7 @@ import { Common } from "./helpers/Common.s.sol";
 contract DeployDeterministicComptroller is Script, Common {
     /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.
     /// https://github.com/Arachnid/deterministic-deployment-proxy
-    function run(address admin) public broadcaster returns (SablierV2Comptroller comptroller) {
-        comptroller = new SablierV2Comptroller{ salt: ZERO_SALT }(admin);
+    function run(address initialAdmin) public broadcaster returns (SablierV2Comptroller comptroller) {
+        comptroller = new SablierV2Comptroller{ salt: ZERO_SALT }(initialAdmin);
     }
 }

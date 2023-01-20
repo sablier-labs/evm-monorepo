@@ -13,11 +13,16 @@ import { Base_Test } from "test/Base.t.sol";
 /// @notice Collections of tests run against an Ethereum Mainnet fork.
 abstract contract IntegrationTest is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
-                                      STORAGE
+                                     CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 internal asset;
-    address internal holder;
+    IERC20 internal immutable asset;
+    address internal immutable holder;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    TEST VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
     uint256 internal initialHolderBalance;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -39,13 +44,13 @@ abstract contract IntegrationTest is Base_Test {
         // Fork Ethereum Mainnet.
         vm.createSelectFork({ urlOrAlias: "ethereum", blockNumber: 16_126_000 });
 
-        // Deploy all Sablier contracts.
-        deploySablierContracts();
+        // Deploy all protocol contracts.
+        deployProtocol();
 
         // Make the asset holder the caller in this test suite.
-        changePrank(holder);
+        vm.startPrank(holder);
 
-        // Query the initial holder's balance.
-        initialHolderBalance = IERC20(asset).balanceOf(holder);
+        // Query the initial balance of the asset holder.
+        initialHolderBalance = asset.balanceOf(holder);
     }
 }

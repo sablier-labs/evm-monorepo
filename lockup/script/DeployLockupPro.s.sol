@@ -12,16 +12,11 @@ import { Common } from "./helpers/Common.s.sol";
 /// @notice Deploys the {SablierV2LockupPro} contract.
 contract DeployLockupPro is Script, Common {
     function run(
-        address admin,
-        ISablierV2Comptroller comptroller,
+        address initialAdmin,
+        ISablierV2Comptroller initialComptroller,
         UD60x18 maxFee,
         uint256 maxSegmentCount
     ) public broadcaster returns (SablierV2LockupPro pro) {
-        pro = new SablierV2LockupPro({
-            initialAdmin: admin,
-            initialComptroller: comptroller,
-            maxFee: maxFee,
-            maxSegmentCount: maxSegmentCount
-        });
+        pro = new SablierV2LockupPro(initialAdmin, initialComptroller, maxFee, maxSegmentCount);
     }
 }

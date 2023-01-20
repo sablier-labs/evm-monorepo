@@ -22,7 +22,7 @@ contract DeployDeterministicProtocol is Script, Common {
     /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.
     /// https://github.com/Arachnid/deterministic-deployment-proxy
     function run(
-        address admin,
+        address initialAdmin,
         UD60x18 maxFee,
         uint256 maxSegmentCount
     )
@@ -31,12 +31,12 @@ contract DeployDeterministicProtocol is Script, Common {
         returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro)
     {
         // Deploy the SablierV2Comptroller contract.
-        comptroller = new SablierV2Comptroller{ salt: ZERO_SALT }(admin);
+        comptroller = new SablierV2Comptroller{ salt: ZERO_SALT }(initialAdmin);
 
         // Deploy the SablierV2LockupLinear contract.
-        linear = new SablierV2LockupLinear{ salt: ZERO_SALT }(admin, comptroller, maxFee);
+        linear = new SablierV2LockupLinear{ salt: ZERO_SALT }(initialAdmin, comptroller, maxFee);
 
         // Deploy the SablierV2LockupPro contract.
-        pro = new SablierV2LockupPro{ salt: ZERO_SALT }(admin, comptroller, maxFee, maxSegmentCount);
+        pro = new SablierV2LockupPro{ salt: ZERO_SALT }(initialAdmin, comptroller, maxFee, maxSegmentCount);
     }
 }

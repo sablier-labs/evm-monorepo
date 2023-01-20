@@ -15,10 +15,10 @@ contract DeployDeterministicLockupLinear is Script, Common {
     /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.
     /// https://github.com/Arachnid/deterministic-deployment-proxy
     function run(
-        address admin,
-        ISablierV2Comptroller comptroller,
+        address initialAdmin,
+        ISablierV2Comptroller initialComptroller,
         UD60x18 maxFee
     ) public broadcaster returns (SablierV2LockupLinear linear) {
-        linear = new SablierV2LockupLinear{ salt: ZERO_SALT }(admin, comptroller, maxFee);
+        linear = new SablierV2LockupLinear{ salt: ZERO_SALT }(initialAdmin, initialComptroller, maxFee);
     }
 }

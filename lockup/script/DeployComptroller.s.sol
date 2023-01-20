@@ -9,7 +9,7 @@ import { Common } from "./helpers/Common.s.sol";
 
 /// @notice Deploys the {SablierV2Comptroller} contract.
 contract DeployComptroller is Script, Common {
-    function run(address admin) public broadcaster returns (SablierV2Comptroller comptroller) {
-        comptroller = new SablierV2Comptroller({ initialAdmin: admin });
+    function run(address initialAdmin) public broadcaster returns (SablierV2Comptroller comptroller) {
+        comptroller = new SablierV2Comptroller(initialAdmin);
     }
 }

@@ -12,10 +12,10 @@ import { Common } from "./helpers/Common.s.sol";
 /// @notice Deploys the {SablierV2LockupLinear} contract.
 contract DeployLockupLinear is Script, Common {
     function run(
-        address admin,
-        ISablierV2Comptroller comptroller,
+        address initialAdmin,
+        ISablierV2Comptroller initialComptroller,
         UD60x18 maxFee
     ) public broadcaster returns (SablierV2LockupLinear linear) {
-        linear = new SablierV2LockupLinear({ initialAdmin: admin, initialComptroller: comptroller, maxFee: maxFee });
+        linear = new SablierV2LockupLinear(initialAdmin, initialComptroller, maxFee);
     }
 }
