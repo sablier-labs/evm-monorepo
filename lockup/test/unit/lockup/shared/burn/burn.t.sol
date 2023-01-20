@@ -74,16 +74,16 @@ abstract contract Burn_Test is Shared_Test {
         lockup.burn(streamId);
 
         // Assert that the NFT was burned.
-        address actualOwner = lockup.getRecipient(streamId);
-        address expectedOwner = address(0);
-        assertEq(actualOwner, expectedOwner);
+        address actualNFTOwner = lockup.getRecipient(streamId);
+        address expectedNFTOwner = address(0);
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
     /// @dev it should burn the NFT.
     function test_Burn_CallerNFTOwner() external streamCanceledOrDepleted callerAuthorized {
         lockup.burn(streamId);
-        address actualOwner = lockup.getRecipient(streamId);
-        address expectedOwner = address(0);
-        assertEq(actualOwner, expectedOwner);
+        address actualNFTOwner = lockup.getRecipient(streamId);
+        address expectedNFTOwner = address(0);
+        assertEq(actualNFTOwner, expectedNFTOwner);
     }
 }

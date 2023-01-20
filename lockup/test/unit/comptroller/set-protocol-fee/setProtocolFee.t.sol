@@ -33,7 +33,7 @@ contract SetProtocolFee_Test is Comptroller_Test {
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
         UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = ZERO;
-        assertEq(actualProtocolFee, expectedProtocolFee);
+        assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }
 
     modifier newFee() {
@@ -59,6 +59,6 @@ contract SetProtocolFee_Test is Comptroller_Test {
         // Assert that the protocol fee was updated.
         UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = newProtocolFee;
-        assertEq(actualProtocolFee, expectedProtocolFee);
+        assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }
 }

@@ -161,7 +161,7 @@ abstract contract Withdraw_Test is Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
@@ -192,7 +192,7 @@ abstract contract Withdraw_Test is Shared_Test {
         // Run the test.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
     modifier callerSender() {
@@ -225,7 +225,7 @@ abstract contract Withdraw_Test is Shared_Test {
         // Assert that the NFT was not burned.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
         address expectedNFTOwner = users.recipient;
-        assertEq(actualNFTowner, expectedNFTOwner);
+        assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
     modifier currentTimeLessThanStopTime() {
@@ -275,7 +275,7 @@ abstract contract Withdraw_Test is Shared_Test {
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
     modifier recipientContract() {
@@ -303,7 +303,7 @@ abstract contract Withdraw_Test is Shared_Test {
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
     modifier recipientImplementsHook() {
@@ -332,7 +332,7 @@ abstract contract Withdraw_Test is Shared_Test {
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
     modifier recipientDoesNotRevert() {
@@ -365,7 +365,7 @@ abstract contract Withdraw_Test is Shared_Test {
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
     modifier noRecipientReentrancy() {
@@ -422,6 +422,6 @@ abstract contract Withdraw_Test is Shared_Test {
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 }

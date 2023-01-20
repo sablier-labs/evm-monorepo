@@ -44,7 +44,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.amounts, b.amounts);
         assertEq(a.isCancelable, b.isCancelable, "isCancelable");
         assertEq(a.sender, b.sender, "sender");
-        assertEq(a.status, b.status, "status");
+        assertEq(a.status, b.status);
         assertEq(a.range, b.range);
         assertEq(a.asset, b.asset, "asset");
     }
@@ -55,7 +55,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.segments, b.segments, "segments");
         assertEq(a.sender, b.sender, "sender");
         assertEq(a.startTime, b.startTime, "startTime");
-        assertEq(a.status, b.status, "status");
+        assertEq(a.status, b.status);
         assertEq(a.asset, b.asset, "asset");
     }
 
@@ -86,7 +86,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
 
     /// @dev Compares two `Status` enum values.
     function assertEq(Status a, Status b) internal {
-        assertEq(uint8(a), uint8(b));
+        assertEq(uint8(a), uint8(b), "status");
     }
 
     /// @dev Compares two `Status` enum values.

@@ -34,7 +34,7 @@ contract SetFlashFee_Test is Comptroller_Test {
 
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = ZERO;
-        assertEq(actualFlashFee, expectedFlashFee);
+        assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 
     modifier newFee() {
@@ -55,6 +55,6 @@ contract SetFlashFee_Test is Comptroller_Test {
         // Assert that the flash fee was updated.
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = newFlashFee;
-        assertEq(actualFlashFee, expectedFlashFee);
+        assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 }

@@ -31,8 +31,8 @@ contract FlashFee_Test is FlashLoan_Test {
     function testFuzz_FlashFee(UD60x18 comptrollerFlashFee, uint256 amount) external assetFlashLoanable {
         comptrollerFlashFee = bound(comptrollerFlashFee, 0, DEFAULT_MAX_FEE);
         comptroller.setFlashFee(comptrollerFlashFee);
-        uint256 actualFee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: amount });
-        uint256 expectedFee = ud(amount).mul(comptrollerFlashFee).intoUint256();
-        assertEq(actualFee, expectedFee);
+        uint256 actualFlashFee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: amount });
+        uint256 expectedFlashFee = ud(amount).mul(comptrollerFlashFee).intoUint256();
+        assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 }

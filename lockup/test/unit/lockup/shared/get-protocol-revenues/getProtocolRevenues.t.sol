@@ -14,7 +14,7 @@ abstract contract GetProtocolRevenues_Test is Shared_Test {
     function test_GetProtocolRevenues_ProtocolRevenuesZero() external {
         uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = 0;
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }
 
     modifier protocolRevenuesNotZero() {
@@ -29,6 +29,6 @@ abstract contract GetProtocolRevenues_Test is Shared_Test {
     function test_GetProtocolRevenues() external protocolRevenuesNotZero {
         uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }
 }

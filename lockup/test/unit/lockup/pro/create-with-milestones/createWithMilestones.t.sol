@@ -338,12 +338,12 @@ contract CreateWithMilestones_Pro_Test is Pro_Test {
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = pro.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
-        assertEq(actualNextStreamId, expectedNextStreamId);
+        assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the NFT was minted.
         address actualNFTOwner = pro.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = defaultParams.createWithMilestones.recipient;
-        assertEq(actualNFTOwner, expectedNFTOwner);
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
     modifier assetERC20Compliant() {

@@ -66,11 +66,11 @@ abstract contract CancelMultiple_Test is Shared_Test {
         // Assert that the cancelable stream was canceled.
         Status actualStatus = lockup.getStatus(defaultStreamIds[0]);
         Status expectedStatus = Status.CANCELED;
-        assertEq(actualStatus, expectedStatus);
+        assertEq(actualStatus, expectedStatus, "status0");
 
         // Assert that the non-cancelable stream was not canceled.
         Status status = lockup.getStatus(nonCancelableStreamId);
-        assertEq(status, Status.ACTIVE);
+        assertEq(status, Status.ACTIVE, "status1");
     }
 
     modifier allStreamsCancelable() {
@@ -246,23 +246,23 @@ abstract contract CancelMultiple_Test is Shared_Test {
         Status actualStatus0 = lockup.getStatus(streamIds[0]);
         Status actualStatus1 = lockup.getStatus(streamIds[1]);
         Status expectedStatus = Status.CANCELED;
-        assertEq(actualStatus0, expectedStatus);
-        assertEq(actualStatus1, expectedStatus);
+        assertEq(actualStatus0, expectedStatus, "status0");
+        assertEq(actualStatus1, expectedStatus, "status1");
 
         // Assert that the withdrawn amounts were updated.
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(streamIds[0]);
         uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(streamIds[1]);
         uint128 expectedWithdrawnAmount0 = recipientAmount0;
         uint128 expectedWithdrawnAmount1 = recipientAmount1;
-        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0);
-        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1);
+        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0, "withdrawnAmount0");
+        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1, "withdrawnAmount1");
 
         // Assert that the NFTs weren't burned.
         address actualNFTOwner0 = lockup.ownerOf({ tokenId: streamIds[0] });
         address actualNFTOwner1 = lockup.ownerOf({ tokenId: streamIds[1] });
         address expectedNFTOwner = users.recipient;
-        assertEq(actualNFTOwner0, expectedNFTOwner);
-        assertEq(actualNFTOwner1, expectedNFTOwner);
+        assertEq(actualNFTOwner0, expectedNFTOwner, "NFT owner0");
+        assertEq(actualNFTOwner1, expectedNFTOwner, "NFT owner1");
     }
 
     /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
@@ -325,22 +325,22 @@ abstract contract CancelMultiple_Test is Shared_Test {
         Status actualStatus0 = lockup.getStatus(streamIds[0]);
         Status actualStatus1 = lockup.getStatus(streamIds[1]);
         Status expectedStatus = Status.CANCELED;
-        assertEq(actualStatus0, expectedStatus);
-        assertEq(actualStatus1, expectedStatus);
+        assertEq(actualStatus0, expectedStatus, "status0");
+        assertEq(actualStatus1, expectedStatus, "status1");
 
         // Assert that the withdrawn amounts were updated.
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(streamIds[0]);
         uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(streamIds[1]);
         uint128 expectedWithdrawnAmount0 = recipientAmount0;
         uint128 expectedWithdrawnAmount1 = recipientAmount1;
-        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0);
-        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1);
+        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0, "withdrawAmount0");
+        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1, "withdrawAmount1");
 
         // Assert that the NFTs weren't burned.
         address actualNFTOwner0 = lockup.getRecipient(streamIds[0]);
         address actualNFTOwner1 = lockup.getRecipient(streamIds[1]);
-        address expectedRecipient = users.recipient;
-        assertEq(actualNFTOwner0, expectedRecipient);
-        assertEq(actualNFTOwner1, expectedRecipient);
+        address expectedNFTOwner = users.recipient;
+        assertEq(actualNFTOwner0, expectedNFTOwner, "NFT owner0");
+        assertEq(actualNFTOwner1, expectedNFTOwner, "NFT owner1");
     }
 }

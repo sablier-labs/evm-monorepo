@@ -9,7 +9,7 @@ abstract contract TokenURI_Test is Shared_Test {
         uint256 nullStreamId = 1729;
         string memory actualTokenURI = lockup.tokenURI({ tokenId: nullStreamId });
         string memory expectedTokenURI = string("");
-        assertEq(actualTokenURI, expectedTokenURI);
+        assertEq(actualTokenURI, expectedTokenURI, "tokenURI");
     }
 
     modifier streamNonNull() {
@@ -21,6 +21,6 @@ abstract contract TokenURI_Test is Shared_Test {
         uint256 streamId = createDefaultStream();
         string memory actualTokenURI = lockup.tokenURI({ tokenId: streamId });
         string memory expectedTokenURI = string("");
-        assertEq(actualTokenURI, expectedTokenURI);
+        assertEq(actualTokenURI, expectedTokenURI, "tokenURI");
     }
 }

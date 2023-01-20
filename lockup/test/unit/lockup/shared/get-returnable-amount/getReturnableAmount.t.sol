@@ -11,7 +11,7 @@ abstract contract GetReturnableAmount_Test is Shared_Test {
         uint256 nullStreamId = 1729;
         uint256 actualReturnableAmount = lockup.getReturnableAmount(nullStreamId);
         uint256 expectedReturnableAmount = 0;
-        assertEq(actualReturnableAmount, expectedReturnableAmount);
+        assertEq(actualReturnableAmount, expectedReturnableAmount, "returnableAmount");
     }
 
     modifier streamNonNull() {
@@ -33,6 +33,6 @@ abstract contract GetReturnableAmount_Test is Shared_Test {
         // Run the test.
         uint256 actualReturnableAmount = lockup.getReturnableAmount(defaultStreamId);
         uint256 expectedReturnableAmount = DEFAULT_NET_DEPOSIT_AMOUNT - streamedAmount;
-        assertEq(actualReturnableAmount, expectedReturnableAmount);
+        assertEq(actualReturnableAmount, expectedReturnableAmount, "returnableAmount");
     }
 }

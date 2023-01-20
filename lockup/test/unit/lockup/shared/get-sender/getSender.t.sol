@@ -9,7 +9,7 @@ abstract contract GetSender_Test is Shared_Test {
         uint256 nullStreamId = 1729;
         address actualSender = lockup.getSender(nullStreamId);
         address expectedSender = address(0);
-        assertEq(actualSender, expectedSender);
+        assertEq(actualSender, expectedSender, "sender");
     }
 
     modifier streamNonNull() {
@@ -21,6 +21,6 @@ abstract contract GetSender_Test is Shared_Test {
         uint256 streamId = createDefaultStream();
         address actualSender = lockup.getSender(streamId);
         address expectedSender = users.sender;
-        assertEq(actualSender, expectedSender);
+        assertEq(actualSender, expectedSender, "sender");
     }
 }

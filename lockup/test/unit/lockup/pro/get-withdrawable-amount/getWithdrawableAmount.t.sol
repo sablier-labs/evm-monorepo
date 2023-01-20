@@ -18,7 +18,7 @@ contract GetWithdrawableAmount_Pro_Test is Pro_Test {
         uint256 nullStreamId = 1729;
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(nullStreamId);
         uint128 expectedWithdrawableAmount = 0;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     modifier streamNonNull() {
@@ -32,7 +32,7 @@ contract GetWithdrawableAmount_Pro_Test is Pro_Test {
         vm.warp({ timestamp: 0 });
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     /// @dev it should return zero.
@@ -40,7 +40,7 @@ contract GetWithdrawableAmount_Pro_Test is Pro_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     modifier startTimeLessThanCurrentTime() {
@@ -87,7 +87,7 @@ contract GetWithdrawableAmount_Pro_Test is Pro_Test {
             DEFAULT_SEGMENTS,
             DEFAULT_NET_DEPOSIT_AMOUNT
         );
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     modifier withWithdrawals() {
@@ -139,6 +139,6 @@ contract GetWithdrawableAmount_Pro_Test is Pro_Test {
         // Run the test.
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(streamId);
         uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 }

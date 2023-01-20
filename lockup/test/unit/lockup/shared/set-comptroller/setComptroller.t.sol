@@ -41,7 +41,7 @@ abstract contract SetComptroller_Test is Shared_Test {
         // Assert that the comptroller did not change.
         address actualComptroller = address(sablierV2.comptroller());
         address expectedComptroller = address(comptroller);
-        assertEq(actualComptroller, expectedComptroller);
+        assertEq(actualComptroller, expectedComptroller, "comptroller");
     }
 
     /// @dev it should set the new comptroller and emit a {SetComptroller} event.
@@ -59,6 +59,6 @@ abstract contract SetComptroller_Test is Shared_Test {
         // Assert that the new comptroller was set.
         address actualComptroller = address(sablierV2.comptroller());
         address expectedComptroller = address(newComptroller);
-        assertEq(actualComptroller, expectedComptroller);
+        assertEq(actualComptroller, expectedComptroller, "comptroller");
     }
 }

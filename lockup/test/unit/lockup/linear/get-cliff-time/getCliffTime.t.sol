@@ -9,7 +9,7 @@ contract GetCliffTime_Linear_Test is Linear_Test {
         uint256 nullStreamId = 1729;
         uint40 actualCliffTime = linear.getCliffTime(nullStreamId);
         uint40 expectedCliffTime = 0;
-        assertEq(actualCliffTime, expectedCliffTime);
+        assertEq(actualCliffTime, expectedCliffTime, "cliffTime");
     }
 
     modifier streamNonNull() {
@@ -21,6 +21,6 @@ contract GetCliffTime_Linear_Test is Linear_Test {
         uint256 streamId = createDefaultStream();
         uint40 actualCliffTime = linear.getCliffTime(streamId);
         uint40 expectedCliffTime = DEFAULT_CLIFF_TIME;
-        assertEq(actualCliffTime, expectedCliffTime);
+        assertEq(actualCliffTime, expectedCliffTime, "cliffTime");
     }
 }

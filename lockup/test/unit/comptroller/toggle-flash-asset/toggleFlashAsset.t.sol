@@ -39,7 +39,7 @@ contract ToggleFlashAsset_Test is Comptroller_Test {
 
         // Assert that the flash asset was toggled.
         bool isFlashLoanable = comptroller.isFlashLoanable(DEFAULT_ASSET);
-        assertTrue(isFlashLoanable);
+        assertTrue(isFlashLoanable, "isFlashLoanable");
     }
 
     modifier flagEnabled() {
@@ -59,6 +59,6 @@ contract ToggleFlashAsset_Test is Comptroller_Test {
         // Assert that the flash asset was toggled.
 
         bool isFlashLoanable = comptroller.isFlashLoanable(DEFAULT_ASSET);
-        assertFalse(isFlashLoanable);
+        assertFalse(isFlashLoanable, "isFlashLoanable");
     }
 }

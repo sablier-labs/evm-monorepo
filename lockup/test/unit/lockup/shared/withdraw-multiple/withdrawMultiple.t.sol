@@ -77,7 +77,7 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamIds[0]);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
     modifier onlyNonNullStreams() {
@@ -205,8 +205,8 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(defaultStreamIds[0]);
         uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(defaultStreamIds[1]);
         uint128 expectedWithdrawnAmount = withdrawAmount;
-        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount);
-        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount, "withdrawnAmount0");
+        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount, "withdrawnAmount1");
     }
 
     modifier callerRecipient() {
@@ -315,15 +315,15 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         Status actualStatus0 = lockup.getStatus(defaultStreamIds[0]);
         Status actualStatus1 = lockup.getStatus(defaultStreamIds[1]);
         Status expectedStatus = Status.DEPLETED;
-        assertEq(actualStatus0, expectedStatus);
-        assertEq(actualStatus1, expectedStatus);
+        assertEq(actualStatus0, expectedStatus, "status0");
+        assertEq(actualStatus1, expectedStatus, "status1");
 
         // Assert that the NFTs weren't burned.
         address actualNFTOwner0 = lockup.ownerOf(defaultStreamIds[0]);
         address actualNFTOwner1 = lockup.ownerOf(defaultStreamIds[1]);
         address actualNFTOwner = users.recipient;
-        assertEq(actualNFTOwner0, actualNFTOwner);
-        assertEq(actualNFTOwner1, actualNFTOwner);
+        assertEq(actualNFTOwner0, actualNFTOwner, "NFT owner0");
+        assertEq(actualNFTOwner1, actualNFTOwner, "NFT owner1");
     }
 
     /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, and update the withdrawn
@@ -370,8 +370,8 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(defaultStreamIds[0]);
         uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(defaultStreamIds[1]);
         uint128 expectedWithdrawnAmount = withdrawAmount;
-        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount);
-        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount, "withdrawnAmount0");
+        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount, "withdrawnAmount1");
     }
 
     /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, mark the ended streams as
@@ -427,11 +427,11 @@ abstract contract WithdrawMultiple_Test is Shared_Test {
         // Assert that the ended stream NFT was not burned.
         address actualEndedNFTOwner = lockup.getRecipient(endedStreamId);
         address expectedEndedNFTOwner = users.recipient;
-        assertEq(actualEndedNFTOwner, expectedEndedNFTOwner);
+        assertEq(actualEndedNFTOwner, expectedEndedNFTOwner, "NFT owner");
 
         // Assert that the withdrawn amount was updated for the ongoing stream.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ongoingStreamId);
         uint128 expectedWithdrawnAmount = ongoingWithdrawAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 }

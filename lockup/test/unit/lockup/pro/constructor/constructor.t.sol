@@ -7,10 +7,10 @@ contract Constructor_Pro_Test is Pro_Test {
     function test_Constructor() external {
         uint256 actualStreamId = pro.nextStreamId();
         uint256 expectedStreamId = 1;
-        assertEq(actualStreamId, expectedStreamId);
+        assertEq(actualStreamId, expectedStreamId, "nextStreamId");
 
         uint256 actualMaxSegmentCount = pro.MAX_SEGMENT_COUNT();
         uint256 expectedMaxSegmentCount = DEFAULT_MAX_SEGMENT_COUNT;
-        assertEq(actualMaxSegmentCount, expectedMaxSegmentCount);
+        assertEq(actualMaxSegmentCount, expectedMaxSegmentCount, "MAX_SEGMENT_COUNT");
     }
 }

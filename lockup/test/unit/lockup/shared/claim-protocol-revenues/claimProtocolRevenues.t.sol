@@ -58,6 +58,6 @@ abstract contract ClaimProtocolRevenues_Test is Shared_Test {
         // Assert that the protocol revenues were set to zero.
         uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = 0;
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }
 }

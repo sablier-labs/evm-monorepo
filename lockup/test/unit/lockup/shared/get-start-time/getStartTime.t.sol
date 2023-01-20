@@ -9,7 +9,7 @@ abstract contract GetStartTime_Test is Shared_Test {
         uint256 nullStreamId = 1729;
         uint40 actualStartTime = lockup.getStartTime(nullStreamId);
         uint40 expectedStartTime = 0;
-        assertEq(actualStartTime, expectedStartTime);
+        assertEq(actualStartTime, expectedStartTime, "startTime");
     }
 
     modifier streamNonNull() {
@@ -21,6 +21,6 @@ abstract contract GetStartTime_Test is Shared_Test {
         uint256 streamId = createDefaultStream();
         uint40 actualStartTime = lockup.getStartTime(streamId);
         uint40 expectedStartTime = DEFAULT_START_TIME;
-        assertEq(actualStartTime, expectedStartTime);
+        assertEq(actualStartTime, expectedStartTime, "startTime");
     }
 }

@@ -37,7 +37,7 @@ abstract contract WithdrawMax_Test is Shared_Test {
         // Assert that the NFT was not burned.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
         address expectedNFTOwner = users.recipient;
-        assertEq(actualNFTowner, expectedNFTOwner);
+        assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
     modifier currentTimeLessThanStopTime() {
@@ -72,6 +72,6 @@ abstract contract WithdrawMax_Test is Shared_Test {
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 }

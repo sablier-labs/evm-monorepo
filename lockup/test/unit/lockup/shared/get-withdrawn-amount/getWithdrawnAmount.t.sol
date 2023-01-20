@@ -18,7 +18,7 @@ abstract contract GetWithdrawnAmount_Test is Shared_Test {
         uint256 nullStreamId = 1729;
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(nullStreamId);
         uint128 expectedWithdrawnAmount = 0;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
     modifier streamNonNull() {
@@ -37,7 +37,7 @@ abstract contract GetWithdrawnAmount_Test is Shared_Test {
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = 0;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
     /// @dev it should return the correct withdrawn amount.
@@ -60,6 +60,6 @@ abstract contract GetWithdrawnAmount_Test is Shared_Test {
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 }

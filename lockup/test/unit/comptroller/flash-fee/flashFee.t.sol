@@ -14,7 +14,7 @@ contract FlashFee_Test is Comptroller_Test {
     function test_FlashFee_Zero() external {
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = ZERO;
-        assertEq(actualFlashFee, expectedFlashFee);
+        assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 
     /// @dev it should return the correct flash fee.
@@ -23,6 +23,6 @@ contract FlashFee_Test is Comptroller_Test {
         comptroller.setFlashFee(flashFee);
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = flashFee;
-        assertEq(actualFlashFee, expectedFlashFee);
+        assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 }

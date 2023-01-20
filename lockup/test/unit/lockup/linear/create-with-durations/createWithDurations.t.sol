@@ -151,16 +151,16 @@ contract CreateWithDurations_Linear_Test is Linear_Test {
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
-        assertEq(actualNextStreamId, expectedNextStreamId);
+        assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee was recorded.
         uint128 actualProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT was minted.
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = defaultParams.createWithDurations.recipient;
-        assertEq(actualNFTOwner, expectedNFTOwner);
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

@@ -16,7 +16,7 @@ contract GetStreamedAmount_Linear_Test is Linear_Test {
         uint256 nullStreamId = 1729;
         uint128 actualStreamedAmount = linear.getStreamedAmount(nullStreamId);
         uint128 expectedStreamedAmount = 0;
-        assertEq(actualStreamedAmount, expectedStreamedAmount);
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     modifier streamNonNull() {
@@ -31,7 +31,7 @@ contract GetStreamedAmount_Linear_Test is Linear_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
         uint128 actualStreamedAmount = linear.getStreamedAmount(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
-        assertEq(actualStreamedAmount, expectedStreamedAmount);
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     modifier cliffTimeLessThanOrEqualToCurrentTime() {
@@ -78,6 +78,6 @@ contract GetStreamedAmount_Linear_Test is Linear_Test {
         // Run the test.
         uint128 actualStreamedAmount = linear.getStreamedAmount(streamId);
         uint128 expectedStreamedAmount = calculateStreamedAmount(currentTime, depositAmount);
-        assertEq(actualStreamedAmount, expectedStreamedAmount);
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 }

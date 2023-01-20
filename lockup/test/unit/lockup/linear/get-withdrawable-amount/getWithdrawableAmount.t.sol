@@ -16,7 +16,7 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
         uint256 nullStreamId = 1729;
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(nullStreamId);
         uint128 expectedWithdrawableAmount = 0;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     modifier streamNonNull() {
@@ -31,7 +31,7 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     modifier cliffTimeLessThanOrEqualToCurrentTime() {
@@ -78,7 +78,7 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
         // Run the test.
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(streamId);
         uint128 expectedWithdrawableAmount = calculateStreamedAmount(currentTime, depositAmount);
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     /// @dev it should return the correct withdrawable amount.
@@ -126,6 +126,6 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
         // Run the test.
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(streamId);
         uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
+        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 }

@@ -7,6 +7,6 @@ contract Constructor_Linear_Test is Linear_Test {
     function test_Constructor() external {
         uint256 actualStreamId = linear.nextStreamId();
         uint256 expectedStreamId = 1;
-        assertEq(actualStreamId, expectedStreamId);
+        assertEq(actualStreamId, expectedStreamId, "streamId");
     }
 }

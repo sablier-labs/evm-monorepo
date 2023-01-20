@@ -270,12 +270,12 @@ abstract contract Cancel_Test is Shared_Test {
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount + recipientAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the NFT was not burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = address(goodRecipient);
-        assertEq(actualNFTOwner, expectedNFTOwner);
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
     modifier callerRecipient() {
@@ -432,11 +432,11 @@ abstract contract Cancel_Test is Shared_Test {
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount + recipientAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the NFT was not burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = users.recipient;
-        assertEq(actualNFTOwner, expectedNFTOwner);
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

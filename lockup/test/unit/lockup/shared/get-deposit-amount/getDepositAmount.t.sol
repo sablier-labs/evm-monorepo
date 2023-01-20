@@ -9,7 +9,7 @@ abstract contract GetDepositAmount_Test is Shared_Test {
         uint256 nullStreamId = 1729;
         uint128 actualDepositAmount = lockup.getDepositAmount(nullStreamId);
         uint128 expectedDepositAmount = 0;
-        assertEq(actualDepositAmount, expectedDepositAmount);
+        assertEq(actualDepositAmount, expectedDepositAmount, "depositAmount");
     }
 
     modifier streamNonNull() {
@@ -21,6 +21,6 @@ abstract contract GetDepositAmount_Test is Shared_Test {
         uint256 streamId = createDefaultStream();
         uint128 actualDepositAmount = lockup.getDepositAmount(streamId);
         uint128 expectedDepositAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
-        assertEq(actualDepositAmount, expectedDepositAmount);
+        assertEq(actualDepositAmount, expectedDepositAmount, "depositAmount");
     }
 }

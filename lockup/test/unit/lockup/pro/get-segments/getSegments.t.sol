@@ -11,7 +11,7 @@ contract GetSegments_Pro_Test is Pro_Test {
         uint256 nullStreamId = 1729;
         Segment[] memory actualSegments = pro.getSegments(nullStreamId);
         Segment[] memory expectedSegments;
-        assertEq(actualSegments, expectedSegments);
+        assertEq(actualSegments, expectedSegments, "segments");
     }
 
     modifier streamNonNull() {
@@ -23,6 +23,6 @@ contract GetSegments_Pro_Test is Pro_Test {
         uint256 streamId = createDefaultStream();
         Segment[] memory actualSegments = pro.getSegments(streamId);
         Segment[] memory expectedSegments = DEFAULT_SEGMENTS;
-        assertEq(actualSegments, expectedSegments);
+        assertEq(actualSegments, expectedSegments, "segments");
     }
 }

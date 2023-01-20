@@ -87,6 +87,6 @@ abstract contract Renounce_Test is Shared_Test {
 
         // Assert that the stream is non-cancelable now.
         bool isCancelable = lockup.isCancelable(defaultStreamId);
-        assertFalse(isCancelable);
+        assertFalse(isCancelable, "isCancelable");
     }
 }

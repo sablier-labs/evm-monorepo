@@ -11,7 +11,7 @@ abstract contract GetAsset_Test is Shared_Test {
         uint256 nullStreamId = 1729;
         IERC20 actualAsset = lockup.getAsset(nullStreamId);
         IERC20 expectedAsset = IERC20(address(0));
-        assertEq(actualAsset, expectedAsset);
+        assertEq(actualAsset, expectedAsset, "asset");
     }
 
     modifier streamNonNull() {
@@ -23,6 +23,6 @@ abstract contract GetAsset_Test is Shared_Test {
         uint256 streamId = createDefaultStream();
         IERC20 actualAsset = lockup.getAsset(streamId);
         IERC20 expectedAsset = DEFAULT_ASSET;
-        assertEq(actualAsset, expectedAsset);
+        assertEq(actualAsset, expectedAsset, "asset");
     }
 }

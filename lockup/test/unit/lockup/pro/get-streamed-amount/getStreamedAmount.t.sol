@@ -18,7 +18,7 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
         uint256 nullStreamId = 1729;
         uint128 actualStreamedAmount = pro.getStreamedAmount(nullStreamId);
         uint128 expectedStreamedAmount = 0;
-        assertEq(actualStreamedAmount, expectedStreamedAmount);
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     modifier streamNonNull() {
@@ -32,7 +32,7 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
         vm.warp({ timestamp: 0 });
         uint128 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
-        assertEq(actualStreamedAmount, expectedStreamedAmount);
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     /// @dev it should return zero.
@@ -40,7 +40,7 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
-        assertEq(actualStreamedAmount, expectedStreamedAmount);
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     modifier startTimeLessThanCurrentTime() {
@@ -95,7 +95,7 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
             segments[0].exponent,
             DEFAULT_NET_DEPOSIT_AMOUNT
         );
-        assertEq(actualStreamedAmount, expectedStreamedAmount);
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     modifier multipleSegments() {
@@ -142,7 +142,7 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
             maxSegments,
             DEFAULT_NET_DEPOSIT_AMOUNT
         );
-        assertEq(actualStreamedAmount, expectedStreamedAmount);
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     modifier currentMilestoneNot1st() {
@@ -185,6 +185,6 @@ contract GetStreamedAmount_Pro_Test is Pro_Test {
             maxSegments,
             DEFAULT_NET_DEPOSIT_AMOUNT
         );
-        assertEq(actualStreamedAmount, expectedStreamedAmount);
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 }

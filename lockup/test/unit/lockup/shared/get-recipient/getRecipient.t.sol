@@ -9,7 +9,7 @@ abstract contract GetRecipient_Test is Shared_Test {
         uint256 nullStreamId = 1729;
         address actualRecipient = lockup.getRecipient(nullStreamId);
         address expectedRecipient = address(0);
-        assertEq(actualRecipient, expectedRecipient);
+        assertEq(actualRecipient, expectedRecipient, "recipient");
     }
 
     modifier streamNonNull() {
@@ -21,6 +21,6 @@ abstract contract GetRecipient_Test is Shared_Test {
         uint256 streamId = createDefaultStream();
         address actualRecipient = lockup.getRecipient(streamId);
         address expectedRecipient = users.recipient;
-        assertEq(actualRecipient, expectedRecipient);
+        assertEq(actualRecipient, expectedRecipient, "recipient");
     }
 }

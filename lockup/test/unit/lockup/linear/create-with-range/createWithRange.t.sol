@@ -233,17 +233,17 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
         assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.range, defaultStream.range);
-        assertEq(actualStream.status, defaultStream.status, "status");
+        assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
-        assertEq(actualNextStreamId, expectedNextStreamId);
+        assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the NFT was minted.
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = defaultParams.createWithRange.recipient;
-        assertEq(actualNFTOwner, expectedNFTOwner);
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
     modifier assetERC20Compliant() {
@@ -380,7 +380,7 @@ contract CreateWithRange_Linear_Test is Linear_Test {
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.range, params.range);
         assertEq(actualStream.sender, params.sender, "sender");
-        assertEq(actualStream.status, defaultStream.status, "status");
+        assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id was bumped.
         vars.actualNextStreamId = linear.nextStreamId();

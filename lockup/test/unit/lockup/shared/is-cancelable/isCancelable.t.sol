@@ -21,14 +21,14 @@ abstract contract IsCancelable_Test is Shared_Test {
     function test_IsCancelable_StreamNull() external streamNotActive {
         uint256 nullStreamId = 1729;
         bool isCancelable = lockup.isCancelable(nullStreamId);
-        assertFalse(isCancelable);
+        assertFalse(isCancelable, "isCancelable");
     }
 
     /// @dev it should return false.
     function test_IsCancelable_StreamCanceled() external streamNotActive {
         lockup.cancel(defaultStreamId);
         bool isCancelable = lockup.isCancelable(defaultStreamId);
-        assertFalse(isCancelable);
+        assertFalse(isCancelable, "isCancelable");
     }
 
     /// @dev it should return false.
@@ -36,7 +36,7 @@ abstract contract IsCancelable_Test is Shared_Test {
         vm.warp({ timestamp: DEFAULT_STOP_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         bool isCancelable = lockup.isCancelable(defaultStreamId);
-        assertFalse(isCancelable);
+        assertFalse(isCancelable, "isCancelable");
     }
 
     modifier streamActive() {
@@ -46,7 +46,7 @@ abstract contract IsCancelable_Test is Shared_Test {
     /// @dev it should return true.
     function test_IsCancelable_CancelableStream() external streamActive {
         bool isCancelable = lockup.isCancelable(defaultStreamId);
-        assertTrue(isCancelable);
+        assertTrue(isCancelable, "isCancelable");
     }
 
     modifier nonCancelableStream() {
@@ -57,6 +57,6 @@ abstract contract IsCancelable_Test is Shared_Test {
     function test_IsCancelable() external streamActive nonCancelableStream {
         uint256 streamId = createDefaultStreamNonCancelable();
         bool isCancelable = lockup.isCancelable(streamId);
-        assertFalse(isCancelable);
+        assertFalse(isCancelable, "isCancelable");
     }
 }
