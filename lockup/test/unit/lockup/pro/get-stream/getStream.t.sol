@@ -3,9 +3,9 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { LockupProStream } from "src/types/Structs.sol";
 
-import { Pro_Test } from "../Pro.t.sol";
+import { Pro_Unit_Test } from "../Pro.t.sol";
 
-contract GetStream_Pro_Test is Pro_Test {
+contract GetStream_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should return a zeroed out stream.
     function test_GetStream_StreamNull() external {
         uint256 nullStreamId = 1729;

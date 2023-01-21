@@ -7,9 +7,9 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
 
-abstract contract GetProtocolRevenues_Test is Shared_Test {
+abstract contract GetProtocolRevenues_Unit_Test is Shared_Lockup_Unit_Test {
     /// @dev it should return zero.
     function test_GetProtocolRevenues_ProtocolRevenuesZero() external {
         uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
 
-abstract contract GetReturnableAmount_Test is Shared_Test {
+abstract contract GetReturnableAmount_Unit_Test is Shared_Lockup_Unit_Test {
     uint256 internal defaultStreamId;
 
     /// @dev it should return zero.

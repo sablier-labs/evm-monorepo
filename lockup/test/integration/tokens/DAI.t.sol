@@ -10,6 +10,6 @@ import { Pro_Integration_Test } from "test/integration/lockup/pro/Pro.t.sol";
 IERC20 constant asset = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
 address constant holder = 0x66F62574ab04989737228D18C3624f7FC1edAe14;
 
-contract DAI_Linear_Test is Linear_Integration_Test(asset, holder) {}
+contract DAI_Linear_Integration_Test is Linear_Integration_Test(asset, holder) {}
 
-contract DAI_Pro_Test is Pro_Integration_Test(asset, holder) {}
+contract DAI_Pro_Integration_Test is Pro_Integration_Test(asset, holder) {}

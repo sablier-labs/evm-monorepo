@@ -3,9 +3,9 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { Unit_Test } from "../Unit.t.sol";
 
-/// @title Lockup_Test
+/// @title Lockup_Unit_Test
 /// @notice Common testing logic needed across {SablierV2Lockup} unit tests.
-abstract contract Lockup_Test is Unit_Test {
+abstract contract Lockup_Unit_Test is Unit_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                   CREATE FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

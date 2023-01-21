@@ -6,9 +6,9 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
 
-abstract contract WithdrawMax_Test is Shared_Test {
+abstract contract WithdrawMax_Unit_Test is Shared_Lockup_Unit_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {

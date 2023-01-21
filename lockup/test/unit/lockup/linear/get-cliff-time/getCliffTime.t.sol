@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { Linear_Test } from "../Linear.t.sol";
+import { Linear_Unit_Test } from "../Linear.t.sol";
 
-contract GetCliffTime_Linear_Test is Linear_Test {
+contract GetCliffTime_Linear_Unit_Test is Linear_Unit_Test {
     /// @dev it should return zero.
     function test_GetCliffTime_StreamNull() external {
         uint256 nullStreamId = 1729;

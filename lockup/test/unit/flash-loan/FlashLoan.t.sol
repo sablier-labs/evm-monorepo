@@ -5,9 +5,9 @@ import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 
 import { Unit_Test } from "../Unit.t.sol";
 
-/// @title FlashLoan_Test
-/// @notice Common testing logic needed across SablierV2FlashLoan unit tests.
-abstract contract FlashLoan_Test is Unit_Test {
+/// @title FlashLoan_Unit_Test
+/// @notice Common testing logic needed across {SablierV2FlashLoan} unit tests.
+abstract contract FlashLoan_Unit_Test is Unit_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/

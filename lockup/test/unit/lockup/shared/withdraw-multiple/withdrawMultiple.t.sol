@@ -8,9 +8,9 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
 
-abstract contract WithdrawMultiple_Test is Shared_Test {
+abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
     uint128[] internal defaultAmounts;
     uint256[] internal defaultStreamIds;
 

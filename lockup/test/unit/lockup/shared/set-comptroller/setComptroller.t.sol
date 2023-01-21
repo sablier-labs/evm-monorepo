@@ -8,9 +8,9 @@ import { Events } from "src/libraries/Events.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
 
-abstract contract SetComptroller_Test is Shared_Test {
+abstract contract SetComptroller_Unit_Test is Shared_Lockup_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin(address eve) external {
         vm.assume(eve != users.admin);

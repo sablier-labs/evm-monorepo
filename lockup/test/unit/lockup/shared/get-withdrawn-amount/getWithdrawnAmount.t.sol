@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
 
-abstract contract GetWithdrawnAmount_Test is Shared_Test {
+abstract contract GetWithdrawnAmount_Unit_Test is Shared_Lockup_Unit_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {

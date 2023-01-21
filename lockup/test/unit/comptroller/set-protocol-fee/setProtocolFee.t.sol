@@ -7,9 +7,9 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { Comptroller_Test } from "../Comptroller.t.sol";
+import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
-contract SetProtocolFee_Test is Comptroller_Test {
+contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin(address eve) external {
         vm.assume(eve != users.admin);

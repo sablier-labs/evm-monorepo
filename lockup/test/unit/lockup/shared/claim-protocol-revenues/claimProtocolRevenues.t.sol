@@ -8,9 +8,9 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
 
-abstract contract ClaimProtocolRevenues_Test is Shared_Test {
+abstract contract ClaimProtocolRevenues_Unit_Test is Shared_Lockup_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.

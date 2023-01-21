@@ -3,9 +3,9 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { Status } from "src/types/Enums.sol";
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
 
-abstract contract GetStatus_Test is Shared_Test {
+abstract contract GetStatus_Unit_Test is Shared_Lockup_Unit_Test {
     uint256 internal defaultStreamId;
 
     /// @dev it should return the NULL status.

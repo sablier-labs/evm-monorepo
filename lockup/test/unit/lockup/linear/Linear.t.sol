@@ -8,12 +8,12 @@ import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { Status } from "src/types/Enums.sol";
 import { Broker, Durations, LockupAmounts, LockupLinearStream, Range } from "src/types/Structs.sol";
 
-import { Lockup_Test } from "test/unit/lockup/Lockup.t.sol";
+import { Lockup_Unit_Test } from "test/unit/lockup/Lockup.t.sol";
 import { Unit_Test } from "test/unit/Unit.t.sol";
 
-/// @title Linear_Test
-/// @notice Common testing logic needed across SablierV2LockupLinear unit tests.
-abstract contract Linear_Test is Lockup_Test {
+/// @title Linear_Unit_Test
+/// @notice Common testing logic needed across {SablierV2LockupLinear} unit tests.
+abstract contract Linear_Unit_Test is Lockup_Unit_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/

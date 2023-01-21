@@ -10,13 +10,13 @@ import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 import { Broker, CreateLockupAmounts, LockupAmounts, LockupLinearStream, Range } from "src/types/Structs.sol";
 
-import { Linear_Test } from "../Linear.t.sol";
+import { Linear_Unit_Test } from "../Linear.t.sol";
 
-contract CreateWithRange_Linear_Test is Linear_Test {
+contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     uint256 internal streamId;
 
     function setUp() public virtual override {
-        Linear_Test.setUp();
+        Linear_Unit_Test.setUp();
         streamId = linear.nextStreamId();
     }
 

@@ -3,11 +3,11 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { Segment } from "src/types/Structs.sol";
 
-import { Pro_Test } from "../Pro.t.sol";
+import { Pro_Unit_Test } from "../Pro.t.sol";
 
-contract GetSegments_Pro_Test is Pro_Test {
+contract GetSegments_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should return an empty array.
-    function test_GetSegments_StreamNulls() external {
+    function test_GetSegments_StreamNull() external {
         uint256 nullStreamId = 1729;
         Segment[] memory actualSegments = pro.getSegments(nullStreamId);
         Segment[] memory expectedSegments;

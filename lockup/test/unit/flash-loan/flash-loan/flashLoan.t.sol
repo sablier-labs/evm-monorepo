@@ -8,9 +8,9 @@ import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156Flas
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { FlashLoan_Test } from "../FlashLoan.t.sol";
+import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
-contract FlashLoanFunction_Test is FlashLoan_Test {
+contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_AmountTooHigh(uint256 amount) external {
         amount = bound(amount, uint256(UINT128_MAX) + 1, UINT256_MAX);

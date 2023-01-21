@@ -6,9 +6,9 @@ import { UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { FlashLoan_Test } from "../FlashLoan.t.sol";
+import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
-contract MaxFlashLoan_Test is FlashLoan_Test {
+contract MaxFlashLoan_Unit_Test is FlashLoan_Unit_Test {
     /// @dev it should revert.
     function test_MaxFlashLoan_AssetNotFlashLoanable() external {
         uint256 actualAmount = flashLoan.maxFlashLoan(address(DEFAULT_ASSET));

@@ -13,9 +13,9 @@ import { Broker, CreateLockupAmounts, LockupAmounts, LockupProStream, Segment } 
 
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
 
-import { Pro_Test } from "../Pro.t.sol";
+import { Pro_Unit_Test } from "../Pro.t.sol";
 
-contract CreateWithMilestones_Pro_Test is Pro_Test {
+contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     uint256 internal streamId;
 
     function setUp() public virtual override {

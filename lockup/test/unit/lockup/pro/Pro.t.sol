@@ -12,12 +12,12 @@ import { Status } from "src/types/Enums.sol";
 import { Broker, LockupAmounts, LockupProStream, Segment } from "src/types/Structs.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
-import { Lockup_Test } from "test/unit/lockup/Lockup.t.sol";
+import { Lockup_Unit_Test } from "test/unit/lockup/Lockup.t.sol";
 import { Unit_Test } from "test/unit/Unit.t.sol";
 
-/// @title Pro_Test
-/// @notice Common testing logic needed across SablierV2LockupPro unit tests.
-abstract contract Pro_Test is Lockup_Test {
+/// @title Pro_Unit_Test
+/// @notice Common testing logic needed across {SablierV2LockupPro} unit tests.
+abstract contract Pro_Unit_Test is Lockup_Unit_Test {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
 

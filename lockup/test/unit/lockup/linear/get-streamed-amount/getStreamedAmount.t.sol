@@ -6,9 +6,9 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Broker } from "src/types/Structs.sol";
 
-import { Linear_Test } from "../Linear.t.sol";
+import { Linear_Unit_Test } from "../Linear.t.sol";
 
-contract GetStreamedAmount_Linear_Test is Linear_Test {
+contract GetStreamedAmount_Linear_Unit_Test is Linear_Unit_Test {
     uint256 internal defaultStreamId;
 
     /// @dev it should return zero.

@@ -7,9 +7,9 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { Broker, Segment } from "src/types/Structs.sol";
 
-import { Pro_Test } from "../Pro.t.sol";
+import { Pro_Unit_Test } from "../Pro.t.sol";
 
-contract GetStreamedAmount_Pro_Test is Pro_Test {
+contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     uint256 internal defaultStreamId;
     Segment[] internal maxSegments;
 

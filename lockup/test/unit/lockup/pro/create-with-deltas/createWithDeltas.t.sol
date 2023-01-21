@@ -10,13 +10,13 @@ import { Events } from "src/libraries/Events.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, LockupProStream, Segment } from "src/types/Structs.sol";
 
-import { Pro_Test } from "../Pro.t.sol";
+import { Pro_Unit_Test } from "../Pro.t.sol";
 
-contract CreateWithDeltas_Pro_Test is Pro_Test {
+contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
     uint256 internal streamId;
 
     function setUp() public virtual override {
-        Pro_Test.setUp();
+        Pro_Unit_Test.setUp();
         streamId = pro.nextStreamId();
     }
 

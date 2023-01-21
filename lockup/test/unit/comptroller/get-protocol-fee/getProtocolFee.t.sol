@@ -7,11 +7,11 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { Comptroller_Test } from "../Comptroller.t.sol";
+import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
-contract GetProtocolFee_Test is Comptroller_Test {
+contract GetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     function setUp() public override {
-        Comptroller_Test.setUp();
+        Comptroller_Unit_Test.setUp();
 
         // Make the admin the caller in this test suite.
         changePrank(users.admin);

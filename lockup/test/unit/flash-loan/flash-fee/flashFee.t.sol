@@ -6,9 +6,9 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { FlashLoan_Test } from "../FlashLoan.t.sol";
+import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
-contract FlashFee_Test is FlashLoan_Test {
+contract FlashFee_Unit_Test is FlashLoan_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_AssetNotFlashLoanable() external {
         vm.expectRevert(

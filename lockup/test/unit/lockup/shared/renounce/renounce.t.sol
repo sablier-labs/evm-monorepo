@@ -4,9 +4,9 @@ pragma solidity >=0.8.13 <0.9.0;
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
 
-abstract contract Renounce_Test is Shared_Test {
+abstract contract Renounce_Unit_Test is Shared_Lockup_Unit_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {

@@ -3,11 +3,11 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
-import { Comptroller_Test } from "../Comptroller.t.sol";
+import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
-contract FlashFee_Test is Comptroller_Test {
+contract FlashFee_Unit_Test is Comptroller_Unit_Test {
     function setUp() public override {
-        Comptroller_Test.setUp();
+        Comptroller_Unit_Test.setUp();
     }
 
     /// @dev it should return zero.
