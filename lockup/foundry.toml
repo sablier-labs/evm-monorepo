@@ -16,11 +16,6 @@
   src = "src"
   test = "test/unit"
 
-# Run both unit and integration tests
-[profile.ci]
-  fuzz = { runs = 5_000 }
-  test = "test"
-
 # Speed up compilation and tests during development.
 [profile.lite]
   fuzz = { runs = 50 }
@@ -37,6 +32,7 @@
   fuzz = { runs = 5_000 }
   src = "test"
   test = "test"
+  verbosity = 4
 
 [etherscan]
   ethereum = { key = "${ETHERSCAN_API_KEY}" }
