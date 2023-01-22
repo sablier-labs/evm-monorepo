@@ -16,7 +16,7 @@
   src = "src"
   test = "test"
 
-# Speed up compilation and tests during development.
+# Speed up compilation and tests during development
 [profile.lite]
   fuzz = { runs = 50 }
   optimizer = false

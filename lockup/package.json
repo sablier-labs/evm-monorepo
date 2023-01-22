@@ -46,6 +46,6 @@
     "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
     "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",
     "test": "FOUNDRY_PROFILE=lite forge test --no-match-path \"./test/e2e/**/*.sol\"",
-    "test:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
+    "test:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge test --no-match-path \"./test/e2e/**/*.sol\""
   }
 }

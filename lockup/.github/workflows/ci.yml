@@ -38,10 +38,10 @@ jobs:
 
       - name: "Add lint summary"
         run: |
-          echo "## Lint results" >> $GITHUB_STEP_SUMMARY
+          echo "## Lint result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
-  build-and-test:
+  build:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
@@ -55,17 +55,8 @@ jobs:
       - name: "Show the Foundry config"
         run: "forge config"
 
-      - name: "Generate fuzz seed that changes weekly to avoid burning through RPC allowance"
-        run: >
-          echo "FOUNDRY_FUZZ_SEED=$(
-            echo $(($EPOCHSECONDS - $EPOCHSECONDS % 604800))
-          )" >> $GITHUB_ENV
-
       - name: "Produce an optimized build with --via-ir"
         run: "FOUNDRY_PROFILE=optimized forge build"
-
-      - name: "Run the unit, fuzz, and e2e tests against the optimized build"
-        run: "FOUNDRY_PROFILE=test-optimized forge test"
 
       - name: "Store contract ABIs as artifacts in GitHub Actions"
         uses: "actions/upload-artifact@v3"
@@ -90,12 +81,84 @@ jobs:
             optimized-out/SablierV2LockupLinear.sol/SablierV2LockupLinear.json
             optimized-out/SablierV2LockupPro.sol/SablierV2LockupPro.json
 
-      - name: "Add test summary"
+      - name: "Add build summary"
         run: |
-          echo "## Test results" >> $GITHUB_STEP_SUMMARY
+          echo "## Build result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
+  test-unit:
+    needs: ["lint", "build"]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
+      - name: "Produce an optimized build with --via-ir"
+        run: "FOUNDRY_PROFILE=optimized forge build"
+
+      - name: "Run the unit tests against the optimized build"
+        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/unit/**/*.sol\""
+
+      - name: "Add test summary"
+        run: |
+          echo "## Unit tests result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+  test-fuzz:
+    needs: ["lint", "build"]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
+      - name: "Produce an optimized build with --via-ir"
+        run: "FOUNDRY_PROFILE=optimized forge build"
+
+      - name: "Run the fuzz tests against the optimized build"
+        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/fuzz/**/*.sol\""
+
+      - name: "Add test summary"
+        run: |
+          echo "## Fuzz tests result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+
+  test-e2e:
+    needs: ["lint", "build"]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
+      - name: "Produce an optimized build with --via-ir"
+        run: "FOUNDRY_PROFILE=optimized forge build"
+
+      - name: "Run the end-to-end tests against the optimized build"
+        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/e2e/**/*.sol\""
+
+      - name: "Add test summary"
+        run: |
+          echo "## End-to-end tests result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+
   coverage:
+    needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
@@ -117,5 +180,5 @@ jobs:
 
       - name: "Add coverage summary"
         run: |
-          echo "## Coverage results" >> $GITHUB_STEP_SUMMARY
+          echo "## Coverage result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
