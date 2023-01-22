@@ -64,7 +64,7 @@ jobs:
       - name: "Produce an optimized build with --via-ir"
         run: "FOUNDRY_PROFILE=optimized forge build"
 
-      - name: "Run the unit and the integration tests against the optimized build"
+      - name: "Run the unit, fuzz, and e2e tests against the optimized build"
         run: "FOUNDRY_PROFILE=test-optimized forge test"
 
       - name: "Store contract ABIs as artifacts in GitHub Actions"

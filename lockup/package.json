@@ -37,15 +37,15 @@
     "build": "forge build",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
     "clean": "rimraf broadcast cache optimized-out out",
-    "gas:report": "forge test --gas-report --no-match-path \"./test/integration/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
-    "gas:report:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge test --gas-report --no-match-path \"./test/integration/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
-    "gas:snapshot": "forge snapshot --desc --no-match-path \"./test/integration/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
-    "gas:snapshot:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --desc --no-match-path \"./test/integration/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:report": "forge test --gas-report --no-match-path \"./test/e2e/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:report:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge test --gas-report --no-match-path \"./test/e2e/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:snapshot": "forge snapshot --desc --no-match-path \"./test/e2e/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:snapshot:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --desc --no-match-path \"./test/e2e/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "yarn prettier:check && yarn solhint \"{src,test}/**/*.sol\"",
     "postinstall": "husky install",
     "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
     "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",
-    "test": "FOUNDRY_PROFILE=lite forge test --no-match-path \"./test/integration/**/*.sol\"",
+    "test": "FOUNDRY_PROFILE=lite forge test --no-match-path \"./test/e2e/**/*.sol\"",
     "test:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   }
 }

@@ -9,9 +9,9 @@ import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
-/// @title IntegrationTest
-/// @notice Collections of tests run against an Ethereum Mainnet fork.
-abstract contract IntegrationTest is Base_Test {
+/// @title E2eTest
+/// @notice Collections of tests that run against a fork of Ethereum Mainnet.
+abstract contract E2eTest is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/

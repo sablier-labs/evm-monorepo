@@ -9,21 +9,21 @@ import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 import { Broker, LockupAmounts, CreateLockupAmounts, LockupLinearStream, Segment, Range } from "src/types/Structs.sol";
 
-import { IntegrationTest } from "../../IntegrationTest.t.sol";
+import { E2eTest } from "../../E2eTest.t.sol";
 
-abstract contract Linear_Integration_Test is IntegrationTest {
+abstract contract Linear_E2e_Test is E2eTest {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, address holder_) IntegrationTest(asset_, holder_) {}
+    constructor(IERC20 asset_, address holder_) E2eTest(asset_, holder_) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                    SETUP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        IntegrationTest.setUp();
+        E2eTest.setUp();
 
         // Approve the {SablierV2LockupLinear} contract to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.

@@ -178,7 +178,7 @@ Tests are organized in three categories:
 
 1. Unit - simple tests that check the behavior of a single function on a local development EMV.
 2. Fuzz - similar to the unit tests, but with randomized inputs.
-3. Integration - complex tests that run against a fork of Ethereum Mainnet to check that the protocol works with
+3. End-to-end - complex tests that run against a fork of Ethereum Mainnet, which ensure that the protocol works with
    deployed ERC-20 assets.
 
 You can run all tests by using this command:
