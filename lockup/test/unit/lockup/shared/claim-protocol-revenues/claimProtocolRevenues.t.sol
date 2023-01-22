@@ -8,13 +8,16 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
+import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
+import { Unit_Test } from "../../../Unit.t.sol";
 
-abstract contract ClaimProtocolRevenues_Unit_Test is Shared_Lockup_Unit_Test {
+abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test {
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {}
+
     /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank(users.eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
@@ -23,7 +26,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Shared_Lockup_Unit_Test {
 
     modifier callerAdmin() {
         // Make the admin the caller in the rest of this test suite.
-        changePrank(users.admin);
+        changePrank({ who: users.admin });
         _;
     }
 
@@ -35,9 +38,9 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Shared_Lockup_Unit_Test {
 
     modifier protocolRevenuesNotZero() {
         // Create the default stream, which will accrue revenues for the protocol.
-        changePrank(users.sender);
+        changePrank({ who: users.sender });
         createDefaultStream();
-        changePrank(users.admin);
+        changePrank({ who: users.admin });
         _;
     }
 

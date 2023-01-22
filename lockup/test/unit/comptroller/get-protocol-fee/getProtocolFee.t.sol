@@ -14,7 +14,7 @@ contract GetProtocolFee_Unit_Test is Comptroller_Unit_Test {
         Comptroller_Unit_Test.setUp();
 
         // Make the admin the caller in this test suite.
-        changePrank(users.admin);
+        changePrank({ who: users.admin });
     }
 
     /// @dev it should return zero.

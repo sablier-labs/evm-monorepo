@@ -4,7 +4,10 @@ pragma solidity >=0.8.13 <0.9.0;
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
-import { ud2x18 } from "@prb/math/UD2x18.sol";
+import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
+import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.sol";
+import { SD59x18 } from "@prb/math/SD59x18.sol";
+import { UD2x18, ud2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { eqString } from "@prb/test/Helpers.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
@@ -27,6 +30,9 @@ import { Utils } from "./helpers/Utils.t.sol";
 /// @title Base_Test
 /// @notice Base test contract that contains common logic needed by all test contracts.
 abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
+    using CastingUint128 for uint128;
+    using CastingUint40 for uint40;
+
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -58,9 +64,10 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
     Segment[] internal DEFAULT_SEGMENTS;
     uint40 internal immutable DEFAULT_START_TIME;
     uint40 internal immutable DEFAULT_STOP_TIME;
+    Segment[] internal MAX_SEGMENTS;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    TEST VARIABLES
+                                   TEST VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     Users internal users;
@@ -100,6 +107,20 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
                 milestone: DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION
             })
         );
+
+        unchecked {
+            uint128 amount = DEFAULT_NET_DEPOSIT_AMOUNT / uint128(DEFAULT_MAX_SEGMENT_COUNT);
+            UD2x18 exponent = ud2x18(2.71e18);
+            uint40 duration = DEFAULT_TOTAL_DURATION / uint40(DEFAULT_MAX_SEGMENT_COUNT);
+
+            // Generate a bunch of segments with the same amount, same exponent, and with milestones
+            // evenly spread apart.
+            for (uint40 i = 0; i < DEFAULT_MAX_SEGMENT_COUNT; ++i) {
+                MAX_SEGMENTS.push(
+                    Segment({ amount: amount, exponent: exponent, milestone: DEFAULT_START_TIME + duration * (i + 1) })
+                );
+            }
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -135,6 +156,92 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
         blockTimestamp = uint40(block.timestamp);
     }
 
+    /// @dev Helper function that replicates the logic of the {SablierV2LockupLinear-getStreamedAmount} function.
+    function calculateStreamedAmount(
+        uint40 currentTime,
+        uint128 depositAmount
+    ) internal view returns (uint128 streamedAmount) {
+        if (currentTime > DEFAULT_STOP_TIME) {
+            return depositAmount;
+        }
+        unchecked {
+            UD60x18 elapsedTime = ud(currentTime - DEFAULT_START_TIME);
+            UD60x18 totalTime = ud(DEFAULT_TOTAL_DURATION);
+            UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+            streamedAmount = elapsedTimePercentage.mul(ud(depositAmount)).intoUint128();
+        }
+    }
+
+    /// @dev Helper function that replicates the logic of the
+    /// {SablierV2LockupPro-calculateStreamedAmountForMultipleSegments} function.
+    function calculateStreamedAmountForMultipleSegments(
+        uint40 currentTime,
+        Segment[] memory segments,
+        uint128 depositAmount
+    ) internal view returns (uint128 streamedAmount) {
+        if (currentTime >= segments[segments.length - 1].milestone) {
+            return depositAmount;
+        }
+
+        unchecked {
+            // Sum up the amounts found in all preceding segments.
+            uint128 previousSegmentAmounts;
+            uint40 currentSegmentMilestone = segments[0].milestone;
+            uint256 index = 1;
+            while (currentSegmentMilestone < currentTime) {
+                previousSegmentAmounts += segments[index - 1].amount;
+                currentSegmentMilestone = segments[index].milestone;
+                index += 1;
+            }
+
+            // After the loop exits, the current segment is found at index `index - 1`, whereas the previous segment
+            // is found at `index - 2` (if there are at least two segments).
+            SD59x18 currentSegmentAmount = segments[index - 1].amount.intoSD59x18();
+            SD59x18 currentSegmentExponent = segments[index - 1].exponent.intoSD59x18();
+            currentSegmentMilestone = segments[index - 1].milestone;
+
+            uint40 previousMilestone;
+            if (index > 1) {
+                // If the current segment is at an index that is >= 2, we use the previous segment's milestone.
+                previousMilestone = segments[index - 2].milestone;
+            } else {
+                // Otherwise, there is only one segment, so we use the start of the stream as the previous milestone.
+                previousMilestone = DEFAULT_START_TIME;
+            }
+
+            // Calculate how much time has elapsed since the segment started, and the total time of the segment.
+            SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
+            SD59x18 totalSegmentTime = (currentSegmentMilestone - previousMilestone).intoSD59x18();
+
+            // Calculate the streamed amount.
+            SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
+            SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
+            streamedAmount = previousSegmentAmounts + uint128(multiplier.mul(currentSegmentAmount).intoUint256());
+        }
+    }
+
+    /// @dev Helper function that replicates the logic of the
+    /// {SablierV2LockupPro-calculateStreamedAmountForOneSegment} function.
+    function calculateStreamedAmountForOneSegment(
+        uint40 currentTime,
+        UD2x18 exponent,
+        uint128 depositAmount
+    ) internal view returns (uint128 streamedAmount) {
+        if (currentTime >= DEFAULT_STOP_TIME) {
+            return depositAmount;
+        }
+        unchecked {
+            // Calculate how much time has elapsed since the stream started, and the total time of the stream.
+            SD59x18 elapsedTime = (currentTime - DEFAULT_START_TIME).intoSD59x18();
+            SD59x18 totalTime = DEFAULT_TOTAL_DURATION.intoSD59x18();
+
+            // Calculate the streamed amount.
+            SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+            SD59x18 multiplier = elapsedTimePercentage.pow(exponent.intoSD59x18());
+            streamedAmount = uint128(multiplier.mul(depositAmount.intoSD59x18()).intoUint256());
+        }
+    }
+
     /// @dev Checks if the Foundry profile is "test-optimized".
     function isTestOptimizedProfile() internal returns (bool result) {
         string memory profile = vm.envOr("FOUNDRY_PROFILE", string(""));
@@ -148,32 +255,32 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
     /// @dev Approves all Sablier contracts to spend ERC-20 assets from the sender, recipient, Alice and Eve,
     /// and then change the active prank back to the admin.
     function approveProtocol() internal {
-        changePrank(users.sender);
+        changePrank({ who: users.sender });
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank(users.recipient);
+        changePrank({ who: users.recipient });
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank(users.alice);
+        changePrank({ who: users.alice });
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank(users.eve);
+        changePrank({ who: users.eve });
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         // Finally, change the active prank back to the admin.
-        changePrank(users.admin);
+        changePrank({ who: users.admin });
     }
 
     /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,

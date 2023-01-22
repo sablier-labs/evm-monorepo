@@ -23,16 +23,10 @@ contract FlashFee_Unit_Test is FlashLoan_Unit_Test {
     }
 
     /// @dev it should return the correct flash fee.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Multiple values for the comptroller flash fee, including zero.
-    /// - Multiple values for the flash loan amount, including zero.
-    function testFuzz_FlashFee(UD60x18 comptrollerFlashFee, uint256 amount) external assetFlashLoanable {
-        comptrollerFlashFee = bound(comptrollerFlashFee, 0, DEFAULT_MAX_FEE);
-        comptroller.setFlashFee(comptrollerFlashFee);
+    function test_FlashFee() external assetFlashLoanable {
+        uint256 amount = 782.23e18;
         uint256 actualFlashFee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: amount });
-        uint256 expectedFlashFee = ud(amount).mul(comptrollerFlashFee).intoUint256();
+        uint256 expectedFlashFee = ud(amount).mul(DEFAULT_FLASH_FEE).intoUint256();
         assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 }

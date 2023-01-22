@@ -7,16 +7,15 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 
-import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
+import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
+import { Unit_Test } from "../../../Unit.t.sol";
 
-abstract contract Cancel_Unit_Test is Shared_Lockup_Unit_Test {
+abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
-    function setUp() public virtual override {
-        super.setUp();
-
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         // Make the recipient the caller in this test suite.
-        changePrank(users.recipient);
+        changePrank({ who: users.recipient });
 
         // Create the default stream.
         defaultStreamId = createDefaultStream();
@@ -67,34 +66,28 @@ abstract contract Cancel_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CallerUnauthorized_MaliciousThirdParty(
-        address eve
-    ) external streamActive streamCancelable {
-        vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
-
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external streamActive streamCancelable {
         // Make the unauthorized user the caller in this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, eve));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.eve)
+        );
         lockup.cancel(defaultStreamId);
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CallerUnauthorized_ApprovedOperator(
-        address operator
-    ) external streamActive streamCancelable {
-        vm.assume(operator != address(0) && operator != users.sender && operator != users.recipient);
-
+    function test_RevertWhen_CallerUnauthorized_ApprovedOperator() external streamActive streamCancelable {
         // Approve Alice for the stream.
-        lockup.approve({ to: operator, tokenId: defaultStreamId });
+        lockup.approve({ to: users.operator, tokenId: defaultStreamId });
 
         // Make Alice the caller in this test.
-        changePrank(operator);
+        changePrank(users.operator);
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, operator)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.operator)
         );
         lockup.cancel(defaultStreamId);
     }
@@ -117,7 +110,7 @@ abstract contract Cancel_Unit_Test is Shared_Lockup_Unit_Test {
 
     modifier callerSender() {
         // Make the sender the caller in this test suite.
-        changePrank(users.sender);
+        changePrank({ who: users.sender });
         _;
     }
 
@@ -204,15 +197,7 @@ abstract contract Cancel_Unit_Test is Shared_Lockup_Unit_Test {
 
     /// @dev it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, and emit a
     /// {CancelLockupStream} event.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Stream ongoing and ended.
-    /// - With and without withdrawals.
-    function testFuzz_Cancel_Sender(
-        uint256 timeWarp,
-        uint128 withdrawAmount
-    )
+    function test_Cancel_Sender()
         external
         streamActive
         streamCancelable
@@ -223,37 +208,22 @@ abstract contract Cancel_Unit_Test is Shared_Lockup_Unit_Test {
         recipientDoesNotRevert
         noRecipientReentrancy
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
-
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Bound the withdraw amount.
-        uint128 streamedAmount = lockup.getStreamedAmount(streamId);
-        withdrawAmount = boundUint128(withdrawAmount, 0, streamedAmount - 1);
-
-        // Make the only withdrawal if the amount is greater than zero.
-        if (withdrawAmount > 0) {
-            lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
-        }
-
         // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
         uint128 recipientAmount = lockup.getWithdrawableAmount(streamId);
-        if (recipientAmount > 0) {
-            vm.expectCall(
-                address(DEFAULT_ASSET),
-                abi.encodeCall(IERC20.transfer, (address(goodRecipient), recipientAmount))
-            );
-        }
+        vm.expectCall(
+            address(DEFAULT_ASSET),
+            abi.encodeCall(IERC20.transfer, (address(goodRecipient), recipientAmount))
+        );
 
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
         uint128 senderAmount = lockup.getReturnableAmount(streamId);
-        if (senderAmount > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
-        }
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
 
         // Expect a {CancelLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
@@ -269,7 +239,7 @@ abstract contract Cancel_Unit_Test is Shared_Lockup_Unit_Test {
 
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
-        uint128 expectedWithdrawnAmount = withdrawAmount + recipientAmount;
+        uint128 expectedWithdrawnAmount = recipientAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the NFT was not burned.
@@ -369,15 +339,7 @@ abstract contract Cancel_Unit_Test is Shared_Lockup_Unit_Test {
 
     /// @dev it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, and emit a
     /// {CancelLockupStream} event.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Stream ongoing and ended.
-    /// - With and without withdrawals.
-    function testFuzz_Cancel_Recipient(
-        uint256 timeWarp,
-        uint128 withdrawAmount
-    )
+    function test_Cancel_Recipient()
         external
         streamActive
         streamCancelable
@@ -388,34 +350,19 @@ abstract contract Cancel_Unit_Test is Shared_Lockup_Unit_Test {
         senderDoesNotRevert
         noSenderReentrancy
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
-
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
-        // Bound the withdraw amount.
-        uint128 streamedAmount = lockup.getStreamedAmount(streamId);
-        withdrawAmount = boundUint128(withdrawAmount, 0, streamedAmount - 1);
-
-        // Make the withdrawal only if the amount is greater than zero.
-        if (withdrawAmount > 0) {
-            lockup.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
-        }
-
-        // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
-        uint128 recipientAmount = lockup.getWithdrawableAmount(streamId);
-        if (recipientAmount > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount)));
-        }
-
-        // Expect the ERC-20 assets to be returned to the sender, if not zero.
+        // Expect the ERC-20 assets to be returned to the sender.
         uint128 senderAmount = lockup.getReturnableAmount(streamId);
-        if (senderAmount > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (address(goodSender), senderAmount)));
-        }
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (address(goodSender), senderAmount)));
+
+        // Expect the ERC-20 assets to be withdrawn to the recipient.
+        uint128 recipientAmount = lockup.getWithdrawableAmount(streamId);
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount)));
 
         // Expect a {CancelLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
@@ -431,7 +378,7 @@ abstract contract Cancel_Unit_Test is Shared_Lockup_Unit_Test {
 
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
-        uint128 expectedWithdrawnAmount = withdrawAmount + recipientAmount;
+        uint128 expectedWithdrawnAmount = recipientAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the NFT was not burned.

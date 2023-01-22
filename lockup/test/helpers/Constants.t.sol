@@ -34,7 +34,7 @@ abstract contract Constants {
 
     LockupAmounts internal DEFAULT_LOCKUP_AMOUNTS =
         LockupAmounts({ deposit: DEFAULT_NET_DEPOSIT_AMOUNT, withdrawn: 0 });
-    CreateLockupAmounts internal DEFAULT_CREATE_AMOUNTS =
+    CreateLockupAmounts internal DEFAULT_LOCKUP_CREATE_AMOUNTS =
         CreateLockupAmounts({
             netDeposit: DEFAULT_NET_DEPOSIT_AMOUNT,
             protocolFee: DEFAULT_PROTOCOL_FEE_AMOUNT,

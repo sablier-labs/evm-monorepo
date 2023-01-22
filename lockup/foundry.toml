@@ -14,7 +14,7 @@
   script = "script"
   solc = "0.8.17"
   src = "src"
-  test = "test/unit"
+  test = "test"
 
 # Speed up compilation and tests during development.
 [profile.lite]
@@ -31,13 +31,11 @@
 [profile.test-optimized]
   fuzz = { runs = 5_000 }
   src = "test"
-  test = "test"
   verbosity = 4
 
 [etherscan]
   ethereum = { key = "${ETHERSCAN_API_KEY}" }
   goerli = { key = "${ETHERSCAN_API_KEY}" }
-
 
 [rpc_endpoints]
   ethereum = "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}"

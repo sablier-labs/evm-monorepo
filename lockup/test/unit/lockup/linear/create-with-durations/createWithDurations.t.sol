@@ -16,13 +16,15 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
 
     function setUp() public virtual override {
         Linear_Unit_Test.setUp();
+
+        // Load the stream id.
         streamId = linear.nextStreamId();
     }
 
     /// @dev it should revert due to the start time being greater than the cliff time.
-    function test_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration) external {
+    function test_RevertWhen_CliffDurationCalculationOverflows() external {
         uint40 startTime = getBlockTimestamp();
-        cliffDuration = boundUint40(cliffDuration, UINT40_MAX - startTime + 1, UINT40_MAX);
+        uint40 cliffDuration = UINT40_MAX - startTime + 1;
 
         // Calculate the stop time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -30,7 +32,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
             cliffTime = startTime + cliffDuration;
         }
 
-        // Expect an error.
+        // Expect a {StartTimeGreaterThanCliffTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector,
@@ -51,12 +53,9 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_TotalDurationCalculationOverflows(
-        Durations memory durations
-    ) external cliffDurationCalculationDoesNotOverflow {
+    function test_RevertWhen_TotalDurationCalculationOverflows() external cliffDurationCalculationDoesNotOverflow {
         uint40 startTime = getBlockTimestamp();
-        durations.cliff = boundUint40(durations.cliff, 0, UINT40_MAX - startTime);
-        durations.total = boundUint40(durations.total, UINT40_MAX - startTime + 1, UINT40_MAX);
+        Durations memory durations = Durations({ cliff: 0, total: UINT40_MAX - startTime + 1 });
 
         // Calculate the cliff time and the stop time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -66,7 +65,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
             stopTime = startTime + durations.total;
         }
 
-        // Expect an error.
+        // Expect a {CliffTimeGreaterThanStopTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_CliffTimeGreaterThanStopTime.selector,
@@ -85,12 +84,11 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the
     /// protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
-    function testFuzz_CreateWithDurations(
-        Durations memory durations
-    ) external cliffDurationCalculationDoesNotOverflow totalDurationCalculationDoesNotOverflow {
-        durations.total = boundUint40(durations.total, 0, UINT40_MAX - getBlockTimestamp());
-        vm.assume(durations.cliff <= durations.total);
-
+    function test_CreateWithDurations()
+        external
+        cliffDurationCalculationDoesNotOverflow
+        totalDurationCalculationDoesNotOverflow
+    {
         // Make the sender the funder in this test.
         address funder = defaultParams.createWithDurations.sender;
 
@@ -115,13 +113,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
             )
         );
 
-        // Calculate the start time, cliff time and the stop time.
-        Range memory range = Range({
-            start: getBlockTimestamp(),
-            cliff: getBlockTimestamp() + durations.cliff,
-            stop: getBlockTimestamp() + durations.total
-        });
-
         // Expect a {CreateLockupLinearStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLockupLinearStream({
@@ -129,22 +120,22 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
             funder: funder,
             sender: defaultParams.createWithDurations.sender,
             recipient: defaultParams.createWithDurations.recipient,
-            amounts: DEFAULT_CREATE_AMOUNTS,
+            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
             asset: DEFAULT_ASSET,
             cancelable: defaultParams.createWithDurations.cancelable,
-            range: range,
+            range: DEFAULT_RANGE,
             broker: defaultParams.createWithDurations.broker.addr
         });
 
         // Create the stream.
-        createDefaultStreamWithDurations(durations);
+        createDefaultStreamWithDurations({ durations: defaultParams.createWithDurations.durations });
 
         // Assert that the stream was created.
         LockupLinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.range, range);
+        assertEq(actualStream.range, DEFAULT_RANGE);
         assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.status, defaultStream.status);
 

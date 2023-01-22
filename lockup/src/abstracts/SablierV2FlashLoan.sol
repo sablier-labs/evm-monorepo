@@ -101,7 +101,7 @@ abstract contract SablierV2FlashLoan is
         // Checks: the calculated fee is less than 2^128. This check can fail only when the comptroller flash fee
         // is set to an abnormally high value.
         if (fee > type(uint128).max) {
-            revert Errors.SablierV2FlashLoan_FeeTooHigh(fee);
+            revert Errors.SablierV2FlashLoan_CalculatedFeeTooHigh(fee);
         }
 
         // Checks: the amount flash loaned is not greater than the current asset balance of the contract.

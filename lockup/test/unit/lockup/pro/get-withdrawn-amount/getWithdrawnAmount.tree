@@ -1,8 +1,0 @@
-getWithdrawnAmount.t.sol
-├── when the stream is null
-│  └── it should return zero
-└── when the stream is not null
-   ├── when there weren't withdrawals
-   │  └── it should return zero
-   └── when there were withdrawals
-      └── it should return the correct withdrawn amount

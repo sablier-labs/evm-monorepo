@@ -8,15 +8,14 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 
-import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
+import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
+import { Unit_Test } from "../../../Unit.t.sol";
 
-abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
+abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint128[] internal defaultAmounts;
     uint256[] internal defaultStreamIds;
 
-    function setUp() public virtual override {
-        super.setUp();
-
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         // Define the default amounts, since most tests need them.
         defaultAmounts.push(DEFAULT_WITHDRAW_AMOUNT);
         defaultAmounts.push(DEFAULT_WITHDRAW_AMOUNT);
@@ -26,7 +25,7 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
         defaultStreamIds.push(createDefaultStream());
 
         // Make the recipient the caller in this test suite.
-        changePrank(users.recipient);
+        changePrank({ who: users.recipient });
     }
 
     /// @dev it should revert.
@@ -85,16 +84,19 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty(
-        address eve
-    ) external toNonZeroAddress arraysEqual onlyNonNullStreams {
-        vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
-
+    function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
+        external
+        toNonZeroAddress
+        arraysEqual
+        onlyNonNullStreams
+    {
         // Make Eve the caller in this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], eve));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.eve)
+        );
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
@@ -106,7 +108,7 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
         onlyNonNullStreams
     {
         // Make the sender the caller in this test.
-        changePrank(users.sender);
+        changePrank({ who: users.sender });
 
         // Run the test.
         vm.expectRevert(
@@ -134,23 +136,26 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty(
-        address eve
-    ) external toNonZeroAddress arraysEqual onlyNonNullStreams {
-        vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
-
+    function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
+        external
+        toNonZeroAddress
+        arraysEqual
+        onlyNonNullStreams
+    {
         // Create a stream with Eve as the recipient.
-        uint256 eveStreamId = createDefaultStreamWithRecipient(eve);
+        uint256 eveStreamId = createDefaultStreamWithRecipient(users.eve);
 
         // Make Eve the caller in this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
         // Run the test.
         uint256[] memory streamIds = Solarray.uint256s(eveStreamId, defaultStreamIds[0]);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], eve));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.eve)
+        );
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
@@ -179,27 +184,29 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should make the withdrawals and update the withdrawn amounts.
-    function testFuzz_WithdrawMultiple_CallerApprovedOperator(
-        address to
-    ) external toNonZeroAddress arraysEqual onlyNonNullStreams callerAuthorizedAllStreams {
-        vm.assume(to != address(0));
-
+    function test_WithdrawMultiple_CallerApprovedOperator()
+        external
+        toNonZeroAddress
+        arraysEqual
+        onlyNonNullStreams
+        callerAuthorizedAllStreams
+    {
         // Approve the operator for all streams.
         lockup.setApprovalForAll(users.operator, true);
 
         // Make the operator the caller in this test.
-        changePrank(users.operator);
+        changePrank({ who: users.operator });
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
         // Expect the withdrawals to be made.
         uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
 
         // Make the withdrawals.
-        lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: defaultAmounts });
+        lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
 
         // Assert that the withdrawn amounts were updated.
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(defaultStreamIds[0]);
@@ -270,10 +277,7 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
 
     /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, and mark the streams as
     /// depleted.
-    function testFuzz_WithdrawMultiple_AllStreamsEnded(
-        uint256 timeWarp,
-        address to
-    )
+    function test_WithdrawMultiple_AllStreamsEnded()
         external
         toNonZeroAddress
         arraysEqual
@@ -283,11 +287,11 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
         allAmountsNotZero
         allAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
-        vm.assume(to != address(0));
-
         // Warp into the future, past the stop time.
-        vm.warp({ timestamp: DEFAULT_STOP_TIME + timeWarp });
+        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+
+        // Make Alice the `to` address in this test.
+        address to = users.alice;
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
@@ -328,11 +332,7 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
 
     /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, and update the withdrawn
     /// amounts.
-    function testFuzz_WithdrawMultiple_AllStreamsOngoing(
-        uint256 timeWarp,
-        address to,
-        uint128 withdrawAmount
-    )
+    function test_WithdrawMultiple_AllStreamsOngoing()
         external
         toNonZeroAddress
         arraysEqual
@@ -342,15 +342,14 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
         allAmountsNotZero
         allAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
-        vm.assume(to != address(0));
+        // Warp into the future, before the stop time of the streams.
+        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
-        // Warp into the future, before the stop time of the stream.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        // Make Alice the `to` address in this test.
+        address to = users.alice;
 
-        // Bound the withdraw amount.
-        uint128 withdrawableAmount = lockup.getWithdrawableAmount(defaultStreamIds[0]);
-        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
+        // Set the withdraw amount to the streamed amount.
+        uint128 withdrawAmount = lockup.getStreamedAmount(defaultStreamIds[0]);
 
         // Expect the withdrawals to be made.
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
@@ -374,13 +373,30 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount, "withdrawnAmount1");
     }
 
+    struct Vars {
+        address actualEndedNFTOwner;
+        Status actualStatus0;
+        Status actualStatus1;
+        uint128 actualWithdrawnAmount0;
+        uint128 actualWithdrawnAmount1;
+        uint128[] amounts;
+        uint256 endedStreamId;
+        uint128 endedWithdrawAmount;
+        address expectedEndedNFTOwner;
+        Status expectedStatus0;
+        Status expectedStatus1;
+        uint128 expectedWithdrawnAmount0;
+        uint128 expectedWithdrawnAmount1;
+        uint40 ongoingStopTime;
+        uint256 ongoingStreamId;
+        uint128 ongoingWithdrawAmount;
+        uint256[] streamIds;
+        address to;
+    }
+
     /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, mark the ended streams as
     /// depleted, and update the withdrawn amounts.
-    function testFuzz_WithdrawMultiple_SomeStreamsEndedSomeStreamsOngoing(
-        uint256 timeWarp,
-        address to,
-        uint128 ongoingWithdrawAmount
-    )
+    function test_WithdrawMultiple_SomeStreamsEndedSomeStreamsOngoing()
         external
         toNonZeroAddress
         arraysEqual
@@ -390,48 +406,62 @@ abstract contract WithdrawMultiple_Unit_Test is Shared_Lockup_Unit_Test {
         allAmountsNotZero
         allAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        timeWarp = bound(timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1);
-        vm.assume(to != address(0));
+        // Warp into the future.
+        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+
+        // Make Alice the `to` address in this test.
+        Vars memory vars;
+        vars.to = users.alice;
 
         // Use the first default stream as the ended stream.
-        uint256 endedStreamId = defaultStreamIds[0];
-        uint128 endedWithdrawAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
+        vars.endedStreamId = defaultStreamIds[0];
+        vars.endedWithdrawAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
 
         // Create a new stream with a stop time nearly double that of the default stream.
-        uint40 ongoingStopTime = DEFAULT_STOP_TIME + DEFAULT_TOTAL_DURATION;
-        uint256 ongoingStreamId = createDefaultStreamWithStopTime(ongoingStopTime);
+        vars.ongoingStopTime = DEFAULT_STOP_TIME + DEFAULT_TOTAL_DURATION;
+        vars.ongoingStreamId = createDefaultStreamWithStopTime(vars.ongoingStopTime);
 
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
-
-        // Bound the ongoing withdraw amount.
-        uint128 ongoingWithdrawableAmount = lockup.getWithdrawableAmount(ongoingStreamId);
-        ongoingWithdrawAmount = boundUint128(ongoingWithdrawAmount, 1, ongoingWithdrawableAmount);
+        // Get the ongoing withdraw amount.
+        vars.ongoingWithdrawAmount = lockup.getWithdrawableAmount(vars.ongoingStreamId);
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.WithdrawFromLockupStream({ streamId: endedStreamId, to: to, amount: endedWithdrawAmount });
+        emit Events.WithdrawFromLockupStream({
+            streamId: vars.endedStreamId,
+            to: vars.to,
+            amount: vars.endedWithdrawAmount
+        });
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.WithdrawFromLockupStream({ streamId: ongoingStreamId, to: to, amount: ongoingWithdrawAmount });
+        emit Events.WithdrawFromLockupStream({
+            streamId: vars.ongoingStreamId,
+            to: vars.to,
+            amount: vars.ongoingWithdrawAmount
+        });
 
         // Run the test.
-        uint256[] memory streamIds = Solarray.uint256s(endedStreamId, ongoingStreamId);
-        uint128[] memory amounts = Solarray.uint128s(endedWithdrawAmount, ongoingWithdrawAmount);
-        lockup.withdrawMultiple({ streamIds: streamIds, to: to, amounts: amounts });
+        vars.streamIds = Solarray.uint256s(vars.endedStreamId, vars.ongoingStreamId);
+        vars.amounts = Solarray.uint128s(vars.endedWithdrawAmount, vars.ongoingWithdrawAmount);
+        lockup.withdrawMultiple({ streamIds: vars.streamIds, to: vars.to, amounts: vars.amounts });
 
-        // Assert that the ended stream was marked as depleted.
-        Status actualStatus = lockup.getStatus(endedStreamId);
-        Status expectedStatus = Status.DEPLETED;
-        assertEq(actualStatus, expectedStatus);
+        // Assert that the ended stream was marked as depleted, and the ongoing stream was not.
+        vars.actualStatus0 = lockup.getStatus(vars.endedStreamId);
+        vars.actualStatus1 = lockup.getStatus(vars.ongoingStreamId);
+        vars.expectedStatus0 = Status.DEPLETED;
+        vars.expectedStatus1 = Status.ACTIVE;
+        assertEq(vars.actualStatus0, vars.expectedStatus0, "status0");
+        assertEq(vars.actualStatus1, vars.expectedStatus1, "status1");
+
+        // Assert that the withdrawn amounts amounts were updated.
+        vars.actualWithdrawnAmount0 = lockup.getWithdrawnAmount(vars.endedStreamId);
+        vars.actualWithdrawnAmount1 = lockup.getWithdrawnAmount(vars.ongoingStreamId);
+        vars.expectedWithdrawnAmount0 = vars.endedWithdrawAmount;
+        vars.expectedWithdrawnAmount1 = vars.ongoingWithdrawAmount;
+        assertEq(vars.actualWithdrawnAmount0, vars.expectedWithdrawnAmount0, "withdrawnAmount0");
+        assertEq(vars.actualWithdrawnAmount1, vars.expectedWithdrawnAmount1, "withdrawnAmount1");
 
         // Assert that the ended stream NFT was not burned.
-        address actualEndedNFTOwner = lockup.getRecipient(endedStreamId);
-        address expectedEndedNFTOwner = users.recipient;
-        assertEq(actualEndedNFTOwner, expectedEndedNFTOwner, "NFT owner");
-
-        // Assert that the withdrawn amount was updated for the ongoing stream.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(ongoingStreamId);
-        uint128 expectedWithdrawnAmount = ongoingWithdrawAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+        vars.actualEndedNFTOwner = lockup.getRecipient(vars.endedStreamId);
+        vars.expectedEndedNFTOwner = users.recipient;
+        assertEq(vars.actualEndedNFTOwner, vars.expectedEndedNFTOwner, "NFT owner");
     }
 }

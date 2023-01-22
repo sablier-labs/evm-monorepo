@@ -9,7 +9,7 @@ import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 import { Broker, LockupAmounts, CreateLockupAmounts, LockupLinearStream, Segment, Range } from "src/types/Structs.sol";
 
-import { IntegrationTest } from "test/integration/IntegrationTest.t.sol";
+import { IntegrationTest } from "../../IntegrationTest.t.sol";
 
 abstract contract Linear_Integration_Test is IntegrationTest {
     /*//////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ abstract contract Linear_Integration_Test is IntegrationTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - All possible permutations for the funder, recipient, sender, and broker.
+    /// - All possible permutations for the sender, recipient, and broker.
     /// - Multiple values for the gross deposit amount.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
@@ -111,14 +111,24 @@ abstract contract Linear_Integration_Test is IntegrationTest {
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Linear_CreateWithdrawCancel(Params memory params) external {
         vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
-        vm.assume(params.broker.addr != holder && params.broker.addr != address(linear));
+        vm.assume(
+            params.sender != params.recipient &&
+                params.sender != params.broker.addr &&
+                params.recipient != params.broker.addr
+        );
+        vm.assume(params.sender != holder && params.recipient != holder && params.broker.addr != holder);
+        vm.assume(
+            params.sender != address(linear) &&
+                params.recipient != address(linear) &&
+                params.broker.addr != address(linear)
+        );
         vm.assume(params.grossDepositAmount != 0 && params.grossDepositAmount <= initialHolderBalance);
         vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.stop);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
 
         // Set the fuzzed protocol fee.
-        changePrank(users.admin);
+        changePrank({ who: users.admin });
         comptroller.setProtocolFee({ asset: asset, newProtocolFee: params.protocolFee });
 
         // Make the holder the caller in the rest of the test.

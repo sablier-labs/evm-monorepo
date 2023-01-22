@@ -18,11 +18,10 @@ contract FlashFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     /// @dev it should return the correct flash fee.
-    function testFuzz_FlashFee(UD60x18 flashFee) external {
-        flashFee = bound(flashFee, 1, DEFAULT_MAX_FEE);
-        comptroller.setFlashFee(flashFee);
+    function test_FlashFee() external {
+        comptroller.setFlashFee(DEFAULT_FLASH_FEE);
         UD60x18 actualFlashFee = comptroller.flashFee();
-        UD60x18 expectedFlashFee = flashFee;
+        UD60x18 expectedFlashFee = DEFAULT_FLASH_FEE;
         assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 }

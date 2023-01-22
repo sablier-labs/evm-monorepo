@@ -2,13 +2,12 @@
 // solhint-disable max-line-length
 pragma solidity >=0.8.13 <0.9.0;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { UD2x18, ud2x18 } from "@prb/math/UD2x18.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
+import { ud2x18 } from "@prb/math/UD2x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Broker, LockupProStream, Segment } from "src/types/Structs.sol";
+import { LockupProStream, Segment } from "src/types/Structs.sol";
 
 import { Pro_Unit_Test } from "../Pro.t.sol";
 
@@ -17,6 +16,8 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
 
     function setUp() public virtual override {
         Pro_Unit_Test.setUp();
+
+        // Load the stream id.
         streamId = pro.nextStreamId();
     }
 
@@ -52,18 +53,13 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_SegmentArraysNotEqual(
-        uint256 deltaCount
-    ) external loopCalculationsDoNotOverflowBlockGasLimit deltasNotZero {
-        deltaCount = bound(deltaCount, 1, 1_000);
-        vm.assume(deltaCount != defaultParams.createWithDeltas.segments.length);
-
-        uint40[] memory deltas = new uint40[](deltaCount);
+    function test_RevertWhen_SegmentArraysNotEqual() external loopCalculationsDoNotOverflowBlockGasLimit deltasNotZero {
+        uint40[] memory deltas = new uint40[](defaultParams.createWithDeltas.segments.length + 1);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupPro_SegmentArraysNotEqual.selector,
                 defaultParams.createWithDeltas.segments.length,
-                deltaCount
+                deltas.length
             )
         );
         createDefaultStreamWithDeltas(deltas);
@@ -125,7 +121,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
             });
         }
 
-        // Expect an error.
+        // Expect a {SegmentMilestonesNotOrdered} error.
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -155,27 +151,13 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, mint the NFT,
     /// record the protocol fee, and emit a {CreateLockupProStream} event.
-    function testFuzz_CreateWithDeltas(
-        uint40 delta0,
-        uint40 delta1
-    )
+    function test_CreateWithDeltas()
         external
         loopCalculationsDoNotOverflowBlockGasLimit
         deltasNotZero
         segmentArraysEqual
         milestonesCalculationsDoNotOverflow
     {
-        delta0 = boundUint40(delta0, 0, 100);
-        delta1 = boundUint40(delta1, 1, UINT40_MAX - getBlockTimestamp() - delta0);
-
-        // Create the deltas.
-        uint40[] memory deltas = Solarray.uint40s(delta0, delta1);
-
-        // Adjust the segment milestones to match the fuzzed deltas.
-        Segment[] memory segments = defaultParams.createWithDeltas.segments;
-        segments[0].milestone = getBlockTimestamp() + delta0;
-        segments[1].milestone = segments[0].milestone + delta1;
-
         // Make the sender the funder in this test.
         address funder = defaultParams.createWithDeltas.sender;
 
@@ -207,37 +189,28 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
             funder: funder,
             sender: defaultParams.createWithDeltas.sender,
             recipient: defaultParams.createWithDeltas.recipient,
-            amounts: DEFAULT_CREATE_AMOUNTS,
-            segments: segments,
+            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
+            segments: defaultParams.createWithDeltas.segments,
             asset: DEFAULT_ASSET,
             cancelable: defaultParams.createWithDeltas.cancelable,
             startTime: DEFAULT_START_TIME,
-            stopTime: segments[1].milestone,
+            stopTime: DEFAULT_STOP_TIME,
             broker: defaultParams.createWithDeltas.broker.addr
         });
 
         // Create the stream.
-        pro.createWithDeltas(
-            defaultParams.createWithDeltas.sender,
-            defaultParams.createWithDeltas.recipient,
-            defaultParams.createWithDeltas.grossDepositAmount,
-            segments,
-            DEFAULT_ASSET,
-            defaultParams.createWithDeltas.cancelable,
-            deltas,
-            defaultParams.createWithDeltas.broker
-        );
+        createDefaultStreamWithDeltas();
 
         // Assert that the stream was created.
         LockupProStream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.segments, segments);
+        assertEq(actualStream.segments, defaultStream.segments);
         assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.startTime, defaultStream.startTime, "startTime");
         assertEq(actualStream.status, defaultStream.status);
-        assertEq(actualStream.stopTime, segments[1].milestone, "stopTime");
+        assertEq(actualStream.stopTime, defaultStream.segments[1].milestone, "stopTime");
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = pro.nextStreamId();

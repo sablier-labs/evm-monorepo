@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { SafeERC20_CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
@@ -17,6 +17,8 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
 
     function setUp() public virtual override {
         Linear_Unit_Test.setUp();
+
+        // Load the stream id.
         streamId = linear.nextStreamId();
     }
 
@@ -70,13 +72,14 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CliffTimeGreaterThanStopTime(
-        uint40 cliffTime,
-        uint40 stopTime
-    ) external recipientNonZeroAddress netDepositAmountNotZero startTimeLessThanOrEqualToCliffTime {
-        vm.assume(cliffTime > stopTime);
-        vm.assume(stopTime > defaultParams.createWithRange.range.start);
-
+    function test_RevertWhen_CliffTimeGreaterThanStopTime()
+        external
+        recipientNonZeroAddress
+        netDepositAmountNotZero
+        startTimeLessThanOrEqualToCliffTime
+    {
+        uint40 cliffTime = defaultParams.createWithRange.range.stop;
+        uint40 stopTime = defaultParams.createWithRange.range.cliff;
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_CliffTimeGreaterThanStopTime.selector,
@@ -100,19 +103,17 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_ProtocolFeeTooHigh(
-        UD60x18 protocolFee
-    )
+    function test_RevertWhen_ProtocolFeeTooHigh()
         external
         recipientNonZeroAddress
         netDepositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
         cliffLessThanOrEqualToStopTime
     {
-        protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
+        UD60x18 protocolFee = DEFAULT_MAX_FEE.add(ud(1));
 
         // Set the protocol fee.
-        changePrank(users.admin);
+        changePrank({ who: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: protocolFee });
 
         // Run the test.
@@ -127,9 +128,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_BrokerFeeTooHigh(
-        UD60x18 brokerFee
-    )
+    function test_RevertWhen_BrokerFeeTooHigh()
         external
         recipientNonZeroAddress
         netDepositAmountNotZero
@@ -137,7 +136,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         cliffLessThanOrEqualToStopTime
         protocolFeeNotTooHigh
     {
-        brokerFee = bound(brokerFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
+        UD60x18 brokerFee = DEFAULT_MAX_FEE.add(ud(1));
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, DEFAULT_MAX_FEE)
         );
@@ -157,9 +156,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_AssetNotContract(
-        IERC20 nonContract
-    )
+    function test_RevertWhen_AssetNotContract()
         external
         recipientNonZeroAddress
         netDepositAmountNotZero
@@ -168,13 +165,13 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
     {
-        vm.assume(address(nonContract).code.length == 0);
-        vm.expectRevert(abi.encodeWithSelector(SafeERC20_CallToNonContract.selector, address(nonContract)));
+        address nonContract = address(8128);
+        vm.expectRevert(abi.encodeWithSelector(SafeERC20_CallToNonContract.selector, nonContract));
         linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
             defaultParams.createWithRange.grossDepositAmount,
-            nonContract,
+            IERC20(nonContract),
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
             defaultParams.createWithRange.broker
@@ -196,10 +193,42 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         brokerFeeNotTooHigh
         assetContract
     {
-        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
+        test_createWithRange(address(nonCompliantAsset));
+    }
+
+    modifier assetERC20Compliant() {
+        _;
+    }
+
+    /// @dev it should:
+    ///
+    /// - Perform the ERC-20 transfers.
+    /// - Create the stream.
+    /// - Bump the next stream id.
+    /// - Record the protocol fee.
+    /// - Mint the NFT.
+    /// - Emit a {CreateLockupLinearStream} event.
+    function test_CreateWithRange()
+        external
+        netDepositAmountNotZero
+        startTimeLessThanOrEqualToCliffTime
+        cliffLessThanOrEqualToStopTime
+        protocolFeeNotTooHigh
+        brokerFeeNotTooHigh
+        assetContract
+        assetERC20Compliant
+    {
+        test_createWithRange(address(DEFAULT_ASSET));
+    }
+
+    /// @dev Shared test logic for `test_CreateWithRange_AssetMissingReturnValue` and `test_CreateWithRange`.
+    function test_createWithRange(address asset) internal {
+        // Make the sender the funder in this test.
         address funder = defaultParams.createWithRange.sender;
+
+        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
         vm.expectCall(
-            address(nonCompliantAsset),
+            asset,
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
@@ -208,7 +237,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
 
         // Expect the broker fee to be paid to the broker.
         vm.expectCall(
-            address(nonCompliantAsset),
+            asset,
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, defaultParams.createWithRange.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
@@ -220,7 +249,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
             defaultParams.createWithRange.grossDepositAmount,
-            IERC20(address(nonCompliantAsset)),
+            IERC20(asset),
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
             defaultParams.createWithRange.broker
@@ -229,7 +258,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         // Assert that the stream was created.
         LockupLinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
-        assertEq(address(actualStream.asset), address(nonCompliantAsset), "asset");
+        assertEq(address(actualStream.asset), asset, "asset");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
         assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.range, defaultStream.range);
@@ -244,157 +273,5 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = defaultParams.createWithRange.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
-    }
-
-    modifier assetERC20Compliant() {
-        _;
-    }
-
-    struct Params {
-        address funder;
-        address sender;
-        address recipient;
-        uint128 grossDepositAmount;
-        bool cancelable;
-        Range range;
-        Broker broker;
-        UD60x18 protocolFee;
-    }
-
-    struct Vars {
-        uint128 initialProtocolRevenues;
-        uint128 protocolFeeAmount;
-        uint128 brokerFeeAmount;
-        uint128 netDepositAmount;
-        uint256 actualNextStreamId;
-        uint256 expectedNextStreamId;
-        uint256 actualProtocolRevenues;
-        uint256 expectedProtocolRevenues;
-        address actualNFTOwner;
-        address expectedNFTOwner;
-    }
-
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
-    /// fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - All possible permutations for the funder, recipient, sender, and broker.
-    /// - Multiple values for the gross deposit amount.
-    /// - Cancelable and non-cancelable.
-    /// - Start time in the past, present and future.
-    /// - Start time lower than and equal to cliff time.
-    /// - Cliff time lower than and equal to stop time.
-    /// - Multiple values for the broker fee, including zero.
-    /// - Multiple values for the protocol fee, including zero.
-    function testFuzz_CreateWithRange(
-        Params memory params
-    )
-        external
-        netDepositAmountNotZero
-        startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToStopTime
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
-        assetContract
-        assetERC20Compliant
-    {
-        vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
-        vm.assume(params.grossDepositAmount != 0);
-        vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.stop);
-        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
-
-        // Set the fuzzed protocol fee.
-        changePrank(users.admin);
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: params.protocolFee });
-
-        // Make the fuzzed funder the caller in this test.
-        changePrank(params.funder);
-
-        // Mint enough assets to the funder.
-        deal({ token: address(DEFAULT_ASSET), to: params.funder, give: params.grossDepositAmount });
-
-        // Approve the {SablierV2LockupLinear} contract to transfer the assets from the fuzzed funder.
-        DEFAULT_ASSET.approve({ spender: address(linear), value: UINT256_MAX });
-
-        // Load the initial protocol revenues.
-        Vars memory vars;
-        vars.initialProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
-
-        // Calculate the protocol fee amount, broker fee amount and the net deposit amount.
-        vars.protocolFeeAmount = ud(params.grossDepositAmount).mul(params.protocolFee).intoUint128();
-        vars.brokerFeeAmount = ud(params.grossDepositAmount).mul(params.broker.fee).intoUint128();
-        vars.netDepositAmount = params.grossDepositAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
-
-        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (params.funder, address(linear), vars.netDepositAmount + vars.protocolFeeAmount)
-            )
-        );
-
-        // Expect the broker fee to be paid to the broker, if the fee amount is not zero.
-        if (vars.brokerFeeAmount > 0) {
-            vm.expectCall(
-                address(DEFAULT_ASSET),
-                abi.encodeCall(IERC20.transferFrom, (params.funder, params.broker.addr, vars.brokerFeeAmount))
-            );
-        }
-
-        // Expect a {CreateLockupLinearStream} event to be emitted.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateLockupLinearStream({
-            streamId: streamId,
-            funder: params.funder,
-            sender: params.sender,
-            recipient: params.recipient,
-            amounts: CreateLockupAmounts({
-                netDeposit: vars.netDepositAmount,
-                protocolFee: vars.protocolFeeAmount,
-                brokerFee: vars.brokerFeeAmount
-            }),
-            asset: DEFAULT_ASSET,
-            cancelable: params.cancelable,
-            range: params.range,
-            broker: params.broker.addr
-        });
-
-        // Create the stream.
-        linear.createWithRange(
-            params.sender,
-            params.recipient,
-            params.grossDepositAmount,
-            DEFAULT_ASSET,
-            params.cancelable,
-            params.range,
-            params.broker
-        );
-
-        // Assert that the stream was created.
-        LockupLinearStream memory actualStream = linear.getStream(streamId);
-        assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
-        assertEq(actualStream.asset, defaultStream.asset, "asset");
-        assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
-        assertEq(actualStream.range, params.range);
-        assertEq(actualStream.sender, params.sender, "sender");
-        assertEq(actualStream.status, defaultStream.status);
-
-        // Assert that the next stream id was bumped.
-        vars.actualNextStreamId = linear.nextStreamId();
-        vars.expectedNextStreamId = streamId + 1;
-        assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
-
-        // Assert that the protocol fee was recorded.
-        vars.actualProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
-        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.protocolFeeAmount;
-        assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
-
-        // Assert that the NFT was minted.
-        vars.actualNFTOwner = linear.ownerOf({ tokenId: streamId });
-        vars.expectedNFTOwner = params.recipient;
-        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
     }
 }

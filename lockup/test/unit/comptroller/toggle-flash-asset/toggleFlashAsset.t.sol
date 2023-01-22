@@ -11,20 +11,17 @@ import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
 contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
     /// @dev it should revert.
-    function test_RevertWhen_CallerNotAdmin(address eve) external {
-        vm.assume(eve != users.admin);
-
+    function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, eve));
+        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
         comptroller.toggleFlashAsset(DEFAULT_ASSET);
     }
 
+    /// @dev The admin is the default caller in the comptroller tests.
     modifier callerAdmin() {
-        // Make the admin the caller in the rest of this test suite.
-        changePrank(users.admin);
         _;
     }
 

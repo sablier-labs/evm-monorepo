@@ -11,20 +11,17 @@ import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
 contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     /// @dev it should revert.
-    function test_RevertWhen_CallerNotAdmin(address eve) external {
-        vm.assume(eve != users.admin);
-
+    function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, eve));
+        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: DEFAULT_MAX_FEE });
     }
 
+    /// @dev The admin is the default caller in the comptroller tests.
     modifier callerAdmin() {
-        // Make the admin the caller in the rest of this test suite.
-        changePrank(users.admin);
         _;
     }
 
@@ -41,8 +38,8 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     /// @dev it should set the new protocol fee and emit a {SetProtocolFee} event.
-    function testFuzz_SetProtocolFee(UD60x18 newProtocolFee) external callerAdmin newFee {
-        newProtocolFee = bound(newProtocolFee, 1, DEFAULT_MAX_FEE);
+    function test_SetProtocolFee() external callerAdmin newFee {
+        UD60x18 newProtocolFee = DEFAULT_FLASH_FEE;
 
         // Expect a {SetProtocolFee} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

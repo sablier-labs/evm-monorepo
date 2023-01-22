@@ -9,7 +9,7 @@ import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 import { Broker, CreateLockupAmounts, LockupAmounts, LockupProStream, Segment } from "src/types/Structs.sol";
 
-import { IntegrationTest } from "test/integration/IntegrationTest.t.sol";
+import { IntegrationTest } from "../../IntegrationTest.t.sol";
 
 abstract contract Pro_Integration_Test is IntegrationTest {
     /*//////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ abstract contract Pro_Integration_Test is IntegrationTest {
     function setUp() public virtual override {
         IntegrationTest.setUp();
 
-        // Approve the {SablierV2LockupPro} contract to transfer the asset holder's assets.
+        // Approve the {SablierV2LockupPro} contract to transfer the holder's ERC-20 assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
         (bool success, ) = address(asset).call(abi.encodeCall(IERC20.approve, (address(pro), UINT256_MAX)));
         success;
@@ -111,14 +111,22 @@ abstract contract Pro_Integration_Test is IntegrationTest {
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Pro_CreateWithdrawCancel(Params memory params) external {
         vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
-        vm.assume(params.broker.addr != holder && params.broker.addr != address(pro));
+        vm.assume(
+            params.sender != params.recipient &&
+                params.sender != params.broker.addr &&
+                params.recipient != params.broker.addr
+        );
+        vm.assume(params.sender != holder && params.recipient != holder && params.broker.addr != holder);
+        vm.assume(
+            params.sender != address(pro) && params.recipient != address(pro) && params.broker.addr != address(pro)
+        );
         vm.assume(params.grossDepositAmount != 0 && params.grossDepositAmount <= initialHolderBalance);
         params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
 
         // Set the fuzzed protocol fee.
-        changePrank(users.admin);
+        changePrank({ who: users.admin });
         comptroller.setProtocolFee({ asset: asset, newProtocolFee: params.protocolFee });
 
         // Make the holder the caller in the rest of the test.

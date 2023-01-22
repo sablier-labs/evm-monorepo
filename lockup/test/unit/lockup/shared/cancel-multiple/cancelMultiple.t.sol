@@ -9,20 +9,19 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 
-import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
+import { Unit_Test } from "../../../Unit.t.sol";
+import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 
-abstract contract CancelMultiple_Unit_Test is Shared_Lockup_Unit_Test {
+abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256[] internal defaultStreamIds;
 
-    function setUp() public virtual override {
-        super.setUp();
-
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         // Create the default streams, since most tests need them.
         defaultStreamIds.push(createDefaultStream());
         defaultStreamIds.push(createDefaultStream());
 
         // Make the recipient the caller in this test suite.
-        changePrank(users.recipient);
+        changePrank({ who: users.recipient });
     }
 
     /// @dev it should do nothing.
@@ -78,30 +77,32 @@ abstract contract CancelMultiple_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty(
-        address eve
-    ) external onlyNonNullStreams allStreamsCancelable {
-        vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
-
+    function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
+        external
+        onlyNonNullStreams
+        allStreamsCancelable
+    {
         // Make Eve the caller in this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], eve));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.eve)
+        );
         lockup.cancelMultiple(defaultStreamIds);
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CallerUnauthorizedAllStreams_ApprovedOperator(
-        address operator
-    ) external onlyNonNullStreams allStreamsCancelable {
-        vm.assume(operator != address(0) && operator != users.sender && operator != users.recipient);
-
+    function test_RevertWhen_CallerUnauthorizedAllStreams_ApprovedOperator()
+        external
+        onlyNonNullStreams
+        allStreamsCancelable
+    {
         // Approve the operator for all streams.
-        lockup.setApprovalForAll({ operator: operator, _approved: true });
+        lockup.setApprovalForAll({ operator: users.operator, _approved: true });
 
         // Make the approved operator the caller in this test.
-        changePrank(users.operator);
+        changePrank({ who: users.operator });
 
         // Run the test.
         vm.expectRevert(
@@ -128,13 +129,12 @@ abstract contract CancelMultiple_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty(
-        address eve
-    ) external onlyNonNullStreams allStreamsCancelable {
-        vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
-
-        // Make Eve the caller in this test.
-        changePrank(users.eve);
+    function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
+        external
+        onlyNonNullStreams
+        allStreamsCancelable
+    {
+        changePrank({ who: users.eve });
 
         // Create a stream with Eve as the sender.
         uint256 eveStreamId = createDefaultStreamWithSender(users.eve);
@@ -148,16 +148,16 @@ abstract contract CancelMultiple_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CallerUnauthorizedSomeStreams_ApprovedOperator(
-        address operator
-    ) external onlyNonNullStreams allStreamsCancelable {
-        vm.assume(operator != address(0) && operator != users.sender && operator != users.recipient);
-
+    function test_RevertWhen_CallerUnauthorizedSomeStreams_ApprovedOperator()
+        external
+        onlyNonNullStreams
+        allStreamsCancelable
+    {
         // Approve the operator to handle the first stream.
         lockup.approve({ to: users.operator, tokenId: defaultStreamIds[0] });
 
         // Make the approved operator the caller in this test.
-        changePrank(users.operator);
+        changePrank({ who: users.operator });
 
         // Run the test.
         vm.expectRevert(
@@ -188,129 +188,47 @@ abstract contract CancelMultiple_Unit_Test is Shared_Lockup_Unit_Test {
 
     /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
     /// CancelLockupStream events.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - All streams ended.
-    /// - All streams ongoing.
-    /// - Some streams ended, some streams ongoing.
-    function testFuzz_CancelMultiple_Sender(
-        uint256 timeWarp,
-        uint40 stopTime
-    ) external onlyNonNullStreams allStreamsCancelable callerAuthorizedAllStreams {
-        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
-        stopTime = boundUint40(stopTime, DEFAULT_CLIFF_TIME + 1, DEFAULT_STOP_TIME + DEFAULT_TOTAL_DURATION / 2);
-
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
-
-        // Make the sender the caller in this test.
-        changePrank(users.sender);
-
-        // Create a new stream with a different stop time.
-        uint256 streamId = createDefaultStreamWithStopTime(stopTime);
-
-        // Create the stream ids array.
-        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
-
-        // Expect the ERC-20 assets to be returned to the recipients, if not zero.
-        uint128 recipientAmount0 = lockup.getWithdrawableAmount(streamIds[0]);
-        if (recipientAmount0 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount0)));
-        }
-        uint128 recipientAmount1 = lockup.getWithdrawableAmount(streamIds[1]);
-        if (recipientAmount1 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
-        }
-
-        // Expect the ERC-20 assets to be returned to the senders, if not zero.
-        uint128 senderAmount0 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount0;
-        if (senderAmount0 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount0)));
-        }
-        uint128 senderAmount1 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount1;
-        if (senderAmount1 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount1)));
-        }
-
-        // Expect two {CancelLockupStream} events to be emitted.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
-
-        // CancelLockupStream the streams.
-        lockup.cancelMultiple(streamIds);
-
-        // Assert that the streams were marked as canceled.
-        Status actualStatus0 = lockup.getStatus(streamIds[0]);
-        Status actualStatus1 = lockup.getStatus(streamIds[1]);
-        Status expectedStatus = Status.CANCELED;
-        assertEq(actualStatus0, expectedStatus, "status0");
-        assertEq(actualStatus1, expectedStatus, "status1");
-
-        // Assert that the withdrawn amounts were updated.
-        uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(streamIds[0]);
-        uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(streamIds[1]);
-        uint128 expectedWithdrawnAmount0 = recipientAmount0;
-        uint128 expectedWithdrawnAmount1 = recipientAmount1;
-        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0, "withdrawnAmount0");
-        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1, "withdrawnAmount1");
-
-        // Assert that the NFTs weren't burned.
-        address actualNFTOwner0 = lockup.ownerOf({ tokenId: streamIds[0] });
-        address actualNFTOwner1 = lockup.ownerOf({ tokenId: streamIds[1] });
-        address expectedNFTOwner = users.recipient;
-        assertEq(actualNFTOwner0, expectedNFTOwner, "NFT owner0");
-        assertEq(actualNFTOwner1, expectedNFTOwner, "NFT owner1");
+    function test_CancelMultiple_Sender() external onlyNonNullStreams allStreamsCancelable callerAuthorizedAllStreams {
+        changePrank({ who: users.sender });
+        test_CancelMultiple();
     }
 
     /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
     /// CancelLockupStream events.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - All streams ended.
-    /// - All streams ongoing.
-    /// - Some streams ended, some streams ongoing.
-    function testFuzz_CancelMultiple_Recipient(
-        uint256 timeWarp,
-        uint40 stopTime
-    ) external onlyNonNullStreams allStreamsCancelable callerAuthorizedAllStreams {
-        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
-        stopTime = boundUint40(stopTime, DEFAULT_CLIFF_TIME + 1, DEFAULT_STOP_TIME + DEFAULT_TOTAL_DURATION / 2);
+    function test_CancelMultiple_Recipient()
+        external
+        onlyNonNullStreams
+        allStreamsCancelable
+        callerAuthorizedAllStreams
+    {
+        test_CancelMultiple();
+    }
 
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+    /// @dev Shared test logic for `test_CancelMultiple_Sender` and `test_CancelMultiple_Recipient`.
+    function test_CancelMultiple() internal {
+        // Use the first default stream as the ongoing stream.
+        uint256 ongoingStreamId = defaultStreamIds[0];
 
-        // Make the recipient the caller in this test.
-        changePrank(users.recipient);
+        // Create the ended stream.
+        uint40 earlyStopTime = DEFAULT_START_TIME + DEFAULT_TIME_WARP;
+        uint256 endedStreamId = createDefaultStreamWithStopTime(earlyStopTime);
 
-        // Create a new stream with a different stop time.
-        uint256 streamId = createDefaultStreamWithStopTime(stopTime);
+        // Warp to the end of the ended stream.
+        vm.warp({ timestamp: earlyStopTime });
 
         // Create the stream ids array.
-        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
+        uint256[] memory streamIds = Solarray.uint256s(ongoingStreamId, endedStreamId);
 
-        // Expect the ERC-20 assets to be withdrawn to the recipients, if not zero.
+        // Expect the ERC-20 assets to be withdrawn to the recipient.
         uint128 recipientAmount0 = lockup.getWithdrawableAmount(streamIds[0]);
-        if (recipientAmount0 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount0)));
-        }
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount0)));
         uint128 recipientAmount1 = lockup.getWithdrawableAmount(streamIds[1]);
-        if (recipientAmount1 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
-        }
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
 
-        // Expect the ERC-20 assets to be returned to the senders, if not zero.
+        // Expect some ERC-20 assets to be returned to the sender only for the ongoing stream.
         uint128 senderAmount0 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount0;
-        if (senderAmount0 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount0)));
-        }
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount0)));
         uint128 senderAmount1 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount1;
-        if (senderAmount1 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount1)));
-        }
 
         // Expect two {CancelLockupStream} events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
@@ -318,7 +236,7 @@ abstract contract CancelMultiple_Unit_Test is Shared_Lockup_Unit_Test {
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
 
-        // CancelLockupStream the streams.
+        // Cancel the streams.
         lockup.cancelMultiple(streamIds);
 
         // Assert that the streams were marked as canceled.

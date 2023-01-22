@@ -22,7 +22,8 @@ contract MaxFlashLoan_Unit_Test is FlashLoan_Unit_Test {
     }
 
     /// @dev it should return the correct flash fee.
-    function testFuzz_MaxFlashLoan(uint256 dealAmount) external assetFlashLoanable {
+    function test_MaxFlashLoan() external assetFlashLoanable {
+        uint256 dealAmount = 14_607_904e18;
         deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: dealAmount });
         uint256 actualAmount = flashLoan.maxFlashLoan(address(DEFAULT_ASSET));
         uint256 expectedAmount = dealAmount;

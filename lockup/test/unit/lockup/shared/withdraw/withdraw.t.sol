@@ -7,16 +7,15 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 
-import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
+import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
+import { Unit_Test } from "../../../Unit.t.sol";
 
-abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
+abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
-    function setUp() public virtual override {
-        super.setUp();
-
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         // Make the recipient the caller in this test suite.
-        changePrank(users.recipient);
+        changePrank({ who: users.recipient });
 
         // Create the default stream.
         defaultStreamId = createDefaultStream();
@@ -53,21 +52,21 @@ abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty(address eve) external streamActive {
-        vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
-
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external streamActive {
         // Make Eve the caller in this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, eve));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.eve)
+        );
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_Sender() external streamActive {
         // Make the sender the caller in this test.
-        changePrank(users.sender);
+        changePrank({ who: users.sender });
 
         // Run the test.
         vm.expectRevert(
@@ -142,9 +141,7 @@ abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
-    function testFuzz_Withdraw_CallerRecipient(
-        address to
-    )
+    function test_Withdraw_CallerRecipient()
         external
         streamActive
         callerAuthorized
@@ -152,10 +149,11 @@ abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
     {
-        vm.assume(to != address(0));
-
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+
+        // Make Alice the `to` address in this test.
+        address to = users.alice;
 
         // Run the test.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -165,9 +163,7 @@ abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
-    function testFuzz_Withdraw_CallerApprovedOperator(
-        address to
-    )
+    function test_Withdraw_CallerApprovedOperator()
         external
         streamActive
         callerAuthorized
@@ -175,19 +171,17 @@ abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
     {
-        vm.assume(to != address(0));
-
         // Approve the operator to handle the stream.
-        lockup.approve(users.operator, defaultStreamId);
+        lockup.approve({ to: users.operator, tokenId: defaultStreamId });
 
         // Make the operator the caller in this test.
-        changePrank(users.operator);
+        changePrank({ who: users.operator });
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
 
         // Run the test.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
@@ -197,7 +191,7 @@ abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
 
     modifier callerSender() {
         // Make the sender the caller in this test suite.
-        changePrank(users.sender);
+        changePrank({ who: users.sender });
         _;
     }
 
@@ -235,11 +229,7 @@ abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
-    function testFuzz_Withdraw_RecipientNotContract(
-        uint256 timeWarp,
-        address to,
-        uint128 withdrawAmount
-    )
+    function test_Withdraw_RecipientNotContract()
         external
         streamActive
         callerAuthorized
@@ -249,31 +239,28 @@ abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
         callerSender
         currentTimeLessThanStopTime
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
-        vm.assume(to != address(0) && to.code.length == 0);
-
-        // Create the stream with the fuzzed recipient that is not a contract.
-        uint256 streamId = createDefaultStreamWithRecipient(to);
-
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
-        // Bound the withdraw amount.
-        uint128 withdrawableAmount = lockup.getWithdrawableAmount(streamId);
-        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
+        // Set the withdraw amount to the streamed amount.
+        uint128 withdrawAmount = lockup.getStreamedAmount(defaultStreamId);
 
         // Expect the withdrawal to be made to the recipient.
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.WithdrawFromLockupStream({ streamId: streamId, to: to, amount: withdrawAmount });
+        emit Events.WithdrawFromLockupStream({
+            streamId: defaultStreamId,
+            to: users.recipient,
+            amount: withdrawAmount
+        });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: streamId, to: to, amount: withdrawAmount });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Assert that the withdrawn amount was updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
@@ -373,10 +360,7 @@ abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should make the withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream} event.
-    function testFuzz_Withdraw(
-        uint256 timeWarp,
-        uint128 withdrawAmount
-    )
+    function test_Withdraw()
         external
         streamActive
         callerAuthorized
@@ -390,17 +374,14 @@ abstract contract Withdraw_Unit_Test is Shared_Lockup_Unit_Test {
         recipientDoesNotRevert
         noRecipientReentrancy
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
-
         // Create the stream with the recipient as a contract.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
-        // Bound the withdraw amount.
-        uint128 withdrawableAmount = lockup.getWithdrawableAmount(streamId);
-        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
+        // Set the withdraw amount to the streamed amount.
+        uint128 withdrawAmount = lockup.getStreamedAmount(streamId);
 
         // Expect the withdrawal to be made to the recipient.
         vm.expectCall(

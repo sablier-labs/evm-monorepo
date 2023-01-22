@@ -7,7 +7,7 @@ import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
-import { Base_Test } from "test/Base.t.sol";
+import { Base_Test } from "../Base.t.sol";
 
 /// @title IntegrationTest
 /// @notice Collections of tests run against an Ethereum Mainnet fork.
@@ -44,7 +44,7 @@ abstract contract IntegrationTest is Base_Test {
         // Fork Ethereum Mainnet.
         vm.createSelectFork({ urlOrAlias: "ethereum", blockNumber: 16_126_000 });
 
-        // Deploy all protocol contracts.
+        // Deploy the entire protocol.
         deployProtocol();
 
         // Make the asset holder the caller in this test suite.

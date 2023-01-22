@@ -11,20 +11,17 @@ import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
 contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
     /// @dev it should revert.
-    function test_RevertWhen_CallerNotAdmin(address eve) external {
-        vm.assume(eve != users.admin);
-
+    function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, eve));
-        comptroller.setFlashFee(DEFAULT_MAX_FEE);
+        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
+        comptroller.setFlashFee({ newFlashFee: DEFAULT_MAX_FEE });
     }
 
+    /// @dev The admin is the default caller in the comptroller tests.
     modifier callerAdmin() {
-        // Make the admin the caller in the rest of this test suite.
-        changePrank(users.admin);
         _;
     }
 
@@ -42,8 +39,8 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     /// @dev it should set the new flash fee and emit a {SetFlashFee} event.
-    function testFuzz_SetFlashFee(UD60x18 newFlashFee) external callerAdmin newFee {
-        newFlashFee = bound(newFlashFee, 1, DEFAULT_MAX_FEE);
+    function test_SetFlashFee() external {
+        UD60x18 newFlashFee = DEFAULT_FLASH_FEE;
 
         // Expect a {SetFlashFee} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });

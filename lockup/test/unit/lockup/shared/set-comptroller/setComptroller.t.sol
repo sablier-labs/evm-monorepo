@@ -3,29 +3,29 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 
-import { Events } from "src/libraries/Events.sol";
-
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
+import { Events } from "src/libraries/Events.sol";
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
-import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
+import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
+import { Unit_Test } from "../../../Unit.t.sol";
 
-abstract contract SetComptroller_Unit_Test is Shared_Lockup_Unit_Test {
+abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {}
+
     /// @dev it should revert.
-    function test_RevertWhen_CallerNotAdmin(address eve) external {
-        vm.assume(eve != users.admin);
-
+    function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, eve));
-        sablierV2.setComptroller(ISablierV2Comptroller(eve));
+        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
+        sablierV2.setComptroller(ISablierV2Comptroller(users.eve));
     }
 
     modifier callerAdmin() {
         // Make the admin the caller in the rest of this test suite.
-        changePrank(users.admin);
+        changePrank({ who: users.admin });
         _;
     }
 

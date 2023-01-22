@@ -2,7 +2,7 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
@@ -12,8 +12,8 @@ import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
 contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     /// @dev it should revert.
-    function test_RevertWhen_AmountTooHigh(uint256 amount) external {
-        amount = bound(amount, uint256(UINT128_MAX) + 1, UINT256_MAX);
+    function test_RevertWhen_AmountTooHigh() external {
+        uint256 amount = uint256(UINT128_MAX) + 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
         flashLoan.flashLoan({
             receiver: IERC3156FlashBorrower(address(0)),
@@ -46,13 +46,12 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee) external amountNotTooHigh assetFlashLoanable {
-        // Bound the flash fee so that the calculated fee ends up being greater than 2^128.
-        flashFee = bound(flashFee, ud(1.1e18), ud(10e18));
-        comptroller.setFlashFee(flashFee);
+    function test_RevertWhen_CalculatedFeeTooHigh() external amountNotTooHigh assetFlashLoanable {
+        // Set the comptroller flash fee so that the calculated fee ends up being greater than 2^128.
+        comptroller.setFlashFee({ newFlashFee: ud(1.1e18) });
 
         uint256 fee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: UINT128_MAX });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_FeeTooHigh.selector, fee));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_CalculatedFeeTooHigh.selector, fee));
         flashLoan.flashLoan({
             receiver: IERC3156FlashBorrower(address(0)),
             asset: address(DEFAULT_ASSET),
@@ -146,17 +145,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
 
     /// @dev it should execute the flash loan, make the ERC-20 transfers, update the protocol revenues, and emit
     /// a {FlashLoan} event.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Multiple values for the comptroller flash fee, including zero.
-    /// - Multiple values for the flash loan amount, including zero.
-    /// - Multiple values for the data bytes array, including zero length.
-    function testFuzz_FlashLoan(
-        UD60x18 comptrollerFlashFee,
-        uint128 amount,
-        bytes calldata data
-    )
+    function test_FlashLoan()
         external
         amountNotTooHigh
         assetFlashLoanable
@@ -165,8 +154,8 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         borrowDoesNotFail
         noReentrancy
     {
-        comptrollerFlashFee = bound(comptrollerFlashFee, 0, DEFAULT_MAX_FEE);
-        comptroller.setFlashFee(comptrollerFlashFee);
+        uint128 amount = 8_755_001e18;
+        bytes memory data = bytes("Hello World");
 
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = flashLoan.getProtocolRevenues(DEFAULT_ASSET);

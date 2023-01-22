@@ -382,19 +382,24 @@ contract SablierV2LockupPro is
     function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
         LockupProStream memory stream = _streams[streamId];
 
-        // Calculate the recipient's and the sender's amount.
-        uint128 recipientAmount = getWithdrawableAmount(streamId);
+        // Calculate the sender's and the recipient's amount.
         uint128 senderAmount;
+        uint128 recipientAmount = getWithdrawableAmount(streamId);
         unchecked {
             senderAmount = stream.amounts.deposit - stream.amounts.withdrawn - recipientAmount;
         }
 
-        // Load the sender and the recipient in memory, they will be needed below.
+        // Load the sender and the recipient in memory, they are needed multiple times below.
         address sender = _streams[streamId].sender;
         address recipient = _ownerOf(streamId);
 
         // Effects: mark the stream as canceled.
         _streams[streamId].status = Status.CANCELED;
+
+        // Interactions: return the assets to the sender, if any.
+        if (senderAmount > 0) {
+            stream.asset.safeTransfer({ to: sender, amount: senderAmount });
+        }
 
         if (recipientAmount > 0) {
             // Effects: add the recipient's amount to the withdrawn amount.
@@ -404,11 +409,6 @@ contract SablierV2LockupPro is
 
             // Interactions: withdraw the tokens to the recipient.
             stream.asset.safeTransfer({ to: recipient, amount: recipientAmount });
-        }
-
-        // Interactions: return the assets to the sender, if any.
-        if (senderAmount > 0) {
-            stream.asset.safeTransfer({ to: sender, amount: senderAmount });
         }
 
         // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel

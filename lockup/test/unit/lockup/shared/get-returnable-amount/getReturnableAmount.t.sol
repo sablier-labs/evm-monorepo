@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { Shared_Lockup_Unit_Test } from "../SharedTest.t.sol";
+import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
+import { Unit_Test } from "../../../Unit.t.sol";
 
-abstract contract GetReturnableAmount_Unit_Test is Shared_Lockup_Unit_Test {
+abstract contract GetReturnableAmount_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
+
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {}
 
     /// @dev it should return zero.
     function test_GetReturnableAmount_StreamNull() external {
@@ -21,13 +24,11 @@ abstract contract GetReturnableAmount_Unit_Test is Shared_Lockup_Unit_Test {
     }
 
     /// @dev it should return the correct returnable amount.
-    function testFuzz_GetReturnableAmount(uint256 timeWarp) external streamNonNull {
-        timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
-
+    function test_GetReturnableAmount() external streamNonNull {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
-        // Get the streamedAmount amount.
+        // Get the streamed amount.
         uint128 streamedAmount = lockup.getStreamedAmount(defaultStreamId);
 
         // Run the test.
