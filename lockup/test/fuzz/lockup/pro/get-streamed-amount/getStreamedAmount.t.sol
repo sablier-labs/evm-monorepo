@@ -8,7 +8,7 @@ import { Pro_Fuzz_Test } from "../Pro.t.sol";
 contract GetStreamedAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
     uint256 internal defaultStreamId;
 
-    modifier streamNonNull() {
+    modifier streamActive() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
@@ -25,9 +25,7 @@ contract GetStreamedAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// - Current time < stop time
     /// - Current time = stop time
     /// - Current time > stop time
-    function testFuzz_GetStreamedAmount_OneSegment(
-        uint40 timeWarp
-    ) external streamNonNull startTimeLessThanCurrentTime {
+    function testFuzz_GetStreamedAmount_OneSegment(uint40 timeWarp) external streamActive startTimeLessThanCurrentTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -72,7 +70,7 @@ contract GetStreamedAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// - Current time > stop time
     function testFuzz_GetStreamedAmount_CurrentMilestoneNot1st(
         uint40 timeWarp
-    ) external streamNonNull startTimeLessThanCurrentTime multipleSegments currentMilestoneNot1st {
+    ) external streamActive startTimeLessThanCurrentTime multipleSegments currentMilestoneNot1st {
         timeWarp = boundUint40(timeWarp, MAX_SEGMENTS[0].milestone, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.

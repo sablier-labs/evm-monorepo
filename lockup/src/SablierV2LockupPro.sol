@@ -88,8 +88,8 @@ contract SablierV2LockupPro is
 
     /// @inheritdoc ISablierV2Lockup
     function getReturnableAmount(uint256 streamId) external view override returns (uint128 returnableAmount) {
-        // If the stream is null, return zero.
-        if (_streams[streamId].status == Status.NULL) {
+        // When the stream is not active, return zero.
+        if (_streams[streamId].status != Status.ACTIVE) {
             return 0;
         }
 
@@ -134,9 +134,10 @@ contract SablierV2LockupPro is
 
     /// @inheritdoc ISablierV2Lockup
     function getStreamedAmount(uint256 streamId) public view override returns (uint128 streamedAmount) {
-        // If the stream is null, return zero.
-        if (_streams[streamId].status == Status.NULL) {
-            return 0;
+        // When the stream is null, return zero. When the stream is canceled or depleted, return the withdrawn
+        // amount.
+        if (_streams[streamId].status != Status.ACTIVE) {
+            return _streams[streamId].amounts.withdrawn;
         }
 
         // If the start time is greater than or equal to the block timestamp, return zero.
@@ -181,6 +182,7 @@ contract SablierV2LockupPro is
     function isCancelable(
         uint256 streamId
     ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (bool result) {
+        // A null stream dot not exist, and a canceled or depleted stream cannot be canceled anymore.
         if (_streams[streamId].status != Status.ACTIVE) {
             return false;
         }
