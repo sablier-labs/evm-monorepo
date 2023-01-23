@@ -265,7 +265,7 @@ abstract contract Cancel_Test is Shared_Test {
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount was updated.
-        uint128 actualWithdrawnAmount = sablierV2.getWithdrawnAmount(streamId);
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount + recipientAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
 
@@ -427,7 +427,7 @@ abstract contract Cancel_Test is Shared_Test {
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount was updated.
-        uint128 actualWithdrawnAmount = sablierV2.getWithdrawnAmount(streamId);
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount + recipientAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
 
