@@ -23,9 +23,9 @@ import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { Range, Segment } from "src/types/Structs.sol";
 
-import { Assertions } from "./helpers/Assertions.t.sol";
-import { Constants } from "./helpers/Constants.t.sol";
-import { Utils } from "./helpers/Utils.t.sol";
+import { Assertions } from "./shared/helpers/Assertions.t.sol";
+import { Constants } from "./shared/helpers/Constants.t.sol";
+import { Utils } from "./shared/helpers/Utils.t.sol";
 
 /// @title Base_Test
 /// @notice Base test contract that contains common logic needed by all test contracts.

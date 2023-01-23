@@ -2,16 +2,16 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { Base_Test } from "../Base.t.sol";
-import { Empty } from "../helpers/hooks/Empty.t.sol";
-import { FaultyFlashLoanReceiver } from "../helpers/flash-loan/FaultyFlashLoanReceiver.t.sol";
-import { GoodFlashLoanReceiver } from "../helpers/flash-loan/GoodFlashLoanReceiver.t.sol";
-import { ReentrantFlashLoanReceiver } from "../helpers/flash-loan/ReentrantFlashLoanReceiver.t.sol";
-import { GoodRecipient } from "../helpers/hooks/GoodRecipient.t.sol";
-import { GoodSender } from "../helpers/hooks/GoodSender.t.sol";
-import { ReentrantRecipient } from "../helpers/hooks/ReentrantRecipient.t.sol";
-import { ReentrantSender } from "../helpers/hooks/ReentrantSender.t.sol";
-import { RevertingRecipient } from "../helpers/hooks/RevertingRecipient.t.sol";
-import { RevertingSender } from "../helpers/hooks/RevertingSender.t.sol";
+import { Empty } from "../shared/hooks/Empty.t.sol";
+import { FaultyFlashLoanReceiver } from "../shared/flash-loan/FaultyFlashLoanReceiver.t.sol";
+import { GoodFlashLoanReceiver } from "../shared/flash-loan/GoodFlashLoanReceiver.t.sol";
+import { ReentrantFlashLoanReceiver } from "../shared/flash-loan/ReentrantFlashLoanReceiver.t.sol";
+import { GoodRecipient } from "../shared/hooks/GoodRecipient.t.sol";
+import { GoodSender } from "../shared/hooks/GoodSender.t.sol";
+import { ReentrantRecipient } from "../shared/hooks/ReentrantRecipient.t.sol";
+import { ReentrantSender } from "../shared/hooks/ReentrantSender.t.sol";
+import { RevertingRecipient } from "../shared/hooks/RevertingRecipient.t.sol";
+import { RevertingSender } from "../shared/hooks/RevertingSender.t.sol";
 
 /// @title Unit_Test
 /// @notice Base unit test contract that contains common logic needed by all unit test contracts.
