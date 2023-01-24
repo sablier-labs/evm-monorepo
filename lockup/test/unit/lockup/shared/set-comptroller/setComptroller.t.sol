@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
-
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
+import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
@@ -19,7 +18,9 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Adminable_CallerNotAdmin.selector, users.admin, users.eve)
+        );
         config.setComptroller(ISablierV2Comptroller(users.eve));
     }
 

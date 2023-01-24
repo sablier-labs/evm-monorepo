@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
@@ -16,7 +15,9 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
         changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Adminable_CallerNotAdmin.selector, users.admin, users.eve)
+        );
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: DEFAULT_MAX_FEE });
     }
 

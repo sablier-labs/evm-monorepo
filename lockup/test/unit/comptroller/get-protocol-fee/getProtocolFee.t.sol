@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";

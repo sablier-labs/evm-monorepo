@@ -68,6 +68,7 @@ jobs:
             optimized-out/IERC20.sol/IERC20.json
             optimized-out/IERC721.sol/IERC721.json
             optimized-out/IERC721Metadata.sol/IERC721Metadata.json
+            optimized-out/ISablierV2Adminable.sol/ISablierV2Adminable.json
             optimized-out/ISablierV2Comptroller.sol/ISablierV2Comptroller.json
             optimized-out/ISablierV2Config.sol/ISablierV2Config.json
             optimized-out/ISablierV2Lockup.sol/ISablierV2Lockup.json
@@ -75,6 +76,7 @@ jobs:
             optimized-out/ISablierV2LockupPro.sol/ISablierV2LockupPro.json
             optimized-out/ISablierV2Recipient.sol/ISablierV2Recipient.json
             optimized-out/ISablierV2Sender.sol/ISablierV2Sender.json
+            optimized-out/SablierV2Adminable.sol/SablierV2Adminable.json
             optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json
             optimized-out/SablierV2Config.sol/ISablierV2Config.json
             optimized-out/SablierV2Lockup.sol/SablierV2Lockup.json

@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { Adminable } from "@prb/contracts/access/Adminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { ISablierV2Config } from "../interfaces/ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "../interfaces/ISablierV2Lockup.sol";
 import { Errors } from "../libraries/Errors.sol";
-import { Events } from "../libraries/Events.sol";
 import { Status } from "../types/Enums.sol";
 import { SablierV2Config } from "./SablierV2Config.sol";
 import { SablierV2FlashLoan } from "./SablierV2FlashLoan.sol";

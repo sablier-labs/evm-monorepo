@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { Adminable } from "@prb/contracts/access/Adminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { SablierV2Adminable } from "./abstracts/SablierV2Adminable.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { Events } from "./libraries/Events.sol";
 
@@ -12,7 +12,7 @@ import { Events } from "./libraries/Events.sol";
 /// @dev This contract implements the {ISablierV2Comptroller} interface.
 contract SablierV2Comptroller is
     ISablierV2Comptroller, // one dependency
-    Adminable // one dependency
+    SablierV2Adminable // one dependency
 {
     /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE

@@ -12,7 +12,16 @@ import { CreateLockupAmounts, Range, Segment } from "../types/Structs.sol";
 /// @notice Library with events emitted across all contracts.
 library Events {
     /*//////////////////////////////////////////////////////////////////////////
-                                     SABLIER-V2
+                                SABLIER-V2-ADMINABLE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when the admin is transferred.
+    /// @param oldAdmin The address of the old admin.
+    /// @param newAdmin The address of the new admin.
+    event TransferAdmin(address indexed oldAdmin, address indexed newAdmin);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     SABLIER-V2-CONFIG
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the contract admin claims all protocol revenues accrued for the provided ERC-20 asset.

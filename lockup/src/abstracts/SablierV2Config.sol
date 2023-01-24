@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { Adminable } from "@prb/contracts/access/Adminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
@@ -10,12 +9,13 @@ import { ISablierV2Config } from "../interfaces/ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { Events } from "../libraries/Events.sol";
+import { SablierV2Adminable } from "./SablierV2Adminable.sol";
 
 /// @title SablierV2Config
 /// @dev Abstract contract that implements the {ISablierV2Config} interface.
 abstract contract SablierV2Config is
     ISablierV2Config, // no dependencies
-    Adminable // one dependency
+    SablierV2Adminable // one dependency
 {
     using SafeERC20 for IERC20;
 

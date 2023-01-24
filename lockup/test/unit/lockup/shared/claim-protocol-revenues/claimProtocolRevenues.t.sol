@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
@@ -20,7 +18,9 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
         changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Adminable_CallerNotAdmin.selector, users.admin, users.eve)
+        );
         config.claimProtocolRevenues(DEFAULT_ASSET);
     }
 
