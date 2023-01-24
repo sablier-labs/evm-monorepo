@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
+import { ISablierV2Adminable } from "src/interfaces/ISablierV2Adminable.sol";
 
 import { Unit_Test } from "../Unit.t.sol";
 
-/// @title FlashLoan_Unit_Test
-/// @notice Common testing logic needed across {SablierV2FlashLoan} unit tests.
-abstract contract FlashLoan_Unit_Test is Unit_Test {
+/// @title Adminable_Unit_Test
+/// @notice Common testing logic needed across {SablierV2Adminable} unit tests.
+abstract contract Adminable_Unit_Test is Unit_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    SablierV2FlashLoan internal flashLoan;
+    ISablierV2Adminable internal adminable;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -21,10 +21,7 @@ abstract contract FlashLoan_Unit_Test is Unit_Test {
     function setUp() public virtual override {
         Unit_Test.setUp();
 
-        // Cast the linear contract as the `SablierV2FlashLoan` contract.
-        flashLoan = SablierV2FlashLoan(address(linear));
-
-        // Set the default flash fee in the comptroller.
-        comptroller.setFlashFee({ newFlashFee: DEFAULT_FLASH_FEE });
+        // Cast the linear contract as the `ISablierV2Adminable` contract.
+        adminable = ISablierV2Adminable(address(linear));
     }
 }

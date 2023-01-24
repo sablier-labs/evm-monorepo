@@ -21,7 +21,7 @@ abstract contract FlashLoan_Fuzz_Test is Fuzz_Test {
     function setUp() public virtual override {
         Fuzz_Test.setUp();
 
-        // We cast the linear contract as the flash loan contract.
+        // Cast the linear contract as the flash loan contract.
         flashLoan = SablierV2FlashLoan(address(linear));
 
         // Set the default flash fee in the comptroller.
