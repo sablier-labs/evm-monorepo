@@ -33,7 +33,7 @@ abstract contract Unit_Test is Base_Test {
         // Deploy all Sablier contracts.
         deploySablierContracts();
 
-        // Approve all contracts to spend tokens fromm the users.
+        // Approve all contracts to spend ERC-20 assets fromm the users.
         approveSablierContracts();
 
         // Label the test contracts.
@@ -53,7 +53,7 @@ abstract contract Unit_Test is Base_Test {
         vm.label({ account: address(dai), newLabel: "Dai" });
         vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
         vm.label({ account: address(goodSender), newLabel: "Good Sender" });
-        vm.label({ account: address(nonCompliantToken), newLabel: "Non-Compliant Token" });
+        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
         vm.label({ account: address(reentrantRecipient), newLabel: "Reentrant Recipient" });
         vm.label({ account: address(reentrantSender), newLabel: "Reentrant Sender" });
         vm.label({ account: address(revertingRecipient), newLabel: "Reverting Recipient" });

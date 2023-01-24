@@ -54,6 +54,11 @@ contract SablierV2LockupLinear is
                             PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @inheritdoc ISablierV2Lockup
+    function getAsset(uint256 streamId) external view override returns (IERC20 asset) {
+        asset = _streams[streamId].asset;
+    }
+
     /// @inheritdoc ISablierV2LockupLinear
     function getCliffTime(uint256 streamId) external view override returns (uint40 cliffTime) {
         cliffTime = _streams[streamId].range.cliff;
@@ -62,11 +67,6 @@ contract SablierV2LockupLinear is
     /// @inheritdoc ISablierV2Lockup
     function getDepositAmount(uint256 streamId) external view override returns (uint128 depositAmount) {
         depositAmount = _streams[streamId].amounts.deposit;
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function getERC20Token(uint256 streamId) external view override returns (IERC20 token) {
-        token = _streams[streamId].token;
     }
 
     /// @inheritdoc ISablierV2LockupLinear
@@ -205,7 +205,7 @@ contract SablierV2LockupLinear is
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        IERC20 token,
+        IERC20 asset,
         bool cancelable,
         Durations calldata durations,
         Broker calldata broker
@@ -223,7 +223,7 @@ contract SablierV2LockupLinear is
         }
 
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(token);
+        UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 
         // Checks: check the fees and calculate the fee amounts.
         LockupCreateAmounts memory amounts = Helpers.checkAndCalculateFees(
@@ -242,7 +242,7 @@ contract SablierV2LockupLinear is
                 recipient: recipient,
                 sender: sender,
                 range: range,
-                token: token
+                asset: asset
             })
         );
     }
@@ -252,13 +252,13 @@ contract SablierV2LockupLinear is
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        IERC20 token,
+        IERC20 asset,
         bool cancelable,
         Range calldata range,
         Broker calldata broker
     ) external returns (uint256 streamId) {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(token);
+        UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 
         // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
         // deposit amount.
@@ -278,7 +278,7 @@ contract SablierV2LockupLinear is
                 recipient: recipient,
                 sender: sender,
                 range: range,
-                token: token
+                asset: asset
             })
         );
     }
@@ -335,12 +335,12 @@ contract SablierV2LockupLinear is
             }
 
             // Interactions: withdraw the tokens to the recipient.
-            stream.token.safeTransfer({ to: recipient, amount: recipientAmount });
+            stream.asset.safeTransfer({ to: recipient, amount: recipientAmount });
         }
 
-        // Interactions: return the tokens to the sender, if any.
+        // Interactions: return the assets to the sender, if any.
         if (senderAmount > 0) {
-            stream.token.safeTransfer({ to: sender, amount: senderAmount });
+            stream.asset.safeTransfer({ to: sender, amount: senderAmount });
         }
 
         // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
@@ -385,7 +385,7 @@ contract SablierV2LockupLinear is
         address sender; // ──┐
         bool cancelable; // ─┘
         address recipient;
-        IERC20 token;
+        IERC20 asset;
         address broker;
     }
 
@@ -404,25 +404,25 @@ contract SablierV2LockupLinear is
             sender: params.sender,
             status: Status.ACTIVE,
             range: params.range,
-            token: params.token
+            asset: params.asset
         });
 
         // Effects: bump the next stream id and record the protocol fee.
         // Using unchecked arithmetic here because theses calculations cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
-            _protocolRevenues[params.token] += params.amounts.protocolFee;
+            _protocolRevenues[params.asset] += params.amounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.
         _mint({ to: params.recipient, tokenId: streamId });
 
-        // Interactions: perform the ERC-20 transfer to deposit the gross amount of tokens.
-        params.token.safeTransferFrom({ from: msg.sender, to: address(this), amount: params.amounts.netDeposit });
+        // Interactions: perform the ERC-20 transfer to deposit the net amount of assets.
+        params.asset.safeTransferFrom({ from: msg.sender, to: address(this), amount: params.amounts.netDeposit });
 
         // Interactions: perform the ERC-20 transfer to pay the broker fee, if not zero.
         if (params.amounts.brokerFee > 0) {
-            params.token.safeTransferFrom({ from: msg.sender, to: params.broker, amount: params.amounts.brokerFee });
+            params.asset.safeTransferFrom({ from: msg.sender, to: params.broker, amount: params.amounts.brokerFee });
         }
 
         // Emit an event.
@@ -432,7 +432,7 @@ contract SablierV2LockupLinear is
             sender: params.sender,
             recipient: params.recipient,
             amounts: params.amounts,
-            token: params.token,
+            asset: params.asset,
             cancelable: params.cancelable,
             range: params.range,
             broker: params.broker
@@ -483,7 +483,7 @@ contract SablierV2LockupLinear is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        stream.token.safeTransfer({ to: to, amount: amount });
+        stream.asset.safeTransfer({ to: to, amount: amount });
 
         // Interactions: if the `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up

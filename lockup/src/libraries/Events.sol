@@ -14,11 +14,11 @@ library Events {
                                      SABLIER-V2
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the contract owner claims all protocol revenues accrued for the provided token.
-    /// @param owner The address of the current contract owner.
-    /// @param token The address of the ERC-20 token the protocol revenues have been claimed for.
-    /// @param protocolRevenues The amount of protocol revenues claimed, in units of the token's decimals.
-    event ClaimProtocolRevenues(address indexed owner, IERC20 indexed token, uint128 protocolRevenues);
+    /// @notice Emitted when the contract admin claims all protocol revenues accrued for the provided ERC-20 asset.
+    /// @param admin The address of the current contract admin.
+    /// @param asset The contract address of the ERC-20 asset the protocol revenues have been claimed for.
+    /// @param protocolRevenues The amount of protocol revenues claimed, in units of the asset's decimals.
+    event ClaimProtocolRevenues(address indexed admin, IERC20 indexed asset, uint128 protocolRevenues);
 
     /// @notice Emitted when the contract admin sets a new comptroller contract.
     /// @param admin The address of the current contract admin.
@@ -34,12 +34,12 @@ library Events {
                                SABLIER-V2-COMPTROLLER
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the contract admin sets a new protocol fee for the provided token.
+    /// @notice Emitted when the contract admin sets a new protocol fee for the provided ERC-20 asset.
     /// @param admin The address of the current contract admin.
-    /// @param token The address of the ERC-20 token the new protocol fee was set for.
-    /// @param oldFee The old global fee for the provided token, as an UD60x18 number.
-    /// @param newFee The new global fee for the provided token, as an UD60x18 number.
-    event SetProtocolFee(address indexed admin, IERC20 indexed token, UD60x18 oldFee, UD60x18 newFee);
+    /// @param asset The contract address of the ERC-20 asset the new protocol fee was set for.
+    /// @param oldFee The old global fee, as an UD60x18 number.
+    /// @param newFee The new global fee, as an UD60x18 number.
+    event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldFee, UD60x18 newFee);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-LOCKUP
@@ -49,8 +49,8 @@ library Events {
     /// @param streamId The id of the stream.
     /// @param sender The address of the sender.
     /// @param recipient The address of the recipient.
-    /// @param senderAmount The amount of tokens returned to the sender, in units of the token's decimals.
-    /// @param recipientAmount The amount of tokens withdrawn to the recipient, in units of the token's decimals.
+    /// @param senderAmount The amount of ERC-20 assets returned to the sender, in units of the asset's decimals.
+    /// @param recipientAmount The amount of ERC-20 assets withdrawn to the recipient, in units of the asset's decimals.
     event CancelLockupStream(
         uint256 indexed streamId,
         address indexed sender,
@@ -62,11 +62,11 @@ library Events {
     /// @notice Emitted when a lockup linear stream is created.
     /// @param streamId The id of the newly created stream.
     /// @param funder The address which has funded the stream.
-    /// @param sender The address from which to stream the tokens, who will have the ability to cancel the stream.
-    /// @param recipient The address toward which to stream the tokens.
+    /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
+    /// @param recipient The address toward which to stream the assets.
     /// @param amounts A struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii)
-    /// the broker fee amount, each in units of the token's decimals.
-    /// @param token The address of the ERC-20 token used for streaming.
+    /// the broker fee amount, each in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
     /// and (iii) the stop time of the stream, all as Unix timestamps.
@@ -77,7 +77,7 @@ library Events {
         address indexed sender,
         address indexed recipient,
         LockupCreateAmounts amounts,
-        IERC20 token,
+        IERC20 asset,
         bool cancelable,
         Range range,
         address broker
@@ -86,12 +86,12 @@ library Events {
     /// @notice Emitted when a lockup pro stream is created.
     /// @param streamId The id of the newly created stream.
     /// @param funder The address which has funded the stream.
-    /// @param sender The address from which to stream the tokens, who will have the ability to cancel the stream.
-    /// @param recipient The address toward which to stream the tokens.
+    /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
+    /// @param recipient The address toward which to stream the assets.
     /// @param amounts A struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii)
-    /// the broker fee amount, each in units of the token's decimals.
+    /// the broker fee amount, each in units of the asset's decimals.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
-    /// @param token The address of the ERC-20 token used for streaming.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param startTime The Unix timestamp for when the stream will start.
     /// @param stopTime The Unix timestamp for when the stream will stop.
@@ -103,7 +103,7 @@ library Events {
         address indexed recipient,
         LockupCreateAmounts amounts,
         Segment[] segments,
-        IERC20 token,
+        IERC20 asset,
         bool cancelable,
         uint40 startTime,
         uint40 stopTime,
@@ -114,9 +114,9 @@ library Events {
     /// @param streamId The id of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
 
-    /// @notice Emitted when tokens are withdrawn from a lockup stream.
+    /// @notice Emitted when assets are withdrawn from a lockup stream.
     /// @param streamId The id of the stream.
-    /// @param to The address that has received the withdrawn tokens.
-    /// @param amount The amount of tokens withdrawn, in units of the token's decimals.
+    /// @param to The address that has received the withdrawn assets.
+    /// @param amount The amount of assets withdrawn, in units of the asset's decimals.
     event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, uint128 amount);
 }

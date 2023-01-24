@@ -27,23 +27,23 @@ interface ISablierV2 is IAdminable {
     /// @return The address of the SablierV2Comptroller contract.
     function comptroller() external view returns (ISablierV2Comptroller);
 
-    /// @notice Queries the protocol revenues accrued for the provided token, in units of the token's decimals.
-    /// @param token The address of the token to make the query for.
-    function getProtocolRevenues(IERC20 token) external view returns (uint128 protocolRevenues);
+    /// @notice Queries the protocol revenues accrued for the provided ERC-20 asset, in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset to make the query for.
+    function getProtocolRevenues(IERC20 asset) external view returns (uint128 protocolRevenues);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Claims all protocol revenues accrued for the provided token.
+    /// @notice Claims all protocol revenues accrued for the provided ERC-20 asset.
     ///
     /// @dev Emits a {ClaimProtocolRevenues} event.
     ///
     /// Requirements:
     /// - The caller must be the owner of the contract.
     ///
-    /// @param token The address of the token to claim the protocol revenues for.
-    function claimProtocolRevenues(IERC20 token) external;
+    /// @param asset The contract address of the ERC-20 asset to claim the protocol revenues for.
+    function claimProtocolRevenues(IERC20 asset) external;
 
     /// @notice Sets the SablierV2Comptroller contract. The comptroller is in charge of the protocol configuration,
     /// handling such values as the protocol fees.

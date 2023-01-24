@@ -37,7 +37,7 @@ abstract contract SablierV2 is
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Protocol revenues mapped by token addresses.
+    /// @dev Protocol revenues mapped by ERC-20 asset addresses.
     mapping(IERC20 => uint128) internal _protocolRevenues;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -59,8 +59,8 @@ abstract contract SablierV2 is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
-    function getProtocolRevenues(IERC20 token) external view override returns (uint128 protocolRevenues) {
-        protocolRevenues = _protocolRevenues[token];
+    function getProtocolRevenues(IERC20 asset) external view override returns (uint128 protocolRevenues) {
+        protocolRevenues = _protocolRevenues[asset];
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -68,21 +68,21 @@ abstract contract SablierV2 is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2
-    function claimProtocolRevenues(IERC20 token) external override onlyAdmin {
+    function claimProtocolRevenues(IERC20 asset) external override onlyAdmin {
         // Checks: the protocol revenues are not zero.
-        uint128 protocolRevenues = _protocolRevenues[token];
+        uint128 protocolRevenues = _protocolRevenues[asset];
         if (protocolRevenues == 0) {
-            revert Errors.SablierV2Lockup_NoProtocolRevenues(token);
+            revert Errors.SablierV2Lockup_NoProtocolRevenues(asset);
         }
 
         // Effects: set the protocol revenues to zero.
-        _protocolRevenues[token] = 0;
+        _protocolRevenues[asset] = 0;
 
         // Interactions: perform the ERC-20 transfer to pay the protocol revenues.
-        token.safeTransfer(msg.sender, protocolRevenues);
+        asset.safeTransfer(msg.sender, protocolRevenues);
 
         // Emit an event.
-        emit Events.ClaimProtocolRevenues(msg.sender, token, protocolRevenues);
+        emit Events.ClaimProtocolRevenues(msg.sender, asset, protocolRevenues);
     }
 
     /// @inheritdoc ISablierV2

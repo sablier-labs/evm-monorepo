@@ -17,8 +17,8 @@ library Errors {
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
     error SablierV2Lockup_NetDepositAmountZero();
 
-    /// @notice Emitted when attempting to claim protocol revenues for a token that did not accrue any revenues.
-    error SablierV2Lockup_NoProtocolRevenues(IERC20 token);
+    /// @notice Emitted when attempting to claim protocol revenues for an asset that did not accrue any revenues.
+    error SablierV2Lockup_NoProtocolRevenues(IERC20 asset);
 
     /// @notice Emitted when the protocol fee is greater than the maximum fee permitted.
     error SablierV2Lockup_ProtocolFeeTooHigh(UD60x18 protocolFee, UD60x18 maxFee);
@@ -45,7 +45,7 @@ library Errors {
         uint128 withdrawableAmount
     );
 
-    /// @notice Emitted when attempting to withdraw zero tokens from a stream.
+    /// @notice Emitted when attempting to withdraw zero assets from a stream.
     /// @notice The id of the stream.
     error SablierV2Lockup_WithdrawAmountZero(uint256 streamId);
 

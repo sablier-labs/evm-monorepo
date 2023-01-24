@@ -22,21 +22,21 @@ interface ISablierV2Lockup is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Queries the amount deposited in the stream, in units of the token's decimals.
+    /// @notice Queries the address of the ERC-20 asset used for streaming.
+    /// @param streamId The id of the stream to make the query for.
+    /// @return asset The contract address of the ERC-20 asset used for streaming.
+    function getAsset(uint256 streamId) external view returns (IERC20 asset);
+
+    /// @notice Queries the amount deposited in the stream, in units of the asset's decimals.
     /// @param streamId The id of the stream to make the query for.
     function getDepositAmount(uint256 streamId) external view returns (uint128 depositAmount);
-
-    /// @notice Queries the ERC-20 token used for streaming.
-    /// @param streamId The id of the stream to make the query for.
-    /// @return token The ERC-20 token used for streaming.
-    function getERC20Token(uint256 streamId) external view returns (IERC20 token);
 
     /// @notice Queries the recipient of the stream.
     /// @param streamId The id of the stream to make the query for.
     function getRecipient(uint256 streamId) external view returns (address recipient);
 
     /// @notice Calculates the amount that the sender would be returned if the stream was canceled, in units of the
-    /// token's decimals.
+    /// asset's decimals.
     /// @param streamId The id of the stream to make the query for.
     function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount);
 
@@ -56,15 +56,15 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream to make the query for.
     function getStopTime(uint256 streamId) external view returns (uint40 stopTime);
 
-    /// @notice Calculates the amount that has been streamed to the recipient, in units of the token's decimals.
+    /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
     /// @param streamId The id of the stream to make the query for.
     function getStreamedAmount(uint256 streamId) external view returns (uint128 streamedAmount);
 
-    /// @notice Calculates the amount that the recipient can withdraw from the stream, in units of the token's decimals.
+    /// @notice Calculates the amount that the recipient can withdraw from the stream, in units of the asset's decimals.
     /// @param streamId The id of the stream to make the query for.
     function getWithdrawableAmount(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
-    /// @notice Queries the amount withdrawn from the stream, in units of the token's decimals.
+    /// @notice Queries the amount withdrawn from the stream, in units of the asset's decimals.
     /// @param streamId The id of the stream to make the query for.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
@@ -92,7 +92,8 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream NFT to burn.
     function burn(uint256 streamId) external;
 
-    /// @notice Cancels the stream and transfers any remaining amounts to the sender and the recipient.
+    /// @notice Cancels multiple streams and. for each stream, transfers any remaining assets to the sender and
+    /// the recipient.
     ///
     /// @dev Emits a {CancelLockupStream} event.
     ///
@@ -109,7 +110,7 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream to cancel.
     function cancel(uint256 streamId) external;
 
-    /// @notice Cancels multiple streams and transfers any remaining amounts to the sender and the recipient.
+    /// @notice Cancels multiple streams and transfers any remaining assets to the sender and the recipient.
     ///
     /// @dev Emits multiple {CancelLockupStream} events.
     ///
@@ -143,7 +144,7 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream to renounce.
     function renounce(uint256 streamId) external;
 
-    /// @notice Withdraws the provided amount of tokens from the stream to the provide address `to`.
+    /// @notice Withdraws the provided amount of assets from the stream to the provided address `to`.
     ///
     /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
     ///
@@ -158,8 +159,8 @@ interface ISablierV2Lockup is
     /// - `amount` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamId The id of the stream to withdraw.
-    /// @param to The address that receives the withdrawn tokens.
-    /// @param amount The amount to withdraw, in units of the token's decimals.
+    /// @param to The address that receives the withdrawn assets.
+    /// @param amount The amount to withdraw, in units of the asset's decimals.
     function withdraw(uint256 streamId, address to, uint128 amount) external;
 
     /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.
@@ -173,10 +174,10 @@ interface ISablierV2Lockup is
     /// - All from `withdraw`.
     ///
     /// @param streamId The id of the stream to withdraw.
-    /// @param to The address that receives the withdrawn tokens.
+    /// @param to The address that receives the withdrawn assets.
     function withdrawMax(uint256 streamId, address to) external;
 
-    /// @notice Withdraws tokens from multiple streams to the provided address `to`.
+    /// @notice Withdraws assets from multiple streams to the provided address `to`.
     ///
     /// @dev Emits multiple {WithdrawFromLockupStream} and {Transfer} events.
     ///
@@ -190,7 +191,7 @@ interface ISablierV2Lockup is
     /// - Each amount in `amounts` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamIds The ids of the streams to withdraw.
-    /// @param to The address that receives the withdrawn tokens, if the `msg.sender` is not the stream sender.
-    /// @param amounts The amounts to withdraw, in units of the token's decimals.
+    /// @param to The address that receives the withdrawn assets, if the `msg.sender` is not the stream sender.
+    /// @param amounts The amounts to withdraw, in units of the asset's decimals.
     function withdrawMultiple(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external;
 }

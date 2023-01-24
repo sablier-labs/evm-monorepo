@@ -57,7 +57,7 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         vm.assume(depositAmount != 0);
 
-        // Mint enough tokens to the sender.
+        // Mint enough assets to the sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
@@ -65,7 +65,7 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
             params.createWithRange.sender,
             params.createWithRange.recipient,
             depositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             params.createWithRange.cancelable,
             params.createWithRange.range,
             Broker({ addr: address(0), fee: ZERO })
@@ -103,7 +103,7 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
         uint128 streamedAmount = calculateStreamedAmount(currentTime, depositAmount);
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
-        // Mint enough tokens to the sender.
+        // Mint enough assets to the sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
@@ -111,7 +111,7 @@ contract GetWithdrawableAmount_Linear_Test is Linear_Test {
             params.createWithRange.sender,
             params.createWithRange.recipient,
             depositAmount,
-            params.createWithRange.token,
+            params.createWithRange.asset,
             params.createWithRange.cancelable,
             params.createWithRange.range,
             Broker({ addr: address(0), fee: ZERO })

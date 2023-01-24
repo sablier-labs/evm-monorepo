@@ -18,7 +18,7 @@ contract SablierV2Comptroller is
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Global fees mapped by token addresses.
+    /// @dev Global fees mapped by ERC-20 asset addresses.
     mapping(IERC20 => UD60x18) internal _protocolFees;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -35,8 +35,8 @@ contract SablierV2Comptroller is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Comptroller
-    function getProtocolFee(IERC20 token) external view override returns (UD60x18 protocolFee) {
-        protocolFee = _protocolFees[token];
+    function getProtocolFee(IERC20 asset) external view override returns (UD60x18 protocolFee) {
+        protocolFee = _protocolFees[asset];
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -44,12 +44,12 @@ contract SablierV2Comptroller is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Comptroller
-    function setProtocolFee(IERC20 token, UD60x18 newProtocolFee) external onlyAdmin {
+    function setProtocolFee(IERC20 asset, UD60x18 newFee) external onlyAdmin {
         // Effects: set the new global fee.
-        UD60x18 oldProtocolFee = _protocolFees[token];
-        _protocolFees[token] = newProtocolFee;
+        UD60x18 oldFee = _protocolFees[asset];
+        _protocolFees[asset] = newFee;
 
         // Emit an event.
-        emit Events.SetProtocolFee(msg.sender, token, oldProtocolFee, newProtocolFee);
+        emit Events.SetProtocolFee({ admin: msg.sender, asset: asset, oldFee: oldFee, newFee: newFee });
     }
 }

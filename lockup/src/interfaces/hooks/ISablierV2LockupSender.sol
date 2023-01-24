@@ -14,7 +14,7 @@ interface ISablierV2LockupSender {
     ///
     /// @param streamId The id of the stream that was canceled.
     /// @param caller The address of the original `msg.sender` address that triggered the cancellation.
-    /// @param recipientAmount The amount of tokens withdrawn to the recipient, in units of the token's decimals.
-    /// @param senderAmount The amount of tokens returned to the sender, in units of the token's decimals.
+    /// @param recipientAmount The amount of assets withdrawn to the recipient, in units of the asset's decimals.
+    /// @param senderAmount The amount of assets returned to the sender, in units of the asset's decimals.
     function onStreamCanceled(uint256 streamId, address caller, uint128 recipientAmount, uint128 senderAmount) external;
 }

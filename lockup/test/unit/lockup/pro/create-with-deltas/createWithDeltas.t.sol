@@ -135,7 +135,7 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
             params.createWithDeltas.recipient,
             params.createWithDeltas.grossDepositAmount,
             segments,
-            params.createWithDeltas.token,
+            params.createWithDeltas.asset,
             params.createWithDeltas.cancelable,
             deltas,
             params.createWithDeltas.broker
@@ -171,15 +171,15 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
         // Make the sender the funder in this test.
         address funder = params.createWithDeltas.sender;
 
-        // Expect the tokens to be transferred from the funder to the SablierV2LockupPro contract.
+        // Expect the assets to be transferred from the funder to the SablierV2LockupPro contract.
         vm.expectCall(
-            address(params.createWithDeltas.token),
+            address(params.createWithDeltas.asset),
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
         // Expect the broker fee to be paid to the broker.
         vm.expectCall(
-            address(params.createWithDeltas.token),
+            address(params.createWithDeltas.asset),
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, params.createWithDeltas.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
@@ -192,7 +192,7 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
             params.createWithDeltas.recipient,
             params.createWithDeltas.grossDepositAmount,
             segments,
-            params.createWithDeltas.token,
+            params.createWithDeltas.asset,
             params.createWithDeltas.cancelable,
             deltas,
             params.createWithDeltas.broker
@@ -206,7 +206,7 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
         assertEq(actualStream.segments, segments);
         assertEq(actualStream.startTime, defaultStream.startTime);
         assertEq(actualStream.status, defaultStream.status);
-        assertEq(actualStream.token, defaultStream.token);
+        assertEq(actualStream.asset, defaultStream.asset);
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = pro.nextStreamId();
@@ -228,13 +228,13 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
         milestonesCalculationsDoNotOverflow
     {
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = pro.getProtocolRevenues(params.createWithDeltas.token);
+        uint128 initialProtocolRevenues = pro.getProtocolRevenues(params.createWithDeltas.asset);
 
         // Create the default stream.
         createDefaultStreamWithDeltas();
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = pro.getProtocolRevenues(params.createWithDeltas.token);
+        uint128 actualProtocolRevenues = pro.getProtocolRevenues(params.createWithDeltas.asset);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -257,7 +257,7 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
             recipient: params.createWithDeltas.recipient,
             amounts: DEFAULT_CREATE_AMOUNTS,
             segments: params.createWithDeltas.segments,
-            token: params.createWithDeltas.token,
+            asset: params.createWithDeltas.asset,
             cancelable: params.createWithDeltas.cancelable,
             startTime: DEFAULT_START_TIME,
             stopTime: DEFAULT_STOP_TIME,

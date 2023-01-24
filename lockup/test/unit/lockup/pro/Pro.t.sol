@@ -30,7 +30,7 @@ abstract contract Pro_Test is Lockup_Test {
         address recipient;
         uint128 grossDepositAmount;
         Segment[] segments;
-        IERC20 token;
+        IERC20 asset;
         bool cancelable;
         uint40[] deltas;
         Broker broker;
@@ -41,7 +41,7 @@ abstract contract Pro_Test is Lockup_Test {
         address recipient;
         uint128 grossDepositAmount;
         Segment[] segments;
-        IERC20 token;
+        IERC20 asset;
         bool cancelable;
         uint40 startTime;
         Broker broker;
@@ -70,14 +70,14 @@ abstract contract Pro_Test is Lockup_Test {
         params.createWithDeltas.sender = users.sender;
         params.createWithDeltas.recipient = users.recipient;
         params.createWithDeltas.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
-        params.createWithDeltas.token = dai;
+        params.createWithDeltas.asset = dai;
         params.createWithDeltas.cancelable = true;
         params.createWithDeltas.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
 
         params.createWithMilestones.sender = users.sender;
         params.createWithMilestones.recipient = users.recipient;
         params.createWithMilestones.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
-        params.createWithMilestones.token = dai;
+        params.createWithMilestones.asset = dai;
         params.createWithMilestones.cancelable = true;
         params.createWithMilestones.startTime = DEFAULT_START_TIME;
         params.createWithMilestones.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
@@ -97,11 +97,11 @@ abstract contract Pro_Test is Lockup_Test {
         defaultStream.startTime = params.createWithMilestones.startTime;
         defaultStream.status = Status.ACTIVE;
         defaultStream.stopTime = DEFAULT_STOP_TIME;
-        defaultStream.token = params.createWithMilestones.token;
+        defaultStream.asset = params.createWithMilestones.asset;
 
         // Set the default protocol fee.
         comptroller.setProtocolFee(dai, DEFAULT_PROTOCOL_FEE);
-        comptroller.setProtocolFee(IERC20(address(nonCompliantToken)), DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee(IERC20(address(nonCompliantAsset)), DEFAULT_PROTOCOL_FEE);
 
         // Make the sender the default caller in all subsequent tests.
         changePrank(users.sender);
@@ -190,7 +190,7 @@ abstract contract Pro_Test is Lockup_Test {
             params.createWithMilestones.recipient,
             params.createWithMilestones.grossDepositAmount,
             params.createWithMilestones.segments,
-            params.createWithMilestones.token,
+            params.createWithMilestones.asset,
             params.createWithMilestones.cancelable,
             params.createWithMilestones.startTime,
             params.createWithMilestones.broker
@@ -204,7 +204,7 @@ abstract contract Pro_Test is Lockup_Test {
             params.createWithDeltas.recipient,
             params.createWithDeltas.grossDepositAmount,
             params.createWithDeltas.segments,
-            params.createWithDeltas.token,
+            params.createWithDeltas.asset,
             params.createWithDeltas.cancelable,
             params.createWithDeltas.deltas,
             params.createWithDeltas.broker
@@ -218,7 +218,7 @@ abstract contract Pro_Test is Lockup_Test {
             params.createWithDeltas.recipient,
             params.createWithDeltas.grossDepositAmount,
             params.createWithDeltas.segments,
-            params.createWithDeltas.token,
+            params.createWithDeltas.asset,
             params.createWithDeltas.cancelable,
             deltas,
             params.createWithDeltas.broker
@@ -232,7 +232,7 @@ abstract contract Pro_Test is Lockup_Test {
             params.createWithMilestones.recipient,
             grossDepositAmount,
             params.createWithMilestones.segments,
-            params.createWithMilestones.token,
+            params.createWithMilestones.asset,
             params.createWithMilestones.cancelable,
             params.createWithMilestones.startTime,
             params.createWithMilestones.broker
@@ -247,7 +247,7 @@ abstract contract Pro_Test is Lockup_Test {
             params.createWithMilestones.recipient,
             params.createWithMilestones.grossDepositAmount,
             params.createWithMilestones.segments,
-            params.createWithMilestones.token,
+            params.createWithMilestones.asset,
             isCancelable,
             params.createWithMilestones.startTime,
             params.createWithMilestones.broker
@@ -261,7 +261,7 @@ abstract contract Pro_Test is Lockup_Test {
             recipient,
             params.createWithMilestones.grossDepositAmount,
             params.createWithMilestones.segments,
-            params.createWithMilestones.token,
+            params.createWithMilestones.asset,
             params.createWithMilestones.cancelable,
             params.createWithMilestones.startTime,
             params.createWithMilestones.broker
@@ -275,7 +275,7 @@ abstract contract Pro_Test is Lockup_Test {
             params.createWithMilestones.recipient,
             params.createWithMilestones.grossDepositAmount,
             segments,
-            params.createWithMilestones.token,
+            params.createWithMilestones.asset,
             params.createWithMilestones.cancelable,
             params.createWithMilestones.startTime,
             params.createWithMilestones.broker
@@ -289,7 +289,7 @@ abstract contract Pro_Test is Lockup_Test {
             params.createWithMilestones.recipient,
             params.createWithMilestones.grossDepositAmount,
             params.createWithMilestones.segments,
-            params.createWithMilestones.token,
+            params.createWithMilestones.asset,
             params.createWithMilestones.cancelable,
             params.createWithMilestones.startTime,
             params.createWithMilestones.broker
@@ -305,7 +305,7 @@ abstract contract Pro_Test is Lockup_Test {
             params.createWithMilestones.recipient,
             params.createWithMilestones.grossDepositAmount,
             segments,
-            params.createWithMilestones.token,
+            params.createWithMilestones.asset,
             params.createWithMilestones.cancelable,
             params.createWithMilestones.startTime,
             params.createWithMilestones.broker

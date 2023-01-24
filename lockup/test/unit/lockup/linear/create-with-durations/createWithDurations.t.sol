@@ -86,15 +86,15 @@ contract CreateWithDurations_Linear_Test is Linear_Test {
         // Make the sender the funder in this test.
         address funder = params.createWithDurations.sender;
 
-        // Expect the tokens to be transferred from the funder to the SablierV2LockupLinear contract.
+        // Expect the assets to be transferred from the funder to the SablierV2LockupLinear contract.
         vm.expectCall(
-            address(params.createWithDurations.token),
+            address(params.createWithDurations.asset),
             abi.encodeCall(IERC20.transferFrom, (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT))
         );
 
         // Expect the broker fee to be paid to the broker, if the amount is not zero.
         vm.expectCall(
-            address(params.createWithDurations.token),
+            address(params.createWithDurations.asset),
             abi.encodeCall(
                 IERC20.transferFrom,
                 (funder, params.createWithDurations.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
@@ -118,7 +118,7 @@ contract CreateWithDurations_Linear_Test is Linear_Test {
         assertEq(actualStream.range, range);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.status, defaultStream.status);
-        assertEq(actualStream.token, defaultStream.token);
+        assertEq(actualStream.asset, defaultStream.asset);
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
@@ -138,13 +138,13 @@ contract CreateWithDurations_Linear_Test is Linear_Test {
         totalDurationCalculationDoesNotOverflow
     {
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = linear.getProtocolRevenues(params.createWithDurations.token);
+        uint128 initialProtocolRevenues = linear.getProtocolRevenues(params.createWithDurations.asset);
 
         // Create the default stream.
         createDefaultStreamWithDurations();
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(params.createWithDurations.token);
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(params.createWithDurations.asset);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues);
     }
@@ -164,7 +164,7 @@ contract CreateWithDurations_Linear_Test is Linear_Test {
             sender: params.createWithDurations.sender,
             recipient: params.createWithDurations.recipient,
             amounts: DEFAULT_CREATE_AMOUNTS,
-            token: params.createWithDurations.token,
+            asset: params.createWithDurations.asset,
             cancelable: params.createWithDurations.cancelable,
             range: DEFAULT_RANGE,
             broker: params.createWithDurations.broker.addr

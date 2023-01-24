@@ -50,13 +50,13 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// Requirements:
     /// - All from `createWithMilestones`.
     ///
-    /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
+    /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address toward which to stream the tokens.
-    /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the token's
+    /// @param recipient The address toward which to stream the assets.
+    /// @param grossDepositAmount The gross amount of assets to be deposited, inclusive of fees, in units of the asset's
     /// decimals.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
-    /// @param token The address of the ERC-20 token to use for streaming.
+    /// @param asset The contract address of the ERC-20 asset to use for streaming.
     /// @param cancelable A boolean that indicates whether the stream is cancelable or not.
     /// @param deltas The differences between the Unix timestamp milestones used to compose the custom streaming
     /// curve.
@@ -68,7 +68,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
         address recipient,
         uint128 grossDepositAmount,
         Segment[] memory segments,
-        IERC20 token,
+        IERC20 asset,
         bool cancelable,
         uint40[] memory deltas,
         Broker calldata broker
@@ -89,16 +89,16 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// - The segment amounts summed up must be equal to the net deposit amount.
     /// - The first segment's milestone must be greater than or equal to `startTime`.
     /// - `startTime` must not be greater than the milestone of the last segment.
-    /// - `msg.sender` must have allowed this contract to spend at least `grossDepositAmount` tokens.
+    /// - `msg.sender` must have allowed this contract to spend at least `grossDepositAmount` assets.
     /// - If set, `broker.fee` must not be greater than `MAX_FEE`.
     ///
-    /// @param sender The address from which to stream the tokens, which will have the ability to cancel the stream.
+    /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address toward which to stream the tokens.
-    /// @param grossDepositAmount The gross amount of tokens to be deposited, inclusive of fees, in units of the token's
+    /// @param recipient The address toward which to stream the assets.
+    /// @param grossDepositAmount The gross amount of assets to be deposited, inclusive of fees, in units of the asset's
     /// decimals.
     /// @param segments  The segments the protocol uses to compose the custom streaming curve.
-    /// @param token The address of the ERC-20 token to use for streaming.
+    /// @param asset The contract address of the ERC-20 asset to use for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param startTime The Unix timestamp for when the stream will start.
     /// @return streamId The id of the newly created stream.
@@ -107,7 +107,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
         address recipient,
         uint128 grossDepositAmount,
         Segment[] memory segments,
-        IERC20 token,
+        IERC20 asset,
         bool cancelable,
         uint40 startTime,
         Broker calldata broker
