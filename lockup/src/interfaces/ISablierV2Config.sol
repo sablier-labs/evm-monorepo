@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
@@ -9,10 +8,10 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { Status } from "../types/Enums.sol";
 import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 
-/// @title ISablierV2
-/// @notice The common interface between all Sablier V2 streaming contracts. There are only a handful of
-/// administration and configuration functions defined here.
-interface ISablierV2 is IAdminable {
+/// @title ISablierV2Config
+/// @notice The common configuration between all Sablier V2 streaming contracts, which contains administrative
+/// functions and configurable options.
+interface ISablierV2Config is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

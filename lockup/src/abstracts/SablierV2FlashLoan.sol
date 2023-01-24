@@ -9,12 +9,12 @@ import { IERC3156FlashLender } from "erc3156/contracts/interfaces/IERC3156FlashL
 
 import { Errors } from "../libraries/Errors.sol";
 import { Events } from "../libraries/Events.sol";
-import { SablierV2 } from "./SablierV2.sol";
+import { SablierV2Config } from "./SablierV2Config.sol";
 
 /// @dev Abstract contract that implements the {IERC3156FlashLender} interface.
 abstract contract SablierV2FlashLoan is
     IERC3156FlashLender, // no dependencies
-    SablierV2 // three dependencies
+    SablierV2Config // three dependencies
 {
     using SafeERC20 for IERC20;
 

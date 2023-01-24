@@ -15,7 +15,7 @@ abstract contract GetProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test
 
     /// @dev it should return zero.
     function test_GetProtocolRevenues_ProtocolRevenuesZero() external {
-        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);
+        uint128 actualProtocolRevenues = config.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }
@@ -30,7 +30,7 @@ abstract contract GetProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test
 
     /// @dev it should return the correct protocol revenues.
     function test_GetProtocolRevenues() external protocolRevenuesNotZero {
-        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);
+        uint128 actualProtocolRevenues = config.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
-import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
+import { ISablierV2Config } from "src/interfaces/ISablierV2Config.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
@@ -48,9 +48,9 @@ abstract contract Pro_Unit_Test is Unit_Test, Pro_Shared_Test {
         Unit_Test.setUp();
         Pro_Shared_Test.setUp();
 
-        // Cast the linear contract as `ISablierV2` and `ISablierV2Lockup`.
+        // Cast the linear contract as `ISablierV2Config` and `ISablierV2Lockup`.
+        config = ISablierV2Lockup(pro);
         lockup = ISablierV2Lockup(pro);
-        sablierV2 = ISablierV2Lockup(pro);
 
         // Set the default protocol fee.
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: DEFAULT_PROTOCOL_FEE });

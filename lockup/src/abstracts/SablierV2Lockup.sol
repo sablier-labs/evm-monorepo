@@ -5,19 +5,19 @@ import { Adminable } from "@prb/contracts/access/Adminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { ISablierV2 } from "../interfaces/ISablierV2.sol";
+import { ISablierV2Config } from "../interfaces/ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "../interfaces/ISablierV2Lockup.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { Events } from "../libraries/Events.sol";
 import { Status } from "../types/Enums.sol";
-import { SablierV2 } from "./SablierV2.sol";
+import { SablierV2Config } from "./SablierV2Config.sol";
 import { SablierV2FlashLoan } from "./SablierV2FlashLoan.sol";
 
 /// @title SablierV2Lockup
 /// @dev Abstract contract that implements the {ISablierV2Lockup} interface and other common logic.
 abstract contract SablierV2Lockup is
-    SablierV2, // three dependencies
+    SablierV2Config, // three dependencies
     ISablierV2Lockup, // four dependencies
     SablierV2FlashLoan // five dependencies
 {
@@ -70,7 +70,7 @@ abstract contract SablierV2Lockup is
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
         UD60x18 maxFee
-    ) SablierV2(initialAdmin, initialComptroller, maxFee) {
+    ) SablierV2Config(initialAdmin, initialComptroller, maxFee) {
         nextStreamId = 1;
     }
 

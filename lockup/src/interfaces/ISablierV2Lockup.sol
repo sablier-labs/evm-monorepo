@@ -7,13 +7,13 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Status } from "../types/Enums.sol";
-import { ISablierV2 } from "./ISablierV2.sol";
+import { ISablierV2Config } from "./ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 
 /// @title ISablierV2Lockup
 /// @notice The common interface between all Sablier V2 lockup streaming contracts.
 interface ISablierV2Lockup is
-    ISablierV2, // no dependencies
+    ISablierV2Config, // no dependencies
     IERC721Metadata // two dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
