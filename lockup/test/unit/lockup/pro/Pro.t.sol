@@ -31,6 +31,10 @@ import { Withdraw_Unit_Test } from "../shared/withdraw/withdraw.t.sol";
 import { WithdrawMax_Unit_Test } from "../shared/withdraw-max/withdrawMax.t.sol";
 import { WithdrawMultiple_Unit_Test } from "../shared/withdraw-multiple/withdrawMultiple.t.sol";
 
+/*//////////////////////////////////////////////////////////////////////////
+                            NON-SHARED ABSTRACT TEST
+//////////////////////////////////////////////////////////////////////////*/
+
 /// @title Pro_Unit_Test
 /// @notice Common testing logic needed across {SablierV2LockupPro} unit tests.
 abstract contract Pro_Unit_Test is Unit_Test, Pro_Shared_Test {
@@ -56,6 +60,10 @@ abstract contract Pro_Unit_Test is Unit_Test, Pro_Shared_Test {
         changePrank({ who: users.sender });
     }
 }
+
+/*//////////////////////////////////////////////////////////////////////////
+                                SHARED TESTS
+//////////////////////////////////////////////////////////////////////////*/
 
 /*//////////////////////////////////////////////////////////////////////////
                                 SHARED TESTS

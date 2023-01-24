@@ -15,6 +15,10 @@ import { Withdraw_Fuzz_Test } from "../shared/withdraw/withdraw.t.sol";
 import { WithdrawMax_Fuzz_Test } from "../shared/withdraw-max/withdrawMax.t.sol";
 import { WithdrawMultiple_Fuzz_Test } from "../shared/withdraw-multiple/withdrawMultiple.t.sol";
 
+/*//////////////////////////////////////////////////////////////////////////
+                            NON-SHARED ABSTRACT TEST
+//////////////////////////////////////////////////////////////////////////*/
+
 /// @title Linear_Fuzz_Test
 /// @notice Common testing logic needed across {SablierV2LockupLinear} fuzz tests.
 abstract contract Linear_Fuzz_Test is Fuzz_Test, Linear_Shared_Test {
@@ -36,6 +40,10 @@ abstract contract Linear_Fuzz_Test is Fuzz_Test, Linear_Shared_Test {
         changePrank({ who: users.sender });
     }
 }
+
+/*//////////////////////////////////////////////////////////////////////////
+                                SHARED TESTS
+//////////////////////////////////////////////////////////////////////////*/
 
 contract Cancel_Linear_Fuzz_Test is Linear_Fuzz_Test, Cancel_Fuzz_Test {
     function setUp() public virtual override(Linear_Fuzz_Test, Cancel_Fuzz_Test) {
