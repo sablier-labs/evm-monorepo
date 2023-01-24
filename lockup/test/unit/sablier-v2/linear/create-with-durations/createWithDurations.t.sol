@@ -6,6 +6,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
+import { Status } from "src/types/Enums.sol";
 import { Amounts, Durations, LinearStream, Range } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
@@ -106,9 +107,9 @@ contract CreateWithDurations_LinearTest is LinearTest {
         LinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.isCancelable, defaultStream.isCancelable);
-        assertEq(actualStream.isEntity, defaultStream.isEntity);
-        assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.range, range);
+        assertEq(actualStream.sender, defaultStream.sender);
+        assertEq(actualStream.status, defaultStream.status);
         assertEq(actualStream.token, defaultStream.token);
 
         // Assert that the next stream id was bumped.

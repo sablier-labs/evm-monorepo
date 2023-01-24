@@ -5,11 +5,11 @@ withdrawMultiple.t.sol
    ├── when the array counts are not equal
    │  └── it should revert
    └── when the array counts are equal
-      ├── when the stream ids array points only to non-existent streams
+      ├── when the stream ids array points only to null streams
       │  └── it should do nothing
-      ├── when the stream ids array points to some non-existent streams
-      │  └── it should ignore the non-existent streams and make the withdrawals for the existent streams
-      └── when the stream ids array points only to existent streams
+      ├── when the stream ids array points to some null streams
+      │  └── it should ignore the null streams and make the withdrawals for the non-null ones
+      └── when the stream ids array points only to non-null streams
          ├── when the caller is unauthorized for any stream
          │  ├── when the caller is the sender
          │  │  └── it should revert
@@ -33,8 +33,8 @@ withdrawMultiple.t.sol
                   │  └── it should make the withdrawals and update the withdrawn amounts
                   └── when the caller is the recipient
                      ├── when all streams are ended
-                     │  └── it should make the withdrawals, emit multiple Withdraw events, and delete the streams
+                     │  └── it should make the withdrawals, emit multiple Withdraw events, and mark the streams as depleted
                      ├── when all streams are ongoing
                      │  └── it should make the withdrawals, emit multiple Withdraw events, and update the withdrawn amounts
                      └── when some streams are ended and some streams are ongoing
-                        └── it should make the withdrawals, emit multiple Withdraw events, delete the ended streams, and update the withdrawn amounts
+                        └── it should make the withdrawals, emit multiple Withdraw events, mark the ended streams as depleted, and update the withdrawn amounts

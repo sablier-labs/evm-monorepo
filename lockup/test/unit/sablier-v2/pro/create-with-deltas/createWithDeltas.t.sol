@@ -202,10 +202,10 @@ contract CreateWithDeltas_ProTest is ProTest {
         ProStream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.isCancelable, defaultStream.isCancelable);
-        assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.segments, segments);
         assertEq(actualStream.startTime, defaultStream.startTime);
+        assertEq(actualStream.status, defaultStream.status);
         assertEq(actualStream.token, defaultStream.token);
 
         // Assert that the next stream id was bumped.

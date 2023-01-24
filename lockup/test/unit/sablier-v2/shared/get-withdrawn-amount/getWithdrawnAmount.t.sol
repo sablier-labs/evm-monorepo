@@ -14,21 +14,21 @@ abstract contract GetWithdrawnAmount_Test is SharedTest {
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawnAmount_StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        uint128 actualWithdrawnAmount = sablierV2.getWithdrawnAmount(nonStreamId);
+    function test_GetWithdrawnAmount_StreamNull() external {
+        uint256 nullStreamId = 1729;
+        uint128 actualWithdrawnAmount = sablierV2.getWithdrawnAmount(nullStreamId);
         uint128 expectedWithdrawnAmount = 0;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
-    modifier streamExistent() {
+    modifier streamNonNull() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function testFuzz_GetWithdrawnAmount_NoWithdrawals(uint256 timeWarp) external streamExistent {
+    function testFuzz_GetWithdrawnAmount_NoWithdrawals(uint256 timeWarp) external streamNonNull {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -44,7 +44,7 @@ abstract contract GetWithdrawnAmount_Test is SharedTest {
     function testFuzz_GetWithdrawnAmount_WithWithdrawals(
         uint256 timeWarp,
         uint128 withdrawAmount
-    ) external streamExistent {
+    ) external streamNonNull {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_TIME, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.

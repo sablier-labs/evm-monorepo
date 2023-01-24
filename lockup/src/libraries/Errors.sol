@@ -15,7 +15,7 @@ library Errors {
     error SablierV2_BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxFee);
 
     /// @notice Emitted when attempting to claim protocol revenues for a token that did not accrue any revenues.
-    error SablierV2_ClaimZeroProtocolRevenues(IERC20 token);
+    error SablierV2_NoProtocolRevenues(IERC20 token);
 
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
     error SablierV2_NetDepositAmountZero();
@@ -29,14 +29,14 @@ library Errors {
     /// @notice Emitted when attempting to renounce an already non-cancelable stream.
     error SablierV2_RenounceNonCancelableStream(uint256 streamId);
 
-    /// @notice Emitted when the stream id points to an existent stream.
-    error SablierV2_StreamExistent(uint256 streamId);
+    /// @notice Emitted when the stream id points to a stream that is not canceled or depleted.
+    error SablierV2_StreamNotCanceledOrDepleted(uint256 streamId);
+
+    /// @notice Emitted when the stream id points to a stream that is not active.
+    error SablierV2_StreamNotActive(uint256 streamId);
 
     /// @notice Emitted when attempting to cancel a stream that is already non-cancelable.
     error SablierV2_StreamNonCancelable(uint256 streamId);
-
-    /// @notice Emitted when the stream id points to a nonexistent stream.
-    error SablierV2_StreamNonExistent(uint256 streamId);
 
     /// @notice Emitted when the `msg.sender` is not authorized to perform some action.
     error SablierV2_Unauthorized(uint256 streamId, address caller);

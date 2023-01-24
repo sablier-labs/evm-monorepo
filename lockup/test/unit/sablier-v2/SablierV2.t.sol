@@ -5,16 +5,6 @@ import { UnitTest } from "../UnitTest.t.sol";
 
 abstract contract SablierV2Test is UnitTest {
     /*//////////////////////////////////////////////////////////////////////////
-                                     ASSERTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Checks that the given stream was deleted.
-    function assertDeleted(uint256 streamId) internal virtual;
-
-    /// @dev Checks that the given streams were deleted.
-    function assertDeleted(uint256[] memory streamIds) internal virtual;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                   CREATE FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 

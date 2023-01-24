@@ -6,6 +6,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
+import { Status } from "src/types/Enums.sol";
 import { Amounts, Broker, CreateAmounts, ProStream, Segment } from "src/types/Structs.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
@@ -131,11 +132,11 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
         // Assert that the stream was created.
         ProStream memory actualStream = pro.getStream(vars.streamId);
         assertEq(actualStream.amounts, Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
-        assertEq(actualStream.isCancelable, params.cancelable);
-        assertEq(actualStream.isEntity, true);
+        assertEq(actualStream.isCancelable, defaultStream.cancelable);
         assertEq(actualStream.segments, segments);
-        assertEq(actualStream.sender, params.sender);
-        assertEq(actualStream.startTime, params.startTime);
+        assertEq(actualStream.sender, defaultStream.sender);
+        assertEq(actualStream.startTime, defaultStream.startTime);
+        assertEq(actualStream.status, defaultStream.status);
         assertEq(actualStream.token, token);
 
         // Assert that the next stream id was bumped.

@@ -6,6 +6,7 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
+import { Status } from "src/types/Enums.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
@@ -53,17 +54,17 @@ abstract contract WithdrawMultiple_Test is SharedTest {
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_OnlyNonExistentStreams() external toNonZeroAddress arraysEqual {
-        uint256 nonStreamId = 1729;
-        uint256[] memory nonStreamIds = Solarray.uint256s(nonStreamId);
+    function test_RevertWhen_OnlyNullStreams() external toNonZeroAddress arraysEqual {
+        uint256 nullStreamId = 1729;
+        uint256[] memory nonStreamIds = Solarray.uint256s(nullStreamId);
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT);
         sablierV2.withdrawMultiple({ streamIds: nonStreamIds, to: users.recipient, amounts: amounts });
     }
 
-    /// @dev it should ignore the non-existent streams and make the withdrawals for the existent streams.
-    function test_RevertWhen_SomeNonExistentStreams() external toNonZeroAddress arraysEqual {
-        uint256 nonStreamId = 1729;
-        uint256[] memory streamIds = Solarray.uint256s(nonStreamId, defaultStreamIds[0]);
+    /// @dev it should ignore the null streams and make the withdrawals for the non-null ones.
+    function test_RevertWhen_SomeNullStreams() external toNonZeroAddress arraysEqual {
+        uint256 nullStreamId = 1729;
+        uint256[] memory streamIds = Solarray.uint256s(nullStreamId, defaultStreamIds[0]);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -75,14 +76,14 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
     }
 
-    modifier onlyExistentStreams() {
+    modifier onlyNonNullStreams() {
         _;
     }
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty(
         address eve
-    ) external toNonZeroAddress arraysEqual onlyExistentStreams {
+    ) external toNonZeroAddress arraysEqual onlyNonNullStreams {
         vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
 
         // Make Eve the caller in this test.
@@ -98,7 +99,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         external
         toNonZeroAddress
         arraysEqual
-        onlyExistentStreams
+        onlyNonNullStreams
     {
         // Make the sender the caller in this test.
         changePrank(users.sender);
@@ -115,7 +116,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         external
         toNonZeroAddress
         arraysEqual
-        onlyExistentStreams
+        onlyNonNullStreams
     {
         // Transfer all streams to Alice.
         sablierV2.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -131,7 +132,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
     /// @dev it should revert.
     function testFuzz_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty(
         address eve
-    ) external toNonZeroAddress arraysEqual onlyExistentStreams {
+    ) external toNonZeroAddress arraysEqual onlyNonNullStreams {
         vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
 
         // Create a stream with Eve as the recipient.
@@ -154,7 +155,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         external
         toNonZeroAddress
         arraysEqual
-        onlyExistentStreams
+        onlyNonNullStreams
     {
         // Transfer one of the streams to Eve.
         sablierV2.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -176,7 +177,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
     /// @dev it should make the withdrawals and update the withdrawn amounts.
     function testFuzz_WithdrawMultiple_CallerApprovedOperator(
         address to
-    ) external toNonZeroAddress arraysEqual onlyExistentStreams callerAuthorizedAllStreams {
+    ) external toNonZeroAddress arraysEqual onlyNonNullStreams callerAuthorizedAllStreams {
         vm.assume(to != address(0));
 
         // Approve the operator for all streams.
@@ -213,7 +214,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         external
         toNonZeroAddress
         arraysEqual
-        onlyExistentStreams
+        onlyNonNullStreams
         callerAuthorizedAllStreams
         callerRecipient
     {
@@ -235,7 +236,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         external
         toNonZeroAddress
         arraysEqual
-        onlyExistentStreams
+        onlyNonNullStreams
         callerAuthorizedAllStreams
         callerRecipient
         allAmountsNotZero
@@ -261,7 +262,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         _;
     }
 
-    /// @dev it should make the withdrawals, emit multiple Withdraw events, and delete the streams.
+    /// @dev it should make the withdrawals, emit multiple Withdraw events, and mark the streams as depleted.
     function testFuzz_WithdrawMultiple_AllStreamsEnded(
         uint256 timeWarp,
         address to
@@ -269,7 +270,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         external
         toNonZeroAddress
         arraysEqual
-        onlyExistentStreams
+        onlyNonNullStreams
         callerAuthorizedAllStreams
         callerRecipient
         allAmountsNotZero
@@ -295,8 +296,12 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_NET_DEPOSIT_AMOUNT, DEFAULT_NET_DEPOSIT_AMOUNT);
         sablierV2.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: amounts });
 
-        // Assert that the streams were deleted.
-        assertDeleted(Solarray.uint256s(defaultStreamIds[0], defaultStreamIds[1]));
+        // Assert that the streams were marked as depleted.
+        Status actualStatus0 = sablierV2.getStatus(defaultStreamIds[0]);
+        Status actualStatus1 = sablierV2.getStatus(defaultStreamIds[1]);
+        Status expectedStatus = Status.DEPLETED;
+        assertEq(actualStatus0, expectedStatus);
+        assertEq(actualStatus1, expectedStatus);
 
         // Assert that the NFTs weren't burned.
         address actualNFTOwner0 = sablierV2.ownerOf(defaultStreamIds[0]);
@@ -315,7 +320,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         external
         toNonZeroAddress
         arraysEqual
-        onlyExistentStreams
+        onlyNonNullStreams
         callerAuthorizedAllStreams
         callerRecipient
         allAmountsNotZero
@@ -353,8 +358,8 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount);
     }
 
-    /// @dev it should make the withdrawals, emit multiple Withdraw events, delete the ended streams, and update
-    /// the withdrawn amounts.
+    /// @dev it should make the withdrawals, emit multiple Withdraw events, mark the ended streams as depleted,
+    /// and update the withdrawn amounts.
     function testFuzz_WithdrawMultiple_SomeStreamsEndedSomeStreamsOngoing(
         uint256 timeWarp,
         address to,
@@ -363,7 +368,7 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         external
         toNonZeroAddress
         arraysEqual
-        onlyExistentStreams
+        onlyNonNullStreams
         callerAuthorizedAllStreams
         callerRecipient
         allAmountsNotZero
@@ -398,8 +403,10 @@ abstract contract WithdrawMultiple_Test is SharedTest {
         uint128[] memory amounts = Solarray.uint128s(endedWithdrawAmount, ongoingWithdrawAmount);
         sablierV2.withdrawMultiple({ streamIds: streamIds, to: to, amounts: amounts });
 
-        // Assert that the ended stream was deleted.
-        assertDeleted(endedStreamId);
+        // Assert that the ended stream was marked as depleted.
+        Status actualStatus = sablierV2.getStatus(endedStreamId);
+        Status expectedStatus = Status.DEPLETED;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the ended stream NFT was not burned.
         address actualEndedNFTOwner = sablierV2.getRecipient(endedStreamId);

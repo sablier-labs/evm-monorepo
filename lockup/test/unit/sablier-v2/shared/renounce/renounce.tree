@@ -1,7 +1,12 @@
 renounce.t.sol
-├── when the stream does not exist
-│  └── it should revert
-└── when the stream exists
+├── when the stream is not active
+│  ├── when the stream is null
+│  │  └── it should revert
+│  ├── when the stream is canceled
+│  │  └── it should revert
+│  └── when the stream is depleted
+│     └── it should revert
+└── when the stream is active
    ├── when the caller is not the sender
    │  └── it should revert
    └── when the caller is the sender

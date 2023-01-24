@@ -7,19 +7,19 @@ import { ProTest } from "../ProTest.t.sol";
 
 contract GetStream_ProTest is ProTest {
     /// @dev it should return a zeroed out stream.
-    function test_GetStream_StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        ProStream memory actualStream = pro.getStream(nonStreamId);
+    function test_GetStream_StreamNull() external {
+        uint256 nullStreamId = 1729;
+        ProStream memory actualStream = pro.getStream(nullStreamId);
         ProStream memory expectedStream;
         assertEq(actualStream, expectedStream);
     }
 
-    modifier streamExistent() {
+    modifier streamNonNull() {
         _;
     }
 
     /// @dev it should return the stream.
-    function test_GetStream() external streamExistent {
+    function test_GetStream() external streamNonNull {
         uint256 streamId = createDefaultStream();
         ProStream memory actualStream = pro.getStream(streamId);
         ProStream memory expectedStream = defaultStream;

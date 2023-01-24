@@ -1,0 +1,10 @@
+getStatus.t.sol
+├── when the stream was not created
+│  └── it should return NULL
+└── when the stream was created
+   ├── when nothing else happened
+   │  └── it should return ACTIVE
+   ├── when the stream was canceled
+   │  └── it should return CANCELED
+   └── when the stream was fully withdrawn
+      └── it should return DEPLETED

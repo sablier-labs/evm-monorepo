@@ -126,9 +126,9 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         LinearStream memory actualStream = linear.getStream(vars.streamId);
         assertEq(actualStream.amounts, Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.isCancelable, params.cancelable);
-        assertEq(actualStream.isEntity, true);
-        assertEq(actualStream.sender, params.sender);
         assertEq(actualStream.range, params.range);
+        assertEq(actualStream.sender, params.sender);
+        assertEq(actualStream.status, defaultStream.status);
         assertEq(actualStream.token, token);
 
         // Assert that the next stream id was bumped.

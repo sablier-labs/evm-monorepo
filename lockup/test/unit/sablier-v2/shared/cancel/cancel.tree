@@ -1,7 +1,12 @@
 cancel.t.sol
-├── when the stream does not exist
-│  └── it should revert
-└── when the stream exists
+├── when the stream is not active
+│  ├── when the stream is null
+│  │  └── it should revert
+│  ├── when the stream is canceled
+│  │  └── it should revert
+│  └── when the stream is depleted
+│     └── it should revert
+└── when the stream is active
    ├── when the stream is non-cancelable
    │  └── it should revert
    └── when the stream is cancelable
@@ -26,7 +31,7 @@ cancel.t.sol
          │           ├── when there is reentrancy
          │           │  └── it should ignore the revert and cancel the stream
          │           └── when there is no reentrancy
-         │              └── it should perform the ERC-20 transfers, emit a Cancel event, and cancel the stream
+         │              └── it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount and emit a {Cancel} event
          └── when the caller is the recipient
             ├── when the sender is not a contract
             │  └── it should cancel the stream
@@ -40,4 +45,4 @@ cancel.t.sol
                      ├── when there is reentrancy
                      │  └── it should ignore the revert and cancel the stream
                      └── when there is no reentrancy
-                        └── it should perform the ERC-20 transfers, emit a Cancel event, and cancel the stream
+                        └── it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, and emit a {Cancel} event

@@ -1,9 +1,9 @@
 cancelMultiple.t.sol
-├── when the stream ids array points only to non-existent streams
+├── when the stream ids array points only to null streams
 │  └── it should do nothing
-├── when the stream ids array points to some non-existent streams
-│  └── it should ignore the non-existent streams and cancel the existent streams
-└── when the stream ids array points only to existent streams
+├── when the stream ids array points to some null streams
+│  └── it should ignore the null streams and cancel the non-null ones
+└── when the stream ids array points only to non-null streams
    ├── when all streams are non-cancelable
    │  └── it should do nothing
    ├── when some of the streams are non-cancelable
@@ -25,6 +25,6 @@ cancelMultiple.t.sol
       │     └── it should revert
       └── when the caller is authorized for all streams
          ├── when the caller is the sender
-         │  └── it should perform the ERC-20 transfers, emit Cancel events, and cancel the streams
-         └── when the caller is the recipient of all streams
-            └── it should perform the ERC-20 transfers, emit Cancel events, and cancel the streams
+         │  └── it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit Cancel events
+         └── when the caller is the recipient
+            └── it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit Cancel events

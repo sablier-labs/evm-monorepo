@@ -29,7 +29,7 @@ abstract contract ClaimProtocolRevenues_Test is SharedTest {
 
     /// @dev it should revert.
     function test_RevertWhen_ProtocolRevenuesZero() external callerAdmin {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_ClaimZeroProtocolRevenues.selector, dai));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_NoProtocolRevenues.selector, dai));
         sablierV2.claimProtocolRevenues(dai);
     }
 

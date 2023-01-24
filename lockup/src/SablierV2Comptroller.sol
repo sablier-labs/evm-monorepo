@@ -5,9 +5,8 @@ import { Adminable } from "@prb/contracts/access/Adminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Events } from "./libraries/Events.sol";
-
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
+import { Events } from "./libraries/Events.sol";
 
 /// @title SablierV2Comptroller
 /// @dev This contract implements the ISablierV2Comptroller interface.

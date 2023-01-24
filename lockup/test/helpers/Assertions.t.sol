@@ -5,6 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 
+import { Status } from "src/types/Enums.sol";
 import { Amounts, LinearStream, ProStream, Range, Segment } from "src/types/Structs.sol";
 
 abstract contract Assertions is PRBTest, PRBMathAssertions {
@@ -37,8 +38,8 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     function assertEq(LinearStream memory a, LinearStream memory b) internal {
         assertEq(a.amounts, b.amounts);
         assertEq(a.isCancelable, b.isCancelable);
-        assertEq(a.isEntity, b.isEntity);
         assertEq(a.sender, b.sender);
+        assertEq(a.status, b.status);
         assertEq(a.range, b.range);
         assertEq(a.token, b.token);
     }
@@ -46,11 +47,18 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two `ProStream` struct entities.
     function assertEq(ProStream memory a, ProStream memory b) internal {
         assertEq(a.isCancelable, b.isCancelable);
-        assertEq(a.isEntity, b.isEntity);
         assertEq(a.segments, b.segments);
         assertEq(a.sender, b.sender);
         assertEq(a.startTime, b.startTime);
+        assertEq(a.status, b.status);
         assertEq(a.token, b.token);
+    }
+
+    /// @dev Compares two `Range` struct entities.
+    function assertEq(Range memory a, Range memory b) internal {
+        assertEqUint40(a.cliff, b.cliff);
+        assertEqUint40(a.start, b.start);
+        assertEqUint40(a.stop, b.stop);
     }
 
     /// @dev Compares two `Segment[]` arrays.
@@ -63,11 +71,9 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         }
     }
 
-    /// @dev Compares two `Range` struct entities.
-    function assertEq(Range memory a, Range memory b) internal {
-        assertEqUint40(a.cliff, b.cliff);
-        assertEqUint40(a.start, b.start);
-        assertEqUint40(a.stop, b.stop);
+    /// @dev Compares two `Status` enum values.
+    function assertEq(Status a, Status b) internal {
+        assertEq(uint8(a), uint8(b));
     }
 
     /// @dev Compares two `uint128` numbers.

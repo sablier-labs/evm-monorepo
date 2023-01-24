@@ -7,19 +7,19 @@ import { ProTest } from "../ProTest.t.sol";
 
 contract GetSegments_ProTest is ProTest {
     /// @dev it should return an empty array.
-    function test_GetSegments_StreamNonExistents() external {
-        uint256 nonStreamId = 1729;
-        Segment[] memory actualSegments = pro.getSegments(nonStreamId);
+    function test_GetSegments_StreamNulls() external {
+        uint256 nullStreamId = 1729;
+        Segment[] memory actualSegments = pro.getSegments(nullStreamId);
         Segment[] memory expectedSegments;
         assertEq(actualSegments, expectedSegments);
     }
 
-    modifier streamExistent() {
+    modifier streamNonNull() {
         _;
     }
 
     /// @dev it should return the correct segments.
-    function test_GetSegments() external streamExistent {
+    function test_GetSegments() external streamNonNull {
         uint256 streamId = createDefaultStream();
         Segment[] memory actualSegments = pro.getSegments(streamId);
         Segment[] memory expectedSegments = DEFAULT_SEGMENTS;

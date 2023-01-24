@@ -11,22 +11,22 @@ import { LinearTest } from "../LinearTest.t.sol";
 contract GetWithdrawableAmount_LinearTest is LinearTest {
     uint256 internal defaultStreamId;
 
-    /// @dev When the stream does not exist, it should return zero.
-    function test_GetWithdrawableAmount_StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(nonStreamId);
+    /// @dev it should return zero.
+    function test_GetWithdrawableAmount_StreamNull() external {
+        uint256 nullStreamId = 1729;
+        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(nullStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    modifier streamExistent() {
+    modifier streamNonNull() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function testFuzz_GetWithdrawableAmount_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external streamExistent {
+    function testFuzz_GetWithdrawableAmount_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external streamNonNull {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
         uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
@@ -53,7 +53,7 @@ contract GetWithdrawableAmount_LinearTest is LinearTest {
     function testFuzz_GetWithdrawableAmount_NoWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount
-    ) external streamExistent cliffTimeLessThanOrEqualToCurrentTime {
+    ) external streamNonNull cliffTimeLessThanOrEqualToCurrentTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         vm.assume(depositAmount != 0);
 
@@ -94,7 +94,7 @@ contract GetWithdrawableAmount_LinearTest is LinearTest {
         uint40 timeWarp,
         uint128 depositAmount,
         uint128 withdrawAmount
-    ) external streamExistent cliffTimeLessThanOrEqualToCurrentTime {
+    ) external streamNonNull cliffTimeLessThanOrEqualToCurrentTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         depositAmount = boundUint128(depositAmount, 10_000, UINT128_MAX);
 

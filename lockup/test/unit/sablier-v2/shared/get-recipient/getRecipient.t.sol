@@ -5,19 +5,19 @@ import { SharedTest } from "../SharedTest.t.sol";
 
 abstract contract GetRecipient_Test is SharedTest {
     /// @dev it should return zero.
-    function test_GetRecipient_StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        address actualRecipient = sablierV2.getRecipient(nonStreamId);
+    function test_GetRecipient_StreamNull() external {
+        uint256 nullStreamId = 1729;
+        address actualRecipient = sablierV2.getRecipient(nullStreamId);
         address expectedRecipient = address(0);
         assertEq(actualRecipient, expectedRecipient);
     }
 
-    modifier streamExistent() {
+    modifier streamNonNull() {
         _;
     }
 
     /// @dev it should return the correct recipient.
-    function test_GetRecipient() external streamExistent {
+    function test_GetRecipient() external streamNonNull {
         uint256 streamId = createDefaultStream();
         address actualRecipient = sablierV2.getRecipient(streamId);
         address expectedRecipient = users.recipient;

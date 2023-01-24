@@ -4,6 +4,7 @@ pragma solidity >=0.8.13 <0.9.0;
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
 import { Events } from "src/libraries/Events.sol";
+import { Status } from "src/types/Enums.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
@@ -20,7 +21,7 @@ abstract contract WithdrawMax_Test is SharedTest {
         changePrank(users.recipient);
     }
 
-    /// @dev it should make the withdrawal and delete the stream.
+    /// @dev it should make the withdrawal and mark the stream as depleted.
     function test_WithdrawMax_CurrentTimeEqualToStopTime() external {
         // Warp to the end of the stream.
         vm.warp({ timestamp: DEFAULT_STOP_TIME });
@@ -28,8 +29,10 @@ abstract contract WithdrawMax_Test is SharedTest {
         // Make the withdrawal.
         sablierV2.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
-        // Assert that the stream was deleted.
-        assertDeleted(defaultStreamId);
+        // Assert that the stream was marked as depleted.
+        Status actualStatus = sablierV2.getStatus(defaultStreamId);
+        Status expectedStatus = Status.DEPLETED;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the NFT was not burned.
         address actualNFTowner = sablierV2.ownerOf({ tokenId: defaultStreamId });

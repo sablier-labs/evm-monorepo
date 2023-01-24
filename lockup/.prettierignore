@@ -1,6 +1,7 @@
 # directories
 .github/workflows/
 .yarn/
+**/broadcast
 **/cache
 **/lib
 **/out

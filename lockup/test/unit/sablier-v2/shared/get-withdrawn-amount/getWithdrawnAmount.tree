@@ -1,7 +1,7 @@
 getWithdrawnAmount.t.sol
-├── when the stream does not exist
+├── when the stream is null
 │  └── it should return zero
-└── when the stream exists
+└── when the stream is not null
    ├── when there weren't withdrawals
    │  └── it should return zero
    └── when there were withdrawals

@@ -9,16 +9,16 @@ import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.
 import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Errors } from "./libraries/Errors.sol";
-import { Events } from "./libraries/Events.sol";
-import { Helpers } from "./libraries/Helpers.sol";
-import { Broker, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
-
 import { ISablierV2 } from "./interfaces/ISablierV2.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Pro } from "./interfaces/ISablierV2Pro.sol";
 import { ISablierV2Recipient } from "./interfaces/hooks/ISablierV2Recipient.sol";
 import { ISablierV2Sender } from "./interfaces/hooks/ISablierV2Sender.sol";
+import { Errors } from "./libraries/Errors.sol";
+import { Events } from "./libraries/Events.sol";
+import { Helpers } from "./libraries/Helpers.sol";
+import { Status } from "./types/Enums.sol";
+import { Broker, CreateAmounts, ProStream, Segment } from "./types/Structs.sol";
 import { SablierV2 } from "./SablierV2.sol";
 
 /// @title SablierV2Pro
@@ -85,8 +85,8 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2
     function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount) {
-        // If the stream does not exist, return zero.
-        if (!_streams[streamId].isEntity) {
+        // If the stream is null, return zero.
+        if (_streams[streamId].status == Status.NULL) {
             return 0;
         }
 
@@ -113,6 +113,11 @@ contract SablierV2Pro is
     }
 
     /// @inheritdoc ISablierV2
+    function getStatus(uint256 streamId) public view virtual override(ISablierV2, SablierV2) returns (Status status) {
+        status = _streams[streamId].status;
+    }
+
+    /// @inheritdoc ISablierV2
     function getStopTime(uint256 streamId) external view override returns (uint40 stopTime) {
         stopTime = _streams[streamId].stopTime;
     }
@@ -124,8 +129,8 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2
     function getStreamedAmount(uint256 streamId) public view override returns (uint128 streamedAmount) {
-        // If the stream does not exist, return zero.
-        if (!_streams[streamId].isEntity) {
+        // If the stream is null, return zero.
+        if (_streams[streamId].status == Status.NULL) {
             return 0;
         }
 
@@ -169,16 +174,15 @@ contract SablierV2Pro is
 
     /// @inheritdoc ISablierV2
     function isCancelable(uint256 streamId) public view override(ISablierV2, SablierV2) returns (bool result) {
+        if (_streams[streamId].status != Status.ACTIVE) {
+            return false;
+        }
         result = _streams[streamId].isCancelable;
     }
 
-    /// @inheritdoc ISablierV2
-    function isEntity(uint256 streamId) public view override(ISablierV2, SablierV2) returns (bool result) {
-        result = _streams[streamId].isEntity;
-    }
-
     /// @inheritdoc ERC721
-    function tokenURI(uint256 streamId) public view override streamExists(streamId) returns (string memory uri) {
+    function tokenURI(uint256 streamId) public pure override returns (string memory uri) {
+        streamId;
         uri = "";
     }
 
@@ -382,11 +386,16 @@ contract SablierV2Pro is
         address sender = _streams[streamId].sender;
         address recipient = _ownerOf(streamId);
 
-        // Effects: delete the stream from storage.
-        delete _streams[streamId];
+        // Effects: mark the stream as canceled.
+        _streams[streamId].status = Status.CANCELED;
 
-        // Interactions: withdraw the tokens to the recipient, if any.
         if (recipientAmount > 0) {
+            // Effects: add the recipient's amount to the withdrawn amount.
+            unchecked {
+                _streams[streamId].amounts.withdrawn += recipientAmount;
+            }
+
+            // Interactions: withdraw the tokens to the recipient.
             stream.token.safeTransfer({ to: recipient, amount: recipientAmount });
         }
 
@@ -457,9 +466,9 @@ contract SablierV2Pro is
         ProStream storage stream = _streams[streamId];
         stream.amounts.deposit = params.amounts.netDeposit;
         stream.isCancelable = params.cancelable;
-        stream.isEntity = true;
         stream.sender = params.sender;
         stream.startTime = params.startTime;
+        stream.status = Status.ACTIVE;
         stream.stopTime = params.segments[segmentCount - 1].milestone;
         stream.token = params.token;
 
@@ -537,9 +546,9 @@ contract SablierV2Pro is
         // Assert that the withdrawn amount is greater than or equal to the deposit amount.
         assert(stream.amounts.deposit >= stream.amounts.withdrawn);
 
-        // Effects: if the entire deposit amount is now withdrawn, delete the stream entity.
+        // Effects: if the entire deposit amount is now withdrawn, we mark the stream as depleted.
         if (stream.amounts.deposit == stream.amounts.withdrawn) {
-            delete _streams[streamId];
+            _streams[streamId].status = Status.DEPLETED;
         }
 
         // Interactions: perform the ERC-20 transfer.

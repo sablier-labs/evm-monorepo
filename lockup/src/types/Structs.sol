@@ -5,6 +5,8 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { Status } from "./Enums.sol";
+
 /// @notice Simple struct that encapsulates the deposit and the withdrawn amounts.
 /// @custom:field deposit The amount of tokens that have been originally deposited in the stream, net of fees and
 /// in units of the token's decimals.
@@ -47,14 +49,14 @@ struct Durations {
 /// @custom:field amounts Simple struct with the deposit and withdrawn amounts.
 /// @custom:field sender The address of the sender of the stream.
 /// @custom:field isCancelable A boolean that indicates whether the stream is cancelable or not.
-/// @custom:field isEntity A boolean that signals the existence of the instance of the struct.
+/// @custom:field status An enum that indicates the status of the stream.
 /// @custom:field token The address of the ERC-20 token used for streaming.
 struct LinearStream {
     Amounts amounts;
     Range range;
     address sender; // ───┐
     bool isCancelable; // │
-    bool isEntity; // ────┘
+    Status status; // ────┘
     IERC20 token;
 }
 
@@ -66,7 +68,7 @@ struct LinearStream {
 /// @custom:field startTime The Unix timestamp for when the stream will start.
 /// @custom:field stopTime The Unix timestamp for when the stream will stop.
 /// @custom:field isCancelable A boolean that indicates whether the stream is cancelable or not.
-/// @custom:field isEntity A boolean that signals the existence of the instance of the struct.
+/// @custom:field status An enum that indicates the status of the stream.
 /// @custom:field token The address of the ERC-20 token used for streaming.
 struct ProStream {
     Amounts amounts;
@@ -75,7 +77,7 @@ struct ProStream {
     uint40 startTime; //  │
     uint40 stopTime; //   │
     bool isCancelable; // │
-    bool isEntity; // ────┘
+    Status status; // ────┘
     IERC20 token;
 }
 

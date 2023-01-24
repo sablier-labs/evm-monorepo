@@ -14,21 +14,21 @@ contract GetStreamedAmount_ProTest is ProTest {
     Segment[] internal maxSegments;
 
     /// @dev it should return zero.
-    function test_GetStreamedAmount_StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        uint128 actualStreamedAmount = pro.getStreamedAmount(nonStreamId);
+    function test_GetStreamedAmount_StreamNull() external {
+        uint256 nullStreamId = 1729;
+        uint128 actualStreamedAmount = pro.getStreamedAmount(nullStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount);
     }
 
-    modifier streamExistent() {
+    modifier streamNonNull() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function test_GetStreamedAmount_StartTimeGreaterThanCurrentTime() external streamExistent {
+    function test_GetStreamedAmount_StartTimeGreaterThanCurrentTime() external streamNonNull {
         vm.warp({ timestamp: 0 });
         uint128 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
@@ -36,7 +36,7 @@ contract GetStreamedAmount_ProTest is ProTest {
     }
 
     /// @dev it should return zero.
-    function test_GetStreamedAmount_StartTimeEqualToCurrentTime() external streamExistent {
+    function test_GetStreamedAmount_StartTimeEqualToCurrentTime() external streamNonNull {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
@@ -60,7 +60,7 @@ contract GetStreamedAmount_ProTest is ProTest {
     /// - Current time > stop time
     function testFuzz_GetStreamedAmount_OneSegment(
         uint40 timeWarp
-    ) external streamExistent startTimeLessThanCurrentTime {
+    ) external streamNonNull startTimeLessThanCurrentTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Create a single-element segment array.
@@ -118,7 +118,7 @@ contract GetStreamedAmount_ProTest is ProTest {
     /// @dev it should return the correct streamed amount.
     function test_GetStreamedAmount_CurrentMilestone1st()
         external
-        streamExistent
+        streamNonNull
         multipleSegments
         startTimeLessThanCurrentTime
     {
@@ -158,7 +158,7 @@ contract GetStreamedAmount_ProTest is ProTest {
     /// - Current time > stop time
     function testFuzz_GetStreamedAmount_CurrentMilestoneNot1st(
         uint40 timeWarp
-    ) external streamExistent startTimeLessThanCurrentTime multipleSegments currentMilestoneNot1st {
+    ) external streamNonNull startTimeLessThanCurrentTime multipleSegments currentMilestoneNot1st {
         timeWarp = boundUint40(timeWarp, maxSegments[0].milestone, DEFAULT_TOTAL_DURATION * 2);
 
         // Create the stream with the multiple-segment arrays. The broker fee is disabled so that it doesn't interfere

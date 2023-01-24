@@ -321,10 +321,10 @@ contract CreateWithMilestones_ProTest is ProTest {
         ProStream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.isCancelable, defaultStream.isCancelable);
-        assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.segments, defaultStream.segments);
         assertEq(actualStream.startTime, defaultStream.startTime);
+        assertEq(actualStream.status, defaultStream.status);
         assertEq(actualStream.token, IERC20(address(nonCompliantToken)));
 
         // Assert that the next stream id was bumped.
@@ -427,10 +427,10 @@ contract CreateWithMilestones_ProTest is ProTest {
         ProStream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, Amounts({ deposit: netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.isCancelable, cancelable);
-        assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.segments, segments);
         assertEq(actualStream.startTime, startTime);
+        assertEq(actualStream.status, defaultStream.status);
         assertEq(actualStream.token, defaultStream.token);
 
         // Assert that the next stream id was bumped.

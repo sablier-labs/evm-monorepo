@@ -7,29 +7,22 @@ abstract contract GetReturnableAmount_Test is SharedTest {
     uint256 internal defaultStreamId;
 
     /// @dev it should return zero.
-    function test_GetReturnableAmount_StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        uint256 actualReturnableAmount = sablierV2.getReturnableAmount(nonStreamId);
+    function test_GetReturnableAmount_StreamNull() external {
+        uint256 nullStreamId = 1729;
+        uint256 actualReturnableAmount = sablierV2.getReturnableAmount(nullStreamId);
         uint256 expectedReturnableAmount = 0;
         assertEq(actualReturnableAmount, expectedReturnableAmount);
     }
 
-    modifier streamExistent() {
+    modifier streamNonNull() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
-    /// @dev it should return the deposit amount.
-    function test_GetReturnableAmount_StreamedAmountZero() external streamExistent {
-        uint256 actualReturnableAmount = sablierV2.getReturnableAmount(defaultStreamId);
-        uint256 expectedReturnableAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
-        assertEq(actualReturnableAmount, expectedReturnableAmount);
-    }
-
     /// @dev it should return the correct returnable amount.
-    function testFuzz_GetReturnableAmount_StreamedAmountNotZero(uint256 timeWarp) external streamExistent {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
+    function testFuzz_GetReturnableAmount(uint256 timeWarp) external streamNonNull {
+        timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });

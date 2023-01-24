@@ -5,7 +5,6 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Broker, Durations, LinearStream, Range } from "../types/Structs.sol";
-
 import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Linear

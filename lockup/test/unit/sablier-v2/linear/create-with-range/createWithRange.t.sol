@@ -7,6 +7,7 @@ import { SafeERC20_CallToNonContract } from "@prb/contracts/token/erc20/SafeERC2
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
+import { Status } from "src/types/Enums.sol";
 import { Amounts, Broker, LinearStream, Range } from "src/types/Structs.sol";
 
 import { LinearTest } from "../LinearTest.t.sol";
@@ -209,7 +210,6 @@ contract CreateWithRange_LinearTest is LinearTest {
         LinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.isCancelable, defaultStream.isCancelable);
-        assertEq(actualStream.isEntity, defaultStream.isEntity);
         assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.range, defaultStream.range);
         assertEq(actualStream.token, IERC20(address(nonCompliantToken)));
@@ -310,9 +310,9 @@ contract CreateWithRange_LinearTest is LinearTest {
         LinearStream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, Amounts({ deposit: netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.isCancelable, cancelable);
-        assertEq(actualStream.isEntity, defaultStream.isEntity);
-        assertEq(actualStream.sender, defaultStream.sender);
         assertEq(actualStream.range, range);
+        assertEq(actualStream.sender, defaultStream.sender);
+        assertEq(actualStream.status, defaultStream.status);
         assertEq(actualStream.token, defaultStream.token);
 
         // Assert that the next stream id was bumped.

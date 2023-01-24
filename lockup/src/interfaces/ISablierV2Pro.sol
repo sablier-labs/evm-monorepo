@@ -6,7 +6,6 @@ import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Broker, ProStream, Segment } from "../types/Structs.sol";
-
 import { ISablierV2 } from "./ISablierV2.sol";
 
 /// @title ISablierV2Pro

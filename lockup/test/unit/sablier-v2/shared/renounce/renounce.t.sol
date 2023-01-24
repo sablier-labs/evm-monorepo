@@ -9,21 +9,47 @@ import { SharedTest } from "../SharedTest.t.sol";
 abstract contract Renounce_Test is SharedTest {
     uint256 internal defaultStreamId;
 
-    /// @dev it should revert.
-    function test_RevertWhen_StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNonExistent.selector, nonStreamId));
-        sablierV2.renounce(nonStreamId);
+    function setUp() public virtual override {
+        super.setUp();
+
+        // Create the default stream.
+        defaultStreamId = createDefaultStream();
     }
 
-    modifier streamExistent() {
+    modifier streamNotActive() {
+        _;
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_StreamNull() external streamNotActive {
+        uint256 nullStreamId = 1729;
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNotActive.selector, nullStreamId));
+        sablierV2.renounce(nullStreamId);
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_StreamCanceled() external streamNotActive {
+        sablierV2.cancel(defaultStreamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNotActive.selector, defaultStreamId));
+        sablierV2.renounce(defaultStreamId);
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_StreamDepleted() external streamNotActive {
+        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        sablierV2.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNotActive.selector, defaultStreamId));
+        sablierV2.renounce(defaultStreamId);
+    }
+
+    modifier streamActive() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerNotSender(address eve) external streamExistent {
+    function test_RevertWhen_CallerNotSender(address eve) external streamActive {
         vm.assume(eve != address(0) && eve != users.sender);
 
         // Make Eve the caller in this test.
@@ -39,7 +65,7 @@ abstract contract Renounce_Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_NonCancelableStream() external streamExistent callerSender {
+    function test_RevertWhen_NonCancelableStream() external streamActive callerSender {
         // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
 
@@ -51,7 +77,7 @@ abstract contract Renounce_Test is SharedTest {
     }
 
     /// @dev it should emit a Renounce event and renounce the stream.
-    function test_Renounce() external streamExistent callerSender {
+    function test_Renounce() external streamActive callerSender {
         // Expect an event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: false });
         emit Events.Renounce(defaultStreamId);

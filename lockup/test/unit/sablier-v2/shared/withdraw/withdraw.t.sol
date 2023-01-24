@@ -5,6 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
+import { Status } from "src/types/Enums.sol";
 
 import { SharedTest } from "../SharedTest.t.sol";
 
@@ -16,23 +17,43 @@ abstract contract Withdraw_Test is SharedTest {
 
         // Make the recipient the caller in this test suite.
         changePrank(users.recipient);
-    }
 
-    /// @dev it should revert.
-    function test_RevertWhen_StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNonExistent.selector, nonStreamId));
-        sablierV2.withdraw({ streamId: nonStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
-    }
-
-    modifier streamExistent() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
+    }
+
+    modifier streamNotActive() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty(address eve) external streamExistent {
+    function test_RevertWhen_StreamNull() external streamNotActive {
+        uint256 nullStreamId = 1729;
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNotActive.selector, nullStreamId));
+        sablierV2.withdraw({ streamId: nullStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_StreamCanceled() external streamNotActive {
+        sablierV2.cancel(defaultStreamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNotActive.selector, defaultStreamId));
+        sablierV2.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_StreamDepleted() external streamNotActive {
+        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        sablierV2.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_StreamNotActive.selector, defaultStreamId));
+        sablierV2.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+    }
+
+    modifier streamActive() {
+        _;
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty(address eve) external streamActive {
         vm.assume(eve != address(0) && eve != users.sender && eve != users.recipient);
 
         // Make Eve the caller in this test.
@@ -44,7 +65,7 @@ abstract contract Withdraw_Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_Sender() external streamExistent {
+    function test_RevertWhen_CallerUnauthorized_Sender() external streamActive {
         // Make the sender the caller in this test.
         changePrank(users.sender);
 
@@ -61,7 +82,7 @@ abstract contract Withdraw_Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_FormerRecipient() external streamExistent {
+    function test_RevertWhen_FormerRecipient() external streamActive {
         // Transfer the stream to Alice.
         sablierV2.transferFrom(users.recipient, users.alice, defaultStreamId);
 
@@ -77,9 +98,9 @@ abstract contract Withdraw_Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_ToZeroAddress() external streamExistent callerAuthorized {
+    function test_RevertWhen_ToZeroAddress() external streamActive callerAuthorized {
         vm.expectRevert(Errors.SablierV2_WithdrawToZeroAddress.selector);
-        sablierV2.withdraw({ streamId: defaultStreamId, to: address(0), amount: DEFAULT_NET_DEPOSIT_AMOUNT });
+        sablierV2.withdraw({ streamId: defaultStreamId, to: address(0), amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
     modifier toNonZeroAddress() {
@@ -87,7 +108,7 @@ abstract contract Withdraw_Test is SharedTest {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_WithdrawAmountZero() external streamExistent callerAuthorized toNonZeroAddress {
+    function test_RevertWhen_WithdrawAmountZero() external streamActive callerAuthorized toNonZeroAddress {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2_WithdrawAmountZero.selector, defaultStreamId));
         sablierV2.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
     }
@@ -99,7 +120,7 @@ abstract contract Withdraw_Test is SharedTest {
     /// @dev it should revert.
     function test_RevertWhen_WithdrawAmountGreaterThanWithdrawableAmount()
         external
-        streamExistent
+        streamActive
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
@@ -125,7 +146,7 @@ abstract contract Withdraw_Test is SharedTest {
         address to
     )
         external
-        streamExistent
+        streamActive
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
@@ -148,7 +169,7 @@ abstract contract Withdraw_Test is SharedTest {
         address to
     )
         external
-        streamExistent
+        streamActive
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
@@ -180,10 +201,10 @@ abstract contract Withdraw_Test is SharedTest {
         _;
     }
 
-    /// @dev it should make the withdrawal and delete the stream.
+    /// @dev it should make the withdrawal and mark the stream as depleted.
     function test_Withdraw_CurrentTimeEqualToStopTime()
         external
-        streamExistent
+        streamActive
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
@@ -196,8 +217,10 @@ abstract contract Withdraw_Test is SharedTest {
         // Make the withdrawal.
         sablierV2.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_NET_DEPOSIT_AMOUNT });
 
-        // Assert that the stream was deleted.
-        assertDeleted(defaultStreamId);
+        // Assert that the stream was marked as depleted.
+        Status actualStatus = sablierV2.getStatus(defaultStreamId);
+        Status expectedStatus = Status.DEPLETED;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the NFT was not burned.
         address actualNFTowner = sablierV2.ownerOf({ tokenId: defaultStreamId });
@@ -218,7 +241,7 @@ abstract contract Withdraw_Test is SharedTest {
         uint128 withdrawAmount
     )
         external
-        streamExistent
+        streamActive
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
@@ -262,7 +285,7 @@ abstract contract Withdraw_Test is SharedTest {
     /// @dev it should ignore the revert and make the withdrawal and update the withdrawn amount.
     function test_Withdraw_RecipientDoesNotImplementHook()
         external
-        streamExistent
+        streamActive
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
@@ -277,7 +300,7 @@ abstract contract Withdraw_Test is SharedTest {
         // Make the withdrawal.
         sablierV2.withdraw({ streamId: streamId, to: address(empty), amount: DEFAULT_WITHDRAW_AMOUNT });
 
-        // Assert that the stream was deleted.
+        // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = sablierV2.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
@@ -290,7 +313,7 @@ abstract contract Withdraw_Test is SharedTest {
     /// @dev it should ignore the revert and make the withdrawal and update the withdrawn amount.
     function test_Withdraw_RecipientReverts()
         external
-        streamExistent
+        streamActive
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
@@ -306,7 +329,7 @@ abstract contract Withdraw_Test is SharedTest {
         // Make the withdrawal.
         sablierV2.withdraw({ streamId: streamId, to: address(revertingRecipient), amount: DEFAULT_WITHDRAW_AMOUNT });
 
-        // Assert that the stream was deleted.
+        // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = sablierV2.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
@@ -319,7 +342,7 @@ abstract contract Withdraw_Test is SharedTest {
     /// @dev it should make multiple withdrawals and update the withdrawn amounts.
     function test_Withdraw_RecipientReentrancy()
         external
-        streamExistent
+        streamActive
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
@@ -339,7 +362,7 @@ abstract contract Withdraw_Test is SharedTest {
         // Make the withdrawal.
         sablierV2.withdraw({ streamId: streamId, to: address(reentrantRecipient), amount: withdrawAmount });
 
-        // Assert that the stream was deleted.
+        // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = sablierV2.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
@@ -355,7 +378,7 @@ abstract contract Withdraw_Test is SharedTest {
         uint128 withdrawAmount
     )
         external
-        streamExistent
+        streamActive
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero

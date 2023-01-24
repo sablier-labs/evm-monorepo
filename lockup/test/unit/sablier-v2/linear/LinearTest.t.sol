@@ -5,6 +5,7 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { SablierV2Linear } from "src/SablierV2Linear.sol";
+import { Status } from "src/types/Enums.sol";
 import { Amounts, Broker, Durations, LinearStream, Range } from "src/types/Structs.sol";
 
 import { SablierV2Test } from "test/unit/sablier-v2/SablierV2.t.sol";
@@ -82,8 +83,8 @@ abstract contract LinearTest is SablierV2Test {
         defaultStream = LinearStream({
             amounts: DEFAULT_AMOUNTS,
             isCancelable: params.createWithRange.cancelable,
-            isEntity: true,
             sender: params.createWithRange.sender,
+            status: Status.ACTIVE,
             range: params.createWithRange.range,
             token: params.createWithRange.token
         });
@@ -119,22 +120,6 @@ abstract contract LinearTest is SablierV2Test {
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Checks that the given stream was deleted.
-    function assertDeleted(uint256 streamId) internal override {
-        LinearStream memory deletedStream = linear.getStream(streamId);
-        LinearStream memory expectedStream;
-        assertEq(deletedStream, expectedStream);
-    }
-
-    /// @dev Checks that the given streams were deleted.
-    function assertDeleted(uint256[] memory streamIds) internal override {
-        for (uint256 i = 0; i < streamIds.length; ++i) {
-            LinearStream memory deletedStream = linear.getStream(streamIds[i]);
-            LinearStream memory expectedStream;
-            assertEq(deletedStream, expectedStream);
-        }
-    }
 
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {

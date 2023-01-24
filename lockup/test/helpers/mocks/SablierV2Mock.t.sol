@@ -6,6 +6,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { SablierV2 } from "src/SablierV2.sol";
+import { Status } from "src/types/Enums.sol";
 
 contract SablierV2Mock is SablierV2 {
     constructor(
@@ -58,6 +59,11 @@ contract SablierV2Mock is SablierV2 {
         return 0;
     }
 
+    function getStatus(uint256 streamId) public pure override returns (Status status) {
+        streamId;
+        return Status.NULL;
+    }
+
     function getStopTime(uint256 streamId) external pure override returns (uint40) {
         streamId;
         return 0;
@@ -86,11 +92,6 @@ contract SablierV2Mock is SablierV2 {
     function isApprovedForAll(address owner, address operator) external pure returns (bool) {
         owner;
         operator;
-        return true;
-    }
-
-    function isEntity(uint256 streamId) public pure override returns (bool) {
-        streamId;
         return true;
     }
 

@@ -8,6 +8,7 @@ import { ud2x18, UD2x18 } from "@prb/math/UD2x18.sol";
 import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { Status } from "src/types/Enums.sol";
 import { Amounts, Broker, ProStream, Segment } from "src/types/Structs.sol";
 import { SablierV2Pro } from "src/SablierV2Pro.sol";
 
@@ -91,10 +92,11 @@ abstract contract ProTest is SablierV2Test {
         // Create the default stream to be used across the tests.
         defaultStream.amounts = DEFAULT_AMOUNTS;
         defaultStream.isCancelable = params.createWithMilestones.cancelable;
-        defaultStream.isEntity = true;
         defaultStream.segments = params.createWithMilestones.segments;
         defaultStream.sender = params.createWithMilestones.sender;
         defaultStream.startTime = params.createWithMilestones.startTime;
+        defaultStream.status = Status.ACTIVE;
+        defaultStream.stopTime = DEFAULT_STOP_TIME;
         defaultStream.token = params.createWithMilestones.token;
 
         // Set the default protocol fee.
@@ -180,22 +182,6 @@ abstract contract ProTest is SablierV2Test {
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Checks that the given stream was deleted.
-    function assertDeleted(uint256 streamId) internal override {
-        ProStream memory deletedStream = pro.getStream(streamId);
-        ProStream memory expectedStream;
-        assertEq(deletedStream, expectedStream);
-    }
-
-    /// @dev Checks that the given streams were deleted.
-    function assertDeleted(uint256[] memory streamIds) internal override {
-        for (uint256 i = 0; i < streamIds.length; ++i) {
-            ProStream memory deletedStream = pro.getStream(streamIds[i]);
-            ProStream memory expectedStream;
-            assertEq(deletedStream, expectedStream);
-        }
-    }
 
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {

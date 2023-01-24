@@ -14,21 +14,21 @@ contract GetWithdrawableAmount_ProTest is ProTest {
     Segment[] internal maxSegments;
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StreamNonExistent() external {
-        uint256 nonStreamId = 1729;
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(nonStreamId);
+    function test_GetWithdrawableAmount_StreamNull() external {
+        uint256 nullStreamId = 1729;
+        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(nullStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount);
     }
 
-    modifier streamExistent() {
+    modifier streamNonNull() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StartTimeGreaterThanCurrentTime() external streamExistent {
+    function test_GetWithdrawableAmount_StartTimeGreaterThanCurrentTime() external streamNonNull {
         vm.warp({ timestamp: 0 });
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
@@ -36,7 +36,7 @@ contract GetWithdrawableAmount_ProTest is ProTest {
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StartTimeEqualToCurrentTime() external streamExistent {
+    function test_GetWithdrawableAmount_StartTimeEqualToCurrentTime() external streamNonNull {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
@@ -60,7 +60,7 @@ contract GetWithdrawableAmount_ProTest is ProTest {
     /// - Current time > stop time
     function testFuzz_GetWithdrawableAmount_WithoutWithdrawals(
         uint40 timeWarp
-    ) external streamExistent startTimeLessThanCurrentTime withWithdrawals {
+    ) external streamNonNull startTimeLessThanCurrentTime withWithdrawals {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Create the stream with a custom gross deposit amount. The broker fee is disabled so that it doesn't interfere
@@ -105,7 +105,7 @@ contract GetWithdrawableAmount_ProTest is ProTest {
     function testFuzz_GetWithdrawableAmount(
         uint40 timeWarp,
         uint128 withdrawAmount
-    ) external streamExistent startTimeLessThanCurrentTime withWithdrawals {
+    ) external streamNonNull startTimeLessThanCurrentTime withWithdrawals {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Bound the withdraw amount.
