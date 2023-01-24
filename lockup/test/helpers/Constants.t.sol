@@ -3,7 +3,7 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Amounts, CreateAmounts, Durations } from "src/types/Structs.sol";
+import { LockupAmounts, LockupCreateAmounts, Durations } from "src/types/Structs.sol";
 
 abstract contract Constants {
     /*//////////////////////////////////////////////////////////////////////////
@@ -31,9 +31,9 @@ abstract contract Constants {
                                  COMPLEX CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    Amounts internal DEFAULT_AMOUNTS = Amounts({ deposit: DEFAULT_NET_DEPOSIT_AMOUNT, withdrawn: 0 });
-    CreateAmounts internal DEFAULT_CREATE_AMOUNTS =
-        CreateAmounts({
+    LockupAmounts internal DEFAULT_AMOUNTS = LockupAmounts({ deposit: DEFAULT_NET_DEPOSIT_AMOUNT, withdrawn: 0 });
+    LockupCreateAmounts internal DEFAULT_CREATE_AMOUNTS =
+        LockupCreateAmounts({
             netDeposit: DEFAULT_NET_DEPOSIT_AMOUNT,
             protocolFee: DEFAULT_PROTOCOL_FEE_AMOUNT,
             brokerFee: DEFAULT_BROKER_FEE_AMOUNT

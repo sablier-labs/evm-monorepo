@@ -5,8 +5,8 @@ import { Script } from "forge-std/Script.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
-import { SablierV2Linear } from "src/SablierV2Linear.sol";
-import { SablierV2Pro } from "src/SablierV2Pro.sol";
+import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
+import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
 import { Common } from "./helpers/Common.s.sol";
 import { DeployComptroller } from "./DeployComptroller.s.sol";
@@ -14,17 +14,21 @@ import { DeployComptroller } from "./DeployComptroller.s.sol";
 /// @notice Deploys the entire Sablier V2 protocol. The contracts are deployed in the following order:
 ///
 /// 1. SablierV2Comptroller
-/// 2. SablierV2Linear
-/// 3. SablierV2Pro
+/// 2. SablierV2LockupLinear
+/// 3. SablierV2LockupPro
 contract DeployProtocol is Script, Common {
     function run(
         address admin,
         UD60x18 maxFee,
         uint256 maxSegmentCount
-    ) public broadcaster returns (SablierV2Comptroller comptroller, SablierV2Linear linear, SablierV2Pro pro) {
+    )
+        public
+        broadcaster
+        returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro)
+    {
         comptroller = new SablierV2Comptroller({ initialAdmin: admin });
-        linear = new SablierV2Linear({ initialAdmin: admin, initialComptroller: comptroller, maxFee: maxFee });
-        pro = new SablierV2Pro({
+        linear = new SablierV2LockupLinear({ initialAdmin: admin, initialComptroller: comptroller, maxFee: maxFee });
+        pro = new SablierV2LockupPro({
             initialAdmin: admin,
             initialComptroller: comptroller,
             maxFee: maxFee,
@@ -41,7 +45,7 @@ contract DeployProtocol is Script, Common {
     )
         public
         broadcaster
-        returns (bool success, SablierV2Comptroller comptroller, SablierV2Linear linear, SablierV2Pro pro)
+        returns (bool success, SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro)
     {
         // Deploy the SablierV2Comptroller contract.
         bytes memory comptrollerCallData = abi.encodePacked(type(SablierV2Comptroller).creationCode, abi.encode(admin));
@@ -49,22 +53,22 @@ contract DeployProtocol is Script, Common {
         (success, comptrollerReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(comptrollerCallData);
         comptroller = SablierV2Comptroller(address(uint160(bytes20(comptrollerReturnData))));
 
-        // Deploy the SablierV2Linear contract.
+        // Deploy the SablierV2LockupLinear contract.
         bytes memory linearCallData = abi.encodePacked(
             type(SablierV2Comptroller).creationCode,
             abi.encode(admin, comptroller, maxFee)
         );
         bytes memory linearReturnData;
         (success, linearReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(linearCallData);
-        linear = SablierV2Linear(address(uint160(bytes20(linearReturnData))));
+        linear = SablierV2LockupLinear(address(uint160(bytes20(linearReturnData))));
 
-        // Deploy the SablierV2Pro contract.
+        // Deploy the SablierV2LockupPro contract.
         bytes memory proCallData = abi.encodePacked(
             type(SablierV2Comptroller).creationCode,
             abi.encode(admin, comptroller, maxFee, maxSegmentCount)
         );
         bytes memory proReturnData;
         (success, proReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(proCallData);
-        pro = SablierV2Pro(address(uint160(bytes20(proReturnData))));
+        pro = SablierV2LockupPro(address(uint160(bytes20(proReturnData))));
     }
 }

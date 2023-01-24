@@ -6,7 +6,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
-import { Amounts, Broker, CreateAmounts, LinearStream, Segment, Range } from "src/types/Structs.sol";
+import { LockupAmounts, Broker, LockupCreateAmounts, LockupLinearStream, Segment, Range } from "src/types/Structs.sol";
 
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 
@@ -24,7 +24,7 @@ abstract contract CreateWithRange_Test is IntegrationTest {
     function setUp() public virtual override {
         IntegrationTest.setUp();
 
-        // Approve the SablierV2Linear contract to transfer the token holder's tokens.
+        // Approve the SablierV2LockupLinear contract to transfer the token holder's tokens.
         // We use a low-level call to ignore reverts because the token can have the missing return value bug.
         (bool success, ) = address(token).call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
         success;
@@ -63,8 +63,8 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         uint256 expectedBrokerBalance;
     }
 
-    /// @dev it should perform the ERC-20 transfers, emit a CreateLinearStream event, create the stream, record the
-    /// protocol fee, bump the next stream id, and mint the NFT.
+    /// @dev it should perform the ERC-20 transfers, emit a CreateLockupLinearStream event, create the stream, record
+    /// the protocol fee, bump the next stream id, and mint the NFT.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
@@ -95,12 +95,12 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         // Expect an event to be emitted.
         vars.streamId = linear.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-        emit Events.CreateLinearStream({
+        emit Events.CreateLockupLinearStream({
             streamId: vars.streamId,
             funder: holder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: CreateAmounts({
+            amounts: LockupCreateAmounts({
                 netDeposit: vars.netDepositAmount,
                 protocolFee: 0,
                 brokerFee: vars.brokerFeeAmount
@@ -123,8 +123,8 @@ abstract contract CreateWithRange_Test is IntegrationTest {
         );
 
         // Assert that the stream was created.
-        LinearStream memory actualStream = linear.getStream(vars.streamId);
-        assertEq(actualStream.amounts, Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        LockupLinearStream memory actualStream = linear.getStream(vars.streamId);
+        assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.isCancelable, params.cancelable);
         assertEq(actualStream.range, params.range);
         assertEq(actualStream.sender, params.sender);

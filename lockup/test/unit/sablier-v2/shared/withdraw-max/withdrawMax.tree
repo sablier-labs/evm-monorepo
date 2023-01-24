@@ -1,5 +1,0 @@
-withdrawMax.t.sol
-├── when the current time is greater than or equal to the stop time
-│  └── it should make the max withdrawal and mark the stream as depleted
-└── when the current time is less than the stop time
-   └── it should make the max withdrawal, emit a Withdraw event, and update the withdrawn amount

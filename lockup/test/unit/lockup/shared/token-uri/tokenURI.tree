@@ -1,0 +1,5 @@
+getStartTime.t.sol
+├── when the stream is null
+│  └── it should return an empty string
+└── when the stream is not null
+   └── it should return an empty string

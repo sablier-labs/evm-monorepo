@@ -40,7 +40,7 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Deploy the SablierV2Linear contract"
+      - name: "Deploy the SablierV2LockupLinear contract"
         run: >-
           forge script script/DeployLinear.s.sol
           --broadcast

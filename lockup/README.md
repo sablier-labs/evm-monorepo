@@ -105,7 +105,7 @@ forge script scripts/DeployComptroller.s.sol \
   --rpc-url goerli
 ```
 
-#### Deploy SablierV2Linear
+#### Deploy SablierV2LockupLinear
 
 You should replace the placeholders with the actual arguments you want to pass.
 
@@ -118,7 +118,7 @@ forge script script/DeployLinear.s.sol \
   MAX_FEE
 ```
 
-#### Deploy SablierV2Pro
+#### Deploy SablierV2LockupPro
 
 You should replace the placeholders with the actual arguments you want to pass.
 
