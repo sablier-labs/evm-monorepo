@@ -110,6 +110,8 @@ jobs:
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
   test-fuzz:
+    env:
+      FOUNDRY_FUZZ_RUNS: "20000"
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
@@ -134,6 +136,8 @@ jobs:
 
 
   test-e2e:
+    env:
+      FOUNDRY_FUZZ_RUNS: "2000"
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
