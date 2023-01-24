@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { ERC20 } from "@openzeppelin/token/ERC20/ERC20.sol";
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
 import { eqString } from "@prb/test/Helpers.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
@@ -63,7 +63,7 @@ abstract contract Base_Test is Assertions, Calculations, Utils, StdCheats {
     GoodRecipient internal goodRecipient = new GoodRecipient();
     GoodSender internal goodSender = new GoodSender();
     ISablierV2Comptroller internal comptroller;
-    IERC20 internal dai = new ERC20("Dai Stablecoin", "DAI", 18);
+    IERC20 internal dai = new ERC20("Dai Stablecoin", "DAI");
     ISablierV2LockupLinear internal linear;
     NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
     ISablierV2LockupPro internal pro;
@@ -117,26 +117,26 @@ abstract contract Base_Test is Assertions, Calculations, Utils, StdCheats {
     /// and then change the active prank back to the admin.
     function approveProtocol() internal {
         changePrank({ who: users.sender });
-        dai.approve({ spender: address(linear), value: UINT256_MAX });
-        dai.approve({ spender: address(pro), value: UINT256_MAX });
+        dai.approve({ spender: address(linear), amount: UINT256_MAX });
+        dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         changePrank({ who: users.recipient });
-        dai.approve({ spender: address(linear), value: UINT256_MAX });
-        dai.approve({ spender: address(pro), value: UINT256_MAX });
+        dai.approve({ spender: address(linear), amount: UINT256_MAX });
+        dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         changePrank({ who: users.alice });
-        dai.approve({ spender: address(linear), value: UINT256_MAX });
-        dai.approve({ spender: address(pro), value: UINT256_MAX });
+        dai.approve({ spender: address(linear), amount: UINT256_MAX });
+        dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         changePrank({ who: users.eve });
-        dai.approve({ spender: address(linear), value: UINT256_MAX });
-        dai.approve({ spender: address(pro), value: UINT256_MAX });
+        dai.approve({ spender: address(linear), amount: UINT256_MAX });
+        dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 

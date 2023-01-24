@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 contract FaultyFlashLoanReceiver is IERC3156FlashBorrower {
@@ -18,7 +18,7 @@ contract FaultyFlashLoanReceiver is IERC3156FlashBorrower {
         amount;
         fee;
         data;
-        IERC20(asset).approve({ spender: msg.sender, value: amount + fee });
+        IERC20(asset).approve({ spender: msg.sender, amount: amount + fee });
         response = FAULTY_RESPONSE;
     }
 }

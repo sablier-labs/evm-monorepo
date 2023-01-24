@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
+import { ERC721 } from "@openzeppelin/token/ERC721/ERC721.sol";
+import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";
@@ -333,7 +333,7 @@ contract SablierV2LockupLinear is
 
         // Interactions: return the assets to the sender, if any.
         if (senderAmount > 0) {
-            stream.asset.safeTransfer({ to: sender, amount: senderAmount });
+            stream.asset.safeTransfer({ to: sender, value: senderAmount });
         }
 
         if (recipientAmount > 0) {
@@ -343,7 +343,7 @@ contract SablierV2LockupLinear is
             }
 
             // Interactions: withdraw the tokens to the recipient.
-            stream.asset.safeTransfer({ to: recipient, amount: recipientAmount });
+            stream.asset.safeTransfer({ to: recipient, value: recipientAmount });
         }
 
         // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
@@ -426,13 +426,13 @@ contract SablierV2LockupLinear is
             params.asset.safeTransferFrom({
                 from: msg.sender,
                 to: address(this),
-                amount: params.amounts.netDeposit + params.amounts.protocolFee
+                value: params.amounts.netDeposit + params.amounts.protocolFee
             });
         }
 
         // Interactions: perform the ERC-20 transfer to pay the broker fee, if not zero.
         if (params.amounts.brokerFee > 0) {
-            params.asset.safeTransferFrom({ from: msg.sender, to: params.broker, amount: params.amounts.brokerFee });
+            params.asset.safeTransferFrom({ from: msg.sender, to: params.broker, value: params.amounts.brokerFee });
         }
 
         // Emit a {CreateLockupLinearStream} event.
@@ -493,7 +493,7 @@ contract SablierV2LockupLinear is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        stream.asset.safeTransfer({ to: to, amount: amount });
+        stream.asset.safeTransfer({ to: to, value: amount });
 
         // Interactions: if the `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up

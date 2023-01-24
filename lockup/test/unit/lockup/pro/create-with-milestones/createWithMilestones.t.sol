@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SafeERC20_CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { stdError } from "forge-std/StdError.sol";
@@ -254,7 +253,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         changePrank({ who: users.sender });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(SafeERC20_CallToNonContract.selector, nonContract));
+        vm.expectRevert("Address: call to non-contract");
         pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,

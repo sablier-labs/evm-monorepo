@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SafeERC20_CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { stdError } from "forge-std/StdError.sol";
@@ -210,7 +209,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         changePrank({ who: users.sender });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(SafeERC20_CallToNonContract.selector, address(nonContract)));
+        vm.expectRevert("Address: call to non-contract");
         pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
@@ -300,7 +299,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         deal({ token: address(DEFAULT_ASSET), to: params.funder, give: params.grossDepositAmount });
 
         // Approve the {SablierV2LockupPro} contract to transfer the assets from the funder.
-        DEFAULT_ASSET.approve({ spender: address(pro), value: UINT256_MAX });
+        DEFAULT_ASSET.approve({ spender: address(pro), amount: UINT256_MAX });
 
         // Load the initial protocol revenues.
         Vars memory vars;

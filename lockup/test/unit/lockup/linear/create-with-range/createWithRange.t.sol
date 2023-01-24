@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { SafeERC20_CallToNonContract } from "@prb/contracts/token/erc20/SafeERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
@@ -166,7 +165,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         brokerFeeNotTooHigh
     {
         address nonContract = address(8128);
-        vm.expectRevert(abi.encodeWithSelector(SafeERC20_CallToNonContract.selector, nonContract));
+        vm.expectRevert("Address: call to non-contract");
         linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,

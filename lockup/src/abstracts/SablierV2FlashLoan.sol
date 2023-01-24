@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { SafeERC20 } from "@prb/contracts/token/erc20/SafeERC20.sol";
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import { ud } from "@prb/math/UD60x18.sol";
 import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "erc3156/contracts/interfaces/IERC3156FlashLender.sol";
@@ -115,7 +115,7 @@ abstract contract SablierV2FlashLoan is
         }
 
         // Interactions: perform the ERC-20 transfer to flash loan the assets to the borrower.
-        IERC20(asset).safeTransfer({ to: address(receiver), amount: amount });
+        IERC20(asset).safeTransfer({ to: address(receiver), value: amount });
 
         // Interactions: perform the borrower callback.
         bytes32 response = receiver.onFlashLoan({
@@ -144,7 +144,7 @@ abstract contract SablierV2FlashLoan is
         }
 
         // Interactions: perform the ERC-20 transfer to get the principal back plus the fee.
-        IERC20(asset).safeTransferFrom({ from: address(receiver), to: address(this), amount: returnAmount });
+        IERC20(asset).safeTransferFrom({ from: address(receiver), to: address(this), value: returnAmount });
 
         // Emit a {FlashLoan} event.
         emit Events.FlashLoan({

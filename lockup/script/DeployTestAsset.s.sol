@@ -8,7 +8,7 @@ import { Script } from "forge-std/Script.sol";
 import { Common } from "./helpers/Common.s.sol";
 
 /// @notice Deploys a test ERC-20 token with infinite minting and burning capabilities.
-contract DeployTestToken is Script, Common {
+contract DeployTestAsset is Script, Common {
     function run() public broadcaster returns (ERC20GodMode token) {
         token = new ERC20GodMode("Test token", "TKN", 18);
     }

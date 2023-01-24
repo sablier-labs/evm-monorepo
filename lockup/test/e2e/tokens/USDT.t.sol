@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Linear_E2e_Test } from "../lockup/linear/Linear.t.sol";
 import { Pro_E2e_Test } from "../lockup/pro/Pro.t.sol";
