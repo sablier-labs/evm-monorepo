@@ -3,10 +3,11 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
+import { IERC3156FlashLender } from "erc3156/contracts/interfaces/IERC3156FlashLender.sol";
 
-import { Constants } from "../helpers/Constants.t.sol";
+import { Constants } from "../../helpers/Constants.t.sol";
 
-contract GoodFlashLoanReceiver is Constants, IERC3156FlashBorrower {
+contract ReentrantFlashLoanReceiver is Constants, IERC3156FlashBorrower {
     function onFlashLoan(
         address initiator,
         address asset,
@@ -19,6 +20,7 @@ contract GoodFlashLoanReceiver is Constants, IERC3156FlashBorrower {
         fee;
         data;
         IERC20(asset).approve({ spender: msg.sender, value: amount + fee });
+        IERC3156FlashLender(msg.sender).flashLoan({ receiver: this, token: asset, amount: amount, data: data });
         response = FLASH_LOAN_CALLBACK_SUCCESS;
     }
 }

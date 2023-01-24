@@ -2,9 +2,9 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { Base_Test } from "../Base.t.sol";
-import { GoodFlashLoanReceiver } from "../shared/flash-loan/GoodFlashLoanReceiver.t.sol";
-import { GoodRecipient } from "../shared/hooks/GoodRecipient.t.sol";
-import { GoodSender } from "../shared/hooks/GoodSender.t.sol";
+import { GoodFlashLoanReceiver } from "../shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
+import { GoodRecipient } from "../shared/mockups/hooks/GoodRecipient.t.sol";
+import { GoodSender } from "../shared/mockups/hooks/GoodSender.t.sol";
 
 /// @title Fuzz_Test
 /// @notice Base fuzz test contract that contains common logic needed by all fuzz test contracts.
