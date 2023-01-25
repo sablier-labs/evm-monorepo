@@ -44,7 +44,7 @@ struct LockupCreateAmounts {
     uint128 brokerFee;
 }
 
-/// @notice Lockup linear stream struct used in the SablierV2LockupLinear contract.
+/// @notice Lockup linear stream struct used in the {SablierV2LockupLinear} contract.
 /// @dev The fields are arranged like this to save gas via tight variable packing.
 /// @custom:field amounts Simple struct with the deposit and withdrawn amounts.
 /// @custom:field sender The address of the sender of the stream.
@@ -60,7 +60,7 @@ struct LockupLinearStream {
     IERC20 asset;
 }
 
-/// @notice Pro stream struct used in the SablierV2LockupPro contract.
+/// @notice Pro stream struct used in the {SablierV2LockupPro} contract.
 /// @dev The fields are arranged like this to save gas via tight variable packing.
 /// @custom:field amounts Simple struct with the deposit and withdrawn amounts.
 /// @custom:field segments The segments the protocol uses to compose the custom streaming curve.
@@ -91,7 +91,7 @@ struct Range {
     uint40 stop;
 }
 
-/// @notice Segment struct used in the SablierV2LockupPro contract.
+/// @notice Segment struct used in the {SablierV2LockupPro} contract.
 /// @custom:field amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
 /// @custom:field exponent The exponent in this segment, whose base is the elapsed time as a percentage.
 /// @custom:field milestone The Unix timestamp for when this segment ends.

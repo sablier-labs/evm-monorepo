@@ -2,6 +2,7 @@
 @prb/contracts/=lib/prb-contracts/src/
 @prb/math/=lib/prb-math/src/
 @prb/test/=lib/prb-test/src/
+erc3156/=lib/ERC3156/
 forge-std/=lib/forge-std/src/
 solarray=lib/solarray/src
 src/=src/

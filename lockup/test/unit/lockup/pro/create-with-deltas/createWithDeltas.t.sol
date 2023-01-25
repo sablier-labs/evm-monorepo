@@ -171,7 +171,7 @@ contract CreateWithDeltas_Pro_Test is Pro_Test {
         // Make the sender the funder in this test.
         address funder = params.createWithDeltas.sender;
 
-        // Expect the assets to be transferred from the funder to the SablierV2LockupPro contract.
+        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
         vm.expectCall(
             address(params.createWithDeltas.asset),
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), DEFAULT_NET_DEPOSIT_AMOUNT))

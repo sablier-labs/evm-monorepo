@@ -25,7 +25,7 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
     function setUp() public virtual override {
         IntegrationTest.setUp();
 
-        // Approve the SablierV2LockupPro contract to transfer the asset holder's assets.
+        // Approve the {SablierV2LockupPro} contract to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
         (bool success, ) = address(asset).call(abi.encodeCall(IERC20.approve, (address(pro), UINT256_MAX)));
         success;
@@ -74,7 +74,7 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
-    /// - Broker fee zero and non-zero.
+    /// - Multiple values for the broker fee, including zero.
     function testForkFuzz_CreateWithMilestones(Params memory params) external {
         vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(params.broker.addr != holder && params.broker.addr != address(pro));
@@ -89,7 +89,7 @@ abstract contract CreateWithMilestones_Test is IntegrationTest {
         vars.initialBrokerBalance = vars.initialBalances[1];
 
         // Calculate the fee amounts and the net deposit amount.
-        vars.brokerFeeAmount = uint128(ud(params.grossDepositAmount).mul(params.broker.fee).unwrap());
+        vars.brokerFeeAmount = ud(params.grossDepositAmount).mul(params.broker.fee).intoUint128();
         vars.netDepositAmount = params.grossDepositAmount - vars.brokerFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.

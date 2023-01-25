@@ -292,7 +292,7 @@ contract CreateWithMilestones_Pro_Test is Pro_Test {
         // Make the sender the funder in this test.
         address funder = params.createWithMilestones.sender;
 
-        // Expect the assets to be transferred from the funder to the SablierV2LockupPro contract.
+        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
         vm.expectCall(
             address(nonCompliantAsset),
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), DEFAULT_NET_DEPOSIT_AMOUNT))
@@ -354,7 +354,7 @@ contract CreateWithMilestones_Pro_Test is Pro_Test {
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
-    /// - Broker fee zero and non-zero.
+    /// - Multiple values for the broker fee, including zero.
     function testFuzz_CreateWithMilestones(
         address funder,
         address recipient,
@@ -387,19 +387,19 @@ contract CreateWithMilestones_Pro_Test is Pro_Test {
         // Mint enough assets to the funder.
         deal({ token: address(params.createWithMilestones.asset), to: funder, give: grossDepositAmount });
 
-        // Approve the SablierV2LockupPro contract to transfer the assets from the funder.
+        // Approve the {SablierV2LockupPro} contract to transfer the assets from the funder.
         params.createWithMilestones.asset.approve({ spender: address(pro), value: UINT256_MAX });
 
         // Calculate the broker fee amount and the net deposit amount.
-        uint128 protocolFeeAmount = uint128(ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE).unwrap());
-        uint128 brokerFeeAmount = uint128(ud(grossDepositAmount).mul(broker.fee).unwrap());
+        uint128 protocolFeeAmount = ud(grossDepositAmount).mul(DEFAULT_PROTOCOL_FEE).intoUint128();
+        uint128 brokerFeeAmount = ud(grossDepositAmount).mul(broker.fee).intoUint128();
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount - brokerFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
         Segment[] memory segments = params.createWithMilestones.segments;
         adjustSegmentAmounts(segments, netDepositAmount);
 
-        // Expect the assets to be transferred from the funder to the SablierV2LockupPro contract.
+        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
         vm.expectCall(
             address(params.createWithMilestones.asset),
             abi.encodeCall(IERC20.transferFrom, (funder, address(pro), netDepositAmount))
@@ -484,7 +484,7 @@ contract CreateWithMilestones_Pro_Test is Pro_Test {
         uint128 initialProtocolRevenues = pro.getProtocolRevenues(params.createWithMilestones.asset);
 
         // Calculate the protocol fee amount and the net deposit amount.
-        uint128 protocolFeeAmount = uint128(ud(grossDepositAmount).mul(protocolFee).unwrap());
+        uint128 protocolFeeAmount = ud(grossDepositAmount).mul(protocolFee).intoUint128();
         uint128 netDepositAmount = grossDepositAmount - protocolFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.

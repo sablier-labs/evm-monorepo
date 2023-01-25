@@ -215,7 +215,7 @@ abstract contract CancelMultiple_Test is Shared_Test {
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
-        // Expect the tokens to be withdrawn to the recipients, if not zero.
+        // Expect the ERC-20 assets to be returned to the recipients, if not zero.
         uint128 recipientAmount0 = lockup.getWithdrawableAmount(streamIds[0]);
         if (recipientAmount0 > 0) {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount0)));
@@ -225,7 +225,7 @@ abstract contract CancelMultiple_Test is Shared_Test {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
         }
 
-        // Expect the tokens to be returned to the senders, if not zero.
+        // Expect the ERC-20 assets to be returned to the senders, if not zero.
         uint128 senderAmount0 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount0;
         if (senderAmount0 > 0) {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount0)));
@@ -294,7 +294,7 @@ abstract contract CancelMultiple_Test is Shared_Test {
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
-        // Expect the tokens to be withdrawn to the recipients, if not zero.
+        // Expect the ERC-20 assets to be withdrawn to the recipients, if not zero.
         uint128 recipientAmount0 = lockup.getWithdrawableAmount(streamIds[0]);
         if (recipientAmount0 > 0) {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount0)));
@@ -304,7 +304,7 @@ abstract contract CancelMultiple_Test is Shared_Test {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
         }
 
-        // Expect the tokens to be returned to the senders, if not zero.
+        // Expect the ERC-20 assets to be returned to the senders, if not zero.
         uint128 senderAmount0 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount0;
         if (senderAmount0 > 0) {
             vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount0)));

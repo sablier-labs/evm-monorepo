@@ -32,7 +32,7 @@ library Helpers {
 
         // Calculate the protocol fee amount.
         // The cast to uint128 is safe because the maximum fee is hard-coded and it is always less than 1e18.
-        amounts.protocolFee = uint128(ud(grossDepositAmount).mul(protocolFee).unwrap());
+        amounts.protocolFee = uint128(ud(grossDepositAmount).mul(protocolFee).intoUint256());
 
         // Checks: the broker fee is not greater than `MAX_FEE`.
         if (brokerFee.gt(maxFee)) {
@@ -41,7 +41,7 @@ library Helpers {
 
         // Calculate the broker fee amount.
         // The cast to uint128 is safe because the maximum fee is hard-coded and it is always less than 1e18.
-        amounts.brokerFee = uint128(ud(grossDepositAmount).mul(brokerFee).unwrap());
+        amounts.brokerFee = uint128(ud(grossDepositAmount).mul(brokerFee).intoUint256());
 
         unchecked {
             // Assert that the gross deposit amount is strictly greater than the sum of the protocol fee amount
@@ -53,7 +53,7 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the arguments of the `create` function in the SablierV2Linear contract.
+    /// @dev Checks the arguments of the {SablierV2Linear-_createWithRange} function.
     function checkCreateLinearParams(uint128 netDepositAmount, Range memory range) internal pure {
         // Checks: the net deposit amount is not zero.
         if (netDepositAmount == 0) {
@@ -71,7 +71,7 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the arguments of the `create` function in the SablierV2Pro contract.
+    /// @dev Checks the arguments of the {SablierV2Pro-_createWithRange} function.
     function checkCreateProParams(
         uint128 netDepositAmount,
         Segment[] memory segments,
@@ -109,7 +109,7 @@ library Helpers {
         // Make the current time the start time of the stream.
         uint40 startTime = uint40(block.timestamp);
 
-        // It is safe to use unchecked arithmetic because the `_createWithMilestone` function will nonetheless check
+        // It is safe to use unchecked arithmetic because the {_createWithMilestone} function will nonetheless check
         // the soundness of the calculated segment milestones.
         unchecked {
             // Calculate the first iteration of the loop in advance.
@@ -148,7 +148,7 @@ library Helpers {
         uint256 segmentCount = segments.length;
         for (index = 0; index < segmentCount; ) {
             // Add the current segment amount to the sum.
-            segmentAmountsSum = segmentAmountsSum + segments[index].amount;
+            segmentAmountsSum += segments[index].amount;
 
             // Check that the previous milestone is less than the current milestone. Note that this can overflow.
             currentMilestone = segments[index].milestone;

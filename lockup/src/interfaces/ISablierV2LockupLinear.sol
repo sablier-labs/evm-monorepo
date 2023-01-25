@@ -47,7 +47,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
     ///
     /// Requirements:
-    /// - All from `createWithRange`.
+    /// - All from {createWithRange}.
     ///
     /// @param sender The address from which to stream the assets, which will have the ability to
     /// cancel the stream. It doesn't have to be the same as `msg.sender`.

@@ -1,3 +1,7 @@
+[submodule "lib/ERC3156"]
+  branch = "main"
+  path = "lib/ERC3156"
+  url = "https://github.com/alcueca/ERC3156"
 [submodule "lib/forge-std"]
   branch = "master"
   path = "lib/forge-std"

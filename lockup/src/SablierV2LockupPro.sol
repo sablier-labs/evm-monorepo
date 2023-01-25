@@ -10,6 +10,7 @@ import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.
 import { sd, SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "./interfaces/ISablierV2Lockup.sol";
 import { ISablierV2LockupPro } from "./interfaces/ISablierV2LockupPro.sol";
@@ -20,14 +21,13 @@ import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Status } from "./types/Enums.sol";
 import { Broker, LockupCreateAmounts, LockupProStream, Segment } from "./types/Structs.sol";
-import { SablierV2Lockup } from "./SablierV2Lockup.sol";
 
 /// @title SablierV2LockupPro
-/// @dev This contract implements the ISablierV2LockupPro interface.
+/// @dev This contract implements the {ISablierV2LockupPro} interface.
 contract SablierV2LockupPro is
     ISablierV2LockupPro, // one dependency
-    SablierV2Lockup, // two dependencies
-    ERC721("Sablier V2 Pro NFT", "SAB-V2-PRO") // six dependencies
+    ERC721("Sablier V2 Pro NFT", "SAB-V2-PRO"), // six dependencies
+    SablierV2Lockup // ten dependencies
 {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
@@ -87,13 +87,13 @@ contract SablierV2LockupPro is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount) {
+    function getReturnableAmount(uint256 streamId) external view override returns (uint128 returnableAmount) {
         // If the stream is null, return zero.
         if (_streams[streamId].status == Status.NULL) {
             return 0;
         }
 
-        // No need for an assertion here, since the `getStreamedAmount` function checks that the deposit amount
+        // No need for an assertion here, since the {getStreamedAmount} function checks that the deposit amount
         // is greater than or equal to the streamed amount.
         unchecked {
             returnableAmount = _streams[streamId].amounts.deposit - getStreamedAmount(streamId);

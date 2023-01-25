@@ -113,7 +113,7 @@ abstract contract Linear_Test is Lockup_Test {
             UD60x18 elapsedTime = ud(currentTime - DEFAULT_START_TIME);
             UD60x18 totalTime = ud(DEFAULT_TOTAL_DURATION);
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-            streamedAmount = uint128(elapsedTimePercentage.mul(ud(depositAmount)).unwrap());
+            streamedAmount = elapsedTimePercentage.mul(ud(depositAmount)).intoUint128();
         }
     }
 

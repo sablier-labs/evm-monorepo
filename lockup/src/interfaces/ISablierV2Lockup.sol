@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.13;
 
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { IAdminable } from "@prb/contracts/access/IAdminable.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
@@ -15,7 +14,6 @@ import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 /// @notice The common interface between all Sablier V2 lockup streaming contracts.
 interface ISablierV2Lockup is
     ISablierV2, // no dependencies
-    IERC721, // one dependency
     IERC721Metadata // two dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
@@ -68,7 +66,11 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream to make the query for.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
-    /// @notice Checks whether the stream is cancelable or not. Always returns `false` if the stream is not active.
+    /// @notice Checks whether the stream is cancelable or not.
+    ///
+    /// Notes:
+    /// - Always returns `false` if the stream is not active.
+    ///
     /// @param streamId The id of the stream to make the query for.
     function isCancelable(uint256 streamId) external view returns (bool result);
 
@@ -168,10 +170,10 @@ interface ISablierV2Lockup is
     /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - All from `withdraw`.
+    /// - All from {withdraw}.
     ///
     /// Requirements:
-    /// - All from `withdraw`.
+    /// - All from {withdraw}.
     ///
     /// @param streamId The id of the stream to withdraw.
     /// @param to The address that receives the withdrawn assets.

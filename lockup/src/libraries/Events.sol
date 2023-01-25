@@ -3,6 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
+import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { LockupCreateAmounts, Range, Segment } from "../types/Structs.sol";
@@ -22,8 +23,8 @@ library Events {
 
     /// @notice Emitted when the contract admin sets a new comptroller contract.
     /// @param admin The address of the current contract admin.
-    /// @param oldComptroller The address of the old SablierV2Comptroller contract.
-    /// @param newComptroller The address of the new SablierV2Comptroller contract.
+    /// @param oldComptroller The address of the old {SablierV2Comptroller} contract.
+    /// @param newComptroller The address of the new {SablierV2Comptroller} contract.
     event SetComptroller(
         address indexed admin,
         ISablierV2Comptroller oldComptroller,
@@ -34,12 +35,44 @@ library Events {
                                SABLIER-V2-COMPTROLLER
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted when the admin sets a new flash fee.
+    /// @param admin The address of the current contract admin.
+    /// @param oldFlashFee The old flash fee, as an UD60x18 number.
+    /// @param newFlashFee The new flash fee, as an UD60x18 number.
+    event SetFlashFee(address indexed admin, UD60x18 oldFlashFee, UD60x18 newFlashFee);
+
     /// @notice Emitted when the contract admin sets a new protocol fee for the provided ERC-20 asset.
     /// @param admin The address of the current contract admin.
     /// @param asset The contract address of the ERC-20 asset the new protocol fee was set for.
-    /// @param oldFee The old global fee, as an UD60x18 number.
-    /// @param newFee The new global fee, as an UD60x18 number.
-    event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldFee, UD60x18 newFee);
+    /// @param oldProtocolFee The old protocol fee, as an UD60x18 number.
+    /// @param newProtocolFee The new protocol fee, as an UD60x18 number.
+    event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
+
+    /// @notice Emitted when the admin enables or disables an ERC-20 asset for flash loaning.
+    /// @param admin The address of the current contract admin.
+    /// @param asset The contract address of the ERC-20 asset to toggle.
+    /// @param newFlag Whether the ERC-20 asset can be flash loaned.
+    event ToggleFlashAsset(address indexed admin, IERC20 indexed asset, bool newFlag);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                               SABLIER-V2-FLASH-LOAN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when a flash loan is executed.
+    /// @param receiver The address of the flash borrower.
+    /// @param initiator The address of the flash loan initiator.
+    /// @param asset The address of the ERC-20 asset that was flash loaned.
+    /// @param amount The amount of `asset` flash loaned.
+    /// @param feeAmount The fee amount of `asset` charged by the protocol.
+    /// @param data The data passed to the flash borrower.
+    event FlashLoan(
+        address indexed initiator,
+        IERC3156FlashBorrower indexed receiver,
+        IERC20 indexed asset,
+        uint256 amount,
+        uint256 feeAmount,
+        bytes data
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-LOCKUP
