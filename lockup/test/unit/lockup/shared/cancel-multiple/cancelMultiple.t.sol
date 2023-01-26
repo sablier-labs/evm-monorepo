@@ -219,9 +219,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256[] memory streamIds = Solarray.uint256s(ongoingStreamId, endedStreamId);
 
         // Expect the ERC-20 assets to be withdrawn to the recipient.
-        uint128 recipientAmount0 = lockup.getWithdrawableAmount(streamIds[0]);
+        uint128 recipientAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount0)));
-        uint128 recipientAmount1 = lockup.getWithdrawableAmount(streamIds[1]);
+        uint128 recipientAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
 
         // Expect some ERC-20 assets to be returned to the sender only for the ongoing stream.

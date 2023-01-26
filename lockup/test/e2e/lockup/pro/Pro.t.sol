@@ -240,7 +240,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         vm.warp({ timestamp: params.timeWarp });
 
         // Bound the withdraw amount.
-        vars.withdrawableAmount = pro.getWithdrawableAmount(vars.streamId);
+        vars.withdrawableAmount = pro.withdrawableAmountOf(vars.streamId);
         params.withdrawAmount = boundUint128(params.withdrawAmount, 0, vars.withdrawableAmount);
 
         // Only run the withdraw tests if the withdraw amount is not zero.
@@ -297,8 +297,8 @@ abstract contract Pro_E2e_Test is E2eTest {
 
             // Expect a {CancelLockupStream} event to be emitted.
             vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-            vars.senderAmount = pro.getReturnableAmount(vars.streamId);
-            vars.recipientAmount = pro.getWithdrawableAmount(vars.streamId);
+            vars.senderAmount = pro.returnableAmountOf(vars.streamId);
+            vars.recipientAmount = pro.withdrawableAmountOf(vars.streamId);
             emit Events.CancelLockupStream(
                 vars.streamId,
                 params.sender,

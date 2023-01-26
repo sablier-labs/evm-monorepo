@@ -43,7 +43,7 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
         // Set the withdraw amount to the streamed amount.
-        uint128 withdrawAmount = lockup.getStreamedAmount(defaultStreamId);
+        uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamId);
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });

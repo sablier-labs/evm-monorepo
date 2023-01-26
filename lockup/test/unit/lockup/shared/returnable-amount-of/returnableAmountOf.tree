@@ -1,4 +1,4 @@
-getReturnableAmount.t.sol
+returnableAmountOf.t.sol
 ├── when the stream is not active
 │  ├── when the stream is null
 │  │  └── it should return zero

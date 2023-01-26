@@ -32,11 +32,6 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream to make the query for.
     function getRecipient(uint256 streamId) external view returns (address recipient);
 
-    /// @notice Calculates the amount that the sender would be returned if the stream was canceled, in units of the
-    /// asset's decimals.
-    /// @param streamId The id of the stream to make the query for.
-    function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount);
-
     /// @notice Queries the sender of the stream.
     /// @param streamId The id of the stream to make the query for.
     function getSender(uint256 streamId) external view returns (address sender);
@@ -53,14 +48,6 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream to make the query for.
     function getStopTime(uint256 streamId) external view returns (uint40 stopTime);
 
-    /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
-    /// @param streamId The id of the stream to make the query for.
-    function getStreamedAmount(uint256 streamId) external view returns (uint128 streamedAmount);
-
-    /// @notice Calculates the amount that the recipient can withdraw from the stream, in units of the asset's decimals.
-    /// @param streamId The id of the stream to make the query for.
-    function getWithdrawableAmount(uint256 streamId) external view returns (uint128 withdrawableAmount);
-
     /// @notice Queries the amount withdrawn from the stream, in units of the asset's decimals.
     /// @param streamId The id of the stream to make the query for.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
@@ -72,6 +59,19 @@ interface ISablierV2Lockup is
     ///
     /// @param streamId The id of the stream to make the query for.
     function isCancelable(uint256 streamId) external view returns (bool result);
+
+    /// @notice Calculates the amount that the sender would be returned if the stream was canceled, in units of the
+    /// asset's decimals.
+    /// @param streamId The id of the stream to make the query for.
+    function returnableAmountOf(uint256 streamId) external view returns (uint128 returnableAmount);
+
+    /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
+    /// @param streamId The id of the stream to make the query for.
+    function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
+
+    /// @notice Calculates the amount that the recipient can withdraw from the stream, in units of the asset's decimals.
+    /// @param streamId The id of the stream to make the query for.
+    function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS

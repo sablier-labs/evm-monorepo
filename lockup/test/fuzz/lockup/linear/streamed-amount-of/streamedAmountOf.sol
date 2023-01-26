@@ -8,7 +8,7 @@ import { Broker } from "src/types/Structs.sol";
 
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
 
-contract GetStreamedAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
+contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     uint256 internal defaultStreamId;
 
     modifier streamActive() {
@@ -18,10 +18,10 @@ contract GetStreamedAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should return zero.
-    function testFuzz_GetStreamedAmount_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external streamActive {
+    function testFuzz_StreamedAmountOf_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external streamActive {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
-        uint128 actualStreamedAmount = linear.getStreamedAmount(defaultStreamId);
+        uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -42,7 +42,7 @@ contract GetStreamedAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// - Current time = stop time
     /// - Current time > stop time
     /// - Multiple values for the deposit amount
-    function testFuzz_GetStreamedAmount(
+    function testFuzz_StreamedAmountOf(
         uint40 timeWarp,
         uint128 depositAmount
     ) external streamActive cliffTimeLessThanOrEqualToCurrentTime {
@@ -68,7 +68,7 @@ contract GetStreamedAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
         );
 
         // Run the test.
-        uint128 actualStreamedAmount = linear.getStreamedAmount(streamId);
+        uint128 actualStreamedAmount = linear.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount = calculateStreamedAmount(currentTime, depositAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }

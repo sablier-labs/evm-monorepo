@@ -82,7 +82,7 @@ abstract contract SablierV2Lockup is
     function getStatus(uint256 streamId) public view virtual override returns (Status status);
 
     /// @inheritdoc ISablierV2Lockup
-    function getWithdrawableAmount(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
+    function withdrawableAmountOf(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
 
     /// @inheritdoc ISablierV2Lockup
     function isCancelable(uint256 streamId) public view virtual override returns (bool result);
@@ -178,7 +178,7 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function withdrawMax(uint256 streamId, address to) external override {
-        withdraw(streamId, to, getWithdrawableAmount(streamId));
+        withdraw(streamId, to, withdrawableAmountOf(streamId));
     }
 
     /// @inheritdoc ISablierV2Lockup

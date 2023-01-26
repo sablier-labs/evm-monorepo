@@ -86,7 +86,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Bound the withdraw amount.
-        uint128 streamedAmount = lockup.getStreamedAmount(streamId);
+        uint128 streamedAmount = lockup.streamedAmountOf(streamId);
         withdrawAmount = boundUint128(withdrawAmount, 0, streamedAmount - 1);
 
         // Make the withdrawal only if the amount is greater than zero.
@@ -95,13 +95,13 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         }
 
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
-        uint128 senderAmount = lockup.getReturnableAmount(streamId);
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
         if (senderAmount > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
         }
 
         // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
-        uint128 recipientAmount = lockup.getWithdrawableAmount(streamId);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         if (recipientAmount > 0) {
             vm.expectCall(
                 address(DEFAULT_ASSET),
@@ -182,7 +182,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
         // Bound the withdraw amount.
-        uint128 streamedAmount = lockup.getStreamedAmount(streamId);
+        uint128 streamedAmount = lockup.streamedAmountOf(streamId);
         withdrawAmount = boundUint128(withdrawAmount, 0, streamedAmount - 1);
 
         // Make the withdrawal only if the amount is greater than zero.
@@ -191,13 +191,13 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         }
 
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
-        uint128 senderAmount = lockup.getReturnableAmount(streamId);
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
         if (senderAmount > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (address(goodSender), senderAmount)));
         }
 
         // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
-        uint128 recipientAmount = lockup.getWithdrawableAmount(streamId);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         if (recipientAmount > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount)));
         }

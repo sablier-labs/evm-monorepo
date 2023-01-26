@@ -5,7 +5,7 @@ import { Broker, Segment } from "src/types/Structs.sol";
 
 import { Pro_Fuzz_Test } from "../Pro.t.sol";
 
-contract GetStreamedAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
+contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     uint256 internal defaultStreamId;
 
     modifier streamActive() {
@@ -25,7 +25,7 @@ contract GetStreamedAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// - Current time < stop time
     /// - Current time = stop time
     /// - Current time > stop time
-    function testFuzz_GetStreamedAmount_OneSegment(uint40 timeWarp) external streamActive startTimeLessThanCurrentTime {
+    function testFuzz_StreamedAmountOf_OneSegment(uint40 timeWarp) external streamActive startTimeLessThanCurrentTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -44,7 +44,7 @@ contract GetStreamedAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint256 streamId = createDefaultStreamWithSegments(segments);
 
         // Run the test.
-        uint128 actualStreamedAmount = pro.getStreamedAmount(streamId);
+        uint128 actualStreamedAmount = pro.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount = calculateStreamedAmountForOneSegment(
             currentTime,
             segments[0].exponent,
@@ -68,7 +68,7 @@ contract GetStreamedAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// - Current time < stop time
     /// - Current time = stop time
     /// - Current time > stop time
-    function testFuzz_GetStreamedAmount_CurrentMilestoneNot1st(
+    function testFuzz_StreamedAmountOf_CurrentMilestoneNot1st(
         uint40 timeWarp
     ) external streamActive startTimeLessThanCurrentTime multipleSegments currentMilestoneNot1st {
         timeWarp = boundUint40(timeWarp, MAX_SEGMENTS[0].milestone, DEFAULT_TOTAL_DURATION * 2);
@@ -81,7 +81,7 @@ contract GetStreamedAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint256 streamId = createDefaultStreamWithSegments(MAX_SEGMENTS);
 
         // Run the test.
-        uint128 actualStreamedAmount = pro.getStreamedAmount(streamId);
+        uint128 actualStreamedAmount = pro.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount = calculateStreamedAmountForMultipleSegments(
             currentTime,
             MAX_SEGMENTS,

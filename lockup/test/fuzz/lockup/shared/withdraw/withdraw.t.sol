@@ -134,7 +134,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Bound the withdraw amount.
-        uint128 withdrawableAmount = lockup.getWithdrawableAmount(streamId);
+        uint128 withdrawableAmount = lockup.withdrawableAmountOf(streamId);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawal to be made to the recipient.
@@ -196,7 +196,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Bound the withdraw amount.
-        uint128 withdrawableAmount = lockup.getWithdrawableAmount(streamId);
+        uint128 withdrawableAmount = lockup.withdrawableAmountOf(streamId);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawal to be made to the recipient.

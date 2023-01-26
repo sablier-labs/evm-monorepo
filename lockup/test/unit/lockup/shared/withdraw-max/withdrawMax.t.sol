@@ -50,7 +50,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
         // Get the withdraw amount.
-        uint128 withdrawAmount = lockup.getWithdrawableAmount(defaultStreamId);
+        uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         // Expect the withdrawal to be made to the recipient.
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));

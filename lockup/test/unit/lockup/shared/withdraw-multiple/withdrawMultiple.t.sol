@@ -258,7 +258,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
         // Run the test.
-        uint128 withdrawableAmount = lockup.getWithdrawableAmount(defaultStreamIds[1]);
+        uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamIds[1]);
         uint128[] memory amounts = Solarray.uint128s(withdrawableAmount, UINT128_MAX);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -349,7 +349,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         address to = users.alice;
 
         // Set the withdraw amount to the streamed amount.
-        uint128 withdrawAmount = lockup.getStreamedAmount(defaultStreamIds[0]);
+        uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamIds[0]);
 
         // Expect the withdrawals to be made.
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
@@ -422,7 +422,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vars.ongoingStreamId = createDefaultStreamWithStopTime(vars.ongoingStopTime);
 
         // Get the ongoing withdraw amount.
-        vars.ongoingWithdrawAmount = lockup.getWithdrawableAmount(vars.ongoingStreamId);
+        vars.ongoingWithdrawAmount = lockup.withdrawableAmountOf(vars.ongoingStreamId);
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

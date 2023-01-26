@@ -5,7 +5,7 @@ import { Segment } from "src/types/Structs.sol";
 
 import { Pro_Unit_Test } from "../Pro.t.sol";
 
-contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
+contract StreamedAmountOf_Pro_Unit_Test is Pro_Unit_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {
@@ -20,27 +20,27 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_GetStreamedAmount_StreamNull() external streamNotActive {
+    function test_StreamedAmountOf_StreamNull() external streamNotActive {
         uint256 nullStreamId = 1729;
-        uint128 actualStreamedAmount = pro.getStreamedAmount(nullStreamId);
+        uint128 actualStreamedAmount = pro.streamedAmountOf(nullStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     /// @dev it should return zero.
-    function test_GetStreamedAmount_StreamCanceled() external streamNotActive {
+    function test_StreamedAmountOf_StreamCanceled() external streamNotActive {
         lockup.cancel(defaultStreamId);
-        uint256 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
+        uint256 actualStreamedAmount = pro.streamedAmountOf(defaultStreamId);
         uint256 expectedStreamedAmount = pro.getWithdrawnAmount(defaultStreamId);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     /// @dev it should return the withdrawn amount.
-    function test_GetStreamedAmount_StreamDepleted() external streamNotActive {
+    function test_StreamedAmountOf_StreamDepleted() external streamNotActive {
         vm.warp({ timestamp: DEFAULT_STOP_TIME });
         uint128 withdrawAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
-        uint256 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
+        uint256 actualStreamedAmount = pro.streamedAmountOf(defaultStreamId);
         uint256 expectedStreamedAmount = withdrawAmount;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -50,17 +50,17 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_GetStreamedAmount_StartTimeGreaterThanCurrentTime() external streamActive {
+    function test_StreamedAmountOf_StartTimeGreaterThanCurrentTime() external streamActive {
         vm.warp({ timestamp: 0 });
-        uint128 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
+        uint128 actualStreamedAmount = pro.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
     /// @dev it should return zero.
-    function test_GetStreamedAmount_StartTimeEqualToCurrentTime() external streamActive {
+    function test_StreamedAmountOf_StartTimeEqualToCurrentTime() external streamActive {
         vm.warp({ timestamp: DEFAULT_START_TIME });
-        uint128 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
+        uint128 actualStreamedAmount = pro.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -70,7 +70,7 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return the correct streamed amount.
-    function test_GetStreamedAmount_OneSegment() external streamActive startTimeLessThanCurrentTime {
+    function test_StreamedAmountOf_OneSegment() external streamActive startTimeLessThanCurrentTime {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + 2_000 seconds });
 
@@ -86,7 +86,7 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
         uint256 streamId = createDefaultStreamWithSegments(segments);
 
         // Run the test.
-        uint128 actualStreamedAmount = pro.getStreamedAmount(streamId);
+        uint128 actualStreamedAmount = pro.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount = 4472.13595499957941e18; // (0.2^0.5)*10,000
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -96,14 +96,14 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return the correct streamed amount.
-    function test_GetStreamedAmount_CurrentMilestone1st()
+    function test_StreamedAmountOf_CurrentMilestone1st()
         external
         streamActive
         multipleSegments
         startTimeLessThanCurrentTime
     {
         // Run the test.
-        uint128 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
+        uint128 actualStreamedAmount = pro.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -113,7 +113,7 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return the correct streamed amount.
-    function test_GetStreamedAmount_CurrentMilestoneNot1st()
+    function test_StreamedAmountOf_CurrentMilestoneNot1st()
         external
         streamActive
         startTimeLessThanCurrentTime
@@ -124,7 +124,7 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 750 seconds });
 
         // Run the test.
-        uint128 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
+        uint128 actualStreamedAmount = pro.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = DEFAULT_SEGMENTS[0].amount + 2371.708245126284505e18; // ~7,500*0.1^{0.5}
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }

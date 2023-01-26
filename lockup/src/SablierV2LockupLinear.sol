@@ -83,20 +83,6 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount) {
-        // When the stream is not active, return zero.
-        if (_streams[streamId].status != Status.ACTIVE) {
-            return 0;
-        }
-
-        // No need for an assertion here, since the {getStreamedAmount} function checks that the deposit amount
-        // is greater than or equal to the streamed amount.
-        unchecked {
-            returnableAmount = _streams[streamId].amounts.deposit - getStreamedAmount(streamId);
-        }
-    }
-
-    /// @inheritdoc ISablierV2Lockup
     function getSender(uint256 streamId) external view override returns (address sender) {
         sender = _streams[streamId].sender;
     }
@@ -124,7 +110,37 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getStreamedAmount(uint256 streamId) public view override returns (uint128 streamedAmount) {
+    function getWithdrawnAmount(uint256 streamId) external view override returns (uint128 withdrawnAmount) {
+        withdrawnAmount = _streams[streamId].amounts.withdrawn;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function isCancelable(
+        uint256 streamId
+    ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (bool result) {
+        // A null stream does not exist, and a canceled or depleted stream cannot be canceled anymore.
+        if (_streams[streamId].status != Status.ACTIVE) {
+            return false;
+        }
+        result = _streams[streamId].isCancelable;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function returnableAmountOf(uint256 streamId) external view returns (uint128 returnableAmount) {
+        // When the stream is not active, return zero.
+        if (_streams[streamId].status != Status.ACTIVE) {
+            return 0;
+        }
+
+        // No need for an assertion here, since the {streamedAmountOf} function checks that the deposit amount
+        // is greater than or equal to the streamed amount.
+        unchecked {
+            returnableAmount = _streams[streamId].amounts.deposit - streamedAmountOf(streamId);
+        }
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function streamedAmountOf(uint256 streamId) public view override returns (uint128 streamedAmount) {
         // When the stream is null, return zero. When the stream is canceled or depleted, return the withdrawn
         // amount.
         if (_streams[streamId].status != Status.ACTIVE) {
@@ -168,35 +184,19 @@ contract SablierV2LockupLinear is
         }
     }
 
-    /// @inheritdoc ISablierV2Lockup
-    function getWithdrawableAmount(
-        uint256 streamId
-    ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (uint128 withdrawableAmount) {
-        unchecked {
-            withdrawableAmount = getStreamedAmount(streamId) - _streams[streamId].amounts.withdrawn;
-        }
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function getWithdrawnAmount(uint256 streamId) external view override returns (uint128 withdrawnAmount) {
-        withdrawnAmount = _streams[streamId].amounts.withdrawn;
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function isCancelable(
-        uint256 streamId
-    ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (bool result) {
-        // A null stream does not exist, and a canceled or depleted stream cannot be canceled anymore.
-        if (_streams[streamId].status != Status.ACTIVE) {
-            return false;
-        }
-        result = _streams[streamId].isCancelable;
-    }
-
     /// @inheritdoc ERC721
     function tokenURI(uint256 streamId) public pure override(IERC721Metadata, ERC721) returns (string memory uri) {
         streamId;
         uri = "";
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function withdrawableAmountOf(
+        uint256 streamId
+    ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (uint128 withdrawableAmount) {
+        unchecked {
+            withdrawableAmount = streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -319,7 +319,7 @@ contract SablierV2LockupLinear is
 
         // Calculate the sender's and the recipient's amount.
         uint128 senderAmount;
-        uint128 recipientAmount = getWithdrawableAmount(streamId);
+        uint128 recipientAmount = withdrawableAmountOf(streamId);
         unchecked {
             senderAmount = stream.amounts.deposit - stream.amounts.withdrawn - recipientAmount;
         }
@@ -466,7 +466,7 @@ contract SablierV2LockupLinear is
         }
 
         // Checks: the amount is not greater than what can be withdrawn.
-        uint128 withdrawableAmount = getWithdrawableAmount(streamId);
+        uint128 withdrawableAmount = withdrawableAmountOf(streamId);
         if (amount > withdrawableAmount) {
             revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
                 streamId,

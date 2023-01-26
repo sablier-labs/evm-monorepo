@@ -1,4 +1,4 @@
-getStreamedAmount.t.sol
+streamedAmountOf.t.sol
 ├── when the stream is not active
 │  ├── when the stream is null
 │  │  └── it should return zero

@@ -3,7 +3,7 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
-contract GetWithdrawableAmount_Linear_Unit_Test is Linear_Unit_Test {
+contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {
@@ -18,26 +18,26 @@ contract GetWithdrawableAmount_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StreamNull() external streamNotActive {
+    function test_WithdrawableAmountOf_StreamNull() external streamNotActive {
         uint256 nullStreamId = 1729;
-        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(nullStreamId);
+        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(nullStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StreamCanceled() external streamNotActive {
+    function test_WithdrawableAmountOf_StreamCanceled() external streamNotActive {
         lockup.cancel(defaultStreamId);
-        uint256 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
+        uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StreamDepleted() external streamNotActive {
+    function test_WithdrawableAmountOf_StreamDepleted() external streamNotActive {
         vm.warp({ timestamp: DEFAULT_STOP_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        uint256 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
+        uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -49,8 +49,8 @@ contract GetWithdrawableAmount_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_CliffTimeGreaterThanCurrentTime() external streamActive {
-        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
+    function test_WithdrawableAmountOf_CliffTimeGreaterThanCurrentTime() external streamActive {
+        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -62,19 +62,19 @@ contract GetWithdrawableAmount_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_GetWithdrawableAmount_NoWithdrawals() external streamActive cliffTimeLessThanOrEqualToCurrentTime {
-        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
+    function test_WithdrawableAmountOf_NoWithdrawals() external streamActive cliffTimeLessThanOrEqualToCurrentTime {
+        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_GetWithdrawableAmount_WithWithdrawals() external streamActive cliffTimeLessThanOrEqualToCurrentTime {
+    function test_WithdrawableAmountOf_WithWithdrawals() external streamActive cliffTimeLessThanOrEqualToCurrentTime {
         // Make the withdrawal.
         linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
+        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

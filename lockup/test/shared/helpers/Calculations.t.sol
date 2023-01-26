@@ -42,7 +42,7 @@ abstract contract Calculations is Constants {
     }
 
     /// @dev Helper function that replicates the logic of the
-    /// {SablierV2LockupPro-calculateStreamedAmountForMultipleSegments} function.
+    /// {SablierV2LockupPro-_calculateStreamedAmountForMultipleSegments} function.
     function calculateStreamedAmountForMultipleSegments(
         uint40 currentTime,
         Segment[] memory segments,
@@ -90,7 +90,7 @@ abstract contract Calculations is Constants {
     }
 
     /// @dev Helper function that replicates the logic of the
-    /// {SablierV2LockupPro-calculateStreamedAmountForOneSegment} function.
+    /// {SablierV2LockupPro-_calculateStreamedAmountForOneSegment} function.
     function calculateStreamedAmountForOneSegment(
         uint40 currentTime,
         UD2x18 exponent,

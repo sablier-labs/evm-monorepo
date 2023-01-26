@@ -8,7 +8,7 @@ import { Broker, Segment } from "src/types/Structs.sol";
 
 import { Pro_Unit_Test } from "../Pro.t.sol";
 
-contract GetWithdrawableAmount_Pro_Unit_Test is Pro_Unit_Test {
+contract WithdrawableAmountOf_Pro_Unit_Test is Pro_Unit_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {
@@ -23,26 +23,26 @@ contract GetWithdrawableAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StreamNull() external streamNotActive {
+    function test_WithdrawableAmountOf_StreamNull() external streamNotActive {
         uint256 nullStreamId = 1729;
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(nullStreamId);
+        uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(nullStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StreamCanceled() external streamNotActive {
+    function test_WithdrawableAmountOf_StreamCanceled() external streamNotActive {
         lockup.cancel(defaultStreamId);
-        uint256 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
+        uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StreamDepleted() external streamNotActive {
+    function test_WithdrawableAmountOf_StreamDepleted() external streamNotActive {
         vm.warp({ timestamp: DEFAULT_STOP_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        uint256 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
+        uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -54,17 +54,17 @@ contract GetWithdrawableAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StartTimeGreaterThanCurrentTime() external streamActive {
+    function test_WithdrawableAmountOf_StartTimeGreaterThanCurrentTime() external streamActive {
         vm.warp({ timestamp: 0 });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
+        uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawableAmount_StartTimeEqualToCurrentTime() external streamActive {
+    function test_WithdrawableAmountOf_StartTimeEqualToCurrentTime() external streamActive {
         vm.warp({ timestamp: DEFAULT_START_TIME });
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
+        uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -74,12 +74,12 @@ contract GetWithdrawableAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_GetWithdrawableAmount_WithoutWithdrawals() external streamActive startTimeLessThanCurrentTime {
+    function test_WithdrawableAmountOf_WithoutWithdrawals() external streamActive startTimeLessThanCurrentTime {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3_750 seconds });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
+        uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(defaultStreamId);
         // The second term is 7,500*0.5^{0.5}
         uint128 expectedWithdrawableAmount = DEFAULT_SEGMENTS[0].amount + 5_303.30085889910643e18;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
@@ -90,7 +90,7 @@ contract GetWithdrawableAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_GetWithdrawableAmount() external streamActive startTimeLessThanCurrentTime withWithdrawals {
+    function test_WithdrawableAmountOf() external streamActive startTimeLessThanCurrentTime withWithdrawals {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3_750 seconds });
 
@@ -98,7 +98,7 @@ contract GetWithdrawableAmount_Pro_Unit_Test is Pro_Unit_Test {
         pro.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(defaultStreamId);
+        uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(defaultStreamId);
 
         // The second term is 7,500*0.5^{0.5}
         uint128 expectedWithdrawableAmount = DEFAULT_SEGMENTS[0].amount +

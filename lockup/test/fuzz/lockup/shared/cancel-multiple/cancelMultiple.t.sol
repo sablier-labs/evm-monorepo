@@ -62,11 +62,11 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
-        uint128 recipientAmount0 = lockup.getWithdrawableAmount(streamIds[0]);
+        uint128 recipientAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
         if (recipientAmount0 > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount0)));
         }
-        uint128 recipientAmount1 = lockup.getWithdrawableAmount(streamIds[1]);
+        uint128 recipientAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
         if (recipientAmount1 > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
         }
@@ -141,11 +141,11 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
         // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
-        uint128 recipientAmount0 = lockup.getWithdrawableAmount(streamIds[0]);
+        uint128 recipientAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
         if (recipientAmount0 > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount0)));
         }
-        uint128 recipientAmount1 = lockup.getWithdrawableAmount(streamIds[1]);
+        uint128 recipientAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
         if (recipientAmount1 > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
         }

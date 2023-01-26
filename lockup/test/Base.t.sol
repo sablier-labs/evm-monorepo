@@ -103,6 +103,11 @@ abstract contract Base_Test is Assertions, Calculations, Utils, StdCheats {
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Retrieves the current block timestamp as an `uint40`.
+    function getBlockTimestamp() internal view returns (uint40 blockTimestamp) {
+        blockTimestamp = uint40(block.timestamp);
+    }
+
     /// @dev Checks if the Foundry profile is "test-optimized".
     function isTestOptimizedProfile() internal returns (bool result) {
         string memory profile = vm.envOr("FOUNDRY_PROFILE", string(""));

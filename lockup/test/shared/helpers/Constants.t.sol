@@ -55,7 +55,7 @@ abstract contract Constants {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
-        DEFAULT_START_TIME = getBlockTimestamp();
+        DEFAULT_START_TIME = uint40(block.timestamp);
         DEFAULT_CLIFF_TIME = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION;
         DEFAULT_STOP_TIME = DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION;
         DEFAULT_RANGE = Range({ start: DEFAULT_START_TIME, cliff: DEFAULT_CLIFF_TIME, stop: DEFAULT_STOP_TIME });
@@ -88,10 +88,5 @@ abstract contract Constants {
                 );
             }
         }
-    }
-
-    /// @dev Retrieves the current block timestamp as an `uint40`.
-    function getBlockTimestamp() internal view returns (uint40 blockTimestamp) {
-        blockTimestamp = uint40(block.timestamp);
     }
 }

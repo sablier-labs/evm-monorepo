@@ -9,8 +9,8 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Pro_Shared_Test } from "../../../shared/lockup/pro/Pro.t.sol";
 import { Fuzz_Test } from "../../Fuzz.t.sol";
 import { Cancel_Fuzz_Test } from "../shared/cancel/cancel.t.sol";
-import { GetReturnableAmount_Fuzz_Test } from "../shared/get-returnable-amount/getReturnableAmount.t.sol";
 import { GetWithdrawnAmount_Fuzz_Test } from "../shared/get-withdrawn-amount/getWithdrawnAmount.t.sol";
+import { ReturnableAmountOf_Fuzz_Test } from "../shared/returnable-amount-of/returnableAmountOf.t.sol";
 import { Withdraw_Fuzz_Test } from "../shared/withdraw/withdraw.t.sol";
 import { WithdrawMax_Fuzz_Test } from "../shared/withdraw-max/withdrawMax.t.sol";
 import { WithdrawMultiple_Fuzz_Test } from "../shared/withdraw-multiple/withdrawMultiple.t.sol";
@@ -52,10 +52,10 @@ contract Cancel_Pro_Fuzz_Test is Pro_Fuzz_Test, Cancel_Fuzz_Test {
     }
 }
 
-contract GetReturnableAmount_Pro_Fuzz_Test is Pro_Fuzz_Test, GetReturnableAmount_Fuzz_Test {
-    function setUp() public virtual override(Pro_Fuzz_Test, GetReturnableAmount_Fuzz_Test) {
+contract ReturnableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test, ReturnableAmountOf_Fuzz_Test {
+    function setUp() public virtual override(Pro_Fuzz_Test, ReturnableAmountOf_Fuzz_Test) {
         Pro_Fuzz_Test.setUp();
-        GetReturnableAmount_Fuzz_Test.setUp();
+        ReturnableAmountOf_Fuzz_Test.setUp();
     }
 }
 

@@ -236,7 +236,7 @@ abstract contract Linear_E2e_Test is E2eTest {
         vm.warp({ timestamp: params.timeWarp });
 
         // Bound the withdraw amount.
-        vars.withdrawableAmount = linear.getWithdrawableAmount(vars.streamId);
+        vars.withdrawableAmount = linear.withdrawableAmountOf(vars.streamId);
         params.withdrawAmount = boundUint128(params.withdrawAmount, 0, vars.withdrawableAmount);
 
         // Only run the withdraw tests if the withdraw amount is not zero.
@@ -293,8 +293,8 @@ abstract contract Linear_E2e_Test is E2eTest {
 
             // Expect a {CancelLockupStream} event to be emitted.
             vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
-            vars.senderAmount = linear.getReturnableAmount(vars.streamId);
-            vars.recipientAmount = linear.getWithdrawableAmount(vars.streamId);
+            vars.senderAmount = linear.returnableAmountOf(vars.streamId);
+            vars.recipientAmount = linear.withdrawableAmountOf(vars.streamId);
             emit Events.CancelLockupStream(
                 vars.streamId,
                 params.sender,

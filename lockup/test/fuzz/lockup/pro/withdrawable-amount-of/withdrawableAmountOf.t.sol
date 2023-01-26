@@ -8,7 +8,7 @@ import { Broker, Segment } from "src/types/Structs.sol";
 
 import { Pro_Fuzz_Test } from "../Pro.t.sol";
 
-contract GetWithdrawableAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
+contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     uint256 internal defaultStreamId;
 
     modifier streamActive() {
@@ -33,7 +33,7 @@ contract GetWithdrawableAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// - Current time < stop time
     /// - Current time = stop time
     /// - Current time > stop time
-    function testFuzz_GetWithdrawableAmount_WithoutWithdrawals(
+    function testFuzz_WithdrawableAmountOf_WithoutWithdrawals(
         uint40 timeWarp
     ) external streamActive startTimeLessThanCurrentTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
@@ -56,7 +56,7 @@ contract GetWithdrawableAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
         );
 
         // Run the test.
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(streamId);
+        uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
             currentTime,
             DEFAULT_SEGMENTS,
@@ -77,7 +77,7 @@ contract GetWithdrawableAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// - Current time = stop time
     /// - Current time > stop time
     /// - WithdrawFromLockupStream amount equal to deposit amount and not
-    function testFuzz_GetWithdrawableAmount(
+    function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,
         uint128 withdrawAmount
     ) external streamActive startTimeLessThanCurrentTime withWithdrawals {
@@ -112,7 +112,7 @@ contract GetWithdrawableAmount_Pro_Fuzz_Test is Pro_Fuzz_Test {
         pro.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = pro.getWithdrawableAmount(streamId);
+        uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

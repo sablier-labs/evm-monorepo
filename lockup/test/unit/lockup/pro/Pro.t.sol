@@ -17,7 +17,6 @@ import { GetAsset_Unit_Test } from "../shared/get-asset/getAsset.t.sol";
 import { GetDepositAmount_Unit_Test } from "../shared/get-deposit-amount/getDepositAmount.t.sol";
 import { GetProtocolRevenues_Unit_Test } from "../shared/get-protocol-revenues/getProtocolRevenues.t.sol";
 import { GetRecipient_Unit_Test } from "../shared/get-recipient/getRecipient.t.sol";
-import { GetReturnableAmount_Unit_Test } from "../shared/get-returnable-amount/getReturnableAmount.t.sol";
 import { GetSender_Unit_Test } from "../shared/get-sender/getSender.t.sol";
 import { GetStartTime_Unit_Test } from "../shared/get-start-time/getStartTime.t.sol";
 import { GetStatus_Unit_Test } from "../shared/get-status/getStatus.t.sol";
@@ -25,6 +24,7 @@ import { GetStopTime_Unit_Test } from "../shared/get-stop-time/getStopTime.t.sol
 import { GetWithdrawnAmount_Unit_Test } from "../shared/get-withdrawn-amount/getWithdrawnAmount.t.sol";
 import { IsCancelable_Unit_Test } from "../shared/is-cancelable/isCancelable.t.sol";
 import { Renounce_Unit_Test } from "../shared/renounce/renounce.t.sol";
+import { ReturnableAmountOf_Unit_Test } from "../shared/returnable-amount-of/returnableAmountOf.t.sol";
 import { SetComptroller_Unit_Test } from "../shared/set-comptroller/setComptroller.t.sol";
 import { TokenURI_Unit_Test } from "../shared/token-uri/tokenURI.t.sol";
 import { Withdraw_Unit_Test } from "../shared/withdraw/withdraw.t.sol";
@@ -125,10 +125,10 @@ contract GetRecipient_Pro_Unit_Test is Pro_Unit_Test, GetRecipient_Unit_Test {
     }
 }
 
-contract GetReturnableAmount_Pro_Unit_Test is Pro_Unit_Test, GetReturnableAmount_Unit_Test {
-    function setUp() public virtual override(Pro_Unit_Test, GetReturnableAmount_Unit_Test) {
+contract ReturnableAmountOf_Pro_Unit_Test is Pro_Unit_Test, ReturnableAmountOf_Unit_Test {
+    function setUp() public virtual override(Pro_Unit_Test, ReturnableAmountOf_Unit_Test) {
         Pro_Unit_Test.setUp();
-        GetReturnableAmount_Unit_Test.setUp();
+        ReturnableAmountOf_Unit_Test.setUp();
     }
 }
 

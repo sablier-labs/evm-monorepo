@@ -8,7 +8,7 @@ import { Broker } from "src/types/Structs.sol";
 
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
 
-contract GetWithdrawableAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
+contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     uint256 internal defaultStreamId;
     modifier streamActive() {
         // Create the default stream.
@@ -17,10 +17,10 @@ contract GetWithdrawableAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should return zero.
-    function testFuzz_GetWithdrawableAmount_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external streamActive {
+    function testFuzz_WithdrawableAmountOf_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external streamActive {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
-        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(defaultStreamId);
+        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -41,7 +41,7 @@ contract GetWithdrawableAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// - Current time = stop time
     /// - Current time > stop time
     /// - Multiple values for the deposit amount
-    function testFuzz_GetWithdrawableAmount_NoWithdrawals(
+    function testFuzz_WithdrawableAmountOf_NoWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount
     ) external streamActive cliffTimeLessThanOrEqualToCurrentTime {
@@ -67,7 +67,7 @@ contract GetWithdrawableAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
         );
 
         // Run the test.
-        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(streamId);
+        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount = calculateStreamedAmount(currentTime, depositAmount);
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -81,7 +81,7 @@ contract GetWithdrawableAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// - Current time > stop time
     /// - Multiple values for the deposit amount
     /// - WithdrawFromLockupStream amount equal to deposit amount and not
-    function testFuzz_GetWithdrawableAmount_WithWithdrawals(
+    function testFuzz_WithdrawableAmountOf_WithWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount,
         uint128 withdrawAmount
@@ -114,7 +114,7 @@ contract GetWithdrawableAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
         linear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = linear.getWithdrawableAmount(streamId);
+        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

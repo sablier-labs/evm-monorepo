@@ -167,7 +167,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Bound the withdraw amount.
-        uint128 withdrawableAmount = lockup.getWithdrawableAmount(defaultStreamIds[0]);
+        uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamIds[0]);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawals to be made.
@@ -249,7 +249,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         vars.ongoingStreamId = createDefaultStreamWithStopTime(vars.ongoingStopTime);
 
         // Bound the ongoing withdraw amount.
-        vars.ongoingWithdrawableAmount = lockup.getWithdrawableAmount(vars.ongoingStreamId);
+        vars.ongoingWithdrawableAmount = lockup.withdrawableAmountOf(vars.ongoingStreamId);
         params.ongoingWithdrawAmount = boundUint128(params.ongoingWithdrawAmount, 1, vars.ongoingWithdrawableAmount);
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
