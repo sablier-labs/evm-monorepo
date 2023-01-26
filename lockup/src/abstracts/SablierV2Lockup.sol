@@ -99,7 +99,9 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_StreamNotCanceledOrDepleted(streamId);
         }
 
-        // Checks: the `msg.sender` is either the owner of the NFT or an approved operator.
+        // Checks:
+        // 1. NFT exists (see `getApproved`).
+        // 2. `msg.sender` is either the owner of the NFT or an approved operator.
         if (!_isApprovedOrOwner(streamId, msg.sender)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }

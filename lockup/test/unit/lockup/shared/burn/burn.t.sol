@@ -57,8 +57,22 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
+    /// @dev it should revert.
+    function test_RevertWhen_NFTNonExistent() external streamCanceledOrDepleted callerAuthorized {
+        // Burn the NFT so that it no longer exists.
+        lockup.burn(streamId);
+
+        // Run the test.
+        vm.expectRevert("ERC721: invalid token ID");
+        lockup.burn(streamId);
+    }
+
+    modifier nftExistent() {
+        _;
+    }
+
     /// @dev it should burn the NFT.
-    function test_Burn_CallerApprovedOperator() external streamCanceledOrDepleted callerAuthorized {
+    function test_Burn_CallerApprovedOperator() external streamCanceledOrDepleted callerAuthorized nftExistent {
         // Approve the operator to handle the stream.
         lockup.approve({ to: users.operator, tokenId: streamId });
 
@@ -75,7 +89,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should burn the NFT.
-    function test_Burn_CallerNFTOwner() external streamCanceledOrDepleted callerAuthorized {
+    function test_Burn_CallerNFTOwner() external streamCanceledOrDepleted callerAuthorized nftExistent {
         lockup.burn(streamId);
         address actualNFTOwner = lockup.getRecipient(streamId);
         address expectedNFTOwner = address(0);
