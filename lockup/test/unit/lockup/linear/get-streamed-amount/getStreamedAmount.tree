@@ -3,7 +3,7 @@ getStreamedAmount.t.sol
 │  ├── when the stream is null
 │  │  └── it should return zero
 │  ├── when the stream is canceled
-│  │  └── it should return zero
+│  │  └── it should return the withdrawn amount
 │  └── when the stream is depleted
 │     └── it should return the withdrawn amount
 └── when the stream is active

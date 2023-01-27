@@ -29,7 +29,7 @@ contract GetStreamedAmount_Linear_Unit_Test is Linear_Unit_Test {
     function test_GetStreamedAmount_StreamCanceled() external streamNotActive {
         lockup.cancel(defaultStreamId);
         uint256 actualStreamedAmount = linear.getStreamedAmount(defaultStreamId);
-        uint256 expectedStreamedAmount = 0;
+        uint256 expectedStreamedAmount = linear.getWithdrawnAmount(defaultStreamId);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 

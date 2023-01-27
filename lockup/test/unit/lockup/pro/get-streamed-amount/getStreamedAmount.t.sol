@@ -31,7 +31,7 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     function test_GetStreamedAmount_StreamCanceled() external streamNotActive {
         lockup.cancel(defaultStreamId);
         uint256 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
-        uint256 expectedStreamedAmount = 0;
+        uint256 expectedStreamedAmount = pro.getWithdrawnAmount(defaultStreamId);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 

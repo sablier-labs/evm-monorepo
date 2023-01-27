@@ -182,7 +182,7 @@ contract SablierV2LockupPro is
     function isCancelable(
         uint256 streamId
     ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (bool result) {
-        // A null stream dot not exist, and a canceled or depleted stream cannot be canceled anymore.
+        // A null stream does not exist, and a canceled or depleted stream cannot be canceled anymore.
         if (_streams[streamId].status != Status.ACTIVE) {
             return false;
         }
