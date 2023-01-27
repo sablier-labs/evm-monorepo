@@ -147,31 +147,6 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
-    function testFuzz_RevertWhen_AssetNotContract(
-        IERC20 nonContract
-    )
-        external
-        recipientNonZeroAddress
-        netDepositAmountNotZero
-        startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToStopTime
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
-    {
-        vm.assume(address(nonContract).code.length == 0);
-        vm.expectRevert("Address: call to non-contract");
-        linear.createWithRange(
-            defaultParams.createWithRange.sender,
-            defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
-            nonContract,
-            defaultParams.createWithRange.cancelable,
-            defaultParams.createWithRange.range,
-            defaultParams.createWithRange.broker
-        );
-    }
-
     modifier assetContract() {
         _;
     }

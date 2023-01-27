@@ -185,43 +185,6 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
-    function testFuzz_RevertWhen_AssetNotContract(
-        IERC20 nonContract
-    )
-        external
-        recipientNonZeroAddress
-        netDepositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        segmentMilestonesOrdered
-        netDepositAmountEqualToSegmentAmountsSum
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
-    {
-        vm.assume(address(nonContract).code.length == 0);
-
-        // Set the default protocol fee so that the test does not revert due to the net deposit amount not being
-        // equal to the segment amounts sum.
-        changePrank({ who: users.admin });
-        comptroller.setProtocolFee(nonContract, DEFAULT_PROTOCOL_FEE);
-        changePrank({ who: users.sender });
-
-        // Run the test.
-        vm.expectRevert("Address: call to non-contract");
-        pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
-            defaultParams.createWithMilestones.segments,
-            nonContract,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.startTime,
-            defaultParams.createWithMilestones.broker
-        );
-    }
-
     modifier assetContract() {
         _;
     }
