@@ -15,7 +15,7 @@ contract DeployLockupLinear is Script, Common {
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
         UD60x18 maxFee
-    ) public broadcaster returns (SablierV2LockupLinear linear) {
+    ) public virtual broadcaster returns (SablierV2LockupLinear linear) {
         linear = new SablierV2LockupLinear(initialAdmin, initialComptroller, maxFee);
     }
 }

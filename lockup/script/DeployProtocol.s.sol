@@ -8,26 +8,23 @@ import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
-import { Common } from "./helpers/Common.s.sol";
 import { DeployComptroller } from "./DeployComptroller.s.sol";
+import { DeployLockupLinear } from "./DeployLockupLinear.s.sol";
+import { DeployLockupPro } from "./DeployLockupPro.s.sol";
 
 /// @notice Deploys the entire Sablier V2 protocol. The contracts are deployed in the following order:
 ///
 /// 1. SablierV2Comptroller
 /// 2. SablierV2LockupLinear
 /// 3. SablierV2LockupPro
-contract DeployProtocol is Script, Common {
+contract DeployProtocol is DeployComptroller, DeployLockupLinear, DeployLockupPro {
     function run(
         address initialAdmin,
         UD60x18 maxFee,
         uint256 maxSegmentCount
-    )
-        public
-        broadcaster
-        returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro)
-    {
-        comptroller = new SablierV2Comptroller(initialAdmin);
-        linear = new SablierV2LockupLinear(initialAdmin, comptroller, maxFee);
-        pro = new SablierV2LockupPro(initialAdmin, comptroller, maxFee, maxSegmentCount);
+    ) public virtual returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro) {
+        comptroller = DeployComptroller.run(initialAdmin);
+        linear = DeployLockupLinear.run(initialAdmin, comptroller, maxFee);
+        pro = DeployLockupPro.run(initialAdmin, comptroller, maxFee, maxSegmentCount);
     }
 }

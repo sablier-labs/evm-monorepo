@@ -19,7 +19,7 @@ contract DeployDeterministicLockupPro is Script, Common {
         ISablierV2Comptroller initialComptroller,
         UD60x18 maxFee,
         uint256 maxSegmentCount
-    ) public broadcaster returns (SablierV2LockupPro pro) {
+    ) public virtual broadcaster returns (SablierV2LockupPro pro) {
         pro = new SablierV2LockupPro{ salt: ZERO_SALT }(initialAdmin, initialComptroller, maxFee, maxSegmentCount);
     }
 }

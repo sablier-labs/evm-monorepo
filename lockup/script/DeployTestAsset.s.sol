@@ -9,7 +9,7 @@ import { Common } from "./helpers/Common.s.sol";
 
 /// @notice Deploys a test ERC-20 token with infinite minting and burning capabilities.
 contract DeployTestAsset is Script, Common {
-    function run() public broadcaster returns (ERC20GodMode token) {
+    function run() public virtual broadcaster returns (ERC20GodMode token) {
         token = new ERC20GodMode("Test token", "TKN", 18);
     }
 }

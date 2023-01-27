@@ -8,7 +8,9 @@ import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
-import { Common } from "./helpers/Common.s.sol";
+import { DeployDeterministicComptroller } from "./DeployDeterministicComptroller.s.sol";
+import { DeployDeterministicLockupLinear } from "./DeployDeterministicLockupLinear.s.sol";
+import { DeployDeterministicLockupPro } from "./DeployDeterministicLockupPro.s.sol";
 
 /// @dev Deploys the entire Sablier V2 protocol at deterministic addresses across all chains. Reverts if
 /// any contract has already been deployed via the deterministic CREATE2 factory.
@@ -18,25 +20,25 @@ import { Common } from "./helpers/Common.s.sol";
 /// 1. SablierV2Comptroller
 /// 2. SablierV2LockupLinear
 /// 3. SablierV2LockupPro
-contract DeployDeterministicProtocol is Script, Common {
+contract DeployDeterministicProtocol is
+    DeployDeterministicComptroller,
+    DeployDeterministicLockupLinear,
+    DeployDeterministicLockupPro
+{
     /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.
     /// https://github.com/Arachnid/deterministic-deployment-proxy
     function run(
         address initialAdmin,
         UD60x18 maxFee,
         uint256 maxSegmentCount
-    )
-        public
-        broadcaster
-        returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro)
-    {
+    ) public virtual returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro) {
         // Deploy the SablierV2Comptroller contract.
-        comptroller = new SablierV2Comptroller{ salt: ZERO_SALT }(initialAdmin);
+        comptroller = DeployDeterministicComptroller.run(initialAdmin);
 
         // Deploy the SablierV2LockupLinear contract.
-        linear = new SablierV2LockupLinear{ salt: ZERO_SALT }(initialAdmin, comptroller, maxFee);
+        linear = DeployDeterministicLockupLinear.run(initialAdmin, comptroller, maxFee);
 
         // Deploy the SablierV2LockupPro contract.
-        pro = new SablierV2LockupPro{ salt: ZERO_SALT }(initialAdmin, comptroller, maxFee, maxSegmentCount);
+        pro = DeployDeterministicLockupPro.run(initialAdmin, comptroller, maxFee, maxSegmentCount);
     }
 }
