@@ -8,9 +8,9 @@ createWithRange.t.sol
       ├── when the start time is greater than the cliff time
       │  └── it should revert
       └── when the start time is less than or equal to the cliff time
-         ├── when the cliff time is greater than the stop time
+         ├── when the cliff time is greater than the end time
          │  └── it should revert
-         └── when the cliff time is less than or equal to the stop time
+         └── when the cliff time is less than or equal to the end time
             ├── when the protocol fee is too high
             │  └── it should revert
             └── when the protocol fee is not too high

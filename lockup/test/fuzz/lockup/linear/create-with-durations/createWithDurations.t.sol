@@ -25,7 +25,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint40 startTime = getBlockTimestamp();
         cliffDuration = boundUint40(cliffDuration, UINT40_MAX - startTime + 1, UINT40_MAX);
 
-        // Calculate the stop time. Needs to be "unchecked" to avoid an overflow.
+        // Calculate the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
         unchecked {
             cliffTime = startTime + cliffDuration;
@@ -59,20 +59,20 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         durations.cliff = boundUint40(durations.cliff, 0, UINT40_MAX - startTime);
         durations.total = boundUint40(durations.total, UINT40_MAX - startTime + 1, UINT40_MAX);
 
-        // Calculate the cliff time and the stop time. Needs to be "unchecked" to avoid an overflow.
+        // Calculate the cliff time and the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
-        uint40 stopTime;
+        uint40 endTime;
         unchecked {
             cliffTime = startTime + durations.cliff;
-            stopTime = startTime + durations.total;
+            endTime = startTime + durations.total;
         }
 
         // Expect an error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeGreaterThanStopTime.selector,
+                Errors.SablierV2LockupLinear_CliffTimeGreaterThanEndTime.selector,
                 cliffTime,
-                stopTime
+                endTime
             )
         );
 
@@ -114,11 +114,11 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             )
         );
 
-        // Calculate the start time, cliff time and the stop time.
+        // Calculate the start time, cliff time and the end time.
         Range memory range = Range({
             start: getBlockTimestamp(),
             cliff: getBlockTimestamp() + durations.cliff,
-            stop: getBlockTimestamp() + durations.total
+            end: getBlockTimestamp() + durations.total
         });
 
         // Expect a {CreateLockupLinearStream} event to be emitted.

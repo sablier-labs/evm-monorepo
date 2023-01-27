@@ -29,9 +29,9 @@ withdraw.t.sol
                ├── when the caller is an approved operator
                │  └── it should make the withdrawal and update the withdrawn amount
                └── when the caller is the sender
-                  ├── when the current time is equal to the stop time
+                  ├── when the current time is equal to the end time
                   │  └── it should make the withdrawal and mark the stream as depleted
-                  └── when the current time is less than the stop time
+                  └── when the current time is less than the end time
                      ├── when the recipient is not a contract
                      │  └── it should make the withdrawal and update the withdrawn amount
                      └── when the recipient is a contract

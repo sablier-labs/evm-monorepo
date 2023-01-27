@@ -28,6 +28,10 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream to make the query for.
     function getDepositAmount(uint256 streamId) external view returns (uint128 depositAmount);
 
+    /// @notice Queries the end time of the stream.
+    /// @param streamId The id of the stream to make the query for.
+    function getEndTime(uint256 streamId) external view returns (uint40 endTime);
+
     /// @notice Queries the recipient of the stream.
     /// @param streamId The id of the stream to make the query for.
     function getRecipient(uint256 streamId) external view returns (address recipient);
@@ -43,10 +47,6 @@ interface ISablierV2Lockup is
     /// @notice Queries the status of the stream.
     /// @param streamId The id of the stream to make the query for.
     function getStatus(uint256 streamId) external view returns (Status status);
-
-    /// @notice Queries the stop time of the stream.
-    /// @param streamId The id of the stream to make the query for.
-    function getStopTime(uint256 streamId) external view returns (uint40 stopTime);
 
     /// @notice Queries the amount withdrawn from the stream, in units of the asset's decimals.
     /// @param streamId The id of the stream to make the query for.

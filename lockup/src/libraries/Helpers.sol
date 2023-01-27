@@ -65,9 +65,9 @@ library Helpers {
             revert Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime(range.start, range.cliff);
         }
 
-        // Checks: the cliff time is less than or equal to the stop time.
-        if (range.cliff > range.stop) {
-            revert Errors.SablierV2LockupLinear_CliffTimeGreaterThanStopTime(range.cliff, range.stop);
+        // Checks: the cliff time is less than or equal to the end time.
+        if (range.cliff > range.end) {
+            revert Errors.SablierV2LockupLinear_CliffTimeGreaterThanEndTime(range.cliff, range.end);
         }
     }
 

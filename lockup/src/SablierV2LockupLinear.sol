@@ -70,6 +70,11 @@ contract SablierV2LockupLinear is
         depositAmount = _streams[streamId].amounts.deposit;
     }
 
+    /// @inheritdoc ISablierV2Lockup
+    function getEndTime(uint256 streamId) external view override returns (uint40 endTime) {
+        endTime = _streams[streamId].range.end;
+    }
+
     /// @inheritdoc ISablierV2LockupLinear
     function getRange(uint256 streamId) external view override returns (Range memory range) {
         range = _streams[streamId].range;
@@ -97,11 +102,6 @@ contract SablierV2LockupLinear is
         uint256 streamId
     ) public view virtual override(ISablierV2Lockup, SablierV2Lockup) returns (Status status) {
         status = _streams[streamId].status;
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function getStopTime(uint256 streamId) external view override returns (uint40 stopTime) {
-        stopTime = _streams[streamId].range.stop;
     }
 
     /// @inheritdoc ISablierV2LockupLinear
@@ -156,11 +156,11 @@ contract SablierV2LockupLinear is
             return 0;
         }
 
-        uint256 stopTime = uint256(_streams[streamId].range.stop);
+        uint256 endTime = uint256(_streams[streamId].range.end);
 
-        // If the current time is greater than or equal to the stop time, we simply return the deposit minus
+        // If the current time is greater than or equal to the end time, we simply return the deposit minus
         // the withdrawn amount.
-        if (currentTime >= stopTime) {
+        if (currentTime >= endTime) {
             return _streams[streamId].amounts.deposit;
         }
 
@@ -169,7 +169,7 @@ contract SablierV2LockupLinear is
             // First, calculate how much time has elapsed since the stream started, and the total time of the stream.
             uint256 startTime = uint256(_streams[streamId].range.start);
             UD60x18 elapsedTime = ud(currentTime - startTime);
-            UD60x18 totalTime = ud(stopTime - startTime);
+            UD60x18 totalTime = ud(endTime - startTime);
 
             // Then, calculate the streamed amount.
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
@@ -217,12 +217,12 @@ contract SablierV2LockupLinear is
         Range memory range;
         range.start = uint40(block.timestamp);
 
-        // Calculate the cliff time and the stop time. It is safe to use unchecked arithmetic because the
-        // {_createWithRange} function will nonetheless check that the stop time is greater than or equal to the
+        // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because the
+        // {_createWithRange} function will nonetheless check that the end time is greater than or equal to the
         // cliff time, and also that the cliff time is greater than or equal to the start time.
         unchecked {
             range.cliff = range.start + durations.cliff;
-            range.stop = range.start + durations.total;
+            range.end = range.start + durations.total;
         }
 
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.

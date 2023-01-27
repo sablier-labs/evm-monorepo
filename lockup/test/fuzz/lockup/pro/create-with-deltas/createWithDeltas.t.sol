@@ -114,7 +114,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
             asset: DEFAULT_ASSET,
             cancelable: defaultParams.createWithDeltas.cancelable,
             startTime: DEFAULT_START_TIME,
-            stopTime: segments[1].milestone,
+            endTime: segments[1].milestone,
             broker: defaultParams.createWithDeltas.broker.addr
         });
 
@@ -134,12 +134,12 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         LockupProStream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.asset, defaultStream.asset, "asset");
+        assertEq(actualStream.endTime, segments[1].milestone, "endTime");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
         assertEq(actualStream.segments, segments);
         assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.startTime, defaultStream.startTime, "startTime");
         assertEq(actualStream.status, defaultStream.status);
-        assertEq(actualStream.stopTime, segments[1].milestone, "stopTime");
 
         // Assert that the next stream id was bumped.
         uint256 actualNextStreamId = pro.nextStreamId();

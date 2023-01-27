@@ -42,7 +42,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Create a stream by setting the start time to `block.timestamp` and the stop time to the sum of
+    /// @notice Create a stream by setting the start time to `block.timestamp` and the end time to the sum of
     /// `block.timestamp` and all `deltas`. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupProStream} and a {Transfer} event.
@@ -77,7 +77,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
         Broker calldata broker
     ) external returns (uint256 streamId);
 
-    /// @notice Create a stream by using the provided milestones, implying the stop time from the last segment's.
+    /// @notice Create a stream by using the provided milestones, implying the end time from the last segment's.
     /// milestone. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupProStream} and a {Transfer} event.

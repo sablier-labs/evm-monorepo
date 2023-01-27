@@ -89,10 +89,10 @@ library Errors {
                               SABLIER-V2-LOCKUP-LINEAR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when attempting to create a stream with a cliff time greater than stop time;
-    error SablierV2LockupLinear_CliffTimeGreaterThanStopTime(uint40 cliffTime, uint40 stopTime);
+    /// @notice Emitted when attempting to create a stream with a cliff time greater than the end time.
+    error SablierV2LockupLinear_CliffTimeGreaterThanEndTime(uint40 cliffTime, uint40 endTime);
 
-    /// @notice Emitted when attempting to create a stream with a start time greater than cliff time;
+    /// @notice Emitted when attempting to create a stream with a start time greater than the cliff time.
     error SablierV2LockupLinear_StartTimeGreaterThanCliffTime(uint40 startTime, uint40 cliffTime);
 
     /*//////////////////////////////////////////////////////////////////////////

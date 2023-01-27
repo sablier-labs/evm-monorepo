@@ -81,12 +81,12 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
 
         // Create the default stream to be used across the tests.
         defaultStream.amounts = DEFAULT_LOCKUP_AMOUNTS;
+        defaultStream.endTime = DEFAULT_END_TIME;
         defaultStream.isCancelable = defaultParams.createWithMilestones.cancelable;
         defaultStream.segments = defaultParams.createWithMilestones.segments;
         defaultStream.sender = defaultParams.createWithMilestones.sender;
         defaultStream.startTime = defaultParams.createWithMilestones.startTime;
         defaultStream.status = Status.ACTIVE;
-        defaultStream.stopTime = DEFAULT_STOP_TIME;
         defaultStream.asset = defaultParams.createWithMilestones.asset;
     }
 
@@ -133,6 +133,22 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithDeltas.cancelable,
             deltas,
             defaultParams.createWithDeltas.broker
+        );
+    }
+
+    /// @dev Creates the default stream with the provided end time. In this case, the last milestone is the end time.
+    function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
+        Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        segments[1].milestone = endTime;
+        streamId = pro.createWithMilestones(
+            defaultParams.createWithMilestones.sender,
+            defaultParams.createWithMilestones.recipient,
+            defaultParams.createWithMilestones.grossDepositAmount,
+            segments,
+            defaultParams.createWithMilestones.asset,
+            defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.startTime,
+            defaultParams.createWithMilestones.broker
         );
     }
 
@@ -200,22 +216,6 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.grossDepositAmount,
             defaultParams.createWithMilestones.segments,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.startTime,
-            defaultParams.createWithMilestones.broker
-        );
-    }
-
-    /// @dev Creates the default stream with the provided stop time. In this case, the last milestone is the stop time.
-    function createDefaultStreamWithStopTime(uint40 stopTime) internal override returns (uint256 streamId) {
-        Segment[] memory segments = defaultParams.createWithMilestones.segments;
-        segments[1].milestone = stopTime;
-        streamId = pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
-            segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
             defaultParams.createWithMilestones.startTime,

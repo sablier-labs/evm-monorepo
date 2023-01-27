@@ -41,7 +41,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_StreamDepleted() external streamNotActive {
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -196,7 +196,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should make the withdrawal and mark the stream as depleted.
-    function test_Withdraw_CurrentTimeEqualToStopTime()
+    function test_Withdraw_CurrentTimeEqualToEndTime()
         external
         streamActive
         callerAuthorized
@@ -206,7 +206,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerSender
     {
         // Warp to the end of the stream.
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_NET_DEPOSIT_AMOUNT });
@@ -222,7 +222,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier currentTimeLessThanStopTime() {
+    modifier currentTimeLessThanEndTime() {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
         _;
@@ -237,7 +237,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        currentTimeLessThanStopTime
+        currentTimeLessThanEndTime
     {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -278,7 +278,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        currentTimeLessThanStopTime
+        currentTimeLessThanEndTime
         recipientContract
     {
         // Create the stream with the recipient as a contract.
@@ -306,7 +306,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        currentTimeLessThanStopTime
+        currentTimeLessThanEndTime
         recipientContract
         recipientImplementsHook
     {
@@ -335,7 +335,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        currentTimeLessThanStopTime
+        currentTimeLessThanEndTime
         recipientContract
         recipientImplementsHook
         recipientDoesNotRevert
@@ -368,7 +368,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        currentTimeLessThanStopTime
+        currentTimeLessThanEndTime
         recipientContract
         recipientImplementsHook
         recipientDoesNotRevert

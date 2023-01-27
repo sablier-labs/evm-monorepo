@@ -209,11 +209,11 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 ongoingStreamId = defaultStreamIds[0];
 
         // Create the ended stream.
-        uint40 earlyStopTime = DEFAULT_START_TIME + DEFAULT_TIME_WARP;
-        uint256 endedStreamId = createDefaultStreamWithStopTime(earlyStopTime);
+        uint40 earlyEndTime = DEFAULT_START_TIME + DEFAULT_TIME_WARP;
+        uint256 endedStreamId = createDefaultStreamWithEndTime(earlyEndTime);
 
         // Warp to the end of the ended stream.
-        vm.warp({ timestamp: earlyStopTime });
+        vm.warp({ timestamp: earlyEndTime });
 
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(ongoingStreamId, endedStreamId);

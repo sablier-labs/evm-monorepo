@@ -130,6 +130,23 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         );
     }
 
+    /// @dev Creates the default stream with the provided end time.
+    function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
+        streamId = linear.createWithRange(
+            defaultParams.createWithRange.sender,
+            defaultParams.createWithRange.recipient,
+            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.asset,
+            defaultParams.createWithRange.cancelable,
+            Range({
+                start: defaultParams.createWithRange.range.start,
+                cliff: defaultParams.createWithRange.range.cliff,
+                end: endTime
+            }),
+            defaultParams.createWithRange.broker
+        );
+    }
+
     /// @dev Creates the default stream with the provided gross deposit amount.
     function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
         streamId = linear.createWithRange(
@@ -179,23 +196,6 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
-            defaultParams.createWithRange.broker
-        );
-    }
-
-    /// @dev Creates the default stream with the provided stop time.
-    function createDefaultStreamWithStopTime(uint40 stopTime) internal override returns (uint256 streamId) {
-        streamId = linear.createWithRange(
-            defaultParams.createWithRange.sender,
-            defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
-            defaultParams.createWithRange.asset,
-            defaultParams.createWithRange.cancelable,
-            Range({
-                start: defaultParams.createWithRange.range.start,
-                cliff: defaultParams.createWithRange.range.cliff,
-                stop: stopTime
-            }),
             defaultParams.createWithRange.broker
         );
     }

@@ -44,10 +44,10 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
     /// - Some streams ended, some streams ongoing.
     function testFuzz_CancelMultiple_Sender(
         uint256 timeWarp,
-        uint40 stopTime
+        uint40 endTime
     ) external onlyNonNullStreams allStreamsCancelable callerAuthorizedAllStreams {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
-        stopTime = boundUint40(stopTime, DEFAULT_CLIFF_TIME + 1, DEFAULT_STOP_TIME + DEFAULT_TOTAL_DURATION / 2);
+        endTime = boundUint40(endTime, DEFAULT_CLIFF_TIME + 1, DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION / 2);
 
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
@@ -55,8 +55,8 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         // Make the sender the caller in this test.
         changePrank({ who: users.sender });
 
-        // Create a new stream with a different stop time.
-        uint256 streamId = createDefaultStreamWithStopTime(stopTime);
+        // Create a new stream with a different end time.
+        uint256 streamId = createDefaultStreamWithEndTime(endTime);
 
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
@@ -123,10 +123,10 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
     /// - Some streams ended, some streams ongoing.
     function testFuzz_CancelMultiple_Recipient(
         uint256 timeWarp,
-        uint40 stopTime
+        uint40 endTime
     ) external onlyNonNullStreams allStreamsCancelable callerAuthorizedAllStreams {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
-        stopTime = boundUint40(stopTime, DEFAULT_CLIFF_TIME + 1, DEFAULT_STOP_TIME + DEFAULT_TOTAL_DURATION / 2);
+        endTime = boundUint40(endTime, DEFAULT_CLIFF_TIME + 1, DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION / 2);
 
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
@@ -134,8 +134,8 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         // Make the recipient the caller in this test.
         changePrank({ who: users.recipient });
 
-        // Create a new stream with a different stop time.
-        uint256 streamId = createDefaultStreamWithStopTime(stopTime);
+        // Create a new stream with a different end time.
+        uint256 streamId = createDefaultStreamWithEndTime(endTime);
 
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);

@@ -61,7 +61,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             defaultParams.createWithRange.grossDepositAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
-            Range({ start: startTime, cliff: cliffTime, stop: defaultParams.createWithRange.range.stop }),
+            Range({ start: startTime, cliff: cliffTime, end: defaultParams.createWithRange.range.end }),
             defaultParams.createWithRange.broker
         );
     }
@@ -71,19 +71,19 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CliffTimeGreaterThanStopTime()
+    function test_RevertWhen_CliffTimeGreaterThanEndTime()
         external
         recipientNonZeroAddress
         netDepositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
     {
-        uint40 cliffTime = defaultParams.createWithRange.range.stop;
-        uint40 stopTime = defaultParams.createWithRange.range.cliff;
+        uint40 cliffTime = defaultParams.createWithRange.range.end;
+        uint40 endTime = defaultParams.createWithRange.range.cliff;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeGreaterThanStopTime.selector,
+                Errors.SablierV2LockupLinear_CliffTimeGreaterThanEndTime.selector,
                 cliffTime,
-                stopTime
+                endTime
             )
         );
         linear.createWithRange(
@@ -92,12 +92,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             defaultParams.createWithRange.grossDepositAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
-            Range({ start: defaultParams.createWithRange.range.start, cliff: cliffTime, stop: stopTime }),
+            Range({ start: defaultParams.createWithRange.range.start, cliff: cliffTime, end: endTime }),
             defaultParams.createWithRange.broker
         );
     }
 
-    modifier cliffLessThanOrEqualToStopTime() {
+    modifier cliffLessThanOrEqualToEndTime() {
         _;
     }
 
@@ -107,7 +107,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         recipientNonZeroAddress
         netDepositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToStopTime
+        cliffLessThanOrEqualToEndTime
     {
         UD60x18 protocolFee = DEFAULT_MAX_FEE.add(ud(1));
 
@@ -132,7 +132,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         recipientNonZeroAddress
         netDepositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToStopTime
+        cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
     {
         UD60x18 brokerFee = DEFAULT_MAX_FEE.add(ud(1));
@@ -160,7 +160,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         recipientNonZeroAddress
         netDepositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToStopTime
+        cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
     {
@@ -187,7 +187,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         recipientNonZeroAddress
         netDepositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToStopTime
+        cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
         assetContract
@@ -211,7 +211,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         external
         netDepositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToStopTime
+        cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
         assetContract

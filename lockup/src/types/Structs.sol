@@ -30,8 +30,8 @@ struct CreateLockupAmounts {
 /// @custom:field cliff The cliff duration in seconds.
 /// @custom:field cliff The total duration in seconds.
 struct Durations {
-    uint40 cliff;
-    uint40 total;
+    uint40 cliff; // ─┐
+    uint40 total; // ─┘
 }
 
 /// @notice Simple struct that encapsulates the deposit and the withdrawn amounts.
@@ -66,7 +66,7 @@ struct LockupLinearStream {
 /// @custom:field segments The segments the protocol uses to compose the custom streaming curve.
 /// @custom:field sender The address of the sender of the stream.
 /// @custom:field startTime The Unix timestamp for when the stream will start.
-/// @custom:field stopTime The Unix timestamp for when the stream will stop.
+/// @custom:field endTime The Unix timestamp for when the stream will end.
 /// @custom:field isCancelable A boolean that indicates whether the stream is cancelable or not.
 /// @custom:field status An enum that indicates the status of the stream.
 /// @custom:field asset The contract address of the ERC-20 asset used for streaming.
@@ -75,28 +75,28 @@ struct LockupProStream {
     Segment[] segments;
     address sender; // ───┐
     uint40 startTime; //  │
-    uint40 stopTime; //   │
+    uint40 endTime; //    │
     bool isCancelable; // │
     Status status; // ────┘
     IERC20 asset;
 }
 
 /// @notice Range struct used as a field in the lockup linear stream.
-/// @custom:field cliff The Unix timestamp for when the cliff period will end.
 /// @custom:field start The Unix timestamp for when the stream will start.
-/// @custom:field stop The Unix timestamp for when the stream will stop.
+/// @custom:field cliff The Unix timestamp for when the cliff period will end.
+/// @custom:field end The Unix timestamp for when the stream will end.
 struct Range {
-    uint40 cliff;
-    uint40 start;
-    uint40 stop;
+    uint40 start; // ─┐
+    uint40 cliff; //  │
+    uint40 end; // ───┘
 }
 
 /// @notice Segment struct used in the {SablierV2LockupPro} contract.
 /// @custom:field amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
-/// @custom:field exponent The exponent in this segment, whose base is the elapsed time as a percentage.
+/// @custom:field exponent The exponent of this segment, as an UD2x18 number.
 /// @custom:field milestone The Unix timestamp for when this segment ends.
 struct Segment {
-    uint128 amount;
-    UD2x18 exponent;
-    uint40 milestone;
+    uint128 amount; // ───┐
+    UD2x18 exponent; //   │
+    uint40 milestone; // ─┘
 }

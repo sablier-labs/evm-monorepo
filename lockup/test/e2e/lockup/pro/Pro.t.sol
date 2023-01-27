@@ -171,7 +171,7 @@ abstract contract Pro_E2e_Test is E2eTest {
             asset: asset,
             cancelable: true,
             startTime: params.startTime,
-            stopTime: DEFAULT_STOP_TIME,
+            endTime: DEFAULT_END_TIME,
             broker: params.broker.addr
         });
 
@@ -191,12 +191,12 @@ abstract contract Pro_E2e_Test is E2eTest {
         LockupProStream memory actualStream = pro.getStream(vars.streamId);
         assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
+        assertEq(actualStream.endTime, DEFAULT_END_TIME, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
         assertEq(actualStream.segments, segments);
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.startTime, "startTime");
         assertEq(actualStream.status, Status.ACTIVE);
-        assertEq(actualStream.stopTime, DEFAULT_STOP_TIME, "stopTime");
 
         // Assert that the next stream id was bumped.
         vars.actualNextStreamId = pro.nextStreamId();
@@ -236,7 +236,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Warp into the future.
-        params.timeWarp = boundUint40(params.timeWarp, params.startTime, DEFAULT_STOP_TIME);
+        params.timeWarp = boundUint40(params.timeWarp, params.startTime, DEFAULT_END_TIME);
         vm.warp({ timestamp: params.timeWarp });
 
         // Bound the withdraw amount.

@@ -44,7 +44,7 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     modifier streamDepleted() {
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         _;
     }

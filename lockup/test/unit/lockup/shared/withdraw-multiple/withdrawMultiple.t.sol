@@ -287,8 +287,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         allAmountsNotZero
         allAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        // Warp into the future, past the stop time.
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        // Warp into the future, past the end time.
+        vm.warp({ timestamp: DEFAULT_END_TIME });
 
         // Make Alice the `to` address in this test.
         address to = users.alice;
@@ -342,7 +342,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         allAmountsNotZero
         allAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        // Warp into the future, before the stop time of the streams.
+        // Warp into the future, before the end time of the streams.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
         // Make Alice the `to` address in this test.
@@ -387,7 +387,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         Status expectedStatus1;
         uint128 expectedWithdrawnAmount0;
         uint128 expectedWithdrawnAmount1;
-        uint40 ongoingStopTime;
+        uint40 ongoingEndTime;
         uint256 ongoingStreamId;
         uint128 ongoingWithdrawAmount;
         uint256[] streamIds;
@@ -407,7 +407,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         allAmountsLessThanOrEqualToWithdrawableAmounts
     {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME });
 
         // Make Alice the `to` address in this test.
         Vars memory vars;
@@ -417,9 +417,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vars.endedStreamId = defaultStreamIds[0];
         vars.endedWithdrawAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
 
-        // Create a new stream with a stop time nearly double that of the default stream.
-        vars.ongoingStopTime = DEFAULT_STOP_TIME + DEFAULT_TOTAL_DURATION;
-        vars.ongoingStreamId = createDefaultStreamWithStopTime(vars.ongoingStopTime);
+        // Create a new stream with an end time nearly double that of the default stream.
+        vars.ongoingEndTime = DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION;
+        vars.ongoingStreamId = createDefaultStreamWithEndTime(vars.ongoingEndTime);
 
         // Get the ongoing withdraw amount.
         vars.ongoingWithdrawAmount = lockup.withdrawableAmountOf(vars.ongoingStreamId);

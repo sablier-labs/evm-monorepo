@@ -21,9 +21,9 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should make the withdrawal and mark the stream as depleted.
-    function test_WithdrawMax_CurrentTimeEqualToStopTime() external {
+    function test_WithdrawMax_CurrentTimeEqualToEndTime() external {
         // Warp to the end of the stream.
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME });
 
         // Make the max withdrawal.
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
@@ -39,13 +39,13 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier currentTimeLessThanStopTime() {
+    modifier currentTimeLessThanEndTime() {
         _;
     }
 
     /// @dev it should make the max withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream}
     /// event.
-    function test_WithdrawMax() external currentTimeLessThanStopTime {
+    function test_WithdrawMax() external currentTimeLessThanEndTime {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 

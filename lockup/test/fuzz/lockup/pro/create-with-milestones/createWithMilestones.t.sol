@@ -310,7 +310,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             asset: DEFAULT_ASSET,
             cancelable: params.cancelable,
             startTime: params.startTime,
-            stopTime: DEFAULT_STOP_TIME,
+            endTime: DEFAULT_END_TIME,
             broker: params.broker.addr
         });
 
@@ -330,12 +330,12 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         LockupProStream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
+        assertEq(actualStream.endTime, defaultStream.endTime, "endTime");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.segments, segments);
         assertEq(actualStream.startTime, params.startTime, "startTime");
         assertEq(actualStream.status, defaultStream.status);
-        assertEq(actualStream.stopTime, defaultStream.stopTime, "stopTime");
 
         // Assert that the next stream id was bumped.
         vars.actualNextStreamId = pro.nextStreamId();

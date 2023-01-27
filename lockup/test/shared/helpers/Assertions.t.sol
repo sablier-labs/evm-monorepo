@@ -62,8 +62,8 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two `Range` struct entities.
     function assertEq(Range memory a, Range memory b) internal {
         assertEqUint40(a.cliff, b.cliff, "range.cliff");
+        assertEqUint40(a.end, b.end, "range.end");
         assertEqUint40(a.start, b.start, "range.start");
-        assertEqUint40(a.stop, b.stop, "range.stop");
     }
 
     /// @dev Compares two `Segment[]` arrays.

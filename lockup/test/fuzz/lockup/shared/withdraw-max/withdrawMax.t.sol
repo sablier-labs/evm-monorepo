@@ -19,13 +19,13 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         changePrank({ who: users.recipient });
     }
 
-    modifier currentTimeLessThanStopTime() {
+    modifier currentTimeLessThanEndTime() {
         _;
     }
 
     /// @dev it should make the max withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream}
     /// event.
-    function testFuzz_WithdrawMax(uint256 timeWarp) external currentTimeLessThanStopTime {
+    function testFuzz_WithdrawMax(uint256 timeWarp) external currentTimeLessThanEndTime {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.

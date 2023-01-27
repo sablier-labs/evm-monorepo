@@ -1,5 +1,5 @@
-getStopTime.t.sol
+getEndTime.t.sol
 ├── when the stream is null
 │  └── it should return zero
 └── when the stream is not null
-   └── it should return the correct stop time
+   └── it should return the correct end time

@@ -81,6 +81,11 @@ contract SablierV2LockupPro is
     }
 
     /// @inheritdoc ISablierV2Lockup
+    function getEndTime(uint256 streamId) external view override returns (uint40 endTime) {
+        endTime = _streams[streamId].endTime;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
     function getRecipient(
         uint256 streamId
     ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (address recipient) {
@@ -107,11 +112,6 @@ contract SablierV2LockupPro is
         uint256 streamId
     ) public view virtual override(ISablierV2Lockup, SablierV2Lockup) returns (Status status) {
         status = _streams[streamId].status;
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function getStopTime(uint256 streamId) external view override returns (uint40 stopTime) {
-        stopTime = _streams[streamId].stopTime;
     }
 
     /// @inheritdoc ISablierV2LockupPro
@@ -164,11 +164,11 @@ contract SablierV2LockupPro is
         }
 
         uint256 segmentCount = _streams[streamId].segments.length;
-        uint40 stopTime = _streams[streamId].stopTime;
+        uint40 endTime = _streams[streamId].endTime;
 
-        // If the current time is greater than or equal to the stop time, we simply return the deposit minus
+        // If the current time is greater than or equal to the end time, we simply return the deposit minus
         // the withdrawn amount.
-        if (currentTime >= stopTime) {
+        if (currentTime >= endTime) {
             return _streams[streamId].amounts.deposit;
         }
 
@@ -343,7 +343,7 @@ contract SablierV2LockupPro is
 
             // Calculate how much time has elapsed since the stream started, and the total time of the stream.
             SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
-            SD59x18 totalTime = (_streams[streamId].stopTime - _streams[streamId].startTime).intoSD59x18();
+            SD59x18 totalTime = (_streams[streamId].endTime - _streams[streamId].startTime).intoSD59x18();
 
             // Calculate the streamed amount.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
@@ -479,7 +479,7 @@ contract SablierV2LockupPro is
         stream.sender = params.sender;
         stream.startTime = params.startTime;
         stream.status = Status.ACTIVE;
-        stream.stopTime = params.segments[segmentCount - 1].milestone;
+        stream.endTime = params.segments[segmentCount - 1].milestone;
         stream.asset = params.asset;
 
         unchecked {
@@ -524,7 +524,7 @@ contract SablierV2LockupPro is
             asset: params.asset,
             cancelable: params.cancelable,
             startTime: params.startTime,
-            stopTime: stream.stopTime,
+            endTime: stream.endTime,
             broker: params.broker
         });
     }

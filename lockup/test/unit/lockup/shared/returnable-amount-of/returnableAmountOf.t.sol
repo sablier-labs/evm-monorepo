@@ -34,7 +34,7 @@ abstract contract ReturnableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
 
     /// @dev it should return zero.
     function test_ReturnableAmountOf_StreamDepleted() external streamNotActive {
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint256 actualReturnableAmount = lockup.returnableAmountOf(defaultStreamId);
         uint256 expectedReturnableAmount = 0;

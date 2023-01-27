@@ -111,7 +111,7 @@ library Events {
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
-    /// and (iii) the stop time of the stream, all as Unix timestamps.
+    /// and (iii) the end time of the stream, all as Unix timestamps.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateLockupLinearStream(
         uint256 streamId,
@@ -136,7 +136,7 @@ library Events {
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param startTime The Unix timestamp for when the stream will start.
-    /// @param stopTime The Unix timestamp for when the stream will stop.
+    /// @param endTime The Unix timestamp for when the stream will end.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateLockupProStream(
         uint256 streamId,
@@ -148,7 +148,7 @@ library Events {
         IERC20 asset,
         bool cancelable,
         uint40 startTime,
-        uint40 stopTime,
+        uint40 endTime,
         address broker
     );
 

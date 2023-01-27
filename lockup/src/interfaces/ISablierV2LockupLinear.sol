@@ -29,7 +29,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
     /// @notice Queries the range of the stream, a struct that encapsulates (i) the start time of the stream,
-    //// (ii) the cliff time of the stream, and (iii) the stop time of the stream, all as Unix timestamps.
+    //// (ii) the cliff time of the stream, and (iii) the end time of the stream, all as Unix timestamps.
     /// @param streamId The id of the stream to make the query for.
     function getRange(uint256 streamId) external view returns (Range memory range);
 
@@ -42,7 +42,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Creates a stream funded by `msg.sender` wrapped in an ERC-721 NFT, setting the start time to
-    /// `block.timestamp` and the stop time to `block.timestamp + duration`.
+    /// `block.timestamp` and the end time to `block.timestamp + durations.total`.
     ///
     /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
     ///
@@ -72,7 +72,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     ) external returns (uint256 streamId);
 
     /// @notice Creates a new stream funded by `msg.sender` wrapped in an ERC-721 NFT, setting the start time and the
-    /// stop time to the provided values.
+    /// end time to the provided values.
     ///
     /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
     ///
@@ -83,7 +83,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - `recipient` must not be the zero address.
     /// - `grossDepositAmount` must not be zero.
     /// - `range.start` must not be greater than `range.cliff`.
-    /// - `range.cliff` must not be greater than `range.stop`.
+    /// - `range.cliff` must not be greater than `range.end`.
     /// - `msg.sender` must have allowed this contract to spend at least `grossDepositAmount` assets.
     /// - If set, `broker.fee` must not be greater than `MAX_FEE`.
     ///
@@ -95,7 +95,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @param asset The contract address of the ERC-20 asset to use for streaming.
     /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
     /// @param range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
-    /// and (iii) the stop time of the stream, all as Unix timestamps.
+    /// and (iii) the end time of the stream, all as Unix timestamps.
     /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
     /// stream and (ii) the percentage fee that the broker is paid from the deposit amount, as an UD60x18 number.
     /// @return streamId The id of the newly created stream.

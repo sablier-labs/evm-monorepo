@@ -103,7 +103,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier currentTimeLessThanStopTime() {
+    modifier currentTimeLessThanEndTime() {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
         _;
@@ -122,7 +122,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        currentTimeLessThanStopTime
+        currentTimeLessThanEndTime
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(to != address(0) && to.code.length == 0);
@@ -181,7 +181,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         withdrawAmountNotZero
         withdrawAmountLessThanOrEqualToWithdrawableAmount
         callerSender
-        currentTimeLessThanStopTime
+        currentTimeLessThanEndTime
         recipientContract
         recipientImplementsHook
         recipientDoesNotRevert

@@ -50,7 +50,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             Range({
                 start: startTime,
                 cliff: defaultParams.createWithRange.range.cliff,
-                stop: defaultParams.createWithRange.range.stop
+                end: defaultParams.createWithRange.range.end
             }),
             defaultParams.createWithRange.broker
         );
@@ -61,18 +61,18 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CliffTimeGreaterThanStopTime(
+    function testFuzz_RevertWhen_CliffTimeGreaterThanEndTime(
         uint40 cliffTime,
-        uint40 stopTime
+        uint40 endTime
     ) external recipientNonZeroAddress netDepositAmountNotZero startTimeLessThanOrEqualToCliffTime {
-        vm.assume(cliffTime > stopTime);
-        vm.assume(stopTime > defaultParams.createWithRange.range.start);
+        vm.assume(cliffTime > endTime);
+        vm.assume(endTime > defaultParams.createWithRange.range.start);
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeGreaterThanStopTime.selector,
+                Errors.SablierV2LockupLinear_CliffTimeGreaterThanEndTime.selector,
                 cliffTime,
-                stopTime
+                endTime
             )
         );
         linear.createWithRange(
@@ -81,12 +81,12 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             defaultParams.createWithRange.grossDepositAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
-            Range({ start: defaultParams.createWithRange.range.start, cliff: cliffTime, stop: stopTime }),
+            Range({ start: defaultParams.createWithRange.range.start, cliff: cliffTime, end: endTime }),
             defaultParams.createWithRange.broker
         );
     }
 
-    modifier cliffLessThanOrEqualToStopTime() {
+    modifier cliffLessThanOrEqualToEndTime() {
         _;
     }
 
@@ -98,7 +98,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         recipientNonZeroAddress
         netDepositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToStopTime
+        cliffLessThanOrEqualToEndTime
     {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
@@ -125,7 +125,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         recipientNonZeroAddress
         netDepositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToStopTime
+        cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
     {
         brokerFee = bound(brokerFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
@@ -189,7 +189,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
-    /// - Cliff time lower than and equal to stop time.
+    /// - Cliff time lower than and equal to end time.
     /// - Multiple values for the broker fee, including zero.
     /// - Multiple values for the protocol fee, including zero.
     function testFuzz_CreateWithRange(
@@ -198,7 +198,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         external
         netDepositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToStopTime
+        cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
         assetContract
@@ -206,7 +206,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     {
         vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(params.grossDepositAmount != 0);
-        vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.stop);
+        vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.end);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
 

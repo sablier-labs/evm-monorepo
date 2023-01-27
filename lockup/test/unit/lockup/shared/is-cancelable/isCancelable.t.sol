@@ -32,7 +32,7 @@ abstract contract IsCancelable_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     /// @dev it should return false.
     function test_IsCancelable_StreamDepleted() external streamNotActive {
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertFalse(isCancelable, "isCancelable");

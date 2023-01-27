@@ -40,7 +40,7 @@ contract WithdrawableAmountOf_Pro_Unit_Test is Pro_Unit_Test {
 
     /// @dev it should return zero.
     function test_WithdrawableAmountOf_StreamDepleted() external streamNotActive {
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = 0;

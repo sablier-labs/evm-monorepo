@@ -30,9 +30,9 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Current time < stop time
-    /// - Current time = stop time
-    /// - Current time > stop time
+    /// - Current time < end time
+    /// - Current time = end time
+    /// - Current time > end time
     function testFuzz_WithdrawableAmountOf_WithoutWithdrawals(
         uint40 timeWarp
     ) external streamActive startTimeLessThanCurrentTime {
@@ -73,9 +73,9 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Current time < stop time
-    /// - Current time = stop time
-    /// - Current time > stop time
+    /// - Current time < end time
+    /// - Current time = end time
+    /// - Current time > end time
     /// - WithdrawFromLockupStream amount equal to deposit amount and not
     function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,

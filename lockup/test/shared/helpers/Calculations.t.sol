@@ -30,7 +30,7 @@ abstract contract Calculations is Constants {
         uint40 currentTime,
         uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
-        if (currentTime > DEFAULT_STOP_TIME) {
+        if (currentTime > DEFAULT_END_TIME) {
             return depositAmount;
         }
         unchecked {
@@ -96,7 +96,7 @@ abstract contract Calculations is Constants {
         UD2x18 exponent,
         uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
-        if (currentTime >= DEFAULT_STOP_TIME) {
+        if (currentTime >= DEFAULT_END_TIME) {
             return depositAmount;
         }
         unchecked {

@@ -38,7 +38,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
         changePrank({ who: users.recipient });
         streamId = createDefaultStream();
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: streamId, to: users.recipient });
         _;
     }

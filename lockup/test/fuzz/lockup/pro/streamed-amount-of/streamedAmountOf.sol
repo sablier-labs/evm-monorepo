@@ -22,9 +22,9 @@ contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Current time < stop time
-    /// - Current time = stop time
-    /// - Current time > stop time
+    /// - Current time < end time
+    /// - Current time = end time
+    /// - Current time > end time
     function testFuzz_StreamedAmountOf_OneSegment(uint40 timeWarp) external streamActive startTimeLessThanCurrentTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
@@ -37,7 +37,7 @@ contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
         segments[0] = Segment({
             amount: DEFAULT_NET_DEPOSIT_AMOUNT,
             exponent: DEFAULT_SEGMENTS[1].exponent,
-            milestone: DEFAULT_STOP_TIME
+            milestone: DEFAULT_END_TIME
         });
 
         // Create the stream with the one-segment array.
@@ -65,9 +65,9 @@ contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Current time < stop time
-    /// - Current time = stop time
-    /// - Current time > stop time
+    /// - Current time < end time
+    /// - Current time = end time
+    /// - Current time > end time
     function testFuzz_StreamedAmountOf_CurrentMilestoneNot1st(
         uint40 timeWarp
     ) external streamActive startTimeLessThanCurrentTime multipleSegments currentMilestoneNot1st {

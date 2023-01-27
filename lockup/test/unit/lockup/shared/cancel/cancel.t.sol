@@ -41,7 +41,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_StreamDepleted() external streamNotActive {
-        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);

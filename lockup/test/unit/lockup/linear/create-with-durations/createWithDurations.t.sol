@@ -26,7 +26,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         uint40 startTime = getBlockTimestamp();
         uint40 cliffDuration = UINT40_MAX - startTime + 1;
 
-        // Calculate the stop time. Needs to be "unchecked" to avoid an overflow.
+        // Calculate the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
         unchecked {
             cliffTime = startTime + cliffDuration;
@@ -57,20 +57,20 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         uint40 startTime = getBlockTimestamp();
         Durations memory durations = Durations({ cliff: 0, total: UINT40_MAX - startTime + 1 });
 
-        // Calculate the cliff time and the stop time. Needs to be "unchecked" to avoid an overflow.
+        // Calculate the cliff time and the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
-        uint40 stopTime;
+        uint40 endTime;
         unchecked {
             cliffTime = startTime + durations.cliff;
-            stopTime = startTime + durations.total;
+            endTime = startTime + durations.total;
         }
 
-        // Expect a {CliffTimeGreaterThanStopTime} error.
+        // Expect a {CliffTimeGreaterThanEndTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeGreaterThanStopTime.selector,
+                Errors.SablierV2LockupLinear_CliffTimeGreaterThanEndTime.selector,
                 cliffTime,
-                stopTime
+                endTime
             )
         );
 
