@@ -82,7 +82,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount) {
+    function getReturnableAmount(uint256 streamId) external view override returns (uint128 returnableAmount) {
         // If the stream is null, return zero.
         if (_streams[streamId].status == Status.NULL) {
             return 0;
@@ -209,7 +209,7 @@ contract SablierV2LockupLinear is
         bool cancelable,
         Durations calldata durations,
         Broker calldata broker
-    ) external returns (uint256 streamId) {
+    ) external override returns (uint256 streamId) {
         // Set the current block timestamp as the start time of the stream.
         Range memory range;
         range.start = uint40(block.timestamp);
@@ -256,7 +256,7 @@ contract SablierV2LockupLinear is
         bool cancelable,
         Range calldata range,
         Broker calldata broker
-    ) external returns (uint256 streamId) {
+    ) external override returns (uint256 streamId) {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 

@@ -2,21 +2,10 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { Base_Test } from "../Base.t.sol";
-import { GoodFlashLoanReceiver } from "../shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
-import { GoodRecipient } from "../shared/mockups/hooks/GoodRecipient.t.sol";
-import { GoodSender } from "../shared/mockups/hooks/GoodSender.t.sol";
 
 /// @title Fuzz_Test
 /// @notice Base fuzz test contract that contains common logic needed by all fuzz test contracts.
 abstract contract Fuzz_Test is Base_Test {
-    /*//////////////////////////////////////////////////////////////////////////
-                                   TEST CONTRACTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    GoodFlashLoanReceiver internal goodFlashLoanReceiver = new GoodFlashLoanReceiver();
-    GoodRecipient internal goodRecipient = new GoodRecipient();
-    GoodSender internal goodSender = new GoodSender();
-
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
@@ -32,17 +21,5 @@ abstract contract Fuzz_Test is Base_Test {
 
         // Approve all protocol contracts to spend ERC-20 assets from the users.
         approveProtocol();
-
-        // Label the test contracts.
-        labelTestContracts();
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Label the test contracts.
-    function labelTestContracts() internal {
-        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
     }
 }

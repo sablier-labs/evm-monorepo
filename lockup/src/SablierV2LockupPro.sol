@@ -128,7 +128,7 @@ contract SablierV2LockupPro is
     }
 
     /// @inheritdoc ISablierV2LockupPro
-    function getStream(uint256 streamId) external view returns (LockupProStream memory stream) {
+    function getStream(uint256 streamId) external view override returns (LockupProStream memory stream) {
         stream = _streams[streamId];
     }
 
@@ -247,7 +247,7 @@ contract SablierV2LockupPro is
         bool cancelable,
         uint40 startTime,
         Broker calldata broker
-    ) external returns (uint256 streamId) {
+    ) external override returns (uint256 streamId) {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 

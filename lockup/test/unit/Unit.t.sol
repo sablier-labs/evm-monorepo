@@ -4,10 +4,7 @@ pragma solidity >=0.8.13 <0.9.0;
 import { Base_Test } from "../Base.t.sol";
 import { Empty } from "../shared/mockups/hooks/Empty.t.sol";
 import { FaultyFlashLoanReceiver } from "../shared/mockups/flash-loan/FaultyFlashLoanReceiver.t.sol";
-import { GoodFlashLoanReceiver } from "../shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
 import { ReentrantFlashLoanReceiver } from "../shared/mockups/flash-loan/ReentrantFlashLoanReceiver.t.sol";
-import { GoodRecipient } from "../shared/mockups/hooks/GoodRecipient.t.sol";
-import { GoodSender } from "../shared/mockups/hooks/GoodSender.t.sol";
 import { ReentrantRecipient } from "../shared/mockups/hooks/ReentrantRecipient.t.sol";
 import { ReentrantSender } from "../shared/mockups/hooks/ReentrantSender.t.sol";
 import { RevertingRecipient } from "../shared/mockups/hooks/RevertingRecipient.t.sol";
@@ -22,9 +19,6 @@ abstract contract Unit_Test is Base_Test {
 
     Empty internal empty = new Empty();
     FaultyFlashLoanReceiver internal faultyFlashLoanReceiver = new FaultyFlashLoanReceiver();
-    GoodFlashLoanReceiver internal goodFlashLoanReceiver = new GoodFlashLoanReceiver();
-    GoodRecipient internal goodRecipient = new GoodRecipient();
-    GoodSender internal goodSender = new GoodSender();
     ReentrantFlashLoanReceiver internal reentrantFlashLoanReceiver = new ReentrantFlashLoanReceiver();
     ReentrantRecipient internal reentrantRecipient = new ReentrantRecipient();
     ReentrantSender internal reentrantSender = new ReentrantSender();
@@ -58,14 +52,8 @@ abstract contract Unit_Test is Base_Test {
     /// @dev Label the test contracts.
     function labelTestContracts() internal {
         vm.label({ account: address(empty), newLabel: "Empty" });
-        vm.label({ account: address(DEFAULT_ASSET), newLabel: "Dai" });
         vm.label({ account: address(faultyFlashLoanReceiver), newLabel: "Faulty Flash Loan Receiver" });
-        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
-        vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
-        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
-        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
         vm.label({ account: address(reentrantFlashLoanReceiver), newLabel: "Reentrant Flash Loan Receiver" });
-        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
         vm.label({ account: address(reentrantRecipient), newLabel: "Reentrant Recipient" });
         vm.label({ account: address(reentrantSender), newLabel: "Reentrant Sender" });
         vm.label({ account: address(revertingRecipient), newLabel: "Reverting Recipient" });
