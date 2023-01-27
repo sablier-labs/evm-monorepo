@@ -25,7 +25,19 @@ abstract contract Calculations is Constants {
         segments[1].amount = depositAmount - segments[0].amount;
     }
 
-    /// @dev Helper function that replicates the logic of the {SablierV2LockupLinear-getStreamedAmount} function.
+    /// @dev Calculates the deposit amount by calculating and subtracting the protocol fee amount and the
+    /// broker fee amount from the total amount.
+    function calculateDepositAmount(
+        uint128 totalAmount,
+        UD60x18 protocolFee,
+        UD60x18 brokerFee
+    ) internal pure returns (uint128 depositAmount) {
+        uint128 protocolFeeAmount = ud(totalAmount).mul(protocolFee).intoUint128();
+        uint128 brokerFeeAmount = ud(totalAmount).mul(brokerFee).intoUint128();
+        depositAmount = totalAmount - protocolFeeAmount - brokerFeeAmount;
+    }
+
+    /// @dev Helper function that replicates the logic of the {SablierV2LockupLinear-streamedAmountOf} function.
     function calculateStreamedAmount(
         uint40 currentTime,
         uint128 depositAmount

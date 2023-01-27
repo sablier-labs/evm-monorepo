@@ -43,7 +43,7 @@ abstract contract Lockup_Shared_Test is Base_Test {
     function createDefaultStreamWithSender(address sender) internal virtual returns (uint256 streamId);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   SETUP FUNCTION
+                                  SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {

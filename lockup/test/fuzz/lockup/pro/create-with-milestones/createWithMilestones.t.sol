@@ -251,6 +251,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint128 initialProtocolRevenues;
         uint128 depositAmount;
         uint128 protocolFeeAmount;
+        LockupPro.Segment[] segments;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
@@ -299,7 +300,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         // Make the fuzzed funder the caller in this test.
         changePrank(params.funder);
 
-        // Mint enough assets to the fuzzed funder.
+        // Mint enough ERC-20 assets to the fuzzed funder.
         deal({ token: address(DEFAULT_ASSET), to: params.funder, give: params.totalAmount });
 
         // Approve the {SablierV2LockupPro} contract to transfer the assets from the funder.
@@ -315,8 +316,8 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed deposit amount.
-        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
-        adjustSegmentAmounts(segments, vars.depositAmount);
+        vars.segments = defaultParams.createWithMilestones.segments;
+        adjustSegmentAmounts(vars.segments, vars.depositAmount);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
         vm.expectCall(
@@ -347,7 +348,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
                 protocolFee: vars.protocolFeeAmount,
                 brokerFee: vars.brokerFeeAmount
             }),
-            segments: segments,
+            segments: vars.segments,
             asset: DEFAULT_ASSET,
             cancelable: params.cancelable,
             range: LockupPro.Range({ start: params.startTime, end: DEFAULT_END_TIME }),
@@ -359,7 +360,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             params.sender,
             params.recipient,
             params.totalAmount,
-            segments,
+            vars.segments,
             DEFAULT_ASSET,
             params.cancelable,
             params.startTime,
@@ -373,7 +374,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.range, LockupPro.Range({ start: params.startTime, end: defaultStream.range.end }));
         assertEq(actualStream.sender, params.sender, "sender");
-        assertEq(actualStream.segments, segments);
+        assertEq(actualStream.segments, vars.segments);
         assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id was bumped.

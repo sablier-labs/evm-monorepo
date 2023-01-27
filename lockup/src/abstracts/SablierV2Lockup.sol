@@ -144,12 +144,12 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function renounce(uint256 streamId) external override isActiveStream(streamId) {
-        // Checks: the `msg.sender` is the sender of the stream.
+        // Checks: `msg.sender` is the sender of the stream.
         if (!_isCallerStreamSender(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
-        // Checks: the stream is cancelable.
+        // Checks: the stream is not already non-cancelable.
         if (!isCancelable(streamId)) {
             revert Errors.SablierV2Lockup_RenounceNonCancelableStream(streamId);
         }
@@ -204,7 +204,7 @@ abstract contract SablierV2Lockup is
 
             // If the `streamId` does not point to an active stream, simply skip it.
             if (getStatus(streamId) == Lockup.Status.ACTIVE) {
-                // Checks: the `msg.sender` is an approved operator or the owner of the NFT (also known as the recipient
+                // Checks: `msg.sender` is an approved operator or the owner of the NFT (also known as the recipient
                 // of the stream).
                 if (!_isApprovedOrOwner(streamId, msg.sender)) {
                     revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
@@ -234,9 +234,9 @@ abstract contract SablierV2Lockup is
         address spender
     ) internal view virtual returns (bool isApprovedOrOwner);
 
-    /// @notice Checks whether the `msg.sender` is the sender of the stream or not.
+    /// @notice Checks whether `msg.sender` is the sender of the stream or not.
     /// @param streamId The id of the stream to make the query for.
-    /// @return result Whether the `msg.sender` is the sender of the stream or not.
+    /// @return result Whether `msg.sender` is the sender of the stream or not.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
 
     /*//////////////////////////////////////////////////////////////////////////

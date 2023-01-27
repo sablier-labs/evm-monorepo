@@ -49,7 +49,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
     DefaultParams internal defaultParams;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   SETUP FUNCTION
+                                  SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {

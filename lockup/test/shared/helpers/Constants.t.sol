@@ -28,6 +28,7 @@ abstract contract Constants {
     uint40 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
     uint128 internal constant DEFAULT_WITHDRAW_AMOUNT = 2_600e18;
     bytes32 internal constant FLASH_LOAN_CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
+    uint40 internal constant MAX_UNIX_TIMESTAMP = 2_147_483_647;
     uint128 internal constant UINT128_MAX = type(uint128).max;
     uint256 internal constant UINT256_MAX = type(uint256).max;
     uint40 internal constant UINT40_MAX = type(uint40).max;

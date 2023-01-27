@@ -53,7 +53,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
-        // Mint enough assets to the sender.
+        // Mint enough ERC-20 assets to the sender.
         deal({ token: address(DEFAULT_ASSET), to: users.sender, give: depositAmount });
 
         // Create the stream.

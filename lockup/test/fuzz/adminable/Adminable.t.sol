@@ -21,7 +21,7 @@ abstract contract Adminable_Fuzz_Test is Fuzz_Test {
     function setUp() public virtual override {
         Fuzz_Test.setUp();
 
-        // Cast the linear contract as the `ISablierV2Adminable` contract.
+        // Cast the linear contract as {ISablierV2Adminable}.
         adminable = ISablierV2Adminable(address(linear));
     }
 }

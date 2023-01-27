@@ -11,7 +11,7 @@ import { RevertingRecipient } from "../shared/mockups/hooks/RevertingRecipient.t
 import { RevertingSender } from "../shared/mockups/hooks/RevertingSender.t.sol";
 
 /// @title Unit_Test
-/// @notice Base unit test contract that contains common logic needed by all unit test contracts.
+/// @notice Base unit test contract with common logic needed by all unit test contracts.
 abstract contract Unit_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
@@ -53,10 +53,11 @@ abstract contract Unit_Test is Base_Test {
     function labelTestContracts() internal {
         vm.label({ account: address(empty), newLabel: "Empty" });
         vm.label({ account: address(faultyFlashLoanReceiver), newLabel: "Faulty Flash Loan Receiver" });
+        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
         vm.label({ account: address(reentrantFlashLoanReceiver), newLabel: "Reentrant Flash Loan Receiver" });
-        vm.label({ account: address(reentrantRecipient), newLabel: "Reentrant Recipient" });
-        vm.label({ account: address(reentrantSender), newLabel: "Reentrant Sender" });
-        vm.label({ account: address(revertingRecipient), newLabel: "Reverting Recipient" });
-        vm.label({ account: address(revertingSender), newLabel: "Reverting Sender" });
+        vm.label({ account: address(reentrantRecipient), newLabel: "Reentrant Lockup Recipient" });
+        vm.label({ account: address(reentrantSender), newLabel: "Reentrant Lockup Sender" });
+        vm.label({ account: address(revertingRecipient), newLabel: "Reverting Lockup Recipient" });
+        vm.label({ account: address(revertingSender), newLabel: "Reverting Lockup Sender" });
     }
 }

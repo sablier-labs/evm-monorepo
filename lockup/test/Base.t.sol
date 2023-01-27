@@ -21,7 +21,7 @@ import { Constants } from "./shared/helpers/Constants.t.sol";
 import { Utils } from "./shared/helpers/Utils.t.sol";
 
 /// @title Base_Test
-/// @notice Base test contract that contains common logic needed by all test contracts.
+/// @notice Base test contract with common logic needed by all test contracts.
 abstract contract Base_Test is Assertions, Constants, Calculations, Utils, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
@@ -190,8 +190,8 @@ abstract contract Base_Test is Assertions, Constants, Calculations, Utils, StdCh
         }
 
         // Finally, label all the contracts just deployed.
-        vm.label({ account: address(comptroller), newLabel: "SablierV2Comptroller" });
-        vm.label({ account: address(linear), newLabel: "SablierV2LockupLinear" });
-        vm.label({ account: address(pro), newLabel: "SablierV2LockupPro" });
+        vm.label({ account: address(comptroller), newLabel: "Comptroller" });
+        vm.label({ account: address(linear), newLabel: "LockupLinear" });
+        vm.label({ account: address(pro), newLabel: "LockupPro" });
     }
 }

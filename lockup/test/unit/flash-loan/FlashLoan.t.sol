@@ -21,7 +21,7 @@ abstract contract FlashLoan_Unit_Test is Unit_Test {
     function setUp() public virtual override {
         Unit_Test.setUp();
 
-        // Cast the linear contract as the `SablierV2FlashLoan` contract.
+        // Cast the linear contract as {SablierV2FlashLoan}.
         flashLoan = SablierV2FlashLoan(address(linear));
 
         // Set the default flash fee in the comptroller.

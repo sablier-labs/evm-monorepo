@@ -4,8 +4,8 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import { ud } from "@prb/math/UD60x18.sol";
-import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
-import { IERC3156FlashLender } from "erc3156/contracts/interfaces/IERC3156FlashLender.sol";
+import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
+import { IERC3156FlashLender } from "erc3156/interfaces/IERC3156FlashLender.sol";
 
 import { Errors } from "../libraries/Errors.sol";
 import { Events } from "../libraries/Events.sol";

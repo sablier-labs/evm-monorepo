@@ -1,7 +1,6 @@
 [profile.default]
   auto_detect_solc = false
   fs_permissions = [{ access = "read", path = "./optimized-out" }]
-  fuzz = { max_test_rejects = 1_000_000, runs = 1_000 }
   libs = ["lib"]
   gas_reports = [
     "SablierV2Comptroller",
@@ -16,9 +15,19 @@
   src = "src"
   test = "test"
 
+[profile.default.fuzz]
+  max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
+  runs = 1_000
+
+[profile.default.invariant]
+  call_override = false # Override unsafe external calls to perform reentrancy checks
+  fail_on_revert = true
+  depth = 200           # Number of calls executed in one run
+
 # Speed up compilation and tests during development
 [profile.lite]
   fuzz = { runs = 50 }
+  invariant = { depth = 50, runs = 50 }
   optimizer = false
 
 # Compile only the production code with IR
@@ -30,6 +39,7 @@
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
   fuzz = { runs = 5_000 }
+  invariant = { depth = 1_000, runs = 5_000 }
   src = "test"
   verbosity = 4
 
@@ -39,5 +49,5 @@
 
 [rpc_endpoints]
   ethereum = "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}"
-  localhost = "http://localhost:8545"
   goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
+  localhost = "http://localhost:8545"

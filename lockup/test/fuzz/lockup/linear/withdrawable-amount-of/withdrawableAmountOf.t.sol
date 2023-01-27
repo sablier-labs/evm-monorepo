@@ -52,7 +52,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
-        // Mint enough assets to the sender.
+        // Mint enough ERC-20 assets to the sender.
         deal({ token: address(DEFAULT_ASSET), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
@@ -97,7 +97,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint128 streamedAmount = calculateStreamedAmount(currentTime, depositAmount);
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
-        // Mint enough assets to the sender.
+        // Mint enough ERC-20 assets to the sender.
         deal({ token: address(DEFAULT_ASSET), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.

@@ -35,7 +35,7 @@ abstract contract E2eTest is Base_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   SETUP FUNCTION
+                                  SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
