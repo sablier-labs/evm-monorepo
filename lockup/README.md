@@ -160,11 +160,11 @@ Note: write access to the repository is required to deploy using the GitHub UI.
 
 ## Via IR
 
-We deploy our contracts with the [`--via-ir`](https://docs.soliditylang.org/en/v0.8.17/ir-breaking-changes.html) flag
-enabled.
+The contracts have been deployed to mainnet with the
+[`--via-ir`](https://docs.soliditylang.org/en/v0.8.17/ir-breaking-changes.html) flag enabled.
 
-This means that the contracts are compiled with a lot of powerful optimizations, but the cost is very slow compile
-times. Nonetheless, we have to run our tests against this optimized version of the contracts, since this is what end
+Via IR means that the contracts are compiled with a lot of powerful optimizations, but the cost is very slow compile
+times. Nonetheless, we want to run our tests against this optimized version of the contracts, since this is what end
 users will ultimately interact with.
 
 To get the best of both worlds, we have come up with a set-up where on our local machines we build and test the
@@ -174,52 +174,61 @@ without IR enabled).
 
 ## Tests
 
-Tests are organized in two categories:
+Tests are organized in three categories:
 
 1. Unit - simple tests that check the behavior of a single function on a local development EMV.
-2. Integration - complex tests that run against a fork of Ethereum Mainnet to check that Sablier V2 works with deployed
-   ERC-20 assets.
+2. Fuzz - similar to the unit tests, but with randomized inputs.
+3. End-to-end - complex tests that run against a fork of Ethereum Mainnet, which ensure that the protocol works with
+   deployed ERC-20 assets.
 
 You can run all tests by using this command:
 
 ```sh
-forge test
+yarn test
 ```
 
-By default, only unit tests run. To run all tests, including integration tests, you can use this command:
+By default, the contracts are compiled using the default compiler settings, which do not contain optimizations. To run
+the tests against the optimized version of the contracts, you can use this command:
 
 ```sh
 yarn test:optimized
 ```
 
-Alternatively, you could change the value of the `test` configuration option in the [`foundry.toml`](./foundry.toml)
-file to `test/integration`.
-
-To filter tests by name, you can use the `--match-test` flag. Here's an example for the `createWithRange` function
-tests:
+To filter tests by name, you can use the `--match-test` flag (shorthand `--mt`). Here's an example for how to run the
+tests only for the `createWithRange` function:
 
 ```sh
-forge test --match-test testCreateWithRange
+yarn test --match-test test_CreateWithRange
 ```
 
-You can also filter the tests by test contract name with the `--match-contract` flag. Here's an example for the
-`createWithRange` function test contracts:
+You can also filter the tests by test contract name with the `--match-contract` flag (shorthand `--mc`). Here's an
+example for the test contract that contains all the tests for the `createWithRange` function:
 
 ```sh
-forge test --match-contract CreateWithRange
+yarn test --match-contract CreateWithRange
 ```
 
 ## Commands
 
-Here's a list of the most frequently needed commands.
+Here's a list of the most frequently needed commands, which are run either with Forge or with Yarn.
 
 ### Build
 
-Build the contracts:
+Build the contracts using the default profile:
 
 ```sh
 $ forge build
 ```
+
+### Build Optimized
+
+Build the contracts using the optimized profile:
+
+```sh
+$ yarn build:optimized
+```
+
+This will compile the contracts with the `--via-ir` flag enabled.
 
 ### Clean
 
@@ -245,12 +254,36 @@ Format the contracts with Prettier:
 $ yarn prettier
 ```
 
-### Gas Usage
+### Gas Report
 
 Get a gas report:
 
 ```sh
-$ forge test --gas-report
+$ yarn gas:report
+```
+
+### Gas Report Optimized
+
+Get a gas report for the optimized version of the contracts:
+
+```sh
+$ yarn gas:report:optimized
+```
+
+### Gas Snapshot
+
+Take a gas snapshot:
+
+```sh
+$ yarn gas:snapshot
+```
+
+### Gas Snapshot Optimized
+
+Take a gas snapshot for the optimized version of the contracts:
+
+```sh
+$ yarn gas:snapshot:optimized
 ```
 
 ### Lint
@@ -266,7 +299,15 @@ $ yarn lint
 Run the tests:
 
 ```sh
-$ forge test
+$ yarn test
+```
+
+### Test Optimized
+
+Run the tests against the optimized version of the contracts:
+
+```sh
+$ yarn test:optimized
 ```
 
 ### Other

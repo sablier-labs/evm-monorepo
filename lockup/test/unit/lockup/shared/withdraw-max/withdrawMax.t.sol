@@ -6,19 +6,18 @@ import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Status } from "src/types/Enums.sol";
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
+import { Unit_Test } from "../../../Unit.t.sol";
 
-abstract contract WithdrawMax_Test is Shared_Test {
+abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
-    function setUp() public virtual override {
-        super.setUp();
-
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
 
         // Make the recipient the caller in this test suite.
-        changePrank(users.recipient);
+        changePrank({ who: users.recipient });
     }
 
     /// @dev it should make the withdrawal and mark the stream as depleted.
@@ -26,7 +25,7 @@ abstract contract WithdrawMax_Test is Shared_Test {
         // Warp to the end of the stream.
         vm.warp({ timestamp: DEFAULT_STOP_TIME });
 
-        // Make the withdrawal.
+        // Make the max withdrawal.
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         // Assert that the stream was marked as depleted.
@@ -37,27 +36,26 @@ abstract contract WithdrawMax_Test is Shared_Test {
         // Assert that the NFT was not burned.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
         address expectedNFTOwner = users.recipient;
-        assertEq(actualNFTowner, expectedNFTOwner);
+        assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
     modifier currentTimeLessThanStopTime() {
         _;
     }
 
-    /// @dev it should make the max withdrawal, emit a WithdrawFromLockupStream event, and update the withdrawn amount
-    function testFuzz_WithdrawMax(uint256 timeWarp) external currentTimeLessThanStopTime {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
-
+    /// @dev it should make the max withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream}
+    /// event.
+    function test_WithdrawMax() external currentTimeLessThanStopTime {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
-        // Bound the withdraw amount.
+        // Get the withdraw amount.
         uint128 withdrawAmount = lockup.getWithdrawableAmount(defaultStreamId);
 
         // Expect the withdrawal to be made to the recipient.
-        vm.expectCall(address(dai), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
 
-        // Expect an event to be emitted.
+        // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
         emit Events.WithdrawFromLockupStream({
             streamId: defaultStreamId,
@@ -65,12 +63,12 @@ abstract contract WithdrawMax_Test is Shared_Test {
             amount: withdrawAmount
         });
 
-        // Make the withdrawal.
+        // Make the max withdrawal.
         lockup.withdrawMax(defaultStreamId, users.recipient);
 
         // Assert that the withdrawn amount was updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount);
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 }

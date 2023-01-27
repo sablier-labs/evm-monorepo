@@ -10,4 +10,4 @@ renounce.t.sol
    ├── when the caller is not the sender
    │  └── it should revert
    └── when the caller is the sender
-      └── it should emit a RenounceLockupStream event and renounce the stream
+      └── it should renounce the stream and emit a {RenounceLockupStream} event

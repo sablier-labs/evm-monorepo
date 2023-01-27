@@ -18,7 +18,7 @@ import { DeployComptroller } from "./DeployComptroller.s.sol";
 /// 3. SablierV2LockupPro
 contract DeployProtocol is Script, Common {
     function run(
-        address admin,
+        address initialAdmin,
         UD60x18 maxFee,
         uint256 maxSegmentCount
     )
@@ -26,49 +26,8 @@ contract DeployProtocol is Script, Common {
         broadcaster
         returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro)
     {
-        comptroller = new SablierV2Comptroller({ initialAdmin: admin });
-        linear = new SablierV2LockupLinear({ initialAdmin: admin, initialComptroller: comptroller, maxFee: maxFee });
-        pro = new SablierV2LockupPro({
-            initialAdmin: admin,
-            initialComptroller: comptroller,
-            maxFee: maxFee,
-            maxSegmentCount: maxSegmentCount
-        });
-    }
-
-    /// @dev Deploys the contracts at deterministic addresses across all chains. Reverts if any contract has already
-    /// been deployed via the deterministic CREATE2 factory.
-    function runDeterministic(
-        address admin,
-        UD60x18 maxFee,
-        uint256 maxSegmentCount
-    )
-        public
-        broadcaster
-        returns (bool success, SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro)
-    {
-        // Deploy the SablierV2Comptroller contract.
-        bytes memory comptrollerCallData = abi.encodePacked(type(SablierV2Comptroller).creationCode, abi.encode(admin));
-        bytes memory comptrollerReturnData;
-        (success, comptrollerReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(comptrollerCallData);
-        comptroller = SablierV2Comptroller(address(uint160(bytes20(comptrollerReturnData))));
-
-        // Deploy the SablierV2LockupLinear contract.
-        bytes memory linearCallData = abi.encodePacked(
-            type(SablierV2Comptroller).creationCode,
-            abi.encode(admin, comptroller, maxFee)
-        );
-        bytes memory linearReturnData;
-        (success, linearReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(linearCallData);
-        linear = SablierV2LockupLinear(address(uint160(bytes20(linearReturnData))));
-
-        // Deploy the SablierV2LockupPro contract.
-        bytes memory proCallData = abi.encodePacked(
-            type(SablierV2Comptroller).creationCode,
-            abi.encode(admin, comptroller, maxFee, maxSegmentCount)
-        );
-        bytes memory proReturnData;
-        (success, proReturnData) = DETERMINISTIC_CREATE2_FACTORY.call(proCallData);
-        pro = SablierV2LockupPro(address(uint160(bytes20(proReturnData))));
+        comptroller = new SablierV2Comptroller(initialAdmin);
+        linear = new SablierV2LockupLinear(initialAdmin, comptroller, maxFee);
+        pro = new SablierV2LockupPro(initialAdmin, comptroller, maxFee, maxSegmentCount);
     }
 }

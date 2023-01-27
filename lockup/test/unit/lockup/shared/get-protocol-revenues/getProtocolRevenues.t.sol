@@ -7,28 +7,31 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
+import { Unit_Test } from "../../../Unit.t.sol";
 
-abstract contract GetProtocolRevenues_Test is Shared_Test {
+abstract contract GetProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test {
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {}
+
     /// @dev it should return zero.
     function test_GetProtocolRevenues_ProtocolRevenuesZero() external {
-        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(dai);
+        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = 0;
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }
 
     modifier protocolRevenuesNotZero() {
         // Create the default stream, which will accrue revenues for the protocol.
-        changePrank(users.sender);
+        changePrank({ who: users.sender });
         createDefaultStream();
-        changePrank(users.admin);
+        changePrank({ who: users.admin });
         _;
     }
 
     /// @dev it should return the correct protocol revenues.
     function test_GetProtocolRevenues() external protocolRevenuesNotZero {
-        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(dai);
+        uint128 actualProtocolRevenues = sablierV2.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }
 }

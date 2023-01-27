@@ -7,24 +7,21 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { Comptroller_Test } from "../Comptroller.t.sol";
+import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
-contract SetFlashFee_Test is Comptroller_Test {
+contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
     /// @dev it should revert.
-    function test_RevertWhen_CallerNotAdmin(address eve) external {
-        vm.assume(eve != users.admin);
-
+    function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, eve));
-        comptroller.setFlashFee(DEFAULT_MAX_FEE);
+        vm.expectRevert(abi.encodeWithSelector(IAdminable.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
+        comptroller.setFlashFee({ newFlashFee: DEFAULT_MAX_FEE });
     }
 
+    /// @dev The admin is the default caller in the comptroller tests.
     modifier callerAdmin() {
-        // Make the admin the caller in the rest of this test suite.
-        changePrank(users.admin);
         _;
     }
 
@@ -34,28 +31,27 @@ contract SetFlashFee_Test is Comptroller_Test {
 
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = ZERO;
-        assertEq(actualFlashFee, expectedFlashFee);
+        assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 
     modifier newFee() {
         _;
     }
 
-    /// @dev it should set the new flash fee.
-    function testFuzz_SetFlashFee(UD60x18 newFlashFee) external callerAdmin newFee {
-        newFlashFee = bound(newFlashFee, 1, DEFAULT_MAX_FEE);
-        comptroller.setFlashFee(newFlashFee);
+    /// @dev it should set the new flash fee and emit a {SetFlashFee} event.
+    function test_SetFlashFee() external {
+        UD60x18 newFlashFee = DEFAULT_FLASH_FEE;
 
-        UD60x18 actualFlashFee = comptroller.flashFee();
-        UD60x18 expectedFlashFee = newFlashFee;
-        assertEq(actualFlashFee, expectedFlashFee);
-    }
-
-    /// @dev it should emit a {SetFlashFee} event.
-    function testFuzz_SetFlashFee_Event(UD60x18 newFlashFee) external callerAdmin newFee {
-        newFlashFee = bound(newFlashFee, 1, DEFAULT_MAX_FEE);
+        // Expect a {SetFlashFee} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: newFlashFee });
+
+        // She the new flash fee.
         comptroller.setFlashFee(newFlashFee);
+
+        // Assert that the flash fee was updated.
+        UD60x18 actualFlashFee = comptroller.flashFee();
+        UD60x18 expectedFlashFee = newFlashFee;
+        assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 }

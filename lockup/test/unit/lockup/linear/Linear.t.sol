@@ -2,231 +2,208 @@
 pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { ISablierV2 } from "src/interfaces/ISablierV2.sol";
+import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
-import { Status } from "src/types/Enums.sol";
-import { LockupAmounts, Broker, Durations, LockupLinearStream, Range } from "src/types/Structs.sol";
 
-import { Lockup_Test } from "test/unit/lockup/Lockup.t.sol";
-import { Unit_Test } from "test/unit/Unit.t.sol";
+import { Linear_Shared_Test } from "../../../shared/lockup/linear/Linear.t.sol";
+import { Unit_Test } from "../../Unit.t.sol";
+import { Burn_Unit_Test } from "../shared/burn/burn.t.sol";
+import { Cancel_Unit_Test } from "../shared/cancel/cancel.t.sol";
+import { CancelMultiple_Unit_Test } from "../shared/cancel-multiple/cancelMultiple.t.sol";
+import { ClaimProtocolRevenues_Unit_Test } from "../shared/claim-protocol-revenues/claimProtocolRevenues.t.sol";
+import { GetAsset_Unit_Test } from "../shared/get-asset/getAsset.t.sol";
+import { GetDepositAmount_Unit_Test } from "../shared/get-deposit-amount/getDepositAmount.t.sol";
+import { GetProtocolRevenues_Unit_Test } from "../shared/get-protocol-revenues/getProtocolRevenues.t.sol";
+import { GetRecipient_Unit_Test } from "../shared/get-recipient/getRecipient.t.sol";
+import { GetReturnableAmount_Unit_Test } from "../shared/get-returnable-amount/getReturnableAmount.t.sol";
+import { GetSender_Unit_Test } from "../shared/get-sender/getSender.t.sol";
+import { GetStartTime_Unit_Test } from "../shared/get-start-time/getStartTime.t.sol";
+import { GetStatus_Unit_Test } from "../shared/get-status/getStatus.t.sol";
+import { GetStopTime_Unit_Test } from "../shared/get-stop-time/getStopTime.t.sol";
+import { GetWithdrawnAmount_Unit_Test } from "../shared/get-withdrawn-amount/getWithdrawnAmount.t.sol";
+import { IsCancelable_Unit_Test } from "../shared/is-cancelable/isCancelable.t.sol";
+import { Renounce_Unit_Test } from "../shared/renounce/renounce.t.sol";
+import { SetComptroller_Unit_Test } from "../shared/set-comptroller/setComptroller.t.sol";
+import { TokenURI_Unit_Test } from "../shared/token-uri/tokenURI.t.sol";
+import { Withdraw_Unit_Test } from "../shared/withdraw/withdraw.t.sol";
+import { WithdrawMax_Unit_Test } from "../shared/withdraw-max/withdrawMax.t.sol";
+import { WithdrawMultiple_Unit_Test } from "../shared/withdraw-multiple/withdrawMultiple.t.sol";
 
-/// @title Linear_Test
-/// @notice Common testing logic needed across SablierV2LockupLinear unit tests.
-abstract contract Linear_Test is Lockup_Test {
-    /*//////////////////////////////////////////////////////////////////////////
-                                      STRUCTS
-    //////////////////////////////////////////////////////////////////////////*/
+/*//////////////////////////////////////////////////////////////////////////
+                            NON-SHARED ABSTRACT TEST
+//////////////////////////////////////////////////////////////////////////*/
 
-    struct CreateWithDurationsParams {
-        address sender;
-        address recipient;
-        uint128 grossDepositAmount;
-        IERC20 asset;
-        bool cancelable;
-        Durations durations;
-        Broker broker;
-    }
-
-    struct CreateWithRangeParams {
-        address sender;
-        address recipient;
-        uint128 grossDepositAmount;
-        IERC20 asset;
-        bool cancelable;
-        Range range;
-        Broker broker;
-    }
-
-    struct DefaultParams {
-        CreateWithDurationsParams createWithDurations;
-        CreateWithRangeParams createWithRange;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  TESTING VARIABLES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    LockupLinearStream internal defaultStream;
-    DefaultParams internal params;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   SETUP FUNCTION
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function setUp() public virtual override {
+/// @title Linear_Unit_Test
+/// @notice Common testing logic needed across {SablierV2LockupLinear} unit tests.
+abstract contract Linear_Unit_Test is Unit_Test, Linear_Shared_Test {
+    function setUp() public virtual override(Unit_Test, Linear_Shared_Test) {
+        // Both of these contracts inherit from `Base_Test`, which is fine because multiple inheritance is
+        // allowed in Solidity, and `Base_Test.setUp` will only be called once.
         Unit_Test.setUp();
+        Linear_Shared_Test.setUp();
 
-        // Initialize the default params to be used for the create functions.
-        params = DefaultParams({
-            createWithDurations: CreateWithDurationsParams({
-                sender: users.sender,
-                recipient: users.recipient,
-                grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
-                asset: dai,
-                cancelable: true,
-                durations: DEFAULT_DURATIONS,
-                broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
-            }),
-            createWithRange: CreateWithRangeParams({
-                sender: users.sender,
-                recipient: users.recipient,
-                grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
-                asset: dai,
-                cancelable: true,
-                range: DEFAULT_RANGE,
-                broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
-            })
-        });
-
-        // Create the default stream to be used across the tests.
-        defaultStream = LockupLinearStream({
-            amounts: DEFAULT_AMOUNTS,
-            isCancelable: params.createWithRange.cancelable,
-            sender: params.createWithRange.sender,
-            status: Status.ACTIVE,
-            range: params.createWithRange.range,
-            asset: params.createWithRange.asset
-        });
+        // Cast the linear contract as `ISablierV2` and `ISablierV2Lockup`.
+        lockup = ISablierV2Lockup(linear);
+        sablierV2 = ISablierV2(linear);
 
         // Set the default protocol fee.
-        comptroller.setProtocolFee(dai, DEFAULT_PROTOCOL_FEE);
-        comptroller.setProtocolFee(IERC20(address(nonCompliantAsset)), DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: DEFAULT_PROTOCOL_FEE });
+        comptroller.setProtocolFee({ asset: IERC20(address(nonCompliantAsset)), newProtocolFee: DEFAULT_PROTOCOL_FEE });
 
-        // Make the sender the default caller in all subsequent tests.
-        changePrank(users.sender);
+        // Make the sender the default caller in this test suite.
+        changePrank({ who: users.sender });
     }
+}
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+/*//////////////////////////////////////////////////////////////////////////
+                                SHARED TESTS
+//////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Helper function that replicates the logic of the `getStreamedAmount` function.
-    function calculateStreamedAmount(
-        uint40 currentTime,
-        uint128 depositAmount
-    ) internal view returns (uint128 streamedAmount) {
-        if (currentTime > DEFAULT_STOP_TIME) {
-            return depositAmount;
-        }
-        unchecked {
-            UD60x18 elapsedTime = ud(currentTime - DEFAULT_START_TIME);
-            UD60x18 totalTime = ud(DEFAULT_TOTAL_DURATION);
-            UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-            streamedAmount = elapsedTimePercentage.mul(ud(depositAmount)).intoUint128();
-        }
+contract Burn_Linear_Unit_Test is Linear_Unit_Test, Burn_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, Burn_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        Burn_Unit_Test.setUp();
     }
+}
 
-    /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Creates the default stream.
-    function createDefaultStream() internal override returns (uint256 streamId) {
-        streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            params.createWithRange.recipient,
-            params.createWithRange.grossDepositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            params.createWithRange.range,
-            params.createWithRange.broker
-        );
+contract Cancel_Linear_Unit_Test is Linear_Unit_Test, Cancel_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, Cancel_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        Cancel_Unit_Test.setUp();
     }
+}
 
-    /// @dev Creates the default stream with durations.
-    function createDefaultStreamWithDurations() internal returns (uint256 streamId) {
-        streamId = linear.createWithDurations(
-            params.createWithDurations.sender,
-            params.createWithDurations.recipient,
-            params.createWithDurations.grossDepositAmount,
-            params.createWithDurations.asset,
-            params.createWithDurations.cancelable,
-            params.createWithDurations.durations,
-            params.createWithRange.broker
-        );
+contract CancelMultiple_Linear_Unit_Test is Linear_Unit_Test, CancelMultiple_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, CancelMultiple_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        CancelMultiple_Unit_Test.setUp();
     }
+}
 
-    /// @dev Creates the default stream with the provided durations.
-    function createDefaultStreamWithDurations(Durations memory durations) internal returns (uint256 streamId) {
-        streamId = linear.createWithDurations(
-            params.createWithDurations.sender,
-            params.createWithDurations.recipient,
-            params.createWithDurations.grossDepositAmount,
-            params.createWithDurations.asset,
-            params.createWithDurations.cancelable,
-            durations,
-            params.createWithDurations.broker
-        );
+contract ClaimProtocolRevenues_Linear_Unit_Test is Linear_Unit_Test, ClaimProtocolRevenues_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, ClaimProtocolRevenues_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        ClaimProtocolRevenues_Unit_Test.setUp();
     }
+}
 
-    /// @dev Creates the default stream with the provided gross deposit amount.
-    function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
-        streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            params.createWithRange.recipient,
-            grossDepositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            params.createWithRange.range,
-            params.createWithRange.broker
-        );
+contract GetAsset_Linear_Unit_Test is Linear_Unit_Test, GetAsset_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetAsset_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetAsset_Unit_Test.setUp();
     }
+}
 
-    /// @dev Creates the default stream that is non-cancelable.
-    function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
-        bool isCancelable = false;
-        streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            params.createWithRange.recipient,
-            params.createWithRange.grossDepositAmount,
-            params.createWithRange.asset,
-            isCancelable,
-            params.createWithRange.range,
-            params.createWithRange.broker
-        );
+contract GetDepositAmount_Linear_Unit_Test is Linear_Unit_Test, GetDepositAmount_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetDepositAmount_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetDepositAmount_Unit_Test.setUp();
     }
+}
 
-    /// @dev Creates the default stream with the provided recipient.
-    function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
-        streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            recipient,
-            params.createWithRange.grossDepositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            params.createWithRange.range,
-            params.createWithRange.broker
-        );
+contract GetProtocolRevenues_Linear_Unit_Test is Linear_Unit_Test, GetProtocolRevenues_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetProtocolRevenues_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetProtocolRevenues_Unit_Test.setUp();
     }
+}
 
-    /// @dev Creates the default stream with the provided sender.
-    function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
-        streamId = linear.createWithRange(
-            sender,
-            params.createWithRange.recipient,
-            params.createWithRange.grossDepositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            params.createWithRange.range,
-            params.createWithRange.broker
-        );
+contract GetRecipient_Linear_Unit_Test is Linear_Unit_Test, GetRecipient_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetRecipient_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetRecipient_Unit_Test.setUp();
     }
+}
 
-    /// @dev Creates the default stream with the provided stop time.
-    function createDefaultStreamWithStopTime(uint40 stopTime) internal override returns (uint256 streamId) {
-        streamId = linear.createWithRange(
-            params.createWithRange.sender,
-            params.createWithRange.recipient,
-            params.createWithRange.grossDepositAmount,
-            params.createWithRange.asset,
-            params.createWithRange.cancelable,
-            Range({
-                start: params.createWithRange.range.start,
-                cliff: params.createWithRange.range.cliff,
-                stop: stopTime
-            }),
-            params.createWithRange.broker
-        );
+contract GetReturnableAmount_Linear_Unit_Test is Linear_Unit_Test, GetReturnableAmount_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetReturnableAmount_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetReturnableAmount_Unit_Test.setUp();
+    }
+}
+
+contract GetSender_Linear_Unit_Test is Linear_Unit_Test, GetSender_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetSender_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetSender_Unit_Test.setUp();
+    }
+}
+
+contract GetStartTime_Linear_Unit_Test is Linear_Unit_Test, GetStartTime_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetStartTime_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetStartTime_Unit_Test.setUp();
+    }
+}
+
+contract GetStatus_Linear_Unit_Test is Linear_Unit_Test, GetStatus_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetStatus_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetStatus_Unit_Test.setUp();
+    }
+}
+
+contract GetStopTime_Linear_Unit_Test is Linear_Unit_Test, GetStopTime_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetStopTime_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetStopTime_Unit_Test.setUp();
+    }
+}
+
+contract GetWithdrawnAmount_Linear_Unit_Test is Linear_Unit_Test, GetWithdrawnAmount_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetWithdrawnAmount_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetWithdrawnAmount_Unit_Test.setUp();
+    }
+}
+
+contract IsCancelable_Linear_Unit_Test is Linear_Unit_Test, IsCancelable_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, IsCancelable_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        IsCancelable_Unit_Test.setUp();
+    }
+}
+
+contract Renounce_Linear_Unit_Test is Linear_Unit_Test, Renounce_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, Renounce_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        Renounce_Unit_Test.setUp();
+    }
+}
+
+contract SetComptroller_Linear_Unit_Test is Linear_Unit_Test, SetComptroller_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, SetComptroller_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        SetComptroller_Unit_Test.setUp();
+    }
+}
+
+contract TokenURI_Linear_Unit_Test is Linear_Unit_Test, TokenURI_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, TokenURI_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        TokenURI_Unit_Test.setUp();
+    }
+}
+
+contract Withdraw_Linear_Unit_Test is Linear_Unit_Test, Withdraw_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, Withdraw_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        Withdraw_Unit_Test.setUp();
+    }
+}
+
+contract WithdrawMax_Linear_Unit_Test is Linear_Unit_Test, WithdrawMax_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, WithdrawMax_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        WithdrawMax_Unit_Test.setUp();
+    }
+}
+
+contract WithdrawMultiple_Linear_Unit_Test is Linear_Unit_Test, WithdrawMultiple_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, WithdrawMultiple_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        WithdrawMultiple_Unit_Test.setUp();
     }
 }

@@ -5,9 +5,9 @@ import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 
 import { Unit_Test } from "../Unit.t.sol";
 
-/// @title FlashLoan_Test
-/// @notice Common testing logic needed across SablierV2FlashLoan unit tests.
-abstract contract FlashLoan_Test is Unit_Test {
+/// @title FlashLoan_Unit_Test
+/// @notice Common testing logic needed across {SablierV2FlashLoan} unit tests.
+abstract contract FlashLoan_Unit_Test is Unit_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -21,7 +21,10 @@ abstract contract FlashLoan_Test is Unit_Test {
     function setUp() public virtual override {
         Unit_Test.setUp();
 
-        // We cast the linear contract as the flash loan contract.
+        // We cast the linear contract as the `SablierV2FlashLoan` contract.
         flashLoan = SablierV2FlashLoan(address(linear));
+
+        // Set the default flash fee in the comptroller.
+        comptroller.setFlashFee({ newFlashFee: DEFAULT_FLASH_FEE });
     }
 }

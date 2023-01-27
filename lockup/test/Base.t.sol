@@ -4,26 +4,24 @@ pragma solidity >=0.8.13 <0.9.0;
 import { ERC20 } from "@prb/contracts/token/erc20/ERC20.sol";
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
 import { NonCompliantERC20 } from "@prb/contracts/token/erc20/NonCompliantERC20.sol";
-import { ud2x18 } from "@prb/math/UD2x18.sol";
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { eqString } from "@prb/test/Helpers.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 
+import { DeployProtocol } from "script/DeployProtocol.s.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
-import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
-import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
-import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
-import { Range, Segment } from "src/types/Structs.sol";
 
-import { Assertions } from "./helpers/Assertions.t.sol";
-import { Constants } from "./helpers/Constants.t.sol";
-import { Utils } from "./helpers/Utils.t.sol";
+import { GoodFlashLoanReceiver } from "./shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
+import { GoodRecipient } from "./shared/mockups/hooks/GoodRecipient.t.sol";
+import { GoodSender } from "./shared/mockups/hooks/GoodSender.t.sol";
+import { Assertions } from "./shared/helpers/Assertions.t.sol";
+import { Calculations } from "./shared/helpers/Calculations.t.sol";
+import { Utils } from "./shared/helpers/Utils.t.sol";
 
 /// @title Base_Test
 /// @notice Base test contract that contains common logic needed by all test contracts.
-abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
+abstract contract Base_Test is Assertions, Calculations, Utils, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -49,14 +47,10 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint40 internal immutable DEFAULT_CLIFF_TIME;
-    Range internal DEFAULT_RANGE;
-    Segment[] internal DEFAULT_SEGMENTS;
-    uint40 internal immutable DEFAULT_START_TIME;
-    uint40 internal immutable DEFAULT_STOP_TIME;
+    IERC20 internal immutable DEFAULT_ASSET;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      STORAGE
+                                   TEST VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     Users internal users;
@@ -65,6 +59,9 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    GoodFlashLoanReceiver internal goodFlashLoanReceiver = new GoodFlashLoanReceiver();
+    GoodRecipient internal goodRecipient = new GoodRecipient();
+    GoodSender internal goodSender = new GoodSender();
     ISablierV2Comptroller internal comptroller;
     IERC20 internal dai = new ERC20("Dai Stablecoin", "DAI", 18);
     ISablierV2LockupLinear internal linear;
@@ -76,25 +73,13 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
-        DEFAULT_START_TIME = getBlockTimestamp();
-        DEFAULT_CLIFF_TIME = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION;
-        DEFAULT_STOP_TIME = DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION;
-        DEFAULT_RANGE = Range({ start: DEFAULT_START_TIME, cliff: DEFAULT_CLIFF_TIME, stop: DEFAULT_STOP_TIME });
+        DEFAULT_ASSET = dai;
 
-        DEFAULT_SEGMENTS.push(
-            Segment({
-                amount: 2_500e18,
-                exponent: ud2x18(3.14e18),
-                milestone: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION
-            })
-        );
-        DEFAULT_SEGMENTS.push(
-            Segment({
-                amount: 7_500e18,
-                exponent: ud2x18(0.5e18),
-                milestone: DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION
-            })
-        );
+        vm.label({ account: address(DEFAULT_ASSET), newLabel: "Dai" });
+        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
+        vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
+        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
+        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -118,18 +103,6 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Adjust the amounts in the default segments as two fractions of the provided net deposit amount,
-    /// one 20%, the other 80%.
-    function adjustSegmentAmounts(Segment[] memory segments, uint128 netDepositAmount) internal pure {
-        segments[0].amount = ud(netDepositAmount).mul(ud(0.2e18)).intoUint128();
-        segments[1].amount = netDepositAmount - segments[0].amount;
-    }
-
-    /// @dev Retrieves the current block timestamp as an `uint40`.
-    function getBlockTimestamp() internal view returns (uint40 blockTimestamp) {
-        blockTimestamp = uint40(block.timestamp);
-    }
-
     /// @dev Checks if the Foundry profile is "test-optimized".
     function isTestOptimizedProfile() internal returns (bool result) {
         string memory profile = vm.envOr("FOUNDRY_PROFILE", string(""));
@@ -142,33 +115,33 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
 
     /// @dev Approves all Sablier contracts to spend ERC-20 assets from the sender, recipient, Alice and Eve,
     /// and then change the active prank back to the admin.
-    function approveSablierContracts() internal {
-        changePrank(users.sender);
+    function approveProtocol() internal {
+        changePrank({ who: users.sender });
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank(users.recipient);
+        changePrank({ who: users.recipient });
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank(users.alice);
+        changePrank({ who: users.alice });
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank(users.eve);
+        changePrank({ who: users.eve });
         dai.approve({ spender: address(linear), value: UINT256_MAX });
         dai.approve({ spender: address(pro), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         // Finally, change the active prank back to the admin.
-        changePrank(users.admin);
+        changePrank({ who: users.admin });
     }
 
     /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
@@ -182,10 +155,7 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
     }
 
     /// @dev Conditionally deploy contracts normally or from precompiled source.
-    function deploySablierContracts() internal {
-        // We deploy all contracts with the admin as the caller.
-        vm.startPrank({ msgSender: users.admin });
-
+    function deployProtocol() internal {
         // We deploy from precompiled source if the profile is "test-optimized".
         if (isTestOptimizedProfile()) {
             comptroller = ISablierV2Comptroller(
@@ -206,22 +176,15 @@ abstract contract Base_Test is Assertions, Constants, Utils, StdCheats {
         }
         // We deploy normally in all other cases.
         else {
-            comptroller = new SablierV2Comptroller({ initialAdmin: users.admin });
-            linear = new SablierV2LockupLinear({
+            (comptroller, linear, pro) = new DeployProtocol().run({
                 initialAdmin: users.admin,
-                initialComptroller: comptroller,
-                maxFee: DEFAULT_MAX_FEE
-            });
-            pro = new SablierV2LockupPro({
-                initialAdmin: users.admin,
-                initialComptroller: comptroller,
                 maxFee: DEFAULT_MAX_FEE,
                 maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
             });
         }
 
         // Finally, label all the contracts just deployed.
-        vm.label({ account: address(comptroller), newLabel: "Comptroller" });
+        vm.label({ account: address(comptroller), newLabel: "SablierV2Comptroller" });
         vm.label({ account: address(linear), newLabel: "SablierV2LockupLinear" });
         vm.label({ account: address(pro), newLabel: "SablierV2LockupPro" });
     }

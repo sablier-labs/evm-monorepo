@@ -37,6 +37,4 @@ createWithMilestones.t.sol
                                  ├── when the asset misses the return value
                                  │  └── it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT
                                  └── when the asset is ERC-20 compliant
-                                    ├── it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT
-                                    ├── it should record the protocol fee
-                                    └── it should emit a CreateLockupProStream event
+                                    └── it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol fee, mint the NFT, and emit a {CreateLockupProStream} event

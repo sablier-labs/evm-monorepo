@@ -47,6 +47,9 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     ///
     /// @dev Emits a {CreateLockupProStream} and a {Transfer} event.
     ///
+    /// Notes:
+    /// - The segment milestones should be empty, as they will be overridden.
+    ///
     /// Requirements:
     /// - All from {createWithMilestones}.
     ///

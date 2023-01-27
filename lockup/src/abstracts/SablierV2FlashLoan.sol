@@ -77,7 +77,7 @@ abstract contract SablierV2FlashLoan is
     /// - `fee` must be less than 2^128.
     /// - `amount` must not exceed the liquidity available for `asset`.
     /// - `msg.sender` must allow this contract to spend at least `amount + fee` assets.
-    /// - `receiver` implementation of {ISablierV2FlashBorrower-onFlashLoan} must return `CALLBACK_SUCCESS`.
+    /// - `receiver` implementation of {IERC3156FlashBorrower-onFlashLoan} must return `CALLBACK_SUCCESS`.
     ///
     /// @param receiver The receiver of the flash loaned assets, and the receiver of the callback.
     /// @param asset The address of the ERC-20 asset to use for flash borrowing.
@@ -101,7 +101,7 @@ abstract contract SablierV2FlashLoan is
         // Checks: the calculated fee is less than 2^128. This check can fail only when the comptroller flash fee
         // is set to an abnormally high value.
         if (fee > type(uint128).max) {
-            revert Errors.SablierV2FlashLoan_FeeTooHigh(fee);
+            revert Errors.SablierV2FlashLoan_CalculatedFeeTooHigh(fee);
         }
 
         // Checks: the amount flash loaned is not greater than the current asset balance of the contract.
@@ -146,7 +146,7 @@ abstract contract SablierV2FlashLoan is
         // Interactions: perform the ERC-20 transfer to get the principal back plus the fee.
         IERC20(asset).safeTransferFrom({ from: address(receiver), to: address(this), amount: returnAmount });
 
-        // Emit an event.
+        // Emit a {FlashLoan} event.
         emit Events.FlashLoan({
             initiator: msg.sender,
             receiver: receiver,

@@ -6,39 +6,27 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { FlashLoan_Test } from "../FlashLoan.t.sol";
+import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
-contract FlashFee_Test is FlashLoan_Test {
-    address internal asset = address(dai);
-
-    function setUp() public override {
-        FlashLoan_Test.setUp();
-    }
-
+contract FlashFee_Unit_Test is FlashLoan_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_AssetNotFlashLoanable() external {
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, IERC20(asset))
+            abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, DEFAULT_ASSET)
         );
-        flashLoan.flashFee({ asset: asset, amount: 0 });
+        flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: 0 });
     }
 
     modifier assetFlashLoanable() {
-        comptroller.toggleFlashAsset(IERC20(asset));
+        comptroller.toggleFlashAsset(DEFAULT_ASSET);
         _;
     }
 
     /// @dev it should return the correct flash fee.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Multiple values for the comptroller flash fee, including zero.
-    /// - Multiple values for the flash loan amount, including zero.
-    function testFuzz_FlashFee(UD60x18 comptrollerFlashFee, uint256 amount) external assetFlashLoanable {
-        comptrollerFlashFee = bound(comptrollerFlashFee, 0, DEFAULT_MAX_FEE);
-        comptroller.setFlashFee(comptrollerFlashFee);
-        uint256 actualFee = flashLoan.flashFee(asset, amount);
-        uint256 expectedFee = ud(amount).mul(comptrollerFlashFee).intoUint256();
-        assertEq(actualFee, expectedFee);
+    function test_FlashFee() external assetFlashLoanable {
+        uint256 amount = 782.23e18;
+        uint256 actualFlashFee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: amount });
+        uint256 expectedFlashFee = ud(amount).mul(DEFAULT_FLASH_FEE).intoUint256();
+        assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 }

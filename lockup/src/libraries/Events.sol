@@ -6,7 +6,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
-import { LockupCreateAmounts, Range, Segment } from "../types/Structs.sol";
+import { CreateLockupAmounts, Range, Segment } from "../types/Structs.sol";
 
 /// @title Events
 /// @notice Library with events emitted across all contracts.
@@ -109,7 +109,7 @@ library Events {
         address indexed funder,
         address indexed sender,
         address indexed recipient,
-        LockupCreateAmounts amounts,
+        CreateLockupAmounts amounts,
         IERC20 asset,
         bool cancelable,
         Range range,
@@ -134,7 +134,7 @@ library Events {
         address indexed funder,
         address indexed sender,
         address indexed recipient,
-        LockupCreateAmounts amounts,
+        CreateLockupAmounts amounts,
         Segment[] segments,
         IERC20 asset,
         bool cancelable,

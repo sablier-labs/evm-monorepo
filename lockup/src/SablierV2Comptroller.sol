@@ -64,7 +64,7 @@ contract SablierV2Comptroller is
         UD60x18 oldFlashFee = flashFee;
         flashFee = newFlashFee;
 
-        // Emit an event.
+        // Emit a {SetFlashFee} event.
         emit Events.SetFlashFee({ admin: msg.sender, oldFlashFee: oldFlashFee, newFlashFee: newFlashFee });
     }
 
@@ -74,7 +74,7 @@ contract SablierV2Comptroller is
         UD60x18 oldProtocolFee = _protocolFees[asset];
         _protocolFees[asset] = newProtocolFee;
 
-        // Emit an event.
+        // Emit a {SetProtocolFee} event.
         emit Events.SetProtocolFee({
             admin: msg.sender,
             asset: asset,
@@ -89,7 +89,7 @@ contract SablierV2Comptroller is
         bool oldFlag = _flashAssets[asset];
         _flashAssets[asset] = !oldFlag;
 
-        // Emit an event.
+        // Emit a {ToggleFlashAsset} event.
         emit Events.ToggleFlashAsset({ admin: msg.sender, asset: asset, newFlag: !oldFlag });
     }
 }

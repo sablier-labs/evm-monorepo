@@ -18,7 +18,7 @@ library Errors {
     error SablierV2FlashLoan_AssetNotFlashLoanable(IERC20 asset);
 
     /// @notice Emitted when during a flash loan the calculated fee is greater than or equal to 2^128.
-    error SablierV2FlashLoan_FeeTooHigh(uint256 amount);
+    error SablierV2FlashLoan_CalculatedFeeTooHigh(uint256 amount);
 
     /// @notice Emitted when the callback to the flash borrower failed.
     error SablierV2FlashLoan_FlashBorrowFail();

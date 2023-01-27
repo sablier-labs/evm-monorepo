@@ -11,7 +11,7 @@ import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Status } from "./types/Enums.sol";
-import { LockupAmounts, Broker, LockupCreateAmounts, Durations, LockupLinearStream, Range } from "./types/Structs.sol";
+import { Broker, CreateLockupAmounts, Durations, LockupAmounts, LockupLinearStream, Range } from "./types/Structs.sol";
 
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
@@ -82,7 +82,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getReturnableAmount(uint256 streamId) external view returns (uint128 returnableAmount) {
+    function getReturnableAmount(uint256 streamId) external view override returns (uint128 returnableAmount) {
         // If the stream is null, return zero.
         if (_streams[streamId].status == Status.NULL) {
             return 0;
@@ -209,7 +209,7 @@ contract SablierV2LockupLinear is
         bool cancelable,
         Durations calldata durations,
         Broker calldata broker
-    ) external returns (uint256 streamId) {
+    ) external override returns (uint256 streamId) {
         // Set the current block timestamp as the start time of the stream.
         Range memory range;
         range.start = uint40(block.timestamp);
@@ -226,7 +226,7 @@ contract SablierV2LockupLinear is
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 
         // Checks: check the fees and calculate the fee amounts.
-        LockupCreateAmounts memory amounts = Helpers.checkAndCalculateFees(
+        CreateLockupAmounts memory amounts = Helpers.checkAndCalculateFees(
             grossDepositAmount,
             protocolFee,
             broker.fee,
@@ -256,13 +256,13 @@ contract SablierV2LockupLinear is
         bool cancelable,
         Range calldata range,
         Broker calldata broker
-    ) external returns (uint256 streamId) {
+    ) external override returns (uint256 streamId) {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 
         // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
         // deposit amount.
-        LockupCreateAmounts memory amounts = Helpers.checkAndCalculateFees(
+        CreateLockupAmounts memory amounts = Helpers.checkAndCalculateFees(
             grossDepositAmount,
             protocolFee,
             broker.fee,
@@ -314,19 +314,24 @@ contract SablierV2LockupLinear is
     function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
         LockupLinearStream memory stream = _streams[streamId];
 
-        // Calculate the recipient's and the sender's amount.
-        uint128 recipientAmount = getWithdrawableAmount(streamId);
+        // Calculate the sender's and the recipient's amount.
         uint128 senderAmount;
+        uint128 recipientAmount = getWithdrawableAmount(streamId);
         unchecked {
             senderAmount = stream.amounts.deposit - stream.amounts.withdrawn - recipientAmount;
         }
 
-        // Load the sender and the recipient in memory, they will be needed below.
+        // Load the sender and the recipient in memory, they are needed multiple times below.
         address sender = _streams[streamId].sender;
         address recipient = _ownerOf(streamId);
 
         // Effects: mark the stream as canceled.
         _streams[streamId].status = Status.CANCELED;
+
+        // Interactions: return the assets to the sender, if any.
+        if (senderAmount > 0) {
+            stream.asset.safeTransfer({ to: sender, amount: senderAmount });
+        }
 
         if (recipientAmount > 0) {
             // Effects: add the recipient's amount to the withdrawn amount.
@@ -336,11 +341,6 @@ contract SablierV2LockupLinear is
 
             // Interactions: withdraw the tokens to the recipient.
             stream.asset.safeTransfer({ to: recipient, amount: recipientAmount });
-        }
-
-        // Interactions: return the assets to the sender, if any.
-        if (senderAmount > 0) {
-            stream.asset.safeTransfer({ to: sender, amount: senderAmount });
         }
 
         // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
@@ -374,13 +374,13 @@ contract SablierV2LockupLinear is
             }
         }
 
-        // Emit an event.
+        // Emit a {CancelLockupStream} event.
         emit Events.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
     }
 
     /// @dev This struct is needed to avoid the "Stack Too Deep" error.
     struct CreateWithRangeParams {
-        LockupCreateAmounts amounts;
+        CreateLockupAmounts amounts;
         Range range;
         address sender; // ──┐
         bool cancelable; // ─┘
@@ -432,7 +432,7 @@ contract SablierV2LockupLinear is
             params.asset.safeTransferFrom({ from: msg.sender, to: params.broker, amount: params.amounts.brokerFee });
         }
 
-        // Emit an event.
+        // Emit a {CreateLockupLinearStream} event.
         emit Events.CreateLockupLinearStream({
             streamId: streamId,
             funder: msg.sender,
@@ -451,7 +451,7 @@ contract SablierV2LockupLinear is
         // Effects: make the stream non-cancelable.
         _streams[streamId].isCancelable = false;
 
-        // Emit an event.
+        // Emit a {RenounceLockupStream} event.
         emit Events.RenounceLockupStream(streamId);
     }
 
@@ -505,7 +505,7 @@ contract SablierV2LockupLinear is
             {} catch {}
         }
 
-        // Emit an event.
+        // Emit a {WithdrawFromLockupStream} event.
         emit Events.WithdrawFromLockupStream(streamId, to, amount);
     }
 }

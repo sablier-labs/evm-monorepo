@@ -3,9 +3,9 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { LockupLinearStream } from "src/types/Structs.sol";
 
-import { Linear_Test } from "../Linear.t.sol";
+import { Linear_Unit_Test } from "../Linear.t.sol";
 
-contract GetStream_Linear_Test is Linear_Test {
+contract GetStream_Linear_Unit_Test is Linear_Unit_Test {
     /// @dev it should return a zeroed out stream.
     function test_GetStream_StreamNull() external {
         uint256 nullStreamId = 1729;

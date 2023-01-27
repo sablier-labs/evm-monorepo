@@ -2,24 +2,22 @@
 pragma solidity >=0.8.13;
 
 import { IERC20 } from "@prb/contracts/token/erc20/IERC20.sol";
-import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
-import { FlashLoan_Test } from "../FlashLoan.t.sol";
+import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
-contract FlashLoanFunction_Test is FlashLoan_Test {
-    address internal asset = address(dai);
-
+contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     /// @dev it should revert.
-    function test_RevertWhen_AmountTooHigh(uint256 amount) external {
-        amount = bound(amount, uint256(UINT128_MAX) + 1, UINT256_MAX);
+    function test_RevertWhen_AmountTooHigh() external {
+        uint256 amount = uint256(UINT128_MAX) + 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
         flashLoan.flashLoan({
             receiver: IERC3156FlashBorrower(address(0)),
-            asset: asset,
+            asset: address(DEFAULT_ASSET),
             amount: amount,
             data: bytes("")
         });
@@ -31,26 +29,32 @@ contract FlashLoanFunction_Test is FlashLoan_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_AssetNotFlashLoanable() external amountNotTooHigh {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, dai));
-        flashLoan.flashLoan({ receiver: IERC3156FlashBorrower(address(0)), asset: asset, amount: 0, data: bytes("") });
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, DEFAULT_ASSET)
+        );
+        flashLoan.flashLoan({
+            receiver: IERC3156FlashBorrower(address(0)),
+            asset: address(DEFAULT_ASSET),
+            amount: 0,
+            data: bytes("")
+        });
     }
 
     modifier assetFlashLoanable() {
-        comptroller.toggleFlashAsset(IERC20(asset));
+        comptroller.toggleFlashAsset(DEFAULT_ASSET);
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee) external amountNotTooHigh assetFlashLoanable {
-        // Bound the flash fee so that the calculated fee ends up being greater than 2^128.
-        flashFee = bound(flashFee, ud(1.1e18), ud(10e18));
-        comptroller.setFlashFee(flashFee);
+    function test_RevertWhen_CalculatedFeeTooHigh() external amountNotTooHigh assetFlashLoanable {
+        // Set the comptroller flash fee so that the calculated fee ends up being greater than 2^128.
+        comptroller.setFlashFee({ newFlashFee: ud(1.1e18) });
 
-        uint256 fee = flashLoan.flashFee({ asset: asset, amount: UINT128_MAX });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_FeeTooHigh.selector, fee));
+        uint256 fee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: UINT128_MAX });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_CalculatedFeeTooHigh.selector, fee));
         flashLoan.flashLoan({
             receiver: IERC3156FlashBorrower(address(0)),
-            asset: asset,
+            asset: address(DEFAULT_ASSET),
             amount: UINT128_MAX,
             data: bytes("")
         });
@@ -68,14 +72,14 @@ contract FlashLoanFunction_Test is FlashLoan_Test {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2FlashLoan_InsufficientAssetLiquidity.selector,
-                IERC20(asset),
+                DEFAULT_ASSET,
                 0,
                 amount
             )
         );
         flashLoan.flashLoan({
             receiver: IERC3156FlashBorrower(address(0)),
-            asset: asset,
+            asset: address(DEFAULT_ASSET),
             amount: amount,
             data: bytes("")
         });
@@ -94,9 +98,14 @@ contract FlashLoanFunction_Test is FlashLoan_Test {
         sufficientAssetLiquidity
     {
         uint256 amount = 100e18;
-        deal({ token: asset, to: address(flashLoan), give: amount });
+        deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: amount });
         vm.expectRevert(Errors.SablierV2FlashLoan_FlashBorrowFail.selector);
-        flashLoan.flashLoan({ receiver: faultyFlashLoanReceiver, asset: asset, amount: amount, data: bytes("") });
+        flashLoan.flashLoan({
+            receiver: faultyFlashLoanReceiver,
+            asset: address(DEFAULT_ASSET),
+            amount: amount,
+            data: bytes("")
+        });
     }
 
     modifier borrowDoesNotFail() {
@@ -113,18 +122,18 @@ contract FlashLoanFunction_Test is FlashLoan_Test {
         borrowDoesNotFail
     {
         uint256 amount = 100e18;
-        deal({ token: asset, to: address(flashLoan), give: amount * 2 });
+        deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: amount * 2 });
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2FlashLoan_InsufficientAssetLiquidity.selector,
-                IERC20(asset),
+                DEFAULT_ASSET,
                 0,
                 amount / 2
             )
         );
         flashLoan.flashLoan({
             receiver: reentrantFlashLoanReceiver,
-            asset: asset,
+            asset: address(DEFAULT_ASSET),
             amount: amount / 2,
             data: bytes("")
         });
@@ -135,18 +144,8 @@ contract FlashLoanFunction_Test is FlashLoan_Test {
     }
 
     /// @dev it should execute the flash loan, make the ERC-20 transfers, update the protocol revenues, and emit
-    /// a FlashLoan event.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Multiple values for the comptroller flash fee, including zero.
-    /// - Multiple values for the flash loan amount, including zero.
-    /// - Multiple values for the data bytes array, including zero length.
-    function testFuzz_FlashLoan(
-        UD60x18 comptrollerFlashFee,
-        uint128 amount,
-        bytes calldata data
-    )
+    /// a {FlashLoan} event.
+    function test_FlashLoan()
         external
         amountNotTooHigh
         assetFlashLoanable
@@ -155,37 +154,40 @@ contract FlashLoanFunction_Test is FlashLoan_Test {
         borrowDoesNotFail
         noReentrancy
     {
-        comptrollerFlashFee = bound(comptrollerFlashFee, 0, DEFAULT_MAX_FEE);
-        comptroller.setFlashFee(comptrollerFlashFee);
+        uint128 amount = 8_755_001e18;
+        bytes memory data = bytes("Hello World");
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = flashLoan.getProtocolRevenues(IERC20(asset));
+        uint128 initialProtocolRevenues = flashLoan.getProtocolRevenues(DEFAULT_ASSET);
 
         // Load the flash fee.
-        uint256 fee = flashLoan.flashFee(asset, amount);
+        uint256 fee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: amount });
 
         // Deal the flash loan amount to the contract.
-        deal({ token: asset, to: address(flashLoan), give: amount });
+        deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: amount });
 
         // Deal the flash fee to the receiver so that they can repay the flash loan.
-        deal({ token: asset, to: address(goodFlashLoanReceiver), give: fee });
+        deal({ token: address(DEFAULT_ASSET), to: address(goodFlashLoanReceiver), give: fee });
 
         // Expect `amount` of ERC-20 assets to be transferred from the {SablierV2FlashLoan} contract to the receiver.
-        vm.expectCall(asset, abi.encodeCall(IERC20.transfer, (address(goodFlashLoanReceiver), amount)));
+        vm.expectCall(
+            address(DEFAULT_ASSET),
+            abi.encodeCall(IERC20.transfer, (address(goodFlashLoanReceiver), amount))
+        );
 
         // Expect `amount+fee` of ERC-20 assets to be transferred back from the receiver.
         uint256 returnAmount = amount + fee;
         vm.expectCall(
-            asset,
+            address(DEFAULT_ASSET),
             abi.encodeCall(IERC20.transferFrom, (address(goodFlashLoanReceiver), address(flashLoan), returnAmount))
         );
 
-        // Expect an event to be emitted.
+        // Expect a {FlashLoan} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.FlashLoan({
             initiator: users.admin,
             receiver: goodFlashLoanReceiver,
-            asset: IERC20(asset),
+            asset: DEFAULT_ASSET,
             amount: amount,
             feeAmount: fee,
             data: data
@@ -194,17 +196,17 @@ contract FlashLoanFunction_Test is FlashLoan_Test {
         // Execute the flash loan.
         bool response = flashLoan.flashLoan({
             receiver: goodFlashLoanReceiver,
-            asset: asset,
+            asset: address(DEFAULT_ASSET),
             amount: amount,
             data: data
         });
 
         // Assert that the returned response is `true`.
-        assertTrue(response);
+        assertTrue(response, "flashLoan response");
 
         // Assert that the protocol fee was recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(IERC20(asset));
+        uint128 actualProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + uint128(fee);
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues);
+        assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }
 }

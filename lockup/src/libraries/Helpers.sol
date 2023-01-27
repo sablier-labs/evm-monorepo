@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { LockupCreateAmounts, Range, Segment } from "../types/Structs.sol";
+import { CreateLockupAmounts, Range, Segment } from "../types/Structs.sol";
 import { Errors } from "./Errors.sol";
 
 /// @title Helpers
@@ -20,9 +20,9 @@ library Helpers {
         UD60x18 protocolFee,
         UD60x18 brokerFee,
         UD60x18 maxFee
-    ) internal pure returns (LockupCreateAmounts memory amounts) {
+    ) internal pure returns (CreateLockupAmounts memory amounts) {
         if (grossDepositAmount == 0) {
-            return LockupCreateAmounts(0, 0, 0);
+            return CreateLockupAmounts(0, 0, 0);
         }
 
         // Checks: the protocol fee is not greater than `MAX_FEE`.
@@ -53,7 +53,7 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the arguments of the {SablierV2Linear-_createWithRange} function.
+    /// @dev Checks the arguments of the {SablierV2LockupLinear-_createWithRange} function.
     function checkCreateLinearParams(uint128 netDepositAmount, Range memory range) internal pure {
         // Checks: the net deposit amount is not zero.
         if (netDepositAmount == 0) {
@@ -71,7 +71,7 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the arguments of the {SablierV2Pro-_createWithRange} function.
+    /// @dev Checks the arguments of the {SablierV2LockupPro-_createWithRange} function.
     function checkCreateProParams(
         uint128 netDepositAmount,
         Segment[] memory segments,
@@ -98,7 +98,7 @@ library Helpers {
         _checkProSegments(segments, netDepositAmount, startTime);
     }
 
-    // @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
+    /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
     function checkDeltasAndAdjustSegments(Segment[] memory segments, uint40[] memory deltas) internal view {
         // Checks: check that the segment array counts match.
         uint256 deltaCount = deltas.length;

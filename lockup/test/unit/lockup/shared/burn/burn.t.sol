@@ -3,19 +3,18 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Shared_Test } from "../SharedTest.t.sol";
+import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
+import { Unit_Test } from "../../../Unit.t.sol";
 
-abstract contract Burn_Test is Shared_Test {
+abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal streamId;
 
-    function setUp() public virtual override {
-        super.setUp();
-
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         // Create the default stream, since most tests need it.
         streamId = createDefaultStream();
 
         // Make the recipient (owner of the NFT) the caller in this test suite.
-        changePrank(users.recipient);
+        changePrank({ who: users.recipient });
     }
 
     /// @dev it should revert.
@@ -37,7 +36,7 @@ abstract contract Burn_Test is Shared_Test {
     modifier streamCanceledOrDepleted() {
         lockup.cancel(streamId);
         _;
-        changePrank(users.recipient);
+        changePrank({ who: users.recipient });
         streamId = createDefaultStream();
         vm.warp({ timestamp: DEFAULT_STOP_TIME });
         lockup.withdrawMax({ streamId: streamId, to: users.recipient });
@@ -45,14 +44,12 @@ abstract contract Burn_Test is Shared_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CallerUnauthorized(address eve) external streamCanceledOrDepleted {
-        vm.assume(eve != address(0) && eve != users.recipient);
-
+    function test_RevertWhen_CallerUnauthorized() external streamCanceledOrDepleted {
         // Make Eve the caller in the rest of this test.
-        changePrank(eve);
+        changePrank({ who: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, streamId, eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, streamId, users.eve));
         lockup.burn(streamId);
     }
 
@@ -61,29 +58,27 @@ abstract contract Burn_Test is Shared_Test {
     }
 
     /// @dev it should burn the NFT.
-    function testFuzz_Burn_CallerApprovedOperator(address operator) external streamCanceledOrDepleted callerAuthorized {
-        vm.assume(operator != address(0) && operator != users.recipient);
-
+    function test_Burn_CallerApprovedOperator() external streamCanceledOrDepleted callerAuthorized {
         // Approve the operator to handle the stream.
-        lockup.approve({ to: operator, tokenId: streamId });
+        lockup.approve({ to: users.operator, tokenId: streamId });
 
         // Make the approved operator the caller in this test.
-        changePrank(operator);
+        changePrank({ who: users.operator });
 
         // Burn the NFT.
         lockup.burn(streamId);
 
         // Assert that the NFT was burned.
-        address actualOwner = lockup.getRecipient(streamId);
-        address expectedOwner = address(0);
-        assertEq(actualOwner, expectedOwner);
+        address actualNFTOwner = lockup.getRecipient(streamId);
+        address expectedNFTOwner = address(0);
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
     /// @dev it should burn the NFT.
     function test_Burn_CallerNFTOwner() external streamCanceledOrDepleted callerAuthorized {
         lockup.burn(streamId);
-        address actualOwner = lockup.getRecipient(streamId);
-        address expectedOwner = address(0);
-        assertEq(actualOwner, expectedOwner);
+        address actualNFTOwner = lockup.getRecipient(streamId);
+        address expectedNFTOwner = address(0);
+        assertEq(actualNFTOwner, expectedNFTOwner);
     }
 }

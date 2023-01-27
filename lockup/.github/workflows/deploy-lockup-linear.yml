@@ -1,0 +1,57 @@
+name: "Deploy Linear"
+
+env:
+  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+  FOUNDRY_PROFILE: "optimized"
+  INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+  MNEMONIC: ${{ secrets.MNEMONIC }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      admin:
+        default: "0x0E109f35926575FC64Ec73735101966d434Ed591"
+        description: 'Contract admin. Defaults to 0x0E10...d591'
+        required: false
+      chain:
+        default: "goerli"
+        description: 'Chain name. Defaults to "goerli" if unspecified'
+        required: false
+      comptroller:
+        description: "The address of the previously SablierV2Comptroller contract"
+        required: true
+      max-fee:
+        default: "100000000000000000"
+        description: |
+          The maximum fee that can be charged by either the protocol or a broker.
+
+          Defaults to 10%.
+        required: false
+
+jobs:
+  deploy-linear:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
+      - name: "Deploy the SablierV2LockupLinear contract"
+        run: >-
+          forge script script/DeployLockupLinear.s.sol
+          --broadcast
+          --rpc-url ${{ github.event.inputs.chain }}
+          --sig "run(address,address,uint256)"
+          "${{ github.event.inputs.admin }}"
+          "${{ github.event.inputs.comptroller }}"
+          "${{ github.event.inputs.max-fee }}"
+          -vvvv
+
+      - name: "Add summary"
+        run: |
+          echo "## Deployment result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY

@@ -44,4 +44,4 @@ withdraw.t.sol
                               ├── when there is reentrancy
                               │  └── it should make the multiple withdrawals and update the withdrawn amounts
                               └── when there is no reentrancy
-                                 └── it should make the withdrawal, emit a WithdrawFromLockupStream event, and update the withdrawn amount
+                                 └── it should make the withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream} event

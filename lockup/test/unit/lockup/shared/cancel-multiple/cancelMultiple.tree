@@ -25,6 +25,6 @@ cancelMultiple.t.sol
       │     └── it should revert
       └── when the caller is authorized for all streams
          ├── when the caller is the sender
-         │  └── it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit CancelLockupStream events
+         │  └── it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit {CancelLockupStream} events
          └── when the caller is the recipient
-            └── it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit CancelLockupStream events
+            └── it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit {CancelLockupStream} events
