@@ -4,7 +4,7 @@ pragma solidity >=0.8.13 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Fuzz_Test } from "../../../Fuzz.t.sol";
@@ -117,8 +117,8 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         lockup.cancel(streamId);
 
         // Assert that the stream was marked as canceled.
-        Status actualStatus = lockup.getStatus(streamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount was updated.
@@ -210,8 +210,8 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         lockup.cancel(streamId);
 
         // Assert that the stream was marked as canceled.
-        Status actualStatus = lockup.getStatus(streamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount was updated.

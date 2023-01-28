@@ -4,7 +4,7 @@ pragma solidity >=0.8.13 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
@@ -29,8 +29,8 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         // Assert that the stream was marked as depleted.
-        Status actualStatus = lockup.getStatus(defaultStreamId);
-        Status expectedStatus = Status.DEPLETED;
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the NFT was not burned.

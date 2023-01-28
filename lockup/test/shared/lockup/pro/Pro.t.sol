@@ -3,10 +3,9 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
-import { Status } from "src/types/Enums.sol";
-import { Broker, LockupAmounts, LockupProStream, Segment } from "src/types/Structs.sol";
+import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
 
-import { Lockup_Shared_Test } from "test/shared/lockup/Lockup.t.sol";
+import { Lockup_Shared_Test } from "../Lockup.t.sol";
 
 /// @title Pro_Shared_Test
 /// @notice Common testing logic needed across {SablierV2LockupPro} unit and fuzz tests.
@@ -19,7 +18,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
-        Segment[] segments;
+        LockupPro.Segment[] segments;
         IERC20 asset;
         bool cancelable;
         uint40[] deltas;
@@ -30,7 +29,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         address sender;
         address recipient;
         uint128 grossDepositAmount;
-        Segment[] segments;
+        LockupPro.Segment[] segments;
         IERC20 asset;
         bool cancelable;
         uint40 startTime;
@@ -46,7 +45,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
                                    TEST VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    LockupProStream internal defaultStream;
+    LockupPro.Stream internal defaultStream;
     DefaultParams internal defaultParams;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -81,12 +80,11 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
 
         // Create the default stream to be used across the tests.
         defaultStream.amounts = DEFAULT_LOCKUP_AMOUNTS;
-        defaultStream.endTime = DEFAULT_END_TIME;
         defaultStream.isCancelable = defaultParams.createWithMilestones.cancelable;
         defaultStream.segments = defaultParams.createWithMilestones.segments;
         defaultStream.sender = defaultParams.createWithMilestones.sender;
-        defaultStream.startTime = defaultParams.createWithMilestones.startTime;
-        defaultStream.status = Status.ACTIVE;
+        defaultStream.range = DEFAULT_PRO_RANGE;
+        defaultStream.status = Lockup.Status.ACTIVE;
         defaultStream.asset = defaultParams.createWithMilestones.asset;
     }
 
@@ -138,7 +136,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
 
     /// @dev Creates the default stream with the provided end time. In this case, the last milestone is the end time.
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
-        Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
         segments[1].milestone = endTime;
         streamId = pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
@@ -196,7 +194,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
     }
 
     /// @dev Creates the default stream with the provided segments.
-    function createDefaultStreamWithSegments(Segment[] memory segments) internal returns (uint256 streamId) {
+    function createDefaultStreamWithSegments(LockupPro.Segment[] memory segments) internal returns (uint256 streamId) {
         streamId = pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,

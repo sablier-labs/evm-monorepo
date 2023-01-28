@@ -6,8 +6,7 @@ import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
-import { Broker, CreateLockupAmounts, LockupAmounts, LockupLinearStream, Range } from "src/types/Structs.sol";
+import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
 
@@ -47,7 +46,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             defaultParams.createWithRange.grossDepositAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
-            Range({
+            LockupLinear.Range({
                 start: startTime,
                 cliff: defaultParams.createWithRange.range.cliff,
                 end: defaultParams.createWithRange.range.end
@@ -81,7 +80,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             defaultParams.createWithRange.grossDepositAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
-            Range({ start: defaultParams.createWithRange.range.start, cliff: cliffTime, end: endTime }),
+            LockupLinear.Range({ start: defaultParams.createWithRange.range.start, cliff: cliffTime, end: endTime }),
             defaultParams.createWithRange.broker
         );
     }
@@ -161,7 +160,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         address recipient;
         uint128 grossDepositAmount;
         bool cancelable;
-        Range range;
+        LockupLinear.Range range;
         Broker broker;
         UD60x18 protocolFee;
     }
@@ -256,7 +255,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             funder: params.funder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: CreateLockupAmounts({
+            amounts: Lockup.CreateAmounts({
                 netDeposit: vars.netDepositAmount,
                 protocolFee: vars.protocolFeeAmount,
                 brokerFee: vars.brokerFeeAmount
@@ -279,8 +278,8 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         );
 
         // Assert that the stream was created.
-        LockupLinearStream memory actualStream = linear.getStream(streamId);
-        assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        LockupLinear.Stream memory actualStream = linear.getStream(streamId);
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.range, params.range);

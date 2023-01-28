@@ -6,8 +6,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
-import { Broker, LockupAmounts, CreateLockupAmounts, LockupLinearStream, Segment, Range } from "src/types/Structs.sol";
+import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { E2eTest } from "../../E2eTest.t.sol";
 
@@ -39,7 +38,7 @@ abstract contract Linear_E2e_Test is E2eTest {
         Broker broker;
         uint128 grossDepositAmount;
         UD60x18 protocolFee;
-        Range range;
+        LockupLinear.Range range;
         address recipient;
         address sender;
         uint40 timeWarp;
@@ -52,13 +51,13 @@ abstract contract Linear_E2e_Test is E2eTest {
         uint256 actualHolderBalance;
         address actualNFTOwner;
         uint256 actualRecipientBalance;
-        Status actualStatus;
+        Lockup.Status actualStatus;
         uint256[] balances;
         uint256 expectedLinearBalance;
         uint256 expectedHolderBalance;
         address expectedNFTOwner;
         uint256 expectedRecipientBalance;
-        Status expectedStatus;
+        Lockup.Status expectedStatus;
         uint256 initialLinearBalance;
         uint256 initialRecipientBalance;
         uint256 streamId;
@@ -160,7 +159,7 @@ abstract contract Linear_E2e_Test is E2eTest {
             funder: holder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: CreateLockupAmounts({
+            amounts: Lockup.CreateAmounts({
                 netDeposit: vars.netDepositAmount,
                 protocolFee: vars.protocolFeeAmount,
                 brokerFee: vars.brokerFeeAmount
@@ -183,13 +182,13 @@ abstract contract Linear_E2e_Test is E2eTest {
         });
 
         // Assert that the stream was created.
-        LockupLinearStream memory actualStream = linear.getStream(vars.streamId);
-        assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        LockupLinear.Stream memory actualStream = linear.getStream(vars.streamId);
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
         assertEq(actualStream.isCancelable, true, "isCancelable");
         assertEq(actualStream.range, params.range);
         assertEq(actualStream.sender, params.sender, "sender");
-        assertEq(actualStream.status, Status.ACTIVE);
+        assertEq(actualStream.status, Lockup.Status.ACTIVE);
 
         // Assert that the next stream id was bumped.
         vars.actualNextStreamId = linear.nextStreamId();
@@ -309,7 +308,7 @@ abstract contract Linear_E2e_Test is E2eTest {
 
             // Assert that the stream was marked as canceled.
             vars.actualStatus = linear.getStatus(vars.streamId);
-            vars.expectedStatus = Status.CANCELED;
+            vars.expectedStatus = Lockup.Status.CANCELED;
             assertEq(vars.actualStatus, vars.expectedStatus, "status after cancel");
 
             // Assert that the NFT was not burned.
@@ -344,7 +343,7 @@ abstract contract Linear_E2e_Test is E2eTest {
         // Otherwise, assert that the stream was marked as depleted.
         else {
             vars.actualStatus = linear.getStatus(vars.streamId);
-            vars.expectedStatus = Status.DEPLETED;
+            vars.expectedStatus = Lockup.Status.DEPLETED;
             assertEq(vars.actualStatus, vars.expectedStatus, "status after full withdraw");
         }
     }

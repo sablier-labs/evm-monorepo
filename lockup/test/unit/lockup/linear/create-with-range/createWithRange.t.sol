@@ -6,8 +6,8 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
-import { Broker, CreateLockupAmounts, LockupAmounts, LockupLinearStream, Range } from "src/types/Structs.sol";
+
+import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
@@ -61,7 +61,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             defaultParams.createWithRange.grossDepositAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
-            Range({ start: startTime, cliff: cliffTime, end: defaultParams.createWithRange.range.end }),
+            LockupLinear.Range({ start: startTime, cliff: cliffTime, end: defaultParams.createWithRange.range.end }),
             defaultParams.createWithRange.broker
         );
     }
@@ -92,7 +92,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             defaultParams.createWithRange.grossDepositAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
-            Range({ start: defaultParams.createWithRange.range.start, cliff: cliffTime, end: endTime }),
+            LockupLinear.Range({ start: defaultParams.createWithRange.range.start, cliff: cliffTime, end: endTime }),
             defaultParams.createWithRange.broker
         );
     }
@@ -255,7 +255,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         );
 
         // Assert that the stream was created.
-        LockupLinearStream memory actualStream = linear.getStream(streamId);
+        LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(address(actualStream.asset), asset, "asset");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");

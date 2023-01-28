@@ -6,7 +6,7 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
@@ -316,9 +316,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: amounts });
 
         // Assert that the streams were marked as depleted.
-        Status actualStatus0 = lockup.getStatus(defaultStreamIds[0]);
-        Status actualStatus1 = lockup.getStatus(defaultStreamIds[1]);
-        Status expectedStatus = Status.DEPLETED;
+        Lockup.Status actualStatus0 = lockup.getStatus(defaultStreamIds[0]);
+        Lockup.Status actualStatus1 = lockup.getStatus(defaultStreamIds[1]);
+        Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus0, expectedStatus, "status0");
         assertEq(actualStatus1, expectedStatus, "status1");
 
@@ -375,16 +375,16 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     struct Vars {
         address actualEndedNFTOwner;
-        Status actualStatus0;
-        Status actualStatus1;
+        Lockup.Status actualStatus0;
+        Lockup.Status actualStatus1;
         uint128 actualWithdrawnAmount0;
         uint128 actualWithdrawnAmount1;
         uint128[] amounts;
         uint256 endedStreamId;
         uint128 endedWithdrawAmount;
         address expectedEndedNFTOwner;
-        Status expectedStatus0;
-        Status expectedStatus1;
+        Lockup.Status expectedStatus0;
+        Lockup.Status expectedStatus1;
         uint128 expectedWithdrawnAmount0;
         uint128 expectedWithdrawnAmount1;
         uint40 ongoingEndTime;
@@ -446,8 +446,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Assert that the ended stream was marked as depleted, and the ongoing stream was not.
         vars.actualStatus0 = lockup.getStatus(vars.endedStreamId);
         vars.actualStatus1 = lockup.getStatus(vars.ongoingStreamId);
-        vars.expectedStatus0 = Status.DEPLETED;
-        vars.expectedStatus1 = Status.ACTIVE;
+        vars.expectedStatus0 = Lockup.Status.DEPLETED;
+        vars.expectedStatus1 = Lockup.Status.ACTIVE;
         assertEq(vars.actualStatus0, vars.expectedStatus0, "status0");
         assertEq(vars.actualStatus1, vars.expectedStatus1, "status1");
 

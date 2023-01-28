@@ -8,7 +8,7 @@ import { UD2x18, ud2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Constants } from "./Constants.t.sol";
-import { Segment } from "src/types/Structs.sol";
+import { LockupPro } from "src/types/DataTypes.sol";
 
 abstract contract Calculations is Constants {
     using CastingUint128 for uint128;
@@ -20,7 +20,7 @@ abstract contract Calculations is Constants {
 
     /// @dev Adjust the amounts in the default segments as two fractions of the provided net deposit amount,
     /// one 20%, the other 80%.
-    function adjustSegmentAmounts(Segment[] memory segments, uint128 netDepositAmount) internal pure {
+    function adjustSegmentAmounts(LockupPro.Segment[] memory segments, uint128 netDepositAmount) internal pure {
         segments[0].amount = ud(netDepositAmount).mul(ud(0.2e18)).intoUint128();
         segments[1].amount = netDepositAmount - segments[0].amount;
     }
@@ -45,7 +45,7 @@ abstract contract Calculations is Constants {
     /// {SablierV2LockupPro-_calculateStreamedAmountForMultipleSegments} function.
     function calculateStreamedAmountForMultipleSegments(
         uint40 currentTime,
-        Segment[] memory segments,
+        LockupPro.Segment[] memory segments,
         uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
         if (currentTime >= segments[segments.length - 1].milestone) {

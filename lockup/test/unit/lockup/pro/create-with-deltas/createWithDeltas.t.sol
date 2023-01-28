@@ -8,7 +8,7 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { LockupProStream, Segment } from "src/types/Structs.sol";
+import { LockupPro } from "src/types/DataTypes.sol";
 
 import { Pro_Unit_Test } from "../Pro.t.sol";
 
@@ -79,7 +79,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
     {
         uint40 startTime = getBlockTimestamp();
         uint40[] memory deltas = Solarray.uint40s(UINT40_MAX, 1);
-        Segment[] memory segments = defaultParams.createWithDeltas.segments;
+        LockupPro.Segment[] memory segments = defaultParams.createWithDeltas.segments;
         unchecked {
             segments[0].milestone = startTime + deltas[0];
             segments[1].milestone = deltas[0] + deltas[1];
@@ -107,15 +107,15 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         uint40[] memory deltas = Solarray.uint40s(1, UINT40_MAX, 1);
 
         // Create new segments that overflow when the milestones are eventually calculated.
-        Segment[] memory segments = new Segment[](3);
+        LockupPro.Segment[] memory segments = new LockupPro.Segment[](3);
         unchecked {
-            segments[0] = Segment({ amount: 0, exponent: ud2x18(1e18), milestone: startTime + deltas[0] });
-            segments[1] = Segment({
+            segments[0] = LockupPro.Segment({ amount: 0, exponent: ud2x18(1e18), milestone: startTime + deltas[0] });
+            segments[1] = LockupPro.Segment({
                 amount: DEFAULT_SEGMENTS[0].amount,
                 exponent: DEFAULT_SEGMENTS[0].exponent,
                 milestone: segments[0].milestone + deltas[1]
             });
-            segments[2] = Segment({
+            segments[2] = LockupPro.Segment({
                 amount: DEFAULT_SEGMENTS[1].amount,
                 exponent: DEFAULT_SEGMENTS[1].exponent,
                 milestone: segments[1].milestone + deltas[2]
@@ -194,8 +194,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
             segments: defaultParams.createWithDeltas.segments,
             asset: DEFAULT_ASSET,
             cancelable: defaultParams.createWithDeltas.cancelable,
-            startTime: DEFAULT_START_TIME,
-            endTime: DEFAULT_END_TIME,
+            range: DEFAULT_PRO_RANGE,
             broker: defaultParams.createWithDeltas.broker.addr
         });
 
@@ -203,14 +202,13 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStreamWithDeltas();
 
         // Assert that the stream was created.
-        LockupProStream memory actualStream = pro.getStream(streamId);
+        LockupPro.Stream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.asset, defaultStream.asset, "asset");
-        assertEq(actualStream.endTime, defaultStream.segments[1].milestone, "endTime");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
+        assertEq(actualStream.range, defaultStream.range);
         assertEq(actualStream.segments, defaultStream.segments);
         assertEq(actualStream.sender, defaultStream.sender, "sender");
-        assertEq(actualStream.startTime, defaultStream.startTime, "startTime");
         assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id was bumped.

@@ -6,8 +6,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
-import { Broker, CreateLockupAmounts, LockupAmounts, LockupProStream, Segment } from "src/types/Structs.sol";
+import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
 
 import { E2eTest } from "../../E2eTest.t.sol";
 
@@ -51,12 +50,12 @@ abstract contract Pro_E2e_Test is E2eTest {
         address actualNFTOwner;
         uint256 actualProBalance;
         uint256 actualRecipientBalance;
-        Status actualStatus;
+        Lockup.Status actualStatus;
         uint256[] balances;
         address expectedNFTOwner;
         uint256 expectedProBalance;
         uint256 expectedRecipientBalance;
-        Status expectedStatus;
+        Lockup.Status expectedStatus;
         uint256 initialProBalance;
         uint256 initialRecipientBalance;
         uint256 streamId;
@@ -151,7 +150,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         vars.netDepositAmount = params.grossDepositAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
-        Segment[] memory segments = DEFAULT_SEGMENTS;
+        LockupPro.Segment[] memory segments = DEFAULT_SEGMENTS;
         adjustSegmentAmounts(segments, vars.netDepositAmount);
 
         // Expect a {CreateLockupProStream} event to be emitted.
@@ -162,7 +161,7 @@ abstract contract Pro_E2e_Test is E2eTest {
             funder: holder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: CreateLockupAmounts({
+            amounts: Lockup.CreateAmounts({
                 netDeposit: vars.netDepositAmount,
                 protocolFee: vars.protocolFeeAmount,
                 brokerFee: vars.brokerFeeAmount
@@ -170,8 +169,7 @@ abstract contract Pro_E2e_Test is E2eTest {
             segments: segments,
             asset: asset,
             cancelable: true,
-            startTime: params.startTime,
-            endTime: DEFAULT_END_TIME,
+            range: LockupPro.Range({ start: params.startTime, end: DEFAULT_END_TIME }),
             broker: params.broker.addr
         });
 
@@ -188,15 +186,15 @@ abstract contract Pro_E2e_Test is E2eTest {
         });
 
         // Assert that the stream was created.
-        LockupProStream memory actualStream = pro.getStream(vars.streamId);
-        assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        LockupPro.Stream memory actualStream = pro.getStream(vars.streamId);
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
-        assertEq(actualStream.endTime, DEFAULT_END_TIME, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
+        assertEq(actualStream.range.end, DEFAULT_END_TIME, "endTime");
+        assertEq(actualStream.range.start, params.startTime, "startTime");
         assertEq(actualStream.segments, segments);
         assertEq(actualStream.sender, params.sender, "sender");
-        assertEq(actualStream.startTime, params.startTime, "startTime");
-        assertEq(actualStream.status, Status.ACTIVE);
+        assertEq(actualStream.status, Lockup.Status.ACTIVE);
 
         // Assert that the next stream id was bumped.
         vars.actualNextStreamId = pro.nextStreamId();
@@ -313,7 +311,7 @@ abstract contract Pro_E2e_Test is E2eTest {
 
             // Assert that the stream was marked as canceled.
             vars.actualStatus = pro.getStatus(vars.streamId);
-            vars.expectedStatus = Status.CANCELED;
+            vars.expectedStatus = Lockup.Status.CANCELED;
             assertEq(vars.actualStatus, vars.expectedStatus, "status after cancel");
 
             // Assert that the NFT was not burned.
@@ -348,7 +346,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         // Otherwise, assert that the stream was marked as depleted.
         else {
             vars.actualStatus = pro.getStatus(vars.streamId);
-            vars.expectedStatus = Status.DEPLETED;
+            vars.expectedStatus = Lockup.Status.DEPLETED;
             assertEq(vars.actualStatus, vars.expectedStatus, "status after full withdraw");
         }
     }

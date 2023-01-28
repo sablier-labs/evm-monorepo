@@ -3,10 +3,9 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
-import { Status } from "src/types/Enums.sol";
-import { Broker, Durations, LockupLinearStream, Range } from "src/types/Structs.sol";
+import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { Lockup_Shared_Test } from "test/shared/lockup/Lockup.t.sol";
+import { Lockup_Shared_Test } from "../Lockup.t.sol";
 
 /// @title Linear_Shared_Test
 /// @notice Common testing logic needed across {SablierV2LockupLinear} unit and fuzz tests.
@@ -21,7 +20,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         uint128 grossDepositAmount;
         IERC20 asset;
         bool cancelable;
-        Durations durations;
+        LockupLinear.Durations durations;
         Broker broker;
     }
 
@@ -31,7 +30,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         uint128 grossDepositAmount;
         IERC20 asset;
         bool cancelable;
-        Range range;
+        LockupLinear.Range range;
         Broker broker;
     }
 
@@ -44,7 +43,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
                                    TEST VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    LockupLinearStream internal defaultStream;
+    LockupLinear.Stream internal defaultStream;
     DefaultParams internal defaultParams;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -71,17 +70,17 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
                 grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
                 asset: DEFAULT_ASSET,
                 cancelable: true,
-                range: DEFAULT_RANGE,
+                range: DEFAULT_LINEAR_RANGE,
                 broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
             })
         });
 
         // Create the default stream to be used across the tests.
-        defaultStream = LockupLinearStream({
+        defaultStream = LockupLinear.Stream({
             amounts: DEFAULT_LOCKUP_AMOUNTS,
             isCancelable: defaultParams.createWithRange.cancelable,
             sender: defaultParams.createWithRange.sender,
-            status: Status.ACTIVE,
+            status: Lockup.Status.ACTIVE,
             range: defaultParams.createWithRange.range,
             asset: defaultParams.createWithRange.asset
         });
@@ -118,7 +117,9 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
     }
 
     /// @dev Creates the default stream with the provided durations.
-    function createDefaultStreamWithDurations(Durations memory durations) internal returns (uint256 streamId) {
+    function createDefaultStreamWithDurations(
+        LockupLinear.Durations memory durations
+    ) internal returns (uint256 streamId) {
         streamId = linear.createWithDurations(
             defaultParams.createWithDurations.sender,
             defaultParams.createWithDurations.recipient,
@@ -138,7 +139,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithRange.grossDepositAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
-            Range({
+            LockupLinear.Range({
                 start: defaultParams.createWithRange.range.start,
                 cliff: defaultParams.createWithRange.range.cliff,
                 end: endTime

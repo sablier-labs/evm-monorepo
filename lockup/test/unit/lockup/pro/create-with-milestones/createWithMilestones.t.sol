@@ -8,7 +8,7 @@ import { stdError } from "forge-std/StdError.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { Broker, CreateLockupAmounts, LockupAmounts, LockupProStream, Segment } from "src/types/Structs.sol";
+import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
 
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
 
@@ -49,7 +49,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_SegmentCountZero() external recipientNonZeroAddress netDepositAmountNotZero {
-        Segment[] memory segments;
+        LockupPro.Segment[] memory segments;
         vm.expectRevert(Errors.SablierV2LockupPro_SegmentCountZero.selector);
         createDefaultStreamWithSegments(segments);
     }
@@ -66,7 +66,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentCountNotZero
     {
         uint256 segmentCount = DEFAULT_MAX_SEGMENT_COUNT + 1;
-        Segment[] memory segments = new Segment[](segmentCount);
+        LockupPro.Segment[] memory segments = new LockupPro.Segment[](segmentCount);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2LockupPro_SegmentCountTooHigh.selector, segmentCount));
         createDefaultStreamWithSegments(segments);
     }
@@ -83,7 +83,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentCountNotZero
         segmentCountNotTooHigh
     {
-        Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
         segments[0].amount = UINT128_MAX;
         segments[1].amount = 1;
         vm.expectRevert(stdError.arithmeticError);
@@ -104,7 +104,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentAmountsSumDoesNotOverflow
     {
         // Swap the segment milestones.
-        Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
         (segments[0].milestone, segments[1].milestone) = (segments[1].milestone, segments[0].milestone);
 
         // Expect a {SegmentMilestonesNotOrdered} error.
@@ -346,13 +346,13 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         );
 
         // Assert that the stream was created.
-        LockupProStream memory actualStream = pro.getStream(streamId);
+        LockupPro.Stream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(address(actualStream.asset), asset, "asset");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
+        assertEq(actualStream.range, defaultStream.range);
         assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.segments, defaultStream.segments);
-        assertEq(actualStream.startTime, defaultStream.startTime, "startTime");
         assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id was bumped.

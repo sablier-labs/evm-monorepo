@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Status } from "../types/Enums.sol";
+import { Lockup } from "../types/DataTypes.sol";
 import { ISablierV2Config } from "./ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 
@@ -46,7 +46,7 @@ interface ISablierV2Lockup is
 
     /// @notice Queries the status of the stream.
     /// @param streamId The id of the stream to make the query for.
-    function getStatus(uint256 streamId) external view returns (Status status);
+    function getStatus(uint256 streamId) external view returns (Lockup.Status status);
 
     /// @notice Queries the amount withdrawn from the stream, in units of the asset's decimals.
     /// @param streamId The id of the stream to make the query for.

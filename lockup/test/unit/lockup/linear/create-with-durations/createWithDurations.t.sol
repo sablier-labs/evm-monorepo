@@ -6,8 +6,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
-import { Durations, LockupAmounts, LockupLinearStream, Range } from "src/types/Structs.sol";
+import { LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
@@ -45,7 +44,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         uint40 totalDuration = cliffDuration;
 
         // Create the stream.
-        createDefaultStreamWithDurations(Durations({ cliff: cliffDuration, total: totalDuration }));
+        createDefaultStreamWithDurations(LockupLinear.Durations({ cliff: cliffDuration, total: totalDuration }));
     }
 
     modifier cliffDurationCalculationDoesNotOverflow() {
@@ -55,7 +54,10 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_TotalDurationCalculationOverflows() external cliffDurationCalculationDoesNotOverflow {
         uint40 startTime = getBlockTimestamp();
-        Durations memory durations = Durations({ cliff: 0, total: UINT40_MAX - startTime + 1 });
+        LockupLinear.Durations memory durations = LockupLinear.Durations({
+            cliff: 0,
+            total: UINT40_MAX - startTime + 1
+        });
 
         // Calculate the cliff time and the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -123,7 +125,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
             amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
             asset: DEFAULT_ASSET,
             cancelable: defaultParams.createWithDurations.cancelable,
-            range: DEFAULT_RANGE,
+            range: DEFAULT_LINEAR_RANGE,
             broker: defaultParams.createWithDurations.broker.addr
         });
 
@@ -131,11 +133,11 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStreamWithDurations({ durations: defaultParams.createWithDurations.durations });
 
         // Assert that the stream was created.
-        LockupLinearStream memory actualStream = linear.getStream(streamId);
+        LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.range, DEFAULT_RANGE);
+        assertEq(actualStream.range, DEFAULT_LINEAR_RANGE);
         assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.status, defaultStream.status);
 

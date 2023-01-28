@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { CreateLockupAmounts, Range, Segment } from "../types/Structs.sol";
+import { Lockup, LockupLinear, LockupPro } from "../types/DataTypes.sol";
 import { Errors } from "./Errors.sol";
 
 /// @title Helpers
@@ -13,19 +13,19 @@ library Helpers {
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks that neither fee is greater than `MAX_FEE`, and then calculates the protocol fee amount, the
+    /// @dev Checks that neither fee is greater than `maxFee`, and then calculates the protocol fee amount, the
     /// broker fee amount, and the net deposit amount.
     function checkAndCalculateFees(
         uint128 grossDepositAmount,
         UD60x18 protocolFee,
         UD60x18 brokerFee,
         UD60x18 maxFee
-    ) internal pure returns (CreateLockupAmounts memory amounts) {
+    ) internal pure returns (Lockup.CreateAmounts memory amounts) {
         if (grossDepositAmount == 0) {
-            return CreateLockupAmounts(0, 0, 0);
+            return Lockup.CreateAmounts(0, 0, 0);
         }
 
-        // Checks: the protocol fee is not greater than `MAX_FEE`.
+        // Checks: the protocol fee is not greater than `maxFee`.
         if (protocolFee.gt(maxFee)) {
             revert Errors.SablierV2Lockup_ProtocolFeeTooHigh(protocolFee, maxFee);
         }
@@ -34,7 +34,7 @@ library Helpers {
         // The cast to uint128 is safe because the maximum fee is hard-coded and it is always less than 1e18.
         amounts.protocolFee = uint128(ud(grossDepositAmount).mul(protocolFee).intoUint256());
 
-        // Checks: the broker fee is not greater than `MAX_FEE`.
+        // Checks: the broker fee is not greater than `maxFee`.
         if (brokerFee.gt(maxFee)) {
             revert Errors.SablierV2Lockup_BrokerFeeTooHigh(brokerFee, maxFee);
         }
@@ -54,7 +54,7 @@ library Helpers {
     }
 
     /// @dev Checks the arguments of the {SablierV2LockupLinear-_createWithRange} function.
-    function checkCreateLinearParams(uint128 netDepositAmount, Range memory range) internal pure {
+    function checkCreateLinearParams(uint128 netDepositAmount, LockupLinear.Range memory range) internal pure {
         // Checks: the net deposit amount is not zero.
         if (netDepositAmount == 0) {
             revert Errors.SablierV2Lockup_NetDepositAmountZero();
@@ -74,7 +74,7 @@ library Helpers {
     /// @dev Checks the arguments of the {SablierV2LockupPro-_createWithRange} function.
     function checkCreateProParams(
         uint128 netDepositAmount,
-        Segment[] memory segments,
+        LockupPro.Segment[] memory segments,
         uint256 maxSegmentCount,
         uint40 startTime
     ) internal pure {
@@ -99,7 +99,7 @@ library Helpers {
     }
 
     /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
-    function checkDeltasAndAdjustSegments(Segment[] memory segments, uint40[] memory deltas) internal view {
+    function checkDeltasAndAdjustSegments(LockupPro.Segment[] memory segments, uint40[] memory deltas) internal view {
         // Checks: check that the segment array counts match.
         uint256 deltaCount = deltas.length;
         if (segments.length != deltaCount) {
@@ -132,7 +132,11 @@ library Helpers {
     /// 2. The milestones are ordered chronologically.
     /// 3. There are no duplicate milestones.
     /// 4. The net deposit amount is equal to the segment amounts summed up.
-    function _checkProSegments(Segment[] memory segments, uint128 netDepositAmount, uint40 startTime) private pure {
+    function _checkProSegments(
+        LockupPro.Segment[] memory segments,
+        uint128 netDepositAmount,
+        uint40 startTime
+    ) private pure {
         // Check that the first milestone is greater than or equal to the start time.
         if (startTime > segments[0].milestone) {
             revert Errors.SablierV2LockupPro_StartTimeGreaterThanFirstMilestone(startTime, segments[0].milestone);

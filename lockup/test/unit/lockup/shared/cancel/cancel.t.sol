@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
@@ -123,8 +123,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerSender
     {
         lockup.cancel(defaultStreamId);
-        Status actualStatus = lockup.getStatus(defaultStreamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -143,8 +143,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     {
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
         lockup.cancel(streamId);
-        Status actualStatus = lockup.getStatus(streamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -164,8 +164,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     {
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
         lockup.cancel(streamId);
-        Status actualStatus = lockup.getStatus(streamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -186,8 +186,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     {
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
         lockup.cancel(streamId);
-        Status actualStatus = lockup.getStatus(streamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -233,8 +233,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(streamId);
 
         // Assert that the stream was marked as canceled.
-        Status actualStatus = lockup.getStatus(streamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount was updated.
@@ -261,8 +261,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerRecipient
     {
         lockup.cancel(defaultStreamId);
-        Status actualStatus = lockup.getStatus(defaultStreamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -281,8 +281,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     {
         uint256 streamId = createDefaultStreamWithSender(address(empty));
         lockup.cancel(streamId);
-        Status actualStatus = lockup.getStatus(streamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -304,8 +304,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(streamId);
 
         // Assert that the stream was marked as canceled.
-        Status actualStatus = lockup.getStatus(streamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -328,8 +328,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(streamId);
 
         // Assert that the stream was marked as canceled.
-        Status actualStatus = lockup.getStatus(streamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -372,8 +372,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(streamId);
 
         // Assert that the stream was marked as canceled.
-        Status actualStatus = lockup.getStatus(streamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount was updated.
