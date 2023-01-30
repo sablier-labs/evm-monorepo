@@ -1,5 +1,10 @@
 getReturnableAmount.t.sol
-├── when the stream is null
-│  └── it should return zero
-└── when the stream is not null
+├── when the stream is not active
+│  ├── when the stream is null
+│  │  └── it should return zero
+│  ├── when the stream is canceled
+│  │  └── it should return zero
+│  └── when the stream is depleted
+│     └── it should return zero
+└── when the stream is active
    └── it should return the correct returnable amount

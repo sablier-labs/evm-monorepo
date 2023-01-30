@@ -1,7 +1,12 @@
 getWithdrawableAmount.t.sol
-├── when the stream is null
-│  └── it should return zero
-└── when the stream is not null
+├── when the stream is not active
+│  ├── when the stream is null
+│  │  └── it should return zero
+│  ├── when the stream is canceled
+│  │  └── it should return zero
+│  └── when the stream is depleted
+│     └── it should return zero
+└── when the stream is active
    ├── when the start time is greater than the current time
    │  └── it should return zero
    ├── when the start time is equal to the current time

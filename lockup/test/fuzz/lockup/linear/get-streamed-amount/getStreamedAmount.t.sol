@@ -11,14 +11,14 @@ import { Linear_Fuzz_Test } from "../Linear.t.sol";
 contract GetStreamedAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
     uint256 internal defaultStreamId;
 
-    modifier streamNonNull() {
+    modifier streamActive() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function testFuzz_GetStreamedAmount_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external streamNonNull {
+    function testFuzz_GetStreamedAmount_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external streamActive {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
         uint128 actualStreamedAmount = linear.getStreamedAmount(defaultStreamId);
@@ -45,7 +45,7 @@ contract GetStreamedAmount_Linear_Fuzz_Test is Linear_Fuzz_Test {
     function testFuzz_GetStreamedAmount(
         uint40 timeWarp,
         uint128 depositAmount
-    ) external streamNonNull cliffTimeLessThanOrEqualToCurrentTime {
+    ) external streamActive cliffTimeLessThanOrEqualToCurrentTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         vm.assume(depositAmount != 0);
 

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { ZERO } from "@prb/math/UD60x18.sol";
-
 import { Segment } from "src/types/Structs.sol";
 
 import { Pro_Unit_Test } from "../Pro.t.sol";
@@ -10,22 +8,49 @@ import { Pro_Unit_Test } from "../Pro.t.sol";
 contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     uint256 internal defaultStreamId;
 
+    function setUp() public virtual override {
+        Pro_Unit_Test.setUp();
+
+        // Create the default stream.
+        defaultStreamId = createDefaultStream();
+    }
+
+    modifier streamNotActive() {
+        _;
+    }
+
     /// @dev it should return zero.
-    function test_GetStreamedAmount_StreamNull() external {
+    function test_GetStreamedAmount_StreamNull() external streamNotActive {
         uint256 nullStreamId = 1729;
         uint128 actualStreamedAmount = pro.getStreamedAmount(nullStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier streamNonNull() {
-        // Create the default stream.
-        defaultStreamId = createDefaultStream();
+    /// @dev it should return zero.
+    function test_GetStreamedAmount_StreamCanceled() external streamNotActive {
+        lockup.cancel(defaultStreamId);
+        uint256 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
+        uint256 expectedStreamedAmount = pro.getWithdrawnAmount(defaultStreamId);
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
+    }
+
+    /// @dev it should return the withdrawn amount.
+    function test_GetStreamedAmount_StreamDepleted() external streamNotActive {
+        vm.warp({ timestamp: DEFAULT_STOP_TIME });
+        uint128 withdrawAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+        uint256 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
+        uint256 expectedStreamedAmount = withdrawAmount;
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
+    }
+
+    modifier streamActive() {
         _;
     }
 
     /// @dev it should return zero.
-    function test_GetStreamedAmount_StartTimeGreaterThanCurrentTime() external streamNonNull {
+    function test_GetStreamedAmount_StartTimeGreaterThanCurrentTime() external streamActive {
         vm.warp({ timestamp: 0 });
         uint128 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
@@ -33,7 +58,7 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_GetStreamedAmount_StartTimeEqualToCurrentTime() external streamNonNull {
+    function test_GetStreamedAmount_StartTimeEqualToCurrentTime() external streamActive {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualStreamedAmount = pro.getStreamedAmount(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
@@ -45,7 +70,7 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return the correct streamed amount.
-    function test_GetStreamedAmount_OneSegment() external streamNonNull startTimeLessThanCurrentTime {
+    function test_GetStreamedAmount_OneSegment() external streamActive startTimeLessThanCurrentTime {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + 2_000 seconds });
 
@@ -73,7 +98,7 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should return the correct streamed amount.
     function test_GetStreamedAmount_CurrentMilestone1st()
         external
-        streamNonNull
+        streamActive
         multipleSegments
         startTimeLessThanCurrentTime
     {
@@ -90,7 +115,7 @@ contract GetStreamedAmount_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should return the correct streamed amount.
     function test_GetStreamedAmount_CurrentMilestoneNot1st()
         external
-        streamNonNull
+        streamActive
         startTimeLessThanCurrentTime
         multipleSegments
         currentMilestoneNot1st
