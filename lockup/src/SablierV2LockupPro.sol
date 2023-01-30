@@ -51,6 +51,7 @@ contract SablierV2LockupPro is
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialComptroller The address of the initial comptroller.
     /// @param maxFee The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
