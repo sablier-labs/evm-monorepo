@@ -23,7 +23,7 @@ abstract contract GetDepositAmount_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_GetDepositAmount() external streamNonNull {
         uint256 streamId = createDefaultStream();
         uint128 actualDepositAmount = lockup.getDepositAmount(streamId);
-        uint128 expectedDepositAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
+        uint128 expectedDepositAmount = DEFAULT_DEPOSIT_AMOUNT;
         assertEq(actualDepositAmount, expectedDepositAmount, "depositAmount");
     }
 }

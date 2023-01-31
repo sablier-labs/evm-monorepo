@@ -17,7 +17,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
     struct CreateWithDurationsParams {
         address sender;
         address recipient;
-        uint128 grossDepositAmount;
+        uint128 totalAmount;
         IERC20 asset;
         bool cancelable;
         LockupLinear.Durations durations;
@@ -27,7 +27,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
     struct CreateWithRangeParams {
         address sender;
         address recipient;
-        uint128 grossDepositAmount;
+        uint128 totalAmount;
         IERC20 asset;
         bool cancelable;
         LockupLinear.Range range;
@@ -58,7 +58,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
             createWithDurations: CreateWithDurationsParams({
                 sender: users.sender,
                 recipient: users.recipient,
-                grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
+                totalAmount: DEFAULT_TOTAL_AMOUNT,
                 asset: DEFAULT_ASSET,
                 cancelable: true,
                 durations: DEFAULT_DURATIONS,
@@ -67,7 +67,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
             createWithRange: CreateWithRangeParams({
                 sender: users.sender,
                 recipient: users.recipient,
-                grossDepositAmount: DEFAULT_GROSS_DEPOSIT_AMOUNT,
+                totalAmount: DEFAULT_TOTAL_AMOUNT,
                 asset: DEFAULT_ASSET,
                 cancelable: true,
                 range: DEFAULT_LINEAR_RANGE,
@@ -95,7 +95,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         streamId = linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
@@ -108,7 +108,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         streamId = linear.createWithDurations(
             defaultParams.createWithDurations.sender,
             defaultParams.createWithDurations.recipient,
-            defaultParams.createWithDurations.grossDepositAmount,
+            defaultParams.createWithDurations.totalAmount,
             defaultParams.createWithDurations.asset,
             defaultParams.createWithDurations.cancelable,
             defaultParams.createWithDurations.durations,
@@ -123,7 +123,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         streamId = linear.createWithDurations(
             defaultParams.createWithDurations.sender,
             defaultParams.createWithDurations.recipient,
-            defaultParams.createWithDurations.grossDepositAmount,
+            defaultParams.createWithDurations.totalAmount,
             defaultParams.createWithDurations.asset,
             defaultParams.createWithDurations.cancelable,
             durations,
@@ -136,7 +136,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         streamId = linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             LockupLinear.Range({
@@ -148,26 +148,13 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         );
     }
 
-    /// @dev Creates the default stream with the provided gross deposit amount.
-    function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
-        streamId = linear.createWithRange(
-            defaultParams.createWithRange.sender,
-            defaultParams.createWithRange.recipient,
-            grossDepositAmount,
-            defaultParams.createWithRange.asset,
-            defaultParams.createWithRange.cancelable,
-            defaultParams.createWithRange.range,
-            defaultParams.createWithRange.broker
-        );
-    }
-
     /// @dev Creates the default stream that is non-cancelable.
     function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
         bool isCancelable = false;
         streamId = linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             defaultParams.createWithRange.asset,
             isCancelable,
             defaultParams.createWithRange.range,
@@ -180,7 +167,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         streamId = linear.createWithRange(
             defaultParams.createWithRange.sender,
             recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
@@ -193,7 +180,20 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         streamId = linear.createWithRange(
             sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
+            defaultParams.createWithRange.asset,
+            defaultParams.createWithRange.cancelable,
+            defaultParams.createWithRange.range,
+            defaultParams.createWithRange.broker
+        );
+    }
+
+    /// @dev Creates the default stream with the provided total amount.
+    function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal returns (uint256 streamId) {
+        streamId = linear.createWithRange(
+            defaultParams.createWithRange.sender,
+            defaultParams.createWithRange.recipient,
+            totalAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,

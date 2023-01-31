@@ -24,14 +24,14 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    modifier netDepositAmountNotZero() {
+    modifier depositAmountNotZero() {
         _;
     }
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(
         uint40 startTime
-    ) external recipientNonZeroAddress netDepositAmountNotZero {
+    ) external recipientNonZeroAddress depositAmountNotZero {
         startTime = boundUint40(startTime, defaultParams.createWithRange.range.cliff + 1, UINT40_MAX);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -43,7 +43,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             LockupLinear.Range({
@@ -63,7 +63,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     function testFuzz_RevertWhen_CliffTimeGreaterThanEndTime(
         uint40 cliffTime,
         uint40 endTime
-    ) external recipientNonZeroAddress netDepositAmountNotZero startTimeLessThanOrEqualToCliffTime {
+    ) external recipientNonZeroAddress depositAmountNotZero startTimeLessThanOrEqualToCliffTime {
         vm.assume(cliffTime > endTime);
         vm.assume(endTime > defaultParams.createWithRange.range.start);
 
@@ -77,7 +77,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             LockupLinear.Range({ start: defaultParams.createWithRange.range.start, cliff: cliffTime, end: endTime }),
@@ -95,7 +95,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     )
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
         cliffLessThanOrEqualToEndTime
     {
@@ -122,7 +122,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     )
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
         cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
@@ -134,7 +134,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
@@ -155,27 +155,27 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     struct Params {
-        address funder;
-        address sender;
-        address recipient;
-        uint128 grossDepositAmount;
-        bool cancelable;
-        LockupLinear.Range range;
         Broker broker;
+        bool cancelable;
+        address funder;
         UD60x18 protocolFee;
+        LockupLinear.Range range;
+        address recipient;
+        address sender;
+        uint128 totalAmount;
     }
 
     struct Vars {
+        uint256 actualNextStreamId;
+        address actualNFTOwner;
+        uint256 actualProtocolRevenues;
+        uint128 brokerFeeAmount;
+        uint128 depositAmount;
+        uint256 expectedNextStreamId;
+        address expectedNFTOwner;
+        uint256 expectedProtocolRevenues;
         uint128 initialProtocolRevenues;
         uint128 protocolFeeAmount;
-        uint128 brokerFeeAmount;
-        uint128 netDepositAmount;
-        uint256 actualNextStreamId;
-        uint256 expectedNextStreamId;
-        uint256 actualProtocolRevenues;
-        uint256 expectedProtocolRevenues;
-        address actualNFTOwner;
-        address expectedNFTOwner;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
@@ -184,7 +184,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - All possible permutations for the funder, sender, recipient, and broker.
-    /// - Multiple values for the gross deposit amount.
+    /// - Multiple values for the total amount.
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
@@ -195,7 +195,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         Params memory params
     )
         external
-        netDepositAmountNotZero
+        depositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
         cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
@@ -204,7 +204,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assetERC20Compliant
     {
         vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
-        vm.assume(params.grossDepositAmount != 0);
+        vm.assume(params.totalAmount != 0);
         vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.end);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
@@ -217,7 +217,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         changePrank(params.funder);
 
         // Mint enough assets to the funder.
-        deal({ token: address(DEFAULT_ASSET), to: params.funder, give: params.grossDepositAmount });
+        deal({ token: address(DEFAULT_ASSET), to: params.funder, give: params.totalAmount });
 
         // Approve the {SablierV2LockupLinear} contract to transfer the assets from the fuzzed funder.
         DEFAULT_ASSET.approve({ spender: address(linear), amount: UINT256_MAX });
@@ -226,17 +226,17 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         Vars memory vars;
         vars.initialProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
 
-        // Calculate the protocol fee amount, broker fee amount and the net deposit amount.
-        vars.protocolFeeAmount = ud(params.grossDepositAmount).mul(params.protocolFee).intoUint128();
-        vars.brokerFeeAmount = ud(params.grossDepositAmount).mul(params.broker.fee).intoUint128();
-        vars.netDepositAmount = params.grossDepositAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
+        // Calculate the protocol fee amount, broker fee amount and the deposit amount.
+        vars.protocolFeeAmount = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
+        vars.brokerFeeAmount = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
+        vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
         vm.expectCall(
             address(DEFAULT_ASSET),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (params.funder, address(linear), vars.netDepositAmount + vars.protocolFeeAmount)
+                (params.funder, address(linear), vars.depositAmount + vars.protocolFeeAmount)
             )
         );
 
@@ -256,7 +256,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             sender: params.sender,
             recipient: params.recipient,
             amounts: Lockup.CreateAmounts({
-                netDeposit: vars.netDepositAmount,
+                deposit: vars.depositAmount,
                 protocolFee: vars.protocolFeeAmount,
                 brokerFee: vars.brokerFeeAmount
             }),
@@ -270,7 +270,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         linear.createWithRange(
             params.sender,
             params.recipient,
-            params.grossDepositAmount,
+            params.totalAmount,
             DEFAULT_ASSET,
             params.cancelable,
             params.range,
@@ -279,7 +279,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Assert that the stream was created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.depositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.range, params.range);

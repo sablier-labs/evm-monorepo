@@ -225,9 +225,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
 
         // Expect some ERC-20 assets to be returned to the sender only for the ongoing stream.
-        uint128 senderAmount0 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount0;
+        uint128 senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount0;
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount0)));
-        uint128 senderAmount1 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount1;
+        uint128 senderAmount1 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount1;
 
         // Expect two {CancelLockupStream} events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });

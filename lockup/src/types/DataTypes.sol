@@ -7,7 +7,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @notice Simple struct that encapsulates the optional broker parameters that can be passed to the create functions.
 /// @custom:field addr The address of the broker the fee will be paid to.
-/// @custom:field fee The percentage fee that the broker is paid from the gross deposit amount, as an UD60x18 number.
+/// @custom:field fee The percentage fee that the broker is paid from the total amount, as an UD60x18 number.
 struct Broker {
     address addr;
     UD60x18 fee;
@@ -25,13 +25,13 @@ library Lockup {
         uint128 withdrawn; // ─┘
     }
 
-    /// @notice Simple struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii) the
+    /// @notice Simple struct that encapsulates (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
     /// broker fee amount, each in units of the asset's decimals.
-    /// @custom:field netDeposit The deposit amount net of fees, in units of the asset's decimals.
+    /// @custom:field deposit The amount deposited in the stream, in units of the asset's decimals.
     /// @custom:field protocolFee The protocol fee amount, in units of the asset's decimals.
     /// @custom:field brokerFee The broker fee amount, in units of the asset's decimals.
     struct CreateAmounts {
-        uint128 netDeposit; // ──┐
+        uint128 deposit; // ─────┐
         uint128 protocolFee; // ─┘
         uint128 brokerFee;
     }

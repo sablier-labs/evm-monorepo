@@ -209,7 +209,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_END_TIME });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_NET_DEPOSIT_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
 
         // Assert that the stream was marked as depleted.
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);

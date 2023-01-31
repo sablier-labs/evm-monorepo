@@ -14,14 +14,14 @@ library Helpers {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks that neither fee is greater than `maxFee`, and then calculates the protocol fee amount, the
-    /// broker fee amount, and the net deposit amount.
+    /// broker fee amount, and the deposit amount from the total amount.
     function checkAndCalculateFees(
-        uint128 grossDepositAmount,
+        uint128 totalAmount,
         UD60x18 protocolFee,
         UD60x18 brokerFee,
         UD60x18 maxFee
     ) internal pure returns (Lockup.CreateAmounts memory amounts) {
-        if (grossDepositAmount == 0) {
+        if (totalAmount == 0) {
             return Lockup.CreateAmounts(0, 0, 0);
         }
 
@@ -32,7 +32,7 @@ library Helpers {
 
         // Calculate the protocol fee amount.
         // The cast to uint128 is safe because the maximum fee is hard-coded and it is always less than 1e18.
-        amounts.protocolFee = uint128(ud(grossDepositAmount).mul(protocolFee).intoUint256());
+        amounts.protocolFee = uint128(ud(totalAmount).mul(protocolFee).intoUint256());
 
         // Checks: the broker fee is not greater than `maxFee`.
         if (brokerFee.gt(maxFee)) {
@@ -41,23 +41,23 @@ library Helpers {
 
         // Calculate the broker fee amount.
         // The cast to uint128 is safe because the maximum fee is hard-coded and it is always less than 1e18.
-        amounts.brokerFee = uint128(ud(grossDepositAmount).mul(brokerFee).intoUint256());
+        amounts.brokerFee = uint128(ud(totalAmount).mul(brokerFee).intoUint256());
 
         unchecked {
-            // Assert that the gross deposit amount is strictly greater than the sum of the protocol fee amount
-            // and the broker fee amount.
-            assert(grossDepositAmount > amounts.protocolFee + amounts.brokerFee);
+            // Assert that the total amount  is strictly greater than the sum of the protocol fee amount and the
+            // broker fee amount.
+            assert(totalAmount > amounts.protocolFee + amounts.brokerFee);
 
-            // Calculate the net deposit amount (the amount net of fees).
-            amounts.netDeposit = grossDepositAmount - amounts.protocolFee - amounts.brokerFee;
+            // Calculate the deposit amount (the total amount net of fees).
+            amounts.deposit = totalAmount - amounts.protocolFee - amounts.brokerFee;
         }
     }
 
     /// @dev Checks the arguments of the {SablierV2LockupLinear-_createWithRange} function.
-    function checkCreateLinearParams(uint128 netDepositAmount, LockupLinear.Range memory range) internal pure {
-        // Checks: the net deposit amount is not zero.
-        if (netDepositAmount == 0) {
-            revert Errors.SablierV2Lockup_NetDepositAmountZero();
+    function checkCreateLinearParams(uint128 depositAmount, LockupLinear.Range memory range) internal pure {
+        // Checks: the deposit amount is not zero.
+        if (depositAmount == 0) {
+            revert Errors.SablierV2Lockup_DepositAmountZero();
         }
 
         // Checks: the start time is less than or equal to the cliff time.
@@ -73,14 +73,14 @@ library Helpers {
 
     /// @dev Checks the arguments of the {SablierV2LockupPro-_createWithRange} function.
     function checkCreateProParams(
-        uint128 netDepositAmount,
+        uint128 depositAmount,
         LockupPro.Segment[] memory segments,
         uint256 maxSegmentCount,
         uint40 startTime
     ) internal pure {
-        // Checks: the net deposit amount is not zero.
-        if (netDepositAmount == 0) {
-            revert Errors.SablierV2Lockup_NetDepositAmountZero();
+        // Checks: the deposit amount is not zero.
+        if (depositAmount == 0) {
+            revert Errors.SablierV2Lockup_DepositAmountZero();
         }
 
         // Check that the amount count is not zero.
@@ -95,7 +95,7 @@ library Helpers {
         }
 
         // Checks: requirements of segments variables.
-        _checkProSegments(segments, netDepositAmount, startTime);
+        _checkProSegments(segments, depositAmount, startTime);
     }
 
     /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
@@ -103,7 +103,7 @@ library Helpers {
         // Checks: check that the segment array counts match.
         uint256 deltaCount = deltas.length;
         if (segments.length != deltaCount) {
-            revert Errors.SablierV2LockupPro_SegmentArraysNotEqual(segments.length, deltaCount);
+            revert Errors.SablierV2LockupPro_SegmentArrayCountsNotEqual(segments.length, deltaCount);
         }
 
         // Make the current time the start time of the stream.
@@ -131,10 +131,10 @@ library Helpers {
     /// 1. The first milestone is greater than or equal to the start time.
     /// 2. The milestones are ordered chronologically.
     /// 3. There are no duplicate milestones.
-    /// 4. The net deposit amount is equal to the segment amounts summed up.
+    /// 4. The deposit amount is equal to the segment amounts summed up.
     function _checkProSegments(
         LockupPro.Segment[] memory segments,
-        uint128 netDepositAmount,
+        uint128 depositAmount,
         uint40 startTime
     ) private pure {
         // Check that the first milestone is greater than or equal to the start time.
@@ -174,11 +174,8 @@ library Helpers {
         }
 
         // Check that the deposit amount is equal to the segment amounts sum.
-        if (netDepositAmount != segmentAmountsSum) {
-            revert Errors.SablierV2LockupPro_NetDepositAmountNotEqualToSegmentAmountsSum(
-                netDepositAmount,
-                segmentAmountsSum
-            );
+        if (depositAmount != segmentAmountsSum) {
+            revert Errors.SablierV2LockupPro_DepositAmountNotEqualToSegmentAmountsSum(depositAmount, segmentAmountsSum);
         }
     }
 }

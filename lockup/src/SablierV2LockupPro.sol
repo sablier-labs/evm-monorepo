@@ -208,7 +208,7 @@ contract SablierV2LockupPro is
     function createWithDeltas(
         address sender,
         address recipient,
-        uint128 grossDepositAmount,
+        uint128 totalAmount,
         LockupPro.Segment[] memory segments,
         IERC20 asset,
         bool cancelable,
@@ -223,7 +223,7 @@ contract SablierV2LockupPro is
 
         // Checks: check the fees and calculate the fee amounts.
         Lockup.CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
-            grossDepositAmount,
+            totalAmount,
             protocolFee,
             broker.fee,
             MAX_FEE
@@ -248,7 +248,7 @@ contract SablierV2LockupPro is
     function createWithMilestones(
         address sender,
         address recipient,
-        uint128 grossDepositAmount,
+        uint128 totalAmount,
         LockupPro.Segment[] calldata segments,
         IERC20 asset,
         bool cancelable,
@@ -260,7 +260,7 @@ contract SablierV2LockupPro is
 
         // Checks: check the fees and calculate the fee amounts.
         Lockup.CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
-            grossDepositAmount,
+            totalAmount,
             protocolFee,
             broker.fee,
             MAX_FEE
@@ -468,7 +468,7 @@ contract SablierV2LockupPro is
     /// @dev See the documentation for the public functions that call this internal function.
     function _createWithMilestones(CreateWithMilestonesParams memory params) internal returns (uint256 streamId) {
         // Checks: validate the arguments.
-        Helpers.checkCreateProParams(params.amounts.netDeposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
+        Helpers.checkCreateProParams(params.amounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
         // Load the stream id.
         streamId = nextStreamId;
@@ -478,7 +478,7 @@ contract SablierV2LockupPro is
 
         // Effects: create the stream.
         LockupPro.Stream storage stream = _streams[streamId];
-        stream.amounts = Lockup.Amounts({ deposit: params.amounts.netDeposit, withdrawn: 0 });
+        stream.amounts = Lockup.Amounts({ deposit: params.amounts.deposit, withdrawn: 0 });
         stream.asset = params.asset;
         stream.isCancelable = params.cancelable;
         stream.sender = params.sender;
@@ -506,17 +506,17 @@ contract SablierV2LockupPro is
         // Effects: mint the NFT to the recipient.
         _mint({ to: params.recipient, tokenId: streamId });
 
-        // Interactions: perform the ERC-20 transfer to deposit the net amount of assets, and also the protocol fee.
-        // Using unchecked arithmetic because the net deposit and the protocol fee are bounded by the gross deposit.
+        // Interactions: transfer the deposit and the protocol fee.
+        // Using unchecked arithmetic because the deposit and the protocol fee are bounded by the total amount.
         unchecked {
             params.asset.safeTransferFrom({
                 from: msg.sender,
                 to: address(this),
-                value: params.amounts.netDeposit + params.amounts.protocolFee
+                value: params.amounts.deposit + params.amounts.protocolFee
             });
         }
 
-        // Interactions: perform the ERC-20 transfer to pay the broker fee, if not zero.
+        // Interactions: pay the broker fee, if not zero.
         if (params.amounts.brokerFee > 0) {
             params.asset.safeTransferFrom({ from: msg.sender, to: params.broker, value: params.amounts.brokerFee });
         }
