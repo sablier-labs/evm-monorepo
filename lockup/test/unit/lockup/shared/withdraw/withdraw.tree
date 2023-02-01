@@ -36,12 +36,12 @@ withdraw.t.sol
                      │  └── it should make the withdrawal and update the withdrawn amount
                      └── when the recipient is a contract
                         ├── when the recipient does not implement the hook
-                        │  └── it should ignore the revert and make the withdrawal and update the withdrawn amount
+                        │  └── it should make the withdrawal, update the withdrawn amount, call the recipient hook, and ignore the revert
                         └── when the recipient implements the hook
                            ├── when the recipient reverts
-                           │  └── it should ignore the revert and make the withdrawal and update the withdrawn amount
+                           │  └── it should make the withdrawal, update the withdrawn amount, call the recipient hook, and ignore the revert
                            └── when the recipient does not revert
                               ├── when there is reentrancy
-                              │  └── it should make the multiple withdrawals and update the withdrawn amounts
+                              │  └── it should make multiple withdrawals, update the withdrawn amounts, and call the recipient hook
                               └── when there is no reentrancy
-                                 └── it should make the withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream} event
+                                 └── it should make the withdrawal, update the withdrawn amount, call the recipient hook, and emit a {WithdrawFromLockupStream} event

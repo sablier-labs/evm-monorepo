@@ -23,26 +23,26 @@ cancel.t.sol
          │  │  └── it should cancel the stream
          │  └── when the recipient is a contract
          │     ├── when the recipient does not implement the hook
-         │     │  └── it should ignore the revert and cancel the stream
+         │     │  └── it should cancel the stream, call the recipient hook, and ignore the revert
          │     └── when the recipient implements the hook
          │        ├── when the recipient reverts
-         │        │  └── it should ignore the revert and cancel the stream
+         │        │  └── it should cancel the stream, call the recipient hook, and ignore the revert
          │        └── when the recipient does not revert
          │           ├── when there is reentrancy
-         │           │  └── it should ignore the revert and cancel the stream
+         │           │  └── it should cancel the stream, call the recipient hook, and ignore the revert
          │           └── when there is no reentrancy
-         │              └── it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount and emit a {CancelLockupStream} event
+         │              └── it should cancel the stream, update the withdrawn amount, perform the ERC-20 transfers, call the recipient hook, and emit a {CancelLockupStream} event
          └── when the caller is the recipient
             ├── when the sender is not a contract
             │  └── it should cancel the stream
             └── when the sender is a contract
               ├── when the sender does not implement the hook
-              │  └── it should ignore the revert and cancel the stream
+              │  └── it should cancel the stream, call the sender hook, and ignore the revert
               └── when the sender implements the hook
                   ├── when the sender reverts
-                  │  └── it should ignore the revert and cancel the stream
+                  │  └── it should cancel the stream, call the sender hook, and ignore the revert
                   └── when the sender does not revert
                      ├── when there is reentrancy
-                     │  └── it should ignore the revert and cancel the stream
+                     │  └── it should cancel the stream, call the sender hook, and ignore the revert
                      └── when there is no reentrancy
-                        └── it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, and emit a {CancelLockupStream} event
+                        └── it should cancel the stream, update the withdrawn amount, perform the ERC-20 transfers, call the sender hook, and emit a {CancelLockupStream} event

@@ -372,8 +372,8 @@ contract SablierV2LockupLinear is
                     ISablierV2LockupRecipient(recipient).onStreamCanceled({
                         streamId: streamId,
                         caller: msg.sender,
-                        recipientAmount: recipientAmount,
-                        senderAmount: senderAmount
+                        senderAmount: senderAmount,
+                        recipientAmount: recipientAmount
                     })
                 {} catch {}
             }
@@ -387,8 +387,8 @@ contract SablierV2LockupLinear is
                     ISablierV2LockupSender(sender).onStreamCanceled({
                         streamId: streamId,
                         caller: msg.sender,
-                        recipientAmount: recipientAmount,
-                        senderAmount: senderAmount
+                        senderAmount: senderAmount,
+                        recipientAmount: recipientAmount
                     })
                 {} catch {}
             }

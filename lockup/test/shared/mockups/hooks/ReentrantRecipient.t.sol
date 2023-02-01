@@ -8,13 +8,13 @@ contract ReentrantRecipient is ISablierV2LockupRecipient {
     function onStreamCanceled(
         uint256 streamId,
         address caller,
-        uint128 recipientAmount,
-        uint128 senderAmount
+        uint128 senderAmount,
+        uint128 recipientAmount
     ) external {
         streamId;
         caller;
-        recipientAmount;
         senderAmount;
+        recipientAmount;
         ISablierV2Lockup(msg.sender).cancel(streamId);
     }
 

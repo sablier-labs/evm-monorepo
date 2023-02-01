@@ -14,10 +14,10 @@ interface ISablierV2LockupRecipient {
     /// - This function may revert, but the {SablierV2Lockup} contract will always ignore the revert.
     ///
     /// @param streamId The id of the stream that has been canceled.
-    /// @param caller The address of the original `msg.sender` address that triggered the cancellation.
-    /// @param recipientAmount The amount of assets withdrawn to the recipient, in units of the asset's decimals.
+    /// @param caller The address of the original `msg.sender` address which triggered the cancellation.
     /// @param senderAmount The amount of assets returned to the sender, in units of the asset's decimals.
-    function onStreamCanceled(uint256 streamId, address caller, uint128 recipientAmount, uint128 senderAmount) external;
+    /// @param recipientAmount The amount of assets withdrawn to the recipient, in units of the asset's decimals.
+    function onStreamCanceled(uint256 streamId, address caller, uint128 senderAmount, uint128 recipientAmount) external;
 
     /// @notice Reacts to the renouncement of a stream. Sablier V2 invokes this function on the recipient
     /// after a renouncement triggered by the sender.
@@ -33,7 +33,7 @@ interface ISablierV2LockupRecipient {
     /// an approved operator.
     /// This function may revert, but the {SablierV2Lockup} contract will always ignore the revert.
     /// @param streamId The id of the stream that has been withdrawn from.
-    /// @param caller The address of the original `msg.sender` address that triggered the cancellation.
+    /// @param caller The address of the original `msg.sender` address which triggered the cancellation.
     /// @param to The address that has received the withdrawn assets.
     /// @param amount The amount of assets that have been withdrawn, in units of the asset's decimals.
     function onStreamWithdrawn(uint256 streamId, address caller, address to, uint128 amount) external;

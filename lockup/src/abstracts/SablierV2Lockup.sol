@@ -162,7 +162,7 @@ abstract contract SablierV2Lockup is
         address to,
         uint128 amount
     ) public override isActiveStream(streamId) isAuthorizedForStream(streamId) {
-        // Checks: the provided address is the recipient if `msg.sender` is the sender of the stream.
+        // Checks: if `msg.sender` is the sender of the stream, the provided address is the recipient.
         if (_isCallerStreamSender(streamId) && to != getRecipient(streamId)) {
             revert Errors.SablierV2Lockup_WithdrawSenderUnauthorized(streamId, msg.sender, to);
         }

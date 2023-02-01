@@ -52,7 +52,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
-        // Expect the withdrawal to be made to the recipient.
+        // Expect the ERC-20 assets to be transferred to the recipient.
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.

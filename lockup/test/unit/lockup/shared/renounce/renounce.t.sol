@@ -91,7 +91,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and renounce the stream.
+    /// @dev it should renounce the stream, call the recipient hook, and ignore the revert.
     function test_Renounce_RecipientDoesNotImplementHook()
         external
         streamActive
@@ -99,10 +99,10 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         streamCancelable
         recipientContract
     {
-        // Create the stream with an empty contract as a recipient.
+        // Create the stream with an empty contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
 
-        // Expect a call to the recipient.
+        // Expect a call to the recipient hook.
         vm.expectCall(address(empty), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
 
         // Renounce the stream.
@@ -117,7 +117,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and renounce the stream.
+    /// @dev it should renounce the stream, call the recipient hook, and ignore the revert.
     function test_Renounce_RecipientReverts()
         external
         streamActive
@@ -126,10 +126,10 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientContract
         recipientImplementsHook
     {
-        // Create the stream with a reverting contract as a recipient.
+        // Create the stream with a reverting contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
 
-        // Expect a call to the recipient.
+        // Expect a call to the recipient hook.
         vm.expectCall(
             address(revertingRecipient),
             abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
@@ -147,7 +147,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and renounce the stream.
+    /// @dev it should renounce the stream, call the recipient hook, and ignore the revert.
     function test_Renounce_RecipientReentrancy()
         external
         streamActive
@@ -157,10 +157,10 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientImplementsHook
         recipientDoesNotRevert
     {
-        // Create the stream with a reentrant contract as a recipient.
+        // Create the stream with a reentrant contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
 
-        // Expect a call to the recipient.
+        // Expect a call to the recipient hook.
         vm.expectCall(
             address(reentrantRecipient),
             abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
@@ -178,7 +178,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should renounce the stream and emit a {RenounceLockupStream} event.
+    /// @dev it should call the recipient hook, renounce the stream, and emit a {RenounceLockupStream} event.
     function test_Renounce()
         external
         streamActive
@@ -189,10 +189,10 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientDoesNotRevert
         noRecipientReentrancy
     {
-        // Create the stream with a contract as a recipient.
+        // Create the stream with a contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Expect a call to the recipient.
+        // Expect a call to the recipient hook.
         vm.expectCall(address(goodRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
 
         // Expect a {RenounceLockupStream} event to be emitted.

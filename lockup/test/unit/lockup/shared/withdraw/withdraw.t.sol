@@ -3,6 +3,7 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
+import { ISablierV2LockupRecipient } from "src/interfaces/hooks/ISablierV2LockupRecipient.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Lockup } from "src/types/DataTypes.sol";
@@ -245,7 +246,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Set the withdraw amount to the streamed amount.
         uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamId);
 
-        // Expect the withdrawal to be made to the recipient.
+        // Expect the ERC-20 assets to be transferred to the recipient.
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
@@ -269,7 +270,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and make the withdrawal and update the withdrawn amount.
+    /// @dev it should make the withdrawal, update the withdrawn amount, call the recipient hook, and ignore the revert.
     function test_Withdraw_RecipientDoesNotImplementHook()
         external
         streamActive
@@ -281,8 +282,17 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         currentTimeLessThanEndTime
         recipientContract
     {
-        // Create the stream with an empty contract as a recipient.
+        // Create the stream with an empty contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
+
+        // Expect a call to the recipient hook.
+        vm.expectCall(
+            address(empty),
+            abi.encodeCall(
+                ISablierV2LockupRecipient.onStreamWithdrawn,
+                (streamId, users.sender, address(empty), DEFAULT_WITHDRAW_AMOUNT)
+            )
+        );
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(empty), amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -297,7 +307,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and make the withdrawal and update the withdrawn amount.
+    /// @dev it should make the withdrawal, update the withdrawn amount, call the recipient hook, and ignore the revert.
     function test_Withdraw_RecipientReverts()
         external
         streamActive
@@ -310,8 +320,17 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientContract
         recipientImplementsHook
     {
-        // Create the stream with a reverting contract as a recipient.
+        // Create the stream with a reverting contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
+
+        // Expect a call to the recipient hook.
+        vm.expectCall(
+            address(revertingRecipient),
+            abi.encodeCall(
+                ISablierV2LockupRecipient.onStreamWithdrawn,
+                (streamId, users.sender, address(revertingRecipient), DEFAULT_WITHDRAW_AMOUNT)
+            )
+        );
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(revertingRecipient), amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -326,7 +345,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make multiple withdrawals and update the withdrawn amounts.
+    /// @dev it should make multiple withdrawals, update the withdrawn amounts, and call the recipient hook.
     function test_Withdraw_RecipientReentrancy()
         external
         streamActive
@@ -340,11 +359,20 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientImplementsHook
         recipientDoesNotRevert
     {
-        // Create the stream with a reentrant contract as a recipient.
+        // Create the stream with a reentrant contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
 
         // Halve the withdraw amount so that the recipient can re-entry and make another withdrawal.
         uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT / 2;
+
+        // Expect a call to the recipient hook.
+        vm.expectCall(
+            address(reentrantRecipient),
+            abi.encodeCall(
+                ISablierV2LockupRecipient.onStreamWithdrawn,
+                (streamId, users.sender, address(reentrantRecipient), withdrawAmount)
+            )
+        );
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(reentrantRecipient), amount: withdrawAmount });
@@ -359,7 +387,8 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream} event.
+    /// @dev it should make the withdrawal, update the withdrawn amount, call the recipient hook, and emit
+    /// a {WithdrawFromLockupStream} event.
     function test_Withdraw()
         external
         streamActive
@@ -374,7 +403,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientDoesNotRevert
         noRecipientReentrancy
     {
-        // Create the stream with a contract as a recipient.
+        // Create the stream with a contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Warp into the future.
@@ -383,10 +412,19 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Set the withdraw amount to the streamed amount.
         uint128 withdrawAmount = lockup.streamedAmountOf(streamId);
 
-        // Expect the withdrawal to be made to the recipient.
+        // Expect the ERC-20 assets to be transferred to the recipient.
         vm.expectCall(
             address(DEFAULT_ASSET),
             abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount))
+        );
+
+        // Expect a call to the recipient hook.
+        vm.expectCall(
+            address(goodRecipient),
+            abi.encodeCall(
+                ISablierV2LockupRecipient.onStreamWithdrawn,
+                (streamId, users.sender, address(goodRecipient), withdrawAmount)
+            )
         );
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
