@@ -30,6 +30,11 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// @dev This is initialized at construction time and cannot be changed later.
     function MAX_SEGMENT_COUNT() external view returns (uint256);
 
+    /// @notice Queries the range of the stream, a struct that encapsulates (i) the start time of the stream,
+    /// and (ii) the end time of of the stream, both as Unix timestamps.
+    /// @param streamId The id of the stream to make the query for.
+    function getRange(uint256 streamId) external view returns (LockupPro.Range memory range);
+
     /// @notice Queries the segments the protocol uses to compose the custom streaming curve.
     /// @param streamId The id of the stream to make the query for.
     function getSegments(uint256 streamId) external view returns (LockupPro.Segment[] memory segments);

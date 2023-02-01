@@ -84,6 +84,11 @@ contract SablierV2LockupPro is
         endTime = _streams[streamId].range.end;
     }
 
+    /// @inheritdoc ISablierV2LockupPro
+    function getRange(uint256 streamId) external view override returns (LockupPro.Range memory range) {
+        range = _streams[streamId].range;
+    }
+
     /// @inheritdoc ISablierV2Lockup
     function getRecipient(
         uint256 streamId
