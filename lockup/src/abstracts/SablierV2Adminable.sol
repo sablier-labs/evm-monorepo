@@ -39,7 +39,7 @@ abstract contract SablierV2Adminable is ISablierV2Adminable {
         // Effects: update the admin.
         admin = newAdmin;
 
-        // Emit a {TransferAdmin} event.
+        // Log the transfer of the admin.
         emit Events.TransferAdmin(oldAdmin, newAdmin);
     }
 }

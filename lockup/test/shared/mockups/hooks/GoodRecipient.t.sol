@@ -16,9 +16,14 @@ contract GoodRecipient is ISablierV2LockupRecipient {
         senderAmount;
     }
 
-    function onStreamWithdrawn(uint256 streamId, address caller, uint128 amount) external pure {
+    function onStreamRenounced(uint256 streamId) external pure {
+        streamId;
+    }
+
+    function onStreamWithdrawn(uint256 streamId, address caller, address to, uint128 amount) external pure {
         streamId;
         caller;
+        to;
         amount;
     }
 }

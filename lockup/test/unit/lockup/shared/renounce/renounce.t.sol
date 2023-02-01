@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
+import { ISablierV2LockupRecipient } from "src/interfaces/hooks/ISablierV2LockupRecipient.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 
@@ -75,17 +76,134 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.renounce(nonCancelableStreamId);
     }
 
+    modifier streamCancelable() {
+        _;
+    }
+
+    /// @dev it should renounce the stream.
+    function test_Renounce_RecipientNotContract() external streamActive callerSender streamCancelable {
+        lockup.renounce(defaultStreamId);
+        bool isCancelable = lockup.isCancelable(defaultStreamId);
+        assertFalse(isCancelable, "isCancelable");
+    }
+
+    modifier recipientContract() {
+        _;
+    }
+
+    /// @dev it should ignore the revert and renounce the stream.
+    function test_Renounce_RecipientDoesNotImplementHook()
+        external
+        streamActive
+        callerSender
+        streamCancelable
+        recipientContract
+    {
+        // Create the stream with an empty contract as a recipient.
+        uint256 streamId = createDefaultStreamWithRecipient(address(empty));
+
+        // Expect a call to the recipient.
+        vm.expectCall(address(empty), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
+
+        // Renounce the stream.
+        lockup.renounce(streamId);
+
+        // Assert that the stream is non-cancelable.
+        bool isCancelable = lockup.isCancelable(streamId);
+        assertFalse(isCancelable, "isCancelable");
+    }
+
+    modifier recipientImplementsHook() {
+        _;
+    }
+
+    /// @dev it should ignore the revert and renounce the stream.
+    function test_Renounce_RecipientReverts()
+        external
+        streamActive
+        callerSender
+        streamCancelable
+        recipientContract
+        recipientImplementsHook
+    {
+        // Create the stream with a reverting contract as a recipient.
+        uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
+
+        // Expect a call to the recipient.
+        vm.expectCall(
+            address(revertingRecipient),
+            abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
+        );
+
+        // Renounce the stream.
+        lockup.renounce(streamId);
+
+        // Assert that the stream is non-cancelable.
+        bool isCancelable = lockup.isCancelable(streamId);
+        assertFalse(isCancelable, "isCancelable");
+    }
+
+    modifier recipientDoesNotRevert() {
+        _;
+    }
+
+    /// @dev it should ignore the revert and renounce the stream.
+    function test_Renounce_RecipientReentrancy()
+        external
+        streamActive
+        callerSender
+        streamCancelable
+        recipientContract
+        recipientImplementsHook
+        recipientDoesNotRevert
+    {
+        // Create the stream with a reentrant contract as a recipient.
+        uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
+
+        // Expect a call to the recipient.
+        vm.expectCall(
+            address(reentrantRecipient),
+            abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
+        );
+
+        // Renounce the stream.
+        lockup.renounce(streamId);
+
+        // Assert that the stream is non-cancelable.
+        bool isCancelable = lockup.isCancelable(streamId);
+        assertFalse(isCancelable, "isCancelable");
+    }
+
+    modifier noRecipientReentrancy() {
+        _;
+    }
+
     /// @dev it should renounce the stream and emit a {RenounceLockupStream} event.
-    function test_Renounce() external streamActive callerSender {
+    function test_Renounce()
+        external
+        streamActive
+        callerSender
+        streamCancelable
+        recipientContract
+        recipientImplementsHook
+        recipientDoesNotRevert
+        noRecipientReentrancy
+    {
+        // Create the stream with a contract as a recipient.
+        uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
+
+        // Expect a call to the recipient.
+        vm.expectCall(address(goodRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
+
         // Expect a {RenounceLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: false, checkTopic3: false, checkData: false });
-        emit Events.RenounceLockupStream(defaultStreamId);
+        emit Events.RenounceLockupStream(streamId);
 
         // RenounceLockupStream the stream.
-        lockup.renounce(defaultStreamId);
+        lockup.renounce(streamId);
 
         // Assert that the stream is non-cancelable now.
-        bool isCancelable = lockup.isCancelable(defaultStreamId);
+        bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }
 }

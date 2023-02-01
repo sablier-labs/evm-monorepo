@@ -281,7 +281,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         currentTimeLessThanEndTime
         recipientContract
     {
-        // Create the stream with the recipient as a contract.
+        // Create the stream with an empty contract as a recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
 
         // Make the withdrawal.
@@ -310,7 +310,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientContract
         recipientImplementsHook
     {
-        // Create the stream with the recipient as a contract.
+        // Create the stream with a reverting contract as a recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
 
         // Make the withdrawal.
@@ -340,7 +340,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientImplementsHook
         recipientDoesNotRevert
     {
-        // Create the stream with the recipient as a contract.
+        // Create the stream with a reentrant contract as a recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
 
         // Halve the withdraw amount so that the recipient can re-entry and make another withdrawal.
@@ -374,7 +374,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientDoesNotRevert
         noRecipientReentrancy
     {
-        // Create the stream with the recipient as a contract.
+        // Create the stream with a contract as a recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Warp into the future.

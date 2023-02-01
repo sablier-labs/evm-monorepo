@@ -83,7 +83,7 @@ abstract contract SablierV2Config is
         // Interactions: perform the ERC-20 transfer to pay the protocol revenues.
         asset.safeTransfer(msg.sender, protocolRevenues);
 
-        // Emit a {ClaimProtocolRevenues} event.
+        // Log the claim of the protocol revenues.
         emit Events.ClaimProtocolRevenues(msg.sender, asset, protocolRevenues);
     }
 
@@ -93,7 +93,7 @@ abstract contract SablierV2Config is
         ISablierV2Comptroller oldComptroller = comptroller;
         comptroller = newComptroller;
 
-        // Emit a {SetComptroller} event.
+        // Log the change of the comptroller.
         emit Events.SetComptroller({
             admin: msg.sender,
             oldComptroller: oldComptroller,

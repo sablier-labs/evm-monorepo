@@ -12,7 +12,7 @@ interface ISablierV2LockupSender {
     /// @dev Notes:
     /// - This function may revert, but the {SablierV2Lockup} contract will always ignore the revert.
     ///
-    /// @param streamId The id of the stream that was canceled.
+    /// @param streamId The id of the stream that has been canceled.
     /// @param caller The address of the original `msg.sender` address that triggered the cancellation.
     /// @param recipientAmount The amount of assets withdrawn to the recipient, in units of the asset's decimals.
     /// @param senderAmount The amount of assets returned to the sender, in units of the asset's decimals.
