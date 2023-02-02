@@ -48,7 +48,7 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Make the max withdrawal.
         lockup.withdrawMax(defaultStreamId, users.recipient);
 
-        // Assert that the withdrawn amount was updated.
+        // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");

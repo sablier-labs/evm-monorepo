@@ -304,6 +304,9 @@ contract SablierV2LockupPro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculates the withdrawable amount for a stream with multiple segments.
+    ///
+    /// IMPORTANT: this function must be called only after checking that the current time is less than the last
+    /// segment's milestone, lest the loop below encounters an "index out of bounds" error.
     function _calculateStreamedAmountForMultipleSegments(
         uint256 streamId
     ) internal view returns (uint128 streamedAmount) {
@@ -314,9 +317,6 @@ contract SablierV2LockupPro is
             uint128 previousSegmentAmounts;
             uint40 currentSegmentMilestone = _streams[streamId].segments[0].milestone;
             uint256 index = 1;
-
-            // Important: this function must be called only after checking that the current time is less than the last
-            // segment's milestone, lest the loop below encounters an "index out of bounds" error.
             while (currentSegmentMilestone < currentTime) {
                 previousSegmentAmounts += _streams[streamId].segments[index - 1].amount;
                 currentSegmentMilestone = _streams[streamId].segments[index].milestone;

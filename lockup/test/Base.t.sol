@@ -22,7 +22,7 @@ import { Utils } from "./shared/helpers/Utils.t.sol";
 
 /// @title Base_Test
 /// @notice Base test contract with common logic needed by all test contracts.
-abstract contract Base_Test is Assertions, Constants, Calculations, Utils, StdCheats {
+abstract contract Base_Test is Assertions, Constants, Utils, Calculations, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
     //////////////////////////////////////////////////////////////////////////*/

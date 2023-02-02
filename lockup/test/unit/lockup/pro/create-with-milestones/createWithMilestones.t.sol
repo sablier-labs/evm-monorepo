@@ -355,7 +355,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev Shared test logic for `test_CreateWithMilestones_AssetMissingReturnValue` and `test_CreateWithMilestones`.
     function test_createWithMilestones(address asset) internal {
         // Make the sender the funder in this test.
-        address funder = defaultParams.createWithMilestones.sender;
+        address funder = users.sender;
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
         vm.expectCall(
@@ -387,7 +387,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.broker
         );
 
-        // Assert that the stream was created.
+        // Assert that the stream has been created.
         LockupPro.Stream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(address(actualStream.asset), asset, "asset");
@@ -397,12 +397,12 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         assertEq(actualStream.segments, defaultStream.segments);
         assertEq(actualStream.status, defaultStream.status);
 
-        // Assert that the next stream id was bumped.
+        // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = pro.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
-        // Assert that the NFT was minted.
+        // Assert that the NFT has been minted.
         address actualNFTOwner = pro.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = defaultParams.createWithMilestones.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

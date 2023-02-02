@@ -62,11 +62,6 @@ contract LockupLinearCreateHandler is BaseHandler {
     function createWithDurations(
         CreateWithDurationsParams memory params
     ) public instrument("createWithDurations") useNewSender(params.sender) {
-        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        params.durations.cliff = boundUint40(params.durations.cliff, 1, 1_000);
-        params.durations.total = boundUint40(params.durations.total, params.durations.cliff + 1, MAX_UNIX_TIMESTAMP);
-        params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
-
         // We don't want to fuzz more than a certain number of streams.
         if (store.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
@@ -76,6 +71,12 @@ contract LockupLinearCreateHandler is BaseHandler {
         if (params.sender == address(0) || params.recipient == address(0) || params.broker.addr == address(0)) {
             return;
         }
+
+        // Bound the stream parameters.
+        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
+        params.durations.cliff = boundUint40(params.durations.cliff, 1, 1_000);
+        params.durations.total = boundUint40(params.durations.total, params.durations.cliff + 1, MAX_UNIX_TIMESTAMP);
+        params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // Mint enough ERC-20 assets to the sender.
         deal({ token: address(asset), to: params.sender, give: params.totalAmount });

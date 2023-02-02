@@ -17,7 +17,7 @@ contract Constructor_Comptroller_Unit_Test is Comptroller_Unit_Test {
         // Construct the comptroller contract.
         SablierV2Comptroller constructedComptroller = new SablierV2Comptroller({ initialAdmin: users.admin });
 
-        // Assert that the admin was initialized.
+        // Assert that the admin has been initialized.
         address actualAdmin = constructedComptroller.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");

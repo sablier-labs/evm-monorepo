@@ -50,7 +50,7 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
         // She the new flash fee.
         comptroller.setFlashFee(newFlashFee);
 
-        // Assert that the flash fee was updated.
+        // Assert that the flash fee has been updated.
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = newFlashFee;
         assertEq(actualFlashFee, expectedFlashFee, "flashFee");

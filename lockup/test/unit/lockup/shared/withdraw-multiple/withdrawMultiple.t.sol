@@ -208,7 +208,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawals.
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
 
-        // Assert that the withdrawn amounts were updated.
+        // Assert that the withdrawn amounts have been updated.
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(defaultStreamIds[0]);
         uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(defaultStreamIds[1]);
         uint128 expectedWithdrawnAmount = withdrawAmount;
@@ -307,14 +307,14 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_DEPOSIT_AMOUNT, DEFAULT_DEPOSIT_AMOUNT);
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: amounts });
 
-        // Assert that the streams were marked as depleted.
+        // Assert that the streams have been marked as depleted.
         Lockup.Status actualStatus0 = lockup.getStatus(defaultStreamIds[0]);
         Lockup.Status actualStatus1 = lockup.getStatus(defaultStreamIds[1]);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus0, expectedStatus, "status0");
         assertEq(actualStatus1, expectedStatus, "status1");
 
-        // Assert that the NFTs weren't burned.
+        // Assert that the NFTs have not been burned.
         address actualNFTOwner0 = lockup.ownerOf(defaultStreamIds[0]);
         address actualNFTOwner1 = lockup.ownerOf(defaultStreamIds[1]);
         address actualNFTOwner = users.recipient;
@@ -357,7 +357,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128[] memory amounts = Solarray.uint128s(withdrawAmount, withdrawAmount);
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: amounts });
 
-        // Assert that the withdrawn amounts were updated.
+        // Assert that the withdrawn amounts have been updated.
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(defaultStreamIds[0]);
         uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(defaultStreamIds[1]);
         uint128 expectedWithdrawnAmount = withdrawAmount;
@@ -435,7 +435,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vars.amounts = Solarray.uint128s(vars.endedWithdrawAmount, vars.ongoingWithdrawAmount);
         lockup.withdrawMultiple({ streamIds: vars.streamIds, to: vars.to, amounts: vars.amounts });
 
-        // Assert that the ended stream was marked as depleted, and the ongoing stream was not.
+        // Assert that the ended stream has been marked as depleted, and the ongoing stream has not been.
         vars.actualStatus0 = lockup.getStatus(vars.endedStreamId);
         vars.actualStatus1 = lockup.getStatus(vars.ongoingStreamId);
         vars.expectedStatus0 = Lockup.Status.DEPLETED;
@@ -443,7 +443,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(vars.actualStatus0, vars.expectedStatus0, "status0");
         assertEq(vars.actualStatus1, vars.expectedStatus1, "status1");
 
-        // Assert that the withdrawn amounts amounts were updated.
+        // Assert that the withdrawn amounts amounts have been updated.
         vars.actualWithdrawnAmount0 = lockup.getWithdrawnAmount(vars.endedStreamId);
         vars.actualWithdrawnAmount1 = lockup.getWithdrawnAmount(vars.ongoingStreamId);
         vars.expectedWithdrawnAmount0 = vars.endedWithdrawAmount;
@@ -451,7 +451,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(vars.actualWithdrawnAmount0, vars.expectedWithdrawnAmount0, "withdrawnAmount0");
         assertEq(vars.actualWithdrawnAmount1, vars.expectedWithdrawnAmount1, "withdrawnAmount1");
 
-        // Assert that the ended stream NFT was not burned.
+        // Assert that the ended stream NFT has not been burned.
         vars.actualEndedNFTOwner = lockup.getRecipient(vars.endedStreamId);
         vars.expectedEndedNFTOwner = users.recipient;
         assertEq(vars.actualEndedNFTOwner, vars.expectedEndedNFTOwner, "NFT owner");

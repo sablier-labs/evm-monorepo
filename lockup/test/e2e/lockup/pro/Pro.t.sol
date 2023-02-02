@@ -41,7 +41,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         address sender;
         uint40 startTime;
         uint40 timeWarp;
-        uint128 totalAmount;
+        LockupPro.Segment[] segments;
         uint128 withdrawAmount;
     }
 
@@ -64,15 +64,14 @@ abstract contract Pro_E2e_Test is E2eTest {
         uint256 actualHolderBalance;
         uint256 actualNextStreamId;
         uint256 actualProtocolRevenues;
-        uint128 brokerFeeAmount;
+        Lockup.CreateAmounts amounts;
         uint256 expectedBrokerBalance;
         uint256 expectedHolderBalance;
         uint256 expectedProtocolRevenues;
         uint256 expectedNextStreamId;
         uint256 initialBrokerBalance;
         uint256 initialProtocolRevenues;
-        uint128 depositAmount;
-        uint128 protocolFeeAmount;
+        uint128 totalAmount;
         // Withdraw vars
         uint128 actualWithdrawnAmount;
         uint128 expectedWithdrawnAmount;
@@ -101,7 +100,7 @@ abstract contract Pro_E2e_Test is E2eTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - All possible permutations for the funder, recipient, sender, and broker.
+    /// - Multiple values for the funder, recipient, sender, and broker.
     /// - Multiple values for the total amount.
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
@@ -109,6 +108,7 @@ abstract contract Pro_E2e_Test is E2eTest {
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Pro_CreateWithdrawCancel(Params memory params) external {
+        vm.assume(params.segments.length != 0);
         vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(
             params.sender != params.recipient &&
@@ -119,10 +119,21 @@ abstract contract Pro_E2e_Test is E2eTest {
         vm.assume(
             params.sender != address(pro) && params.recipient != address(pro) && params.broker.addr != address(pro)
         );
-        params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone - 1);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
-        params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
+        params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone - 1);
+
+        // Fuzz the segment milestones.
+        Vars memory vars;
+        fuzzSegmentMilestones(params.segments, params.startTime);
+
+        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        (vars.totalAmount, vars.amounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+            upperBound: uint128(initialHolderBalance),
+            segments: params.segments,
+            protocolFee: params.protocolFee,
+            brokerFee: params.broker.fee
+        });
 
         // Set the fuzzed protocol fee.
         changePrank({ who: users.admin });
@@ -136,7 +147,6 @@ abstract contract Pro_E2e_Test is E2eTest {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Load the pre-create protocol revenues.
-        Vars memory vars;
         vars.initialProtocolRevenues = pro.getProtocolRevenues(asset);
 
         // Load the pre-create asset balances.
@@ -144,32 +154,23 @@ abstract contract Pro_E2e_Test is E2eTest {
         vars.initialProBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
-        // Calculate the fee amounts and the deposit amount.
-        vars.protocolFeeAmount = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
-        vars.brokerFeeAmount = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
-
-        // Adjust the segment amounts based on the fuzzed deposit amount.
-        LockupPro.Segment[] memory segments = DEFAULT_SEGMENTS;
-        adjustSegmentAmounts(segments, vars.depositAmount);
-
         // Expect a {CreateLockupProStream} event to be emitted.
         vars.streamId = pro.nextStreamId();
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        LockupPro.Range memory range = LockupPro.Range({
+            start: params.startTime,
+            end: params.segments[params.segments.length - 1].milestone
+        });
         emit Events.CreateLockupProStream({
             streamId: vars.streamId,
             funder: holder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: Lockup.CreateAmounts({
-                deposit: vars.depositAmount,
-                protocolFee: vars.protocolFeeAmount,
-                brokerFee: vars.brokerFeeAmount
-            }),
-            segments: segments,
+            amounts: vars.amounts,
+            segments: params.segments,
             asset: asset,
             cancelable: true,
-            range: LockupPro.Range({ start: params.startTime, end: DEFAULT_END_TIME }),
+            range: range,
             broker: params.broker.addr
         });
 
@@ -177,36 +178,35 @@ abstract contract Pro_E2e_Test is E2eTest {
         pro.createWithMilestones({
             sender: params.sender,
             recipient: params.recipient,
-            totalAmount: params.totalAmount,
-            segments: segments,
+            totalAmount: vars.totalAmount,
+            segments: params.segments,
             asset: asset,
             cancelable: true,
             startTime: params.startTime,
             broker: params.broker
         });
 
-        // Assert that the stream was created.
+        // Assert that the stream has been created.
         LockupPro.Stream memory actualStream = pro.getStream(vars.streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.depositAmount, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.amounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
         assertEq(actualStream.isCancelable, true, "isCancelable");
-        assertEq(actualStream.range.end, DEFAULT_END_TIME, "endTime");
-        assertEq(actualStream.range.start, params.startTime, "startTime");
-        assertEq(actualStream.segments, segments);
+        assertEq(actualStream.range, range);
+        assertEq(actualStream.segments, params.segments);
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.status, Lockup.Status.ACTIVE);
 
-        // Assert that the next stream id was bumped.
+        // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = pro.nextStreamId();
         vars.expectedNextStreamId = vars.streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
-        // Assert that the protocol fee was recorded.
+        // Assert that the protocol fee has been recorded.
         vars.actualProtocolRevenues = pro.getProtocolRevenues(asset);
-        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.protocolFeeAmount;
+        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.amounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
-        // Assert that the NFT was minted.
+        // Assert that the NFT has been minted.
         vars.actualNFTOwner = pro.ownerOf({ tokenId: vars.streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
@@ -217,16 +217,16 @@ abstract contract Pro_E2e_Test is E2eTest {
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
 
-        // Assert that the pro contract's balance was updated.
-        vars.expectedProBalance = vars.initialProBalance + vars.depositAmount + vars.protocolFeeAmount;
+        // Assert that the pro contract's balance has been updated.
+        vars.expectedProBalance = vars.initialProBalance + vars.amounts.deposit + vars.amounts.protocolFee;
         assertEq(vars.actualProBalance, vars.expectedProBalance, "post-create pro contract balance");
 
-        // Assert that the holder's balance was updated.
-        vars.expectedHolderBalance = initialHolderBalance - params.totalAmount;
+        // Assert that the holder's balance has been updated.
+        vars.expectedHolderBalance = initialHolderBalance - vars.totalAmount;
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "post-create holder balance");
 
-        // Assert that the broker's balance was updated.
-        vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.brokerFeeAmount;
+        // Assert that the broker's balance has been updated.
+        vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.amounts.brokerFee;
         assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "post-create broker balance");
 
         /*//////////////////////////////////////////////////////////////////////////
@@ -259,7 +259,7 @@ abstract contract Pro_E2e_Test is E2eTest {
             changePrank(params.recipient);
             pro.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
 
-            // Assert that the withdrawn amount was updated.
+            // Assert that the withdrawn amount has been updated.
             vars.actualWithdrawnAmount = pro.getWithdrawnAmount(vars.streamId);
             vars.expectedWithdrawnAmount = params.withdrawAmount;
             assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
@@ -269,11 +269,11 @@ abstract contract Pro_E2e_Test is E2eTest {
             vars.actualProBalance = vars.balances[0];
             vars.actualRecipientBalance = vars.balances[1];
 
-            // Assert that the contract's balance was updated.
+            // Assert that the contract's balance has been updated.
             vars.expectedProBalance = vars.initialProBalance - uint256(params.withdrawAmount);
             assertEq(vars.actualProBalance, vars.expectedProBalance, "post-withdraw pro contract balance");
 
-            // Assert that the recipient's balance was updated.
+            // Assert that the recipient's balance has been updated.
             vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(params.withdrawAmount);
             assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-withdraw recipient balance");
         }
@@ -283,7 +283,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Only run the cancel tests if the stream has not been depleted.
-        if (params.withdrawAmount != vars.depositAmount) {
+        if (params.withdrawAmount != vars.amounts.deposit) {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
                 address(asset),
@@ -309,12 +309,12 @@ abstract contract Pro_E2e_Test is E2eTest {
             changePrank(params.sender);
             pro.cancel(vars.streamId);
 
-            // Assert that the stream was marked as canceled.
+            // Assert that the stream has been marked as canceled.
             vars.actualStatus = pro.getStatus(vars.streamId);
             vars.expectedStatus = Lockup.Status.CANCELED;
             assertEq(vars.actualStatus, vars.expectedStatus, "status after cancel");
 
-            // Assert that the NFT was not burned.
+            // Assert that the NFT has not been burned.
             vars.actualNFTOwner = pro.ownerOf({ tokenId: vars.streamId });
             vars.expectedNFTOwner = params.recipient;
             assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner after cancel");
@@ -328,22 +328,22 @@ abstract contract Pro_E2e_Test is E2eTest {
             vars.actualSenderBalance = vars.balances[1];
             vars.actualRecipientBalance = vars.balances[2];
 
-            // Assert that the contract's balance was updated.
+            // Assert that the contract's balance has been updated.
             vars.expectedProBalance =
                 vars.initialProBalance -
                 uint256(vars.senderAmount) -
                 uint256(vars.recipientAmount);
             assertEq(vars.actualProBalance, vars.expectedProBalance, "post-cancel pro contract balance");
 
-            // Assert that the recipient's balance was updated.
+            // Assert that the recipient's balance has been updated.
             vars.expectedSenderBalance = vars.initialSenderBalance + uint256(vars.senderAmount);
             assertEq(vars.actualSenderBalance, vars.expectedSenderBalance, "post-cancel sender balance");
 
-            // Assert that the recipient's balance was updated.
+            // Assert that the recipient's balance has been updated.
             vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(vars.recipientAmount);
             assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-cancel recipient balance");
         }
-        // Otherwise, assert that the stream was marked as depleted.
+        // Otherwise, assert that the stream has been marked as depleted.
         else {
             vars.actualStatus = pro.getStatus(vars.streamId);
             vars.expectedStatus = Lockup.Status.DEPLETED;

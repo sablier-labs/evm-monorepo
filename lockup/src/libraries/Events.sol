@@ -52,7 +52,7 @@ library Events {
 
     /// @notice Emitted when the contract admin sets a new protocol fee for the provided ERC-20 asset.
     /// @param admin The address of the current contract admin.
-    /// @param asset The contract address of the ERC-20 asset the new protocol fee was set for.
+    /// @param asset The contract address of the ERC-20 asset the new protocol fee has been set for.
     /// @param oldProtocolFee The old protocol fee, as an UD60x18 number.
     /// @param newProtocolFee The new protocol fee, as an UD60x18 number.
     event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
@@ -70,7 +70,7 @@ library Events {
     /// @notice Emitted when a flash loan is executed.
     /// @param receiver The address of the flash borrower.
     /// @param initiator The address of the flash loan initiator.
-    /// @param asset The address of the ERC-20 asset that was flash loaned.
+    /// @param asset The address of the ERC-20 asset that has been flash loaned.
     /// @param amount The amount of `asset` flash loaned.
     /// @param feeAmount The fee amount of `asset` charged by the protocol.
     /// @param data The data passed to the flash borrower.

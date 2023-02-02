@@ -12,7 +12,7 @@ withdrawableAmountOf.t.sol
    ├── when the start time is equal to the current time
    │  └── it should return zero
    └── when the start time is less than the current time
-      ├── when there weren't withdrawals
+      ├── when there have not been withdrawals
       │  └── it should return the correct withdrawable amount
-      └── when there were withdrawals
+      └── when there have been withdrawals
          └── it should return the correct withdrawable amount

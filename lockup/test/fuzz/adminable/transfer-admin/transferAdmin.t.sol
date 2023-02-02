@@ -22,7 +22,7 @@ contract TransferAdmin_Fuzz_Test is Adminable_Fuzz_Test {
         // Transfer the admin.
         adminable.transferAdmin(newAdmin);
 
-        // Assert that the admin was transferred.
+        // Assert that the admin has been transferred.
         address actualAdmin = adminable.admin();
         address expectedAdmin = newAdmin;
         assertEq(actualAdmin, expectedAdmin, "admin");
