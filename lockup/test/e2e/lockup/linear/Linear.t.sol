@@ -121,10 +121,10 @@ abstract contract Linear_E2e_Test is E2eTest {
                 params.recipient != address(linear) &&
                 params.broker.addr != address(linear)
         );
-        vm.assume(params.totalAmount != 0 && params.totalAmount <= initialHolderBalance);
         vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.end);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
+        params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
 
         // Set the fuzzed protocol fee.
         changePrank({ who: users.admin });
