@@ -55,21 +55,21 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         );
     }
 
-    modifier startTimeLessThanOrEqualToCliffTime() {
+    modifier startTimeNotGreaterThanCliffTime() {
         _;
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CliffTimeGreaterThanEndTime(
+    function testFuzz_RevertWhen_CliffTimeNotLessThanEndTime(
         uint40 cliffTime,
         uint40 endTime
-    ) external recipientNonZeroAddress depositAmountNotZero startTimeLessThanOrEqualToCliffTime {
-        vm.assume(cliffTime > endTime);
+    ) external recipientNonZeroAddress depositAmountNotZero startTimeNotGreaterThanCliffTime {
+        vm.assume(cliffTime >= endTime);
         vm.assume(endTime > defaultParams.createWithRange.range.start);
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeGreaterThanEndTime.selector,
+                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector,
                 cliffTime,
                 endTime
             )
@@ -85,20 +85,14 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         );
     }
 
-    modifier cliffLessThanOrEqualToEndTime() {
+    modifier cliffTimeLessThanEndTime() {
         _;
     }
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(
         UD60x18 protocolFee
-    )
-        external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToEndTime
-    {
+    ) external recipientNonZeroAddress depositAmountNotZero startTimeNotGreaterThanCliffTime cliffTimeLessThanEndTime {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
         // Set the protocol fee.
@@ -123,8 +117,8 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         external
         recipientNonZeroAddress
         depositAmountNotZero
-        startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToEndTime
+        startTimeNotGreaterThanCliffTime
+        cliffTimeLessThanEndTime
         protocolFeeNotTooHigh
     {
         brokerFee = bound(brokerFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
@@ -188,7 +182,6 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
-    /// - Cliff time lower than and equal to end time.
     /// - Multiple values for the broker fee, including zero.
     /// - Multiple values for the protocol fee, including zero.
     function testFuzz_CreateWithRange(
@@ -196,8 +189,8 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     )
         external
         depositAmountNotZero
-        startTimeLessThanOrEqualToCliffTime
-        cliffLessThanOrEqualToEndTime
+        startTimeNotGreaterThanCliffTime
+        cliffTimeLessThanEndTime
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
         assetContract
@@ -205,7 +198,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     {
         vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(params.totalAmount != 0);
-        vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.end);
+        vm.assume(params.range.start <= params.range.cliff && params.range.cliff < params.range.end);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
 

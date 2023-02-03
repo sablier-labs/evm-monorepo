@@ -104,7 +104,6 @@ abstract contract Linear_E2e_Test is E2eTest {
     /// - Multiple values for the total amount.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
-    /// - Cliff time lower than and equal to end time
     /// - Multiple values for the broker fee, including zero.
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
@@ -121,7 +120,7 @@ abstract contract Linear_E2e_Test is E2eTest {
                 params.recipient != address(linear) &&
                 params.broker.addr != address(linear)
         );
-        vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.end);
+        vm.assume(params.range.start <= params.range.cliff && params.range.cliff < params.range.end);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));

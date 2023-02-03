@@ -9,7 +9,7 @@ createWithDeltas.t.sol
       │  └── it should revert
       └── when none of the deltas is zero
          ├── when the segment milestone calculations overflow uint256
-         │  ├── when the start time is greater than the calculated first segment milestone
+         │  ├── when the start time is greater than the first segment milestone
          │  │  └── it should revert
          │  └── when the segment milestones are not ordered
          │     └── it should revert

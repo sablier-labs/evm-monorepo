@@ -75,7 +75,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeGreaterThanCalculatedFirstMilestone()
+    function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeGreaterThanFirstSegmentMilestone()
         external
         loopCalculationsDoNotOverflowBlockGasLimit
         deltasNotZero
@@ -90,7 +90,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         }
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupPro_StartTimeGreaterThanFirstMilestone.selector,
+                Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone.selector,
                 startTime,
                 segments[0].milestone
             )
