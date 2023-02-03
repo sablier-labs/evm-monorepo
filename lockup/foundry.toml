@@ -1,7 +1,7 @@
 [profile.default]
   auto_detect_solc = false
   fs_permissions = [{ access = "read", path = "./optimized-out" }]
-  fuzz = { max_test_rejects = 100_000, runs = 1_000 }
+  fuzz = { max_test_rejects = 1_000_000, runs = 1_000 }
   libs = ["lib"]
   gas_reports = [
     "SablierV2Comptroller",
