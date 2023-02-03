@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Broker, LockupProStream, Segment } from "../types/Structs.sol";
+import { Broker, LockupPro } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupPro
@@ -30,13 +30,18 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// @dev This is initialized at construction time and cannot be changed later.
     function MAX_SEGMENT_COUNT() external view returns (uint256);
 
+    /// @notice Queries the range of the stream, a struct that encapsulates (i) the start time of the stream,
+    /// and (ii) the end time of of the stream, both as Unix timestamps.
+    /// @param streamId The id of the stream to make the query for.
+    function getRange(uint256 streamId) external view returns (LockupPro.Range memory range);
+
     /// @notice Queries the segments the protocol uses to compose the custom streaming curve.
     /// @param streamId The id of the stream to make the query for.
-    function getSegments(uint256 streamId) external view returns (Segment[] memory segments);
+    function getSegments(uint256 streamId) external view returns (LockupPro.Segment[] memory segments);
 
     /// @notice Queries the stream struct entity.
     /// @param streamId The id of the stream to make the query for.
-    function getStream(uint256 streamId) external view returns (LockupProStream memory stream);
+    function getStream(uint256 streamId) external view returns (LockupPro.Stream memory stream);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
@@ -60,7 +65,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// decimals.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param asset The contract address of the ERC-20 asset to use for streaming.
-    /// @param cancelable A boolean that indicates whether the stream is cancelable or not.
+    /// @param cancelable Boolean that indicates whether the stream is cancelable or not.
     /// @param deltas The differences between the Unix timestamp milestones used to compose the custom streaming
     /// curve.
     /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
@@ -70,7 +75,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        Segment[] memory segments,
+        LockupPro.Segment[] memory segments,
         IERC20 asset,
         bool cancelable,
         uint40[] memory deltas,
@@ -102,14 +107,14 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// decimals.
     /// @param segments  The segments the protocol uses to compose the custom streaming curve.
     /// @param asset The contract address of the ERC-20 asset to use for streaming.
-    /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
+    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
     /// @param startTime The Unix timestamp for when the stream will start.
     /// @return streamId The id of the newly created stream.
     function createWithMilestones(
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        Segment[] memory segments,
+        LockupPro.Segment[] memory segments,
         IERC20 asset,
         bool cancelable,
         uint40 startTime,

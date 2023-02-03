@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { E, UD2x18 } from "@prb/math/UD2x18.sol";
-import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
+import { ZERO } from "@prb/math/UD60x18.sol";
 
-import { Broker, Segment } from "src/types/Structs.sol";
+import { Broker } from "src/types/DataTypes.sol";
 
 import { Pro_Fuzz_Test } from "../Pro.t.sol";
 

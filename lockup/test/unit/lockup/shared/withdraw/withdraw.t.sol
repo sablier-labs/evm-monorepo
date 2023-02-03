@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
@@ -212,8 +212,8 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_NET_DEPOSIT_AMOUNT });
 
         // Assert that the stream was marked as depleted.
-        Status actualStatus = lockup.getStatus(defaultStreamId);
-        Status expectedStatus = Status.DEPLETED;
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the NFT was not burned.

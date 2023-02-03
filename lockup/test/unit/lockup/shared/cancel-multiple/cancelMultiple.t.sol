@@ -6,7 +6,7 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Unit_Test } from "../../../Unit.t.sol";
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
@@ -35,8 +35,8 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], nullStreamId);
         lockup.cancelMultiple(streamIds);
-        Status actualStatus = lockup.getStatus(defaultStreamIds[0]);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamIds[0]);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -62,13 +62,13 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(defaultStreamIds[0], nonCancelableStreamId) });
 
         // Assert that the cancelable stream was canceled.
-        Status actualStatus = lockup.getStatus(defaultStreamIds[0]);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamIds[0]);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus, "status0");
 
         // Assert that the non-cancelable stream was not canceled.
-        Status status = lockup.getStatus(nonCancelableStreamId);
-        assertEq(status, Status.ACTIVE, "status1");
+        Lockup.Status status = lockup.getStatus(nonCancelableStreamId);
+        assertEq(status, Lockup.Status.ACTIVE, "status1");
     }
 
     modifier allStreamsCancelable() {
@@ -239,9 +239,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancelMultiple(streamIds);
 
         // Assert that the streams were marked as canceled.
-        Status actualStatus0 = lockup.getStatus(streamIds[0]);
-        Status actualStatus1 = lockup.getStatus(streamIds[1]);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus0 = lockup.getStatus(streamIds[0]);
+        Lockup.Status actualStatus1 = lockup.getStatus(streamIds[1]);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus0, expectedStatus, "status0");
         assertEq(actualStatus1, expectedStatus, "status1");
 

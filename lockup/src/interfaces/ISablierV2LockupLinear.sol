@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Broker, Durations, LockupLinearStream, Range } from "../types/Structs.sol";
+import { Broker, LockupLinear } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupLinear
@@ -31,11 +31,11 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @notice Queries the range of the stream, a struct that encapsulates (i) the start time of the stream,
     //// (ii) the cliff time of the stream, and (iii) the end time of the stream, all as Unix timestamps.
     /// @param streamId The id of the stream to make the query for.
-    function getRange(uint256 streamId) external view returns (Range memory range);
+    function getRange(uint256 streamId) external view returns (LockupLinear.Range memory range);
 
     /// @notice Queries the stream struct entity.
     /// @param streamId The id of the stream to make the query for.
-    function getStream(uint256 streamId) external view returns (LockupLinearStream memory stream);
+    function getStream(uint256 streamId) external view returns (LockupLinear.Stream memory stream);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
@@ -55,8 +55,8 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @param grossDepositAmount The gross amount of assets to be deposited, inclusive of fees, in units of the asset's
     /// decimals.
     /// @param asset The contract address of the ERC-20 asset to use for streaming.
-    /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
-    /// @param durations A struct that encapsulates (i) the duration of the cliff period and (ii) the total duration of
+    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param durations Struct that encapsulates (i) the duration of the cliff period and (ii) the total duration of
     /// the stream, both in seconds.
     /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
     /// stream and (ii) the percentage fee that the broker is paid from the gross deposit amount, as an UD60x18 number.
@@ -67,7 +67,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
         uint128 grossDepositAmount,
         IERC20 asset,
         bool cancelable,
-        Durations calldata durations,
+        LockupLinear.Durations calldata durations,
         Broker calldata broker
     ) external returns (uint256 streamId);
 
@@ -93,8 +93,8 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @param grossDepositAmount The gross amount of assets to deposit, inclusive of fees, in units of the asset's
     /// decimals.
     /// @param asset The contract address of the ERC-20 asset to use for streaming.
-    /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
-    /// @param range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
+    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param range Struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
     /// and (iii) the end time of the stream, all as Unix timestamps.
     /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
     /// stream and (ii) the percentage fee that the broker is paid from the deposit amount, as an UD60x18 number.
@@ -105,7 +105,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
         uint128 grossDepositAmount,
         IERC20 asset,
         bool cancelable,
-        Range calldata range,
+        LockupLinear.Range calldata range,
         Broker calldata broker
     ) external returns (uint256 streamId);
 }

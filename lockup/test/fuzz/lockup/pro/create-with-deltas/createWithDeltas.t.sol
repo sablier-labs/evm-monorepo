@@ -7,7 +7,7 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { LockupProStream, Segment } from "src/types/Structs.sol";
+import { LockupPro } from "src/types/DataTypes.sol";
 
 import { Pro_Fuzz_Test } from "../Pro.t.sol";
 
@@ -74,7 +74,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint40[] memory deltas = Solarray.uint40s(delta0, delta1);
 
         // Adjust the segment milestones to match the fuzzed deltas.
-        Segment[] memory segments = defaultParams.createWithDeltas.segments;
+        LockupPro.Segment[] memory segments = defaultParams.createWithDeltas.segments;
         segments[0].milestone = getBlockTimestamp() + delta0;
         segments[1].milestone = segments[0].milestone + delta1;
 
@@ -102,6 +102,9 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
             )
         );
 
+        // Create the range struct.
+        LockupPro.Range memory range = LockupPro.Range({ start: getBlockTimestamp(), end: segments[1].milestone });
+
         // Expect a {CreateLockupProStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
         emit Events.CreateLockupProStream({
@@ -113,8 +116,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
             segments: segments,
             asset: DEFAULT_ASSET,
             cancelable: defaultParams.createWithDeltas.cancelable,
-            startTime: DEFAULT_START_TIME,
-            endTime: segments[1].milestone,
+            range: range,
             broker: defaultParams.createWithDeltas.broker.addr
         });
 
@@ -131,14 +133,13 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         );
 
         // Assert that the stream was created.
-        LockupProStream memory actualStream = pro.getStream(streamId);
+        LockupPro.Stream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.asset, defaultStream.asset, "asset");
-        assertEq(actualStream.endTime, segments[1].milestone, "endTime");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
+        assertEq(actualStream.range, range);
         assertEq(actualStream.segments, segments);
         assertEq(actualStream.sender, defaultStream.sender, "sender");
-        assertEq(actualStream.startTime, defaultStream.startTime, "startTime");
         assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id was bumped.

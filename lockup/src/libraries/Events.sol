@@ -6,7 +6,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
-import { CreateLockupAmounts, Range, Segment } from "../types/Structs.sol";
+import { Lockup, LockupLinear, LockupPro } from "../types/DataTypes.sol";
 
 /// @title Events
 /// @notice Library with events emitted across all contracts.
@@ -106,11 +106,11 @@ library Events {
     /// @param funder The address which has funded the stream.
     /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the assets.
-    /// @param amounts A struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii)
+    /// @param amounts Struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii)
     /// the broker fee amount, each in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
-    /// @param range A struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
+    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param range Struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
     /// and (iii) the end time of the stream, all as Unix timestamps.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateLockupLinearStream(
@@ -118,10 +118,10 @@ library Events {
         address indexed funder,
         address indexed sender,
         address indexed recipient,
-        CreateLockupAmounts amounts,
+        Lockup.CreateAmounts amounts,
         IERC20 asset,
         bool cancelable,
-        Range range,
+        LockupLinear.Range range,
         address broker
     );
 
@@ -130,25 +130,24 @@ library Events {
     /// @param funder The address which has funded the stream.
     /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the assets.
-    /// @param amounts A struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii)
+    /// @param amounts Struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii)
     /// the broker fee amount, each in units of the asset's decimals.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param cancelable A boolean that indicates whether the stream will be cancelable or not.
-    /// @param startTime The Unix timestamp for when the stream will start.
-    /// @param endTime The Unix timestamp for when the stream will end.
+    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param range Struct that encapsulates (i) the start time of the stream, and (ii) the end time of the stream,
+    /// both as Unix timestamps.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateLockupProStream(
         uint256 streamId,
         address indexed funder,
         address indexed sender,
         address indexed recipient,
-        CreateLockupAmounts amounts,
-        Segment[] segments,
+        Lockup.CreateAmounts amounts,
+        LockupPro.Segment[] segments,
         IERC20 asset,
         bool cancelable,
-        uint40 startTime,
-        uint40 endTime,
+        LockupPro.Range range,
         address broker
     );
 

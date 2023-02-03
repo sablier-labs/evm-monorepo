@@ -4,7 +4,7 @@ pragma solidity >=0.8.13 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
-import { Broker } from "src/types/Structs.sol";
+import { Broker } from "src/types/DataTypes.sol";
 
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { Segment } from "src/types/Structs.sol";
+import { LockupPro } from "src/types/DataTypes.sol";
 
 import { Pro_Unit_Test } from "../Pro.t.sol";
 
@@ -75,8 +75,8 @@ contract StreamedAmountOf_Pro_Unit_Test is Pro_Unit_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + 2_000 seconds });
 
         // Create a single-element segment array.
-        Segment[] memory segments = new Segment[](1);
-        segments[0] = Segment({
+        LockupPro.Segment[] memory segments = new LockupPro.Segment[](1);
+        segments[0] = LockupPro.Segment({
             amount: DEFAULT_NET_DEPOSIT_AMOUNT,
             exponent: DEFAULT_SEGMENTS[1].exponent,
             milestone: DEFAULT_END_TIME

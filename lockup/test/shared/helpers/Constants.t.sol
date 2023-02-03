@@ -4,13 +4,14 @@ pragma solidity >=0.8.13 <0.9.0;
 import { UD2x18, ud2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { CreateLockupAmounts, Durations, LockupAmounts, Range, Segment } from "src/types/Structs.sol";
+import { Lockup, LockupLinear, LockupPro } from "src/types/DataTypes.sol";
 
 abstract contract Constants {
     /*//////////////////////////////////////////////////////////////////////////
                                   SIMPLE CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    UD60x18 internal constant DEFAULT_BROKER_FEE = UD60x18.wrap(0.003e18); // 0.3%
     uint128 internal constant DEFAULT_BROKER_FEE_AMOUNT = 30.120481927710843373e18; // 0.3% of gross deposit
     uint40 internal immutable DEFAULT_CLIFF_TIME;
     uint40 internal constant DEFAULT_CLIFF_DURATION = 2_500 seconds;
@@ -20,7 +21,6 @@ abstract contract Constants {
     UD60x18 internal constant DEFAULT_MAX_FEE = UD60x18.wrap(0.1e18); // 10%
     uint256 internal constant DEFAULT_MAX_SEGMENT_COUNT = 1_000;
     uint128 internal constant DEFAULT_NET_DEPOSIT_AMOUNT = 10_000e18;
-    UD60x18 internal constant DEFAULT_BROKER_FEE = UD60x18.wrap(0.003e18); // 0.3%
     UD60x18 internal constant DEFAULT_PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%
     uint128 internal constant DEFAULT_PROTOCOL_FEE_AMOUNT = 10.040160642570281124e18; // 0.1% of gross deposit
     uint40 internal immutable DEFAULT_START_TIME;
@@ -36,18 +36,20 @@ abstract contract Constants {
                                  COMPLEX CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    CreateLockupAmounts internal DEFAULT_LOCKUP_CREATE_AMOUNTS =
-        CreateLockupAmounts({
+    Lockup.CreateAmounts internal DEFAULT_LOCKUP_CREATE_AMOUNTS =
+        Lockup.CreateAmounts({
             netDeposit: DEFAULT_NET_DEPOSIT_AMOUNT,
             protocolFee: DEFAULT_PROTOCOL_FEE_AMOUNT,
             brokerFee: DEFAULT_BROKER_FEE_AMOUNT
         });
-    LockupAmounts internal DEFAULT_LOCKUP_AMOUNTS =
-        LockupAmounts({ deposit: DEFAULT_NET_DEPOSIT_AMOUNT, withdrawn: 0 });
-    Durations internal DEFAULT_DURATIONS = Durations({ cliff: DEFAULT_CLIFF_DURATION, total: DEFAULT_TOTAL_DURATION });
-    Range internal DEFAULT_RANGE;
-    Segment[] internal DEFAULT_SEGMENTS;
-    Segment[] internal MAX_SEGMENTS;
+    Lockup.Amounts internal DEFAULT_LOCKUP_AMOUNTS =
+        Lockup.Amounts({ deposit: DEFAULT_NET_DEPOSIT_AMOUNT, withdrawn: 0 });
+    LockupLinear.Durations internal DEFAULT_DURATIONS =
+        LockupLinear.Durations({ cliff: DEFAULT_CLIFF_DURATION, total: DEFAULT_TOTAL_DURATION });
+    LockupLinear.Range internal DEFAULT_LINEAR_RANGE;
+    LockupPro.Range internal DEFAULT_PRO_RANGE;
+    LockupPro.Segment[] internal DEFAULT_SEGMENTS;
+    LockupPro.Segment[] internal MAX_SEGMENTS;
     uint40[] internal DEFAULT_SEGMENT_DELTAS = [2_500 seconds, 7_500 seconds];
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -58,17 +60,22 @@ abstract contract Constants {
         DEFAULT_START_TIME = uint40(block.timestamp);
         DEFAULT_CLIFF_TIME = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION;
         DEFAULT_END_TIME = DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION;
-        DEFAULT_RANGE = Range({ start: DEFAULT_START_TIME, cliff: DEFAULT_CLIFF_TIME, end: DEFAULT_END_TIME });
+        DEFAULT_LINEAR_RANGE = LockupLinear.Range({
+            start: DEFAULT_START_TIME,
+            cliff: DEFAULT_CLIFF_TIME,
+            end: DEFAULT_END_TIME
+        });
+        DEFAULT_PRO_RANGE = LockupPro.Range({ start: DEFAULT_START_TIME, end: DEFAULT_END_TIME });
 
         DEFAULT_SEGMENTS.push(
-            Segment({
+            LockupPro.Segment({
                 amount: 2_500e18,
                 exponent: ud2x18(3.14e18),
                 milestone: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION
             })
         );
         DEFAULT_SEGMENTS.push(
-            Segment({
+            LockupPro.Segment({
                 amount: 7_500e18,
                 exponent: ud2x18(0.5e18),
                 milestone: DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION
@@ -84,7 +91,11 @@ abstract contract Constants {
             // evenly spread apart.
             for (uint40 i = 0; i < DEFAULT_MAX_SEGMENT_COUNT; ++i) {
                 MAX_SEGMENTS.push(
-                    Segment({ amount: amount, exponent: exponent, milestone: DEFAULT_START_TIME + duration * (i + 1) })
+                    LockupPro.Segment({
+                        amount: amount,
+                        exponent: exponent,
+                        milestone: DEFAULT_START_TIME + duration * (i + 1)
+                    })
                 );
             }
         }

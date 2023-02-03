@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Fuzz_Test } from "../../../Fuzz.t.sol";
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
@@ -91,9 +91,9 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         lockup.cancelMultiple(streamIds);
 
         // Assert that the streams were marked as canceled.
-        Status actualStatus0 = lockup.getStatus(streamIds[0]);
-        Status actualStatus1 = lockup.getStatus(streamIds[1]);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus0 = lockup.getStatus(streamIds[0]);
+        Lockup.Status actualStatus1 = lockup.getStatus(streamIds[1]);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus0, expectedStatus, "status0");
         assertEq(actualStatus1, expectedStatus, "status1");
 
@@ -170,9 +170,9 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         lockup.cancelMultiple(streamIds);
 
         // Assert that the streams were marked as canceled.
-        Status actualStatus0 = lockup.getStatus(streamIds[0]);
-        Status actualStatus1 = lockup.getStatus(streamIds[1]);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus0 = lockup.getStatus(streamIds[0]);
+        Lockup.Status actualStatus1 = lockup.getStatus(streamIds[1]);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus0, expectedStatus, "status0");
         assertEq(actualStatus1, expectedStatus, "status1");
 

@@ -6,11 +6,10 @@ import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { stdError } from "forge-std/StdError.sol";
 
+import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { Broker, CreateLockupAmounts, LockupAmounts, LockupProStream, Segment } from "src/types/Structs.sol";
-
-import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
+import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
 
 import { Pro_Fuzz_Test } from "../Pro.t.sol";
 
@@ -41,7 +40,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint256 segmentCount
     ) external recipientNonZeroAddress netDepositAmountNotZero segmentCountNotZero {
         segmentCount = bound(segmentCount, DEFAULT_MAX_SEGMENT_COUNT + 1, DEFAULT_MAX_SEGMENT_COUNT * 10);
-        Segment[] memory segments = new Segment[](segmentCount);
+        LockupPro.Segment[] memory segments = new LockupPro.Segment[](segmentCount);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2LockupPro_SegmentCountTooHigh.selector, segmentCount));
         createDefaultStreamWithSegments(segments);
     }
@@ -57,7 +56,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     ) external recipientNonZeroAddress netDepositAmountNotZero segmentCountNotZero segmentCountNotTooHigh {
         amount0 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
         amount1 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
-        Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
         segments[0].amount = amount0;
         segments[1].amount = amount1;
         vm.expectRevert(stdError.arithmeticError);
@@ -274,7 +273,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         vars.netDepositAmount = params.grossDepositAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
 
         // Adjust the segment amounts based on the fuzzed net deposit amount.
-        Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
         adjustSegmentAmounts(segments, vars.netDepositAmount);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
@@ -301,7 +300,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             funder: params.funder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: CreateLockupAmounts({
+            amounts: Lockup.CreateAmounts({
                 netDeposit: vars.netDepositAmount,
                 protocolFee: vars.protocolFeeAmount,
                 brokerFee: vars.brokerFeeAmount
@@ -309,8 +308,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             segments: segments,
             asset: DEFAULT_ASSET,
             cancelable: params.cancelable,
-            startTime: params.startTime,
-            endTime: DEFAULT_END_TIME,
+            range: LockupPro.Range({ start: params.startTime, end: DEFAULT_END_TIME }),
             broker: params.broker.addr
         });
 
@@ -327,14 +325,13 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         );
 
         // Assert that the stream was created.
-        LockupProStream memory actualStream = pro.getStream(streamId);
-        assertEq(actualStream.amounts, LockupAmounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        LockupPro.Stream memory actualStream = pro.getStream(streamId);
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
-        assertEq(actualStream.endTime, defaultStream.endTime, "endTime");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
+        assertEq(actualStream.range, LockupPro.Range({ start: params.startTime, end: defaultStream.range.end }));
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.segments, segments);
-        assertEq(actualStream.startTime, params.startTime, "startTime");
         assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id was bumped.

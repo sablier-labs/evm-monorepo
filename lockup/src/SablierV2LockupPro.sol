@@ -19,8 +19,7 @@ import { ISablierV2LockupSender } from "./interfaces/hooks/ISablierV2LockupSende
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
-import { Status } from "./types/Enums.sol";
-import { Broker, CreateLockupAmounts, LockupProStream, Segment } from "./types/Structs.sol";
+import { Broker, Lockup, LockupPro } from "./types/DataTypes.sol";
 
 /*
 
@@ -63,7 +62,7 @@ contract SablierV2LockupPro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 pro streams mapped by unsigned integers.
-    mapping(uint256 => LockupProStream) internal _streams;
+    mapping(uint256 => LockupPro.Stream) internal _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
@@ -100,7 +99,12 @@ contract SablierV2LockupPro is
 
     /// @inheritdoc ISablierV2Lockup
     function getEndTime(uint256 streamId) external view override returns (uint40 endTime) {
-        endTime = _streams[streamId].endTime;
+        endTime = _streams[streamId].range.end;
+    }
+
+    /// @inheritdoc ISablierV2LockupPro
+    function getRange(uint256 streamId) external view override returns (LockupPro.Range memory range) {
+        range = _streams[streamId].range;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -111,7 +115,7 @@ contract SablierV2LockupPro is
     }
 
     /// @inheritdoc ISablierV2LockupPro
-    function getSegments(uint256 streamId) external view override returns (Segment[] memory segments) {
+    function getSegments(uint256 streamId) external view override returns (LockupPro.Segment[] memory segments) {
         segments = _streams[streamId].segments;
     }
 
@@ -122,18 +126,18 @@ contract SablierV2LockupPro is
 
     /// @inheritdoc ISablierV2Lockup
     function getStartTime(uint256 streamId) external view override returns (uint40 startTime) {
-        startTime = _streams[streamId].startTime;
+        startTime = _streams[streamId].range.start;
     }
 
     /// @inheritdoc ISablierV2Lockup
     function getStatus(
         uint256 streamId
-    ) public view virtual override(ISablierV2Lockup, SablierV2Lockup) returns (Status status) {
+    ) public view virtual override(ISablierV2Lockup, SablierV2Lockup) returns (Lockup.Status status) {
         status = _streams[streamId].status;
     }
 
     /// @inheritdoc ISablierV2LockupPro
-    function getStream(uint256 streamId) external view override returns (LockupProStream memory stream) {
+    function getStream(uint256 streamId) external view override returns (LockupPro.Stream memory stream) {
         stream = _streams[streamId];
     }
 
@@ -147,7 +151,7 @@ contract SablierV2LockupPro is
         uint256 streamId
     ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (bool result) {
         // A null stream dot not exist, and a canceled or depleted stream cannot be canceled anymore.
-        if (_streams[streamId].status != Status.ACTIVE) {
+        if (_streams[streamId].status != Lockup.Status.ACTIVE) {
             return false;
         }
         result = _streams[streamId].isCancelable;
@@ -156,7 +160,7 @@ contract SablierV2LockupPro is
     /// @inheritdoc ISablierV2Lockup
     function returnableAmountOf(uint256 streamId) external view override returns (uint128 returnableAmount) {
         // When the stream is not active, return zero.
-        if (_streams[streamId].status != Status.ACTIVE) {
+        if (_streams[streamId].status != Lockup.Status.ACTIVE) {
             return 0;
         }
 
@@ -171,18 +175,18 @@ contract SablierV2LockupPro is
     function streamedAmountOf(uint256 streamId) public view override returns (uint128 streamedAmount) {
         // When the stream is null, return zero. When the stream is canceled or depleted, return the withdrawn
         // amount.
-        if (_streams[streamId].status != Status.ACTIVE) {
+        if (_streams[streamId].status != Lockup.Status.ACTIVE) {
             return _streams[streamId].amounts.withdrawn;
         }
 
         // If the start time is greater than or equal to the block timestamp, return zero.
         uint40 currentTime = uint40(block.timestamp);
-        if (_streams[streamId].startTime >= currentTime) {
+        if (_streams[streamId].range.start >= currentTime) {
             return 0;
         }
 
         uint256 segmentCount = _streams[streamId].segments.length;
-        uint40 endTime = _streams[streamId].endTime;
+        uint40 endTime = _streams[streamId].range.end;
 
         // If the current time is greater than or equal to the end time, we simply return the deposit minus
         // the withdrawn amount.
@@ -223,7 +227,7 @@ contract SablierV2LockupPro is
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        Segment[] memory segments,
+        LockupPro.Segment[] memory segments,
         IERC20 asset,
         bool cancelable,
         uint40[] calldata deltas,
@@ -236,7 +240,7 @@ contract SablierV2LockupPro is
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 
         // Checks: check the fees and calculate the fee amounts.
-        CreateLockupAmounts memory amounts = Helpers.checkAndCalculateFees(
+        Lockup.CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
             grossDepositAmount,
             protocolFee,
             broker.fee,
@@ -263,7 +267,7 @@ contract SablierV2LockupPro is
         address sender,
         address recipient,
         uint128 grossDepositAmount,
-        Segment[] calldata segments,
+        LockupPro.Segment[] calldata segments,
         IERC20 asset,
         bool cancelable,
         uint40 startTime,
@@ -273,7 +277,7 @@ contract SablierV2LockupPro is
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 
         // Checks: check the fees and calculate the fee amounts.
-        CreateLockupAmounts memory amounts = Helpers.checkAndCalculateFees(
+        Lockup.CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
             grossDepositAmount,
             protocolFee,
             broker.fee,
@@ -331,7 +335,7 @@ contract SablierV2LockupPro is
                 previousMilestone = _streams[streamId].segments[index - 2].milestone;
             } else {
                 // Otherwise, there is only one segment, so use the start of the stream as the previous milestone.
-                previousMilestone = _streams[streamId].startTime;
+                previousMilestone = _streams[streamId].range.start;
             }
 
             // Calculate how much time has elapsed since the segment started, and the total time of the segment.
@@ -360,8 +364,8 @@ contract SablierV2LockupPro is
             SD59x18 exponent = _streams[streamId].segments[0].exponent.intoSD59x18();
 
             // Calculate how much time has elapsed since the stream started, and the total time of the stream.
-            SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
-            SD59x18 totalTime = (_streams[streamId].endTime - _streams[streamId].startTime).intoSD59x18();
+            SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].range.start).intoSD59x18();
+            SD59x18 totalTime = (_streams[streamId].range.end - _streams[streamId].range.start).intoSD59x18();
 
             // Calculate the streamed amount.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
@@ -401,7 +405,7 @@ contract SablierV2LockupPro is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
-        LockupProStream memory stream = _streams[streamId];
+        LockupPro.Stream memory stream = _streams[streamId];
 
         // Calculate the sender's and the recipient's amount.
         uint128 senderAmount;
@@ -415,7 +419,7 @@ contract SablierV2LockupPro is
         address recipient = _ownerOf(streamId);
 
         // Effects: mark the stream as canceled.
-        _streams[streamId].status = Status.CANCELED;
+        _streams[streamId].status = Lockup.Status.CANCELED;
 
         // Interactions: return the assets to the sender, if any.
         if (senderAmount > 0) {
@@ -469,8 +473,8 @@ contract SablierV2LockupPro is
 
     /// @dev This struct is needed to avoid the "Stack Too Deep" error.
     struct CreateWithMilestonesParams {
-        CreateLockupAmounts amounts;
-        Segment[] segments;
+        Lockup.CreateAmounts amounts;
+        LockupPro.Segment[] segments;
         address sender; // ──┐
         uint40 startTime; // │
         bool cancelable; // ─┘
@@ -491,16 +495,20 @@ contract SablierV2LockupPro is
         uint256 segmentCount = params.segments.length;
 
         // Effects: create the stream.
-        LockupProStream storage stream = _streams[streamId];
-        stream.amounts.deposit = params.amounts.netDeposit;
+        LockupPro.Stream storage stream = _streams[streamId];
+        stream.amounts = Lockup.Amounts({ deposit: params.amounts.netDeposit, withdrawn: 0 });
+        stream.asset = params.asset;
         stream.isCancelable = params.cancelable;
         stream.sender = params.sender;
-        stream.startTime = params.startTime;
-        stream.status = Status.ACTIVE;
-        stream.endTime = params.segments[segmentCount - 1].milestone;
-        stream.asset = params.asset;
+        stream.status = Lockup.Status.ACTIVE;
 
         unchecked {
+            // The segment count cannot be zero at this point.
+            stream.range = LockupPro.Range({
+                start: params.startTime,
+                end: params.segments[segmentCount - 1].milestone
+            });
+
             // Effects: store the segments. Copying an array from memory to storage is not currently supported in
             // Solidity, so it has to be done manually. See https://github.com/ethereum/solidity/issues/12783
             for (uint256 i = 0; i < segmentCount; ++i) {
@@ -541,8 +549,7 @@ contract SablierV2LockupPro is
             segments: params.segments,
             asset: params.asset,
             cancelable: params.cancelable,
-            startTime: params.startTime,
-            endTime: stream.endTime,
+            range: stream.range,
             broker: params.broker
         });
     }
@@ -579,7 +586,7 @@ contract SablierV2LockupPro is
         }
 
         // Load the stream and the recipient in memory, they will be needed below.
-        LockupProStream memory stream = _streams[streamId];
+        LockupPro.Stream memory stream = _streams[streamId];
         address recipient = _ownerOf(streamId);
 
         // Assert that the withdrawn amount is greater than or equal to the deposit amount.
@@ -587,7 +594,7 @@ contract SablierV2LockupPro is
 
         // Effects: if the entire deposit amount is now withdrawn, mark the stream as depleted.
         if (stream.amounts.deposit == stream.amounts.withdrawn) {
-            _streams[streamId].status = Status.DEPLETED;
+            _streams[streamId].status = Lockup.Status.DEPLETED;
         }
 
         // Interactions: perform the ERC-20 transfer.

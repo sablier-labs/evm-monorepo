@@ -10,8 +10,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
-import { Status } from "./types/Enums.sol";
-import { Broker, CreateLockupAmounts, Durations, LockupAmounts, LockupLinearStream, Range } from "./types/Structs.sol";
+import { Broker, Lockup, LockupLinear } from "./types/DataTypes.sol";
 
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
@@ -52,7 +51,7 @@ contract SablierV2LockupLinear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 linear lockup streams mapped by unsigned integers.
-    mapping(uint256 => LockupLinearStream) internal _streams;
+    mapping(uint256 => LockupLinear.Stream) internal _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
@@ -94,7 +93,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2LockupLinear
-    function getRange(uint256 streamId) external view override returns (Range memory range) {
+    function getRange(uint256 streamId) external view override returns (LockupLinear.Range memory range) {
         range = _streams[streamId].range;
     }
 
@@ -118,12 +117,12 @@ contract SablierV2LockupLinear is
     /// @inheritdoc ISablierV2Lockup
     function getStatus(
         uint256 streamId
-    ) public view virtual override(ISablierV2Lockup, SablierV2Lockup) returns (Status status) {
+    ) public view virtual override(ISablierV2Lockup, SablierV2Lockup) returns (Lockup.Status status) {
         status = _streams[streamId].status;
     }
 
     /// @inheritdoc ISablierV2LockupLinear
-    function getStream(uint256 streamId) external view override returns (LockupLinearStream memory stream) {
+    function getStream(uint256 streamId) external view override returns (LockupLinear.Stream memory stream) {
         stream = _streams[streamId];
     }
 
@@ -137,7 +136,7 @@ contract SablierV2LockupLinear is
         uint256 streamId
     ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (bool result) {
         // A null stream does not exist, and a canceled or depleted stream cannot be canceled anymore.
-        if (_streams[streamId].status != Status.ACTIVE) {
+        if (_streams[streamId].status != Lockup.Status.ACTIVE) {
             return false;
         }
         result = _streams[streamId].isCancelable;
@@ -146,7 +145,7 @@ contract SablierV2LockupLinear is
     /// @inheritdoc ISablierV2Lockup
     function returnableAmountOf(uint256 streamId) external view returns (uint128 returnableAmount) {
         // When the stream is not active, return zero.
-        if (_streams[streamId].status != Status.ACTIVE) {
+        if (_streams[streamId].status != Lockup.Status.ACTIVE) {
             return 0;
         }
 
@@ -161,7 +160,7 @@ contract SablierV2LockupLinear is
     function streamedAmountOf(uint256 streamId) public view override returns (uint128 streamedAmount) {
         // When the stream is null, return zero. When the stream is canceled or depleted, return the withdrawn
         // amount.
-        if (_streams[streamId].status != Status.ACTIVE) {
+        if (_streams[streamId].status != Lockup.Status.ACTIVE) {
             return _streams[streamId].amounts.withdrawn;
         }
 
@@ -228,11 +227,11 @@ contract SablierV2LockupLinear is
         uint128 grossDepositAmount,
         IERC20 asset,
         bool cancelable,
-        Durations calldata durations,
+        LockupLinear.Durations calldata durations,
         Broker calldata broker
     ) external override returns (uint256 streamId) {
         // Set the current block timestamp as the start time of the stream.
-        Range memory range;
+        LockupLinear.Range memory range;
         range.start = uint40(block.timestamp);
 
         // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because the
@@ -247,7 +246,7 @@ contract SablierV2LockupLinear is
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
 
         // Checks: check the fees and calculate the fee amounts.
-        CreateLockupAmounts memory amounts = Helpers.checkAndCalculateFees(
+        Lockup.CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
             grossDepositAmount,
             protocolFee,
             broker.fee,
@@ -275,7 +274,7 @@ contract SablierV2LockupLinear is
         uint128 grossDepositAmount,
         IERC20 asset,
         bool cancelable,
-        Range calldata range,
+        LockupLinear.Range calldata range,
         Broker calldata broker
     ) external override returns (uint256 streamId) {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
@@ -283,7 +282,7 @@ contract SablierV2LockupLinear is
 
         // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
         // deposit amount.
-        CreateLockupAmounts memory amounts = Helpers.checkAndCalculateFees(
+        Lockup.CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
             grossDepositAmount,
             protocolFee,
             broker.fee,
@@ -333,7 +332,7 @@ contract SablierV2LockupLinear is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
-        LockupLinearStream memory stream = _streams[streamId];
+        LockupLinear.Stream memory stream = _streams[streamId];
 
         // Calculate the sender's and the recipient's amount.
         uint128 senderAmount;
@@ -347,7 +346,7 @@ contract SablierV2LockupLinear is
         address recipient = _ownerOf(streamId);
 
         // Effects: mark the stream as canceled.
-        _streams[streamId].status = Status.CANCELED;
+        _streams[streamId].status = Lockup.Status.CANCELED;
 
         // Interactions: return the assets to the sender, if any.
         if (senderAmount > 0) {
@@ -401,8 +400,8 @@ contract SablierV2LockupLinear is
 
     /// @dev This struct is needed to avoid the "Stack Too Deep" error.
     struct CreateWithRangeParams {
-        CreateLockupAmounts amounts;
-        Range range;
+        Lockup.CreateAmounts amounts;
+        LockupLinear.Range range;
         address sender; // ──┐
         bool cancelable; // ─┘
         address recipient;
@@ -419,11 +418,11 @@ contract SablierV2LockupLinear is
         streamId = nextStreamId;
 
         // Effects: create the stream.
-        _streams[streamId] = LockupLinearStream({
-            amounts: LockupAmounts({ deposit: params.amounts.netDeposit, withdrawn: 0 }),
+        _streams[streamId] = LockupLinear.Stream({
+            amounts: Lockup.Amounts({ deposit: params.amounts.netDeposit, withdrawn: 0 }),
             isCancelable: params.cancelable,
             sender: params.sender,
-            status: Status.ACTIVE,
+            status: Lockup.Status.ACTIVE,
             range: params.range,
             asset: params.asset
         });
@@ -499,7 +498,7 @@ contract SablierV2LockupLinear is
         }
 
         // Load the stream and the recipient in memory, they will be needed below.
-        LockupLinearStream memory stream = _streams[streamId];
+        LockupLinear.Stream memory stream = _streams[streamId];
         address recipient = _ownerOf(streamId);
 
         // Assert that the withdrawn amount is greater than or equal to the deposit amount.
@@ -507,7 +506,7 @@ contract SablierV2LockupLinear is
 
         // Effects: if the entire deposit amount is now withdrawn, mark the stream as depleted.
         if (stream.amounts.deposit == stream.amounts.withdrawn) {
-            _streams[streamId].status = Status.DEPLETED;
+            _streams[streamId].status = Lockup.Status.DEPLETED;
         }
 
         // Interactions: perform the ERC-20 transfer.

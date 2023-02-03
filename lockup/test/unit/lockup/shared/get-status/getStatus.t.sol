@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-import { Status } from "src/types/Enums.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
@@ -14,8 +14,8 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should return the NULL status.
     function test_GetStatus_Null() external {
         uint256 nullStreamId = 1729;
-        Status actualStatus = lockup.getStatus(nullStreamId);
-        Status expectedStatus = Status.NULL;
+        Lockup.Status actualStatus = lockup.getStatus(nullStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.NULL;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -26,8 +26,8 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     /// @dev it should return the ACTIVE status.
     function test_GetStatus_Active() external streamCreated {
-        Status actualStatus = lockup.getStatus(defaultStreamId);
-        Status expectedStatus = Status.ACTIVE;
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -38,8 +38,8 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     /// @dev it should return the CANCELED status.
     function test_GetStatus_Canceled() external streamCreated streamCanceled {
-        Status actualStatus = lockup.getStatus(defaultStreamId);
-        Status expectedStatus = Status.CANCELED;
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
@@ -51,8 +51,8 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     /// @dev it should return the DEPLETED status.
     function test_GetStatus_Depleted() external streamCreated streamDepleted {
-        Status actualStatus = lockup.getStatus(defaultStreamId);
-        Status expectedStatus = Status.DEPLETED;
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
     }
 }

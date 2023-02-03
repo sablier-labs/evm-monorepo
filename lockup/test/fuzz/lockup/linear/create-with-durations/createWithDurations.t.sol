@@ -5,8 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
-import { Status } from "src/types/Enums.sol";
-import { Durations, LockupAmounts, LockupLinearStream, Range } from "src/types/Structs.sol";
+import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
 
@@ -44,7 +43,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint40 totalDuration = cliffDuration;
 
         // Create the stream.
-        createDefaultStreamWithDurations(Durations({ cliff: cliffDuration, total: totalDuration }));
+        createDefaultStreamWithDurations(LockupLinear.Durations({ cliff: cliffDuration, total: totalDuration }));
     }
 
     modifier cliffDurationCalculationDoesNotOverflow() {
@@ -53,7 +52,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_TotalDurationCalculationOverflows(
-        Durations memory durations
+        LockupLinear.Durations memory durations
     ) external cliffDurationCalculationDoesNotOverflow {
         uint40 startTime = getBlockTimestamp();
         durations.cliff = boundUint40(durations.cliff, 0, UINT40_MAX - startTime);
@@ -86,7 +85,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the
     /// protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
-    function testFuzz_CreateWithDurations(Durations memory durations) external {
+    function testFuzz_CreateWithDurations(LockupLinear.Durations memory durations) external {
         durations.total = boundUint40(durations.total, 0, UINT40_MAX - getBlockTimestamp());
         vm.assume(durations.cliff <= durations.total);
 
@@ -114,8 +113,8 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             )
         );
 
-        // Calculate the start time, cliff time and the end time.
-        Range memory range = Range({
+        // Create the range struct by calculating the start time, cliff time and the end time.
+        LockupLinear.Range memory range = LockupLinear.Range({
             start: getBlockTimestamp(),
             cliff: getBlockTimestamp() + durations.cliff,
             end: getBlockTimestamp() + durations.total
@@ -139,7 +138,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         createDefaultStreamWithDurations(durations);
 
         // Assert that the stream was created.
-        LockupLinearStream memory actualStream = linear.getStream(streamId);
+        LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");

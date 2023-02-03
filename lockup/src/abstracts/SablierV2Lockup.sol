@@ -7,7 +7,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "../interfaces/ISablierV2Lockup.sol";
 import { Errors } from "../libraries/Errors.sol";
-import { Status } from "../types/Enums.sol";
+import { Lockup } from "../types/DataTypes.sol";
 import { SablierV2Config } from "./SablierV2Config.sol";
 import { SablierV2FlashLoan } from "./SablierV2FlashLoan.sol";
 
@@ -31,7 +31,7 @@ abstract contract SablierV2Lockup is
 
     /// @dev Checks that `streamId` points to an active stream.
     modifier isActiveStream(uint256 streamId) {
-        if (getStatus(streamId) != Status.ACTIVE) {
+        if (getStatus(streamId) != Lockup.Status.ACTIVE) {
             revert Errors.SablierV2Lockup_StreamNotActive(streamId);
         }
         _;
@@ -79,7 +79,7 @@ abstract contract SablierV2Lockup is
     function getRecipient(uint256 streamId) public view virtual override returns (address recipient);
 
     /// @inheritdoc ISablierV2Lockup
-    function getStatus(uint256 streamId) public view virtual override returns (Status status);
+    function getStatus(uint256 streamId) public view virtual override returns (Lockup.Status status);
 
     /// @inheritdoc ISablierV2Lockup
     function withdrawableAmountOf(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
@@ -94,8 +94,8 @@ abstract contract SablierV2Lockup is
     /// @inheritdoc ISablierV2Lockup
     function burn(uint256 streamId) external override {
         // Checks: the stream is either canceled or depleted.
-        Status status = getStatus(streamId);
-        if (status != Status.CANCELED && status != Status.DEPLETED) {
+        Lockup.Status status = getStatus(streamId);
+        if (status != Lockup.Status.CANCELED && status != Lockup.Status.DEPLETED) {
             revert Errors.SablierV2Lockup_StreamNotCanceledOrDepleted(streamId);
         }
 
@@ -129,7 +129,7 @@ abstract contract SablierV2Lockup is
 
             // Effects and Interactions: cancel the stream.
             // CancelLockupStream this stream only if the `streamId` points to a stream that is active and cancelable.
-            if (getStatus(streamId) == Status.ACTIVE && isCancelable(streamId)) {
+            if (getStatus(streamId) == Lockup.Status.ACTIVE && isCancelable(streamId)) {
                 _cancel(streamId);
             }
 
@@ -201,7 +201,7 @@ abstract contract SablierV2Lockup is
             streamId = streamIds[i];
 
             // If the `streamId` does not point to an active stream, simply skip it.
-            if (getStatus(streamId) == Status.ACTIVE) {
+            if (getStatus(streamId) == Lockup.Status.ACTIVE) {
                 // Checks: the `msg.sender` is an approved operator or the owner of the NFT (also known as the recipient
                 // of the stream).
                 if (!_isApprovedOrOwner(streamId, msg.sender)) {
