@@ -83,13 +83,13 @@ library Helpers {
             revert Errors.SablierV2Lockup_DepositAmountZero();
         }
 
-        // Check that the amount count is not zero.
+        // Check that the segment count is not zero.
         uint256 segmentCount = segments.length;
         if (segmentCount == 0) {
             revert Errors.SablierV2LockupPro_SegmentCountZero();
         }
 
-        // Check that the amount count is not greater than the maximum segment count permitted.
+        // Check that the segment count is not greater than the maximum segment count permitted.
         if (segmentCount > maxSegmentCount) {
             revert Errors.SablierV2LockupPro_SegmentCountTooHigh(segmentCount);
         }
