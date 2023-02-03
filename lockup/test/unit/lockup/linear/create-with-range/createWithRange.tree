@@ -2,9 +2,9 @@ createWithRange.t.sol
 ├── when the recipient is the zero address
 │  └── it should revert
 └── when the recipient is not the zero address
-   ├── when the net deposit amount is zero
+   ├── when the deposit amount is zero
    │  └── it should revert
-   └── when the net deposit amount is not zero
+   └── when the deposit amount is not zero
       ├── when the start time is greater than the cliff time
       │  └── it should revert
       └── when the start time is less than or equal to the cliff time

@@ -35,20 +35,20 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
 
     /// @dev it should revert.
     ///
-    /// It is not possible (in principle) to obtain a zero net deposit amount from a non-zero gross deposit amount,
+    /// It is not possible (in principle) to obtain a zero deposit amount from a non-zero total amount,
     /// because we hard-code the `MAX_FEE` to 10%.
-    function test_RevertWhen_NetDepositAmountZero() external recipientNonZeroAddress {
-        vm.expectRevert(Errors.SablierV2Lockup_NetDepositAmountZero.selector);
-        uint128 grossDepositAmount = 0;
-        createDefaultStreamWithGrossDepositAmount(grossDepositAmount);
+    function test_RevertWhen_DepositAmountZero() external recipientNonZeroAddress {
+        vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
+        uint128 totalAmount = 0;
+        createDefaultStreamWithTotalAmount(totalAmount);
     }
 
-    modifier netDepositAmountNotZero() {
+    modifier depositAmountNotZero() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_SegmentCountZero() external recipientNonZeroAddress netDepositAmountNotZero {
+    function test_RevertWhen_SegmentCountZero() external recipientNonZeroAddress depositAmountNotZero {
         LockupPro.Segment[] memory segments;
         vm.expectRevert(Errors.SablierV2LockupPro_SegmentCountZero.selector);
         createDefaultStreamWithSegments(segments);
@@ -62,7 +62,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_SegmentCountTooHigh()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
     {
         uint256 segmentCount = DEFAULT_MAX_SEGMENT_COUNT + 1;
@@ -79,7 +79,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
     {
@@ -98,7 +98,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_SegmentMilestonesNotOrdered()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
@@ -127,10 +127,10 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_NetDepositAmountNotEqualToSegmentAmountsSum()
+    function test_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
@@ -142,15 +142,15 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         UD60x18 brokerFee = ZERO;
         changePrank(defaultParams.createWithMilestones.sender);
 
-        // Adjust the default net deposit amount.
-        uint128 netDepositAmount = DEFAULT_NET_DEPOSIT_AMOUNT + 100;
+        // Adjust the default deposit amount.
+        uint128 depositAmount = DEFAULT_DEPOSIT_AMOUNT + 100;
 
-        // Expect a {NetDepositAmountNotEqualToSegmentAmountsSum} error.
+        // Expect a {DepositAmountNotEqualToSegmentAmountsSum} error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupPro_NetDepositAmountNotEqualToSegmentAmountsSum.selector,
-                netDepositAmount,
-                DEFAULT_NET_DEPOSIT_AMOUNT
+                Errors.SablierV2LockupPro_DepositAmountNotEqualToSegmentAmountsSum.selector,
+                depositAmount,
+                DEFAULT_DEPOSIT_AMOUNT
             )
         );
 
@@ -158,7 +158,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            netDepositAmount,
+            depositAmount,
             defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
@@ -167,7 +167,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         );
     }
 
-    modifier netDepositAmountEqualToSegmentAmountsSum() {
+    modifier depositAmountEqualToSegmentAmountsSum() {
         _;
     }
 
@@ -175,12 +175,12 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
-        netDepositAmountEqualToSegmentAmountsSum
+        depositAmountEqualToSegmentAmountsSum
     {
         UD60x18 protocolFee = DEFAULT_MAX_FEE.add(ud(1));
 
@@ -203,12 +203,12 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
-        netDepositAmountEqualToSegmentAmountsSum
+        depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
     {
         UD60x18 brokerFee = DEFAULT_MAX_FEE.add(ud(1));
@@ -218,7 +218,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
+            defaultParams.createWithMilestones.totalAmount,
             defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
@@ -235,18 +235,18 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_AssetNotContract()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
-        netDepositAmountEqualToSegmentAmountsSum
+        depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
     {
         address nonContract = address(8128);
 
-        // Set the default protocol fee so that the test does not revert due to the net deposit amount not being
+        // Set the default protocol fee so that the test does not revert due to the deposit amount not being
         // equal to the segment amounts sum.
         changePrank({ who: users.admin });
         comptroller.setProtocolFee(IERC20(nonContract), DEFAULT_PROTOCOL_FEE);
@@ -257,7 +257,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
+            defaultParams.createWithMilestones.totalAmount,
             defaultParams.createWithMilestones.segments,
             IERC20(nonContract),
             defaultParams.createWithMilestones.cancelable,
@@ -274,12 +274,12 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_CreateWithMilestones_AssetMissingReturnValue()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
-        netDepositAmountEqualToSegmentAmountsSum
+        depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
         assetContract
@@ -296,12 +296,12 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_CreateWithMilestones()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
-        netDepositAmountEqualToSegmentAmountsSum
+        depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
         assetContract
@@ -320,7 +320,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             asset,
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, address(pro), DEFAULT_NET_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
+                (funder, address(pro), DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
             )
         );
 
@@ -337,7 +337,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
+            defaultParams.createWithMilestones.totalAmount,
             defaultParams.createWithMilestones.segments,
             IERC20(asset),
             defaultParams.createWithMilestones.cancelable,

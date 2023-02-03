@@ -41,12 +41,12 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
-        // Create the stream with a custom gross deposit amount. The broker fee is disabled so that it doesn't interfere
-        // with the calculations.
+        // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
+        // the calculations.
         uint256 streamId = pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            DEFAULT_NET_DEPOSIT_AMOUNT,
+            DEFAULT_DEPOSIT_AMOUNT,
             defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
@@ -59,7 +59,7 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint128 expectedWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
             currentTime,
             DEFAULT_SEGMENTS,
-            DEFAULT_NET_DEPOSIT_AMOUNT
+            DEFAULT_DEPOSIT_AMOUNT
         );
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -90,16 +90,16 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint128 streamedAmount = calculateStreamedAmountForMultipleSegments(
             currentTime,
             DEFAULT_SEGMENTS,
-            DEFAULT_NET_DEPOSIT_AMOUNT
+            DEFAULT_DEPOSIT_AMOUNT
         );
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
-        // Create the stream with a custom gross deposit amount. The broker fee is disabled so that it doesn't interfere
-        // with the calculations.
+        // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
+        // the calculations.
         uint256 streamId = pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            DEFAULT_NET_DEPOSIT_AMOUNT,
+            DEFAULT_DEPOSIT_AMOUNT,
             defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,

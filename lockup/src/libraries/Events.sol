@@ -106,8 +106,8 @@ library Events {
     /// @param funder The address which has funded the stream.
     /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the assets.
-    /// @param amounts Struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii)
-    /// the broker fee amount, each in units of the asset's decimals.
+    /// @param amounts Struct that encapsulates (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
+    /// broker fee amount, each in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
     /// @param range Struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
@@ -130,8 +130,8 @@ library Events {
     /// @param funder The address which has funded the stream.
     /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the assets.
-    /// @param amounts Struct that encapsulates (i) the net deposit amount, (ii) the protocol fee amount, and (iii)
-    /// the broker fee amount, each in units of the asset's decimals.
+    /// @param amounts Struct that encapsulates (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
+    /// broker fee amount, each in units of the asset's decimals.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.

@@ -35,7 +35,7 @@ contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
         // Create a single-element segment array.
         LockupPro.Segment[] memory segments = new LockupPro.Segment[](1);
         segments[0] = LockupPro.Segment({
-            amount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            amount: DEFAULT_DEPOSIT_AMOUNT,
             exponent: DEFAULT_SEGMENTS[1].exponent,
             milestone: DEFAULT_END_TIME
         });
@@ -48,7 +48,7 @@ contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint128 expectedStreamedAmount = calculateStreamedAmountForOneSegment(
             currentTime,
             segments[0].exponent,
-            DEFAULT_NET_DEPOSIT_AMOUNT
+            DEFAULT_DEPOSIT_AMOUNT
         );
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -85,7 +85,7 @@ contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint128 expectedStreamedAmount = calculateStreamedAmountForMultipleSegments(
             currentTime,
             MAX_SEGMENTS,
-            DEFAULT_NET_DEPOSIT_AMOUNT
+            DEFAULT_DEPOSIT_AMOUNT
         );
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }

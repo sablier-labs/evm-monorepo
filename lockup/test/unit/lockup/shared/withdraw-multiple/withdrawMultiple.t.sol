@@ -44,7 +44,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128[] memory amounts = new uint128[](1);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_WithdrawArraysNotEqual.selector,
+                Errors.SablierV2Lockup_WithdrawArrayCountsNotEqual.selector,
                 streamIds.length,
                 amounts.length
             )
@@ -295,24 +295,16 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.WithdrawFromLockupStream({
-            streamId: defaultStreamIds[0],
-            to: to,
-            amount: DEFAULT_NET_DEPOSIT_AMOUNT
-        });
+        emit Events.WithdrawFromLockupStream({ streamId: defaultStreamIds[0], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
-        emit Events.WithdrawFromLockupStream({
-            streamId: defaultStreamIds[1],
-            to: to,
-            amount: DEFAULT_NET_DEPOSIT_AMOUNT
-        });
+        emit Events.WithdrawFromLockupStream({ streamId: defaultStreamIds[1], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
 
         // Expect the withdrawals to be made.
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, DEFAULT_NET_DEPOSIT_AMOUNT)));
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, DEFAULT_NET_DEPOSIT_AMOUNT)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, DEFAULT_DEPOSIT_AMOUNT)));
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, DEFAULT_DEPOSIT_AMOUNT)));
 
         // Make the withdrawals.
-        uint128[] memory amounts = Solarray.uint128s(DEFAULT_NET_DEPOSIT_AMOUNT, DEFAULT_NET_DEPOSIT_AMOUNT);
+        uint128[] memory amounts = Solarray.uint128s(DEFAULT_DEPOSIT_AMOUNT, DEFAULT_DEPOSIT_AMOUNT);
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: amounts });
 
         // Assert that the streams were marked as depleted.
@@ -415,7 +407,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Use the first default stream as the ended stream.
         vars.endedStreamId = defaultStreamIds[0];
-        vars.endedWithdrawAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
+        vars.endedWithdrawAmount = DEFAULT_DEPOSIT_AMOUNT;
 
         // Create a new stream with an end time nearly double that of the default stream.
         vars.ongoingEndTime = DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION;

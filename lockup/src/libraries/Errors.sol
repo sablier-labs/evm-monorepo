@@ -41,7 +41,7 @@ library Errors {
     error SablierV2Lockup_BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxFee);
 
     /// @notice Emitted when attempting to create a stream with a zero deposit amount.
-    error SablierV2Lockup_NetDepositAmountZero();
+    error SablierV2Lockup_DepositAmountZero();
 
     /// @notice Emitted when attempting to claim protocol revenues for an asset that did not accrue any revenues.
     error SablierV2Lockup_NoProtocolRevenues(IERC20 asset);
@@ -77,7 +77,7 @@ library Errors {
 
     /// @notice Emitted when attempting to withdraw from multiple streams and the count of the stream ids does
     /// not match the count of the amounts.
-    error SablierV2Lockup_WithdrawArraysNotEqual(uint256 streamIdsCount, uint256 amountsCount);
+    error SablierV2Lockup_WithdrawArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
 
     /// @notice Emitted when the sender of the stream attempts to withdraw to some address other than the recipient.
     error SablierV2Lockup_WithdrawSenderUnauthorized(uint256 streamId, address sender, address to);
@@ -99,19 +99,15 @@ library Errors {
                                SABLIER-V2-LOCKUP-PRO
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when attempting to create a stream and the count of the segments does not match the
+    /// @notice  Emitted when attempting to create a stream and the count of the segments does not match the
     /// count of the deltas.
-    error SablierV2LockupPro_SegmentArraysNotEqual(uint256 segmentCount, uint256 deltaCount);
+    error SablierV2LockupPro_SegmentArrayCountsNotEqual(uint256 segmentCount, uint256 deltaCount);
 
-    /// @notice Emitted when attempting to create a stream with a net deposit amount that does not equal the segment
+    /// @notice Emitted when attempting to create a stream with a deposit amount that does not equal the segment
     /// amounts sum.
-    error SablierV2LockupPro_NetDepositAmountNotEqualToSegmentAmountsSum(
-        uint128 netDepositAmount,
-        uint128 segmentAmountsSum
-    );
+    error SablierV2LockupPro_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositAmount, uint128 segmentAmountsSum);
 
-    /// @notice Emitted when attempting to create a stream with one or more segment counts greater than the maximum
-    /// permitted.
+    /// @notice Emitted when attempting to create a stream with more segments than the maximum permitted.
     error SablierV2LockupPro_SegmentCountTooHigh(uint256 count);
 
     /// @notice Emitted when attempting to create a stream with zero segments.

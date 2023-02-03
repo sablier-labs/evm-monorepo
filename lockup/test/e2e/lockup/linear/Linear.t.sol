@@ -36,12 +36,12 @@ abstract contract Linear_E2e_Test is E2eTest {
 
     struct Params {
         Broker broker;
-        uint128 grossDepositAmount;
         UD60x18 protocolFee;
         LockupLinear.Range range;
         address recipient;
         address sender;
         uint40 timeWarp;
+        uint128 totalAmount;
         uint128 withdrawAmount;
     }
 
@@ -71,7 +71,7 @@ abstract contract Linear_E2e_Test is E2eTest {
         uint256 expectedProtocolRevenues;
         uint256 initialBrokerBalance;
         uint256 initialProtocolRevenues;
-        uint128 netDepositAmount;
+        uint128 depositAmount;
         uint128 protocolFeeAmount;
         // Withdraw vars
         uint128 actualWithdrawnAmount;
@@ -101,7 +101,7 @@ abstract contract Linear_E2e_Test is E2eTest {
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - All possible permutations for the sender, recipient, and broker.
-    /// - Multiple values for the gross deposit amount.
+    /// - Multiple values for the total amount.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
     /// - Cliff time lower than and equal to end time
@@ -121,7 +121,7 @@ abstract contract Linear_E2e_Test is E2eTest {
                 params.recipient != address(linear) &&
                 params.broker.addr != address(linear)
         );
-        vm.assume(params.grossDepositAmount != 0 && params.grossDepositAmount <= initialHolderBalance);
+        vm.assume(params.totalAmount != 0 && params.totalAmount <= initialHolderBalance);
         vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.end);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
@@ -146,10 +146,10 @@ abstract contract Linear_E2e_Test is E2eTest {
         vars.initialLinearBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
-        // Calculate the fee amounts and the net deposit amount.
-        vars.protocolFeeAmount = ud(params.grossDepositAmount).mul(params.protocolFee).intoUint128();
-        vars.brokerFeeAmount = ud(params.grossDepositAmount).mul(params.broker.fee).intoUint128();
-        vars.netDepositAmount = params.grossDepositAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
+        // Calculate the fee amounts and the deposit amount.
+        vars.protocolFeeAmount = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
+        vars.brokerFeeAmount = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
+        vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
         vars.streamId = linear.nextStreamId();
@@ -160,7 +160,7 @@ abstract contract Linear_E2e_Test is E2eTest {
             sender: params.sender,
             recipient: params.recipient,
             amounts: Lockup.CreateAmounts({
-                netDeposit: vars.netDepositAmount,
+                deposit: vars.depositAmount,
                 protocolFee: vars.protocolFeeAmount,
                 brokerFee: vars.brokerFeeAmount
             }),
@@ -174,7 +174,7 @@ abstract contract Linear_E2e_Test is E2eTest {
         linear.createWithRange({
             sender: params.sender,
             recipient: params.recipient,
-            grossDepositAmount: params.grossDepositAmount,
+            totalAmount: params.totalAmount,
             asset: asset,
             cancelable: true,
             range: params.range,
@@ -183,7 +183,7 @@ abstract contract Linear_E2e_Test is E2eTest {
 
         // Assert that the stream was created.
         LockupLinear.Stream memory actualStream = linear.getStream(vars.streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.depositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
         assertEq(actualStream.isCancelable, true, "isCancelable");
         assertEq(actualStream.range, params.range);
@@ -215,11 +215,11 @@ abstract contract Linear_E2e_Test is E2eTest {
         vars.actualBrokerBalance = vars.balances[2];
 
         // Assert that the linear contract's balance was updated.
-        vars.expectedLinearBalance = vars.initialLinearBalance + vars.netDepositAmount + vars.protocolFeeAmount;
+        vars.expectedLinearBalance = vars.initialLinearBalance + vars.depositAmount + vars.protocolFeeAmount;
         assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "post-create linear contract balance");
 
         // Assert that the holder's balance was updated.
-        vars.expectedHolderBalance = initialHolderBalance - params.grossDepositAmount;
+        vars.expectedHolderBalance = initialHolderBalance - params.totalAmount;
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "post-create holder balance");
 
         // Assert that the broker's balance was updated.
@@ -280,7 +280,7 @@ abstract contract Linear_E2e_Test is E2eTest {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Only run the cancel tests if the stream has not been depleted.
-        if (params.withdrawAmount != vars.netDepositAmount) {
+        if (params.withdrawAmount != vars.depositAmount) {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
                 address(asset),

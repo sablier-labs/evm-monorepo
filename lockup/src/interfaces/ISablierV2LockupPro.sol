@@ -61,20 +61,20 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address toward which to stream the assets.
-    /// @param grossDepositAmount The gross amount of assets to be deposited, inclusive of fees, in units of the asset's
-    /// decimals.
+    /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
+    /// potential fees. This is represented in units of the asset's decimals.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param asset The contract address of the ERC-20 asset to use for streaming.
     /// @param cancelable Boolean that indicates whether the stream is cancelable or not.
     /// @param deltas The differences between the Unix timestamp milestones used to compose the custom streaming
     /// curve.
     /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
-    /// stream and (ii) the percentage fee that the broker is paid from the deposit amount, as an UD60x18 number.
+    /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
     /// @return streamId The id of the newly created stream.
     function createWithDeltas(
         address sender,
         address recipient,
-        uint128 grossDepositAmount,
+        uint128 totalAmount,
         LockupPro.Segment[] memory segments,
         IERC20 asset,
         bool cancelable,
@@ -92,28 +92,30 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     ///
     /// Requirements:
     /// - `recipient` must not be the zero address.
-    /// - `grossDepositAmount` must not be zero.
+    /// - `totalAmount` must not be zero.
     /// - `segments` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
-    /// - The segment amounts summed up must be equal to the net deposit amount.
+    /// - The segment amounts summed up must be equal to the deposit amount.
     /// - The first segment's milestone must be greater than or equal to `startTime`.
     /// - `startTime` must not be greater than the milestone of the last segment.
-    /// - `msg.sender` must have allowed this contract to spend at least `grossDepositAmount` assets.
+    /// - `msg.sender` must have allowed this contract to spend at least `totalAmount` assets.
     /// - If set, `broker.fee` must not be greater than `MAX_FEE`.
     ///
     /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.
     /// @param recipient The address toward which to stream the assets.
-    /// @param grossDepositAmount The gross amount of assets to be deposited, inclusive of fees, in units of the asset's
-    /// decimals.
+    /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
+    /// potential fees. This is represented in units of the asset's decimals.
     /// @param segments  The segments the protocol uses to compose the custom streaming curve.
     /// @param asset The contract address of the ERC-20 asset to use for streaming.
     /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
     /// @param startTime The Unix timestamp for when the stream will start.
+    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
+    /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
     /// @return streamId The id of the newly created stream.
     function createWithMilestones(
         address sender,
         address recipient,
-        uint128 grossDepositAmount,
+        uint128 totalAmount,
         LockupPro.Segment[] memory segments,
         IERC20 asset,
         bool cancelable,

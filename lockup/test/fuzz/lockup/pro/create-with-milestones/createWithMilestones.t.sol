@@ -27,7 +27,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         _;
     }
 
-    modifier netDepositAmountNotZero() {
+    modifier depositAmountNotZero() {
         _;
     }
 
@@ -38,7 +38,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// @dev it should revert.
     function testFuzz_RevertWhen_SegmentCountTooHigh(
         uint256 segmentCount
-    ) external recipientNonZeroAddress netDepositAmountNotZero segmentCountNotZero {
+    ) external recipientNonZeroAddress depositAmountNotZero segmentCountNotZero {
         segmentCount = bound(segmentCount, DEFAULT_MAX_SEGMENT_COUNT + 1, DEFAULT_MAX_SEGMENT_COUNT * 10);
         LockupPro.Segment[] memory segments = new LockupPro.Segment[](segmentCount);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2LockupPro_SegmentCountTooHigh.selector, segmentCount));
@@ -53,7 +53,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     function testFuzz_RevertWhen_SegmentAmountsSumOverflows(
         uint128 amount0,
         uint128 amount1
-    ) external recipientNonZeroAddress netDepositAmountNotZero segmentCountNotZero segmentCountNotTooHigh {
+    ) external recipientNonZeroAddress depositAmountNotZero segmentCountNotZero segmentCountNotTooHigh {
         amount0 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
         amount1 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
         LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
@@ -72,18 +72,18 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_NetDepositAmountNotEqualToSegmentAmountsSum(
+    function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(
         uint128 depositDiff
     )
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
     {
-        depositDiff = boundUint128(depositDiff, 100, DEFAULT_GROSS_DEPOSIT_AMOUNT);
+        depositDiff = boundUint128(depositDiff, 100, DEFAULT_TOTAL_AMOUNT);
 
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
         changePrank({ who: users.admin });
@@ -91,15 +91,15 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         UD60x18 brokerFee = ZERO;
         changePrank(defaultParams.createWithMilestones.sender);
 
-        // Adjust the default net deposit amount.
-        uint128 netDepositAmount = DEFAULT_NET_DEPOSIT_AMOUNT + depositDiff;
+        // Adjust the default deposit amount.
+        uint128 depositAmount = DEFAULT_DEPOSIT_AMOUNT + depositDiff;
 
-        // Expect a {NetDepositAmountNotEqualToSegmentAmountsSum} error.
+        // Expect a {DepositAmountNotEqualToSegmentAmountsSum} error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupPro_NetDepositAmountNotEqualToSegmentAmountsSum.selector,
-                netDepositAmount,
-                DEFAULT_NET_DEPOSIT_AMOUNT
+                Errors.SablierV2LockupPro_DepositAmountNotEqualToSegmentAmountsSum.selector,
+                depositAmount,
+                DEFAULT_DEPOSIT_AMOUNT
             )
         );
 
@@ -107,7 +107,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            netDepositAmount,
+            depositAmount,
             defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
@@ -116,7 +116,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         );
     }
 
-    modifier netDepositAmountEqualToSegmentAmountsSum() {
+    modifier depositAmountEqualToSegmentAmountsSum() {
         _;
     }
 
@@ -126,12 +126,12 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     )
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
-        netDepositAmountEqualToSegmentAmountsSum
+        depositAmountEqualToSegmentAmountsSum
     {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
@@ -156,12 +156,12 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     )
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
-        netDepositAmountEqualToSegmentAmountsSum
+        depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
     {
         brokerFee = bound(brokerFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
@@ -171,7 +171,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
+            defaultParams.createWithMilestones.totalAmount,
             defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
@@ -193,27 +193,27 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     }
 
     struct Params {
-        address funder;
-        address sender;
-        address recipient;
-        uint128 grossDepositAmount;
-        bool cancelable;
-        uint40 startTime;
         Broker broker;
+        bool cancelable;
+        address funder;
         UD60x18 protocolFee;
+        address recipient;
+        address sender;
+        uint40 startTime;
+        uint128 totalAmount;
     }
 
     struct Vars {
-        uint128 initialProtocolRevenues;
-        uint128 protocolFeeAmount;
-        uint128 brokerFeeAmount;
-        uint128 netDepositAmount;
         uint256 actualNextStreamId;
-        uint256 expectedNextStreamId;
-        uint256 actualProtocolRevenues;
-        uint256 expectedProtocolRevenues;
         address actualNFTOwner;
+        uint256 actualProtocolRevenues;
+        uint128 brokerFeeAmount;
+        uint256 expectedNextStreamId;
         address expectedNFTOwner;
+        uint256 expectedProtocolRevenues;
+        uint128 initialProtocolRevenues;
+        uint128 depositAmount;
+        uint128 protocolFeeAmount;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
@@ -222,7 +222,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - All possible permutations for the funder, sender, recipient, and broker.
-    /// - Multiple values for the gross deposit amount.
+    /// - Multiple values for the total amount.
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
@@ -233,19 +233,19 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     )
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
-        netDepositAmountEqualToSegmentAmountsSum
+        depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
         assetContract
         assetERC20Compliant
     {
         vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
-        vm.assume(params.grossDepositAmount != 0);
+        vm.assume(params.totalAmount != 0);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, defaultParams.createWithMilestones.segments[0].milestone);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
@@ -258,7 +258,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         changePrank(params.funder);
 
         // Mint enough assets to the fuzzed funder.
-        deal({ token: address(DEFAULT_ASSET), to: params.funder, give: params.grossDepositAmount });
+        deal({ token: address(DEFAULT_ASSET), to: params.funder, give: params.totalAmount });
 
         // Approve the {SablierV2LockupPro} contract to transfer the assets from the funder.
         DEFAULT_ASSET.approve({ spender: address(pro), amount: UINT256_MAX });
@@ -267,21 +267,21 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         Vars memory vars;
         vars.initialProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
 
-        // Calculate the broker fee amount and the net deposit amount.
-        vars.protocolFeeAmount = ud(params.grossDepositAmount).mul(params.protocolFee).intoUint128();
-        vars.brokerFeeAmount = ud(params.grossDepositAmount).mul(params.broker.fee).intoUint128();
-        vars.netDepositAmount = params.grossDepositAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
+        // Calculate the broker fee amount and the deposit amount.
+        vars.protocolFeeAmount = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
+        vars.brokerFeeAmount = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
+        vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
 
-        // Adjust the segment amounts based on the fuzzed net deposit amount.
+        // Adjust the segment amounts based on the fuzzed deposit amount.
         LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
-        adjustSegmentAmounts(segments, vars.netDepositAmount);
+        adjustSegmentAmounts(segments, vars.depositAmount);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
         vm.expectCall(
             address(DEFAULT_ASSET),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (params.funder, address(pro), vars.netDepositAmount + vars.protocolFeeAmount)
+                (params.funder, address(pro), vars.depositAmount + vars.protocolFeeAmount)
             )
         );
 
@@ -301,7 +301,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             sender: params.sender,
             recipient: params.recipient,
             amounts: Lockup.CreateAmounts({
-                netDeposit: vars.netDepositAmount,
+                deposit: vars.depositAmount,
                 protocolFee: vars.protocolFeeAmount,
                 brokerFee: vars.brokerFeeAmount
             }),
@@ -316,7 +316,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         pro.createWithMilestones(
             params.sender,
             params.recipient,
-            params.grossDepositAmount,
+            params.totalAmount,
             segments,
             DEFAULT_ASSET,
             params.cancelable,
@@ -326,7 +326,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
         // Assert that the stream was created.
         LockupPro.Stream memory actualStream = pro.getStream(streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.depositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.range, LockupPro.Range({ start: params.startTime, end: defaultStream.range.end }));

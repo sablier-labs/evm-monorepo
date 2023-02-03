@@ -38,7 +38,7 @@ contract StreamedAmountOf_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should return the withdrawn amount.
     function test_StreamedAmountOf_StreamDepleted() external streamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
-        uint128 withdrawAmount = DEFAULT_NET_DEPOSIT_AMOUNT;
+        uint128 withdrawAmount = DEFAULT_DEPOSIT_AMOUNT;
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
         uint256 actualStreamedAmount = pro.streamedAmountOf(defaultStreamId);
         uint256 expectedStreamedAmount = withdrawAmount;
@@ -77,7 +77,7 @@ contract StreamedAmountOf_Pro_Unit_Test is Pro_Unit_Test {
         // Create a single-element segment array.
         LockupPro.Segment[] memory segments = new LockupPro.Segment[](1);
         segments[0] = LockupPro.Segment({
-            amount: DEFAULT_NET_DEPOSIT_AMOUNT,
+            amount: DEFAULT_DEPOSIT_AMOUNT,
             exponent: DEFAULT_SEGMENTS[1].exponent,
             milestone: DEFAULT_END_TIME
         });

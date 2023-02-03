@@ -30,7 +30,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_SegmentArraysNotEqual(
+    function testFuzz_RevertWhen_SegmentArraysCountsNotEqual(
         uint256 deltaCount
     ) external loopCalculationsDoNotOverflowBlockGasLimit deltasNotZero {
         deltaCount = bound(deltaCount, 1, 1_000);
@@ -39,7 +39,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint40[] memory deltas = new uint40[](deltaCount);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupPro_SegmentArraysNotEqual.selector,
+                Errors.SablierV2LockupPro_SegmentArrayCountsNotEqual.selector,
                 defaultParams.createWithDeltas.segments.length,
                 deltaCount
             )
@@ -47,7 +47,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         createDefaultStreamWithDeltas(deltas);
     }
 
-    modifier segmentArraysEqual() {
+    modifier segmentArrayCountsEqual() {
         _;
     }
 
@@ -64,7 +64,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         external
         loopCalculationsDoNotOverflowBlockGasLimit
         deltasNotZero
-        segmentArraysEqual
+        segmentArrayCountsEqual
         milestonesCalculationsDoNotOverflow
     {
         delta0 = boundUint40(delta0, 0, 100);
@@ -89,7 +89,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
             address(DEFAULT_ASSET),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, address(pro), DEFAULT_NET_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
+                (funder, address(pro), DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
             )
         );
 
@@ -124,7 +124,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         pro.createWithDeltas(
             defaultParams.createWithDeltas.sender,
             defaultParams.createWithDeltas.recipient,
-            defaultParams.createWithDeltas.grossDepositAmount,
+            defaultParams.createWithDeltas.totalAmount,
             segments,
             DEFAULT_ASSET,
             defaultParams.createWithDeltas.cancelable,

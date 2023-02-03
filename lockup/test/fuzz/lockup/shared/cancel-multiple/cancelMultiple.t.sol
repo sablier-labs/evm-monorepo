@@ -72,11 +72,11 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         }
 
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
-        uint128 senderAmount0 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount0;
+        uint128 senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount0;
         if (senderAmount0 > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount0)));
         }
-        uint128 senderAmount1 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount1;
+        uint128 senderAmount1 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount1;
         if (senderAmount1 > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount1)));
         }
@@ -151,11 +151,11 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         }
 
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
-        uint128 senderAmount0 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount0;
+        uint128 senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount0;
         if (senderAmount0 > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount0)));
         }
-        uint128 senderAmount1 = DEFAULT_NET_DEPOSIT_AMOUNT - recipientAmount1;
+        uint128 senderAmount1 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount1;
         if (senderAmount1 > 0) {
             vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount1)));
         }

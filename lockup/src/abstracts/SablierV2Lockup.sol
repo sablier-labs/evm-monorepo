@@ -192,7 +192,7 @@ abstract contract SablierV2Lockup is
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
         if (streamIdsCount != amountsCount) {
-            revert Errors.SablierV2Lockup_WithdrawArraysNotEqual(streamIdsCount, amountsCount);
+            revert Errors.SablierV2Lockup_WithdrawArrayCountsNotEqual(streamIdsCount, amountsCount);
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.

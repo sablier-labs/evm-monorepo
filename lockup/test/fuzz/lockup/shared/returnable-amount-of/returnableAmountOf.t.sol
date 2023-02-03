@@ -27,7 +27,7 @@ abstract contract ReturnableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
 
         // Run the test.
         uint256 actualReturnableAmount = lockup.returnableAmountOf(defaultStreamId);
-        uint256 expectedReturnableAmount = DEFAULT_NET_DEPOSIT_AMOUNT - streamedAmount;
+        uint256 expectedReturnableAmount = DEFAULT_DEPOSIT_AMOUNT - streamedAmount;
         assertEq(actualReturnableAmount, expectedReturnableAmount, "returnableAmount");
     }
 }

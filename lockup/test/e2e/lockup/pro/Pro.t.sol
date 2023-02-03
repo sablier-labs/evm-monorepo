@@ -36,12 +36,12 @@ abstract contract Pro_E2e_Test is E2eTest {
 
     struct Params {
         Broker broker;
-        uint128 grossDepositAmount;
         UD60x18 protocolFee;
         address recipient;
         address sender;
         uint40 startTime;
         uint40 timeWarp;
+        uint128 totalAmount;
         uint128 withdrawAmount;
     }
 
@@ -71,7 +71,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         uint256 expectedNextStreamId;
         uint256 initialBrokerBalance;
         uint256 initialProtocolRevenues;
-        uint128 netDepositAmount;
+        uint128 depositAmount;
         uint128 protocolFeeAmount;
         // Withdraw vars
         uint128 actualWithdrawnAmount;
@@ -102,7 +102,7 @@ abstract contract Pro_E2e_Test is E2eTest {
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - All possible permutations for the funder, recipient, sender, and broker.
-    /// - Multiple values for the gross deposit amount.
+    /// - Multiple values for the total amount.
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
     /// - Multiple values for the broker fee, including zero.
@@ -119,7 +119,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         vm.assume(
             params.sender != address(pro) && params.recipient != address(pro) && params.broker.addr != address(pro)
         );
-        vm.assume(params.grossDepositAmount != 0 && params.grossDepositAmount <= initialHolderBalance);
+        vm.assume(params.totalAmount != 0 && params.totalAmount <= initialHolderBalance);
         params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
@@ -144,14 +144,14 @@ abstract contract Pro_E2e_Test is E2eTest {
         vars.initialProBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
-        // Calculate the fee amounts and the net deposit amount.
-        vars.protocolFeeAmount = ud(params.grossDepositAmount).mul(params.protocolFee).intoUint128();
-        vars.brokerFeeAmount = ud(params.grossDepositAmount).mul(params.broker.fee).intoUint128();
-        vars.netDepositAmount = params.grossDepositAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
+        // Calculate the fee amounts and the deposit amount.
+        vars.protocolFeeAmount = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
+        vars.brokerFeeAmount = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
+        vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
 
-        // Adjust the segment amounts based on the fuzzed net deposit amount.
+        // Adjust the segment amounts based on the fuzzed deposit amount.
         LockupPro.Segment[] memory segments = DEFAULT_SEGMENTS;
-        adjustSegmentAmounts(segments, vars.netDepositAmount);
+        adjustSegmentAmounts(segments, vars.depositAmount);
 
         // Expect a {CreateLockupProStream} event to be emitted.
         vars.streamId = pro.nextStreamId();
@@ -162,7 +162,7 @@ abstract contract Pro_E2e_Test is E2eTest {
             sender: params.sender,
             recipient: params.recipient,
             amounts: Lockup.CreateAmounts({
-                netDeposit: vars.netDepositAmount,
+                deposit: vars.depositAmount,
                 protocolFee: vars.protocolFeeAmount,
                 brokerFee: vars.brokerFeeAmount
             }),
@@ -177,7 +177,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         pro.createWithMilestones({
             sender: params.sender,
             recipient: params.recipient,
-            grossDepositAmount: params.grossDepositAmount,
+            totalAmount: params.totalAmount,
             segments: segments,
             asset: asset,
             cancelable: true,
@@ -187,7 +187,7 @@ abstract contract Pro_E2e_Test is E2eTest {
 
         // Assert that the stream was created.
         LockupPro.Stream memory actualStream = pro.getStream(vars.streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.netDepositAmount, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.depositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
         assertEq(actualStream.isCancelable, true, "isCancelable");
         assertEq(actualStream.range.end, DEFAULT_END_TIME, "endTime");
@@ -218,11 +218,11 @@ abstract contract Pro_E2e_Test is E2eTest {
         vars.actualBrokerBalance = vars.balances[2];
 
         // Assert that the pro contract's balance was updated.
-        vars.expectedProBalance = vars.initialProBalance + vars.netDepositAmount + vars.protocolFeeAmount;
+        vars.expectedProBalance = vars.initialProBalance + vars.depositAmount + vars.protocolFeeAmount;
         assertEq(vars.actualProBalance, vars.expectedProBalance, "post-create pro contract balance");
 
         // Assert that the holder's balance was updated.
-        vars.expectedHolderBalance = initialHolderBalance - params.grossDepositAmount;
+        vars.expectedHolderBalance = initialHolderBalance - params.totalAmount;
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "post-create holder balance");
 
         // Assert that the broker's balance was updated.
@@ -283,7 +283,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Only run the cancel tests if the stream has not been depleted.
-        if (params.withdrawAmount != vars.netDepositAmount) {
+        if (params.withdrawAmount != vars.depositAmount) {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
                 address(asset),

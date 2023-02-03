@@ -18,11 +18,11 @@ abstract contract Calculations is Constants {
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Adjust the amounts in the default segments as two fractions of the provided net deposit amount,
+    /// @dev Adjust the amounts in the default segments as two fractions of the provided deposit amount,
     /// one 20%, the other 80%.
-    function adjustSegmentAmounts(LockupPro.Segment[] memory segments, uint128 netDepositAmount) internal pure {
-        segments[0].amount = ud(netDepositAmount).mul(ud(0.2e18)).intoUint128();
-        segments[1].amount = netDepositAmount - segments[0].amount;
+    function adjustSegmentAmounts(LockupPro.Segment[] memory segments, uint128 depositAmount) internal pure {
+        segments[0].amount = ud(depositAmount).mul(ud(0.2e18)).intoUint128();
+        segments[1].amount = depositAmount - segments[0].amount;
     }
 
     /// @dev Helper function that replicates the logic of the {SablierV2LockupLinear-getStreamedAmount} function.

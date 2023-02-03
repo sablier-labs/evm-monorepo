@@ -33,19 +33,19 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
 
     /// @dev it should revert.
     ///
-    /// It is not possible to obtain a zero net deposit amount from a non-zero gross deposit amount, because the
+    /// It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
     /// `MAX_FEE` is hard coded to 10%.
-    function test_RevertWhen_NetDepositAmountZero() external recipientNonZeroAddress {
-        vm.expectRevert(Errors.SablierV2Lockup_NetDepositAmountZero.selector);
-        createDefaultStreamWithGrossDepositAmount(0);
+    function test_RevertWhen_DepositAmountZero() external recipientNonZeroAddress {
+        vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
+        createDefaultStreamWithTotalAmount(0);
     }
 
-    modifier netDepositAmountNotZero() {
+    modifier depositAmountNotZero() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StartTimeGreaterThanCliffTime() external recipientNonZeroAddress netDepositAmountNotZero {
+    function test_RevertWhen_StartTimeGreaterThanCliffTime() external recipientNonZeroAddress depositAmountNotZero {
         uint40 startTime = defaultParams.createWithRange.range.cliff;
         uint40 cliffTime = defaultParams.createWithRange.range.start;
         vm.expectRevert(
@@ -58,7 +58,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             LockupLinear.Range({ start: startTime, cliff: cliffTime, end: defaultParams.createWithRange.range.end }),
@@ -74,7 +74,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     function test_RevertWhen_CliffTimeGreaterThanEndTime()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
     {
         uint40 cliffTime = defaultParams.createWithRange.range.end;
@@ -89,7 +89,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             LockupLinear.Range({ start: defaultParams.createWithRange.range.start, cliff: cliffTime, end: endTime }),
@@ -105,7 +105,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
         cliffLessThanOrEqualToEndTime
     {
@@ -130,7 +130,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
         cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
@@ -142,7 +142,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
@@ -158,7 +158,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     function test_RevertWhen_AssetNotContract()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
         cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
@@ -169,7 +169,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             IERC20(nonContract),
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
@@ -185,7 +185,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     function test_CreateWithRange_AssetMissingReturnValue()
         external
         recipientNonZeroAddress
-        netDepositAmountNotZero
+        depositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
         cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
@@ -209,7 +209,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     /// - Emit a {CreateLockupLinearStream} event.
     function test_CreateWithRange()
         external
-        netDepositAmountNotZero
+        depositAmountNotZero
         startTimeLessThanOrEqualToCliffTime
         cliffLessThanOrEqualToEndTime
         protocolFeeNotTooHigh
@@ -230,7 +230,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             asset,
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
+                (funder, address(linear), DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
             )
         );
 
@@ -247,7 +247,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         linear.createWithRange(
             defaultParams.createWithRange.sender,
             defaultParams.createWithRange.recipient,
-            defaultParams.createWithRange.grossDepositAmount,
+            defaultParams.createWithRange.totalAmount,
             IERC20(asset),
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,

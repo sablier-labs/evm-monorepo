@@ -100,7 +100,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             address(DEFAULT_ASSET),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (funder, address(linear), DEFAULT_NET_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
+                (funder, address(linear), DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
             )
         );
 

@@ -15,25 +15,25 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     struct CreateWithDeltasParams {
-        address sender;
-        address recipient;
-        uint128 grossDepositAmount;
-        LockupPro.Segment[] segments;
         IERC20 asset;
+        Broker broker;
         bool cancelable;
         uint40[] deltas;
-        Broker broker;
+        address recipient;
+        address sender;
+        LockupPro.Segment[] segments;
+        uint128 totalAmount;
     }
 
     struct CreateWithMilestonesParams {
-        address sender;
-        address recipient;
-        uint128 grossDepositAmount;
-        LockupPro.Segment[] segments;
         IERC20 asset;
-        bool cancelable;
-        uint40 startTime;
         Broker broker;
+        bool cancelable;
+        address recipient;
+        LockupPro.Segment[] segments;
+        address sender;
+        uint40 startTime;
+        uint128 totalAmount;
     }
 
     struct DefaultParams {
@@ -58,14 +58,14 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         // Initialize the default params to be used for the create functions.
         defaultParams.createWithDeltas.sender = users.sender;
         defaultParams.createWithDeltas.recipient = users.recipient;
-        defaultParams.createWithDeltas.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
+        defaultParams.createWithDeltas.totalAmount = DEFAULT_TOTAL_AMOUNT;
         defaultParams.createWithDeltas.asset = DEFAULT_ASSET;
         defaultParams.createWithDeltas.cancelable = true;
         defaultParams.createWithDeltas.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
 
         defaultParams.createWithMilestones.sender = users.sender;
         defaultParams.createWithMilestones.recipient = users.recipient;
-        defaultParams.createWithMilestones.grossDepositAmount = DEFAULT_GROSS_DEPOSIT_AMOUNT;
+        defaultParams.createWithMilestones.totalAmount = DEFAULT_TOTAL_AMOUNT;
         defaultParams.createWithMilestones.asset = DEFAULT_ASSET;
         defaultParams.createWithMilestones.cancelable = true;
         defaultParams.createWithMilestones.startTime = DEFAULT_START_TIME;
@@ -97,7 +97,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         streamId = pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
+            defaultParams.createWithMilestones.totalAmount,
             defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
@@ -111,7 +111,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         streamId = pro.createWithDeltas(
             defaultParams.createWithDeltas.sender,
             defaultParams.createWithDeltas.recipient,
-            defaultParams.createWithDeltas.grossDepositAmount,
+            defaultParams.createWithDeltas.totalAmount,
             defaultParams.createWithDeltas.segments,
             defaultParams.createWithDeltas.asset,
             defaultParams.createWithDeltas.cancelable,
@@ -125,7 +125,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         streamId = pro.createWithDeltas(
             defaultParams.createWithDeltas.sender,
             defaultParams.createWithDeltas.recipient,
-            defaultParams.createWithDeltas.grossDepositAmount,
+            defaultParams.createWithDeltas.totalAmount,
             defaultParams.createWithDeltas.segments,
             defaultParams.createWithDeltas.asset,
             defaultParams.createWithDeltas.cancelable,
@@ -141,22 +141,8 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         streamId = pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
+            defaultParams.createWithMilestones.totalAmount,
             segments,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.startTime,
-            defaultParams.createWithMilestones.broker
-        );
-    }
-
-    /// @dev Creates the default stream with the provided gross deposit amount.
-    function createDefaultStreamWithGrossDepositAmount(uint128 grossDepositAmount) internal returns (uint256 streamId) {
-        streamId = pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            grossDepositAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
             defaultParams.createWithMilestones.startTime,
@@ -170,7 +156,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         streamId = pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
+            defaultParams.createWithMilestones.totalAmount,
             defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             isCancelable,
@@ -184,7 +170,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         streamId = pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
+            defaultParams.createWithMilestones.totalAmount,
             defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
@@ -198,7 +184,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         streamId = pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
+            defaultParams.createWithMilestones.totalAmount,
             segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
@@ -212,7 +198,21 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         streamId = pro.createWithMilestones(
             sender,
             defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.grossDepositAmount,
+            defaultParams.createWithMilestones.totalAmount,
+            defaultParams.createWithMilestones.segments,
+            defaultParams.createWithMilestones.asset,
+            defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.startTime,
+            defaultParams.createWithMilestones.broker
+        );
+    }
+
+    /// @dev Creates the default stream with the provided total amount.
+    function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal returns (uint256 streamId) {
+        streamId = pro.createWithMilestones(
+            defaultParams.createWithMilestones.sender,
+            defaultParams.createWithMilestones.recipient,
+            totalAmount,
             defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
