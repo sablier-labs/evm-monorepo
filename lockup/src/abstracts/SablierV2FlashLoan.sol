@@ -146,7 +146,7 @@ abstract contract SablierV2FlashLoan is
         // Interactions: perform the ERC-20 transfer to get the principal back plus the fee.
         IERC20(asset).safeTransferFrom({ from: address(receiver), to: address(this), value: returnAmount });
 
-        // Emit a {FlashLoan} event.
+        // Log the flash loan.
         emit Events.FlashLoan({
             initiator: msg.sender,
             receiver: receiver,

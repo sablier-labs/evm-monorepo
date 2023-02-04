@@ -128,7 +128,7 @@ abstract contract SablierV2Lockup is
             streamId = streamIds[i];
 
             // Effects and Interactions: cancel the stream.
-            // CancelLockupStream this stream only if the `streamId` points to a stream that is active and cancelable.
+            // Cancel this stream only if the `streamId` points to a stream that is active and cancelable.
             if (getStatus(streamId) == Lockup.Status.ACTIVE && isCancelable(streamId)) {
                 _cancel(streamId);
             }
@@ -162,7 +162,7 @@ abstract contract SablierV2Lockup is
         address to,
         uint128 amount
     ) public override isActiveStream(streamId) isAuthorizedForStream(streamId) {
-        // Checks: the provided address is the recipient if `msg.sender` is the sender of the stream.
+        // Checks: if `msg.sender` is the sender of the stream, the provided address is the recipient.
         if (_isCallerStreamSender(streamId) && to != getRecipient(streamId)) {
             revert Errors.SablierV2Lockup_WithdrawSenderUnauthorized(streamId, msg.sender, to);
         }

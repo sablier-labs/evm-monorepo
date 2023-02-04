@@ -371,9 +371,8 @@ contract SablierV2LockupLinear is
                 try
                     ISablierV2LockupRecipient(recipient).onStreamCanceled({
                         streamId: streamId,
-                        caller: msg.sender,
-                        recipientAmount: recipientAmount,
-                        senderAmount: senderAmount
+                        senderAmount: senderAmount,
+                        recipientAmount: recipientAmount
                     })
                 {} catch {}
             }
@@ -386,15 +385,14 @@ contract SablierV2LockupLinear is
                 try
                     ISablierV2LockupSender(sender).onStreamCanceled({
                         streamId: streamId,
-                        caller: msg.sender,
-                        recipientAmount: recipientAmount,
-                        senderAmount: senderAmount
+                        senderAmount: senderAmount,
+                        recipientAmount: recipientAmount
                     })
                 {} catch {}
             }
         }
 
-        // Emit a {CancelLockupStream} event.
+        // Log the cancellation.
         emit Events.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
     }
 
@@ -452,7 +450,7 @@ contract SablierV2LockupLinear is
             params.asset.safeTransferFrom({ from: msg.sender, to: params.broker, value: params.amounts.brokerFee });
         }
 
-        // Emit a {CreateLockupLinearStream} event.
+        // Log the newly created stream, and the address that funded it.
         emit Events.CreateLockupLinearStream({
             streamId: streamId,
             funder: msg.sender,
@@ -471,7 +469,14 @@ contract SablierV2LockupLinear is
         // Effects: make the stream non-cancelable.
         _streams[streamId].isCancelable = false;
 
-        // Emit a {RenounceLockupStream} event.
+        // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
+        // reverting if the hook is not implemented, and also without bubbling up any potential revert.
+        address recipient = _ownerOf(streamId);
+        if (recipient.code.length > 0) {
+            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) {} catch {}
+        }
+
+        // Log the renouncement.
         emit Events.RenounceLockupStream(streamId);
     }
 
@@ -520,12 +525,13 @@ contract SablierV2LockupLinear is
                 ISablierV2LockupRecipient(recipient).onStreamWithdrawn({
                     streamId: streamId,
                     caller: msg.sender,
+                    to: to,
                     amount: amount
                 })
             {} catch {}
         }
 
-        // Emit a {WithdrawFromLockupStream} event.
+        // Log the withdrawal.
         emit Events.WithdrawFromLockupStream(streamId, to, amount);
     }
 }

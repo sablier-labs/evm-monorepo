@@ -3,6 +3,8 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
+import { ISablierV2LockupRecipient } from "src/interfaces/hooks/ISablierV2LockupRecipient.sol";
+import { ISablierV2LockupSender } from "src/interfaces/hooks/ISablierV2LockupSender.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Lockup } from "src/types/DataTypes.sol";
@@ -132,7 +134,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and cancel the stream.
+    /// @dev it should cancel the stream, call the recipient hook, and ignore the revert.
     function test_Cancel_Sender_RecipientDoesNotImplementHook()
         external
         streamActive
@@ -141,8 +143,21 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerSender
         recipientContract
     {
+        // Create the stream with an empty contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
+
+        // Expect a call to the recipient hook.
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
+        vm.expectCall(
+            address(empty),
+            abi.encodeCall(ISablierV2LockupRecipient.onStreamCanceled, (streamId, senderAmount, recipientAmount))
+        );
+
+        // Cancel the stream.
         lockup.cancel(streamId);
+
+        // Assert that the stream was canceled.
         Lockup.Status actualStatus = lockup.getStatus(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
@@ -152,7 +167,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and cancel the stream.
+    /// @dev it should cancel the stream, call the recipient hook, and ignore the revert.
     function test_Cancel_Sender_RecipientReverts()
         external
         streamActive
@@ -162,8 +177,21 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientContract
         recipientImplementsHook
     {
+        // Create the stream with a reverting contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
+
+        // Expect a call to the recipient hook.
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
+        vm.expectCall(
+            address(revertingRecipient),
+            abi.encodeCall(ISablierV2LockupRecipient.onStreamCanceled, (streamId, senderAmount, recipientAmount))
+        );
+
+        // Cancel the stream.
         lockup.cancel(streamId);
+
+        // Assert that the stream was canceled.
         Lockup.Status actualStatus = lockup.getStatus(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
@@ -173,7 +201,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and cancel the stream.
+    /// @dev it should cancel the stream, call the recipient hook, and ignore the revert.
     function test_Cancel_Sender_RecipientReentrancy()
         external
         streamActive
@@ -184,8 +212,21 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         recipientImplementsHook
         recipientDoesNotRevert
     {
+        // Create the stream with a reentrant contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
+
+        // Expect a call to the recipient hook.
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
+        vm.expectCall(
+            address(reentrantRecipient),
+            abi.encodeCall(ISablierV2LockupRecipient.onStreamCanceled, (streamId, senderAmount, recipientAmount))
+        );
+
+        // Cancel the stream.
         lockup.cancel(streamId);
+
+        // Assert that the stream was canceled.
         Lockup.Status actualStatus = lockup.getStatus(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
@@ -195,8 +236,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, and emit a
-    /// {CancelLockupStream} event.
+    /// @dev it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, call the
+    /// recipient hook, and emit a {CancelLockupStream} event.
     function test_Cancel_Sender()
         external
         streamActive
@@ -214,6 +255,10 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
+        // Expect the ERC-20 assets to be returned to the sender, if not zero.
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
+
         // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
@@ -221,9 +266,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
             abi.encodeCall(IERC20.transfer, (address(goodRecipient), recipientAmount))
         );
 
-        // Expect the ERC-20 assets to be returned to the sender, if not zero.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount)));
+        // Expect a call to the recipient hook.
+        vm.expectCall(
+            address(goodRecipient),
+            abi.encodeCall(ISablierV2LockupRecipient.onStreamCanceled, (streamId, senderAmount, recipientAmount))
+        );
 
         // Expect a {CancelLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
@@ -270,7 +317,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and cancel the stream.
+    /// @dev it should cancel the stream, call the sender hook, and ignore the revert.
     function test_Cancel_Recipient_SenderDoesNotImplementHook()
         external
         streamActive
@@ -279,8 +326,21 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerRecipient
         senderContract
     {
+        // Create a stream with an empty contract as the sender.
         uint256 streamId = createDefaultStreamWithSender(address(empty));
+
+        // Expect a call to the sender hook.
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
+        vm.expectCall(
+            address(empty),
+            abi.encodeCall(ISablierV2LockupSender.onStreamCanceled, (streamId, senderAmount, recipientAmount))
+        );
+
+        // Cancel the stream.
         lockup.cancel(streamId);
+
+        // Assert that the stream was marked as canceled.
         Lockup.Status actualStatus = lockup.getStatus(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
@@ -290,7 +350,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and cancel the stream.
+    /// @dev it should cancel the stream, call the sender hook, and ignore the revert.
     function test_Cancel_Recipient_SenderReverts()
         external
         streamActive
@@ -300,7 +360,18 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         senderContract
         senderImplementsHook
     {
+        // Create a stream with a reverting contract as the sender.
         uint256 streamId = createDefaultStreamWithSender(address(revertingSender));
+
+        // Expect a call to the sender hook.
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
+        vm.expectCall(
+            address(revertingSender),
+            abi.encodeCall(ISablierV2LockupSender.onStreamCanceled, (streamId, senderAmount, recipientAmount))
+        );
+
+        // Cancel the stream.
         lockup.cancel(streamId);
 
         // Assert that the stream was marked as canceled.
@@ -313,7 +384,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should ignore the revert and make the withdrawal and cancel the stream.
+    /// @dev it should cancel the stream, call the sender hook, and ignore the revert.
     function test_Cancel_Recipient_SenderReentrancy()
         external
         streamActive
@@ -324,7 +395,18 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         senderImplementsHook
         senderDoesNotRevert
     {
+        // Create a stream with a reentrant contract as the sender.
         uint256 streamId = createDefaultStreamWithSender(address(reentrantSender));
+
+        // Expect a call to the sender hook.
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
+        vm.expectCall(
+            address(reentrantSender),
+            abi.encodeCall(ISablierV2LockupSender.onStreamCanceled, (streamId, senderAmount, recipientAmount))
+        );
+
+        // Cancel the stream.
         lockup.cancel(streamId);
 
         // Assert that the stream was marked as canceled.
@@ -337,8 +419,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, and emit a
-    /// {CancelLockupStream} event.
+    /// @dev it should cancel the stream, update the withdrawn amount, perform the ERC-20 transfers, call the
+    /// sender hook, and emit a {CancelLockupStream} event
     function test_Cancel_Recipient()
         external
         streamActive
@@ -363,6 +445,12 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Expect the ERC-20 assets to be withdrawn to the recipient.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount)));
+
+        // Expect a call to the sender hook.
+        vm.expectCall(
+            address(goodSender),
+            abi.encodeCall(ISablierV2LockupSender.onStreamCanceled, (streamId, senderAmount, recipientAmount))
+        );
 
         // Expect a {CancelLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });

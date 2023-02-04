@@ -100,7 +100,7 @@ interface ISablierV2Lockup is
     ///
     /// Notes:
     /// - This function will attempt to call a hook on either the sender or the recipient, depending upon who the
-    /// `msg.sender` is, and if the sender and the recipient are contracts.
+    /// `msg.sender` is, and if the resolved address is a contract.
     ///
     /// Requirements:
     /// - `streamId` must point to an active stream.
@@ -133,9 +133,13 @@ interface ISablierV2Lockup is
     /// @return The next stream id.
     function nextStreamId() external view returns (uint256);
 
-    /// @notice Makes the stream non-cancelable. This is an irreversible operation.
+    /// @notice Makes the stream non-cancelable.
     ///
     /// @dev Emits a {RenounceLockupStream} event.
+    ///
+    /// Notes:
+    /// - This is an irreversible operation.
+    /// - This function will attempt to call a hook on the recipient of the stream, if the recipient is a contract.
     ///
     /// Requirements:
     /// - `streamId` must point to an active stream.
