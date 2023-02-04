@@ -119,7 +119,7 @@ abstract contract Pro_E2e_Test is E2eTest {
         vm.assume(
             params.sender != address(pro) && params.recipient != address(pro) && params.broker.addr != address(pro)
         );
-        params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone);
+        params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone - 1);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));

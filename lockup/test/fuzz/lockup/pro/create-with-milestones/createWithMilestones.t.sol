@@ -285,8 +285,12 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(params.totalAmount != 0);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        params.startTime = boundUint40(params.startTime, 0, defaultParams.createWithMilestones.segments[0].milestone);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
+        params.startTime = boundUint40(
+            params.startTime,
+            0,
+            defaultParams.createWithMilestones.segments[0].milestone - 1
+        );
 
         // Set the fuzzed protocol fee.
         changePrank({ who: users.admin });
