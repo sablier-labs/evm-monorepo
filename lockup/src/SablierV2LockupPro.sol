@@ -61,8 +61,8 @@ contract SablierV2LockupPro is
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Sablier V2 pro streams mapped by unsigned integers.
-    mapping(uint256 => LockupPro.Stream) internal _streams;
+    /// @dev Sablier V2 pro streams mapped by unsigned integers ids.
+    mapping(uint256 id => LockupPro.Stream) internal _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR

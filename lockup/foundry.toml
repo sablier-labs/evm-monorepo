@@ -1,5 +1,7 @@
 [profile.default]
   auto_detect_solc = false
+  bytecode_hash = "none"
+  cbor_metadata = false
   fs_permissions = [{ access = "read", path = "./optimized-out" }]
   libs = ["lib"]
   gas_reports = [
@@ -11,7 +13,7 @@
   optimizer_runs = 10_000
   out = "out"
   script = "script"
-  solc = "0.8.17"
+  solc = "0.8.18"
   src = "src"
   test = "test"
 

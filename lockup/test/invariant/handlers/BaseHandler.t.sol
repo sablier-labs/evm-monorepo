@@ -11,7 +11,7 @@ abstract contract BaseHandler is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Maps function names to the number of times they have been called.
-    mapping(string => uint256) public calls;
+    mapping(string func => uint256) public calls;
 
     /// @dev The total number of calls made to this contract.
     uint256 public totalCalls;

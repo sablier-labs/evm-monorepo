@@ -55,7 +55,7 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
         currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
-        currentRecipient = store.streamIdsToRecipients(currentStreamId);
+        currentRecipient = store.recipients(currentStreamId);
         vm.startPrank(currentRecipient);
         _;
         vm.stopPrank();
@@ -67,7 +67,7 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
         currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
-        currentSender = store.streamIdsToSenders(currentStreamId);
+        currentSender = store.senders(currentStreamId);
         vm.startPrank(currentSender);
         _;
         vm.stopPrank();
