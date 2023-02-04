@@ -10,7 +10,7 @@
     "SablierV2LockupPro",
   ]
   optimizer = true
-  optimizer_runs = 10_000
+  optimizer_runs = 5_000
   out = "out"
   script = "script"
   solc = "0.8.18"
