@@ -99,7 +99,10 @@ library Helpers {
     }
 
     /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
-    function checkDeltasAndAdjustSegments(LockupPro.Segment[] memory segments, uint40[] memory deltas) internal view {
+    function checkDeltasAndCalculateMilestones(
+        LockupPro.Segment[] memory segments,
+        uint40[] memory deltas
+    ) internal view {
         // Checks: check that the segment array counts match.
         uint256 deltaCount = deltas.length;
         if (segments.length != deltaCount) {

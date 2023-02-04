@@ -234,7 +234,7 @@ contract SablierV2LockupPro is
         Broker calldata broker
     ) external override returns (uint256 streamId) {
         // Checks: check the deltas and adjust the segments accordingly.
-        Helpers.checkDeltasAndAdjustSegments(segments, deltas);
+        Helpers.checkDeltasAndCalculateMilestones(segments, deltas);
 
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
