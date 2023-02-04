@@ -35,7 +35,7 @@ import { Broker, Lockup, LockupPro } from "./types/DataTypes.sol";
 ██║     ██║   ██║██║     █████╔╝ ██║   ██║██████╔╝    ██████╔╝██████╔╝██║   ██║
 ██║     ██║   ██║██║     ██╔═██╗ ██║   ██║██╔═══╝     ██╔═══╝ ██╔══██╗██║   ██║
 ███████╗╚██████╔╝╚██████╗██║  ██╗╚██████╔╝██║         ██║     ██║  ██║╚██████╔╝
-╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝         ╚═╝     ╚═╝  ╚═╝ ╚═════╝ 
+╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝         ╚═╝     ╚═╝  ╚═╝ ╚═════╝
 
 */
 
@@ -444,7 +444,6 @@ contract SablierV2LockupPro is
                 try
                     ISablierV2LockupRecipient(recipient).onStreamCanceled({
                         streamId: streamId,
-                        caller: msg.sender,
                         senderAmount: senderAmount,
                         recipientAmount: recipientAmount
                     })
@@ -459,7 +458,6 @@ contract SablierV2LockupPro is
                 try
                     ISablierV2LockupSender(sender).onStreamCanceled({
                         streamId: streamId,
-                        caller: msg.sender,
                         senderAmount: senderAmount,
                         recipientAmount: recipientAmount
                     })
