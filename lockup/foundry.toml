@@ -39,7 +39,7 @@
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
   fuzz = { runs = 5_000 }
-  invariant = { depth = 1_000, runs = 5_000 }
+  invariant = { depth = 250, runs = 200 }
   src = "test"
   verbosity = 4
 

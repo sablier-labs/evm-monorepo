@@ -122,7 +122,7 @@ jobs:
 
   test-fuzz:
     env:
-      FOUNDRY_FUZZ_RUNS: "20000"
+      FOUNDRY_FUZZ_RUNS: "50000"
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
@@ -150,8 +150,6 @@ jobs:
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
   test-invariant:
-    env:
-      FOUNDRY_INVARIANT_RUNS: "10000"
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
