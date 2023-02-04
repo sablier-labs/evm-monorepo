@@ -8,21 +8,21 @@ import { Solarray } from "solarray/Solarray.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
 
-import { E2eTest } from "../../E2eTest.t.sol";
+import { E2e_Test } from "../../E2eTest.t.sol";
 
-abstract contract Pro_E2e_Test is E2eTest {
+abstract contract Pro_E2e_Test is E2e_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, address holder_) E2eTest(asset_, holder_) {}
+    constructor(IERC20 asset_, address holder_) E2e_Test(asset_, holder_) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        E2eTest.setUp();
+        E2e_Test.setUp();
 
         // Approve the {SablierV2LockupPro} contract to transfer the holder's ERC-20 assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
@@ -108,14 +108,8 @@ abstract contract Pro_E2e_Test is E2eTest {
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Pro_CreateWithdrawCancel(Params memory params) external {
+        checkUsers(params.sender, params.recipient, params.broker.addr);
         vm.assume(params.segments.length != 0);
-        vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
-        vm.assume(
-            params.sender != params.recipient &&
-                params.sender != params.broker.addr &&
-                params.recipient != params.broker.addr
-        );
-        vm.assume(params.sender != holder && params.recipient != holder && params.broker.addr != holder);
         vm.assume(
             params.sender != address(pro) && params.recipient != address(pro) && params.broker.addr != address(pro)
         );

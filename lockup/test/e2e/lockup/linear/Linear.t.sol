@@ -8,21 +8,21 @@ import { Solarray } from "solarray/Solarray.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { E2eTest } from "../../E2eTest.t.sol";
+import { E2e_Test } from "../../E2eTest.t.sol";
 
-abstract contract Linear_E2e_Test is E2eTest {
+abstract contract Linear_E2e_Test is E2e_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, address holder_) E2eTest(asset_, holder_) {}
+    constructor(IERC20 asset_, address holder_) E2e_Test(asset_, holder_) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        E2eTest.setUp();
+        E2e_Test.setUp();
 
         // Approve the {SablierV2LockupLinear} contract to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
@@ -109,20 +109,13 @@ abstract contract Linear_E2e_Test is E2eTest {
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Linear_CreateWithdrawCancel(Params memory params) external {
-        vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.end);
-        vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
-        vm.assume(
-            params.sender != params.recipient &&
-                params.sender != params.broker.addr &&
-                params.recipient != params.broker.addr
-        );
-        vm.assume(params.sender != holder && params.recipient != holder && params.broker.addr != holder);
+        checkUsers(params.sender, params.recipient, params.broker.addr);
+        vm.assume(params.range.start <= params.range.cliff && params.range.cliff < params.range.end);
         vm.assume(
             params.sender != address(linear) &&
                 params.recipient != address(linear) &&
                 params.broker.addr != address(linear)
         );
-        vm.assume(params.range.start <= params.range.cliff && params.range.cliff < params.range.end);
         vm.assume(params.totalAmount != 0 && params.totalAmount <= initialHolderBalance);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);

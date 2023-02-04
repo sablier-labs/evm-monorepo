@@ -9,9 +9,9 @@ import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
-/// @title E2eTest
+/// @title E2e_Test
 /// @notice Collections of tests that run against a fork of Ethereum Mainnet.
-abstract contract E2eTest is Base_Test {
+abstract contract E2e_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -52,5 +52,19 @@ abstract contract E2eTest is Base_Test {
 
         // Query the initial balance of the asset holder.
         initialHolderBalance = asset.balanceOf(holder);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                 CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Checks the user assumptions.
+    function checkUsers(address sender, address recipient, address broker) internal virtual {
+        // The protocol does not allow the zero address to interact with it.
+        vm.assume(sender != address(0) && recipient != address(0) && broker != address(0));
+
+        // The goal is to not have overlapping users because the token balance tests would fail otherwise.
+        vm.assume(sender != recipient && sender != broker && recipient != broker);
+        vm.assume(sender != holder && recipient != holder && broker != holder);
     }
 }
