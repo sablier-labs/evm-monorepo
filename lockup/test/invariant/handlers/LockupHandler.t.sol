@@ -7,33 +7,18 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Broker, Lockup } from "src/types/DataTypes.sol";
 
 import { BaseHandler } from "./BaseHandler.t.sol";
+import { LockupHandlerStore } from "./LockupHandlerStore.t.sol";
 
 /// @title LockupHandler
 /// @dev Common handler logic between {SablierV2LockupLinear} and {SablierV2LockupPro}.
 abstract contract LockupHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    uint256 internal constant MAX_STREAM_COUNT = 100;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                PUBLIC TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2Lockup public lockup;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                               PUBLIC TEST VARIABLES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    address public admin;
     IERC20 public asset;
-    uint256 public lastStreamId;
-    uint128 public returnedAmountsSum;
-    mapping(uint256 => address) public streamIdsToRecipients;
-    mapping(uint256 => address) public streamIdsToSenders;
-    uint256[] public streamIds;
+    ISablierV2Lockup public lockup;
+    LockupHandlerStore public store;
 
     /*//////////////////////////////////////////////////////////////////////////
                               PRIVATE TEST VARIABLES
@@ -47,10 +32,10 @@ abstract contract LockupHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address admin_, IERC20 asset_, ISablierV2Lockup linear_) {
-        admin = admin_;
+    constructor(IERC20 asset_, ISablierV2Lockup lockup_, LockupHandlerStore store_) {
         asset = asset_;
-        lockup = linear_;
+        lockup = lockup_;
+        store = store_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -58,35 +43,32 @@ abstract contract LockupHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier useAdmin() {
+        address admin = lockup.admin();
         vm.startPrank(admin);
         _;
         vm.stopPrank();
     }
 
     modifier useFuzzedStreamRecipient(uint256 streamIndexSeed) {
+        uint256 lastStreamId = store.lastStreamId();
         if (lastStreamId == 0) {
             return;
         }
-        currentStreamId = streamIds[bound(streamIndexSeed, 0, lastStreamId - 1)];
-        currentRecipient = streamIdsToRecipients[currentStreamId];
+        currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
+        currentRecipient = store.streamIdsToRecipients(currentStreamId);
         vm.startPrank(currentRecipient);
         _;
         vm.stopPrank();
     }
 
     modifier useFuzzedStreamSender(uint256 streamIndexSeed) {
+        uint256 lastStreamId = store.lastStreamId();
         if (lastStreamId == 0) {
             return;
         }
-        currentStreamId = streamIds[bound(streamIndexSeed, 0, lastStreamId - 1)];
-        currentSender = streamIdsToSenders[currentStreamId];
+        currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
+        currentSender = store.streamIdsToSenders(currentStreamId);
         vm.startPrank(currentSender);
-        _;
-        vm.stopPrank();
-    }
-
-    modifier useNewSender(address sender) {
-        vm.startPrank(sender);
         _;
         vm.stopPrank();
     }
@@ -110,8 +92,8 @@ abstract contract LockupHandler is BaseHandler {
         // Burn the NFT.
         lockup.burn(currentStreamId);
 
-        // Update the recipient associated with this stream id.
-        streamIdsToRecipients[currentStreamId] = address(0);
+        // Set the recipient associated with this stream to the zero address.
+        store.updateRecipient(currentStreamId, address(0));
     }
 
     function cancel(uint256 streamIndexSeed) external instrument("cancel") useFuzzedStreamSender(streamIndexSeed) {
@@ -124,7 +106,7 @@ abstract contract LockupHandler is BaseHandler {
         // Record the returned amount by adding it to the ghost variable `returnedAmountsSum`. This is needed to
         // check invariants against the contract's balance.
         uint128 returnedAmount = lockup.returnableAmountOf(currentStreamId);
-        returnedAmountsSum += returnedAmount;
+        store.addReturnedAmount(returnedAmount);
 
         // Cancel the stream.
         lockup.cancel(currentStreamId);
@@ -137,7 +119,7 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
 
-        // Claim the revenues.
+        // Claim the protocol revenues.
         lockup.claimProtocolRevenues(asset);
     }
 
@@ -228,6 +210,6 @@ abstract contract LockupHandler is BaseHandler {
         lockup.transferFrom({ from: currentRecipient, to: newRecipient, tokenId: currentStreamId });
 
         // Update the recipient associated with this stream id.
-        streamIdsToRecipients[currentStreamId] = newRecipient;
+        store.updateRecipient(currentStreamId, newRecipient);
     }
 }

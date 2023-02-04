@@ -11,6 +11,7 @@ import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 import { Lockup_Invariant_Test } from "../Lockup.t.sol";
 import { FlashLoanHandler } from "../../handlers/FlashLoanHandler.t.sol";
 import { LockupLinearHandler } from "../../handlers/LockupLinearHandler.t.sol";
+import { LockupLinearCreateHandler } from "../../handlers/LockupLinearCreateHandler.t.sol";
 
 /// @title Linear_Invariant_Test
 /// @dev Invariants for the {SablierV2LockupLinear} contract.
@@ -20,6 +21,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     LockupLinearHandler internal linearHandler;
+    LockupLinearCreateHandler internal linearCreateHandler;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -28,13 +30,18 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
     function setUp() public virtual override {
         Lockup_Invariant_Test.setUp();
 
-        // Deploy the linear contract and its handler.
+        // Deploy the linear contract and its handlers.
         linear = new SablierV2LockupLinear({
             initialAdmin: users.admin,
             initialComptroller: comptroller,
             maxFee: DEFAULT_MAX_FEE
         });
-        linearHandler = new LockupLinearHandler({ admin_: users.admin, asset_: DEFAULT_ASSET, linear_: linear });
+        linearHandler = new LockupLinearHandler({ asset_: DEFAULT_ASSET, linear_: linear, store_: lockupHandlerStore });
+        linearCreateHandler = new LockupLinearCreateHandler({
+            asset_: DEFAULT_ASSET,
+            linear_: linear,
+            store_: lockupHandlerStore
+        });
 
         // Cast the linear contract as {SablierV2Lockup} and the linear handler as {LockupHandler}.
         lockup = linear;
@@ -48,9 +55,10 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
             receiver_: goodFlashLoanReceiver
         });
 
-        // Target the flash loan handler and the linear handler for invariant testing.
+        // Target the flash loan handler and the linear handlers for invariant testing.
         targetContract(address(flashLoanHandler));
         targetContract(address(linearHandler));
+        targetContract(address(linearCreateHandler));
 
         // Label the linear contract and its handler.
         vm.label({ account: address(linear), newLabel: "LockupLinear" });
@@ -64,9 +72,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
     // prettier-ignore
     // solhint-disable max-line-length
     function invariant_NullStatus() external {
-        uint256 lastStreamId = linearHandler.lastStreamId();
+        uint256 lastStreamId = lockupHandlerStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId;) {
-            uint256 streamId = linearHandler.streamIds(i);
+            uint256 streamId = lockupHandlerStore.streamIds(i);
             LockupLinear.Stream memory actualStream = linear.getStream(streamId);
             address actualRecipient = lockup.getRecipient(streamId);
 
@@ -94,9 +102,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
     }
 
     function invariant_CliffTimeGteStartTime() external {
-        uint256 lastStreamId = linearHandler.lastStreamId();
+        uint256 lastStreamId = lockupHandlerStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ) {
-            uint256 streamId = linearHandler.streamIds(i);
+            uint256 streamId = lockupHandlerStore.streamIds(i);
             assertGte(
                 linear.getCliffTime(streamId),
                 linear.getStartTime(streamId),
@@ -109,9 +117,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
     }
 
     function invariant_EndTimeGteCliffTime() external {
-        uint256 lastStreamId = linearHandler.lastStreamId();
+        uint256 lastStreamId = lockupHandlerStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ) {
-            uint256 streamId = linearHandler.streamIds(i);
+            uint256 streamId = lockupHandlerStore.streamIds(i);
             assertGte(
                 linear.getEndTime(streamId),
                 linear.getCliffTime(streamId),
@@ -144,8 +152,8 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         console2.log("burn                 ", linearHandler.calls("burn"));
         console2.log("cancel               ", linearHandler.calls("cancel"));
         console2.log("claimProtocolRevenues", linearHandler.calls("claimProtocolRevenues"));
-        console2.log("createWithRange      ", linearHandler.calls("createWithRange"));
-        console2.log("createWithDurations  ", linearHandler.calls("createWithDurations"));
+        console2.log("createWithRange      ", linearCreateHandler.calls("createWithRange"));
+        console2.log("createWithDurations  ", linearCreateHandler.calls("createWithDurations"));
         console2.log("renounce             ", linearHandler.calls("renounce"));
         console2.log("transferNFT          ", linearHandler.calls("transferNFT"));
         console2.log("withdraw             ", linearHandler.calls("withdraw"));

@@ -11,6 +11,7 @@ import { Lockup, LockupPro } from "src/types/DataTypes.sol";
 import { Lockup_Invariant_Test } from "../Lockup.t.sol";
 import { FlashLoanHandler } from "../../handlers/FlashLoanHandler.t.sol";
 import { LockupProHandler } from "../../handlers/LockupProHandler.t.sol";
+import { LockupProCreateHandler } from "../../handlers/LockupProCreateHandler.t.sol";
 
 /// @title Pro_Invariant_Test
 /// @dev Invariants for the {SablierV2LockupPro} contract.
@@ -20,6 +21,7 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     LockupProHandler internal proHandler;
+    LockupProCreateHandler internal proCreateHandler;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -28,18 +30,19 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
     function setUp() public virtual override {
         Lockup_Invariant_Test.setUp();
 
-        // Deploy the pro contract and its handler.
+        // Deploy the pro contract and its handlers.
         pro = new SablierV2LockupPro({
             initialAdmin: users.admin,
             initialComptroller: comptroller,
             maxFee: DEFAULT_MAX_FEE,
             maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
         });
-        proHandler = new LockupProHandler({
-            admin_: users.admin,
+        proHandler = new LockupProHandler({ asset_: DEFAULT_ASSET, pro_: pro, store_: lockupHandlerStore });
+        proCreateHandler = new LockupProCreateHandler({
             asset_: DEFAULT_ASSET,
             comptroller_: comptroller,
-            pro_: pro
+            pro_: pro,
+            store_: lockupHandlerStore
         });
 
         // Cast the pro contract as {SablierV2Lockup} and the pro handler as {LockupHandler}.
@@ -54,9 +57,10 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
             receiver_: goodFlashLoanReceiver
         });
 
-        // Target the flash loan handler and the pro handler for invariant testing.
+        // Target the flash loan handler and the pro handlers for invariant testing.
         targetContract(address(flashLoanHandler));
         targetContract(address(proHandler));
+        targetContract(address(proCreateHandler));
 
         // Label the pro contract and its handler.
         vm.label({ account: address(pro), newLabel: "LockupPro" });
@@ -70,9 +74,9 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
     // prettier-ignore
     // solhint-disable max-line-length
     function invariant_NullStatus() external {
-        uint256 lastStreamId = proHandler.lastStreamId();
+        uint256 lastStreamId = lockupHandlerStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ) {
-            uint256 streamId = proHandler.streamIds(i);
+            uint256 streamId = lockupHandlerStore.streamIds(i);
             LockupPro.Stream memory actualStream = pro.getStream(streamId);
             address actualRecipient = lockup.getRecipient(streamId);
 
@@ -101,9 +105,9 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
 
     function invariant_SegmentMilestonesOrdered() external {
         unchecked {
-            uint256 lastStreamId = proHandler.lastStreamId();
+            uint256 lastStreamId = lockupHandlerStore.lastStreamId();
             for (uint256 i = 0; i < lastStreamId; ++i) {
-                uint256 streamId = proHandler.streamIds(i);
+                uint256 streamId = lockupHandlerStore.streamIds(i);
 
                 // If the stream is null, it doesn't have segments.
                 if (pro.getStatus(streamId) != Lockup.Status.NULL) {
@@ -145,8 +149,8 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
         console2.log("burn                 ", proHandler.calls("burn"));
         console2.log("cancel               ", proHandler.calls("cancel"));
         console2.log("claimProtocolRevenues", proHandler.calls("claimProtocolRevenues"));
-        console2.log("createWithDeltas     ", proHandler.calls("createWithDeltas"));
-        console2.log("createWithMilestones ", proHandler.calls("createWithMilestones"));
+        console2.log("createWithDeltas     ", proCreateHandler.calls("createWithDeltas"));
+        console2.log("createWithMilestones ", proCreateHandler.calls("createWithMilestones"));
         console2.log("renounce             ", proHandler.calls("renounce"));
         console2.log("transferNFT          ", proHandler.calls("transferNFT"));
         console2.log("withdraw             ", proHandler.calls("withdraw"));
