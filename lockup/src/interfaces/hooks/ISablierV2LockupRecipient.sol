@@ -8,7 +8,7 @@ pragma solidity >=0.8.13;
 /// partially, the function execution will not revert either.
 interface ISablierV2LockupRecipient {
     /// @notice Reacts to the cancellation of a stream. Sablier V2 invokes this function on the recipient
-    /// after a cancellation triggered by the sender or an approved operator.
+    /// after a cancellation triggered by the sender.
     ///
     /// @dev Notes:
     /// - This function may revert, but the {SablierV2Lockup} contract will always ignore the revert.
@@ -24,7 +24,7 @@ interface ISablierV2LockupRecipient {
     /// @dev Notes:
     /// - This function may revert, but the {SablierV2Lockup} contract will always ignore the revert.
     ///
-    /// @param streamId The id of the stream that has been renounced
+    /// @param streamId The id of the stream that has been renounced.
     function onStreamRenounced(uint256 streamId) external;
 
     /// @notice Reacts to a withdrawal from a stream.
