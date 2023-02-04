@@ -1,4 +1,4 @@
-name: "Deploy Linear"
+name: "Deploy Lockup Linear"
 
 env:
   ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
