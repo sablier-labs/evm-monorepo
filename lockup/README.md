@@ -102,7 +102,9 @@ If you want to deploy to a local development chain, you can spin up an instance 
 ```sh
 forge script scripts/DeployComptroller.s.sol \
   --broadcast \
-  --rpc-url goerli
+  --rpc-url goerli \
+  --sig "run(address)" \
+  ADMIN_ADDRESS
 ```
 
 #### Deploy SablierV2LockupLinear
@@ -110,11 +112,12 @@ forge script scripts/DeployComptroller.s.sol \
 You should replace the placeholders with the actual arguments you want to pass.
 
 ```sh
-forge script script/DeployLinear.s.sol \
+forge script script/deploy/DeployLockupLinear.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address,uint256)" \
-  COMPTROLLER_ADDRESS
+  ADMIN_ADDRESS \
+  COMPTROLLER_ADDRESS \
   MAX_FEE
 ```
 
@@ -123,30 +126,32 @@ forge script script/DeployLinear.s.sol \
 You should replace the placeholders with the actual arguments you want to pass.
 
 ```sh
-forge script script/DeployPro.s.sol \
+forge script script/deploy/DeployLockupPro.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address,uint256,uint256)" \
-  COMPTROLLER_ADDRESS
-  MAX_FEE
+  ADMIN_ADDRESS \
+  COMPTROLLER_ADDRESS \
+  MAX_FEE \
   MAX_SEGMENT_COUNT
 ```
 
 #### Deploy Protocol
 
 ```sh
-forge script script/DeployProtocol.s.sol \
+forge script script/deploy/DeployProtocol.s.sol \
   --broadcast \
   --rpc-url goerli \
-  --sig "run(uint256,uint256)" \
-  MAX_FEE
+  --sig "run(address,uint256,uint256)" \
+  ADMIN_ADDRESS \
+  MAX_FEE \
   MAX_SEGMENT_COUNT
 ```
 
 #### Deploy Test Asset
 
 ```sh
-forge script script/DeployTestAsset.s.sol \
+forge script script/deploy/DeployTestAsset.s.sol \
   --broadcast \
   --rpc-url goerli
 ```

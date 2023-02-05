@@ -7,10 +7,10 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
-import { Common } from "./helpers/Common.s.sol";
+import { BaseScript } from "../shared/Base.s.sol";
 
 /// @notice Deploys the {SablierV2LockupPro} contract.
-contract DeployLockupPro is Script, Common {
+contract DeployLockupPro is Script, BaseScript {
     function run(
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
