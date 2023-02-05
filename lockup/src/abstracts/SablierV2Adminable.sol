@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.18;
 
 import { ISablierV2Adminable } from "../interfaces/ISablierV2Adminable.sol";
 import { Errors } from "../libraries/Errors.sol";
