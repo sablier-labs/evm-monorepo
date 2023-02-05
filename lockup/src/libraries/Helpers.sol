@@ -65,9 +65,9 @@ library Helpers {
             revert Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime(range.start, range.cliff);
         }
 
-        // Checks: the cliff time is less than or equal to the end time.
-        if (range.cliff > range.end) {
-            revert Errors.SablierV2LockupLinear_CliffTimeGreaterThanEndTime(range.cliff, range.end);
+        // Checks: the cliff time is strictly less than the end time.
+        if (range.cliff >= range.end) {
+            revert Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime(range.cliff, range.end);
         }
     }
 
@@ -137,9 +137,12 @@ library Helpers {
         uint128 depositAmount,
         uint40 startTime
     ) private pure {
-        // Check that the first milestone is greater than or equal to the start time.
-        if (startTime > segments[0].milestone) {
-            revert Errors.SablierV2LockupPro_StartTimeGreaterThanFirstMilestone(startTime, segments[0].milestone);
+        // Checks: the start time is strictly less than the first segment milestone.
+        if (startTime >= segments[0].milestone) {
+            revert Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone(
+                startTime,
+                segments[0].milestone
+            );
         }
 
         // Pre-declare the variables needed in the for loop.

@@ -13,16 +13,16 @@
 [submodule "lib/prb-contracts"]
   branch = "main"
   path = "lib/prb-contracts"
-  url = "https://github.com/paulrberg/prb-contracts"
+  url = "https://github.com/PaulRBerg/prb-contracts"
 [submodule "lib/prb-math"]
   branch = "main"
   path = "lib/prb-math"
-  url = "https://github.com/paulrberg/prb-math"
+  url = "https://github.com/PaulRBerg/prb-math"
 [submodule "lib/prb-test"]
   branch = "main"
   path = "lib/prb-test"
-  url = "https://github.com/paulrberg/prb-test"
+  url = "https://github.com/PaulRBerg/prb-test"
 [submodule "lib/solarray"]
   branch = "master"
   path = "lib/solarray"
-  url = "https://github.com/paulrberg/solarray"
+  url = "https://github.com/PaulRBerg/solarray"

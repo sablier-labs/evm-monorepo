@@ -69,7 +69,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         // Expect an error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeGreaterThanEndTime.selector,
+                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector,
                 cliffTime,
                 endTime
             )
@@ -87,7 +87,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
     function testFuzz_CreateWithDurations(LockupLinear.Durations memory durations) external {
         durations.total = boundUint40(durations.total, 0, UINT40_MAX - getBlockTimestamp());
-        vm.assume(durations.cliff <= durations.total);
+        vm.assume(durations.cliff < durations.total);
 
         // Make the sender the funder in this test.
         address funder = defaultParams.createWithDurations.sender;

@@ -56,7 +56,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     ) external recipientNonZeroAddress depositAmountNotZero segmentCountNotZero segmentCountNotTooHigh {
         amount0 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
         amount1 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
-        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        LockupPro.Segment[] memory segments = DEFAULT_SEGMENTS;
         segments[0].amount = amount0;
         segments[1].amount = amount1;
         vm.expectRevert(stdError.arithmeticError);
@@ -64,6 +64,40 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     }
 
     modifier segmentAmountsSumDoesNotOverflow() {
+        _;
+    }
+
+    /// @dev it should revert.
+    function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone(
+        uint40 firstMilestone
+    )
+        external
+        recipientNonZeroAddress
+        depositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+    {
+        firstMilestone = boundUint40(firstMilestone, 0, DEFAULT_START_TIME);
+
+        // Change the milestone of the first segment.
+        LockupPro.Segment[] memory segments = DEFAULT_SEGMENTS;
+        segments[0].milestone = firstMilestone;
+
+        // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone.selector,
+                DEFAULT_START_TIME,
+                segments[0].milestone
+            )
+        );
+
+        // Create the stream.
+        createDefaultStreamWithSegments(segments);
+    }
+
+    modifier startTimeLessThanFirstSegmentMilestone() {
         _;
     }
 
@@ -82,6 +116,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
+        startTimeLessThanFirstSegmentMilestone
     {
         depositDiff = boundUint128(depositDiff, 100, DEFAULT_TOTAL_AMOUNT);
 
@@ -131,6 +166,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
+        startTimeLessThanFirstSegmentMilestone
         depositAmountEqualToSegmentAmountsSum
     {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
@@ -161,6 +197,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
+        startTimeLessThanFirstSegmentMilestone
         depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
     {
@@ -238,6 +275,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
         segmentMilestonesOrdered
+        startTimeLessThanFirstSegmentMilestone
         depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
@@ -247,8 +285,12 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(params.totalAmount != 0);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        params.startTime = boundUint40(params.startTime, 0, defaultParams.createWithMilestones.segments[0].milestone);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
+        params.startTime = boundUint40(
+            params.startTime,
+            0,
+            defaultParams.createWithMilestones.segments[0].milestone - 1
+        );
 
         // Set the fuzzed protocol fee.
         changePrank({ who: users.admin });

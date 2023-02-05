@@ -34,13 +34,13 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint256 deltaCount
     ) external loopCalculationsDoNotOverflowBlockGasLimit deltasNotZero {
         deltaCount = bound(deltaCount, 1, 1_000);
-        vm.assume(deltaCount != defaultParams.createWithDeltas.segments.length);
+        vm.assume(deltaCount != DEFAULT_SEGMENTS.length);
 
         uint40[] memory deltas = new uint40[](deltaCount);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupPro_SegmentArrayCountsNotEqual.selector,
-                defaultParams.createWithDeltas.segments.length,
+                DEFAULT_SEGMENTS.length,
                 deltaCount
             )
         );
@@ -67,14 +67,14 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         segmentArrayCountsEqual
         milestonesCalculationsDoNotOverflow
     {
-        delta0 = boundUint40(delta0, 0, 100);
+        delta0 = boundUint40(delta0, 1, 100);
         delta1 = boundUint40(delta1, 1, UINT40_MAX - getBlockTimestamp() - delta0);
 
         // Create the deltas.
         uint40[] memory deltas = Solarray.uint40s(delta0, delta1);
 
         // Adjust the segment milestones to match the fuzzed deltas.
-        LockupPro.Segment[] memory segments = defaultParams.createWithDeltas.segments;
+        LockupPro.Segment[] memory segments = DEFAULT_SEGMENTS;
         segments[0].milestone = getBlockTimestamp() + delta0;
         segments[1].milestone = segments[0].milestone + delta1;
 

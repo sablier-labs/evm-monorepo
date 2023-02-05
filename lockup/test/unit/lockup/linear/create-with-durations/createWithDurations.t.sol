@@ -67,10 +67,10 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
             endTime = startTime + durations.total;
         }
 
-        // Expect a {CliffTimeGreaterThanEndTime} error.
+        // Expect a {CliffTimeNotLessThanEndTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeGreaterThanEndTime.selector,
+                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector,
                 cliffTime,
                 endTime
             )

@@ -95,6 +95,36 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should revert.
+    function test_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone()
+        external
+        recipientNonZeroAddress
+        depositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+    {
+        // Change the milestone of the first segment.
+        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        segments[0].milestone = DEFAULT_START_TIME;
+
+        // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone.selector,
+                DEFAULT_START_TIME,
+                segments[0].milestone
+            )
+        );
+
+        // Create the stream.
+        createDefaultStreamWithSegments(segments);
+    }
+
+    modifier startTimeLessThanFirstSegmentMilestone() {
+        _;
+    }
+
+    /// @dev it should revert.
     function test_RevertWhen_SegmentMilestonesNotOrdered()
         external
         recipientNonZeroAddress
@@ -102,6 +132,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
+        startTimeLessThanFirstSegmentMilestone
     {
         // Swap the segment milestones.
         LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
@@ -134,6 +165,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
+        startTimeLessThanFirstSegmentMilestone
         segmentMilestonesOrdered
     {
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
@@ -179,7 +211,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
+        startTimeLessThanFirstSegmentMilestone
         segmentMilestonesOrdered
+        startTimeLessThanFirstSegmentMilestone
         depositAmountEqualToSegmentAmountsSum
     {
         UD60x18 protocolFee = DEFAULT_MAX_FEE.add(ud(1));
@@ -207,7 +241,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
+        startTimeLessThanFirstSegmentMilestone
         segmentMilestonesOrdered
+        startTimeLessThanFirstSegmentMilestone
         depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
     {
@@ -239,7 +275,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
+        startTimeLessThanFirstSegmentMilestone
         segmentMilestonesOrdered
+        startTimeLessThanFirstSegmentMilestone
         depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
@@ -278,7 +316,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
+        startTimeLessThanFirstSegmentMilestone
         segmentMilestonesOrdered
+        startTimeLessThanFirstSegmentMilestone
         depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh
@@ -300,7 +340,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentCountNotZero
         segmentCountNotTooHigh
         segmentAmountsSumDoesNotOverflow
+        startTimeLessThanFirstSegmentMilestone
         segmentMilestonesOrdered
+        startTimeLessThanFirstSegmentMilestone
         depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
         brokerFeeNotTooHigh

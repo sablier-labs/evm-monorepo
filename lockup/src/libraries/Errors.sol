@@ -89,8 +89,9 @@ library Errors {
                               SABLIER-V2-LOCKUP-LINEAR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when attempting to create a stream with a cliff time greater than the end time.
-    error SablierV2LockupLinear_CliffTimeGreaterThanEndTime(uint40 cliffTime, uint40 endTime);
+    /// @notice Emitted when attempting to create a stream with a cliff time that is not strictly less than the
+    /// end time.
+    error SablierV2LockupLinear_CliffTimeNotLessThanEndTime(uint40 cliffTime, uint40 endTime);
 
     /// @notice Emitted when attempting to create a stream with a start time greater than the cliff time.
     error SablierV2LockupLinear_StartTimeGreaterThanCliffTime(uint40 startTime, uint40 cliffTime);
@@ -120,6 +121,7 @@ library Errors {
         uint40 currentMilestone
     );
 
-    /// @notice Emitted when attempting to create a stream with the start time greater than the first segment milestone.
-    error SablierV2LockupPro_StartTimeGreaterThanFirstMilestone(uint40 startTime, uint40 segmentMilestone);
+    /// @notice Emitted when attempting to create a stream with a start time that is not strictly less than the first
+    /// segment milestone.
+    error SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone(uint40 startTime, uint40 firstSegmentMilestone);
 }
