@@ -182,6 +182,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
+    /// - Multiple values for the cliff time and the stop time.
     /// - Multiple values for the broker fee, including zero.
     /// - Multiple values for the protocol fee, including zero.
     function testFuzz_CreateWithRange(

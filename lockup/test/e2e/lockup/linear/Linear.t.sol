@@ -104,6 +104,7 @@ abstract contract Linear_E2e_Test is E2eTest {
     /// - Multiple values for the total amount.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
+    /// - Multiple values for the cliff time and the stop time.
     /// - Multiple values for the broker fee, including zero.
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.

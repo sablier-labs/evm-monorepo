@@ -75,7 +75,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeGreaterThanFirstSegmentMilestone()
+    function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeNotLessThanFirstSegmentMilestone()
         external
         loopCalculationsDoNotOverflowBlockGasLimit
         deltasNotZero
