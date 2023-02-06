@@ -348,7 +348,7 @@ __metadata:
     husky: ^8.0.2
     lint-staged: ^12.5.0
     prettier: ^2.8.1
-    prettier-plugin-solidity: ^1.1.0
+    prettier-plugin-solidity: ^1.1.2
     rimraf: ^3.0.2
     solhint: ^3.3.7
     solhint-plugin-prettier: ^0.0.5
@@ -364,12 +364,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solidity-parser/parser@npm:^0.14.5":
-  version: 0.14.5
-  resolution: "@solidity-parser/parser@npm:0.14.5"
+"@solidity-parser/parser@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@solidity-parser/parser@npm:0.15.0"
   dependencies:
     antlr4ts: ^0.5.0-alpha.4
-  checksum: 9e85a0d4f8a05a11db6022444b70b2f353e2358467b1cce44cdda703ae1e3c7337e1b8cbc2eec8e14a8f34f9c60b42f325e5fe9b3c934cc980e35091e292d7ee
+  checksum: 19c3a4b0778020c2b73893d19844258dc15eddf2c4959f21ac583fa101a159a859b749b58a4a7af52ccc0daa0eb6fb2b51fdb6e6b4c5d9082e4f06d53c49d04b
   languageName: node
   linkType: hard
 
@@ -1295,13 +1295,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"emoji-regex@npm:^10.2.1":
-  version: 10.2.1
-  resolution: "emoji-regex@npm:10.2.1"
-  checksum: 1aa2d16881c56531fdfc03d0b36f5c2b6221cc4097499a5665b88b711dc3fb4d5b8804f0ca6f00c56e5dcf89bac75f0487eee85da1da77df3a33accc6ecbe426
-  languageName: node
-  linkType: hard
-
 "emoji-regex@npm:^7.0.1":
   version: 7.0.3
   resolution: "emoji-regex@npm:7.0.3"
@@ -1343,13 +1336,6 @@ __metadata:
   version: 1.0.5
   resolution: "escape-string-regexp@npm:1.0.5"
   checksum: 6092fda75c63b110c706b6a9bfde8a612ad595b628f0bd2147eea1d3406723020810e591effc7db1da91d80a71a737a313567c5abb3813e8d9c71f4aa595b410
-  languageName: node
-  linkType: hard
-
-"escape-string-regexp@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "escape-string-regexp@npm:4.0.0"
-  checksum: 98b48897d93060f2322108bf29db0feba7dd774be96cd069458d1453347b25ce8682ecc39859d4bca2203cc0ab19c237bcc71755eff49a0f8d90beadeeba5cc5
   languageName: node
   linkType: hard
 
@@ -2920,19 +2906,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-solidity@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "prettier-plugin-solidity@npm:1.1.0"
+"prettier-plugin-solidity@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "prettier-plugin-solidity@npm:1.1.2"
   dependencies:
-    "@solidity-parser/parser": ^0.14.5
-    emoji-regex: ^10.2.1
-    escape-string-regexp: ^4.0.0
+    "@solidity-parser/parser": ^0.15.0
     semver: ^7.3.8
     solidity-comments-extractor: ^0.0.7
-    string-width: ^4.2.3
   peerDependencies:
-    prettier: ^2.3.0
-  checksum: 85ac145e7deffe9749e05270e0271d7028fd36dd04c255d7709182845e2a7dfe54ac5bc90beea18c1879c2c30c1a01a1df0e63040a3a548cef1549a8339c841e
+    prettier: ">=2.3.0 || >=3.0.0-alpha.0"
+  checksum: 1aabeb4876f64eb083f2dcb3f7c0c13702cddd960fcc64395a8f5fa00f32d7432b265a68ca1f8207a1a023d26c3e2b7402179d68f85802694442a06fdc744b5b
   languageName: node
   linkType: hard
 
