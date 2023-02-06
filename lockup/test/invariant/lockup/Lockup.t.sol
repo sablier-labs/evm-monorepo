@@ -30,7 +30,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         // Deploy the lockupHandlerStorage.
         lockupHandlerStorage = new LockupHandlerStorage();
 
-        // Exclude the lockup handler store for being the `msg.sender`.
+        // Exclude the lockup handler store from being the `msg.sender`.
         excludeSender(address(lockupHandlerStorage));
     }
 

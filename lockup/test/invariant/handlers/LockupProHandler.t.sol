@@ -15,6 +15,6 @@ contract LockupProHandler is LockupHandler {
     constructor(
         IERC20 asset_,
         ISablierV2LockupPro pro_,
-        LockupHandlerStorage _storage_
-    ) LockupHandler(asset_, pro_, _storage_) {}
+        LockupHandlerStorage store_
+    ) LockupHandler(asset_, pro_, store_) {}
 }

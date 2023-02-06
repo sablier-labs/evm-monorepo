@@ -18,7 +18,7 @@ abstract contract LockupHandler is BaseHandler {
 
     IERC20 public asset;
     ISablierV2Lockup public lockup;
-    LockupHandlerStorage public _storage;
+    LockupHandlerStorage public store;
 
     /*//////////////////////////////////////////////////////////////////////////
                               PRIVATE TEST VARIABLES
@@ -32,10 +32,10 @@ abstract contract LockupHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, ISablierV2Lockup lockup_, LockupHandlerStorage _storage_) {
+    constructor(IERC20 asset_, ISablierV2Lockup lockup_, LockupHandlerStorage store_) {
         asset = asset_;
         lockup = lockup_;
-        _storage = _storage_;
+        store = store_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -50,24 +50,24 @@ abstract contract LockupHandler is BaseHandler {
     }
 
     modifier useFuzzedStreamRecipient(uint256 streamIndexSeed) {
-        uint256 lastStreamId = _storage.lastStreamId();
+        uint256 lastStreamId = store.lastStreamId();
         if (lastStreamId == 0) {
             return;
         }
-        currentStreamId = _storage.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
-        currentRecipient = _storage.streamIdsToRecipients(currentStreamId);
+        currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
+        currentRecipient = store.streamIdsToRecipients(currentStreamId);
         vm.startPrank(currentRecipient);
         _;
         vm.stopPrank();
     }
 
     modifier useFuzzedStreamSender(uint256 streamIndexSeed) {
-        uint256 lastStreamId = _storage.lastStreamId();
+        uint256 lastStreamId = store.lastStreamId();
         if (lastStreamId == 0) {
             return;
         }
-        currentStreamId = _storage.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
-        currentSender = _storage.streamIdsToSenders(currentStreamId);
+        currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
+        currentSender = store.streamIdsToSenders(currentStreamId);
         vm.startPrank(currentSender);
         _;
         vm.stopPrank();
@@ -93,7 +93,7 @@ abstract contract LockupHandler is BaseHandler {
         lockup.burn(currentStreamId);
 
         // Set the recipient associated with this stream to the zero address.
-        _storage.updateRecipient(currentStreamId, address(0));
+        store.updateRecipient(currentStreamId, address(0));
     }
 
     function cancel(uint256 streamIndexSeed) external instrument("cancel") useFuzzedStreamSender(streamIndexSeed) {
@@ -106,7 +106,7 @@ abstract contract LockupHandler is BaseHandler {
         // Record the returned amount by adding it to the ghost variable `returnedAmountsSum`. This is needed to
         // check invariants against the contract's balance.
         uint128 returnedAmount = lockup.returnableAmountOf(currentStreamId);
-        _storage.addReturnedAmount(returnedAmount);
+        store.addReturnedAmount(returnedAmount);
 
         // Cancel the stream.
         lockup.cancel(currentStreamId);
@@ -210,6 +210,6 @@ abstract contract LockupHandler is BaseHandler {
         lockup.transferFrom({ from: currentRecipient, to: newRecipient, tokenId: currentStreamId });
 
         // Update the recipient associated with this stream id.
-        _storage.updateRecipient(currentStreamId, newRecipient);
+        store.updateRecipient(currentStreamId, newRecipient);
     }
 }

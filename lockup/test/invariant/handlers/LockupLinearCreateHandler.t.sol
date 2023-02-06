@@ -24,16 +24,16 @@ contract LockupLinearCreateHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 public asset;
-    LockupHandlerStorage public _storage;
+    LockupHandlerStorage public store;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, ISablierV2LockupLinear linear_, LockupHandlerStorage _storage_) {
+    constructor(IERC20 asset_, ISablierV2LockupLinear linear_, LockupHandlerStorage store_) {
         asset = asset_;
         linear = linear_;
-        _storage = _storage_;
+        store = store_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // We don't want to fuzz more than a certain number of streams.
-        if (_storage.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -95,7 +95,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         });
 
         // Store the stream id.
-        _storage.pushStreamId(streamId, params.sender, params.recipient);
+        store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     struct CreateWithRangeParams {
@@ -117,7 +117,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // We don't want to fuzz more than a certain number of streams.
-        if (_storage.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -144,6 +144,6 @@ contract LockupLinearCreateHandler is BaseHandler {
         });
 
         // Store the stream id.
-        _storage.pushStreamId(streamId, params.sender, params.recipient);
+        store.pushStreamId(streamId, params.sender, params.recipient);
     }
 }

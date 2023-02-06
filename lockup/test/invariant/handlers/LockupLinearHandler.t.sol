@@ -15,6 +15,6 @@ contract LockupLinearHandler is LockupHandler {
     constructor(
         IERC20 asset_,
         ISablierV2LockupLinear linear_,
-        LockupHandlerStorage _storage_
-    ) LockupHandler(asset_, linear_, _storage_) {}
+        LockupHandlerStorage store_
+    ) LockupHandler(asset_, linear_, store_) {}
 }

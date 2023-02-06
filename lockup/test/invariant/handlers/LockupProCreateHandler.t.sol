@@ -27,7 +27,7 @@ contract LockupProCreateHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 public asset;
-    LockupHandlerStorage public _storage;
+    LockupHandlerStorage public store;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -37,12 +37,12 @@ contract LockupProCreateHandler is BaseHandler {
         IERC20 asset_,
         ISablierV2Comptroller comptroller_,
         ISablierV2LockupPro pro_,
-        LockupHandlerStorage _storage_
+        LockupHandlerStorage store_
     ) {
         asset = asset_;
         comptroller = comptroller_;
         pro = pro_;
-        _storage = _storage_;
+        store = store_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ contract LockupProCreateHandler is BaseHandler {
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // We don't want to fuzz more than a certain number of streams.
-        if (_storage.lastStreamId() > MAX_STREAM_COUNT) {
+        if (store.lastStreamId() > MAX_STREAM_COUNT) {
             return;
         }
 
@@ -129,7 +129,7 @@ contract LockupProCreateHandler is BaseHandler {
         });
 
         // Store the stream id.
-        _storage.pushStreamId(vars.streamId, params.sender, params.recipient);
+        store.pushStreamId(vars.streamId, params.sender, params.recipient);
     }
 
     struct CreateWithMilestonesParams {
@@ -156,7 +156,7 @@ contract LockupProCreateHandler is BaseHandler {
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // We don't want to fuzz more than a certain number of streams.
-        if (_storage.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -195,6 +195,6 @@ contract LockupProCreateHandler is BaseHandler {
         });
 
         // Store the stream id.
-        _storage.pushStreamId(vars.streamId, params.sender, params.recipient);
+        store.pushStreamId(vars.streamId, params.sender, params.recipient);
     }
 }

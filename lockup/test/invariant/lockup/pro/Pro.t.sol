@@ -30,12 +30,12 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
         Lockup_Invariant_Test.setUp();
 
         // Deploy the pro contract handlers.
-        proHandler = new LockupProHandler({ asset_: DEFAULT_ASSET, pro_: pro, _storage_: lockupHandlerStorage });
+        proHandler = new LockupProHandler({ asset_: DEFAULT_ASSET, pro_: pro, store_: lockupHandlerStorage });
         proCreateHandler = new LockupProCreateHandler({
             asset_: DEFAULT_ASSET,
             comptroller_: comptroller,
             pro_: pro,
-            _storage_: lockupHandlerStorage
+            store_: lockupHandlerStorage
         });
 
         // Cast the pro contract as {SablierV2Lockup} and the pro handler as {LockupHandler}.
@@ -55,7 +55,7 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
         targetContract(address(proHandler));
         targetContract(address(proCreateHandler));
 
-        // Exclude the pro handlers for being the `msg.sender`.
+        // Exclude the pro handlers from being the `msg.sender`.
         excludeSender(address(flashLoanHandler));
         excludeSender(address(proHandler));
         excludeSender(address(proCreateHandler));

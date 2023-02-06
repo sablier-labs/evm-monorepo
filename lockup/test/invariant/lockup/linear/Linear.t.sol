@@ -33,12 +33,12 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         linearHandler = new LockupLinearHandler({
             asset_: DEFAULT_ASSET,
             linear_: linear,
-            _storage_: lockupHandlerStorage
+            store_: lockupHandlerStorage
         });
         linearCreateHandler = new LockupLinearCreateHandler({
             asset_: DEFAULT_ASSET,
             linear_: linear,
-            _storage_: lockupHandlerStorage
+            store_: lockupHandlerStorage
         });
 
         // Cast the linear contract as {SablierV2Lockup} and the linear handler as {LockupHandler}.
@@ -58,7 +58,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         targetContract(address(linearHandler));
         targetContract(address(linearCreateHandler));
 
-        // Exclude the linear handlers for being the `msg.sender`.
+        // Exclude the linear handlers from being the `msg.sender`.
         excludeSender(address(flashLoanHandler));
         excludeSender(address(linearHandler));
         excludeSender(address(linearCreateHandler));
