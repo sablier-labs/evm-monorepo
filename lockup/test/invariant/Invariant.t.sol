@@ -24,8 +24,10 @@ abstract contract Invariant_Test is Base_Test, ForgeInvariantTest {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Deploy the comptroller and its handler.
-        comptroller = new SablierV2Comptroller({ initialAdmin: users.admin });
+        // Deploy the entire protocol.
+        deployProtocol();
+
+        // Deploy the comptroller handler.
         comptrollerHandler = new ComptrollerHandler(comptroller);
         vm.prank({ msgSender: users.admin });
         comptroller.transferAdmin(address(comptrollerHandler));
@@ -35,12 +37,13 @@ abstract contract Invariant_Test is Base_Test, ForgeInvariantTest {
 
         // Exclude the comptroller, linear and pro for being the `msg.sender`.
         excludeSender(address(comptroller));
+        excludeSender(address(linear));
+        excludeSender(address(pro));
 
         // Exclude the comptroller handler for being the `msg.sender`.
         excludeSender(address(comptrollerHandler));
 
-        // Label the base contracts.
-        vm.label({ account: address(comptroller), newLabel: "Comptroller" });
+        // Label the comptroller handler.
         vm.label({ account: address(comptrollerHandler), newLabel: "ComptrollerHandler" });
     }
 }

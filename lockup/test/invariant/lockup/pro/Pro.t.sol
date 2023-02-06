@@ -29,13 +29,7 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
     function setUp() public virtual override {
         Lockup_Invariant_Test.setUp();
 
-        // Deploy the pro contract and its handlers.
-        pro = new SablierV2LockupPro({
-            initialAdmin: users.admin,
-            initialComptroller: comptroller,
-            maxFee: DEFAULT_MAX_FEE,
-            maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
-        });
+        // Deploy the pro contract handlers.
         proHandler = new LockupProHandler({ asset_: DEFAULT_ASSET, pro_: pro, _storage_: lockupHandlerStorage });
         proCreateHandler = new LockupProCreateHandler({
             asset_: DEFAULT_ASSET,
@@ -66,8 +60,7 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
         excludeSender(address(proHandler));
         excludeSender(address(proCreateHandler));
 
-        // Label the pro contract and its handler.
-        vm.label({ account: address(pro), newLabel: "LockupPro" });
+        // Label the pro handler.
         vm.label({ account: address(lockupHandler), newLabel: "LockupProHandler" });
     }
 

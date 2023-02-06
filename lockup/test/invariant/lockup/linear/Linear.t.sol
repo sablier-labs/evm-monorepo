@@ -29,12 +29,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
     function setUp() public virtual override {
         Lockup_Invariant_Test.setUp();
 
-        // Deploy the linear contract and its handlers.
-        linear = new SablierV2LockupLinear({
-            initialAdmin: users.admin,
-            initialComptroller: comptroller,
-            maxFee: DEFAULT_MAX_FEE
-        });
+        // Deploy the linear contract handlers.
         linearHandler = new LockupLinearHandler({
             asset_: DEFAULT_ASSET,
             linear_: linear,
@@ -63,15 +58,12 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         targetContract(address(linearHandler));
         targetContract(address(linearCreateHandler));
 
-        excludeSender(address(linear));
-
-        // Exclude the linear and the linear handlers for being the `msg.sender`.
+        // Exclude the linear handlers for being the `msg.sender`.
         excludeSender(address(flashLoanHandler));
         excludeSender(address(linearHandler));
         excludeSender(address(linearCreateHandler));
 
-        // Label the linear contract and its handler.
-        vm.label({ account: address(linear), newLabel: "LockupLinear" });
+        // Label the linear handler.
         vm.label({ account: address(linearHandler), newLabel: "LockupLinearHandler" });
     }
 
