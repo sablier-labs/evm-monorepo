@@ -6,7 +6,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
 
 import { LockupHandler } from "./LockupHandler.t.sol";
-import { LockupHandlerStore } from "./LockupHandlerStore.t.sol";
+import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
 /// @title LockupProHandler
 /// @dev This contract and not {SablierV2LockupPro} is exposed to Foundry for invariant testing. The point is
@@ -15,6 +15,6 @@ contract LockupProHandler is LockupHandler {
     constructor(
         IERC20 asset_,
         ISablierV2LockupPro pro_,
-        LockupHandlerStore store_
-    ) LockupHandler(asset_, pro_, store_) {}
+        LockupHandlerStorage _storage_
+    ) LockupHandler(asset_, pro_, _storage_) {}
 }

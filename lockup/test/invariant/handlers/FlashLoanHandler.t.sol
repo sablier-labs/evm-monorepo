@@ -8,7 +8,6 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 
-import { GoodFlashLoanReceiver } from "../../shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
 import { BaseHandler } from "./BaseHandler.t.sol";
 
 /// @title FlashLoanHandler
@@ -16,12 +15,11 @@ import { BaseHandler } from "./BaseHandler.t.sol";
 /// to bound and restrict the inputs that get passed to the real-world contract to avoid getting reverts.
 contract FlashLoanHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
-                               PUBLIC TEST CONTRACTS
+                                   TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 public asset;
-    ISablierV2Comptroller public comptroller;
-    SablierV2FlashLoan public flashLoan;
+    SablierV2FlashLoan public flashLoanContract;
     IERC3156FlashBorrower internal receiver;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -31,20 +29,20 @@ contract FlashLoanHandler is BaseHandler {
     constructor(
         IERC20 asset_,
         ISablierV2Comptroller comptroller_,
-        SablierV2FlashLoan flashLoan_,
+        SablierV2FlashLoan flashLoanContract_,
         IERC3156FlashBorrower receiver_
     ) {
         asset = asset_;
         comptroller = comptroller_;
-        flashLoan = flashLoan_;
-        receiver = receiver_;
+        flashLoanContract = flashLoanContract_;
+        receiver_ = receiver;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                SABLIER-V2-FLASH-LOAN
     //////////////////////////////////////////////////////////////////////////*/
 
-    function flashLoanFunction(uint128 amount) external instrument("flashLoan") {
+    function flashLoan(uint128 amount) external instrument("flashLoan") {
         // Only supported ERC-20 assets can be flash loaned.
         bool isFlashLoanable = comptroller.isFlashLoanable(asset);
         if (!isFlashLoanable) {
@@ -52,26 +50,23 @@ contract FlashLoanHandler is BaseHandler {
         }
 
         // The flash fee must be less than or equal to type(uint128).max
-        uint256 fee = flashLoan.flashFee(address(asset), amount);
+        uint256 fee = flashLoanContract.flashFee(address(asset), amount);
         if (fee > type(uint128).max) {
             return;
         }
 
         // Mint the flash loan amount to the contract.
-        deal({ token: address(asset), to: address(flashLoan), give: amount });
+        deal({ token: address(asset), to: address(flashLoanContract), give: amount });
 
         // Mint the flash fee to the receiver so that they can repay the flash loan.
         deal({ token: address(asset), to: address(receiver), give: fee });
 
         // Execute the flash loan.
-        bool response = flashLoan.flashLoan({
+        flashLoanContract.flashLoan({
             receiver: receiver,
             asset: address(asset),
             amount: amount,
             data: bytes("Some Data")
         });
-
-        // Silence the compiler warning.
-        response;
     }
 }

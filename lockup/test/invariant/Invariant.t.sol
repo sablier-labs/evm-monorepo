@@ -5,7 +5,6 @@ import { InvariantTest as ForgeInvariantTest } from "forge-std/InvariantTest.sol
 
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
-import { GoodFlashLoanReceiver } from "../shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
 import { Base_Test } from "../Base.t.sol";
 import { ComptrollerHandler } from "./handlers/ComptrollerHandler.t.sol";
 
@@ -33,6 +32,12 @@ abstract contract Invariant_Test is Base_Test, ForgeInvariantTest {
 
         // Target only the comptroller handler for invariant testing (to avoid getting reverts).
         targetContract(address(comptrollerHandler));
+
+        // Exclude the comptroller, linear and pro for being the `msg.sender`.
+        excludeSender(address(comptroller));
+
+        // Exclude the comptroller handler for being the `msg.sender`.
+        excludeSender(address(comptrollerHandler));
 
         // Label the base contracts.
         vm.label({ account: address(comptroller), newLabel: "Comptroller" });

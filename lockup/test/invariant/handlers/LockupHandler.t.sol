@@ -7,18 +7,18 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Broker, Lockup } from "src/types/DataTypes.sol";
 
 import { BaseHandler } from "./BaseHandler.t.sol";
-import { LockupHandlerStore } from "./LockupHandlerStore.t.sol";
+import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
 /// @title LockupHandler
 /// @dev Common handler logic between {SablierV2LockupLinear} and {SablierV2LockupPro}.
 abstract contract LockupHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
-                               PUBLIC TEST CONTRACTS
+                                   TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 public asset;
     ISablierV2Lockup public lockup;
-    LockupHandlerStore public store;
+    LockupHandlerStorage public _storage;
 
     /*//////////////////////////////////////////////////////////////////////////
                               PRIVATE TEST VARIABLES
@@ -32,10 +32,10 @@ abstract contract LockupHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, ISablierV2Lockup lockup_, LockupHandlerStore store_) {
+    constructor(IERC20 asset_, ISablierV2Lockup lockup_, LockupHandlerStorage _storage_) {
         asset = asset_;
         lockup = lockup_;
-        store = store_;
+        _storage = _storage_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -50,24 +50,24 @@ abstract contract LockupHandler is BaseHandler {
     }
 
     modifier useFuzzedStreamRecipient(uint256 streamIndexSeed) {
-        uint256 lastStreamId = store.lastStreamId();
+        uint256 lastStreamId = _storage.lastStreamId();
         if (lastStreamId == 0) {
             return;
         }
-        currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
-        currentRecipient = store.streamIdsToRecipients(currentStreamId);
+        currentStreamId = _storage.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
+        currentRecipient = _storage.streamIdsToRecipients(currentStreamId);
         vm.startPrank(currentRecipient);
         _;
         vm.stopPrank();
     }
 
     modifier useFuzzedStreamSender(uint256 streamIndexSeed) {
-        uint256 lastStreamId = store.lastStreamId();
+        uint256 lastStreamId = _storage.lastStreamId();
         if (lastStreamId == 0) {
             return;
         }
-        currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
-        currentSender = store.streamIdsToSenders(currentStreamId);
+        currentStreamId = _storage.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
+        currentSender = _storage.streamIdsToSenders(currentStreamId);
         vm.startPrank(currentSender);
         _;
         vm.stopPrank();
@@ -93,7 +93,7 @@ abstract contract LockupHandler is BaseHandler {
         lockup.burn(currentStreamId);
 
         // Set the recipient associated with this stream to the zero address.
-        store.updateRecipient(currentStreamId, address(0));
+        _storage.updateRecipient(currentStreamId, address(0));
     }
 
     function cancel(uint256 streamIndexSeed) external instrument("cancel") useFuzzedStreamSender(streamIndexSeed) {
@@ -106,7 +106,7 @@ abstract contract LockupHandler is BaseHandler {
         // Record the returned amount by adding it to the ghost variable `returnedAmountsSum`. This is needed to
         // check invariants against the contract's balance.
         uint128 returnedAmount = lockup.returnableAmountOf(currentStreamId);
-        store.addReturnedAmount(returnedAmount);
+        _storage.addReturnedAmount(returnedAmount);
 
         // Cancel the stream.
         lockup.cancel(currentStreamId);
@@ -210,6 +210,6 @@ abstract contract LockupHandler is BaseHandler {
         lockup.transferFrom({ from: currentRecipient, to: newRecipient, tokenId: currentStreamId });
 
         // Update the recipient associated with this stream id.
-        store.updateRecipient(currentStreamId, newRecipient);
+        _storage.updateRecipient(currentStreamId, newRecipient);
     }
 }

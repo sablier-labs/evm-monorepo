@@ -4,7 +4,6 @@ pragma solidity >=0.8.13 <0.9.0;
 import { console2 } from "forge-std/console2.sol";
 
 import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
-import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
@@ -36,11 +35,15 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
             initialComptroller: comptroller,
             maxFee: DEFAULT_MAX_FEE
         });
-        linearHandler = new LockupLinearHandler({ asset_: DEFAULT_ASSET, linear_: linear, store_: lockupHandlerStore });
+        linearHandler = new LockupLinearHandler({
+            asset_: DEFAULT_ASSET,
+            linear_: linear,
+            _storage_: lockupHandlerStorage
+        });
         linearCreateHandler = new LockupLinearCreateHandler({
             asset_: DEFAULT_ASSET,
             linear_: linear,
-            store_: lockupHandlerStore
+            _storage_: lockupHandlerStorage
         });
 
         // Cast the linear contract as {SablierV2Lockup} and the linear handler as {LockupHandler}.
@@ -51,7 +54,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         flashLoanHandler = new FlashLoanHandler({
             asset_: DEFAULT_ASSET,
             comptroller_: comptroller,
-            flashLoan_: SablierV2FlashLoan(address(linear)),
+            flashLoanContract_: SablierV2FlashLoan(address(linear)),
             receiver_: goodFlashLoanReceiver
         });
 
@@ -59,6 +62,13 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         targetContract(address(flashLoanHandler));
         targetContract(address(linearHandler));
         targetContract(address(linearCreateHandler));
+
+        excludeSender(address(linear));
+
+        // Exclude the linear and the linear handlers for being the `msg.sender`.
+        excludeSender(address(flashLoanHandler));
+        excludeSender(address(linearHandler));
+        excludeSender(address(linearCreateHandler));
 
         // Label the linear contract and its handler.
         vm.label({ account: address(linear), newLabel: "LockupLinear" });
@@ -72,16 +82,16 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
     // prettier-ignore
     // solhint-disable max-line-length
     function invariant_NullStatus() external {
-        uint256 lastStreamId = lockupHandlerStore.lastStreamId();
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId;) {
-            uint256 streamId = lockupHandlerStore.streamIds(i);
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
             LockupLinear.Stream memory actualStream = linear.getStream(streamId);
             address actualRecipient = lockup.getRecipient(streamId);
 
             // If the stream is null, it should contain only zero values.
             if (lockup.getStatus(streamId) == Lockup.Status.NULL) {
                 assertEq(actualStream.amounts.deposit, 0, "Invariant violated: stream null, deposit amount not zero");
-                assertEq( actualStream.amounts.withdrawn, 0, "Invariant violated: stream null, withdrawn amount not zero");
+                assertEq(actualStream.amounts.withdrawn, 0, "Invariant violated: stream null, withdrawn amount not zero");
                 assertEq(address(actualStream.asset), address(0), "Invariant violated: stream null, asset not zero address");
                 assertEq(actualStream.isCancelable, false, "Invariant violated: stream null, isCancelable not false");
                 assertEq(actualStream.range.cliff, 0, "Invariant violated: stream null, cliff time not zero");
@@ -102,9 +112,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
     }
 
     function invariant_CliffTimeGteStartTime() external {
-        uint256 lastStreamId = lockupHandlerStore.lastStreamId();
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ) {
-            uint256 streamId = lockupHandlerStore.streamIds(i);
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
             assertGte(
                 linear.getCliffTime(streamId),
                 linear.getStartTime(streamId),
@@ -116,11 +126,11 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         }
     }
 
-    function invariant_EndTimeGteCliffTime() external {
-        uint256 lastStreamId = lockupHandlerStore.lastStreamId();
+    function invariant_EndTimeGtCliffTime() external {
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ) {
-            uint256 streamId = lockupHandlerStore.streamIds(i);
-            assertGte(
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            assertGt(
                 linear.getEndTime(streamId),
                 linear.getCliffTime(streamId),
                 "Invariant violated: end time < cliff time"

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.13 <0.9.0;
 
-/// @title LockupHandlerStore
+/// @title LockupHandlerStorage
 /// @dev Storage contract for the lockup handler streams.
-contract LockupHandlerStore {
+contract LockupHandlerStorage {
     /*//////////////////////////////////////////////////////////////////////////
                                PUBLIC TEST VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -34,9 +34,5 @@ contract LockupHandlerStore {
 
     function updateRecipient(uint256 streamId, address newRecipient) external {
         streamIdsToRecipients[streamId] = newRecipient;
-    }
-
-    function updateSender(uint256 streamId, address newSender) external {
-        streamIdsToSenders[streamId] = newSender;
     }
 }

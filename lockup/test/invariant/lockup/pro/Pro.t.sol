@@ -4,7 +4,6 @@ pragma solidity >=0.8.13 <0.9.0;
 import { console2 } from "forge-std/console2.sol";
 
 import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
-import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 import { Lockup, LockupPro } from "src/types/DataTypes.sol";
 
@@ -37,12 +36,12 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
             maxFee: DEFAULT_MAX_FEE,
             maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
         });
-        proHandler = new LockupProHandler({ asset_: DEFAULT_ASSET, pro_: pro, store_: lockupHandlerStore });
+        proHandler = new LockupProHandler({ asset_: DEFAULT_ASSET, pro_: pro, _storage_: lockupHandlerStorage });
         proCreateHandler = new LockupProCreateHandler({
             asset_: DEFAULT_ASSET,
             comptroller_: comptroller,
             pro_: pro,
-            store_: lockupHandlerStore
+            _storage_: lockupHandlerStorage
         });
 
         // Cast the pro contract as {SablierV2Lockup} and the pro handler as {LockupHandler}.
@@ -53,7 +52,7 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
         flashLoanHandler = new FlashLoanHandler({
             asset_: DEFAULT_ASSET,
             comptroller_: comptroller,
-            flashLoan_: SablierV2FlashLoan(address(pro)),
+            flashLoanContract_: SablierV2FlashLoan(address(pro)),
             receiver_: goodFlashLoanReceiver
         });
 
@@ -61,6 +60,11 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
         targetContract(address(flashLoanHandler));
         targetContract(address(proHandler));
         targetContract(address(proCreateHandler));
+
+        // Exclude the pro handlers for being the `msg.sender`.
+        excludeSender(address(flashLoanHandler));
+        excludeSender(address(proHandler));
+        excludeSender(address(proCreateHandler));
 
         // Label the pro contract and its handler.
         vm.label({ account: address(pro), newLabel: "LockupPro" });
@@ -74,16 +78,16 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
     // prettier-ignore
     // solhint-disable max-line-length
     function invariant_NullStatus() external {
-        uint256 lastStreamId = lockupHandlerStore.lastStreamId();
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ) {
-            uint256 streamId = lockupHandlerStore.streamIds(i);
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
             LockupPro.Stream memory actualStream = pro.getStream(streamId);
             address actualRecipient = lockup.getRecipient(streamId);
 
             // If the stream is null, it should contain only zero values.
             if (lockup.getStatus(streamId) == Lockup.Status.NULL) {
                 assertEq(actualStream.amounts.deposit, 0, "Invariant violated: stream null, deposit amount not zero");
-                assertEq( actualStream.amounts.withdrawn, 0, "Invariant violated: stream null, withdrawn amount not zero");
+                assertEq(actualStream.amounts.withdrawn, 0, "Invariant violated: stream null, withdrawn amount not zero");
                 assertEq(address(actualStream.asset), address(0), "Invariant violated: stream null, asset not zero address");
                 assertEq(actualStream.range.end, 0, "Invariant violated: stream null, end time not zero");
                 assertEq(actualStream.range.start, 0, "Invariant violated: stream null, start time not zero");
@@ -105,9 +109,9 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
 
     function invariant_SegmentMilestonesOrdered() external {
         unchecked {
-            uint256 lastStreamId = lockupHandlerStore.lastStreamId();
+            uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
             for (uint256 i = 0; i < lastStreamId; ++i) {
-                uint256 streamId = lockupHandlerStore.streamIds(i);
+                uint256 streamId = lockupHandlerStorage.streamIds(i);
 
                 // If the stream is null, it doesn't have segments.
                 if (pro.getStatus(streamId) != Lockup.Status.NULL) {

@@ -66,8 +66,8 @@ abstract contract Base_Test is Assertions, Constants, Calculations, Utils, StdCh
     ISablierV2Comptroller internal comptroller;
     IERC20 internal dai = new ERC20("Dai Stablecoin", "DAI");
     ISablierV2LockupLinear internal linear;
-    NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
     ISablierV2LockupPro internal pro;
+    NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR

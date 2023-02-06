@@ -10,7 +10,7 @@ import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
 import { Broker, LockupPro } from "src/types/DataTypes.sol";
 
 import { BaseHandler } from "./BaseHandler.t.sol";
-import { LockupHandlerStore } from "./LockupHandlerStore.t.sol";
+import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
 /// @title LockupProCreateHandler
 /// @dev This contract is a complement of {LockupProHandler}. The goal is to bias the invariant calls
@@ -23,13 +23,11 @@ contract LockupProCreateHandler is BaseHandler {
     uint256 internal constant MAX_STREAM_COUNT = 100;
 
     /*//////////////////////////////////////////////////////////////////////////
-                               PUBLIC TEST CONTRACTS
+                                   TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 public asset;
-    ISablierV2Comptroller public comptroller;
-    ISablierV2LockupPro public pro;
-    LockupHandlerStore public store;
+    LockupHandlerStorage public _storage;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -39,12 +37,12 @@ contract LockupProCreateHandler is BaseHandler {
         IERC20 asset_,
         ISablierV2Comptroller comptroller_,
         ISablierV2LockupPro pro_,
-        LockupHandlerStore store_
+        LockupHandlerStorage _storage_
     ) {
         asset = asset_;
         comptroller = comptroller_;
         pro = pro_;
-        store = store_;
+        _storage = _storage_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -88,7 +86,7 @@ contract LockupProCreateHandler is BaseHandler {
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // We don't want to fuzz more than a certain number of streams.
-        if (store.lastStreamId() > MAX_STREAM_COUNT) {
+        if (_storage.lastStreamId() > MAX_STREAM_COUNT) {
             return;
         }
 
@@ -131,7 +129,7 @@ contract LockupProCreateHandler is BaseHandler {
         });
 
         // Store the stream id.
-        store.pushStreamId(vars.streamId, params.sender, params.recipient);
+        _storage.pushStreamId(vars.streamId, params.sender, params.recipient);
     }
 
     struct CreateWithMilestonesParams {
@@ -158,7 +156,7 @@ contract LockupProCreateHandler is BaseHandler {
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // We don't want to fuzz more than a certain number of streams.
-        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (_storage.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -197,6 +195,6 @@ contract LockupProCreateHandler is BaseHandler {
         });
 
         // Store the stream id.
-        store.pushStreamId(vars.streamId, params.sender, params.recipient);
+        _storage.pushStreamId(vars.streamId, params.sender, params.recipient);
     }
 }

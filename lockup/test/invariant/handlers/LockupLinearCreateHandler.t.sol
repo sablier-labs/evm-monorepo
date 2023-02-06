@@ -7,7 +7,7 @@ import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.so
 import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
 import { BaseHandler } from "./BaseHandler.t.sol";
-import { LockupHandlerStore } from "./LockupHandlerStore.t.sol";
+import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
 /// @title LockupLinearCreateHandler
 /// @dev This contract is a complement of {LockupLinearHandler}. The goal is to bias the invariant calls
@@ -20,21 +20,20 @@ contract LockupLinearCreateHandler is BaseHandler {
     uint256 internal constant MAX_STREAM_COUNT = 100;
 
     /*//////////////////////////////////////////////////////////////////////////
-                               PUBLIC TEST CONTRACTS
+                                   TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 public asset;
-    ISablierV2LockupLinear public linear;
-    LockupHandlerStore public store;
+    LockupHandlerStorage public _storage;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, ISablierV2LockupLinear linear_, LockupHandlerStore store_) {
+    constructor(IERC20 asset_, ISablierV2LockupLinear linear_, LockupHandlerStorage _storage_) {
         asset = asset_;
         linear = linear_;
-        store = store_;
+        _storage = _storage_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -60,10 +59,6 @@ contract LockupLinearCreateHandler is BaseHandler {
         uint128 totalAmount;
     }
 
-    struct CreateWithDurationsVars {
-        uint256 streamId;
-    }
-
     function createWithDurations(
         CreateWithDurationsParams memory params
     ) public instrument("createWithDurations") useNewSender(params.sender) {
@@ -73,7 +68,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // We don't want to fuzz more than a certain number of streams.
-        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (_storage.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -89,8 +84,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         asset.approve({ spender: address(linear), amount: params.totalAmount });
 
         // Create the stream.
-        CreateWithDurationsVars memory vars;
-        vars.streamId = linear.createWithDurations({
+        uint256 streamId = linear.createWithDurations({
             sender: params.sender,
             recipient: params.recipient,
             totalAmount: params.totalAmount,
@@ -101,7 +95,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         });
 
         // Store the stream id.
-        store.pushStreamId(vars.streamId, params.sender, params.recipient);
+        _storage.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     struct CreateWithRangeParams {
@@ -111,10 +105,6 @@ contract LockupLinearCreateHandler is BaseHandler {
         address recipient;
         address sender;
         uint128 totalAmount;
-    }
-
-    struct CreateWithRangeVars {
-        uint256 streamId;
     }
 
     function createWithRange(
@@ -127,7 +117,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // We don't want to fuzz more than a certain number of streams.
-        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (_storage.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -143,8 +133,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         asset.approve({ spender: address(linear), amount: params.totalAmount });
 
         // Create the stream.
-        CreateWithRangeVars memory vars;
-        vars.streamId = linear.createWithRange({
+        uint256 streamId = linear.createWithRange({
             sender: params.sender,
             recipient: params.recipient,
             totalAmount: params.totalAmount,
@@ -155,6 +144,6 @@ contract LockupLinearCreateHandler is BaseHandler {
         });
 
         // Store the stream id.
-        store.pushStreamId(vars.streamId, params.sender, params.recipient);
+        _storage.pushStreamId(streamId, params.sender, params.recipient);
     }
 }

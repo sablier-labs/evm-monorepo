@@ -8,23 +8,11 @@ import { Calculations } from "../../shared/helpers/Calculations.t.sol";
 import { Constants } from "../../shared/helpers/Constants.t.sol";
 import { Utils } from "../../shared/helpers/Utils.t.sol";
 
+import { Base_Test } from "../../Base.t.sol";
+
 /// @title BaseHandler
 /// @notice Base contract with common logic needed by all handler contracts.
-abstract contract BaseHandler is Constants, Calculations, Utils, StdCheats {
-    /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev The address of the HEVM contract.
-    address internal constant HEVM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   TEST CONTRACTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev An instance of the HEVM.
-    Vm internal constant vm = Vm(HEVM_ADDRESS);
-
+abstract contract BaseHandler is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
