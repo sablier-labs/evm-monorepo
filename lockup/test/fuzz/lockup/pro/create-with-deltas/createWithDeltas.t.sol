@@ -112,14 +112,16 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
             )
         );
 
-        // Expect the broker fee to be paid to the broker.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (vars.funder, defaultParams.createWithDeltas.broker.addr, vars.amounts.brokerFee)
-            )
-        );
+        // Expect the broker fee to be paid to the broker, if not zero.
+        if (vars.amounts.brokerFee > 0) {
+            vm.expectCall(
+                address(DEFAULT_ASSET),
+                abi.encodeCall(
+                    IERC20.transferFrom,
+                    (vars.funder, defaultParams.createWithDeltas.broker.addr, vars.amounts.brokerFee)
+                )
+            );
+        }
 
         // Create the range struct.
         LockupPro.Range memory range = LockupPro.Range({

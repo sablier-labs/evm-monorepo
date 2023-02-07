@@ -231,7 +231,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             )
         );
 
-        // Expect the broker fee to be paid to the broker, if the fee amount is not zero.
+        // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.brokerFeeAmount > 0) {
             vm.expectCall(
                 address(DEFAULT_ASSET),

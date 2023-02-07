@@ -320,7 +320,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             )
         );
 
-        // Expect the broker fee to be paid to the broker, if the fee amount is not zero.
+        // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.amounts.brokerFee > 0) {
             vm.expectCall(
                 address(DEFAULT_ASSET),
