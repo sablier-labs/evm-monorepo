@@ -38,6 +38,24 @@
   test = "src"
   via_ir = true
 
+# See "SMTChecker and Formal Verification" in the Solidity docs
+[profile.smt.model_checker]
+  engine = "chc" # constrained Horn clauses
+  showUnproved = true
+  timeout = 100_000 # in milliseconds
+  targets = [
+    "assert",
+    "constantCondition",
+    "divByZero",
+    "outOfBounds",
+    "overflow",
+    "underflow",
+  ]
+
+[profile.smt.model_checker.contracts]
+  "src/SablierV2LockupLinear.sol" = ["SablierV2LockupLinear"]
+  "src/SablierV2LockupPro.sol" = ["SablierV2LockupPro"]
+
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
   fuzz = { runs = 5_000 }

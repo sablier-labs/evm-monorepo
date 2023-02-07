@@ -237,6 +237,18 @@ $ yarn build:optimized
 
 This will compile the contracts with the `--via-ir` flag enabled.
 
+### Build SMT
+
+Build the contracts with the [SMTChecker](https://docs.soliditylang.org/en/v0.8.18/smtchecker.html) enabled, while
+ignoring any warnings due to the use of assembly blocks:
+
+```sh
+$ yarn build:smt
+```
+
+This will attempt to prove the correctness of the contracts by trying to break invariants (e.g. by finding failing
+`assert` statements).
+
 ### Clean
 
 Delete the build artifacts and cache directories:
