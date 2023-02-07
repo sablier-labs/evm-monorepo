@@ -68,9 +68,9 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         milestonesCalculationsDoNotOverflow
     {
         delta0 = boundUint40(delta0, 1, 100);
-        delta1 = boundUint40(delta1, 1, UINT40_MAX - getBlockTimestamp() - delta0);
+        delta1 = boundUint40(delta1, 1, MAX_UNIX_TIMESTAMP - getBlockTimestamp() - delta0);
 
-        // Create the deltas.
+        // Create the deltas array.
         uint40[] memory deltas = Solarray.uint40s(delta0, delta1);
 
         // Adjust the segment milestones to match the fuzzed deltas.

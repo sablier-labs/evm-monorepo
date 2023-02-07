@@ -86,7 +86,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the
     /// protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
     function testFuzz_CreateWithDurations(LockupLinear.Durations memory durations) external {
-        durations.total = boundUint40(durations.total, 0, UINT40_MAX - getBlockTimestamp());
+        durations.total = boundUint40(durations.total, 0, MAX_UNIX_TIMESTAMP);
         vm.assume(durations.cliff < durations.total);
 
         // Make the sender the funder in this test.

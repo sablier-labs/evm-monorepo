@@ -21,7 +21,7 @@ import { Constants } from "./shared/helpers/Constants.t.sol";
 import { Utils } from "./shared/helpers/Utils.t.sol";
 
 /// @title Base_Test
-/// @notice Base test contract that contains common logic needed by all test contracts.
+/// @notice Base test contract with common logic needed by all test contracts.
 abstract contract Base_Test is Assertions, Constants, Calculations, Utils, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
@@ -66,8 +66,8 @@ abstract contract Base_Test is Assertions, Constants, Calculations, Utils, StdCh
     ISablierV2Comptroller internal comptroller;
     IERC20 internal dai = new ERC20("Dai Stablecoin", "DAI");
     ISablierV2LockupLinear internal linear;
-    NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
     ISablierV2LockupPro internal pro;
+    NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -81,6 +81,18 @@ abstract contract Base_Test is Assertions, Constants, Calculations, Utils, StdCh
         vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
         vm.label({ account: address(goodSender), newLabel: "Good Sender" });
         vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Modifier that runs the function only in a CI environment.
+    modifier onlyInCI() {
+        string memory ci = vm.envOr("CI", string(""));
+        if (eqString(ci, "true")) {
+            _;
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -107,12 +119,6 @@ abstract contract Base_Test is Assertions, Constants, Calculations, Utils, StdCh
     /// @dev Retrieves the current block timestamp as an `uint40`.
     function getBlockTimestamp() internal view returns (uint40 blockTimestamp) {
         blockTimestamp = uint40(block.timestamp);
-    }
-
-    /// @dev Checks if the Foundry profile is "test-optimized".
-    function isTestOptimizedProfile() internal returns (bool result) {
-        string memory profile = vm.envOr("FOUNDRY_PROFILE", string(""));
-        result = eqString(profile, "test-optimized");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -190,8 +196,14 @@ abstract contract Base_Test is Assertions, Constants, Calculations, Utils, StdCh
         }
 
         // Finally, label all the contracts just deployed.
-        vm.label({ account: address(comptroller), newLabel: "SablierV2Comptroller" });
-        vm.label({ account: address(linear), newLabel: "SablierV2LockupLinear" });
-        vm.label({ account: address(pro), newLabel: "SablierV2LockupPro" });
+        vm.label({ account: address(comptroller), newLabel: "Comptroller" });
+        vm.label({ account: address(linear), newLabel: "LockupLinear" });
+        vm.label({ account: address(pro), newLabel: "LockupPro" });
+    }
+
+    /// @dev Checks if the Foundry profile is "test-optimized".
+    function isTestOptimizedProfile() internal returns (bool result) {
+        string memory profile = vm.envOr("FOUNDRY_PROFILE", string(""));
+        result = eqString(profile, "test-optimized");
     }
 }

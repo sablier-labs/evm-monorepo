@@ -185,9 +185,9 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     }
 
     struct Params {
+        uint128 ongoingWithdrawAmount;
         uint256 timeWarp;
         address to;
-        uint128 ongoingWithdrawAmount;
     }
 
     struct Vars {

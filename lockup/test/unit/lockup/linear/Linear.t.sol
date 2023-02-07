@@ -39,12 +39,12 @@ import { WithdrawMultiple_Unit_Test } from "../shared/withdraw-multiple/withdraw
 /// @notice Common testing logic needed across {SablierV2LockupLinear} unit tests.
 abstract contract Linear_Unit_Test is Unit_Test, Linear_Shared_Test {
     function setUp() public virtual override(Unit_Test, Linear_Shared_Test) {
-        // Both of these contracts inherit from `Base_Test`, which is fine because multiple inheritance is
-        // allowed in Solidity, and `Base_Test.setUp` will only be called once.
+        // Both of these contracts inherit from {Base_Test}, but this is fine because multiple inheritance is
+        // allowed in Solidity, and {Base_Test-setUp} will only be called once.
         Unit_Test.setUp();
         Linear_Shared_Test.setUp();
 
-        // Cast the linear contract as `ISablierV2Config` and `ISablierV2Lockup`.
+        // Cast the linear contract as {ISablierV2Config} and {ISablierV2Lockup}.
         config = ISablierV2Config(linear);
         lockup = ISablierV2Lockup(linear);
 

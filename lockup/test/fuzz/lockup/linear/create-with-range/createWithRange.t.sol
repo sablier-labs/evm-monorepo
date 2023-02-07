@@ -32,7 +32,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(
         uint40 startTime
     ) external recipientNonZeroAddress depositAmountNotZero {
-        startTime = boundUint40(startTime, defaultParams.createWithRange.range.cliff + 1, UINT40_MAX);
+        startTime = boundUint40(startTime, defaultParams.createWithRange.range.cliff + 1, MAX_UNIX_TIMESTAMP);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector,
@@ -210,7 +210,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         // Make the fuzzed funder the caller in this test.
         changePrank(params.funder);
 
-        // Mint enough assets to the funder.
+        // Mint enough ERC-20 assets to the funder.
         deal({ token: address(DEFAULT_ASSET), to: params.funder, give: params.totalAmount });
 
         // Approve the {SablierV2LockupLinear} contract to transfer the assets from the fuzzed funder.

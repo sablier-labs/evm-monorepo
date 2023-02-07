@@ -10,12 +10,11 @@ env:
   INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
 
 on:
+  workflow_dispatch:
   pull_request:
-    branches:
-      - "main"
   push:
     branches:
-      - "main"
+      - main
 
 jobs:
   lint:
@@ -57,6 +56,12 @@ jobs:
 
       - name: "Produce an optimized build with --via-ir"
         run: "FOUNDRY_PROFILE=optimized forge build"
+
+      - name: "Cache the build so that it can be re-used by the other jobs"
+        uses: "actions/cache/save@v3"
+        with:
+          path: "optimized-out"
+          key: "foundry-build-${{ github.sha }}"
 
       - name: "Store contract ABIs as artifacts in GitHub Actions"
         uses: "actions/upload-artifact@v3"
@@ -100,8 +105,12 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Produce an optimized build with --via-ir"
-        run: "FOUNDRY_PROFILE=optimized forge build"
+      - name: "Restore the cached build"
+        uses: "actions/cache/restore@v3"
+        with:
+          fail-on-cache-miss: true
+          key: "foundry-build-${{ github.sha }}"
+          path: "optimized-out"
 
       - name: "Run the unit tests against the optimized build"
         run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/unit/**/*.sol\""
@@ -113,7 +122,7 @@ jobs:
 
   test-fuzz:
     env:
-      FOUNDRY_FUZZ_RUNS: "20000"
+      FOUNDRY_FUZZ_RUNS: "50000"
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
@@ -125,8 +134,12 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Produce an optimized build with --via-ir"
-        run: "FOUNDRY_PROFILE=optimized forge build"
+      - name: "Restore the cached build"
+        uses: "actions/cache/restore@v3"
+        with:
+          fail-on-cache-miss: true
+          key: "foundry-build-${{ github.sha }}"
+          path: "optimized-out"
 
       - name: "Run the fuzz tests against the optimized build"
         run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/fuzz/**/*.sol\""
@@ -136,6 +149,32 @@ jobs:
           echo "## Fuzz tests result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
+  test-invariant:
+    needs: ["lint", "build"]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
+      - name: "Restore the cached build"
+        uses: "actions/cache/restore@v3"
+        with:
+          fail-on-cache-miss: true
+          key: "foundry-build-${{ github.sha }}"
+          path: "optimized-out"
+
+      - name: "Run the invariant tests against the optimized build"
+        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/invariant/**/*.sol\""
+
+      - name: "Add test summary"
+        run: |
+          echo "## Invariant tests result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
   test-e2e:
     env:
@@ -151,8 +190,12 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Produce an optimized build with --via-ir"
-        run: "FOUNDRY_PROFILE=optimized forge build"
+      - name: "Restore the cached build"
+        uses: "actions/cache/restore@v3"
+        with:
+          fail-on-cache-miss: true
+          key: "foundry-build-${{ github.sha }}"
+          path: "optimized-out"
 
       - name: "Generate fuzz seed that changes weekly to avoid burning through RPC allowance"
         run: >

@@ -3,7 +3,7 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { IERC3156FlashBorrower } from "erc3156/contracts/interfaces/IERC3156FlashBorrower.sol";
+import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Events } from "src/libraries/Events.sol";
@@ -163,10 +163,10 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         // Load the flash fee.
         uint256 fee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: amount });
 
-        // Deal the flash loan amount to the contract.
+        // Mint the flash loan amount to the contract.
         deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: amount });
 
-        // Deal the flash fee to the receiver so that they can repay the flash loan.
+        // Mint the flash fee to the receiver so that they can repay the flash loan.
         deal({ token: address(DEFAULT_ASSET), to: address(goodFlashLoanReceiver), give: fee });
 
         // Expect `amount` of ERC-20 assets to be transferred from the {SablierV2FlashLoan} contract to the receiver.

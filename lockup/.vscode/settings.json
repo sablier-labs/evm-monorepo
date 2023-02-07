@@ -1,9 +1,9 @@
 {
-  "[toml]": {
-    "editor.defaultFormatter": "tamasfe.even-better-toml"
-  },
   "[solidity]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
   },
   "solidity.formatter": "prettier",
   "solidity.packageDefaultDependenciesContractsDirectory": "src",

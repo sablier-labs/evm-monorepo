@@ -18,7 +18,7 @@ abstract contract Linear_E2e_Test is E2eTest {
     constructor(IERC20 asset_, address holder_) E2eTest(asset_, holder_) {}
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   SETUP FUNCTION
+                                  SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
@@ -109,6 +109,7 @@ abstract contract Linear_E2e_Test is E2eTest {
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Linear_CreateWithdrawCancel(Params memory params) external {
+        vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.end);
         vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
         vm.assume(
             params.sender != params.recipient &&
@@ -122,6 +123,7 @@ abstract contract Linear_E2e_Test is E2eTest {
                 params.broker.addr != address(linear)
         );
         vm.assume(params.range.start <= params.range.cliff && params.range.cliff < params.range.end);
+        vm.assume(params.totalAmount != 0 && params.totalAmount <= initialHolderBalance);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));

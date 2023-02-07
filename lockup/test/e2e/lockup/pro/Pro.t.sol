@@ -18,7 +18,7 @@ abstract contract Pro_E2e_Test is E2eTest {
     constructor(IERC20 asset_, address holder_) E2eTest(asset_, holder_) {}
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   SETUP FUNCTION
+                                  SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
