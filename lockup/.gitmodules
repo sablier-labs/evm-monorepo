@@ -11,11 +11,11 @@
   path = "lib/openzeppelin-contracts"
   url = "https://github.com/OpenZeppelin/openzeppelin-contracts"
 [submodule "lib/prb-contracts"]
-  branch = "main"
+  branch = "v5"
   path = "lib/prb-contracts"
   url = "https://github.com/PaulRBerg/prb-contracts"
 [submodule "lib/prb-math"]
-  branch = "main"
+  branch = "v3"
   path = "lib/prb-math"
   url = "https://github.com/PaulRBerg/prb-math"
 [submodule "lib/prb-test"]
