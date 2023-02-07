@@ -31,7 +31,7 @@
     "solidity"
   ],
   "license": "LGPL-3.0",
-  "packageManager": "yarn@3.3.0",
+  "packageManager": "yarn@3.4.1",
   "private": true,
   "scripts": {
     "build": "forge build",
