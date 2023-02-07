@@ -128,6 +128,13 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualStatus0, expectedStatus, "status0");
         assertEq(actualStatus1, expectedStatus, "status1");
 
+        // Assert that the withdrawn amounts have been updated.
+        uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(defaultStreamIds[0]);
+        uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(defaultStreamIds[1]);
+        uint128 expectedWithdrawnAmount = DEFAULT_DEPOSIT_AMOUNT;
+        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount, "withdrawnAmount0");
+        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount, "withdrawnAmount1");
+
         // Assert that the NFTs have not been burned.
         address actualNFTOwner0 = lockup.ownerOf(defaultStreamIds[0]);
         address actualNFTOwner1 = lockup.ownerOf(defaultStreamIds[1]);
@@ -175,6 +182,13 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Make the withdrawals.
         uint128[] memory amounts = Solarray.uint128s(withdrawAmount, withdrawAmount);
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: amounts });
+
+        // Assert that the streams have remained active.
+        Lockup.Status actualStatus0 = lockup.getStatus(defaultStreamIds[0]);
+        Lockup.Status actualStatus1 = lockup.getStatus(defaultStreamIds[1]);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus0, expectedStatus, "status0");
+        assertEq(actualStatus1, expectedStatus, "status1");
 
         // Assert that the withdrawn amounts have been updated.
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(defaultStreamIds[0]);

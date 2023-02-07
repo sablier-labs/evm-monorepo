@@ -70,5 +70,10 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
     }
 }

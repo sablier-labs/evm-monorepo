@@ -156,8 +156,15 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make Alice the `to` address in this test.
         address to = users.alice;
 
-        // Run the test.
+        // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
@@ -184,7 +191,12 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
 
-        // Run the test.
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
@@ -264,6 +276,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
     }
 
     modifier recipientContract() {
@@ -301,6 +318,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
     }
 
     modifier recipientImplementsHook() {
@@ -339,6 +361,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
     }
 
     modifier recipientDoesNotRevert() {
@@ -381,6 +408,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
     }
 
     modifier noRecipientReentrancy() {
@@ -442,5 +474,10 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
     }
 }
