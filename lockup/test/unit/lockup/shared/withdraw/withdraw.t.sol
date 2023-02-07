@@ -137,7 +137,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: UINT128_MAX });
     }
 
-    modifier withdrawAmountLessThanOrEqualToWithdrawableAmount() {
+    modifier withdrawAmountNotGreaterThanWithdrawableAmount() {
         _;
     }
 
@@ -148,7 +148,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -170,7 +170,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
     {
         // Approve the operator to handle the stream.
         lockup.approve({ to: users.operator, tokenId: defaultStreamId });
@@ -203,7 +203,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
     {
         // Warp to the end of the stream.
@@ -236,7 +236,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
         currentTimeLessThanEndTime
     {
@@ -277,7 +277,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
         currentTimeLessThanEndTime
         recipientContract
@@ -314,7 +314,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
         currentTimeLessThanEndTime
         recipientContract
@@ -352,7 +352,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
         currentTimeLessThanEndTime
         recipientContract
@@ -395,7 +395,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
         currentTimeLessThanEndTime
         recipientContract

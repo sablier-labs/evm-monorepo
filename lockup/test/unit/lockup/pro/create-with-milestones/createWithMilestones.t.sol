@@ -95,7 +95,33 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone()
+    function test_RevertWhen_StartTimeGreaterThanFirstSegmentMilestone()
+        external
+        recipientNonZeroAddress
+        depositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+    {
+        // Change the milestone of the first segment.
+        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        segments[0].milestone = DEFAULT_START_TIME - 1;
+
+        // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone.selector,
+                DEFAULT_START_TIME,
+                segments[0].milestone
+            )
+        );
+
+        // Create the stream.
+        createDefaultStreamWithSegments(segments);
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_StartTimeEqualToFirstSegmentMilestone()
         external
         recipientNonZeroAddress
         depositAmountNotZero

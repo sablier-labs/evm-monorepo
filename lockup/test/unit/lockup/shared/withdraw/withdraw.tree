@@ -23,7 +23,7 @@ withdraw.t.sol
          └── when the withdraw amount is not zero
             ├── when the amount is greater than the withdrawable amount
             │  └── it should revert
-            └── when the amount is less than or equal to the withdrawable amount
+            └── when the amount is not greater than the withdrawable amount
                ├── when the caller is the recipient
                │  └── it should make the withdrawal and update the withdrawn amount
                ├── when the caller is an approved operator
