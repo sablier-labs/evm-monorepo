@@ -9,7 +9,7 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
 
     function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
     }
 
     modifier streamNonNull() {

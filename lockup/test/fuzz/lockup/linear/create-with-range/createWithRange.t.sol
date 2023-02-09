@@ -96,7 +96,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
         // Set the protocol fee.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: protocolFee });
 
         // Run the test.
@@ -210,7 +210,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
 
         // Set the fuzzed protocol fee.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: params.protocolFee });
 
         // Make the fuzzed funder the caller in this test.

@@ -19,7 +19,7 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         defaultStreamIds.push(createDefaultStream());
 
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
     }
 
     modifier onlyNonNullStreams() {
@@ -53,7 +53,7 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Make the sender the caller in this test.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
 
         // Create a new stream with a different end time.
         uint256 streamId = createDefaultStreamWithEndTime(endTime);
@@ -132,7 +132,7 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Make the recipient the caller in this test.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
 
         // Create a new stream with a different end time.
         uint256 streamId = createDefaultStreamWithEndTime(endTime);

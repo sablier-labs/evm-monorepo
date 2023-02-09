@@ -51,7 +51,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerNotSender() external streamActive {
         // Make Eve the caller in this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(

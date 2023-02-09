@@ -12,7 +12,7 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(

@@ -25,7 +25,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         defaultStreamIds.push(createDefaultStream());
 
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
     }
 
     modifier toNonZeroAddress() {
@@ -54,7 +54,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         lockup.setApprovalForAll(users.operator, true);
 
         // Make the operator the caller in this test.
-        changePrank({ who: users.operator });
+        changePrank({ msgSender: users.operator });
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });

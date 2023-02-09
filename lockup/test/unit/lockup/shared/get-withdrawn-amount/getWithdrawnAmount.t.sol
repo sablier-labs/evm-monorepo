@@ -9,7 +9,7 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
     }
 
     /// @dev it should return zero.
@@ -27,7 +27,7 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
     }
 
     /// @dev it should return zero.
-    function testGetWithdrawnAmount_NoWithdrawals() external streamNonNull {
+    function test_GetWithdrawnAmount_NoWithdrawals() external streamNonNull {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 

@@ -14,7 +14,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
     function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
 
         // Create the default stream.
         defaultStreamId = createDefaultStream();
@@ -38,7 +38,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
     modifier callerSender() {
         // Make the sender the caller in this test suite.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
         _;
     }
     modifier recipientContract() {

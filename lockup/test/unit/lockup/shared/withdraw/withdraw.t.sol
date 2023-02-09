@@ -16,7 +16,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
 
         // Create the default stream.
         defaultStreamId = createDefaultStream();
@@ -55,7 +55,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external streamActive {
         // Make Eve the caller in this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(
@@ -67,7 +67,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_Sender() external streamActive {
         // Make the sender the caller in this test.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
 
         // Run the test.
         vm.expectRevert(
@@ -183,7 +183,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.approve({ to: users.operator, tokenId: defaultStreamId });
 
         // Make the operator the caller in this test.
-        changePrank({ who: users.operator });
+        changePrank({ msgSender: users.operator });
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -204,7 +204,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     modifier callerSender() {
         // Make the sender the caller in this test suite.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
         _;
     }
 

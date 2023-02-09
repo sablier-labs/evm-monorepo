@@ -25,7 +25,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamIds.push(createDefaultStream());
 
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
     }
 
     /// @dev it should revert.
@@ -91,7 +91,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         onlyNonNullStreams
     {
         // Make Eve the caller in this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(
@@ -108,7 +108,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         onlyNonNullStreams
     {
         // Make the sender the caller in this test.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
 
         // Run the test.
         vm.expectRevert(
@@ -146,7 +146,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 eveStreamId = createDefaultStreamWithRecipient(users.eve);
 
         // Make Eve the caller in this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -195,7 +195,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.setApprovalForAll(users.operator, true);
 
         // Make the operator the caller in this test.
-        changePrank({ who: users.operator });
+        changePrank({ msgSender: users.operator });
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });

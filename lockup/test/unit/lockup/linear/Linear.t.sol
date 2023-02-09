@@ -53,7 +53,7 @@ abstract contract Linear_Unit_Test is Unit_Test, Linear_Shared_Test {
         comptroller.setProtocolFee({ asset: IERC20(address(nonCompliantAsset)), newProtocolFee: DEFAULT_PROTOCOL_FEE });
 
         // Make the sender the default caller in this test suite.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
     }
 }
 

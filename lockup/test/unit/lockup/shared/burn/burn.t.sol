@@ -14,7 +14,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         streamId = createDefaultStream();
 
         // Make the recipient (owner of the NFT) the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
     }
 
     /// @dev it should revert.
@@ -36,7 +36,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     modifier streamCanceledOrDepleted() {
         lockup.cancel(streamId);
         _;
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
         streamId = createDefaultStream();
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: streamId, to: users.recipient });
@@ -46,7 +46,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized() external streamCanceledOrDepleted {
         // Make Eve the caller in the rest of this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, streamId, users.eve));
@@ -77,7 +77,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.approve({ to: users.operator, tokenId: streamId });
 
         // Make the approved operator the caller in this test.
-        changePrank({ who: users.operator });
+        changePrank({ msgSender: users.operator });
 
         // Burn the NFT.
         lockup.burn(streamId);

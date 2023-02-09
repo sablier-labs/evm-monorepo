@@ -126,32 +126,32 @@ abstract contract Base_Test is Assertions, Calculations, StdCheats {
     /// @dev Approves all Sablier contracts to spend ERC-20 assets from the sender, recipient, Alice and Eve,
     /// and then change the active prank back to the admin.
     function approveProtocol() internal {
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
         dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
         dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank({ who: users.alice });
+        changePrank({ msgSender: users.alice });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
         dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
         dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         // Finally, change the active prank back to the admin.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
     }
 
     /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,

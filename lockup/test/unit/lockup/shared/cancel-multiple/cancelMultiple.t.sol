@@ -20,7 +20,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamIds.push(createDefaultStream());
 
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
     }
 
     /// @dev it should do nothing.
@@ -82,7 +82,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         allStreamsCancelable
     {
         // Make Eve the caller in this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(
@@ -101,7 +101,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.setApprovalForAll({ operator: users.operator, _approved: true });
 
         // Make the approved operator the caller in this test.
-        changePrank({ who: users.operator });
+        changePrank({ msgSender: users.operator });
 
         // Run the test.
         vm.expectRevert(
@@ -133,7 +133,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         onlyNonNullStreams
         allStreamsCancelable
     {
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Create a stream with Eve as the sender.
         uint256 eveStreamId = createDefaultStreamWithSender(users.eve);
@@ -156,7 +156,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.approve({ to: users.operator, tokenId: defaultStreamIds[0] });
 
         // Make the approved operator the caller in this test.
-        changePrank({ who: users.operator });
+        changePrank({ msgSender: users.operator });
 
         // Run the test.
         vm.expectRevert(
@@ -188,7 +188,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
     /// CancelLockupStream events.
     function test_CancelMultiple_Sender() external onlyNonNullStreams allStreamsCancelable callerAuthorizedAllStreams {
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
         test_CancelMultiple();
     }
 

@@ -127,7 +127,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
         });
 
         // Set the fuzzed protocol fee.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: asset, newProtocolFee: params.protocolFee });
 
         // Make the holder the caller in the rest of the test.

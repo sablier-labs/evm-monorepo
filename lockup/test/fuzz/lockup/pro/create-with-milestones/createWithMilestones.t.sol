@@ -120,7 +120,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         depositDiff = boundUint128(depositDiff, 100, DEFAULT_TOTAL_AMOUNT);
 
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
         UD60x18 brokerFee = ZERO;
         changePrank(defaultParams.createWithMilestones.sender);
@@ -171,7 +171,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
         // Set the protocol fee.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee(defaultStream.asset, protocolFee);
 
         // Run the test.
@@ -299,7 +299,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         });
 
         // Set the fuzzed protocol fee.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: params.protocolFee });
 
         // Make the fuzzed funder the caller in the rest of this test.

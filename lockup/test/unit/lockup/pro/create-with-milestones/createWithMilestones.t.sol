@@ -195,7 +195,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentMilestonesOrdered
     {
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
         UD60x18 brokerFee = ZERO;
         changePrank(defaultParams.createWithMilestones.sender);
@@ -245,7 +245,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         UD60x18 protocolFee = DEFAULT_MAX_FEE.add(ud(1));
 
         // Set the protocol fee.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee(defaultStream.asset, protocolFee);
 
         // Run the test.
@@ -312,9 +312,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
 
         // Set the default protocol fee so that the test does not revert due to the deposit amount not being
         // equal to the segment amounts sum.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee(IERC20(nonContract), DEFAULT_PROTOCOL_FEE);
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
 
         // Run the test.
         vm.expectRevert("Address: call to non-contract");

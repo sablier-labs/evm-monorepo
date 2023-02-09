@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.18 <0.9.0;
 
-import { InvariantTest as ForgeInvariantTest } from "forge-std/InvariantTest.sol";
+import { StdInvariant } from "forge-std/StdInvariant.sol";
 
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
@@ -10,7 +10,7 @@ import { ComptrollerHandler } from "./handlers/ComptrollerHandler.t.sol";
 
 /// @title Invariant_Test
 /// @notice Base test contract with common logic needed by all invariant test contracts.
-abstract contract Invariant_Test is Base_Test, ForgeInvariantTest {
+abstract contract Invariant_Test is Base_Test, StdInvariant {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/

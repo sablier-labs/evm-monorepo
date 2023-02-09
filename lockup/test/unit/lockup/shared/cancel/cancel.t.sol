@@ -17,7 +17,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
 
         // Create the default stream.
         defaultStreamId = createDefaultStream();
@@ -70,7 +70,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external streamActive streamCancelable {
         // Make the unauthorized user the caller in this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(
@@ -112,7 +112,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     modifier callerSender() {
         // Make the sender the caller in this test suite.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
         _;
     }
 

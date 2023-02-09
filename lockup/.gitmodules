@@ -3,7 +3,7 @@
   path = "lib/ERC3156"
   url = "https://github.com/alcueca/ERC3156"
 [submodule "lib/forge-std"]
-  branch = "v1"
+  branch = "master"
   path = "lib/forge-std"
   url = "https://github.com/foundry-rs/forge-std"
 [submodule "lib/openzeppelin-contracts"]

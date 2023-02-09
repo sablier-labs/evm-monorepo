@@ -112,7 +112,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         UD60x18 protocolFee = DEFAULT_MAX_FEE.add(ud(1));
 
         // Set the protocol fee.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: protocolFee });
 
         // Run the test.

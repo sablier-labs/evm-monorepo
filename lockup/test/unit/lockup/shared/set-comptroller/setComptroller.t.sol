@@ -15,7 +15,7 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(
@@ -26,7 +26,7 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     modifier callerAdmin() {
         // Make the admin the caller in the rest of this test suite.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         _;
     }
 
