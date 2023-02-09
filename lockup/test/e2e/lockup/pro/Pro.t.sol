@@ -108,11 +108,8 @@ abstract contract Pro_E2e_Test is E2e_Test {
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Pro_CreateWithdrawCancel(Params memory params) external {
-        checkUsers(params.sender, params.recipient, params.broker.addr);
+        checkUsers(params.sender, params.recipient, params.broker.addr, address(pro));
         vm.assume(params.segments.length != 0);
-        vm.assume(
-            params.sender != address(pro) && params.recipient != address(pro) && params.broker.addr != address(pro)
-        );
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone - 1);

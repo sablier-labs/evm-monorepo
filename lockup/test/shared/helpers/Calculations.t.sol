@@ -20,51 +20,6 @@ abstract contract Calculations is Constants, Utils {
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Fuzzes the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
-    function fuzzSegmentAmountsAndCalculateCreateAmounts(
-        uint128 upperBound,
-        LockupPro.Segment[] memory segments,
-        UD60x18 protocolFee,
-        UD60x18 brokerFee
-    ) internal view returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts) {
-        uint256 segmentCount = segments.length;
-        uint128 maxSegmentAmount = upperBound / uint128(segmentCount * 2);
-
-        // Precompute the first segment amount to prevent zero deposit amounts.
-        segments[0].amount = boundUint128(segments[0].amount, 100, maxSegmentAmount);
-        uint128 estimatedDepositAmount = segments[0].amount;
-
-        // Fuzz the other segment amounts by bounding from 0.
-        unchecked {
-            for (uint256 i = 1; i < segmentCount; ) {
-                uint128 segmentAmount = boundUint128(segments[i].amount, 0, maxSegmentAmount);
-                segments[i].amount = segmentAmount;
-                estimatedDepositAmount += segmentAmount;
-                i += 1;
-            }
-        }
-
-        // Calculate the total amount from the approximated deposit amount (recall that the segment amounts summed up
-        // must equal the deposit amount) using this formula:
-        //
-        // $$
-        // total = deposit / (1e18 - protocol fee - broker fee)
-        // $$
-        totalAmount = ud(estimatedDepositAmount)
-            .div(ud(uUNIT - protocolFee.intoUint256() - brokerFee.intoUint256()))
-            .intoUint128();
-
-        // Calculate the fee amounts.
-        createAmounts.protocolFee = ud(totalAmount).mul(protocolFee).intoUint128();
-        createAmounts.brokerFee = ud(totalAmount).mul(brokerFee).intoUint128();
-
-        // Here, we account for rounding errors and adjust the estimated deposit amount and the segments. We know that
-        // the estimated deposit amount is not greater than the adjusted deposit amount below, because the inverse of
-        // the {Helpers-checkAndCalculateFees} function over-expresses the weight of the fees.
-        createAmounts.deposit = totalAmount - createAmounts.protocolFee - createAmounts.brokerFee;
-        segments[segments.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
-    }
-
     /// @dev Calculates the deposit amount by calculating and subtracting the protocol fee amount and the
     /// broker fee amount from the total amount.
     function calculateDepositAmount(
@@ -161,6 +116,51 @@ abstract contract Calculations is Constants, Utils {
             SD59x18 multiplier = elapsedTimePercentage.pow(exponent.intoSD59x18());
             streamedAmount = uint128(multiplier.mul(depositAmount.intoSD59x18()).intoUint256());
         }
+    }
+
+    /// @dev Fuzzes the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+    function fuzzSegmentAmountsAndCalculateCreateAmounts(
+        uint128 upperBound,
+        LockupPro.Segment[] memory segments,
+        UD60x18 protocolFee,
+        UD60x18 brokerFee
+    ) internal view returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts) {
+        uint256 segmentCount = segments.length;
+        uint128 maxSegmentAmount = upperBound / uint128(segmentCount * 2);
+
+        // Precompute the first segment amount to prevent zero deposit amounts.
+        segments[0].amount = boundUint128(segments[0].amount, 100, maxSegmentAmount);
+        uint128 estimatedDepositAmount = segments[0].amount;
+
+        // Fuzz the other segment amounts by bounding from 0.
+        unchecked {
+            for (uint256 i = 1; i < segmentCount; ) {
+                uint128 segmentAmount = boundUint128(segments[i].amount, 0, maxSegmentAmount);
+                segments[i].amount = segmentAmount;
+                estimatedDepositAmount += segmentAmount;
+                i += 1;
+            }
+        }
+
+        // Calculate the total amount from the approximated deposit amount (recall that the segment amounts summed up
+        // must equal the deposit amount) using this formula:
+        //
+        // $$
+        // total = deposit / (1e18 - protocol fee - broker fee)
+        // $$
+        totalAmount = ud(estimatedDepositAmount)
+            .div(ud(uUNIT - protocolFee.intoUint256() - brokerFee.intoUint256()))
+            .intoUint128();
+
+        // Calculate the fee amounts.
+        createAmounts.protocolFee = ud(totalAmount).mul(protocolFee).intoUint128();
+        createAmounts.brokerFee = ud(totalAmount).mul(brokerFee).intoUint128();
+
+        // Here, we account for rounding errors and adjust the estimated deposit amount and the segments. We know that
+        // the estimated deposit amount is not greater than the adjusted deposit amount below, because the inverse of
+        // the {Helpers-checkAndCalculateFees} function over-expresses the weight of the fees.
+        createAmounts.deposit = totalAmount - createAmounts.protocolFee - createAmounts.brokerFee;
+        segments[segmentCount - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }
 
     /// @dev Fuzzes the deltas and updates the segment milestones.

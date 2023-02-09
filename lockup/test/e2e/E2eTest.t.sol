@@ -59,12 +59,13 @@ abstract contract E2e_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks the user assumptions.
-    function checkUsers(address sender, address recipient, address broker) internal virtual {
+    function checkUsers(address sender, address recipient, address broker, address protocolContract) internal virtual {
         // The protocol does not allow the zero address to interact with it.
         vm.assume(sender != address(0) && recipient != address(0) && broker != address(0));
 
         // The goal is to not have overlapping users because the token balance tests would fail otherwise.
         vm.assume(sender != recipient && sender != broker && recipient != broker);
         vm.assume(sender != holder && recipient != holder && broker != holder);
+        vm.assume(sender != protocolContract && recipient != protocolContract && broker != protocolContract);
     }
 }
