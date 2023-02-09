@@ -46,8 +46,8 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint40 timeWarp,
         uint128 depositAmount
     ) external streamActive cliffTimeLessThanOrEqualToCurrentTime {
-        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         vm.assume(depositAmount != 0);
+        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;

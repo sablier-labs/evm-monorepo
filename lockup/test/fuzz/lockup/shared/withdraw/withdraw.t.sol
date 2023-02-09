@@ -127,11 +127,11 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(to != address(0) && to.code.length == 0);
 
-        // Create the stream with the fuzzed recipient that is not a contract.
-        uint256 streamId = createDefaultStreamWithRecipient(to);
-
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+
+        // Create the stream with the fuzzed recipient that is not a contract.
+        uint256 streamId = createDefaultStreamWithRecipient(to);
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(streamId);
@@ -189,11 +189,11 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
-        // Create the stream with a contract as the recipient.
-        uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
-
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+
+        // Create the stream with a contract as the recipient.
+        uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(streamId);

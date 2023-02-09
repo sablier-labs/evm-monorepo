@@ -101,8 +101,8 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         allAmountsNotZero
         allAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
         vm.assume(to != address(0));
+        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
 
         // Warp into the future, past the end time.
         vm.warp({ timestamp: DEFAULT_END_TIME + timeWarp });
@@ -152,8 +152,8 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         allAmountsNotZero
         allAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(to != address(0));
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future, before the end time of the stream.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
@@ -225,8 +225,8 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         allAmountsNotZero
         allAmountsLessThanOrEqualToWithdrawableAmounts
     {
-        params.timeWarp = bound(params.timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1);
         vm.assume(params.to != address(0));
+        params.timeWarp = bound(params.timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1);
 
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + params.timeWarp });
