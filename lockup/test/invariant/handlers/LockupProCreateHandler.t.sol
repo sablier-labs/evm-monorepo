@@ -165,10 +165,10 @@ contract LockupProCreateHandler is BaseHandler {
         }
 
         // Fuzz the segment milestones.
-        CreateWithMilestonesVars memory vars;
         fuzzSegmentMilestones(params.segments, params.startTime);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        CreateWithMilestonesVars memory vars;
         (vars.totalAmount, ) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: 1_000_000_000e18,
             segments: params.segments,

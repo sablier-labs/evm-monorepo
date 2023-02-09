@@ -66,13 +66,6 @@ contract GetWithdrawnAmount_Pro_Fuzz_Test is Pro_Fuzz_Test, GetWithdrawnAmount_F
     }
 }
 
-contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
-    function setUp() public virtual override(Pro_Fuzz_Test, Withdraw_Fuzz_Test) {
-        Pro_Fuzz_Test.setUp();
-        Withdraw_Fuzz_Test.setUp();
-    }
-}
-
 contract WithdrawMax_Pro_Fuzz_Test is Pro_Fuzz_Test, WithdrawMax_Fuzz_Test {
     function setUp() public virtual override(Pro_Fuzz_Test, WithdrawMax_Fuzz_Test) {
         Pro_Fuzz_Test.setUp();

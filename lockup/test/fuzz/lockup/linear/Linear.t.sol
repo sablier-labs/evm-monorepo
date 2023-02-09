@@ -66,21 +66,21 @@ contract ReturnableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, ReturnableAmou
     }
 }
 
-contract Withdraw_Pro_Fuzz_Test is Linear_Fuzz_Test, Withdraw_Fuzz_Test {
+contract Withdraw_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdraw_Fuzz_Test {
     function setUp() public virtual override(Linear_Fuzz_Test, Withdraw_Fuzz_Test) {
         Linear_Fuzz_Test.setUp();
         Withdraw_Fuzz_Test.setUp();
     }
 }
 
-contract WithdrawMax_Pro_Fuzz_Test is Linear_Fuzz_Test, WithdrawMax_Fuzz_Test {
+contract WithdrawMax_Linear_Fuzz_Test is Linear_Fuzz_Test, WithdrawMax_Fuzz_Test {
     function setUp() public virtual override(Linear_Fuzz_Test, WithdrawMax_Fuzz_Test) {
         Linear_Fuzz_Test.setUp();
         WithdrawMax_Fuzz_Test.setUp();
     }
 }
 
-contract WithdrawMultiple_Pro_Fuzz_Test is Linear_Fuzz_Test, WithdrawMultiple_Fuzz_Test {
+contract WithdrawMultiple_Linear_Fuzz_Test is Linear_Fuzz_Test, WithdrawMultiple_Fuzz_Test {
     function setUp() public virtual override(Linear_Fuzz_Test, WithdrawMultiple_Fuzz_Test) {
         Linear_Fuzz_Test.setUp();
         WithdrawMultiple_Fuzz_Test.setUp();

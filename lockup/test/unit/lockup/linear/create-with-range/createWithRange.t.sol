@@ -222,7 +222,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
 
     /// @dev Shared test logic for `test_CreateWithRange_AssetMissingReturnValue` and `test_CreateWithRange`.
     function test_createWithRange(address asset) internal {
-        // Make the sender the funder in this test.
+        // Make the sender the funder of the stream.
         address funder = users.sender;
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.

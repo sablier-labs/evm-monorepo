@@ -334,7 +334,7 @@ contract SablierV2LockupPro is
                 // If the current segment is at an index that is >= 2, use the previous segment's milestone.
                 previousMilestone = _streams[streamId].segments[index - 2].milestone;
             } else {
-                // Otherwise, there is only one segment, so use the start of the stream as the previous milestone.
+                // Otherwise, the current segment is the first, so use the start time as the previous milestone.
                 previousMilestone = _streams[streamId].range.start;
             }
 

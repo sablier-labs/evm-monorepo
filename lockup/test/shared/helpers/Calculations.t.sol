@@ -118,6 +118,18 @@ abstract contract Calculations is Constants, Utils {
         }
     }
 
+    /// @dev Just like `fuzzSegmentAmountsAndCalculateCreateAmounts` but uses the defaults.
+    function fuzzSegmentAmountsAndCalculateCreateAmounts(
+        LockupPro.Segment[] memory segments
+    ) internal view returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts) {
+        (totalAmount, createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+            upperBound: UINT128_MAX,
+            segments: segments,
+            protocolFee: DEFAULT_PROTOCOL_FEE,
+            brokerFee: DEFAULT_BROKER_FEE
+        });
+    }
+
     /// @dev Fuzzes the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
     function fuzzSegmentAmountsAndCalculateCreateAmounts(
         uint128 upperBound,
@@ -160,7 +172,7 @@ abstract contract Calculations is Constants, Utils {
         // the estimated deposit amount is not greater than the adjusted deposit amount below, because the inverse of
         // the {Helpers-checkAndCalculateFees} function over-expresses the weight of the fees.
         createAmounts.deposit = totalAmount - createAmounts.protocolFee - createAmounts.brokerFee;
-        segments[segmentCount - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
+        segments[segments.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }
 
     /// @dev Fuzzes the deltas and updates the segment milestones.

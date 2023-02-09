@@ -354,7 +354,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
 
     /// @dev Shared test logic for `test_CreateWithMilestones_AssetMissingReturnValue` and `test_CreateWithMilestones`.
     function test_createWithMilestones(address asset) internal {
-        // Make the sender the funder in this test.
+        // Make the sender the funder of the stream.
         address funder = users.sender;
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.

@@ -115,10 +115,10 @@ abstract contract Pro_E2e_Test is E2e_Test {
         params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone - 1);
 
         // Fuzz the segment milestones.
-        Vars memory vars;
         fuzzSegmentMilestones(params.segments, params.startTime);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        Vars memory vars;
         (vars.totalAmount, vars.amounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: uint128(initialHolderBalance),
             segments: params.segments,

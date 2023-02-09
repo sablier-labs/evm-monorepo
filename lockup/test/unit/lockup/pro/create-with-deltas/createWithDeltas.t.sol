@@ -163,7 +163,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         segmentArrayCountsEqual
         milestonesCalculationsDoNotOverflow
     {
-        // Make the sender the funder in this test.
+        // Make the sender the funder of the stream.
         address funder = users.sender;
 
         // Load the initial protocol revenues.

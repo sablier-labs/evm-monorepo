@@ -102,9 +102,12 @@ contract StreamedAmountOf_Pro_Unit_Test is Pro_Unit_Test {
         multipleSegments
         startTimeLessThanCurrentTime
     {
+        // Warp one second into the future.
+        vm.warp({ timestamp: DEFAULT_START_TIME + 1 });
+
         // Run the test.
         uint128 actualStreamedAmount = pro.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = 0;
+        uint128 expectedStreamedAmount = 0.000000053506725000e18;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 

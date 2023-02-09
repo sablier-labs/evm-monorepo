@@ -87,14 +87,9 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         vars.deltas = fuzzSegmentDeltas(segments);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
-        (vars.totalAmount, vars.amounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
-            upperBound: UINT128_MAX,
-            segments: segments,
-            protocolFee: DEFAULT_PROTOCOL_FEE,
-            brokerFee: DEFAULT_BROKER_FEE
-        });
+        (vars.totalAmount, vars.amounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(segments);
 
-        // Make the sender the funder in this test.
+        // Make the sender the funder of the stream.
         vars.funder = users.sender;
 
         // Load the initial protocol revenues.
