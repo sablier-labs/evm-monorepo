@@ -146,7 +146,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
             defaultParams.createWithMilestones.startTime,
-            Broker({ addr: address(0), fee: brokerFee })
+            Broker({ account: address(0), fee: brokerFee })
         );
     }
 
@@ -212,7 +212,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
             defaultParams.createWithMilestones.startTime,
-            Broker({ addr: users.broker, fee: brokerFee })
+            Broker({ account: users.broker, fee: brokerFee })
         );
     }
 
@@ -280,7 +280,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         assetContract
         assetERC20Compliant
     {
-        vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
+        vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.segments.length != 0);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
@@ -320,7 +320,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.amounts.brokerFee > 0) {
-            expectTransferFromCall({ from: params.funder, to: params.broker.addr, amount: vars.amounts.brokerFee });
+            expectTransferFromCall({ from: params.funder, to: params.broker.account, amount: vars.amounts.brokerFee });
         }
 
         // Expect a {CreateLockupProStream} event to be emitted.
@@ -339,7 +339,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             asset: DEFAULT_ASSET,
             cancelable: params.cancelable,
             range: range,
-            broker: params.broker.addr
+            broker: params.broker.account
         });
 
         // Create the stream.

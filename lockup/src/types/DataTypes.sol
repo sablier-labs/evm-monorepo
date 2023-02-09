@@ -6,10 +6,10 @@ import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @notice Simple struct that encapsulates the optional broker parameters that can be passed to the create functions.
-/// @custom:field addr The address of the broker the fee will be paid to.
+/// @custom:field account The address of the broker the fee will be paid to.
 /// @custom:field fee The percentage fee that the broker is paid from the total amount, as an UD60x18 number.
 struct Broker {
-    address addr;
+    address account;
     UD60x18 fee;
 }
 

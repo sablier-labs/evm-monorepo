@@ -108,7 +108,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Pro_CreateWithdrawCancel(Params memory params) external {
-        checkUsers(params.sender, params.recipient, params.broker.addr, address(pro));
+        checkUsers(params.sender, params.recipient, params.broker.account, address(pro));
         vm.assume(params.segments.length != 0);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
@@ -141,7 +141,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
         vars.initialProtocolRevenues = pro.getProtocolRevenues(asset);
 
         // Load the pre-create asset balances.
-        vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(pro), params.broker.addr));
+        vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(pro), params.broker.account));
         vars.initialProBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
@@ -162,7 +162,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
             asset: asset,
             cancelable: true,
             range: range,
-            broker: params.broker.addr
+            broker: params.broker.account
         });
 
         // Create the stream.
@@ -203,7 +203,10 @@ abstract contract Pro_E2e_Test is E2e_Test {
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
         // Load the post-create asset balances.
-        vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(pro), holder, params.broker.addr));
+        vars.balances = getTokenBalances(
+            address(asset),
+            Solarray.addresses(address(pro), holder, params.broker.account)
+        );
         vars.actualProBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];

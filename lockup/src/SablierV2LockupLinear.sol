@@ -257,7 +257,7 @@ contract SablierV2LockupLinear is
         streamId = _createWithRange(
             CreateWithRangeParams({
                 amounts: amounts,
-                broker: broker.addr,
+                broker: broker.account,
                 cancelable: cancelable,
                 recipient: recipient,
                 sender: sender,
@@ -293,7 +293,7 @@ contract SablierV2LockupLinear is
         streamId = _createWithRange(
             CreateWithRangeParams({
                 amounts: amounts,
-                broker: broker.addr,
+                broker: broker.account,
                 cancelable: cancelable,
                 recipient: recipient,
                 sender: sender,

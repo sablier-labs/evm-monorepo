@@ -127,7 +127,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
             asset: defaultParams.createWithDeltas.asset,
             cancelable: defaultParams.createWithDeltas.cancelable,
             range: range,
-            broker: defaultParams.createWithDeltas.broker.addr
+            broker: defaultParams.createWithDeltas.broker.account
         });
 
         // Create the stream.

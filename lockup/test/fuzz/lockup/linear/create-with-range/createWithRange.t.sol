@@ -132,7 +132,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
-            Broker({ addr: users.broker, fee: brokerFee })
+            Broker({ account: users.broker, fee: brokerFee })
         );
     }
 
@@ -195,7 +195,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assetContract
         assetERC20Compliant
     {
-        vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
+        vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.totalAmount != 0);
         vm.assume(params.range.start <= params.range.cliff && params.range.cliff < params.range.end);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
@@ -231,7 +231,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         if (vars.createAmounts.brokerFee > 0) {
             expectTransferFromCall({
                 from: params.funder,
-                to: params.broker.addr,
+                to: params.broker.account,
                 amount: vars.createAmounts.brokerFee
             });
         }
@@ -247,7 +247,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             asset: DEFAULT_ASSET,
             cancelable: params.cancelable,
             range: params.range,
-            broker: params.broker.addr
+            broker: params.broker.account
         });
 
         // Create the stream.

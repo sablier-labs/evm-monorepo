@@ -82,7 +82,7 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
             asset: DEFAULT_ASSET,
             cancelable: true,
             startTime: DEFAULT_START_TIME,
-            broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
+            broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
         });
 
         // Bound the withdraw amount.

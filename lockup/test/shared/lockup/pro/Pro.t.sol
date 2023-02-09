@@ -61,7 +61,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         defaultParams.createWithDeltas.totalAmount = DEFAULT_TOTAL_AMOUNT;
         defaultParams.createWithDeltas.asset = DEFAULT_ASSET;
         defaultParams.createWithDeltas.cancelable = true;
-        defaultParams.createWithDeltas.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
+        defaultParams.createWithDeltas.broker = Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE });
 
         defaultParams.createWithMilestones.sender = users.sender;
         defaultParams.createWithMilestones.recipient = users.recipient;
@@ -69,7 +69,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         defaultParams.createWithMilestones.asset = DEFAULT_ASSET;
         defaultParams.createWithMilestones.cancelable = true;
         defaultParams.createWithMilestones.startTime = DEFAULT_START_TIME;
-        defaultParams.createWithMilestones.broker = Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE });
+        defaultParams.createWithMilestones.broker = Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE });
 
         // See https://github.com/ethereum/solidity/issues/12783
         for (uint256 i = 0; i < DEFAULT_SEGMENTS.length; ++i) {

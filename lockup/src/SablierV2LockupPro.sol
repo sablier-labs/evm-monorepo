@@ -251,7 +251,7 @@ contract SablierV2LockupPro is
         streamId = _createWithMilestones(
             CreateWithMilestonesParams({
                 amounts: amounts,
-                broker: broker.addr,
+                broker: broker.account,
                 cancelable: cancelable,
                 recipient: recipient,
                 segments: segments,
@@ -288,7 +288,7 @@ contract SablierV2LockupPro is
         streamId = _createWithMilestones(
             CreateWithMilestonesParams({
                 amounts: amounts,
-                broker: broker.addr,
+                broker: broker.account,
                 cancelable: cancelable,
                 recipient: recipient,
                 segments: segments,

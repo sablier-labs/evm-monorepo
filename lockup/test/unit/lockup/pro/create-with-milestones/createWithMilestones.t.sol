@@ -221,7 +221,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
             defaultParams.createWithMilestones.startTime,
-            Broker({ addr: address(0), fee: brokerFee })
+            Broker({ account: address(0), fee: brokerFee })
         );
     }
 
@@ -285,7 +285,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
             defaultParams.createWithMilestones.startTime,
-            Broker({ addr: users.broker, fee: brokerFee })
+            Broker({ account: users.broker, fee: brokerFee })
         );
     }
 

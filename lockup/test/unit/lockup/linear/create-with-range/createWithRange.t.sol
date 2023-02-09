@@ -146,7 +146,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
-            Broker({ addr: users.broker, fee: brokerFee })
+            Broker({ account: users.broker, fee: brokerFee })
         );
     }
 

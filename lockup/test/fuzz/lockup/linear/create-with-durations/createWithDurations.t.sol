@@ -123,7 +123,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             asset: DEFAULT_ASSET,
             cancelable: defaultParams.createWithDurations.cancelable,
             range: range,
-            broker: defaultParams.createWithDurations.broker.addr
+            broker: defaultParams.createWithDurations.broker.account
         });
 
         // Create the stream.

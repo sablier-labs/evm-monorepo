@@ -77,7 +77,7 @@ library Helpers {
         LockupPro.Segment[] memory segments,
         uint256 maxSegmentCount,
         uint40 startTime
-    ) internal pure {
+    ) internal view {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierV2Lockup_DepositAmountZero();
@@ -139,7 +139,7 @@ library Helpers {
         LockupPro.Segment[] memory segments,
         uint128 depositAmount,
         uint40 startTime
-    ) private pure {
+    ) private view {
         // Checks: the start time is strictly less than the first segment milestone.
         if (startTime >= segments[0].milestone) {
             revert Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone(

@@ -62,7 +62,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
                 asset: DEFAULT_ASSET,
                 cancelable: true,
                 durations: DEFAULT_DURATIONS,
-                broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
+                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
             }),
             createWithRange: CreateWithRangeParams({
                 sender: users.sender,
@@ -71,7 +71,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
                 asset: DEFAULT_ASSET,
                 cancelable: true,
                 range: DEFAULT_LINEAR_RANGE,
-                broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
+                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
             })
         });
 
