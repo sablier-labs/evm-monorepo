@@ -77,7 +77,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - As long as they are ordered, it is not an error to set a range in the past.
+    /// - As long as they are ordered, it is not an error to set a range that is in the past.
     ///
     /// Requirements:
     /// - `recipient` must not be the zero address.

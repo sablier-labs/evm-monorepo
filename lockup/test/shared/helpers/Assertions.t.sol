@@ -41,19 +41,22 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two `LockupLinear.Stream` struct entities.
     function assertEq(LockupLinear.Stream memory a, LockupLinear.Stream memory b) internal {
         assertEq(a.amounts, b.amounts);
+        assertEq(a.cliffTime, b.cliffTime, "cliffTime");
+        assertEq(a.endTime, b.endTime, "endTime");
         assertEq(a.isCancelable, b.isCancelable, "isCancelable");
         assertEq(a.sender, b.sender, "sender");
         assertEq(a.status, b.status);
-        assertEq(a.range, b.range);
+        assertEq(a.startTime, b.startTime, "startTime");
         assertEq(a.asset, b.asset, "asset");
     }
 
     /// @dev Compares two `LockupPro.Stream` struct entities.
     function assertEq(LockupPro.Stream memory a, LockupPro.Stream memory b) internal {
+        assertEq(a.endTime, b.endTime, "endTime");
         assertEq(a.isCancelable, b.isCancelable, "isCancelable");
         assertEq(a.segments, b.segments, "segments");
         assertEq(a.sender, b.sender, "sender");
-        assertEq(a.range, b.range);
+        assertEq(a.startTime, b.startTime, "startTime");
         assertEq(a.status, b.status);
         assertEq(a.asset, b.asset, "asset");
     }

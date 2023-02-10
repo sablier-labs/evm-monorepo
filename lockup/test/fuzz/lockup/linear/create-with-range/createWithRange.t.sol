@@ -265,9 +265,11 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
+        assertEq(actualStream.cliffTime, params.range.cliff);
+        assertEq(actualStream.endTime, params.range.end);
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
-        assertEq(actualStream.range, params.range);
         assertEq(actualStream.sender, params.sender, "sender");
+        assertEq(actualStream.startTime, params.range.start);
         assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id has been bumped.

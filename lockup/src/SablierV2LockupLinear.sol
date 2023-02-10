@@ -79,7 +79,7 @@ contract SablierV2LockupLinear is
 
     /// @inheritdoc ISablierV2LockupLinear
     function getCliffTime(uint256 streamId) external view override returns (uint40 cliffTime) {
-        cliffTime = _streams[streamId].range.cliff;
+        cliffTime = _streams[streamId].cliffTime;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -89,12 +89,16 @@ contract SablierV2LockupLinear is
 
     /// @inheritdoc ISablierV2Lockup
     function getEndTime(uint256 streamId) external view override returns (uint40 endTime) {
-        endTime = _streams[streamId].range.end;
+        endTime = _streams[streamId].endTime;
     }
 
     /// @inheritdoc ISablierV2LockupLinear
     function getRange(uint256 streamId) external view override returns (LockupLinear.Range memory range) {
-        range = _streams[streamId].range;
+        range = LockupLinear.Range({
+            start: _streams[streamId].startTime,
+            cliff: _streams[streamId].cliffTime,
+            end: _streams[streamId].endTime
+        });
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -111,7 +115,7 @@ contract SablierV2LockupLinear is
 
     /// @inheritdoc ISablierV2Lockup
     function getStartTime(uint256 streamId) external view override returns (uint40 startTime) {
-        startTime = _streams[streamId].range.start;
+        startTime = _streams[streamId].startTime;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -168,12 +172,12 @@ contract SablierV2LockupLinear is
         // always greater than the start time, this also checks whether the start time is greater than
         // the block timestamp.
         uint256 currentTime = block.timestamp;
-        uint256 cliffTime = uint256(_streams[streamId].range.cliff);
+        uint256 cliffTime = uint256(_streams[streamId].cliffTime);
         if (cliffTime > currentTime) {
             return 0;
         }
 
-        uint256 endTime = uint256(_streams[streamId].range.end);
+        uint256 endTime = uint256(_streams[streamId].endTime);
 
         // If the current time is greater than or equal to the end time, we simply return the deposit minus
         // the withdrawn amount.
@@ -184,7 +188,7 @@ contract SablierV2LockupLinear is
         unchecked {
             // In all other cases, calculate how much has been streamed so far.
             // First, calculate how much time has elapsed since the stream started, and the total time of the stream.
-            uint256 startTime = uint256(_streams[streamId].range.start);
+            uint256 startTime = uint256(_streams[streamId].startTime);
             UD60x18 elapsedTime = ud(currentTime - startTime);
             UD60x18 totalTime = ud(endTime - startTime);
 
@@ -418,11 +422,13 @@ contract SablierV2LockupLinear is
         // Effects: create the stream.
         _streams[streamId] = LockupLinear.Stream({
             amounts: Lockup.Amounts({ deposit: params.amounts.deposit, withdrawn: 0 }),
+            asset: params.asset,
+            cliffTime: params.range.cliff,
+            endTime: params.range.end,
             isCancelable: params.cancelable,
             sender: params.sender,
             status: Lockup.Status.ACTIVE,
-            range: params.range,
-            asset: params.asset
+            startTime: params.range.start
         });
 
         // Effects: bump the next stream id and record the protocol fee.

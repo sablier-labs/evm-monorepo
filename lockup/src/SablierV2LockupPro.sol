@@ -99,12 +99,12 @@ contract SablierV2LockupPro is
 
     /// @inheritdoc ISablierV2Lockup
     function getEndTime(uint256 streamId) external view override returns (uint40 endTime) {
-        endTime = _streams[streamId].range.end;
+        endTime = _streams[streamId].endTime;
     }
 
     /// @inheritdoc ISablierV2LockupPro
     function getRange(uint256 streamId) external view override returns (LockupPro.Range memory range) {
-        range = _streams[streamId].range;
+        range = LockupPro.Range({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -126,7 +126,7 @@ contract SablierV2LockupPro is
 
     /// @inheritdoc ISablierV2Lockup
     function getStartTime(uint256 streamId) external view override returns (uint40 startTime) {
-        startTime = _streams[streamId].range.start;
+        startTime = _streams[streamId].startTime;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -181,12 +181,12 @@ contract SablierV2LockupPro is
 
         // If the start time is greater than or equal to the block timestamp, return zero.
         uint40 currentTime = uint40(block.timestamp);
-        if (_streams[streamId].range.start >= currentTime) {
+        if (_streams[streamId].startTime >= currentTime) {
             return 0;
         }
 
         uint256 segmentCount = _streams[streamId].segments.length;
-        uint40 endTime = _streams[streamId].range.end;
+        uint40 endTime = _streams[streamId].endTime;
 
         // If the current time is greater than or equal to the end time, we simply return the deposit minus
         // the withdrawn amount.
@@ -334,7 +334,7 @@ contract SablierV2LockupPro is
                 previousMilestone = _streams[streamId].segments[index - 2].milestone;
             } else {
                 // Otherwise, the current segment is the first, so use the start time as the previous milestone.
-                previousMilestone = _streams[streamId].range.start;
+                previousMilestone = _streams[streamId].startTime;
             }
 
             // Calculate how much time has elapsed since the segment started, and the total time of the segment.
@@ -363,8 +363,8 @@ contract SablierV2LockupPro is
             SD59x18 exponent = _streams[streamId].segments[0].exponent.intoSD59x18();
 
             // Calculate how much time has elapsed since the stream started, and the total time of the stream.
-            SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].range.start).intoSD59x18();
-            SD59x18 totalTime = (_streams[streamId].range.end - _streams[streamId].range.start).intoSD59x18();
+            SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
+            SD59x18 totalTime = (_streams[streamId].endTime - _streams[streamId].startTime).intoSD59x18();
 
             // Calculate the streamed amount.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
@@ -501,10 +501,8 @@ contract SablierV2LockupPro is
 
         unchecked {
             // The segment count cannot be zero at this point.
-            stream.range = LockupPro.Range({
-                start: params.startTime,
-                end: params.segments[segmentCount - 1].milestone
-            });
+            stream.endTime = params.segments[segmentCount - 1].milestone;
+            stream.startTime = params.startTime;
 
             // Effects: store the segments. Copying an array from memory to storage is not currently supported in
             // Solidity, so it has to be done manually. See https://github.com/ethereum/solidity/issues/12783
@@ -546,7 +544,7 @@ contract SablierV2LockupPro is
             asset: params.asset,
             cancelable: params.cancelable,
             segments: params.segments,
-            range: stream.range,
+            range: LockupPro.Range({ start: stream.startTime, end: stream.endTime }),
             broker: params.broker
         });
     }

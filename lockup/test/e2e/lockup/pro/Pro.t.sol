@@ -112,7 +112,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
         vm.assume(params.segments.length != 0);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
-        params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone - 1);
+        params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
 
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(params.segments, params.startTime);
@@ -181,10 +181,11 @@ abstract contract Pro_E2e_Test is E2e_Test {
         LockupPro.Stream memory actualStream = pro.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.amounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
+        assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
-        assertEq(actualStream.range, range);
         assertEq(actualStream.segments, params.segments);
         assertEq(actualStream.sender, params.sender, "sender");
+        assertEq(actualStream.startTime, range.start, "startTime");
         assertEq(actualStream.status, Lockup.Status.ACTIVE);
 
         // Assert that the next stream id has been bumped.

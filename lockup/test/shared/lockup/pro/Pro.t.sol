@@ -79,10 +79,11 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
 
         // Create the default stream to be used across the tests.
         defaultStream.amounts = DEFAULT_LOCKUP_AMOUNTS;
+        defaultStream.endTime = DEFAULT_END_TIME;
         defaultStream.isCancelable = defaultParams.createWithMilestones.cancelable;
         defaultStream.segments = defaultParams.createWithMilestones.segments;
         defaultStream.sender = defaultParams.createWithMilestones.sender;
-        defaultStream.range = DEFAULT_PRO_RANGE;
+        defaultStream.startTime = DEFAULT_START_TIME;
         defaultStream.status = Lockup.Status.ACTIVE;
         defaultStream.asset = defaultParams.createWithMilestones.asset;
     }

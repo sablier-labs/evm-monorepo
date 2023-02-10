@@ -362,10 +362,11 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         LockupPro.Stream memory actualStream = pro.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
+        assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
-        assertEq(actualStream.range, range);
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.segments, params.segments);
+        assertEq(actualStream.startTime, range.start, "startTime");
         assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id has been bumped.

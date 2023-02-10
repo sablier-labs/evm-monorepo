@@ -169,9 +169,11 @@ abstract contract Linear_E2e_Test is E2e_Test {
         LockupLinear.Stream memory actualStream = linear.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
+        assertEq(actualStream.cliffTime, params.range.cliff, "cliffTime");
+        assertEq(actualStream.endTime, params.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
-        assertEq(actualStream.range, params.range);
         assertEq(actualStream.sender, params.sender, "sender");
+        assertEq(actualStream.startTime, params.range.start, "startTime");
         assertEq(actualStream.status, Lockup.Status.ACTIVE);
 
         // Assert that the next stream id has been bumped.

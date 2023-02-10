@@ -84,17 +84,17 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
                 assertEq(actualStream.amounts.deposit, 0, "Invariant violated: stream null, deposit amount not zero");
                 assertEq(actualStream.amounts.withdrawn, 0, "Invariant violated: stream null, withdrawn amount not zero");
                 assertEq(address(actualStream.asset), address(0), "Invariant violated: stream null, asset not zero address");
-                assertEq(actualStream.range.end, 0, "Invariant violated: stream null, end time not zero");
-                assertEq(actualStream.range.start, 0, "Invariant violated: stream null, start time not zero");
+                assertEq(actualStream.endTime, 0, "Invariant violated: stream null, end time not zero");
                 assertEq(actualStream.isCancelable, false, "Invariant violated: stream null, isCancelable not false");
                 assertEq(actualStream.segments.length, 0, "Invariant violated: stream null, segment count not zero");
                 assertEq(actualStream.sender, address(0), "Invariant violated: stream null, sender not zero address");
+                assertEq(actualStream.startTime, 0, "Invariant violated: stream null, start time not zero");
                 assertEq(actualRecipient, address(0), "Invariant violated: stream null, recipient not zero address");
             }
             // If the stream is not null, it should contain a non-zero deposit amount.
             else {
                 assertNotEq(actualStream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero");
-                assertNotEq(actualStream.range.end, 0, "Invariant violated: stream non-null, end time zero");
+                assertNotEq(actualStream.endTime, 0, "Invariant violated: stream non-null, end time zero");
             }
             unchecked {
                 i += 1;

@@ -78,10 +78,12 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         // Create the default stream to be used across the tests.
         defaultStream = LockupLinear.Stream({
             amounts: DEFAULT_LOCKUP_AMOUNTS,
+            cliffTime: defaultParams.createWithRange.range.cliff,
+            endTime: defaultParams.createWithRange.range.end,
             isCancelable: defaultParams.createWithRange.cancelable,
             sender: defaultParams.createWithRange.sender,
+            startTime: defaultParams.createWithRange.range.start,
             status: Lockup.Status.ACTIVE,
-            range: defaultParams.createWithRange.range,
             asset: defaultParams.createWithRange.asset
         });
     }

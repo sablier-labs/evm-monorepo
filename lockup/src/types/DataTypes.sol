@@ -71,20 +71,23 @@ library LockupLinear {
 
     /// @notice Lockup linear stream struct used in the {SablierV2LockupLinear} contract.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
-    /// @custom:field amounts Simple struct with the deposit and withdrawn amounts.
-    /// @custom:field range Struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the
-    /// stream, and (iii) the end time of the stream, all as Unix timestamps.
+    /// @custom:field amounts Simple struct with the deposit and the withdrawn amount.
     /// @custom:field sender The address of the sender of the stream.
+    /// @custom:field startTime The Unix timestamp for when the stream will start.
+    /// @custom:field cliffTime The Unix timestamp for when the cliff period will end.
     /// @custom:field isCancelable Boolean that indicates whether the stream is cancelable or not.
-    /// @custom:field status An enum that indicates the status of the stream.
     /// @custom:field asset The contract address of the ERC-20 asset used for streaming.
+    /// @custom:field endTime The Unix timestamp for when the stream will end.
+    /// @custom:field status An enum that indicates the status of the stream.
     struct Stream {
         Lockup.Amounts amounts;
-        Range range;
-        address sender; // ───────┐
-        bool isCancelable; //     │
+        address sender; // ────┐
+        uint40 startTime; //   │
+        uint40 cliffTime; //   │
+        bool isCancelable; // ─┘
+        IERC20 asset; // ─────────┐
+        uint40 endTime; //        │
         Lockup.Status status; // ─┘
-        IERC20 asset;
     }
 }
 
@@ -120,19 +123,20 @@ library LockupPro {
 
     /// @notice Pro stream struct used in the {SablierV2LockupPro} contract.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
-    /// @custom:field amounts Simple struct with the deposit and withdrawn amounts.
-    /// @custom:field range Simple struct that encapsulates (i) the start time of the stream, and (ii) the end time of
-    /// of the stream, both as Unix timestamps.
+    /// @custom:field amounts Simple struct with the deposit and the withdrawn amount.
     /// @custom:field segments The segments the protocol uses to compose the custom streaming curve.
     /// @custom:field sender The address of the sender of the stream.
+    /// @custom:field startTime The Unix timestamp for when the stream will start.
+    /// @custom:field endTime The Unix timestamp for when the stream will end.
     /// @custom:field isCancelable Boolean that indicates whether the stream is cancelable or not.
     /// @custom:field status An enum that indicates the status of the stream.
     /// @custom:field asset The contract address of the ERC-20 asset used for streaming.
     struct Stream {
         Lockup.Amounts amounts;
-        Range range;
         Segment[] segments;
         address sender; // ───────┐
+        uint40 startTime; //      │
+        uint40 endTime; //        │
         bool isCancelable; //     │
         Lockup.Status status; // ─┘
         IERC20 asset;
