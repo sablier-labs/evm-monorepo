@@ -43,6 +43,8 @@ contract FlashLoanHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     function flashLoan(uint128 amount) external instrument("flashLoan") {
+        amount = uint128(bound(amount, 0, asset.balanceOf(address(flashLoanContract))));
+
         // Only supported ERC-20 assets can be flash loaned.
         bool isFlashLoanable = comptroller.isFlashLoanable(asset);
         if (!isFlashLoanable) {
@@ -54,9 +56,6 @@ contract FlashLoanHandler is BaseHandler {
         if (fee > type(uint128).max) {
             return;
         }
-
-        // Mint the flash loan amount to the contract.
-        deal({ token: address(asset), to: address(flashLoanContract), give: amount });
 
         // Mint the flash fee to the receiver so that they can repay the flash loan.
         deal({ token: address(asset), to: address(receiver), give: fee });

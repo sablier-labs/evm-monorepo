@@ -61,7 +61,9 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
         excludeSender(address(proCreateHandler));
 
         // Label the pro handler.
-        vm.label({ account: address(lockupHandler), newLabel: "LockupProHandler" });
+        vm.label({ account: address(proHandler), newLabel: "LockupProHandler" });
+        vm.label({ account: address(proCreateHandler), newLabel: "LockupProCreateHandler" });
+        vm.label({ account: address(flashLoanHandler), newLabel: "FlashLoanHandler" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
