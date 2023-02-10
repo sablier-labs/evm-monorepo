@@ -34,7 +34,7 @@ contract FlashLoanHandler is BaseHandler {
         asset = asset_;
         comptroller = comptroller_;
         flashLoanContract = flashLoanContract_;
-        receiver_ = receiver;
+        receiver = receiver_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
