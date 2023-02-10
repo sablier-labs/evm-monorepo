@@ -18,6 +18,7 @@ contract FlashLoanHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 public asset;
+    ISablierV2Comptroller public comptroller;
     SablierV2FlashLoan public flashLoanContract;
     IERC3156FlashBorrower internal receiver;
 

@@ -27,6 +27,8 @@ contract LockupProCreateHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 public asset;
+    ISablierV2Comptroller public comptroller;
+    ISablierV2LockupPro public pro;
     LockupHandlerStorage public store;
 
     /*//////////////////////////////////////////////////////////////////////////
