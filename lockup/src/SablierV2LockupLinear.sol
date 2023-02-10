@@ -226,13 +226,7 @@ contract SablierV2LockupLinear is
 
     /// @inheritdoc ISablierV2LockupLinear
     function createWithDurations(
-        address sender,
-        address recipient,
-        uint128 totalAmount,
-        IERC20 asset,
-        bool cancelable,
-        LockupLinear.Durations calldata durations,
-        Broker calldata broker
+        LockupLinear.CreateWithDurations calldata params
     ) external override returns (uint256 streamId) {
         // Set the current block timestamp as the start time of the stream.
         LockupLinear.Range memory range;
@@ -242,69 +236,52 @@ contract SablierV2LockupLinear is
         // {_createWithRange} function will nonetheless check that the end time is greater than or equal to the
         // cliff time, and also that the cliff time is greater than or equal to the start time.
         unchecked {
-            range.cliff = range.start + durations.cliff;
-            range.end = range.start + durations.total;
+            range.cliff = range.start + params.durations.cliff;
+            range.end = range.start + params.durations.total;
         }
 
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(asset);
+        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
 
         // Checks: check the fees and calculate the fee amounts.
-        Lockup.CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
-            totalAmount,
+        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
+            params.totalAmount,
             protocolFee,
-            broker.fee,
+            params.broker.fee,
             MAX_FEE
         );
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithRange(
-            CreateWithRangeParams({
-                amounts: amounts,
-                broker: broker.account,
-                cancelable: cancelable,
-                recipient: recipient,
-                sender: sender,
+            LockupLinear.CreateWithRange({
+                sender: params.sender,
+                recipient: params.recipient,
+                totalAmount: params.totalAmount,
+                asset: params.asset,
+                cancelable: params.cancelable,
                 range: range,
-                asset: asset
-            })
+                broker: params.broker
+            }),
+            createAmounts
         );
     }
 
     /// @inheritdoc ISablierV2LockupLinear
-    function createWithRange(
-        address sender,
-        address recipient,
-        uint128 totalAmount,
-        IERC20 asset,
-        bool cancelable,
-        LockupLinear.Range calldata range,
-        Broker calldata broker
-    ) external override returns (uint256 streamId) {
+    function createWithRange(LockupLinear.CreateWithRange calldata params) public override returns (uint256 streamId) {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(asset);
+        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
 
         // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
         // deposit amount.
-        Lockup.CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
-            totalAmount,
+        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
+            params.totalAmount,
             protocolFee,
-            broker.fee,
+            params.broker.fee,
             MAX_FEE
         );
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithRange(
-            CreateWithRangeParams({
-                amounts: amounts,
-                broker: broker.account,
-                cancelable: cancelable,
-                recipient: recipient,
-                sender: sender,
-                range: range,
-                asset: asset
-            })
-        );
+        streamId = _createWithRange(params, createAmounts);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -400,28 +377,20 @@ contract SablierV2LockupLinear is
         emit Events.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
     }
 
-    /// @dev This struct is needed to avoid the "Stack Too Deep" error.
-    struct CreateWithRangeParams {
-        Lockup.CreateAmounts amounts;
-        LockupLinear.Range range;
-        address sender; // ──┐
-        bool cancelable; // ─┘
-        address recipient;
-        IERC20 asset;
-        address broker;
-    }
-
     /// @dev See the documentation for the public functions that call this internal function.
-    function _createWithRange(CreateWithRangeParams memory params) internal returns (uint256 streamId) {
+    function _createWithRange(
+        LockupLinear.CreateWithRange memory params,
+        Lockup.CreateAmounts memory createAmounts
+    ) internal returns (uint256 streamId) {
         // Checks: validate the arguments.
-        Helpers.checkCreateLinearParams(params.amounts.deposit, params.range);
+        Helpers.checkCreateLinearParams(createAmounts.deposit, params.range);
 
         // Load the stream id.
         streamId = nextStreamId;
 
         // Effects: create the stream.
         _streams[streamId] = LockupLinear.Stream({
-            amounts: Lockup.Amounts({ deposit: params.amounts.deposit, withdrawn: 0 }),
+            amounts: Lockup.Amounts({ deposit: createAmounts.deposit, withdrawn: 0 }),
             asset: params.asset,
             cliffTime: params.range.cliff,
             endTime: params.range.end,
@@ -435,7 +404,7 @@ contract SablierV2LockupLinear is
         // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
-            _protocolRevenues[params.asset] += params.amounts.protocolFee;
+            _protocolRevenues[params.asset] += createAmounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.
@@ -447,13 +416,17 @@ contract SablierV2LockupLinear is
             params.asset.safeTransferFrom({
                 from: msg.sender,
                 to: address(this),
-                value: params.amounts.deposit + params.amounts.protocolFee
+                value: createAmounts.deposit + createAmounts.protocolFee
             });
         }
 
         // Interactions: pay the broker fee, if not zero.
-        if (params.amounts.brokerFee > 0) {
-            params.asset.safeTransferFrom({ from: msg.sender, to: params.broker, value: params.amounts.brokerFee });
+        if (createAmounts.brokerFee > 0) {
+            params.asset.safeTransferFrom({
+                from: msg.sender,
+                to: params.broker.account,
+                value: createAmounts.brokerFee
+            });
         }
 
         // Log the newly created stream, and the address that funded it.
@@ -462,11 +435,11 @@ contract SablierV2LockupLinear is
             funder: msg.sender,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: params.amounts,
+            amounts: createAmounts,
             asset: params.asset,
             cancelable: params.cancelable,
             range: params.range,
-            broker: params.broker
+            broker: params.broker.account
         });
     }
 

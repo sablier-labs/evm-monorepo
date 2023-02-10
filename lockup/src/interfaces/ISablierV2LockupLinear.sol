@@ -41,38 +41,20 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a stream funded by `msg.sender` wrapped in an ERC-721 NFT, setting the start time to
-    /// `block.timestamp` and the end time to `block.timestamp + durations.total`.
+    /// @notice Creates a stream by setting the start time to `block.timestamp` and the end time to `block.timestamp +
+    /// params.durations.total`. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
     ///
     /// Requirements:
     /// - All from {createWithRange}.
     ///
-    /// @param sender The address from which to stream the assets, which will have the ability to
-    /// cancel the stream. It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address toward which to stream the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
-    /// potential fees. This is represented in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset to use for streaming.
-    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
-    /// @param durations Struct that encapsulates (i) the duration of the cliff period and (ii) the total duration of
-    /// the stream, both in seconds.
-    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
-    /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
+    /// @param params Struct that encapsulates the function parameters.
     /// @return streamId The id of the newly created stream.
-    function createWithDurations(
-        address sender,
-        address recipient,
-        uint128 totalAmount,
-        IERC20 asset,
-        bool cancelable,
-        LockupLinear.Durations calldata durations,
-        Broker calldata broker
-    ) external returns (uint256 streamId);
+    function createWithDurations(LockupLinear.CreateWithDurations calldata params) external returns (uint256 streamId);
 
-    /// @notice Creates a new stream funded by `msg.sender` wrapped in an ERC-721 NFT, setting the start time and the
-    /// end time to the provided values.
+    /// @notice Creates a stream with the provided start time and end time as the range of the stream. The stream is
+    /// funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
     ///
@@ -80,32 +62,14 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - As long as they are ordered, it is not an error to set a range that is in the past.
     ///
     /// Requirements:
-    /// - `recipient` must not be the zero address.
-    /// - `totalAmount` must not be zero.
-    /// - `range.start` must not be greater than `range.cliff`.
-    /// - `range.cliff` must not be greater than `range.end`.
-    /// - `msg.sender` must have allowed this contract to spend at least `totalAmount` assets.
-    /// - If set, `broker.fee` must not be greater than `MAX_FEE`.
+    /// - `params.recipient` must not be the zero address.
+    /// - `params.totalAmount` must not be zero.
+    /// - `params.range.start` must not be greater than `params.range.cliff`.
+    /// - `params.range.cliff` must not be greater than `params.range.end`.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
+    /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
     ///
-    /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
-    /// It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address toward which to stream the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
-    /// potential fees. This is represented in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset to use for streaming.
-    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
-    /// @param range Struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
-    /// and (iii) the end time of the stream, all as Unix timestamps.
-    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
-    /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
+    /// @param params Struct that encapsulates the function parameters.
     /// @return streamId The id of the newly created stream.
-    function createWithRange(
-        address sender,
-        address recipient,
-        uint128 totalAmount,
-        IERC20 asset,
-        bool cancelable,
-        LockupLinear.Range calldata range,
-        Broker calldata broker
-    ) external returns (uint256 streamId);
+    function createWithRange(LockupLinear.CreateWithRange calldata params) external returns (uint256 streamId);
 }

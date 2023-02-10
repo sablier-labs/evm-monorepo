@@ -93,8 +93,7 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream NFT to burn.
     function burn(uint256 streamId) external;
 
-    /// @notice Cancels multiple streams and. for each stream, transfers any remaining assets to the sender and
-    /// the recipient.
+    /// @notice Cancels the stream and transfers any remaining assets to the sender and the recipient.
     ///
     /// @dev Emits a {CancelLockupStream} event.
     ///

@@ -223,79 +223,54 @@ contract SablierV2LockupPro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupPro
-    function createWithDeltas(
-        address sender,
-        address recipient,
-        uint128 totalAmount,
-        IERC20 asset,
-        bool cancelable,
-        LockupPro.SegmentWithDelta[] memory segments,
-        Broker calldata broker
-    ) external override returns (uint256 streamId) {
+    function createWithDeltas(LockupPro.CreateWithDeltas calldata params) external override returns (uint256 streamId) {
         // Checks: check the deltas and generate the canonical segments.
-        LockupPro.Segment[] memory segmentsWithMilestones = Helpers.checkDeltasAndCalculateMilestones(segments);
+        LockupPro.Segment[] memory segments = Helpers.checkDeltasAndCalculateMilestones(params.segments);
 
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(asset);
+        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
 
         // Checks: check the fees and calculate the fee amounts.
-        Lockup.CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
-            totalAmount,
+        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
+            params.totalAmount,
             protocolFee,
-            broker.fee,
+            params.broker.fee,
             MAX_FEE
         );
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithMilestones(
-            CreateWithMilestonesParams({
-                amounts: amounts,
-                broker: broker.account,
-                cancelable: cancelable,
-                recipient: recipient,
-                segments: segmentsWithMilestones,
-                sender: sender,
-                asset: asset,
-                startTime: uint40(block.timestamp)
-            })
+            LockupPro.CreateWithMilestones({
+                asset: params.asset,
+                broker: params.broker,
+                cancelable: params.cancelable,
+                recipient: params.recipient,
+                segments: segments,
+                sender: params.sender,
+                startTime: uint40(block.timestamp),
+                totalAmount: params.totalAmount
+            }),
+            createAmounts
         );
     }
 
     /// @inheritdoc ISablierV2LockupPro
     function createWithMilestones(
-        address sender,
-        address recipient,
-        uint128 totalAmount,
-        IERC20 asset,
-        bool cancelable,
-        LockupPro.Segment[] calldata segments,
-        uint40 startTime,
-        Broker calldata broker
+        LockupPro.CreateWithMilestones calldata params
     ) external override returns (uint256 streamId) {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(asset);
+        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
 
         // Checks: check the fees and calculate the fee amounts.
-        Lockup.CreateAmounts memory amounts = Helpers.checkAndCalculateFees(
-            totalAmount,
+        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
+            params.totalAmount,
             protocolFee,
-            broker.fee,
+            params.broker.fee,
             MAX_FEE
         );
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithMilestones(
-            CreateWithMilestonesParams({
-                amounts: amounts,
-                broker: broker.account,
-                cancelable: cancelable,
-                recipient: recipient,
-                segments: segments,
-                sender: sender,
-                asset: asset,
-                startTime: startTime
-            })
-        );
+        streamId = _createWithMilestones(params, createAmounts);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -468,22 +443,13 @@ contract SablierV2LockupPro is
         emit Events.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
     }
 
-    /// @dev This struct is needed to avoid the "Stack Too Deep" error.
-    struct CreateWithMilestonesParams {
-        Lockup.CreateAmounts amounts;
-        LockupPro.Segment[] segments;
-        address sender; // ──┐
-        uint40 startTime; // │
-        bool cancelable; // ─┘
-        address recipient;
-        IERC20 asset;
-        address broker;
-    }
-
     /// @dev See the documentation for the public functions that call this internal function.
-    function _createWithMilestones(CreateWithMilestonesParams memory params) internal returns (uint256 streamId) {
+    function _createWithMilestones(
+        LockupPro.CreateWithMilestones memory params,
+        Lockup.CreateAmounts memory createAmounts
+    ) internal returns (uint256 streamId) {
         // Checks: validate the arguments.
-        Helpers.checkCreateProParams(params.amounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
+        Helpers.checkCreateProParams(createAmounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
         // Load the stream id.
         streamId = nextStreamId;
@@ -493,7 +459,7 @@ contract SablierV2LockupPro is
 
         // Effects: create the stream.
         LockupPro.Stream storage stream = _streams[streamId];
-        stream.amounts = Lockup.Amounts({ deposit: params.amounts.deposit, withdrawn: 0 });
+        stream.amounts = Lockup.Amounts({ deposit: createAmounts.deposit, withdrawn: 0 });
         stream.asset = params.asset;
         stream.isCancelable = params.cancelable;
         stream.sender = params.sender;
@@ -513,7 +479,7 @@ contract SablierV2LockupPro is
             // Effects: bump the next stream id and record the protocol fee.
             // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
             nextStreamId = streamId + 1;
-            _protocolRevenues[params.asset] += params.amounts.protocolFee;
+            _protocolRevenues[params.asset] += createAmounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.
@@ -525,13 +491,17 @@ contract SablierV2LockupPro is
             params.asset.safeTransferFrom({
                 from: msg.sender,
                 to: address(this),
-                value: params.amounts.deposit + params.amounts.protocolFee
+                value: createAmounts.deposit + createAmounts.protocolFee
             });
         }
 
         // Interactions: pay the broker fee, if not zero.
-        if (params.amounts.brokerFee > 0) {
-            params.asset.safeTransferFrom({ from: msg.sender, to: params.broker, value: params.amounts.brokerFee });
+        if (createAmounts.brokerFee > 0) {
+            params.asset.safeTransferFrom({
+                from: msg.sender,
+                to: params.broker.account,
+                value: createAmounts.brokerFee
+            });
         }
 
         // Log the newly created stream, and the address that funded it.
@@ -540,12 +510,12 @@ contract SablierV2LockupPro is
             funder: msg.sender,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: params.amounts,
+            amounts: createAmounts,
             asset: params.asset,
             cancelable: params.cancelable,
             segments: params.segments,
             range: LockupPro.Range({ start: stream.startTime, end: stream.endTime }),
-            broker: params.broker
+            broker: params.broker.account
         });
     }
 

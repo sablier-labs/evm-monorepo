@@ -6,8 +6,8 @@ import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @notice Simple struct that encapsulates the optional broker parameters that can be passed to the create functions.
-/// @custom:field account The address of the broker the fee will be paid to.
-/// @custom:field fee The percentage fee that the broker is paid from the total amount, as an UD60x18 number.
+/// @param account The address of the broker the fee will be paid to.
+/// @param fee The percentage fee that the broker is paid from the total amount, as an UD60x18 number.
 struct Broker {
     address account;
     UD60x18 fee;
@@ -16,9 +16,9 @@ struct Broker {
 /// @notice Quasi-namespace for the structs used in the {SablierV2Lockup} contract.
 library Lockup {
     /// @notice Simple struct that encapsulates the deposit and the withdrawn amounts.
-    /// @custom:field deposit The amount of assets that have been originally deposited in the stream, net of fees and
+    /// @param deposit The amount of assets that have been originally deposited in the stream, net of fees and
     /// in units of the asset's decimals.
-    /// @custom:field withdrawn The amount of assets that have been withdrawn from the stream, in units of the asset's
+    /// @param withdrawn The amount of assets that have been withdrawn from the stream, in units of the asset's
     /// decimals.
     struct Amounts {
         uint128 deposit; // ───┐
@@ -27,9 +27,9 @@ library Lockup {
 
     /// @notice Simple struct that encapsulates (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
     /// broker fee amount, each in units of the asset's decimals.
-    /// @custom:field deposit The amount deposited in the stream, in units of the asset's decimals.
-    /// @custom:field protocolFee The protocol fee amount, in units of the asset's decimals.
-    /// @custom:field brokerFee The broker fee amount, in units of the asset's decimals.
+    /// @param deposit The amount deposited in the stream, in units of the asset's decimals.
+    /// @param protocolFee The protocol fee amount, in units of the asset's decimals.
+    /// @param brokerFee The broker fee amount, in units of the asset's decimals.
     struct CreateAmounts {
         uint128 deposit; // ─────┐
         uint128 protocolFee; // ─┘
@@ -51,18 +51,62 @@ library Lockup {
 
 /// @notice Quasi-namespace for the structs used in the {SablierV2LockupLinear} contract.
 library LockupLinear {
+    /// @notice Struct that encapsulates the parameters of the {SablierV2LockupLinear-createWithDurations} function.
+    /// @param sender The address from which to stream the assets, which will have the ability to
+    /// cancel the stream. It doesn't have to be the same as `msg.sender`.
+    /// @param recipient The address toward which to stream the assets.
+    /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
+    /// potential fees. This is represented in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset to use for streaming.
+    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param durations Struct that encapsulates (i) the duration of the cliff period and (ii) the total duration of
+    /// the stream, both in seconds.
+    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
+    /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
+    struct CreateWithDurations {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        IERC20 asset;
+        bool cancelable;
+        LockupLinear.Durations durations;
+        Broker broker;
+    }
+
+    /// @notice Struct that encapsulates the parameters of the {SablierV2LockupLinear-createWithRange} function.
+    /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
+    /// It doesn't have to be the same as `msg.sender`.
+    /// @param recipient The address toward which to stream the assets.
+    /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
+    /// potential fees. This is represented in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset to use for streaming.
+    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param range Struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
+    /// and (iii) the end time of the stream, all as Unix timestamps.
+    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
+    /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
+    struct CreateWithRange {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        IERC20 asset;
+        bool cancelable;
+        Range range;
+        Broker broker;
+    }
+
     /// @notice Simple struct that encapsulates (i) the cliff duration and (ii) the total duration.
-    /// @custom:field cliff The cliff duration in seconds.
-    /// @custom:field cliff The total duration in seconds.
+    /// @param cliff The cliff duration in seconds.
+    /// @param cliff The total duration in seconds.
     struct Durations {
         uint40 cliff; // ─┐
         uint40 total; // ─┘
     }
 
-    /// @notice Simple struct that encapsulates (i) the start time, (ii) the cliff time and (iii) the end time.
-    /// @custom:field start The Unix timestamp for when the stream will start.
-    /// @custom:field cliff The Unix timestamp for when the cliff period will end.
-    /// @custom:field end The Unix timestamp for when the stream will end.
+    /// @notice Range struct used as a field in the lockup linear stream.
+    /// @param start The Unix timestamp for when the stream will start.
+    /// @param cliff The Unix timestamp for when the cliff period will end.
+    /// @param end The Unix timestamp for when the stream will end.
     struct Range {
         uint40 start; // ─┐
         uint40 cliff; //  │
@@ -71,14 +115,14 @@ library LockupLinear {
 
     /// @notice Lockup linear stream struct used in the {SablierV2LockupLinear} contract.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
-    /// @custom:field amounts Simple struct with the deposit and the withdrawn amount.
-    /// @custom:field sender The address of the sender of the stream.
-    /// @custom:field startTime The Unix timestamp for when the stream will start.
-    /// @custom:field cliffTime The Unix timestamp for when the cliff period will end.
-    /// @custom:field isCancelable Boolean that indicates whether the stream is cancelable or not.
-    /// @custom:field asset The contract address of the ERC-20 asset used for streaming.
-    /// @custom:field endTime The Unix timestamp for when the stream will end.
-    /// @custom:field status An enum that indicates the status of the stream.
+    /// @param amounts Simple struct with the deposit and the withdrawn amount.
+    /// @param sender The address of the sender of the stream.
+    /// @param startTime The Unix timestamp for when the stream will start.
+    /// @param cliffTime The Unix timestamp for when the cliff period will end.
+    /// @param isCancelable Boolean that indicates whether the stream is cancelable or not.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param endTime The Unix timestamp for when the stream will end.
+    /// @param status An enum that indicates the status of the stream.
     struct Stream {
         Lockup.Amounts amounts;
         address sender; // ────┐
@@ -93,18 +137,63 @@ library LockupLinear {
 
 /// @notice Quasi-namespace for the structs used in the {SablierV2LockupPro} contract.
 library LockupPro {
-    /// @notice Simple struct that encapsulates (i) the start time and (ii) the end time.
-    /// @custom:field start The Unix timestamp for when the stream will start.
-    /// @custom:field end The Unix timestamp for when the stream will end.
+    /// @notice Struct that encapsulates the parameters of the {SablierV2LockupPro-createWithDeltas} function.
+    /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
+    /// It doesn't have to be the same as `msg.sender`.
+    /// @param recipient The address toward which to stream the assets.
+    /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
+    /// potential fees. This is represented in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset to use for streaming.
+    /// @param cancelable Boolean that indicates whether the stream is cancelable or not.
+    /// @param segments The segments with deltas the protocol will use to compose the custom streaming curve.
+    /// The milestones will be be calculated by adding each delta to `block.timestamp`.
+    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
+    /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
+    struct CreateWithDeltas {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        IERC20 asset;
+        bool cancelable;
+        LockupPro.SegmentWithDelta[] segments;
+        Broker broker;
+    }
+
+    /// @notice Struct that encapsulates the parameters of the {SablierV2LockupPro-createWithMilestones} function.
+    /// @param segments  The segments the protocol uses to compose the custom streaming curve.
+    /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
+    /// It doesn't have to be the same as `msg.sender`.
+    /// @param startTime The Unix timestamp for when the stream will start.
+    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param recipient The address toward which to stream the assets.
+    /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
+    /// potential fees. This is represented in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset to use for streaming.
+    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
+    /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
+    struct CreateWithMilestones {
+        LockupPro.Segment[] segments;
+        address sender; // ──┐
+        uint40 startTime; // │
+        bool cancelable; // ─┘
+        address recipient;
+        uint128 totalAmount;
+        IERC20 asset;
+        Broker broker;
+    }
+
+    /// @notice Range struct used as a field in the lockup pro stream.
+    /// @param start The Unix timestamp for when the stream will start.
+    /// @param end The Unix timestamp for when the stream will end.
     struct Range {
         uint40 start; // ─┐
         uint40 end; // ───┘
     }
 
     /// @notice Segment struct used in the {SablierV2LockupPro} contract.
-    /// @custom:field amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
-    /// @custom:field exponent The exponent of this segment, as an UD2x18 number.
-    /// @custom:field milestone The Unix timestamp for when this segment ends.
+    /// @param amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
+    /// @param exponent The exponent of this segment, as an UD2x18 number.
+    /// @param milestone The Unix timestamp for when this segment ends.
     struct Segment {
         uint128 amount; // ───┐
         UD2x18 exponent; //   │
@@ -112,9 +201,9 @@ library LockupPro {
     }
 
     /// @notice Segment struct used in the {SablierV2LockupPro-createWithDeltas} function.
-    /// @custom:field amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
-    /// @custom:field exponent The exponent of this segment, as an UD2x18 number.
-    /// @custom:field delta The time difference between this segment and the previous one, in seconds.
+    /// @param amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
+    /// @param exponent The exponent of this segment, as an UD2x18 number.
+    /// @param delta The time difference between this segment and the previous one, in seconds.
     struct SegmentWithDelta {
         uint128 amount; // ─┐
         UD2x18 exponent; // │
@@ -123,14 +212,14 @@ library LockupPro {
 
     /// @notice Pro stream struct used in the {SablierV2LockupPro} contract.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
-    /// @custom:field amounts Simple struct with the deposit and the withdrawn amount.
-    /// @custom:field segments The segments the protocol uses to compose the custom streaming curve.
-    /// @custom:field sender The address of the sender of the stream.
-    /// @custom:field startTime The Unix timestamp for when the stream will start.
-    /// @custom:field endTime The Unix timestamp for when the stream will end.
-    /// @custom:field isCancelable Boolean that indicates whether the stream is cancelable or not.
-    /// @custom:field status An enum that indicates the status of the stream.
-    /// @custom:field asset The contract address of the ERC-20 asset used for streaming.
+    /// @param amounts Simple struct with the deposit and the withdrawn amount.
+    /// @param segments The segments the protocol uses to compose the custom streaming curve.
+    /// @param sender The address of the sender of the stream.
+    /// @param startTime The Unix timestamp for when the stream will start.
+    /// @param endTime The Unix timestamp for when the stream will end.
+    /// @param isCancelable Boolean that indicates whether the stream is cancelable or not.
+    /// @param status An enum that indicates the status of the stream.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
     struct Stream {
         Lockup.Amounts amounts;
         Segment[] segments;

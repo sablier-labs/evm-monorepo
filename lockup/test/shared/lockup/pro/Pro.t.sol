@@ -14,30 +14,9 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    struct CreateWithDeltasParams {
-        IERC20 asset;
-        Broker broker;
-        bool cancelable;
-        address recipient;
-        address sender;
-        LockupPro.SegmentWithDelta[] segments;
-        uint128 totalAmount;
-    }
-
-    struct CreateWithMilestonesParams {
-        IERC20 asset;
-        Broker broker;
-        bool cancelable;
-        address recipient;
-        LockupPro.Segment[] segments;
-        address sender;
-        uint40 startTime;
-        uint128 totalAmount;
-    }
-
     struct DefaultParams {
-        CreateWithDeltasParams createWithDeltas;
-        CreateWithMilestonesParams createWithMilestones;
+        LockupPro.CreateWithDeltas createWithDeltas;
+        LockupPro.CreateWithMilestones createWithMilestones;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -93,130 +72,91 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
 
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
-        streamId = pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.segments,
-            defaultParams.createWithMilestones.startTime,
-            defaultParams.createWithMilestones.broker
-        );
+        streamId = pro.createWithMilestones(defaultParams.createWithMilestones);
+    }
+
+    /// @dev Creates the default stream with the provided broker.
+    function createDefaultStreamWithAsset(IERC20 asset) internal override returns (uint256 streamId) {
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.asset = asset;
+        streamId = pro.createWithMilestones(params);
+    }
+
+    /// @dev Creates the default stream with the provided broker.
+    function createDefaultStreamWithBroker(Broker memory broker) internal override returns (uint256 streamId) {
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.broker = broker;
+        streamId = pro.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with deltas.
     function createDefaultStreamWithDeltas() internal returns (uint256 streamId) {
-        streamId = pro.createWithDeltas(
-            defaultParams.createWithDeltas.sender,
-            defaultParams.createWithDeltas.recipient,
-            defaultParams.createWithDeltas.totalAmount,
-            defaultParams.createWithDeltas.asset,
-            defaultParams.createWithDeltas.cancelable,
-            defaultParams.createWithDeltas.segments,
-            defaultParams.createWithDeltas.broker
-        );
+        streamId = pro.createWithDeltas(defaultParams.createWithDeltas);
     }
 
     /// @dev Creates the default stream with the provided deltas.
     function createDefaultStreamWithDeltas(
         LockupPro.SegmentWithDelta[] memory segments
     ) internal returns (uint256 streamId) {
-        streamId = pro.createWithDeltas(
-            defaultParams.createWithDeltas.sender,
-            defaultParams.createWithDeltas.recipient,
-            defaultParams.createWithDeltas.totalAmount,
-            defaultParams.createWithDeltas.asset,
-            defaultParams.createWithDeltas.cancelable,
-            segments,
-            defaultParams.createWithDeltas.broker
-        );
+        LockupPro.CreateWithDeltas memory params = defaultParams.createWithDeltas;
+        params.segments = segments;
+        streamId = pro.createWithDeltas(params);
     }
 
-    /// @dev Creates the default stream with the provided end time. In this case, the last milestone is the end time.
+    /// @dev Creates the default stream with the provided end time.
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
-        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
-        segments[1].milestone = endTime;
-        streamId = pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            segments,
-            defaultParams.createWithMilestones.startTime,
-            defaultParams.createWithMilestones.broker
-        );
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.segments[1].milestone = endTime;
+        streamId = pro.createWithMilestones(params);
     }
 
     /// @dev Creates a non-cancelable stream.
     function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
-        bool isCancelable = false;
-        streamId = pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.asset,
-            isCancelable,
-            defaultParams.createWithMilestones.segments,
-            defaultParams.createWithMilestones.startTime,
-            defaultParams.createWithMilestones.broker
-        );
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.cancelable = false;
+        streamId = pro.createWithMilestones(params);
+    }
+
+    /// @dev Creates the default stream with the provided range.
+    function createDefaultStreamWithRange(LockupPro.Range memory range) internal returns (uint256 streamId) {
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.startTime = range.start;
+        params.segments[1].milestone = range.end;
+        streamId = pro.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
-        streamId = pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            recipient,
-            defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.segments,
-            defaultParams.createWithMilestones.startTime,
-            defaultParams.createWithMilestones.broker
-        );
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.recipient = recipient;
+        streamId = pro.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided segments.
     function createDefaultStreamWithSegments(LockupPro.Segment[] memory segments) internal returns (uint256 streamId) {
-        streamId = pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            segments,
-            defaultParams.createWithMilestones.startTime,
-            defaultParams.createWithMilestones.broker
-        );
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.segments = segments;
+        streamId = pro.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided sender.
     function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
-        streamId = pro.createWithMilestones(
-            sender,
-            defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.segments,
-            defaultParams.createWithMilestones.startTime,
-            defaultParams.createWithMilestones.broker
-        );
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.sender = sender;
+        streamId = pro.createWithMilestones(params);
+    }
+
+    /// @dev Creates the default stream with the provided start time..
+    function createDefaultStreamWithStartTime(uint40 startTime) internal override returns (uint256 streamId) {
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.startTime = startTime;
+        streamId = pro.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided total amount.
     function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal returns (uint256 streamId) {
-        streamId = pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            totalAmount,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.segments,
-            defaultParams.createWithMilestones.startTime,
-            defaultParams.createWithMilestones.broker
-        );
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.totalAmount = totalAmount;
+        streamId = pro.createWithMilestones(params);
     }
 }

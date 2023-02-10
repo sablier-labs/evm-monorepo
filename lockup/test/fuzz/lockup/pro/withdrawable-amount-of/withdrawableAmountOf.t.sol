@@ -3,7 +3,7 @@ pragma solidity >=0.8.18 <0.9.0;
 
 import { ZERO } from "@prb/math/UD60x18.sol";
 
-import { Broker } from "src/types/DataTypes.sol";
+import { Broker, LockupPro } from "src/types/DataTypes.sol";
 
 import { Pro_Fuzz_Test } from "../Pro.t.sol";
 
@@ -43,16 +43,10 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
-        uint256 streamId = pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            DEFAULT_DEPOSIT_AMOUNT,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.segments,
-            defaultParams.createWithMilestones.startTime,
-            Broker({ account: address(0), fee: ZERO })
-        );
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.totalAmount = DEFAULT_DEPOSIT_AMOUNT;
+        params.broker = Broker({ account: address(0), fee: ZERO });
+        uint256 streamId = pro.createWithMilestones(params);
 
         // Run the test.
         uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(streamId);
@@ -96,16 +90,10 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
-        uint256 streamId = pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            DEFAULT_DEPOSIT_AMOUNT,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.segments,
-            defaultParams.createWithMilestones.startTime,
-            Broker({ account: address(0), fee: ZERO })
-        );
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.totalAmount = DEFAULT_DEPOSIT_AMOUNT;
+        params.broker = Broker({ account: address(0), fee: ZERO });
+        uint256 streamId = pro.createWithMilestones(params);
 
         // Make the withdrawal.
         pro.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });

@@ -4,7 +4,7 @@ pragma solidity >=0.8.18 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
-import { Broker } from "src/types/DataTypes.sol";
+import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
 
@@ -56,15 +56,10 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         deal({ token: address(DEFAULT_ASSET), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
-        uint256 streamId = linear.createWithRange(
-            defaultParams.createWithRange.sender,
-            defaultParams.createWithRange.recipient,
-            depositAmount,
-            defaultParams.createWithRange.asset,
-            defaultParams.createWithRange.cancelable,
-            defaultParams.createWithRange.range,
-            Broker({ account: address(0), fee: ZERO })
-        );
+        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        params.totalAmount = depositAmount;
+        params.broker = Broker({ account: address(0), fee: ZERO });
+        uint256 streamId = linear.createWithRange(params);
 
         // Run the test.
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(streamId);
@@ -101,15 +96,11 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         deal({ token: address(DEFAULT_ASSET), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
-        uint256 streamId = linear.createWithRange(
-            defaultParams.createWithRange.sender,
-            defaultParams.createWithRange.recipient,
-            depositAmount,
-            defaultParams.createWithRange.asset,
-            defaultParams.createWithRange.cancelable,
-            defaultParams.createWithRange.range,
-            Broker({ account: address(0), fee: ZERO })
-        );
+        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        params.totalAmount = depositAmount;
+        params.broker = Broker({ account: address(0), fee: ZERO });
+        uint256 streamId = linear.createWithRange(params);
+
         // Make the withdrawal.
         linear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
