@@ -24,7 +24,9 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
     }
 
     struct Vars {
+        Lockup.Status actualStatus;
         uint256 actualWithdrawnAmount;
+        Lockup.Status expectedStatus;
         uint256 expectedWithdrawnAmount;
         address funder;
         uint256 streamId;
@@ -100,6 +102,11 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
 
         // Make the withdrawal.
         pro.withdraw({ streamId: vars.streamId, to: users.recipient, amount: vars.withdrawAmount });
+
+        // Assert that the stream has remained active.
+        vars.actualStatus = lockup.getStatus(vars.streamId);
+        vars.expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
         vars.actualWithdrawnAmount = pro.getWithdrawnAmount(vars.streamId);

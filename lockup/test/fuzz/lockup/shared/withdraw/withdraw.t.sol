@@ -4,6 +4,7 @@ pragma solidity >=0.8.18 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Events } from "src/libraries/Events.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Fuzz_Test } from "../../../Fuzz.t.sol";
@@ -59,8 +60,15 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
-        // Run the test.
+        // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
@@ -91,7 +99,12 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
 
-        // Run the test.
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
@@ -146,6 +159,11 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: to, amount: withdrawAmount });
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
@@ -215,6 +233,11 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
