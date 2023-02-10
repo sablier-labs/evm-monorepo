@@ -191,14 +191,14 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         emit Events.CreateLockupProStream({
             streamId: streamId,
             funder: funder,
-            sender: defaultParams.createWithDeltas.sender,
-            recipient: defaultParams.createWithDeltas.recipient,
+            sender: users.sender,
+            recipient: users.recipient,
             amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
-            segments: defaultParams.createWithDeltas.segments,
+            segments: DEFAULT_SEGMENTS,
             asset: DEFAULT_ASSET,
-            cancelable: defaultParams.createWithDeltas.cancelable,
+            cancelable: true,
             range: DEFAULT_PRO_RANGE,
-            broker: defaultParams.createWithDeltas.broker.addr
+            broker: users.broker
         });
 
         // Create the stream.

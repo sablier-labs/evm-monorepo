@@ -120,13 +120,13 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         emit Events.CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,
-            sender: defaultParams.createWithDurations.sender,
-            recipient: defaultParams.createWithDurations.recipient,
+            sender: users.sender,
+            recipient: users.recipient,
             amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
             asset: DEFAULT_ASSET,
-            cancelable: defaultParams.createWithDurations.cancelable,
+            cancelable: true,
             range: DEFAULT_LINEAR_RANGE,
-            broker: defaultParams.createWithDurations.broker.addr
+            broker: users.broker
         });
 
         // Create the stream.

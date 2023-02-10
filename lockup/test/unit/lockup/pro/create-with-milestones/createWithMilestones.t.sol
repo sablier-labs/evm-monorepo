@@ -401,6 +401,21 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             )
         );
 
+        // Expect a {CreateLockupProStream} event to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        emit Events.CreateLockupProStream({
+            streamId: streamId,
+            funder: funder,
+            sender: users.sender,
+            recipient: users.recipient,
+            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
+            segments: DEFAULT_SEGMENTS,
+            asset: IERC20(asset),
+            cancelable: true,
+            range: DEFAULT_PRO_RANGE,
+            broker: users.broker
+        });
+
         // Create the stream.
         pro.createWithMilestones(
             defaultParams.createWithMilestones.sender,

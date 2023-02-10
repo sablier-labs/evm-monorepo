@@ -243,6 +243,20 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             )
         );
 
+        // Expect a {CreateLockupLinearStream} event to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        emit Events.CreateLockupLinearStream({
+            streamId: streamId,
+            funder: funder,
+            sender: users.sender,
+            recipient: users.recipient,
+            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
+            asset: IERC20(asset),
+            cancelable: true,
+            range: DEFAULT_LINEAR_RANGE,
+            broker: users.broker
+        });
+
         // Create the stream.
         linear.createWithRange(
             defaultParams.createWithRange.sender,
