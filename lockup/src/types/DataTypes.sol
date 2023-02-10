@@ -108,6 +108,16 @@ library LockupPro {
         uint40 milestone; // ─┘
     }
 
+    /// @notice Segment struct used in the {SablierV2LockupPro-createWithDeltas} function.
+    /// @custom:field amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
+    /// @custom:field exponent The exponent of this segment, as an UD2x18 number.
+    /// @custom:field delta The time difference between this segment and the previous one, in seconds.
+    struct SegmentWithDelta {
+        uint128 amount; // ─┐
+        UD2x18 exponent; // │
+        uint40 delta; // ───┘
+    }
+
     /// @notice Pro stream struct used in the {SablierV2LockupPro} contract.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
     /// @custom:field amounts Simple struct with the deposit and withdrawn amounts.

@@ -26,12 +26,12 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
     struct Vars {
         Lockup.Status actualStatus;
         uint256 actualWithdrawnAmount;
+        Lockup.CreateAmounts createAmounts;
         Lockup.Status expectedStatus;
         uint256 expectedWithdrawnAmount;
         address funder;
         uint256 streamId;
         uint128 totalAmount;
-        Lockup.CreateAmounts amounts;
         uint128 withdrawAmount;
         uint128 withdrawableAmount;
     }
@@ -62,7 +62,7 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
         fuzzSegmentMilestones(params.segments, DEFAULT_START_TIME);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
-        (vars.totalAmount, vars.amounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(params.segments);
+        (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(params.segments);
 
         // Bound the time warp.
         params.timeWarp = bound(params.timeWarp, 1, params.segments[params.segments.length - 1].milestone);
@@ -78,9 +78,9 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
             sender: users.sender,
             recipient: users.recipient,
             totalAmount: vars.totalAmount,
-            segments: params.segments,
             asset: DEFAULT_ASSET,
             cancelable: true,
+            segments: params.segments,
             startTime: DEFAULT_START_TIME,
             broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
         });

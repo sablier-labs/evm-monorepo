@@ -65,7 +65,7 @@ contract LockupProCreateHandler is BaseHandler {
         Broker broker;
         bool cancelable;
         address recipient;
-        LockupPro.Segment[] segments;
+        LockupPro.SegmentWithDelta[] segments;
         address sender;
     }
 
@@ -88,7 +88,7 @@ contract LockupProCreateHandler is BaseHandler {
             return;
         }
 
-        // The protocol doesn't allow empty segments.
+        // The protocol doesn't allow empty segments arrays.
         if (params.segments.length == 0) {
             return;
         }
@@ -96,9 +96,9 @@ contract LockupProCreateHandler is BaseHandler {
         // Bound the broker fee.
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
 
-        // Fuzz the deltas and update the segment milestones.
+        // Fuzz the deltas.
         CreateWithDeltasVars memory vars;
-        vars.deltas = fuzzSegmentDeltas(params.segments);
+        fuzzSegmentDeltas(params.segments);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         (vars.totalAmount, ) = fuzzSegmentAmountsAndCalculateCreateAmounts({
@@ -119,10 +119,9 @@ contract LockupProCreateHandler is BaseHandler {
             sender: params.sender,
             recipient: params.recipient,
             totalAmount: vars.totalAmount,
-            segments: params.segments,
             asset: asset,
             cancelable: params.cancelable,
-            deltas: vars.deltas,
+            segments: params.segments,
             broker: params.broker
         });
 
@@ -161,7 +160,7 @@ contract LockupProCreateHandler is BaseHandler {
             return;
         }
 
-        // The protocol doesn't allow empty segments.
+        // The protocol doesn't allow empty segments arrays.
         if (params.segments.length == 0) {
             return;
         }
@@ -189,9 +188,9 @@ contract LockupProCreateHandler is BaseHandler {
             sender: params.sender,
             recipient: params.recipient,
             totalAmount: vars.totalAmount,
-            segments: params.segments,
             asset: asset,
             cancelable: params.cancelable,
+            segments: params.segments,
             startTime: params.startTime,
             broker: params.broker
         });

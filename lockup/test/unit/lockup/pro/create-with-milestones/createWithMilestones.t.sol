@@ -217,9 +217,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             depositAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             Broker({ account: address(0), fee: brokerFee })
         );
@@ -281,9 +281,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             Broker({ account: users.broker, fee: brokerFee })
         );
@@ -322,9 +322,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             IERC20(nonContract),
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );
@@ -419,9 +419,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             IERC20(asset),
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );

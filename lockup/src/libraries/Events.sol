@@ -132,9 +132,9 @@ library Events {
     /// @param recipient The address toward which to stream the assets.
     /// @param amounts Struct that encapsulates (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
     /// broker fee amount, each in units of the asset's decimals.
-    /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param range Struct that encapsulates (i) the start time of the stream, and (ii) the end time of the stream,
     /// both as Unix timestamps.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
@@ -144,9 +144,9 @@ library Events {
         address indexed sender,
         address indexed recipient,
         Lockup.CreateAmounts amounts,
-        LockupPro.Segment[] segments,
         IERC20 asset,
         bool cancelable,
+        LockupPro.Segment[] segments,
         LockupPro.Range range,
         address broker
     );

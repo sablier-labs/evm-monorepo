@@ -227,14 +227,13 @@ contract SablierV2LockupPro is
         address sender,
         address recipient,
         uint128 totalAmount,
-        LockupPro.Segment[] memory segments,
         IERC20 asset,
         bool cancelable,
-        uint40[] calldata deltas,
+        LockupPro.SegmentWithDelta[] memory segments,
         Broker calldata broker
     ) external override returns (uint256 streamId) {
-        // Checks: check the deltas and adjust the segments accordingly.
-        Helpers.checkDeltasAndCalculateMilestones(segments, deltas);
+        // Checks: check the deltas and generate the canonical segments.
+        LockupPro.Segment[] memory segmentsWithMilestones = Helpers.checkDeltasAndCalculateMilestones(segments);
 
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
@@ -254,7 +253,7 @@ contract SablierV2LockupPro is
                 broker: broker.account,
                 cancelable: cancelable,
                 recipient: recipient,
-                segments: segments,
+                segments: segmentsWithMilestones,
                 sender: sender,
                 asset: asset,
                 startTime: uint40(block.timestamp)
@@ -267,9 +266,9 @@ contract SablierV2LockupPro is
         address sender,
         address recipient,
         uint128 totalAmount,
-        LockupPro.Segment[] calldata segments,
         IERC20 asset,
         bool cancelable,
+        LockupPro.Segment[] calldata segments,
         uint40 startTime,
         Broker calldata broker
     ) external override returns (uint256 streamId) {
@@ -544,9 +543,9 @@ contract SablierV2LockupPro is
             sender: params.sender,
             recipient: params.recipient,
             amounts: params.amounts,
-            segments: params.segments,
             asset: params.asset,
             cancelable: params.cancelable,
+            segments: params.segments,
             range: stream.range,
             broker: params.broker
         });

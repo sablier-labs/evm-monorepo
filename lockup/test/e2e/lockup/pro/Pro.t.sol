@@ -158,9 +158,9 @@ abstract contract Pro_E2e_Test is E2e_Test {
             sender: params.sender,
             recipient: params.recipient,
             amounts: vars.amounts,
-            segments: params.segments,
             asset: asset,
             cancelable: true,
+            segments: params.segments,
             range: range,
             broker: params.broker.account
         });
@@ -170,9 +170,9 @@ abstract contract Pro_E2e_Test is E2e_Test {
             sender: params.sender,
             recipient: params.recipient,
             totalAmount: vars.totalAmount,
-            segments: params.segments,
             asset: asset,
             cancelable: true,
+            segments: params.segments,
             startTime: params.startTime,
             broker: params.broker
         });

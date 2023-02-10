@@ -77,7 +77,7 @@ library Helpers {
         LockupPro.Segment[] memory segments,
         uint256 maxSegmentCount,
         uint40 startTime
-    ) internal view {
+    ) internal pure {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierV2Lockup_DepositAmountZero();
@@ -100,14 +100,10 @@ library Helpers {
 
     /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
     function checkDeltasAndCalculateMilestones(
-        LockupPro.Segment[] memory segments,
-        uint40[] memory deltas
-    ) internal view {
-        // Checks: check that the segment array counts match.
-        uint256 deltaCount = deltas.length;
-        if (segments.length != deltaCount) {
-            revert Errors.SablierV2LockupPro_SegmentArrayCountsNotEqual(segments.length, deltaCount);
-        }
+        LockupPro.SegmentWithDelta[] memory segments
+    ) internal view returns (LockupPro.Segment[] memory segmentsWithMilestones) {
+        uint256 segmentCount = segments.length;
+        segmentsWithMilestones = new LockupPro.Segment[](segmentCount);
 
         // Make the current time the start time of the stream.
         uint40 startTime = uint40(block.timestamp);
@@ -115,12 +111,20 @@ library Helpers {
         // It is safe to use unchecked arithmetic because the {_createWithMilestone} function will nonetheless check
         // the soundness of the calculated segment milestones.
         unchecked {
-            // Precompute the first milestone.
-            segments[0].milestone = startTime + deltas[0];
+            // Precompute the first segment because of the need to add the start time to the first segment delta.
+            segmentsWithMilestones[0] = LockupPro.Segment({
+                amount: segments[0].amount,
+                exponent: segments[0].exponent,
+                milestone: startTime + segments[0].delta
+            });
 
-            // Calculate the segment milestones and set them in the segments array.
-            for (uint256 i = 1; i < deltaCount; ++i) {
-                segments[i].milestone = segments[i - 1].milestone + deltas[i];
+            // Copy the segment amounts and exponents, and calculate the segment milestones.
+            for (uint256 i = 1; i < segmentCount; ++i) {
+                segmentsWithMilestones[i] = LockupPro.Segment({
+                    amount: segments[i].amount,
+                    exponent: segments[i].exponent,
+                    milestone: segmentsWithMilestones[i - 1].milestone + segments[i].delta
+                });
             }
         }
     }
@@ -139,7 +143,7 @@ library Helpers {
         LockupPro.Segment[] memory segments,
         uint128 depositAmount,
         uint40 startTime
-    ) private view {
+    ) private pure {
         // Checks: the start time is strictly less than the first segment milestone.
         if (startTime >= segments[0].milestone) {
             revert Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone(

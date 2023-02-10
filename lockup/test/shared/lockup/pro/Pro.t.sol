@@ -21,7 +21,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         uint40[] deltas;
         address recipient;
         address sender;
-        LockupPro.Segment[] segments;
+        LockupPro.SegmentWithDelta[] segments;
         uint128 totalAmount;
     }
 
@@ -73,8 +73,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
 
         // See https://github.com/ethereum/solidity/issues/12783
         for (uint256 i = 0; i < DEFAULT_SEGMENTS.length; ++i) {
-            defaultParams.createWithDeltas.segments.push(DEFAULT_SEGMENTS[i]);
-            defaultParams.createWithDeltas.deltas.push(DEFAULT_SEGMENT_DELTAS[i]);
+            defaultParams.createWithDeltas.segments.push(DEFAULT_SEGMENTS_WITH_DELTAS[i]);
             defaultParams.createWithMilestones.segments.push(DEFAULT_SEGMENTS[i]);
         }
 
@@ -98,9 +97,9 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );
@@ -112,24 +111,24 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithDeltas.sender,
             defaultParams.createWithDeltas.recipient,
             defaultParams.createWithDeltas.totalAmount,
-            defaultParams.createWithDeltas.segments,
             defaultParams.createWithDeltas.asset,
             defaultParams.createWithDeltas.cancelable,
-            defaultParams.createWithDeltas.deltas,
+            defaultParams.createWithDeltas.segments,
             defaultParams.createWithDeltas.broker
         );
     }
 
     /// @dev Creates the default stream with the provided deltas.
-    function createDefaultStreamWithDeltas(uint40[] memory deltas) internal returns (uint256 streamId) {
+    function createDefaultStreamWithDeltas(
+        LockupPro.SegmentWithDelta[] memory segments
+    ) internal returns (uint256 streamId) {
         streamId = pro.createWithDeltas(
             defaultParams.createWithDeltas.sender,
             defaultParams.createWithDeltas.recipient,
             defaultParams.createWithDeltas.totalAmount,
-            defaultParams.createWithDeltas.segments,
             defaultParams.createWithDeltas.asset,
             defaultParams.createWithDeltas.cancelable,
-            deltas,
+            segments,
             defaultParams.createWithDeltas.broker
         );
     }
@@ -142,9 +141,9 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );
@@ -157,9 +156,9 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             isCancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );
@@ -171,9 +170,9 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithMilestones.sender,
             recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );
@@ -185,9 +184,9 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );
@@ -199,9 +198,9 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
             sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );
@@ -213,9 +212,9 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             totalAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );

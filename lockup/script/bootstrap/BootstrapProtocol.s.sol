@@ -87,18 +87,16 @@ contract BootstrapProtocol is BaseScript {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Create the default pro stream.
-        LockupPro.Segment[] memory segments = new LockupPro.Segment[](2);
-        segments[0] = LockupPro.Segment({ amount: 2_500e18, exponent: ud2x18(3.14e18), milestone: 0 });
-        segments[1] = LockupPro.Segment({ amount: 7_500e18, exponent: ud2x18(0.5e18), milestone: 0 });
-        uint40[] memory deltas = Solarray.uint40s(1 hours, 1 weeks);
+        LockupPro.SegmentWithDelta[] memory segments = new LockupPro.SegmentWithDelta[](2);
+        segments[0] = LockupPro.SegmentWithDelta({ amount: 2_500e18, exponent: ud2x18(3.14e18), delta: 1 hours });
+        segments[1] = LockupPro.SegmentWithDelta({ amount: 7_500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
         pro.createWithDeltas({
             sender: sender,
             recipient: recipient,
             totalAmount: 10_000e18,
-            segments: segments,
             asset: asset,
             cancelable: true,
-            deltas: deltas,
+            segments: segments,
             broker: Broker(address(0), ud(0))
         });
     }

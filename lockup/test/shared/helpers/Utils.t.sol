@@ -6,7 +6,13 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { StdUtils } from "forge-std/StdUtils.sol";
 
+import { LockupPro } from "src/types/DataTypes.sol";
+
 abstract contract Utils is StdUtils, PRBMathUtils {
+    /*//////////////////////////////////////////////////////////////////////////
+                                       BOUND
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @dev Bounds a `uint128` number.
     function boundUint128(uint128 x, uint128 min, uint128 max) internal view returns (uint128 result) {
         result = uint128(bound(uint256(x), uint256(min), uint256(max)));
@@ -17,15 +23,34 @@ abstract contract Utils is StdUtils, PRBMathUtils {
         result = uint40(bound(uint256(x), uint256(min), uint256(max)));
     }
 
-    /// @dev Converts a `uint128` number to the `SD59x18` format. The casting is safe because the domain of the
-    /// `int256` type is larger than the domain of the `uint128` type.
-    function sdUint128(uint128 x) internal pure returns (SD59x18 result) {
-        result = SD59x18.wrap(int256(uint256(x)));
+    /*//////////////////////////////////////////////////////////////////////////
+                                       TYPES
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Retrieves the current block timestamp as an `uint40`.
+    function getBlockTimestamp() internal view returns (uint40 blockTimestamp) {
+        blockTimestamp = uint40(block.timestamp);
     }
 
-    /// @dev Converts a `uint40` number to the `SD59x18` format. The casting is safe because the domain of the
-    /// `int256` type is larger than the domain of the `uint40` type.
-    function sdUint40(uint40 x) internal pure returns (SD59x18 result) {
-        result = SD59x18.wrap(int256(uint256(x)));
+    /// @dev Turns the segment with deltas into canonical segments.
+    function getSegmentsWithMilestones(
+        LockupPro.SegmentWithDelta[] memory segments
+    ) internal view returns (LockupPro.Segment[] memory segmentsWithMilestones) {
+        unchecked {
+            segmentsWithMilestones = new LockupPro.Segment[](segments.length);
+            segmentsWithMilestones[0] = LockupPro.Segment({
+                amount: segments[0].amount,
+                exponent: segments[0].exponent,
+                milestone: getBlockTimestamp() + segments[0].delta
+            });
+            for (uint256 i = 1; i < segments.length; ) {
+                segmentsWithMilestones[i] = LockupPro.Segment({
+                    amount: segments[i].amount,
+                    exponent: segments[i].exponent,
+                    milestone: segmentsWithMilestones[i - 1].milestone + segments[i].delta
+                });
+                i += 1;
+            }
+        }
     }
 }

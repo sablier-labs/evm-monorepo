@@ -48,12 +48,10 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Create a stream by setting the start time to `block.timestamp` and the end time to the sum of
-    /// `block.timestamp` and all `deltas`. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
+    /// `block.timestamp` and all segment deltas. The stream is funded by `msg.sender` and is wrapped in an
+    /// ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupProStream} and a {Transfer} event.
-    ///
-    /// Notes:
-    /// - The segment milestones should be empty, as they will be overridden.
     ///
     /// Requirements:
     /// - All from {createWithMilestones}.
@@ -63,11 +61,10 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// @param recipient The address toward which to stream the assets.
     /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
     /// potential fees. This is represented in units of the asset's decimals.
-    /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param asset The contract address of the ERC-20 asset to use for streaming.
     /// @param cancelable Boolean that indicates whether the stream is cancelable or not.
-    /// @param deltas The differences between the Unix timestamp milestones used to compose the custom streaming
-    /// curve.
+    /// @param segments The segments with deltas the protocol will use to compose the custom streaming curve.
+    /// The milestones will be be calculated by adding each delta to `block.timestamp`.
     /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
     /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
     /// @return streamId The id of the newly created stream.
@@ -75,14 +72,13 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
         address sender,
         address recipient,
         uint128 totalAmount,
-        LockupPro.Segment[] memory segments,
         IERC20 asset,
         bool cancelable,
-        uint40[] memory deltas,
+        LockupPro.SegmentWithDelta[] memory segments,
         Broker calldata broker
     ) external returns (uint256 streamId);
 
-    /// @notice Create a stream by using the provided milestones, implying the end time from the last segment's.
+    /// @notice Create a stream by using the provided milestones, implying the end time from the last segment's
     /// milestone. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupProStream} and a {Transfer} event.
@@ -105,9 +101,9 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// @param recipient The address toward which to stream the assets.
     /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
     /// potential fees. This is represented in units of the asset's decimals.
-    /// @param segments  The segments the protocol uses to compose the custom streaming curve.
     /// @param asset The contract address of the ERC-20 asset to use for streaming.
     /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param segments  The segments the protocol uses to compose the custom streaming curve.
     /// @param startTime The Unix timestamp for when the stream will start.
     /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
     /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
@@ -116,9 +112,9 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
         address sender,
         address recipient,
         uint128 totalAmount,
-        LockupPro.Segment[] memory segments,
         IERC20 asset,
         bool cancelable,
+        LockupPro.Segment[] memory segments,
         uint40 startTime,
         Broker calldata broker
     ) external returns (uint256 streamId);

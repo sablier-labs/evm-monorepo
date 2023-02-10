@@ -142,9 +142,9 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             depositAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             Broker({ account: address(0), fee: brokerFee })
         );
@@ -208,9 +208,9 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             Broker({ account: users.broker, fee: brokerFee })
         );
@@ -244,7 +244,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint256 actualNextStreamId;
         address actualNFTOwner;
         uint256 actualProtocolRevenues;
-        Lockup.CreateAmounts amounts;
+        Lockup.CreateAmounts createAmounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         uint256 expectedProtocolRevenues;
@@ -291,7 +291,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         Vars memory vars;
-        (vars.totalAmount, vars.amounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+        (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: UINT128_MAX,
             segments: params.segments,
             protocolFee: params.protocolFee,
@@ -315,12 +315,16 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         expectTransferFromCall({
             from: params.funder,
             to: address(pro),
-            amount: vars.amounts.deposit + vars.amounts.protocolFee
+            amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
         });
 
         // Expect the broker fee to be paid to the broker, if not zero.
-        if (vars.amounts.brokerFee > 0) {
-            expectTransferFromCall({ from: params.funder, to: params.broker.account, amount: vars.amounts.brokerFee });
+        if (vars.createAmounts.brokerFee > 0) {
+            expectTransferFromCall({
+                from: params.funder,
+                to: params.broker.account,
+                amount: vars.createAmounts.brokerFee
+            });
         }
 
         // Expect a {CreateLockupProStream} event to be emitted.
@@ -334,10 +338,10 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             funder: params.funder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: vars.amounts,
-            segments: params.segments,
+            amounts: vars.createAmounts,
             asset: DEFAULT_ASSET,
             cancelable: params.cancelable,
+            segments: params.segments,
             range: range,
             broker: params.broker.account
         });
@@ -347,16 +351,16 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             params.sender,
             params.recipient,
             vars.totalAmount,
-            params.segments,
             DEFAULT_ASSET,
             params.cancelable,
+            params.segments,
             params.startTime,
             params.broker
         );
 
         // Assert that the stream has been created.
         LockupPro.Stream memory actualStream = pro.getStream(streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.amounts.deposit, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.range, range);
@@ -371,7 +375,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
         // Assert that the protocol fee has been recorded.
         vars.actualProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
-        vars.expectedProtocolRevenues = vars.amounts.protocolFee;
+        vars.expectedProtocolRevenues = vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
