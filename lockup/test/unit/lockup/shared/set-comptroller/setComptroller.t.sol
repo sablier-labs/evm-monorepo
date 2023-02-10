@@ -57,7 +57,7 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Set the new comptroller.
         config.setComptroller(newComptroller);
 
-        // Assert that the new comptroller was set.
+        // Assert that the new comptroller has been set.
         address actualComptroller = address(config.comptroller());
         address expectedComptroller = address(newComptroller);
         assertEq(actualComptroller, expectedComptroller, "comptroller");

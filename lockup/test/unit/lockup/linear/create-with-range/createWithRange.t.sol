@@ -222,8 +222,8 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
 
     /// @dev Shared test logic for `test_CreateWithRange_AssetMissingReturnValue` and `test_CreateWithRange`.
     function test_createWithRange(address asset) internal {
-        // Make the sender the funder in this test.
-        address funder = defaultParams.createWithRange.sender;
+        // Make the sender the funder of the stream.
+        address funder = users.sender;
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
         vm.expectCall(
@@ -254,7 +254,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             defaultParams.createWithRange.broker
         );
 
-        // Assert that the stream was created.
+        // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(address(actualStream.asset), asset, "asset");
@@ -263,12 +263,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         assertEq(actualStream.range, defaultStream.range);
         assertEq(actualStream.status, defaultStream.status);
 
-        // Assert that the next stream id was bumped.
+        // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
-        // Assert that the NFT was minted.
+        // Assert that the NFT has been minted.
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = defaultParams.createWithRange.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

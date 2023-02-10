@@ -203,6 +203,12 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
 
+        // Calculate the fee amounts and the deposit amount.
+        Vars memory vars;
+        vars.protocolFeeAmount = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
+        vars.brokerFeeAmount = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
+        vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
+
         // Set the fuzzed protocol fee.
         changePrank({ who: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: params.protocolFee });
@@ -213,17 +219,8 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         // Mint enough ERC-20 assets to the funder.
         deal({ token: address(DEFAULT_ASSET), to: params.funder, give: params.totalAmount });
 
-        // Approve the {SablierV2LockupLinear} contract to transfer the assets from the fuzzed funder.
+        // Approve the {SablierV2LockupLinear} contract to transfer the ERC-20 assets from the fuzzed funder.
         DEFAULT_ASSET.approve({ spender: address(linear), amount: UINT256_MAX });
-
-        // Load the initial protocol revenues.
-        Vars memory vars;
-        vars.initialProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
-
-        // Calculate the protocol fee amount, broker fee amount and the deposit amount.
-        vars.protocolFeeAmount = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
-        vars.brokerFeeAmount = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
         vm.expectCall(
@@ -234,7 +231,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             )
         );
 
-        // Expect the broker fee to be paid to the broker, if the fee amount is not zero.
+        // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.brokerFeeAmount > 0) {
             vm.expectCall(
                 address(DEFAULT_ASSET),
@@ -271,7 +268,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             params.broker
         );
 
-        // Assert that the stream was created.
+        // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.depositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
@@ -280,17 +277,17 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.status, defaultStream.status);
 
-        // Assert that the next stream id was bumped.
+        // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = linear.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
-        // Assert that the protocol fee was recorded.
+        // Assert that the protocol fee has been recorded.
         vars.actualProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
-        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.protocolFeeAmount;
+        vars.expectedProtocolRevenues = vars.protocolFeeAmount;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
-        // Assert that the NFT was minted.
+        // Assert that the NFT has been minted.
         vars.actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");

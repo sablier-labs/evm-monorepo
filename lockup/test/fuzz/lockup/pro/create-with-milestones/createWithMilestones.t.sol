@@ -3,7 +3,6 @@ pragma solidity >=0.8.13 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
-import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { stdError } from "forge-std/StdError.sol";
 
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
@@ -233,25 +232,23 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         Broker broker;
         bool cancelable;
         address funder;
+        uint40[] milestones;
         UD60x18 protocolFee;
         address recipient;
+        LockupPro.Segment[] segments;
         address sender;
         uint40 startTime;
-        uint128 totalAmount;
     }
 
     struct Vars {
         uint256 actualNextStreamId;
         address actualNFTOwner;
         uint256 actualProtocolRevenues;
-        uint128 brokerFeeAmount;
+        Lockup.CreateAmounts amounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         uint256 expectedProtocolRevenues;
-        uint128 initialProtocolRevenues;
-        uint128 depositAmount;
-        uint128 protocolFeeAmount;
-        LockupPro.Segment[] segments;
+        uint128 totalAmount;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
@@ -260,7 +257,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - All possible permutations for the funder, sender, recipient, and broker.
-    /// - Multiple values for the total amount.
+    /// - Multiple values for the segment amounts, exponents, and milestones.
     /// - Cancelable and non-cancelable.
     /// - Start time in the past, present and future.
     /// - Start time equal and not equal to the first segment milestone.
@@ -284,74 +281,69 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         assetERC20Compliant
     {
         vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
-        vm.assume(params.totalAmount != 0);
+        vm.assume(params.segments.length != 0);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
-        params.startTime = boundUint40(
-            params.startTime,
-            0,
-            defaultParams.createWithMilestones.segments[0].milestone - 1
-        );
+        params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
+
+        // Fuzz the segment milestones.
+        fuzzSegmentMilestones(params.segments, params.startTime);
+
+        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        Vars memory vars;
+        (vars.totalAmount, vars.amounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+            upperBound: UINT128_MAX,
+            segments: params.segments,
+            protocolFee: params.protocolFee,
+            brokerFee: params.broker.fee
+        });
 
         // Set the fuzzed protocol fee.
         changePrank({ who: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: params.protocolFee });
 
-        // Make the fuzzed funder the caller in this test.
+        // Make the fuzzed funder the caller in the rest of this test.
         changePrank(params.funder);
 
         // Mint enough ERC-20 assets to the fuzzed funder.
-        deal({ token: address(DEFAULT_ASSET), to: params.funder, give: params.totalAmount });
+        deal({ token: address(DEFAULT_ASSET), to: params.funder, give: vars.totalAmount });
 
-        // Approve the {SablierV2LockupPro} contract to transfer the assets from the funder.
+        // Approve the {SablierV2LockupPro} contract to transfer the ERC-20 assets from the fuzzed funder.
         DEFAULT_ASSET.approve({ spender: address(pro), amount: UINT256_MAX });
-
-        // Load the initial protocol revenues.
-        Vars memory vars;
-        vars.initialProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
-
-        // Calculate the broker fee amount and the deposit amount.
-        vars.protocolFeeAmount = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
-        vars.brokerFeeAmount = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
-
-        // Adjust the segment amounts based on the fuzzed deposit amount.
-        vars.segments = defaultParams.createWithMilestones.segments;
-        adjustSegmentAmounts(vars.segments, vars.depositAmount);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
         vm.expectCall(
             address(DEFAULT_ASSET),
             abi.encodeCall(
                 IERC20.transferFrom,
-                (params.funder, address(pro), vars.depositAmount + vars.protocolFeeAmount)
+                (params.funder, address(pro), vars.amounts.deposit + vars.amounts.protocolFee)
             )
         );
 
-        // Expect the broker fee to be paid to the broker, if the fee amount is not zero.
-        if (vars.brokerFeeAmount > 0) {
+        // Expect the broker fee to be paid to the broker, if not zero.
+        if (vars.amounts.brokerFee > 0) {
             vm.expectCall(
                 address(DEFAULT_ASSET),
-                abi.encodeCall(IERC20.transferFrom, (params.funder, params.broker.addr, vars.brokerFeeAmount))
+                abi.encodeCall(IERC20.transferFrom, (params.funder, params.broker.addr, vars.amounts.brokerFee))
             );
         }
 
         // Expect a {CreateLockupProStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        LockupPro.Range memory range = LockupPro.Range({
+            start: params.startTime,
+            end: params.segments[params.segments.length - 1].milestone
+        });
         emit Events.CreateLockupProStream({
             streamId: streamId,
             funder: params.funder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: Lockup.CreateAmounts({
-                deposit: vars.depositAmount,
-                protocolFee: vars.protocolFeeAmount,
-                brokerFee: vars.brokerFeeAmount
-            }),
-            segments: vars.segments,
+            amounts: vars.amounts,
+            segments: params.segments,
             asset: DEFAULT_ASSET,
             cancelable: params.cancelable,
-            range: LockupPro.Range({ start: params.startTime, end: DEFAULT_END_TIME }),
+            range: range,
             broker: params.broker.addr
         });
 
@@ -359,35 +351,35 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         pro.createWithMilestones(
             params.sender,
             params.recipient,
-            params.totalAmount,
-            vars.segments,
+            vars.totalAmount,
+            params.segments,
             DEFAULT_ASSET,
             params.cancelable,
             params.startTime,
             params.broker
         );
 
-        // Assert that the stream was created.
+        // Assert that the stream has been created.
         LockupPro.Stream memory actualStream = pro.getStream(streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.depositAmount, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.amounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
-        assertEq(actualStream.range, LockupPro.Range({ start: params.startTime, end: defaultStream.range.end }));
+        assertEq(actualStream.range, range);
         assertEq(actualStream.sender, params.sender, "sender");
-        assertEq(actualStream.segments, vars.segments);
+        assertEq(actualStream.segments, params.segments);
         assertEq(actualStream.status, defaultStream.status);
 
-        // Assert that the next stream id was bumped.
+        // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = pro.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
-        // Assert that the protocol fee was recorded.
+        // Assert that the protocol fee has been recorded.
         vars.actualProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
-        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.protocolFeeAmount;
+        vars.expectedProtocolRevenues = vars.amounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
-        // Assert that the NFT was minted.
+        // Assert that the NFT has been minted.
         vars.actualNFTOwner = pro.ownerOf({ tokenId: streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");

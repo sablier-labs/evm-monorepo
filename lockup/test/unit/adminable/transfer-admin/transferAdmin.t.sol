@@ -51,7 +51,7 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
         // Transfer the admin.
         adminable.transferAdmin(address(0));
 
-        // Assert that the admin was transferred.
+        // Assert that the admin has been transferred.
         address actualAdmin = adminable.admin();
         address expectedAdmin = address(0);
         assertEq(actualAdmin, expectedAdmin, "admin");
@@ -66,7 +66,7 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
         // Transfer the admin.
         adminable.transferAdmin(users.alice);
 
-        // Assert that the admin was transferred.
+        // Assert that the admin has been transferred.
         address actualAdmin = adminable.admin();
         address expectedAdmin = users.alice;
         assertEq(actualAdmin, expectedAdmin, "admin");

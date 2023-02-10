@@ -234,7 +234,7 @@ contract SablierV2LockupPro is
         Broker calldata broker
     ) external override returns (uint256 streamId) {
         // Checks: check the deltas and adjust the segments accordingly.
-        Helpers.checkDeltasAndAdjustSegments(segments, deltas);
+        Helpers.checkDeltasAndCalculateMilestones(segments, deltas);
 
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
         UD60x18 protocolFee = comptroller.getProtocolFee(asset);
@@ -304,6 +304,9 @@ contract SablierV2LockupPro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculates the withdrawable amount for a stream with multiple segments.
+    ///
+    /// IMPORTANT: this function must be called only after checking that the current time is less than the last
+    /// segment's milestone, lest the loop below encounters an "index out of bounds" error.
     function _calculateStreamedAmountForMultipleSegments(
         uint256 streamId
     ) internal view returns (uint128 streamedAmount) {
@@ -314,9 +317,6 @@ contract SablierV2LockupPro is
             uint128 previousSegmentAmounts;
             uint40 currentSegmentMilestone = _streams[streamId].segments[0].milestone;
             uint256 index = 1;
-
-            // Important: this function must be called only after checking that the current time is less than the last
-            // segment's milestone, lest the loop below encounters an "index out of bounds" error.
             while (currentSegmentMilestone < currentTime) {
                 previousSegmentAmounts += _streams[streamId].segments[index - 1].amount;
                 currentSegmentMilestone = _streams[streamId].segments[index].milestone;
@@ -334,7 +334,7 @@ contract SablierV2LockupPro is
                 // If the current segment is at an index that is >= 2, use the previous segment's milestone.
                 previousMilestone = _streams[streamId].segments[index - 2].milestone;
             } else {
-                // Otherwise, there is only one segment, so use the start of the stream as the previous milestone.
+                // Otherwise, the current segment is the first, so use the start time as the previous milestone.
                 previousMilestone = _streams[streamId].range.start;
             }
 

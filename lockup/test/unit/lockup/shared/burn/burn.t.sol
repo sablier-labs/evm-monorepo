@@ -82,7 +82,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Burn the NFT.
         lockup.burn(streamId);
 
-        // Assert that the NFT was burned.
+        // Assert that the NFT has been burned.
         address actualNFTOwner = lockup.getRecipient(streamId);
         address expectedNFTOwner = address(0);
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

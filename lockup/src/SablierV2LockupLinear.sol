@@ -182,7 +182,7 @@ contract SablierV2LockupLinear is
         }
 
         unchecked {
-            // In all other cases, calculate how much was streamed so far.
+            // In all other cases, calculate how much has been streamed so far.
             // First, calculate how much time has elapsed since the stream started, and the total time of the stream.
             uint256 startTime = uint256(_streams[streamId].range.start);
             UD60x18 elapsedTime = ud(currentTime - startTime);

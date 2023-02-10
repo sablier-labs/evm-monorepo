@@ -8,21 +8,21 @@ import { Solarray } from "solarray/Solarray.sol";
 import { Events } from "src/libraries/Events.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { E2eTest } from "../../E2eTest.t.sol";
+import { E2e_Test } from "../../E2eTest.t.sol";
 
-abstract contract Linear_E2e_Test is E2eTest {
+abstract contract Linear_E2e_Test is E2e_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, address holder_) E2eTest(asset_, holder_) {}
+    constructor(IERC20 asset_, address holder_) E2e_Test(asset_, holder_) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        E2eTest.setUp();
+        E2e_Test.setUp();
 
         // Approve the {SablierV2LockupLinear} contract to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
@@ -100,7 +100,7 @@ abstract contract Linear_E2e_Test is E2eTest {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - All possible permutations for the sender, recipient, and broker.
+    /// - Multiple values for the the sender, recipient, and broker.
     /// - Multiple values for the total amount.
     /// - Start time in the past, present and future.
     /// - Start time lower than and equal to cliff time.
@@ -109,19 +109,7 @@ abstract contract Linear_E2e_Test is E2eTest {
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Linear_CreateWithdrawCancel(Params memory params) external {
-        vm.assume(params.range.start <= params.range.cliff && params.range.cliff <= params.range.end);
-        vm.assume(params.sender != address(0) && params.recipient != address(0) && params.broker.addr != address(0));
-        vm.assume(
-            params.sender != params.recipient &&
-                params.sender != params.broker.addr &&
-                params.recipient != params.broker.addr
-        );
-        vm.assume(params.sender != holder && params.recipient != holder && params.broker.addr != holder);
-        vm.assume(
-            params.sender != address(linear) &&
-                params.recipient != address(linear) &&
-                params.broker.addr != address(linear)
-        );
+        checkUsers(params.sender, params.recipient, params.broker.addr, address(linear));
         vm.assume(params.range.start <= params.range.cliff && params.range.cliff < params.range.end);
         vm.assume(params.totalAmount != 0 && params.totalAmount <= initialHolderBalance);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
@@ -183,7 +171,7 @@ abstract contract Linear_E2e_Test is E2eTest {
             broker: params.broker
         });
 
-        // Assert that the stream was created.
+        // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.depositAmount, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
@@ -192,17 +180,17 @@ abstract contract Linear_E2e_Test is E2eTest {
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.status, Lockup.Status.ACTIVE);
 
-        // Assert that the next stream id was bumped.
+        // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = linear.nextStreamId();
         vars.expectedNextStreamId = vars.streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
-        // Assert that the protocol fee was recorded.
+        // Assert that the protocol fee has been recorded.
         vars.actualProtocolRevenues = linear.getProtocolRevenues(asset);
         vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.protocolFeeAmount;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
-        // Assert that the NFT was minted.
+        // Assert that the NFT has been minted.
         vars.actualNFTOwner = linear.ownerOf({ tokenId: vars.streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner after create");
@@ -216,15 +204,15 @@ abstract contract Linear_E2e_Test is E2eTest {
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
 
-        // Assert that the linear contract's balance was updated.
+        // Assert that the linear contract's balance has been updated.
         vars.expectedLinearBalance = vars.initialLinearBalance + vars.depositAmount + vars.protocolFeeAmount;
         assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "post-create linear contract balance");
 
-        // Assert that the holder's balance was updated.
+        // Assert that the holder's balance has been updated.
         vars.expectedHolderBalance = initialHolderBalance - params.totalAmount;
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "post-create holder balance");
 
-        // Assert that the broker's balance was updated.
+        // Assert that the broker's balance has been updated.
         vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.brokerFeeAmount;
         assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "post-create broker balance");
 
@@ -258,7 +246,7 @@ abstract contract Linear_E2e_Test is E2eTest {
             changePrank(params.recipient);
             linear.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
 
-            // Assert that the withdrawn amount was updated.
+            // Assert that the withdrawn amount has been updated.
             vars.actualWithdrawnAmount = linear.getWithdrawnAmount(vars.streamId);
             vars.expectedWithdrawnAmount = params.withdrawAmount;
             assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
@@ -268,11 +256,11 @@ abstract contract Linear_E2e_Test is E2eTest {
             vars.actualLinearBalance = vars.balances[0];
             vars.actualRecipientBalance = vars.balances[1];
 
-            // Assert that the contract's balance was updated.
+            // Assert that the contract's balance has been updated.
             vars.expectedLinearBalance = vars.initialLinearBalance - uint256(params.withdrawAmount);
             assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "post-withdraw linear contract balance");
 
-            // Assert that the recipient's balance was updated.
+            // Assert that the recipient's balance has been updated.
             vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(params.withdrawAmount);
             assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-withdraw recipient balance");
         }
@@ -308,12 +296,12 @@ abstract contract Linear_E2e_Test is E2eTest {
             changePrank(params.sender);
             linear.cancel(vars.streamId);
 
-            // Assert that the stream was marked as canceled.
+            // Assert that the stream has been marked as canceled.
             vars.actualStatus = linear.getStatus(vars.streamId);
             vars.expectedStatus = Lockup.Status.CANCELED;
             assertEq(vars.actualStatus, vars.expectedStatus, "status after cancel");
 
-            // Assert that the NFT was not burned.
+            // Assert that the NFT has not been burned.
             vars.actualNFTOwner = linear.ownerOf({ tokenId: vars.streamId });
             vars.expectedNFTOwner = params.recipient;
             assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner after cancel");
@@ -327,22 +315,22 @@ abstract contract Linear_E2e_Test is E2eTest {
             vars.actualSenderBalance = vars.balances[1];
             vars.actualRecipientBalance = vars.balances[2];
 
-            // Assert that the contract's balance was updated.
+            // Assert that the contract's balance has been updated.
             vars.expectedLinearBalance =
                 vars.initialLinearBalance -
                 uint256(vars.senderAmount) -
                 uint256(vars.recipientAmount);
             assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "post-cancel linear contract balance");
 
-            // Assert that the recipient's balance was updated.
+            // Assert that the recipient's balance has been updated.
             vars.expectedSenderBalance = vars.initialSenderBalance + uint256(vars.senderAmount);
             assertEq(vars.actualSenderBalance, vars.expectedSenderBalance, "post-cancel sender balance");
 
-            // Assert that the recipient's balance was updated.
+            // Assert that the recipient's balance has been updated.
             vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(vars.recipientAmount);
             assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-cancel recipient balance");
         }
-        // Otherwise, assert that the stream was marked as depleted.
+        // Otherwise, assert that the stream has been marked as depleted.
         else {
             vars.actualStatus = linear.getStatus(vars.streamId);
             vars.expectedStatus = Lockup.Status.DEPLETED;

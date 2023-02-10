@@ -89,8 +89,8 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         durations.total = boundUint40(durations.total, 0, MAX_UNIX_TIMESTAMP);
         vm.assume(durations.cliff < durations.total);
 
-        // Make the sender the funder in this test.
-        address funder = defaultParams.createWithDurations.sender;
+        // Make the sender the funder of the stream.
+        address funder = users.sender;
 
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
@@ -137,7 +137,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         // Create the stream.
         createDefaultStreamWithDurations(durations);
 
-        // Assert that the stream was created.
+        // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.asset, defaultStream.asset, "asset");
@@ -146,17 +146,17 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.status, defaultStream.status);
 
-        // Assert that the next stream id was bumped.
+        // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
-        // Assert that the protocol fee was recorded.
+        // Assert that the protocol fee has been recorded.
         uint128 actualProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 
-        // Assert that the NFT was minted.
+        // Assert that the NFT has been minted.
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = defaultParams.createWithDurations.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

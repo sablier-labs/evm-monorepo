@@ -44,11 +44,11 @@ library Helpers {
         amounts.brokerFee = uint128(ud(totalAmount).mul(brokerFee).intoUint256());
 
         unchecked {
-            // Assert that the total amount  is strictly greater than the sum of the protocol fee amount and the
+            // Assert that the total amount is strictly greater than the sum of the protocol fee amount and the
             // broker fee amount.
             assert(totalAmount > amounts.protocolFee + amounts.brokerFee);
 
-            // Calculate the deposit amount (the total amount net of fees).
+            // Calculate the deposit amount (the amount to stream, net of fees).
             amounts.deposit = totalAmount - amounts.protocolFee - amounts.brokerFee;
         }
     }
@@ -99,7 +99,10 @@ library Helpers {
     }
 
     /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
-    function checkDeltasAndAdjustSegments(LockupPro.Segment[] memory segments, uint40[] memory deltas) internal view {
+    function checkDeltasAndCalculateMilestones(
+        LockupPro.Segment[] memory segments,
+        uint40[] memory deltas
+    ) internal view {
         // Checks: check that the segment array counts match.
         uint256 deltaCount = deltas.length;
         if (segments.length != deltaCount) {
@@ -112,7 +115,7 @@ library Helpers {
         // It is safe to use unchecked arithmetic because the {_createWithMilestone} function will nonetheless check
         // the soundness of the calculated segment milestones.
         unchecked {
-            // Calculate the first iteration of the loop in advance.
+            // Precompute the first milestone.
             segments[0].milestone = startTime + deltas[0];
 
             // Calculate the segment milestones and set them in the segments array.
@@ -154,12 +157,12 @@ library Helpers {
         uint256 index;
         uint256 segmentCount = segments.length;
         for (index = 0; index < segmentCount; ) {
-            // Add the current segment amount to the sum.
+            // Add the current segment amount to the sum. Note that this can overflow.
             segmentAmountsSum += segments[index].amount;
 
-            // Check that the previous milestone is less than the current milestone. Note that this can overflow.
+            // Check that the current milestone is strictly greater than the previous milestone.
             currentMilestone = segments[index].milestone;
-            if (previousMilestone >= currentMilestone) {
+            if (currentMilestone <= previousMilestone) {
                 revert Errors.SablierV2LockupPro_SegmentMilestonesNotOrdered(
                     index,
                     previousMilestone,

@@ -90,14 +90,14 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         // Cancel the streams.
         lockup.cancelMultiple(streamIds);
 
-        // Assert that the streams were marked as canceled.
+        // Assert that the streams have been marked as canceled.
         Lockup.Status actualStatus0 = lockup.getStatus(streamIds[0]);
         Lockup.Status actualStatus1 = lockup.getStatus(streamIds[1]);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus0, expectedStatus, "status0");
         assertEq(actualStatus1, expectedStatus, "status1");
 
-        // Assert that the withdrawn amounts were updated.
+        // Assert that the withdrawn amounts have been updated.
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(streamIds[0]);
         uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(streamIds[1]);
         uint128 expectedWithdrawnAmount0 = recipientAmount0;
@@ -105,7 +105,7 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0, "withdrawnAmount0");
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1, "withdrawnAmount1");
 
-        // Assert that the NFTs weren't burned.
+        // Assert that the NFTs have not been burned.
         address actualNFTOwner0 = lockup.ownerOf({ tokenId: streamIds[0] });
         address actualNFTOwner1 = lockup.ownerOf({ tokenId: streamIds[1] });
         address expectedNFTOwner = users.recipient;
@@ -169,14 +169,14 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         // Cancel the streams.
         lockup.cancelMultiple(streamIds);
 
-        // Assert that the streams were marked as canceled.
+        // Assert that the streams have been marked as canceled.
         Lockup.Status actualStatus0 = lockup.getStatus(streamIds[0]);
         Lockup.Status actualStatus1 = lockup.getStatus(streamIds[1]);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus0, expectedStatus, "status0");
         assertEq(actualStatus1, expectedStatus, "status1");
 
-        // Assert that the withdrawn amounts were updated.
+        // Assert that the withdrawn amounts have been updated.
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(streamIds[0]);
         uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(streamIds[1]);
         uint128 expectedWithdrawnAmount0 = recipientAmount0;
@@ -184,7 +184,7 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0, "withdrawAmount0");
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1, "withdrawAmount1");
 
-        // Assert that the NFTs weren't burned.
+        // Assert that the NFTs have not been burned.
         address actualNFTOwner0 = lockup.getRecipient(streamIds[0]);
         address actualNFTOwner1 = lockup.getRecipient(streamIds[1]);
         address expectedNFTOwner = users.recipient;

@@ -60,8 +60,8 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream to make the query for.
     function isCancelable(uint256 streamId) external view returns (bool result);
 
-    /// @notice Calculates the amount that the sender would be returned if the stream was canceled, in units of the
-    /// asset's decimals.
+    /// @notice Calculates the amount that the sender would be paid if the stream had been canceled, in units of
+    /// the asset's decimals.
     /// @param streamId The id of the stream to make the query for.
     function returnableAmountOf(uint256 streamId) external view returns (uint128 returnableAmount);
 

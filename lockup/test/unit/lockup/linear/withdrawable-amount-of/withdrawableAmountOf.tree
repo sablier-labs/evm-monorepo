@@ -10,7 +10,7 @@ withdrawableAmountOf.t.sol
    ├── when the cliff time is greater than the current time
    │  └── it should return zero
    └── when the cliff time is less than or equal to the current time
-      ├── when there weren't withdrawals
+      ├── when there have not been withdrawals
       │  └── it should return the correct withdrawable amount
-      └── when there were withdrawals
+      └── when there have been withdrawals
          └── it should return the correct withdrawable amount

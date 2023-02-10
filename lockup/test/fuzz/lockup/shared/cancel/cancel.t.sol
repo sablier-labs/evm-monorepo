@@ -116,17 +116,17 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream was marked as canceled.
+        // Assert that the stream has been marked as canceled.
         Lockup.Status actualStatus = lockup.getStatus(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the withdrawn amount was updated.
+        // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount + recipientAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the NFT was not burned.
+        // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = address(goodRecipient);
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
@@ -209,17 +209,17 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream was marked as canceled.
+        // Assert that the stream has been marked as canceled.
         Lockup.Status actualStatus = lockup.getStatus(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the withdrawn amount was updated.
+        // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = withdrawAmount + recipientAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the NFT was not burned.
+        // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");

@@ -58,7 +58,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
         // Claim the protocol revenues.
         config.claimProtocolRevenues(DEFAULT_ASSET);
 
-        // Assert that the protocol revenues were set to zero.
+        // Assert that the protocol revenues have been set to zero.
         uint128 actualProtocolRevenues = config.getProtocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");

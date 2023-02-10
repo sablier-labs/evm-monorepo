@@ -7,7 +7,7 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
-import { Broker, LockupPro } from "src/types/DataTypes.sol";
+import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
 
 import { BaseHandler } from "./BaseHandler.t.sol";
 import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
@@ -62,29 +62,20 @@ contract LockupProCreateHandler is BaseHandler {
     struct CreateWithDeltasParams {
         Broker broker;
         bool cancelable;
-        uint40 delta0;
-        uint40 delta1;
         address recipient;
+        LockupPro.Segment[] segments;
         address sender;
-        uint128 totalAmount;
     }
 
     struct CreateWithDeltasVars {
         uint256 streamId;
         uint40[] deltas;
-        UD60x18 protocolFee;
-        uint128 depositAmount;
-        LockupPro.Segment[] segments;
+        uint128 totalAmount;
     }
 
     function createWithDeltas(
         CreateWithDeltasParams memory params
     ) public instrument("createWithDeltas") useNewSender(params.sender) {
-        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        params.delta0 = boundUint40(params.delta0, 1, 100);
-        params.delta1 = boundUint40(params.delta1, 1, MAX_UNIX_TIMESTAMP - uint40(block.timestamp) - params.delta0);
-        params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
-
         // We don't want to fuzz more than a certain number of streams.
         if (store.lastStreamId() > MAX_STREAM_COUNT) {
             return;
@@ -95,33 +86,38 @@ contract LockupProCreateHandler is BaseHandler {
             return;
         }
 
-        // Create the deltas array.
+        // The protocol doesn't allow empty segments.
+        if (params.segments.length == 0) {
+            return;
+        }
+
+        // Bound the broker fee.
+        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
+
+        // Fuzz the deltas and update the segment milestones.
         CreateWithDeltasVars memory vars;
-        vars.deltas = Solarray.uint40s(params.delta0, params.delta1);
+        vars.deltas = fuzzSegmentDeltas(params.segments);
 
-        // Adjust the segment milestones to match the fuzzed deltas.
-        vars.segments = DEFAULT_SEGMENTS;
-        vars.segments[0].milestone = uint40(block.timestamp) + params.delta0;
-        vars.segments[1].milestone = vars.segments[0].milestone + params.delta1;
-
-        // Calculate the deposit amount.
-        vars.depositAmount = calculateDepositAmount(params.totalAmount, vars.protocolFee, params.broker.fee);
-
-        // Adjust the segment amounts based on the fuzzed deposit amount.
-        adjustSegmentAmounts(vars.segments, vars.depositAmount);
+        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        (vars.totalAmount, ) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+            upperBound: 1_000_000_000e18,
+            segments: params.segments,
+            protocolFee: comptroller.getProtocolFee(asset),
+            brokerFee: params.broker.fee
+        });
 
         // Mint enough ERC-20 assets to the sender.
-        deal({ token: address(asset), to: params.sender, give: params.totalAmount });
+        deal({ token: address(asset), to: params.sender, give: vars.totalAmount });
 
         // Approve the {SablierV2LockupPro} contract to spend the ERC-20 assets.
-        asset.approve({ spender: address(pro), amount: params.totalAmount });
+        asset.approve({ spender: address(pro), amount: vars.totalAmount });
 
         // Create the stream.
         vars.streamId = pro.createWithDeltas({
             sender: params.sender,
             recipient: params.recipient,
-            totalAmount: params.totalAmount,
-            segments: vars.segments,
+            totalAmount: vars.totalAmount,
+            segments: params.segments,
             asset: asset,
             cancelable: params.cancelable,
             deltas: vars.deltas,
@@ -135,25 +131,23 @@ contract LockupProCreateHandler is BaseHandler {
     struct CreateWithMilestonesParams {
         Broker broker;
         bool cancelable;
-        uint128 totalAmount;
         address recipient;
+        LockupPro.Segment[] segments;
         address sender;
         uint40 startTime;
     }
 
     struct CreateWithMilestonesVars {
         uint128 depositAmount;
-        UD60x18 protocolFee;
-        LockupPro.Segment[] segments;
         uint256 streamId;
+        uint128 totalAmount;
     }
 
     function createWithMilestones(
         CreateWithMilestonesParams memory params
     ) public instrument("createWithMilestones") useNewSender(params.sender) {
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone - 1);
-        params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
+        params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
 
         // We don't want to fuzz more than a certain number of streams.
         if (store.lastStreamId() >= MAX_STREAM_COUNT) {
@@ -165,29 +159,35 @@ contract LockupProCreateHandler is BaseHandler {
             return;
         }
 
-        // Get the current protocol fee.
+        // The protocol doesn't allow empty segments.
+        if (params.segments.length == 0) {
+            return;
+        }
+
+        // Fuzz the segment milestones.
+        fuzzSegmentMilestones(params.segments, params.startTime);
+
+        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         CreateWithMilestonesVars memory vars;
-        vars.protocolFee = comptroller.getProtocolFee(asset);
-
-        // Calculate the deposit amount.
-        vars.depositAmount = calculateDepositAmount(params.totalAmount, vars.protocolFee, params.broker.fee);
-
-        // Adjust the segment amounts based on the fuzzed deposit amount.
-        vars.segments = DEFAULT_SEGMENTS;
-        adjustSegmentAmounts(vars.segments, vars.depositAmount);
+        (vars.totalAmount, ) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+            upperBound: 1_000_000_000e18,
+            segments: params.segments,
+            protocolFee: comptroller.getProtocolFee(asset),
+            brokerFee: params.broker.fee
+        });
 
         // Mint enough ERC-20 assets to the sender.
-        deal({ token: address(asset), to: params.sender, give: params.totalAmount });
+        deal({ token: address(asset), to: params.sender, give: vars.totalAmount });
 
         // Approve the {SablierV2LockupPro} contract to spend the ERC-20 assets.
-        asset.approve({ spender: address(pro), amount: params.totalAmount });
+        asset.approve({ spender: address(pro), amount: vars.totalAmount });
 
         // Create the stream.
         vars.streamId = pro.createWithMilestones({
             sender: params.sender,
             recipient: params.recipient,
-            totalAmount: params.totalAmount,
-            segments: vars.segments,
+            totalAmount: vars.totalAmount,
+            segments: params.segments,
             asset: asset,
             cancelable: params.cancelable,
             startTime: params.startTime,

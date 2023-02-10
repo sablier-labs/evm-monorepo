@@ -1,5 +1,5 @@
 flashFee.t.sol
-├── when the flash fee was not set
+├── when the flash fee has not been set
 │  └── it should return zero
-└── when the flash fee was set
+└── when the flash fee has been set
    └── it should return the correct flash fee
