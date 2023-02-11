@@ -384,22 +384,20 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         address funder = users.sender;
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
-        vm.expectCall(
-            asset,
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, address(pro), DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({
+            asset: IERC20(asset),
+            from: funder,
+            to: address(pro),
+            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+        });
 
         // Expect the broker fee to be paid to the broker.
-        vm.expectCall(
-            asset,
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, defaultParams.createWithMilestones.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({
+            asset: IERC20(asset),
+            from: funder,
+            to: users.broker,
+            amount: DEFAULT_BROKER_FEE_AMOUNT
+        });
 
         // Expect a {CreateLockupProStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });

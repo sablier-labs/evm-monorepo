@@ -151,7 +151,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the ERC-20 assets to be transferred to the recipient.
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        expectTransferCall({ to: to, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
@@ -218,10 +218,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the ERC-20 assets to be transferred to the recipient.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount))
-        );
+        expectTransferCall({ to: address(goodRecipient), amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

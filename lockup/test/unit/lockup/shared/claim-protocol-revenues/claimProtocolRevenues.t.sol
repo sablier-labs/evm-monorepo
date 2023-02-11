@@ -49,7 +49,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
     function test_ClaimProtocolRevenues() external callerAdmin protocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.admin, protocolRevenues)));
+        expectTransferCall({ to: users.admin, amount: protocolRevenues });
 
         // Expect a {ClaimProtocolRevenues} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

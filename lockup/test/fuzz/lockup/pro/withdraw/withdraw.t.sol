@@ -90,7 +90,7 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
         // Expect the ERC-20 assets to be transferred to the recipient.
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, vars.withdrawAmount)));
+        expectTransferCall({ to: users.recipient, amount: vars.withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

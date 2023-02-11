@@ -169,22 +169,14 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         uint128 initialProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, address(pro), DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({
+            from: funder,
+            to: address(pro),
+            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+        });
 
         // Expect the broker fee to be paid to the broker.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, defaultParams.createWithDeltas.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
 
         // Expect a {CreateLockupProStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });

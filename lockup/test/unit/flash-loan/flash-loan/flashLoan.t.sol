@@ -170,17 +170,11 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         deal({ token: address(DEFAULT_ASSET), to: address(goodFlashLoanReceiver), give: fee });
 
         // Expect `amount` of ERC-20 assets to be transferred from the {SablierV2FlashLoan} contract to the receiver.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(IERC20.transfer, (address(goodFlashLoanReceiver), amount))
-        );
+        expectTransferCall({ to: address(goodFlashLoanReceiver), amount: amount });
 
         // Expect `amount+fee` of ERC-20 assets to be transferred back from the receiver.
         uint256 returnAmount = amount + fee;
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(IERC20.transferFrom, (address(goodFlashLoanReceiver), address(flashLoan), returnAmount))
-        );
+        expectTransferFromCall({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
 
         // Expect a {FlashLoan} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });

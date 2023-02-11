@@ -200,6 +200,26 @@ abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
         vm.label({ account: address(pro), newLabel: "LockupPro" });
     }
 
+    /// @dev Expects a call to the `transfer` function of the default ERC-20 asset.
+    function expectTransferCall(address to, uint256 amount) internal {
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, amount)));
+    }
+
+    /// @dev Expects a call to the `transfer` function of the provided ERC-20 asset.
+    function expectTransferCall(IERC20 asset, address to, uint256 amount) internal {
+        vm.expectCall(address(asset), abi.encodeCall(IERC20.transfer, (to, amount)));
+    }
+
+    /// @dev Expects a call to the `transfer` function of the default ERC-20 asset.
+    function expectTransferFromCall(address from, address to, uint256 amount) internal {
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
+    }
+
+    /// @dev Expects a call to the `transfer` function of the provided ERC-20 asset.
+    function expectTransferFromCall(IERC20 asset, address from, address to, uint256 amount) internal {
+        vm.expectCall(address(asset), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
+    }
+
     /// @dev Checks if the Foundry profile is "test-optimized".
     function isTestOptimizedProfile() internal returns (bool result) {
         string memory profile = vm.envOr("FOUNDRY_PROFILE", string(""));

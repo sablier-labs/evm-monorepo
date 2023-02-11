@@ -98,22 +98,14 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         uint128 initialProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, address(linear), DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({
+            from: funder,
+            to: address(linear),
+            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+        });
 
         // Expect the broker fee to be paid to the broker, if the amount is not zero.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, defaultParams.createWithDurations.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });

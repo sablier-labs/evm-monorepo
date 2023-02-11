@@ -223,20 +223,15 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         DEFAULT_ASSET.approve({ spender: address(linear), amount: UINT256_MAX });
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (params.funder, address(linear), vars.depositAmount + vars.protocolFeeAmount)
-            )
-        );
+        expectTransferFromCall({
+            from: params.funder,
+            to: address(linear),
+            amount: vars.depositAmount + vars.protocolFeeAmount
+        });
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.brokerFeeAmount > 0) {
-            vm.expectCall(
-                address(DEFAULT_ASSET),
-                abi.encodeCall(IERC20.transferFrom, (params.funder, params.broker.addr, vars.brokerFeeAmount))
-            );
+            expectTransferFromCall({ from: params.funder, to: params.broker.addr, amount: vars.brokerFeeAmount });
         }
 
         // Expect a {CreateLockupLinearStream} event to be emitted.

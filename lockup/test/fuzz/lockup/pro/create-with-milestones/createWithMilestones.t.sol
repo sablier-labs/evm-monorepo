@@ -312,20 +312,15 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         DEFAULT_ASSET.approve({ spender: address(pro), amount: UINT256_MAX });
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (params.funder, address(pro), vars.amounts.deposit + vars.amounts.protocolFee)
-            )
-        );
+        expectTransferFromCall({
+            from: params.funder,
+            to: address(pro),
+            amount: vars.amounts.deposit + vars.amounts.protocolFee
+        });
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.amounts.brokerFee > 0) {
-            vm.expectCall(
-                address(DEFAULT_ASSET),
-                abi.encodeCall(IERC20.transferFrom, (params.funder, params.broker.addr, vars.amounts.brokerFee))
-            );
+            expectTransferFromCall({ from: params.funder, to: params.broker.addr, amount: vars.amounts.brokerFee });
         }
 
         // Expect a {CreateLockupProStream} event to be emitted.
