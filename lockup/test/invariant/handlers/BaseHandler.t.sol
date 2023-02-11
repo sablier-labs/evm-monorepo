@@ -6,10 +6,11 @@ import { StdCheats } from "forge-std/StdCheats.sol";
 
 import { Calculations } from "../../shared/helpers/Calculations.t.sol";
 import { Constants } from "../../shared/helpers/Constants.t.sol";
+import { Fuzzers } from "../../shared/helpers/Fuzzers.t.sol";
 
 /// @title BaseHandler
 /// @notice Base contract with common logic needed by all handler contracts.
-abstract contract BaseHandler is Calculations, StdCheats {
+abstract contract BaseHandler is Calculations, Fuzzers, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/

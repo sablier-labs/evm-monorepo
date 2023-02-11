@@ -17,10 +17,11 @@ import { GoodRecipient } from "./shared/mockups/hooks/GoodRecipient.t.sol";
 import { GoodSender } from "./shared/mockups/hooks/GoodSender.t.sol";
 import { Assertions } from "./shared/helpers/Assertions.t.sol";
 import { Calculations } from "./shared/helpers/Calculations.t.sol";
+import { Fuzzers } from "./shared/helpers/Fuzzers.t.sol";
 
 /// @title Base_Test
 /// @notice Base test contract with common logic needed by all test contracts.
-abstract contract Base_Test is Assertions, Calculations, StdCheats {
+abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
