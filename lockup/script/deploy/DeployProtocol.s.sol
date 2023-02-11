@@ -12,7 +12,7 @@ import { DeployComptroller } from "./DeployComptroller.s.sol";
 import { DeployLockupLinear } from "./DeployLockupLinear.s.sol";
 import { DeployLockupPro } from "./DeployLockupPro.s.sol";
 
-/// @notice Deploys the entire Sablier V2 protocol. The contracts are deployed in the following order:
+/// @notice Deploys the entire protocol. The contracts are deployed in the following order:
 ///
 /// 1. SablierV2Comptroller
 /// 2. SablierV2LockupLinear

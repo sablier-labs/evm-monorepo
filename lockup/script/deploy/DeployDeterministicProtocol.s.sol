@@ -12,8 +12,8 @@ import { DeployDeterministicComptroller } from "./DeployDeterministicComptroller
 import { DeployDeterministicLockupLinear } from "./DeployDeterministicLockupLinear.s.sol";
 import { DeployDeterministicLockupPro } from "./DeployDeterministicLockupPro.s.sol";
 
-/// @dev Deploys the entire Sablier V2 protocol at deterministic addresses across all chains. Reverts if
-/// any contract has already been deployed via the deterministic CREATE2 factory.
+/// @dev Deploys the entire protocol at deterministic addresses across all chains. Reverts if any
+/// contract has already been deployed via the deterministic CREATE2 factory.
 ///
 /// The contracts are deployed in the following order:
 ///
