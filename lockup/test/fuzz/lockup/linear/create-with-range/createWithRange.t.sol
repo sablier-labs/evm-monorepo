@@ -163,13 +163,11 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint256 actualNextStreamId;
         address actualNFTOwner;
         uint256 actualProtocolRevenues;
-        uint128 brokerFeeAmount;
-        uint128 depositAmount;
+        Lockup.CreateAmounts createAmounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         uint256 expectedProtocolRevenues;
         uint128 initialProtocolRevenues;
-        uint128 protocolFeeAmount;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
@@ -205,9 +203,9 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Calculate the fee amounts and the deposit amount.
         Vars memory vars;
-        vars.protocolFeeAmount = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
-        vars.brokerFeeAmount = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.depositAmount = params.totalAmount - vars.protocolFeeAmount - vars.brokerFeeAmount;
+        vars.createAmounts.protocolFee = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
+        vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
+        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
@@ -226,12 +224,16 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         expectTransferFromCall({
             from: params.funder,
             to: address(linear),
-            amount: vars.depositAmount + vars.protocolFeeAmount
+            amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
         });
 
         // Expect the broker fee to be paid to the broker, if not zero.
-        if (vars.brokerFeeAmount > 0) {
-            expectTransferFromCall({ from: params.funder, to: params.broker.addr, amount: vars.brokerFeeAmount });
+        if (vars.createAmounts.brokerFee > 0) {
+            expectTransferFromCall({
+                from: params.funder,
+                to: params.broker.addr,
+                amount: vars.createAmounts.brokerFee
+            });
         }
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
@@ -242,9 +244,9 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             sender: params.sender,
             recipient: params.recipient,
             amounts: Lockup.CreateAmounts({
-                deposit: vars.depositAmount,
-                protocolFee: vars.protocolFeeAmount,
-                brokerFee: vars.brokerFeeAmount
+                deposit: vars.createAmounts.deposit,
+                protocolFee: vars.createAmounts.protocolFee,
+                brokerFee: vars.createAmounts.brokerFee
             }),
             asset: DEFAULT_ASSET,
             cancelable: params.cancelable,
@@ -265,7 +267,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.depositAmount, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.range, params.range);
@@ -279,7 +281,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Assert that the protocol fee has been recorded.
         vars.actualProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
-        vars.expectedProtocolRevenues = vars.protocolFeeAmount;
+        vars.expectedProtocolRevenues = vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
