@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.18;
 
 /// @title ISablierV2Adminable
 /// @notice Contract module that provides a basic access control mechanism, with an admin that can be

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.18;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
@@ -44,10 +44,10 @@ contract SablierV2Comptroller is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev ERC-20 assets that can be flash loaned.
-    mapping(IERC20 => bool) internal _flashAssets;
+    mapping(IERC20 asset => bool supported) internal _flashAssets;
 
     /// @dev Global fees mapped by ERC-20 asset addresses.
-    mapping(IERC20 => UD60x18) internal _protocolFees;
+    mapping(IERC20 asset => UD60x18) internal _protocolFees;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR

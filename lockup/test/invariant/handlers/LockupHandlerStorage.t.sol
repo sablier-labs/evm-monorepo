@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.13 <0.9.0;
+pragma solidity >=0.8.18 <0.9.0;
 
 /// @title LockupHandlerStorage
 /// @dev Storage contract for the lockup handler streams.
@@ -10,8 +10,8 @@ contract LockupHandlerStorage {
 
     uint256 public lastStreamId;
     uint128 public returnedAmountsSum;
-    mapping(uint256 => address) public streamIdsToRecipients;
-    mapping(uint256 => address) public streamIdsToSenders;
+    mapping(uint256 streamId => address) public recipients;
+    mapping(uint256 streamId => address) public senders;
     uint256[] public streamIds;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -25,14 +25,14 @@ contract LockupHandlerStorage {
     function pushStreamId(uint256 streamId, address sender, address recipient) external {
         // Store the stream id in the ids array and the reverse mappings.
         streamIds.push(streamId);
-        streamIdsToSenders[streamId] = sender;
-        streamIdsToRecipients[streamId] = recipient;
+        senders[streamId] = sender;
+        recipients[streamId] = recipient;
 
         // Update the last stream id.
         lastStreamId = streamId;
     }
 
     function updateRecipient(uint256 streamId, address newRecipient) external {
-        streamIdsToRecipients[streamId] = newRecipient;
+        recipients[streamId] = newRecipient;
     }
 }

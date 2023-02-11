@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.18;
 
 /// This file simply re-exports all PRBMath types needed in v2-core. It is provided for convenience to
 /// users so that they don't have to install PRBMath separately.

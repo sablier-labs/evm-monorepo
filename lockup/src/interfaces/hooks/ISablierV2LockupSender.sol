@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.18;
 
 /// @title ISablierV2LockupSender
 /// @notice Interface for Sablier V2 sender contracts that can react to cancellations.

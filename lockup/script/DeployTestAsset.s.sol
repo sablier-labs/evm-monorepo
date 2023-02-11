@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.18;
 
 import { ERC20GodMode } from "@prb/contracts/token/erc20/ERC20GodMode.sol";
 

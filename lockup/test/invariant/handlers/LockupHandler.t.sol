@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.13 <0.9.0;
+pragma solidity >=0.8.18 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
@@ -55,7 +55,7 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
         currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
-        currentRecipient = store.streamIdsToRecipients(currentStreamId);
+        currentRecipient = store.recipients(currentStreamId);
         vm.startPrank(currentRecipient);
         _;
         vm.stopPrank();
@@ -67,7 +67,7 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
         currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
-        currentSender = store.streamIdsToSenders(currentStreamId);
+        currentSender = store.senders(currentStreamId);
         vm.startPrank(currentSender);
         _;
         vm.stopPrank();

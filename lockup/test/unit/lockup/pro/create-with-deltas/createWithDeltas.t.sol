@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // solhint-disable max-line-length
-pragma solidity >=0.8.13 <0.9.0;
+pragma solidity >=0.8.18 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { ud2x18 } from "@prb/math/UD2x18.sol";
