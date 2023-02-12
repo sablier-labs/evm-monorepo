@@ -243,11 +243,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             funder: params.funder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: Lockup.CreateAmounts({
-                deposit: vars.createAmounts.deposit,
-                protocolFee: vars.createAmounts.protocolFee,
-                brokerFee: vars.createAmounts.brokerFee
-            }),
+            amounts: vars.createAmounts,
             asset: DEFAULT_ASSET,
             cancelable: params.cancelable,
             range: params.range,
