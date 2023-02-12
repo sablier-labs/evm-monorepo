@@ -116,8 +116,8 @@ interface ISablierV2Lockup is
     /// @dev Emits multiple {CancelLockupStream} events.
     ///
     /// Notes:
-    /// - It is not an error if one of the stream ids points to a stream that is not active or is active but
-    /// is not cancelable.
+    /// - Does not revert if one of the stream ids points to a stream that is not active or is active but is
+    /// not cancelable.
     /// - This function will attempt to call a hook on either the sender or the recipient of each stream.
     ///
     /// Requirements:
@@ -187,7 +187,7 @@ interface ISablierV2Lockup is
     /// @dev Emits multiple {WithdrawFromLockupStream} and {Transfer} events.
     ///
     /// Notes:
-    /// - It is not an error if one of the stream ids points to a stream that is not active.
+    /// - Does not revert if one of the stream ids points to a stream that is not active.
     /// - This function will attempt to call a hook on the recipient of each stream.
     ///
     /// Requirements:

@@ -47,7 +47,7 @@ interface ISablierV2Config is ISablierV2Adminable {
     /// @dev Emits a {SetComptroller} event.
     ///
     /// Notes:
-    /// - It is not an error to set the same comptroller.
+    /// - Does not revert if the comptroller is the same.
     ///
     /// Requirements:
     /// - The caller must be the contract admin.
