@@ -53,8 +53,7 @@ contract BootstrapProtocol is BaseScript {
 
         // Create 7 linear streams with various amounts and durations.
         //
-        // - 1st stream: meant to be depleted.
-        // - 2th to 4th streams: active.
+        // - 1st to 4th streams: active.
         // - 5th stream: meant to be renounced.
         // - 6th stream: meant to canceled.
         // - 7th stream: meant to be transferred to a third-party.
@@ -72,9 +71,6 @@ contract BootstrapProtocol is BaseScript {
                 broker: Broker(address(0), ud(0))
             });
         }
-
-        // Deplete the 1st stream.
-        linear.withdrawMax({ streamId: 1, to: recipient });
 
         // Renounce the 5th stream.
         linear.renounce({ streamId: 5 });

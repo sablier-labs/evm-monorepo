@@ -59,7 +59,7 @@ library LockupLinear {
         uint40 total; // ─┘
     }
 
-    /// @notice Range struct used as a field in the lockup linear stream.
+    /// @notice Simple struct that encapsulates (i) the start time (ii) the cliff time and (iii) the end time.
     /// @custom:field start The Unix timestamp for when the stream will start.
     /// @custom:field cliff The Unix timestamp for when the cliff period will end.
     /// @custom:field end The Unix timestamp for when the stream will end.
@@ -93,7 +93,7 @@ library LockupLinear {
 
 /// @notice Quasi-namespace for the structs used in the {SablierV2LockupPro} contract.
 library LockupPro {
-    /// @notice Range struct used as a field in the lockup pro stream.
+    /// @notice Simple struct that encapsulates (i) the start time and (ii) the end time.
     /// @custom:field start The Unix timestamp for when the stream will start.
     /// @custom:field end The Unix timestamp for when the stream will end.
     struct Range {

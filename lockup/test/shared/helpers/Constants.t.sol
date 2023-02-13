@@ -83,10 +83,18 @@ abstract contract Constants {
         );
 
         DEFAULT_SEGMENTS_WITH_DELTAS.push(
-            LockupPro.SegmentWithDelta({ amount: 2_500e18, exponent: ud2x18(3.14e18), delta: 2_500 seconds })
+            LockupPro.SegmentWithDelta({
+                amount: DEFAULT_SEGMENTS[0].amount,
+                exponent: DEFAULT_SEGMENTS[0].exponent,
+                delta: 2_500 seconds
+            })
         );
         DEFAULT_SEGMENTS_WITH_DELTAS.push(
-            LockupPro.SegmentWithDelta({ amount: 7_500e18, exponent: ud2x18(0.5e18), delta: 7_500 seconds })
+            LockupPro.SegmentWithDelta({
+                amount: DEFAULT_SEGMENTS[1].amount,
+                exponent: DEFAULT_SEGMENTS[1].exponent,
+                delta: 7_500 seconds
+            })
         );
 
         unchecked {

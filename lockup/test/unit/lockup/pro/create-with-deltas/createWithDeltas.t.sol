@@ -170,14 +170,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
 
         // Assert that the stream has been created.
         LockupPro.Stream memory actualStream = pro.getStream(streamId);
-        assertEq(actualStream.amounts, defaultStream.amounts);
-        assertEq(actualStream.asset, defaultStream.asset, "asset");
-        assertEq(actualStream.endTime, defaultStream.endTime, "endTime");
-        assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.segments, defaultStream.segments);
-        assertEq(actualStream.sender, defaultStream.sender, "sender");
-        assertEq(actualStream.startTime, defaultStream.startTime, "startTime");
-        assertEq(actualStream.status, defaultStream.status);
+        assertEq(actualStream, defaultStream);
 
         // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = pro.nextStreamId();

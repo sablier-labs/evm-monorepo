@@ -18,7 +18,6 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
         IERC20 asset;
         Broker broker;
         bool cancelable;
-        uint40[] deltas;
         address recipient;
         address sender;
         LockupPro.SegmentWithDelta[] segments;

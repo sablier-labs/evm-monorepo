@@ -71,7 +71,6 @@ contract LockupProCreateHandler is BaseHandler {
 
     struct CreateWithDeltasVars {
         uint256 streamId;
-        uint40[] deltas;
         uint128 totalAmount;
     }
 

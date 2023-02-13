@@ -37,7 +37,6 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         address actualNFTOwner;
         uint256 actualProtocolRevenues;
         Lockup.CreateAmounts createAmounts;
-        uint40[] deltas;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         uint256 expectedProtocolRevenues;
