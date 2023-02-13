@@ -233,7 +233,9 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Assert that the stream has remained active.
         Lockup.Status actualStatus = lockup.getStatus(streamId);
-        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        Lockup.Status expectedStatus = withdrawAmount == DEFAULT_DEPOSIT_AMOUNT
+            ? Lockup.Status.DEPLETED
+            : Lockup.Status.ACTIVE;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount has been updated.

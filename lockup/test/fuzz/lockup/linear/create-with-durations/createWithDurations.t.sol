@@ -30,7 +30,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             cliffTime = startTime + cliffDuration;
         }
 
-        // Expect an error.
+        // Expect a {StartTimeGreaterThanCliffTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector,
@@ -66,7 +66,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             endTime = startTime + durations.total;
         }
 
-        // Expect an error.
+        // Expect a {CliffTimeNotLessThanEndTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector,
