@@ -59,7 +59,7 @@ library LockupLinear {
         uint40 total; // ─┘
     }
 
-    /// @notice Simple struct that encapsulates (i) the start time (ii) the cliff time and (iii) the end time.
+    /// @notice Simple struct that encapsulates (i) the start time, (ii) the cliff time and (iii) the end time.
     /// @custom:field start The Unix timestamp for when the stream will start.
     /// @custom:field cliff The Unix timestamp for when the cliff period will end.
     /// @custom:field end The Unix timestamp for when the stream will end.
