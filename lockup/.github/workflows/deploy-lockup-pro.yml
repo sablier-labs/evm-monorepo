@@ -49,7 +49,7 @@ jobs:
 
       - name: "Deploy the SablierV2LockupPro contract"
         run: >-
-          forge script script/DeployLockupPro.s.sol
+          forge script script/deploy/DeployLockupPro.s.sol
           --broadcast
           --rpc-url "${{ github.event.inputs.chain }}"
           --sig "run(address,address,uint256,uint256)"

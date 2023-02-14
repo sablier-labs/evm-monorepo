@@ -46,7 +46,7 @@ jobs:
 
       - name: "Deploy the entire Sablier V2 protocol"
         run: >-
-          forge script script/DeployProtocol.s.sol
+          forge script script/deploy/DeployProtocol.s.sol
           --broadcast
           --rpc-url "${{ github.event.inputs.chain }}"
           --sig "run(address,uint256,uint256)"

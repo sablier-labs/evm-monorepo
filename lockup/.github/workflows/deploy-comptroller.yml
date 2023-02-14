@@ -32,7 +32,7 @@ jobs:
 
       - name: "Deploy the SablierV2Comptroller contract"
         run: >-
-          forge script script/DeployComptroller.s.sol
+          forge script script/deploy/DeployComptroller.s.sol
           --broadcast
           --rpc-url "${{ github.event.inputs.chain }}"
           --sig "run(address)"

@@ -28,7 +28,7 @@ jobs:
 
       - name: "Deploy a test ERC-20 asset contract"
         run: >-
-          forge script script/DeployTestAsset.s.sol
+          forge script script/deploy/DeployTestAsset.s.sol
           --broadcast
           --rpc-url "${{ github.event.inputs.chain }}"
           -vvvv

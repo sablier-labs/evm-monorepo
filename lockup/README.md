@@ -100,7 +100,7 @@ If you want to deploy to a local development chain, you can spin up an instance 
 #### Deploy SablierV2Comptroller
 
 ```sh
-forge script scripts/DeployComptroller.s.sol \
+forge script script/deploy/DeployComptroller.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address)" \
