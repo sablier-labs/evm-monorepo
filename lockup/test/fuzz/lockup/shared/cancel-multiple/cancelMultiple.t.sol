@@ -19,7 +19,7 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         defaultStreamIds.push(createDefaultStream());
 
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
     }
 
     modifier onlyNonNullStreams() {
@@ -53,7 +53,7 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Make the sender the caller in this test.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
 
         // Create a new stream with a different end time.
         uint256 streamId = createDefaultStreamWithEndTime(endTime);
@@ -64,21 +64,21 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
         uint128 recipientAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
         if (recipientAmount0 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount0)));
+            expectTransferCall({ to: users.recipient, amount: recipientAmount0 });
         }
         uint128 recipientAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
         if (recipientAmount1 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
+            expectTransferCall({ to: users.recipient, amount: recipientAmount1 });
         }
 
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
         uint128 senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount0;
         if (senderAmount0 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount0)));
+            expectTransferCall({ to: users.sender, amount: senderAmount0 });
         }
         uint128 senderAmount1 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount1;
         if (senderAmount1 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount1)));
+            expectTransferCall({ to: users.sender, amount: senderAmount1 });
         }
 
         // Expect two {CancelLockupStream} events to be emitted.
@@ -132,7 +132,7 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Make the recipient the caller in this test.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
 
         // Create a new stream with a different end time.
         uint256 streamId = createDefaultStreamWithEndTime(endTime);
@@ -143,21 +143,21 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
         // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
         uint128 recipientAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
         if (recipientAmount0 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount0)));
+            expectTransferCall({ to: users.recipient, amount: recipientAmount0 });
         }
         uint128 recipientAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
         if (recipientAmount1 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, recipientAmount1)));
+            expectTransferCall({ to: users.recipient, amount: recipientAmount1 });
         }
 
         // Expect the ERC-20 assets to be returned to the sender, if not zero.
         uint128 senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount0;
         if (senderAmount0 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount0)));
+            expectTransferCall({ to: users.sender, amount: senderAmount0 });
         }
         uint128 senderAmount1 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount1;
         if (senderAmount1 > 0) {
-            vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.sender, senderAmount1)));
+            expectTransferCall({ to: users.sender, amount: senderAmount1 });
         }
 
         // Expect two {CancelLockupStream} events to be emitted.

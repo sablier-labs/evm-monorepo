@@ -24,7 +24,9 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
     }
 
     struct Vars {
+        Lockup.Status actualStatus;
         uint256 actualWithdrawnAmount;
+        Lockup.Status expectedStatus;
         uint256 expectedWithdrawnAmount;
         address funder;
         uint256 streamId;
@@ -88,7 +90,7 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
         // Expect the ERC-20 assets to be transferred to the recipient.
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, vars.withdrawAmount)));
+        expectTransferCall({ to: users.recipient, amount: vars.withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
@@ -100,6 +102,11 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
 
         // Make the withdrawal.
         pro.withdraw({ streamId: vars.streamId, to: users.recipient, amount: vars.withdrawAmount });
+
+        // Assert that the stream has remained active.
+        vars.actualStatus = lockup.getStatus(vars.streamId);
+        vars.expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
         vars.actualWithdrawnAmount = pro.getWithdrawnAmount(vars.streamId);

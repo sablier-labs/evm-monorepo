@@ -1,11 +1,30 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.18 <0.9.0;
 
-import { Base_Test } from "../../Base.t.sol";
+import { Vm } from "@prb/test/PRBTest.sol";
+import { StdCheats } from "forge-std/StdCheats.sol";
+
+import { Calculations } from "../../shared/helpers/Calculations.t.sol";
+import { Constants } from "../../shared/helpers/Constants.t.sol";
+import { Fuzzers } from "../../shared/helpers/Fuzzers.t.sol";
 
 /// @title BaseHandler
 /// @notice Base contract with common logic needed by all handler contracts.
-abstract contract BaseHandler is Base_Test {
+abstract contract BaseHandler is Calculations, Fuzzers, StdCheats {
+    /*//////////////////////////////////////////////////////////////////////////
+                                     CONSTANTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev The address of the HEVM contract.
+    address internal constant HEVM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                   TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev An instance of the HEVM.
+    Vm internal constant vm = Vm(HEVM_ADDRESS);
+
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST VARIABLES
     //////////////////////////////////////////////////////////////////////////*/

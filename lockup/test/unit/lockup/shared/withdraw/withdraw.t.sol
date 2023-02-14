@@ -16,7 +16,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
 
         // Create the default stream.
         defaultStreamId = createDefaultStream();
@@ -55,7 +55,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external streamActive {
         // Make Eve the caller in this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(
@@ -67,7 +67,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_Sender() external streamActive {
         // Make the sender the caller in this test.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
 
         // Run the test.
         vm.expectRevert(
@@ -137,7 +137,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: UINT128_MAX });
     }
 
-    modifier withdrawAmountLessThanOrEqualToWithdrawableAmount() {
+    modifier withdrawAmountNotGreaterThanWithdrawableAmount() {
         _;
     }
 
@@ -148,7 +148,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -156,8 +156,15 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make Alice the `to` address in this test.
         address to = users.alice;
 
-        // Run the test.
+        // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
@@ -170,13 +177,13 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
     {
         // Approve the operator to handle the stream.
         lockup.approve({ to: users.operator, tokenId: defaultStreamId });
 
         // Make the operator the caller in this test.
-        changePrank({ who: users.operator });
+        changePrank({ msgSender: users.operator });
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -184,7 +191,12 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
 
-        // Run the test.
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
@@ -192,7 +204,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     modifier callerSender() {
         // Make the sender the caller in this test suite.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
         _;
     }
 
@@ -203,7 +215,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
     {
         // Warp to the end of the stream.
@@ -236,7 +248,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
         currentTimeLessThanEndTime
     {
@@ -247,7 +259,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamId);
 
         // Expect the ERC-20 assets to be transferred to the recipient.
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.recipient, withdrawAmount)));
+        expectTransferCall({ to: users.recipient, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
@@ -259,6 +271,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
@@ -277,7 +294,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
         currentTimeLessThanEndTime
         recipientContract
@@ -297,6 +314,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(empty), amount: DEFAULT_WITHDRAW_AMOUNT });
 
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
+
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
@@ -314,7 +336,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
         currentTimeLessThanEndTime
         recipientContract
@@ -335,6 +357,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(revertingRecipient), amount: DEFAULT_WITHDRAW_AMOUNT });
 
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
+
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
@@ -352,7 +379,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
         currentTimeLessThanEndTime
         recipientContract
@@ -377,6 +404,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(reentrantRecipient), amount: withdrawAmount });
 
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
+
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
@@ -395,7 +427,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         callerAuthorized
         toNonZeroAddress
         withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        withdrawAmountNotGreaterThanWithdrawableAmount
         callerSender
         currentTimeLessThanEndTime
         recipientContract
@@ -413,10 +445,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 withdrawAmount = lockup.streamedAmountOf(streamId);
 
         // Expect the ERC-20 assets to be transferred to the recipient.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(IERC20.transfer, (address(goodRecipient), withdrawAmount))
-        );
+        expectTransferCall({ to: address(goodRecipient), amount: withdrawAmount });
 
         // Expect a call to the recipient hook.
         vm.expectCall(
@@ -437,6 +466,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);

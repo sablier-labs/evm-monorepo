@@ -16,9 +16,9 @@ abstract contract GetProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test
 
     modifier protocolRevenuesNotZero() {
         // Create the default stream, which will accrue revenues for the protocol.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
         createDefaultStream();
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         _;
     }
 

@@ -112,7 +112,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         UD60x18 protocolFee = DEFAULT_MAX_FEE.add(ud(1));
 
         // Set the protocol fee.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: protocolFee });
 
         // Run the test.
@@ -226,22 +226,34 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         address funder = users.sender;
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
-        vm.expectCall(
-            asset,
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, address(linear), DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({
+            asset: IERC20(asset),
+            from: funder,
+            to: address(linear),
+            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+        });
 
         // Expect the broker fee to be paid to the broker.
-        vm.expectCall(
-            asset,
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, defaultParams.createWithRange.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({
+            asset: IERC20(asset),
+            from: funder,
+            to: users.broker,
+            amount: DEFAULT_BROKER_FEE_AMOUNT
+        });
+
+        // Expect a {CreateLockupLinearStream} event to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        emit Events.CreateLockupLinearStream({
+            streamId: streamId,
+            funder: funder,
+            sender: users.sender,
+            recipient: users.recipient,
+            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
+            asset: IERC20(asset),
+            cancelable: true,
+            range: DEFAULT_LINEAR_RANGE,
+            broker: users.broker
+        });
 
         // Create the stream.
         linear.createWithRange(

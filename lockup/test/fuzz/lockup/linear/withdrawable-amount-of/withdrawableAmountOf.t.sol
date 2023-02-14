@@ -27,9 +27,9 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
     modifier cliffTimeLessThanOrEqualToCurrentTime() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
         _;
     }
 

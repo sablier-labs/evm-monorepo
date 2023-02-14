@@ -13,10 +13,18 @@ import { BaseHandler } from "./BaseHandler.t.sol";
 /// to bound and restrict the inputs that get passed to the real-world contract to avoid getting reverts.
 contract ComptrollerHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
+                                   TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    IERC20 public asset;
+    ISablierV2Comptroller public comptroller;
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(ISablierV2Comptroller comptroller_) {
+    constructor(IERC20 asset_, ISablierV2Comptroller comptroller_) {
+        asset = asset_;
         comptroller = comptroller_;
     }
 
@@ -29,12 +37,12 @@ contract ComptrollerHandler is BaseHandler {
         comptroller.setFlashFee(newFlashFee);
     }
 
-    function setProtocolFee(IERC20 asset, UD60x18 newProtocolFee) external instrument("setProtocolFee") {
+    function setProtocolFee(UD60x18 newProtocolFee) external instrument("setProtocolFee") {
         newProtocolFee = bound(newProtocolFee, 0, DEFAULT_MAX_FEE);
         comptroller.setProtocolFee(asset, newProtocolFee);
     }
 
-    function toggleFlashAsset(IERC20 asset) external instrument("toggleFlashAsset") {
+    function toggleFlashAsset() external instrument("toggleFlashAsset") {
         comptroller.toggleFlashAsset(asset);
     }
 }

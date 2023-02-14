@@ -17,10 +17,11 @@ import { GoodRecipient } from "./shared/mockups/hooks/GoodRecipient.t.sol";
 import { GoodSender } from "./shared/mockups/hooks/GoodSender.t.sol";
 import { Assertions } from "./shared/helpers/Assertions.t.sol";
 import { Calculations } from "./shared/helpers/Calculations.t.sol";
+import { Fuzzers } from "./shared/helpers/Fuzzers.t.sol";
 
 /// @title Base_Test
 /// @notice Base test contract with common logic needed by all test contracts.
-abstract contract Base_Test is Assertions, Calculations, StdCheats {
+abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -64,8 +65,8 @@ abstract contract Base_Test is Assertions, Calculations, StdCheats {
     ISablierV2Comptroller internal comptroller;
     IERC20 internal dai = new ERC20("Dai Stablecoin", "DAI");
     ISablierV2LockupLinear internal linear;
-    ISablierV2LockupPro internal pro;
     NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
+    ISablierV2LockupPro internal pro;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -126,32 +127,32 @@ abstract contract Base_Test is Assertions, Calculations, StdCheats {
     /// @dev Approves all Sablier contracts to spend ERC-20 assets from the sender, recipient, Alice and Eve,
     /// and then change the active prank back to the admin.
     function approveProtocol() internal {
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
         dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
         dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank({ who: users.alice });
+        changePrank({ msgSender: users.alice });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
         dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
         dai.approve({ spender: address(pro), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
 
         // Finally, change the active prank back to the admin.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
     }
 
     /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
@@ -197,6 +198,26 @@ abstract contract Base_Test is Assertions, Calculations, StdCheats {
         vm.label({ account: address(comptroller), newLabel: "Comptroller" });
         vm.label({ account: address(linear), newLabel: "LockupLinear" });
         vm.label({ account: address(pro), newLabel: "LockupPro" });
+    }
+
+    /// @dev Expects a call to the `transfer` function of the default ERC-20 asset.
+    function expectTransferCall(address to, uint256 amount) internal {
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, amount)));
+    }
+
+    /// @dev Expects a call to the `transfer` function of the provided ERC-20 asset.
+    function expectTransferCall(IERC20 asset, address to, uint256 amount) internal {
+        vm.expectCall(address(asset), abi.encodeCall(IERC20.transfer, (to, amount)));
+    }
+
+    /// @dev Expects a call to the `transfer` function of the default ERC-20 asset.
+    function expectTransferFromCall(address from, address to, uint256 amount) internal {
+        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
+    }
+
+    /// @dev Expects a call to the `transfer` function of the provided ERC-20 asset.
+    function expectTransferFromCall(IERC20 asset, address from, address to, uint256 amount) internal {
+        vm.expectCall(address(asset), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
     }
 
     /// @dev Checks if the Foundry profile is "test-optimized".

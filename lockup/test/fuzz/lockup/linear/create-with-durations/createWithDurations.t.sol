@@ -30,7 +30,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             cliffTime = startTime + cliffDuration;
         }
 
-        // Expect an error.
+        // Expect a {StartTimeGreaterThanCliffTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector,
@@ -66,7 +66,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             endTime = startTime + durations.total;
         }
 
-        // Expect an error.
+        // Expect a {CliffTimeNotLessThanEndTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector,
@@ -96,22 +96,14 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint128 initialProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, address(linear), DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({
+            from: funder,
+            to: address(linear),
+            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+        });
 
         // Expect the broker fee to be paid to the broker, if the amount is not zero.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, defaultParams.createWithDurations.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
 
         // Create the range struct by calculating the start time, cliff time and the end time.
         LockupLinear.Range memory range = LockupLinear.Range({

@@ -98,23 +98,15 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
-        vm.expectCall(
-            address(DEFAULT_ASSET),
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (vars.funder, address(pro), vars.amounts.deposit + vars.amounts.protocolFee)
-            )
-        );
+        expectTransferFromCall({
+            from: vars.funder,
+            to: address(pro),
+            amount: vars.amounts.deposit + vars.amounts.protocolFee
+        });
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.amounts.brokerFee > 0) {
-            vm.expectCall(
-                address(DEFAULT_ASSET),
-                abi.encodeCall(
-                    IERC20.transferFrom,
-                    (vars.funder, defaultParams.createWithDeltas.broker.addr, vars.amounts.brokerFee)
-                )
-            );
+            expectTransferFromCall({ from: vars.funder, to: users.broker, amount: vars.amounts.brokerFee });
         }
 
         // Create the range struct.

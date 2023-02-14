@@ -15,7 +15,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
     /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank({ who: users.eve });
+        changePrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(
@@ -26,7 +26,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
 
     modifier callerAdmin() {
         // Make the admin the caller in the rest of this test suite.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         _;
     }
 
@@ -38,9 +38,9 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
 
     modifier protocolRevenuesNotZero() {
         // Create the default stream, which will accrue revenues for the protocol.
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
         createDefaultStream();
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         _;
     }
 
@@ -49,7 +49,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
     function test_ClaimProtocolRevenues() external callerAdmin protocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (users.admin, protocolRevenues)));
+        expectTransferCall({ to: users.admin, amount: protocolRevenues });
 
         // Expect a {ClaimProtocolRevenues} event to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });

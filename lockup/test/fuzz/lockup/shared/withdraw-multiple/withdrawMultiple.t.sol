@@ -25,7 +25,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         defaultStreamIds.push(createDefaultStream());
 
         // Make the recipient the caller in this test suite.
-        changePrank({ who: users.recipient });
+        changePrank({ msgSender: users.recipient });
     }
 
     modifier toNonZeroAddress() {
@@ -54,15 +54,15 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         lockup.setApprovalForAll(users.operator, true);
 
         // Make the operator the caller in this test.
-        changePrank({ who: users.operator });
+        changePrank({ msgSender: users.operator });
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
         // Expect the withdrawals to be made.
         uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        expectTransferCall({ to: to, amount: withdrawAmount });
+        expectTransferCall({ to: to, amount: withdrawAmount });
 
         // Make the withdrawals.
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: defaultAmounts });
@@ -114,8 +114,8 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         emit Events.WithdrawFromLockupStream({ streamId: defaultStreamIds[1], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
 
         // Expect the withdrawals to be made.
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, DEFAULT_DEPOSIT_AMOUNT)));
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, DEFAULT_DEPOSIT_AMOUNT)));
+        expectTransferCall({ to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
+        expectTransferCall({ to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
 
         // Make the withdrawals.
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_DEPOSIT_AMOUNT, DEFAULT_DEPOSIT_AMOUNT);
@@ -127,6 +127,13 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus0, expectedStatus, "status0");
         assertEq(actualStatus1, expectedStatus, "status1");
+
+        // Assert that the withdrawn amounts have been updated.
+        uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(defaultStreamIds[0]);
+        uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(defaultStreamIds[1]);
+        uint128 expectedWithdrawnAmount = DEFAULT_DEPOSIT_AMOUNT;
+        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount, "withdrawnAmount0");
+        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount, "withdrawnAmount1");
 
         // Assert that the NFTs have not been burned.
         address actualNFTOwner0 = lockup.ownerOf(defaultStreamIds[0]);
@@ -163,8 +170,8 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the withdrawals to be made.
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, withdrawAmount)));
+        expectTransferCall({ to: to, amount: withdrawAmount });
+        expectTransferCall({ to: to, amount: withdrawAmount });
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
         vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
@@ -175,6 +182,13 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Make the withdrawals.
         uint128[] memory amounts = Solarray.uint128s(withdrawAmount, withdrawAmount);
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: amounts });
+
+        // Assert that the streams have remained active.
+        Lockup.Status actualStatus0 = lockup.getStatus(defaultStreamIds[0]);
+        Lockup.Status actualStatus1 = lockup.getStatus(defaultStreamIds[1]);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus0, expectedStatus, "status0");
+        assertEq(actualStatus1, expectedStatus, "status1");
 
         // Assert that the withdrawn amounts have been updated.
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(defaultStreamIds[0]);

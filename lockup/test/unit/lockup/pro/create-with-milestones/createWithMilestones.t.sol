@@ -95,7 +95,33 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone()
+    function test_RevertWhen_StartTimeGreaterThanFirstSegmentMilestone()
+        external
+        recipientNonZeroAddress
+        depositAmountNotZero
+        segmentCountNotZero
+        segmentCountNotTooHigh
+        segmentAmountsSumDoesNotOverflow
+    {
+        // Change the milestone of the first segment.
+        LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        segments[0].milestone = DEFAULT_START_TIME - 1;
+
+        // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone.selector,
+                DEFAULT_START_TIME,
+                segments[0].milestone
+            )
+        );
+
+        // Create the stream.
+        createDefaultStreamWithSegments(segments);
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_StartTimeEqualToFirstSegmentMilestone()
         external
         recipientNonZeroAddress
         depositAmountNotZero
@@ -169,7 +195,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         segmentMilestonesOrdered
     {
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
         UD60x18 brokerFee = ZERO;
         changePrank(defaultParams.createWithMilestones.sender);
@@ -219,7 +245,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         UD60x18 protocolFee = DEFAULT_MAX_FEE.add(ud(1));
 
         // Set the protocol fee.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee(defaultStream.asset, protocolFee);
 
         // Run the test.
@@ -286,9 +312,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
 
         // Set the default protocol fee so that the test does not revert due to the deposit amount not being
         // equal to the segment amounts sum.
-        changePrank({ who: users.admin });
+        changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee(IERC20(nonContract), DEFAULT_PROTOCOL_FEE);
-        changePrank({ who: users.sender });
+        changePrank({ msgSender: users.sender });
 
         // Run the test.
         vm.expectRevert("Address: call to non-contract");
@@ -358,22 +384,35 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         address funder = users.sender;
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
-        vm.expectCall(
-            asset,
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, address(pro), DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({
+            asset: IERC20(asset),
+            from: funder,
+            to: address(pro),
+            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+        });
 
         // Expect the broker fee to be paid to the broker.
-        vm.expectCall(
-            asset,
-            abi.encodeCall(
-                IERC20.transferFrom,
-                (funder, defaultParams.createWithMilestones.broker.addr, DEFAULT_BROKER_FEE_AMOUNT)
-            )
-        );
+        expectTransferFromCall({
+            asset: IERC20(asset),
+            from: funder,
+            to: users.broker,
+            amount: DEFAULT_BROKER_FEE_AMOUNT
+        });
+
+        // Expect a {CreateLockupProStream} event to be emitted.
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        emit Events.CreateLockupProStream({
+            streamId: streamId,
+            funder: funder,
+            sender: users.sender,
+            recipient: users.recipient,
+            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
+            segments: DEFAULT_SEGMENTS,
+            asset: IERC20(asset),
+            cancelable: true,
+            range: DEFAULT_PRO_RANGE,
+            broker: users.broker
+        });
 
         // Create the stream.
         pro.createWithMilestones(
