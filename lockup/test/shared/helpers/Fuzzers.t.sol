@@ -28,6 +28,47 @@ abstract contract Fuzzers is Constants, Utils {
         });
     }
 
+    /// @dev Just like `fuzzSegmentAmountsAndCalculateCreateAmounts` but uses the defaults.
+    function fuzzSegmentAmountsAndCalculateCreateAmounts(
+        LockupPro.SegmentWithDelta[] memory segments
+    ) internal view returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts) {
+        LockupPro.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
+        (totalAmount, createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+            upperBound: UINT128_MAX,
+            segments: segmentsWithMilestones,
+            protocolFee: DEFAULT_PROTOCOL_FEE,
+            brokerFee: DEFAULT_BROKER_FEE
+        });
+        for (uint256 i = 0; i < segmentsWithMilestones.length; ) {
+            segments[i].amount = segmentsWithMilestones[i].amount;
+            unchecked {
+                i += 1;
+            }
+        }
+    }
+
+    /// @dev Fuzzes the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+    function fuzzSegmentAmountsAndCalculateCreateAmounts(
+        uint128 upperBound,
+        LockupPro.SegmentWithDelta[] memory segments,
+        UD60x18 protocolFee,
+        UD60x18 brokerFee
+    ) internal view returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts) {
+        LockupPro.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
+        (totalAmount, createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(
+            upperBound,
+            segmentsWithMilestones,
+            protocolFee,
+            brokerFee
+        );
+        for (uint256 i = 0; i < segmentsWithMilestones.length; ) {
+            segments[i].amount = segmentsWithMilestones[i].amount;
+            unchecked {
+                i += 1;
+            }
+        }
+    }
+
     /// @dev Fuzzes the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
     function fuzzSegmentAmountsAndCalculateCreateAmounts(
         uint128 upperBound,
@@ -73,20 +114,17 @@ abstract contract Fuzzers is Constants, Utils {
         segments[segments.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }
 
-    /// @dev Fuzzes the deltas and updates the segment milestones.
-    function fuzzSegmentDeltas(LockupPro.Segment[] memory segments) internal view returns (uint40[] memory deltas) {
-        deltas = new uint40[](segments.length);
+    /// @dev Fuzzes the deltas.
+    function fuzzSegmentDeltas(LockupPro.SegmentWithDelta[] memory segments) internal view {
         unchecked {
             // Precompute the first segment delta.
-            deltas[0] = uint40(bound(segments[0].milestone, 1, 100));
-            segments[0].milestone = uint40(block.timestamp) + deltas[0];
+            segments[0].delta = uint40(bound(segments[0].delta, 1, 100));
 
             // Bound the deltas so that none is zero and the calculations don't overflow.
-            uint256 deltaCount = deltas.length;
-            uint40 maxDelta = (MAX_UNIX_TIMESTAMP - deltas[0]) / uint40(deltaCount);
+            uint256 deltaCount = segments.length;
+            uint40 maxDelta = (MAX_UNIX_TIMESTAMP - segments[0].delta) / uint40(deltaCount);
             for (uint256 i = 1; i < deltaCount; ++i) {
-                deltas[i] = boundUint40(segments[i].milestone, 1, maxDelta);
-                segments[i].milestone = segments[i - 1].milestone + deltas[i];
+                segments[i].delta = boundUint40(segments[i].delta, 1, maxDelta);
             }
         }
     }
@@ -107,7 +145,7 @@ abstract contract Fuzzers is Constants, Utils {
         uint40 halfStep = step / 2;
         uint256[] memory milestones = arange(startTime + 1, MAX_UNIX_TIMESTAMP, step);
 
-        // Fuzz the milestone in a way that preserves its order in the array.
+        // Fuzz the milestones in a way that preserves their order in the array.
         for (uint256 i = 1; i < segmentCount; ) {
             uint256 milestone = milestones[i];
             milestone = bound(milestone, milestone - halfStep, milestone + halfStep);

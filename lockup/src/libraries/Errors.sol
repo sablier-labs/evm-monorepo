@@ -100,10 +100,6 @@ library Errors {
                                SABLIER-V2-LOCKUP-PRO
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice  Emitted when attempting to create a stream and the count of the segments does not match the
-    /// count of the deltas.
-    error SablierV2LockupPro_SegmentArrayCountsNotEqual(uint256 segmentCount, uint256 deltaCount);
-
     /// @notice Emitted when attempting to create a stream with a deposit amount that does not equal the segment
     /// amounts sum.
     error SablierV2LockupPro_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositAmount, uint128 segmentAmountsSum);

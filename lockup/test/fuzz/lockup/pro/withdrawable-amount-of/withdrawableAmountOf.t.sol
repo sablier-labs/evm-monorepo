@@ -47,11 +47,11 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             DEFAULT_DEPOSIT_AMOUNT,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
-            Broker({ addr: address(0), fee: ZERO })
+            Broker({ account: address(0), fee: ZERO })
         );
 
         // Run the test.
@@ -100,11 +100,11 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             DEFAULT_DEPOSIT_AMOUNT,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
-            Broker({ addr: address(0), fee: ZERO })
+            Broker({ account: address(0), fee: ZERO })
         );
 
         // Make the withdrawal.

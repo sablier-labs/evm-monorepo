@@ -126,12 +126,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-        assertEq(actualStream.amounts, defaultStream.amounts);
-        assertEq(actualStream.asset, defaultStream.asset, "asset");
-        assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.range, DEFAULT_LINEAR_RANGE);
-        assertEq(actualStream.sender, defaultStream.sender, "sender");
-        assertEq(actualStream.status, defaultStream.status);
+        assertEq(actualStream, defaultStream);
 
         // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = linear.nextStreamId();

@@ -23,9 +23,9 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external {
-        uint40[] memory deltas = new uint40[](1_000_000);
+        LockupPro.SegmentWithDelta[] memory segments = new LockupPro.SegmentWithDelta[](250_000);
         vm.expectRevert(bytes(""));
-        createDefaultStreamWithDeltas(deltas);
+        createDefaultStreamWithDeltas(segments);
     }
 
     modifier loopCalculationsDoNotOverflowBlockGasLimit() {
@@ -35,41 +35,21 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_DeltasZero() external loopCalculationsDoNotOverflowBlockGasLimit {
         uint40 startTime = getBlockTimestamp();
-        uint40[] memory deltas = Solarray.uint40s(DEFAULT_SEGMENT_DELTAS[0], 0);
+        LockupPro.SegmentWithDelta[] memory segments = defaultParams.createWithDeltas.segments;
+        segments[1].delta = 0;
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupPro_SegmentMilestonesNotOrdered.selector,
                 index,
-                startTime + deltas[0],
-                startTime + deltas[0]
+                startTime + segments[0].delta,
+                startTime + segments[0].delta
             )
         );
-        createDefaultStreamWithDeltas(deltas);
+        createDefaultStreamWithDeltas(segments);
     }
 
     modifier deltasNotZero() {
-        _;
-    }
-
-    /// @dev it should revert.
-    function test_RevertWhen_SegmentArrayCountsNotEqual()
-        external
-        loopCalculationsDoNotOverflowBlockGasLimit
-        deltasNotZero
-    {
-        uint40[] memory deltas = new uint40[](defaultParams.createWithDeltas.segments.length + 1);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2LockupPro_SegmentArrayCountsNotEqual.selector,
-                defaultParams.createWithDeltas.segments.length,
-                deltas.length
-            )
-        );
-        createDefaultStreamWithDeltas(deltas);
-    }
-
-    modifier segmentArrayCountsEqual() {
         _;
     }
 
@@ -78,23 +58,21 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         external
         loopCalculationsDoNotOverflowBlockGasLimit
         deltasNotZero
-        segmentArrayCountsEqual
     {
-        uint40 startTime = getBlockTimestamp();
-        uint40[] memory deltas = Solarray.uint40s(UINT40_MAX, 1);
-        LockupPro.Segment[] memory segments = defaultParams.createWithDeltas.segments;
         unchecked {
-            segments[0].milestone = startTime + deltas[0];
-            segments[1].milestone = deltas[0] + deltas[1];
+            uint40 startTime = getBlockTimestamp();
+            LockupPro.SegmentWithDelta[] memory segments = defaultParams.createWithDeltas.segments;
+            segments[0].delta = UINT40_MAX;
+            segments[1].delta = 1;
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone.selector,
+                    startTime,
+                    startTime + segments[0].delta
+                )
+            );
+            createDefaultStreamWithDeltas(segments);
         }
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone.selector,
-                startTime,
-                segments[0].milestone
-            )
-        );
-        createDefaultStreamWithDeltas(deltas);
     }
 
     /// @dev it should revert.
@@ -102,51 +80,46 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         external
         loopCalculationsDoNotOverflowBlockGasLimit
         deltasNotZero
-        segmentArrayCountsEqual
     {
-        uint40 startTime = getBlockTimestamp();
-
-        // Create the deltas such that they overflow.
-        uint40[] memory deltas = Solarray.uint40s(1, UINT40_MAX, 1);
-
-        // Create new segments that overflow when the milestones are eventually calculated.
-        LockupPro.Segment[] memory segments = new LockupPro.Segment[](3);
         unchecked {
-            segments[0] = LockupPro.Segment({ amount: 0, exponent: ud2x18(1e18), milestone: startTime + deltas[0] });
-            segments[1] = LockupPro.Segment({
-                amount: DEFAULT_SEGMENTS[0].amount,
-                exponent: DEFAULT_SEGMENTS[0].exponent,
-                milestone: segments[0].milestone + deltas[1]
+            uint40 startTime = getBlockTimestamp();
+
+            // Create new segments that overflow when the milestones are eventually calculated.
+            LockupPro.SegmentWithDelta[] memory segments = new LockupPro.SegmentWithDelta[](3);
+            segments[0] = LockupPro.SegmentWithDelta({ amount: 0, exponent: ud2x18(1e18), delta: startTime + 1 });
+            segments[1] = LockupPro.SegmentWithDelta({
+                amount: DEFAULT_SEGMENTS_WITH_DELTAS[0].amount,
+                exponent: DEFAULT_SEGMENTS_WITH_DELTAS[0].exponent,
+                delta: UINT40_MAX
             });
-            segments[2] = LockupPro.Segment({
-                amount: DEFAULT_SEGMENTS[1].amount,
-                exponent: DEFAULT_SEGMENTS[1].exponent,
-                milestone: segments[1].milestone + deltas[2]
+            segments[2] = LockupPro.SegmentWithDelta({
+                amount: DEFAULT_SEGMENTS_WITH_DELTAS[1].amount,
+                exponent: DEFAULT_SEGMENTS_WITH_DELTAS[1].exponent,
+                delta: 1
             });
+
+            // Expect a {SegmentMilestonesNotOrdered} error.
+            uint256 index = 1;
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    Errors.SablierV2LockupPro_SegmentMilestonesNotOrdered.selector,
+                    index,
+                    startTime + segments[0].delta,
+                    startTime + segments[0].delta + segments[1].delta
+                )
+            );
+
+            // Create the stream.
+            pro.createWithDeltas(
+                defaultParams.createWithDeltas.sender,
+                defaultParams.createWithDeltas.recipient,
+                defaultParams.createWithDeltas.totalAmount,
+                defaultParams.createWithDeltas.asset,
+                defaultParams.createWithDeltas.cancelable,
+                segments,
+                defaultParams.createWithDeltas.broker
+            );
         }
-
-        // Expect a {SegmentMilestonesNotOrdered} error.
-        uint256 index = 1;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2LockupPro_SegmentMilestonesNotOrdered.selector,
-                index,
-                segments[0].milestone,
-                segments[1].milestone
-            )
-        );
-
-        // Create the stream.
-        pro.createWithDeltas(
-            defaultParams.createWithDeltas.sender,
-            defaultParams.createWithDeltas.recipient,
-            defaultParams.createWithDeltas.totalAmount,
-            segments,
-            defaultParams.createWithDeltas.asset,
-            defaultParams.createWithDeltas.cancelable,
-            deltas,
-            defaultParams.createWithDeltas.broker
-        );
     }
 
     modifier milestonesCalculationsDoNotOverflow() {
@@ -159,7 +132,6 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         external
         loopCalculationsDoNotOverflowBlockGasLimit
         deltasNotZero
-        segmentArrayCountsEqual
         milestonesCalculationsDoNotOverflow
     {
         // Make the sender the funder of the stream.
@@ -186,9 +158,9 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
             sender: users.sender,
             recipient: users.recipient,
             amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
-            segments: DEFAULT_SEGMENTS,
             asset: DEFAULT_ASSET,
             cancelable: true,
+            segments: DEFAULT_SEGMENTS,
             range: DEFAULT_PRO_RANGE,
             broker: users.broker
         });
@@ -198,13 +170,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
 
         // Assert that the stream has been created.
         LockupPro.Stream memory actualStream = pro.getStream(streamId);
-        assertEq(actualStream.amounts, defaultStream.amounts);
-        assertEq(actualStream.asset, defaultStream.asset, "asset");
-        assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.range, defaultStream.range);
-        assertEq(actualStream.segments, defaultStream.segments);
-        assertEq(actualStream.sender, defaultStream.sender, "sender");
-        assertEq(actualStream.status, defaultStream.status);
+        assertEq(actualStream, defaultStream);
 
         // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = pro.nextStreamId();

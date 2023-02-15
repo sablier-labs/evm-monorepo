@@ -64,7 +64,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
             defaultParams.createWithRange.asset,
             defaultParams.createWithRange.cancelable,
             defaultParams.createWithRange.range,
-            Broker({ addr: address(0), fee: ZERO })
+            Broker({ account: address(0), fee: ZERO })
         );
 
         // Run the test.

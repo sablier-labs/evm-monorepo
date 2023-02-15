@@ -81,10 +81,10 @@ abstract contract SablierV2Config is
         _protocolRevenues[asset] = 0;
 
         // Interactions: perform the ERC-20 transfer to pay the protocol revenues.
-        asset.safeTransfer(msg.sender, protocolRevenues);
+        asset.safeTransfer({ to: msg.sender, value: protocolRevenues });
 
         // Log the claim of the protocol revenues.
-        emit Events.ClaimProtocolRevenues(msg.sender, asset, protocolRevenues);
+        emit Events.ClaimProtocolRevenues({ admin: msg.sender, asset: asset, protocolRevenues: protocolRevenues });
     }
 
     /// @inheritdoc ISablierV2Config

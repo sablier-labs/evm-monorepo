@@ -107,7 +107,7 @@ abstract contract Linear_E2e_Test is E2e_Test {
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Linear_CreateWithdrawCancel(Params memory params) external {
-        checkUsers(params.sender, params.recipient, params.broker.addr, address(linear));
+        checkUsers(params.sender, params.recipient, params.broker.account, address(linear));
         vm.assume(params.range.start <= params.range.cliff && params.range.cliff < params.range.end);
         vm.assume(params.totalAmount != 0 && params.totalAmount <= initialHolderBalance);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
@@ -130,7 +130,7 @@ abstract contract Linear_E2e_Test is E2e_Test {
         vars.initialProtocolRevenues = linear.getProtocolRevenues(asset);
 
         // Load the pre-create asset balances.
-        vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(linear), params.broker.addr));
+        vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(linear), params.broker.account));
         vars.initialLinearBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
@@ -151,7 +151,7 @@ abstract contract Linear_E2e_Test is E2e_Test {
             asset: asset,
             cancelable: true,
             range: params.range,
-            broker: params.broker.addr
+            broker: params.broker.account
         });
 
         // Create the stream.
@@ -169,9 +169,11 @@ abstract contract Linear_E2e_Test is E2e_Test {
         LockupLinear.Stream memory actualStream = linear.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
+        assertEq(actualStream.cliffTime, params.range.cliff, "cliffTime");
+        assertEq(actualStream.endTime, params.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
-        assertEq(actualStream.range, params.range);
         assertEq(actualStream.sender, params.sender, "sender");
+        assertEq(actualStream.startTime, params.range.start, "startTime");
         assertEq(actualStream.status, Lockup.Status.ACTIVE);
 
         // Assert that the next stream id has been bumped.
@@ -192,7 +194,7 @@ abstract contract Linear_E2e_Test is E2e_Test {
         // Load the post-create asset balances.
         vars.balances = getTokenBalances(
             address(asset),
-            Solarray.addresses(address(linear), holder, params.broker.addr)
+            Solarray.addresses(address(linear), holder, params.broker.account)
         );
         vars.actualLinearBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];

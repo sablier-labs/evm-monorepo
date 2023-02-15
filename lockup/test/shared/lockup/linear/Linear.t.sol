@@ -62,7 +62,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
                 asset: DEFAULT_ASSET,
                 cancelable: true,
                 durations: DEFAULT_DURATIONS,
-                broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
+                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
             }),
             createWithRange: CreateWithRangeParams({
                 sender: users.sender,
@@ -71,17 +71,19 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
                 asset: DEFAULT_ASSET,
                 cancelable: true,
                 range: DEFAULT_LINEAR_RANGE,
-                broker: Broker({ addr: users.broker, fee: DEFAULT_BROKER_FEE })
+                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
             })
         });
 
         // Create the default stream to be used across the tests.
         defaultStream = LockupLinear.Stream({
             amounts: DEFAULT_LOCKUP_AMOUNTS,
+            cliffTime: defaultParams.createWithRange.range.cliff,
+            endTime: defaultParams.createWithRange.range.end,
             isCancelable: defaultParams.createWithRange.cancelable,
             sender: defaultParams.createWithRange.sender,
+            startTime: defaultParams.createWithRange.range.start,
             status: Lockup.Status.ACTIVE,
-            range: defaultParams.createWithRange.range,
             asset: defaultParams.createWithRange.asset
         });
     }

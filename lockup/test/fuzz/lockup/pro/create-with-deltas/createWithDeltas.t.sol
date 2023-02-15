@@ -28,28 +28,6 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
-    function testFuzz_RevertWhen_SegmentArraysCountsNotEqual(
-        uint256 deltaCount
-    ) external loopCalculationsDoNotOverflowBlockGasLimit deltasNotZero {
-        deltaCount = bound(deltaCount, 1, 1_000);
-        vm.assume(deltaCount != DEFAULT_SEGMENTS.length);
-
-        uint40[] memory deltas = new uint40[](deltaCount);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2LockupPro_SegmentArrayCountsNotEqual.selector,
-                DEFAULT_SEGMENTS.length,
-                deltaCount
-            )
-        );
-        createDefaultStreamWithDeltas(deltas);
-    }
-
-    modifier segmentArrayCountsEqual() {
-        _;
-    }
-
     modifier milestonesCalculationsDoNotOverflow() {
         _;
     }
@@ -58,35 +36,29 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint256 actualNextStreamId;
         address actualNFTOwner;
         uint256 actualProtocolRevenues;
-        Lockup.CreateAmounts amounts;
-        uint40[] deltas;
+        Lockup.CreateAmounts createAmounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         uint256 expectedProtocolRevenues;
         address funder;
         uint128 initialProtocolRevenues;
+        LockupPro.Segment[] segmentsWithMilestones;
         uint128 totalAmount;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, mint the NFT,
     /// record the protocol fee, and emit a {CreateLockupProStream} event.
     function testFuzz_CreateWithDeltas(
-        LockupPro.Segment[] memory segments
-    )
-        external
-        loopCalculationsDoNotOverflowBlockGasLimit
-        deltasNotZero
-        segmentArrayCountsEqual
-        milestonesCalculationsDoNotOverflow
-    {
+        LockupPro.SegmentWithDelta[] memory segments
+    ) external loopCalculationsDoNotOverflowBlockGasLimit deltasNotZero milestonesCalculationsDoNotOverflow {
         vm.assume(segments.length != 0);
 
-        // Fuzz the deltas and update the segment milestones.
+        // Fuzz the deltas.
         Vars memory vars;
-        vars.deltas = fuzzSegmentDeltas(segments);
+        fuzzSegmentDeltas(segments);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
-        (vars.totalAmount, vars.amounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(segments);
+        (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(segments);
 
         // Make the sender the funder of the stream.
         vars.funder = users.sender;
@@ -101,18 +73,19 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         expectTransferFromCall({
             from: vars.funder,
             to: address(pro),
-            amount: vars.amounts.deposit + vars.amounts.protocolFee
+            amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
         });
 
         // Expect the broker fee to be paid to the broker, if not zero.
-        if (vars.amounts.brokerFee > 0) {
-            expectTransferFromCall({ from: vars.funder, to: users.broker, amount: vars.amounts.brokerFee });
+        if (vars.createAmounts.brokerFee > 0) {
+            expectTransferFromCall({ from: vars.funder, to: users.broker, amount: vars.createAmounts.brokerFee });
         }
 
         // Create the range struct.
+        vars.segmentsWithMilestones = getSegmentsWithMilestones(segments);
         LockupPro.Range memory range = LockupPro.Range({
             start: getBlockTimestamp(),
-            end: segments[segments.length - 1].milestone
+            end: vars.segmentsWithMilestones[vars.segmentsWithMilestones.length - 1].milestone
         });
 
         // Expect a {CreateLockupProStream} event to be emitted.
@@ -122,12 +95,12 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
             funder: vars.funder,
             sender: defaultParams.createWithDeltas.sender,
             recipient: defaultParams.createWithDeltas.recipient,
-            amounts: vars.amounts,
-            segments: segments,
+            amounts: vars.createAmounts,
             asset: defaultParams.createWithDeltas.asset,
             cancelable: defaultParams.createWithDeltas.cancelable,
+            segments: vars.segmentsWithMilestones,
             range: range,
-            broker: defaultParams.createWithDeltas.broker.addr
+            broker: defaultParams.createWithDeltas.broker.account
         });
 
         // Create the stream.
@@ -135,21 +108,21 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
             defaultParams.createWithDeltas.sender,
             defaultParams.createWithDeltas.recipient,
             vars.totalAmount,
-            segments,
             DEFAULT_ASSET,
             defaultParams.createWithDeltas.cancelable,
-            vars.deltas,
+            segments,
             defaultParams.createWithDeltas.broker
         );
 
         // Assert that the stream has been created.
         LockupPro.Stream memory actualStream = pro.getStream(streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.amounts.deposit, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
+        assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.range, range);
-        assertEq(actualStream.segments, segments);
+        assertEq(actualStream.segments, vars.segmentsWithMilestones);
         assertEq(actualStream.sender, defaultStream.sender, "sender");
+        assertEq(actualStream.startTime, range.start, "startTime");
         assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id has been bumped.
@@ -159,7 +132,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
         // Assert that the protocol fee has been recorded.
         vars.actualProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
-        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.amounts.protocolFee;
+        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.

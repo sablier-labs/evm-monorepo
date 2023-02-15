@@ -108,11 +108,11 @@ abstract contract Pro_E2e_Test is E2e_Test {
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Pro_CreateWithdrawCancel(Params memory params) external {
-        checkUsers(params.sender, params.recipient, params.broker.addr, address(pro));
+        checkUsers(params.sender, params.recipient, params.broker.account, address(pro));
         vm.assume(params.segments.length != 0);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
-        params.startTime = boundUint40(params.startTime, 0, DEFAULT_SEGMENTS[0].milestone - 1);
+        params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
 
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(params.segments, params.startTime);
@@ -141,7 +141,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
         vars.initialProtocolRevenues = pro.getProtocolRevenues(asset);
 
         // Load the pre-create asset balances.
-        vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(pro), params.broker.addr));
+        vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(pro), params.broker.account));
         vars.initialProBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
@@ -158,11 +158,11 @@ abstract contract Pro_E2e_Test is E2e_Test {
             sender: params.sender,
             recipient: params.recipient,
             amounts: vars.amounts,
-            segments: params.segments,
             asset: asset,
             cancelable: true,
+            segments: params.segments,
             range: range,
-            broker: params.broker.addr
+            broker: params.broker.account
         });
 
         // Create the stream.
@@ -170,9 +170,9 @@ abstract contract Pro_E2e_Test is E2e_Test {
             sender: params.sender,
             recipient: params.recipient,
             totalAmount: vars.totalAmount,
-            segments: params.segments,
             asset: asset,
             cancelable: true,
+            segments: params.segments,
             startTime: params.startTime,
             broker: params.broker
         });
@@ -181,10 +181,11 @@ abstract contract Pro_E2e_Test is E2e_Test {
         LockupPro.Stream memory actualStream = pro.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.amounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
+        assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
-        assertEq(actualStream.range, range);
         assertEq(actualStream.segments, params.segments);
         assertEq(actualStream.sender, params.sender, "sender");
+        assertEq(actualStream.startTime, range.start, "startTime");
         assertEq(actualStream.status, Lockup.Status.ACTIVE);
 
         // Assert that the next stream id has been bumped.
@@ -203,7 +204,10 @@ abstract contract Pro_E2e_Test is E2e_Test {
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
         // Load the post-create asset balances.
-        vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(pro), holder, params.broker.addr));
+        vars.balances = getTokenBalances(
+            address(asset),
+            Solarray.addresses(address(pro), holder, params.broker.account)
+        );
         vars.actualProBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];

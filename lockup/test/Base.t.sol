@@ -112,15 +112,6 @@ abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Retrieves the current block timestamp as an `uint40`.
-    function getBlockTimestamp() internal view returns (uint40 blockTimestamp) {
-        blockTimestamp = uint40(block.timestamp);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 

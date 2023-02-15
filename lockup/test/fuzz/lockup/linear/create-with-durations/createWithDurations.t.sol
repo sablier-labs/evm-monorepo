@@ -123,7 +123,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             asset: DEFAULT_ASSET,
             cancelable: defaultParams.createWithDurations.cancelable,
             range: range,
-            broker: defaultParams.createWithDurations.broker.addr
+            broker: defaultParams.createWithDurations.broker.account
         });
 
         // Create the stream.
@@ -133,9 +133,11 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(actualStream.asset, defaultStream.asset, "asset");
+        assertEq(actualStream.cliffTime, range.cliff, "cliffTime");
+        assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.range, range);
         assertEq(actualStream.sender, defaultStream.sender, "sender");
+        assertEq(actualStream.startTime, range.start, "startTime");
         assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id has been bumped.

@@ -49,8 +49,8 @@ abstract contract Constants {
     LockupLinear.Range internal DEFAULT_LINEAR_RANGE;
     LockupPro.Range internal DEFAULT_PRO_RANGE;
     LockupPro.Segment[] internal DEFAULT_SEGMENTS;
+    LockupPro.SegmentWithDelta[] internal DEFAULT_SEGMENTS_WITH_DELTAS;
     LockupPro.Segment[] internal MAX_SEGMENTS;
-    uint40[] internal DEFAULT_SEGMENT_DELTAS = [2_500 seconds, 7_500 seconds];
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -79,6 +79,21 @@ abstract contract Constants {
                 amount: 7_500e18,
                 exponent: ud2x18(0.5e18),
                 milestone: DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION
+            })
+        );
+
+        DEFAULT_SEGMENTS_WITH_DELTAS.push(
+            LockupPro.SegmentWithDelta({
+                amount: DEFAULT_SEGMENTS[0].amount,
+                exponent: DEFAULT_SEGMENTS[0].exponent,
+                delta: 2_500 seconds
+            })
+        );
+        DEFAULT_SEGMENTS_WITH_DELTAS.push(
+            LockupPro.SegmentWithDelta({
+                amount: DEFAULT_SEGMENTS[1].amount,
+                exponent: DEFAULT_SEGMENTS[1].exponent,
+                delta: 7_500 seconds
             })
         );
 

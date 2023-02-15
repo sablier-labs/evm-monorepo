@@ -217,11 +217,11 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             depositAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
-            Broker({ addr: address(0), fee: brokerFee })
+            Broker({ account: address(0), fee: brokerFee })
         );
     }
 
@@ -281,11 +281,11 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.asset,
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
-            Broker({ addr: users.broker, fee: brokerFee })
+            Broker({ account: users.broker, fee: brokerFee })
         );
     }
 
@@ -322,9 +322,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             IERC20(nonContract),
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );
@@ -419,9 +419,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
             defaultParams.createWithMilestones.sender,
             defaultParams.createWithMilestones.recipient,
             defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.segments,
             IERC20(asset),
             defaultParams.createWithMilestones.cancelable,
+            defaultParams.createWithMilestones.segments,
             defaultParams.createWithMilestones.startTime,
             defaultParams.createWithMilestones.broker
         );
@@ -431,9 +431,10 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         assertEq(actualStream.amounts, defaultStream.amounts);
         assertEq(address(actualStream.asset), asset, "asset");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.range, defaultStream.range);
+        assertEq(actualStream.endTime, defaultStream.endTime, "endTime");
         assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.segments, defaultStream.segments);
+        assertEq(actualStream.startTime, defaultStream.startTime, "startTime");
         assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id has been bumped.

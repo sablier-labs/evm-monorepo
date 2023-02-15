@@ -69,7 +69,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         }
 
         // The protocol doesn't allow the sender, recipient or broker to be the zero address.
-        if (params.sender == address(0) || params.recipient == address(0) || params.broker.addr == address(0)) {
+        if (params.sender == address(0) || params.recipient == address(0) || params.broker.account == address(0)) {
             return;
         }
 
@@ -124,7 +124,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         }
 
         // The protocol doesn't allow the sender, recipient or broker to be the zero address.
-        if (params.sender == address(0) || params.recipient == address(0) || params.broker.addr == address(0)) {
+        if (params.sender == address(0) || params.recipient == address(0) || params.broker.account == address(0)) {
             return;
         }
 
