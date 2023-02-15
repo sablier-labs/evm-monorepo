@@ -239,18 +239,6 @@ contract SablierV2LockupLinear is
             range.cliff = range.start + params.durations.cliff;
             range.end = range.start + params.durations.total;
         }
-
-        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
-
-        // Checks: check the fees and calculate the fee amounts.
-        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
-            params.totalAmount,
-            protocolFee,
-            params.broker.fee,
-            MAX_FEE
-        );
-
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithRange(
             LockupLinear.CreateWithRange({
@@ -261,27 +249,14 @@ contract SablierV2LockupLinear is
                 cancelable: params.cancelable,
                 range: range,
                 broker: params.broker
-            }),
-            createAmounts
+            })
         );
     }
 
     /// @inheritdoc ISablierV2LockupLinear
     function createWithRange(LockupLinear.CreateWithRange calldata params) public override returns (uint256 streamId) {
-        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
-
-        // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
-        // deposit amount.
-        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
-            params.totalAmount,
-            protocolFee,
-            params.broker.fee,
-            MAX_FEE
-        );
-
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithRange(params, createAmounts);
+        streamId = _createWithRange(params);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -378,10 +353,19 @@ contract SablierV2LockupLinear is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _createWithRange(
-        LockupLinear.CreateWithRange memory params,
-        Lockup.CreateAmounts memory createAmounts
-    ) internal returns (uint256 streamId) {
+    function _createWithRange(LockupLinear.CreateWithRange memory params) internal returns (uint256 streamId) {
+        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
+
+        // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
+        // deposit amount.
+        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
+            params.totalAmount,
+            protocolFee,
+            params.broker.fee,
+            MAX_FEE
+        );
+
         // Checks: validate the arguments.
         Helpers.checkCreateLinearParams(createAmounts.deposit, params.range);
 

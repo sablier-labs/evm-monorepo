@@ -227,17 +227,6 @@ contract SablierV2LockupPro is
         // Checks: check the deltas and generate the canonical segments.
         LockupPro.Segment[] memory segments = Helpers.checkDeltasAndCalculateMilestones(params.segments);
 
-        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
-
-        // Checks: check the fees and calculate the fee amounts.
-        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
-            params.totalAmount,
-            protocolFee,
-            params.broker.fee,
-            MAX_FEE
-        );
-
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithMilestones(
             LockupPro.CreateWithMilestones({
@@ -249,8 +238,7 @@ contract SablierV2LockupPro is
                 sender: params.sender,
                 startTime: uint40(block.timestamp),
                 totalAmount: params.totalAmount
-            }),
-            createAmounts
+            })
         );
     }
 
@@ -258,19 +246,8 @@ contract SablierV2LockupPro is
     function createWithMilestones(
         LockupPro.CreateWithMilestones calldata params
     ) external override returns (uint256 streamId) {
-        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
-        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
-
-        // Checks: check the fees and calculate the fee amounts.
-        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
-            params.totalAmount,
-            protocolFee,
-            params.broker.fee,
-            MAX_FEE
-        );
-
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithMilestones(params, createAmounts);
+        streamId = _createWithMilestones(params);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -444,10 +421,18 @@ contract SablierV2LockupPro is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _createWithMilestones(
-        LockupPro.CreateWithMilestones memory params,
-        Lockup.CreateAmounts memory createAmounts
-    ) internal returns (uint256 streamId) {
+    function _createWithMilestones(LockupPro.CreateWithMilestones memory params) internal returns (uint256 streamId) {
+        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
+        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
+
+        // Checks: check the fees and calculate the fee amounts.
+        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
+            params.totalAmount,
+            protocolFee,
+            params.broker.fee,
+            MAX_FEE
+        );
+
         // Checks: validate the arguments.
         Helpers.checkCreateProParams(createAmounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
