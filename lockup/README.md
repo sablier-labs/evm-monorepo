@@ -338,6 +338,16 @@ There are many other commands available in Foundry. Check out the [Foundry Book]
 For security concerns, please email [security@sablier.com](mailto:security@sablier.com). This repository is subject to
 the Sablier bug bounty program, per the terms defined [here](https://docs.sablier.com/).
 
-## License
+## Licensing
 
-[LPGL v3.0](./LICENSE.md) © Sablier Labs Ltd
+The primary license for Sablier V2 Core is the Business Source License 1.1 (`BUSL-1.1`), see
+[`LICENSE.md`](./LICENSE.md). However, some files are dual-licensed under `GPL-2.0-or-later`:
+
+- All files in `src/interfaces/` and `src/types` may also be licensed under `GPL-2.0-or-later` (as indicated in their
+  SPDX headers), see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
+- Several files in `src/libraries/` may also be licensed under `GPL-2.0-or-later` (as indicated in their SPDX headers),
+  see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
+
+### Other Exceptions
+
+- All files in `test/` remain unlicensed (as indicated in their SPDX headers).

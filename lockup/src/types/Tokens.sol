@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-3.0
+// SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity >=0.8.18;
 
 /// This file simply re-exports all token interfaces needed in v2-core. It is provided for convenience to
