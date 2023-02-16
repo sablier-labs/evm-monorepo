@@ -8,6 +8,8 @@ import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
 import { Base_Test } from "../Base.t.sol";
+import { USDCLike } from "../shared/mockups/tokens/USDCLike.t.sol";
+import { USDTLike } from "../shared/mockups/tokens/USDTLike.t.sol";
 
 /// @title E2e_Test
 /// @notice Collections of tests that run against a fork of Ethereum Mainnet.
@@ -59,13 +61,22 @@ abstract contract E2e_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks the user assumptions.
-    function checkUsers(address sender, address recipient, address broker, address protocolContract) internal virtual {
+    function checkUsers(address sender, address recipient, address broker, address sablierContract) internal virtual {
         // The protocol does not allow the zero address to interact with it.
         vm.assume(sender != address(0) && recipient != address(0) && broker != address(0));
 
         // The goal is to not have overlapping users because the token balance tests would fail otherwise.
         vm.assume(sender != recipient && sender != broker && recipient != broker);
         vm.assume(sender != holder && recipient != holder && broker != holder);
-        vm.assume(sender != protocolContract && recipient != protocolContract && broker != protocolContract);
+        vm.assume(sender != sablierContract && recipient != sablierContract && broker != sablierContract);
+
+        // Avoid blacklisted users in USDC and USDT.
+        if (address(asset) == 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48) {
+            USDCLike usdc = USDCLike(address(asset));
+            vm.assume(!usdc.isBlacklisted(sender) && !usdc.isBlacklisted(recipient) && !usdc.isBlacklisted(broker));
+        } else if (address(asset) == 0xdAC17F958D2ee523a2206206994597C13D831ec7) {
+            USDTLike usdt = USDTLike(address(asset));
+            vm.assume(!usdt.isBlackListed(sender) && !usdt.isBlackListed(recipient) && !usdt.isBlackListed(broker));
+        }
     }
 }

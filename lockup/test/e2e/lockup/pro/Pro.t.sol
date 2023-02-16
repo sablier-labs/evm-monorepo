@@ -64,7 +64,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
         uint256 actualHolderBalance;
         uint256 actualNextStreamId;
         uint256 actualProtocolRevenues;
-        Lockup.CreateAmounts amounts;
+        Lockup.CreateAmounts createAmounts;
         uint256 expectedBrokerBalance;
         uint256 expectedHolderBalance;
         uint256 expectedProtocolRevenues;
@@ -119,7 +119,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         Vars memory vars;
-        (vars.totalAmount, vars.amounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+        (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: uint128(initialHolderBalance),
             segments: params.segments,
             protocolFee: params.protocolFee,
@@ -157,7 +157,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
             funder: holder,
             sender: params.sender,
             recipient: params.recipient,
-            amounts: vars.amounts,
+            amounts: vars.createAmounts,
             asset: asset,
             cancelable: true,
             segments: params.segments,
@@ -181,7 +181,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
 
         // Assert that the stream has been created.
         LockupPro.Stream memory actualStream = pro.getStream(vars.streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.amounts.deposit, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
@@ -197,7 +197,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
 
         // Assert that the protocol fee has been recorded.
         vars.actualProtocolRevenues = pro.getProtocolRevenues(asset);
-        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.amounts.protocolFee;
+        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
@@ -215,7 +215,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
         vars.actualBrokerBalance = vars.balances[2];
 
         // Assert that the pro contract's balance has been updated.
-        vars.expectedProBalance = vars.initialProBalance + vars.amounts.deposit + vars.amounts.protocolFee;
+        vars.expectedProBalance = vars.initialProBalance + vars.createAmounts.deposit + vars.createAmounts.protocolFee;
         assertEq(vars.actualProBalance, vars.expectedProBalance, "post-create pro contract balance");
 
         // Assert that the holder's balance has been updated.
@@ -223,7 +223,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "post-create holder balance");
 
         // Assert that the broker's balance has been updated.
-        vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.amounts.brokerFee;
+        vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.createAmounts.brokerFee;
         assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "post-create broker balance");
 
         /*//////////////////////////////////////////////////////////////////////////
@@ -280,7 +280,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Only run the cancel tests if the stream has not been depleted.
-        if (params.withdrawAmount != vars.amounts.deposit) {
+        if (params.withdrawAmount != vars.createAmounts.deposit) {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
                 address(asset),
