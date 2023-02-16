@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.18 <0.9.0;
 
-import { console2 } from "forge-std/console2.sol";
-
 import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
@@ -133,40 +131,5 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
                 i += 1;
             }
         }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CALL SUMMARY
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Mark this function as `external` to enable call summaries.
-    function invariant_CallSummary() external onlyInCI {
-        console2.log("\nCall Summary\n");
-        console2.log("Comptroller");
-        console2.log("setFlashFee          ", comptrollerHandler.calls("setFlashFee"));
-        console2.log("setProtocolFee       ", comptrollerHandler.calls("setProtocolFee"));
-        console2.log("toggleFlashAsset     ", comptrollerHandler.calls("toggleFlashAsset"));
-        console2.log("\n  ------------------------\n");
-
-        console2.log("FlashLoan");
-        console2.log("flashLoan            ", flashLoanHandler.calls("flashLoan"));
-        console2.log("\n  ------------------------\n");
-
-        console2.log("LockupLinear");
-        console2.log("burn                 ", linearHandler.calls("burn"));
-        console2.log("cancel               ", linearHandler.calls("cancel"));
-        console2.log("claimProtocolRevenues", linearHandler.calls("claimProtocolRevenues"));
-        console2.log("createWithRange      ", linearCreateHandler.calls("createWithRange"));
-        console2.log("createWithDurations  ", linearCreateHandler.calls("createWithDurations"));
-        console2.log("renounce             ", linearHandler.calls("renounce"));
-        console2.log("transferNFT          ", linearHandler.calls("transferNFT"));
-        console2.log("withdraw             ", linearHandler.calls("withdraw"));
-        console2.log("withdrawMax          ", linearHandler.calls("withdrawMax"));
-        console2.log("\n  -----------------------\n");
-
-        console2.log(
-            "Total calls:         ",
-            comptrollerHandler.totalCalls() + flashLoanHandler.totalCalls() + linearHandler.totalCalls()
-        );
     }
 }
