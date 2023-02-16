@@ -11,8 +11,8 @@ import { Base_Test } from "test/Base.t.sol";
 
 /// @title Lockup_Shared_Test
 /// @dev There is a lot of common logic between the {SablierV2LockupLinear} and the {SablierV2LockupPro} contracts,
-/// specifically that both inherit from the {SablierV2Config} and the {SablierV2Lockup} contracts. We wrote this test
-/// contract to avoid duplicating tests.
+/// specifically that they both inherit from the {SablierV2Config} and the {SablierV2Lockup} abstract contracts. We
+/// wrote this test contract to avoid duplicating tests.
 abstract contract Lockup_Shared_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
