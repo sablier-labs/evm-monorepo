@@ -1,4 +1,4 @@
-# Sablier V2 Core [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Styled with Prettier][prettier-badge]][prettier] [![License: LGPL v3][license-badge]][license]
+# Sablier V2 Core [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Styled with Prettier][prettier-badge]][prettier]
 
 [gha]: https://github.com/sablierhq/v2-core/actions
 [gha-badge]: https://github.com/sablierhq/v2-core/actions/workflows/ci.yml/badge.svg
@@ -8,8 +8,6 @@
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 [prettier]: https://prettier.io
 [prettier-badge]: https://img.shields.io/badge/Code_Style-Prettier-ff69b4.svg
-[license]: https://www.gnu.org/licenses/lgpl-3.0
-[license-badge]: https://img.shields.io/badge/License-LGPL_v3-blue.svg
 
 Core smart contracts of the Sablier V2 cryptoasset streaming protocol. In-depth documentation is available at
 [docs.sablier.com](https://docs.sablier.com).
