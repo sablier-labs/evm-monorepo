@@ -39,7 +39,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_ArraysNotEqual() external toNonZeroAddress {
+    function test_RevertWhen_ArrayCountsNotEqual() external toNonZeroAddress {
         uint256[] memory streamIds = new uint256[](2);
         uint128[] memory amounts = new uint128[](1);
         vm.expectRevert(
@@ -52,12 +52,23 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
     }
 
-    modifier arraysEqual() {
+    modifier arrayCountsNotEqual() {
         _;
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_OnlyNullStreams() external toNonZeroAddress arraysEqual {
+    function test_RevertWhen_ArrayCountsZero() external toNonZeroAddress {
+        uint256[] memory streamIds = new uint256[](0);
+        uint128[] memory amounts = new uint128[](0);
+        lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
+    }
+
+    modifier arrayCountsNotZero() {
+        _;
+    }
+
+    /// @dev it should do nothing.
+    function test_RevertWhen_OnlyNullStreams() external toNonZeroAddress arrayCountsNotEqual arrayCountsNotZero {
         uint256 nullStreamId = 1729;
         uint256[] memory nonStreamIds = Solarray.uint256s(nullStreamId);
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT);
@@ -65,7 +76,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should ignore the null streams and make the withdrawals for the non-null ones.
-    function test_RevertWhen_SomeNullStreams() external toNonZeroAddress arraysEqual {
+    function test_RevertWhen_SomeNullStreams() external toNonZeroAddress arrayCountsNotEqual arrayCountsNotZero {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(nullStreamId, defaultStreamIds[0]);
 
@@ -87,7 +98,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
     {
         // Make Eve the caller in this test.
@@ -104,7 +116,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedAllStreams_Sender()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
     {
         // Make the sender the caller in this test.
@@ -121,7 +134,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
     {
         // Transfer all streams to Alice.
@@ -139,7 +153,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
     {
         // Create a stream with Eve as the recipient.
@@ -163,7 +178,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
     {
         // Transfer one of the streams to Eve.
@@ -187,7 +203,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_WithdrawMultiple_CallerApprovedOperator()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
         callerAuthorizedAllStreams
     {
@@ -224,7 +241,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_SomeAmountsZero()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
         callerAuthorizedAllStreams
         callerRecipient
@@ -248,7 +266,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_SomeAmountsGreaterThanWithdrawableAmount()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
         callerAuthorizedAllStreams
         callerRecipient
@@ -280,7 +299,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_WithdrawMultiple_AllStreamsEnded()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
         callerAuthorizedAllStreams
         callerRecipient
@@ -334,7 +354,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_WithdrawMultiple_AllStreamsOngoing()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
         callerAuthorizedAllStreams
         callerRecipient
@@ -405,7 +426,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_WithdrawMultiple_SomeStreamsEndedSomeStreamsOngoing()
         external
         toNonZeroAddress
-        arraysEqual
+        arrayCountsNotEqual
+        arrayCountsNotZero
         onlyNonNullStreams
         callerAuthorizedAllStreams
         callerRecipient
