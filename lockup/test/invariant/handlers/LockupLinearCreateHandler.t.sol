@@ -51,17 +51,8 @@ contract LockupLinearCreateHandler is BaseHandler {
                                      FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    struct CreateWithDurationsParams {
-        Broker broker;
-        bool cancelable;
-        LockupLinear.Durations durations;
-        address recipient;
-        address sender;
-        uint128 totalAmount;
-    }
-
     function createWithDurations(
-        CreateWithDurationsParams memory params
+        LockupLinear.CreateWithDurations memory params
     ) public instrument("createWithDurations") useNewSender(params.sender) {
         // We don't want to fuzz more than a certain number of streams.
         if (store.lastStreamId() >= MAX_STREAM_COUNT) {
@@ -86,38 +77,16 @@ contract LockupLinearCreateHandler is BaseHandler {
         asset.approve({ spender: address(linear), amount: params.totalAmount });
 
         // Create the stream.
-        uint256 streamId = linear.createWithDurations({
-            sender: params.sender,
-            recipient: params.recipient,
-            totalAmount: params.totalAmount,
-            asset: asset,
-            cancelable: params.cancelable,
-            durations: params.durations,
-            broker: params.broker
-        });
+        params.asset = asset;
+        uint256 streamId = linear.createWithDurations(params);
 
         // Store the stream id.
         store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    struct CreateWithRangeParams {
-        Broker broker;
-        bool cancelable;
-        LockupLinear.Range range;
-        address recipient;
-        address sender;
-        uint128 totalAmount;
-    }
-
     function createWithRange(
-        CreateWithRangeParams memory params
+        LockupLinear.CreateWithRange memory params
     ) public instrument("createWithRange") useNewSender(params.sender) {
-        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        params.range.start = boundUint40(params.range.start, 0, 1_000);
-        params.range.cliff = boundUint40(params.range.cliff, params.range.start, 5_000);
-        params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
-        params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
-
         // We don't want to fuzz more than a certain number of streams.
         if (store.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
@@ -128,6 +97,12 @@ contract LockupLinearCreateHandler is BaseHandler {
             return;
         }
 
+        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
+        params.range.start = boundUint40(params.range.start, 0, 1_000);
+        params.range.cliff = boundUint40(params.range.cliff, params.range.start, 5_000);
+        params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
+        params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
+
         // Mint enough ERC-20 assets to the sender.
         deal({ token: address(asset), to: params.sender, give: params.totalAmount });
 
@@ -135,15 +110,8 @@ contract LockupLinearCreateHandler is BaseHandler {
         asset.approve({ spender: address(linear), amount: params.totalAmount });
 
         // Create the stream.
-        uint256 streamId = linear.createWithRange({
-            sender: params.sender,
-            recipient: params.recipient,
-            totalAmount: params.totalAmount,
-            asset: asset,
-            cancelable: params.cancelable,
-            range: params.range,
-            broker: params.broker
-        });
+        params.asset = asset;
+        uint256 streamId = linear.createWithRange(params);
 
         // Store the stream id.
         store.pushStreamId(streamId, params.sender, params.recipient);

@@ -166,16 +166,18 @@ abstract contract Pro_E2e_Test is E2e_Test {
         });
 
         // Create the stream.
-        pro.createWithMilestones({
-            sender: params.sender,
-            recipient: params.recipient,
-            totalAmount: vars.totalAmount,
-            asset: asset,
-            cancelable: true,
-            segments: params.segments,
-            startTime: params.startTime,
-            broker: params.broker
-        });
+        pro.createWithMilestones(
+            LockupPro.CreateWithMilestones({
+                sender: params.sender,
+                recipient: params.recipient,
+                totalAmount: vars.totalAmount,
+                asset: asset,
+                cancelable: true,
+                segments: params.segments,
+                startTime: params.startTime,
+                broker: params.broker
+            })
+        );
 
         // Assert that the stream has been created.
         LockupPro.Stream memory actualStream = pro.getStream(vars.streamId);

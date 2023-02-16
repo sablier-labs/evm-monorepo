@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Broker, LockupPro } from "../types/DataTypes.sol";
+import { LockupPro } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupPro
@@ -56,27 +56,9 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// Requirements:
     /// - All from {createWithMilestones}.
     ///
-    /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
-    /// It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address toward which to stream the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
-    /// potential fees. This is represented in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset to use for streaming.
-    /// @param cancelable Boolean that indicates whether the stream is cancelable or not.
-    /// @param segments The segments with deltas the protocol will use to compose the custom streaming curve.
-    /// The milestones will be be calculated by adding each delta to `block.timestamp`.
-    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
-    /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
+    /// @param params Struct that encapsulates the function parameters.
     /// @return streamId The id of the newly created stream.
-    function createWithDeltas(
-        address sender,
-        address recipient,
-        uint128 totalAmount,
-        IERC20 asset,
-        bool cancelable,
-        LockupPro.SegmentWithDelta[] memory segments,
-        Broker calldata broker
-    ) external returns (uint256 streamId);
+    function createWithDeltas(LockupPro.CreateWithDeltas calldata params) external returns (uint256 streamId);
 
     /// @notice Create a stream by using the provided milestones, implying the end time from the last segment's
     /// milestone. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
@@ -85,38 +67,19 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     ///
     /// Notes:
     /// - As long as they are ordered, it is not an error to set the `startTime` and the milestones to a range that
-    /// is in the past
+    /// is in the past.
     ///
     /// Requirements:
-    /// - `recipient` must not be the zero address.
-    /// - `totalAmount` must not be zero.
-    /// - `segments` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
+    /// - `params.recipient` must not be the zero address.
+    /// - `params.totalAmount` must not be zero.
+    /// - `params.segments` must be non-empty and not greater than `MAX_SEGMENT_COUNT`.
     /// - The segment amounts summed up must be equal to the deposit amount.
-    /// - The first segment's milestone must be greater than or equal to `startTime`.
-    /// - `startTime` must not be greater than the milestone of the last segment.
-    /// - `msg.sender` must have allowed this contract to spend at least `totalAmount` assets.
-    /// - If set, `broker.fee` must not be greater than `MAX_FEE`.
+    /// - The first segment's milestone must be greater than or equal to `params.startTime`.
+    /// - `params.startTime` must not be greater than the milestone of the last segment.
+    /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
+    /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
     ///
-    /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
-    /// It doesn't have to be the same as `msg.sender`.
-    /// @param recipient The address toward which to stream the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be paid, which includes the stream deposit and any
-    /// potential fees. This is represented in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset to use for streaming.
-    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
-    /// @param segments  The segments the protocol uses to compose the custom streaming curve.
-    /// @param startTime The Unix timestamp for when the stream will start.
-    /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
-    /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
+    /// @param params Struct that encapsulates the function parameters.
     /// @return streamId The id of the newly created stream.
-    function createWithMilestones(
-        address sender,
-        address recipient,
-        uint128 totalAmount,
-        IERC20 asset,
-        bool cancelable,
-        LockupPro.Segment[] memory segments,
-        uint40 startTime,
-        Broker calldata broker
-    ) external returns (uint256 streamId);
+    function createWithMilestones(LockupPro.CreateWithMilestones calldata params) external returns (uint256 streamId);
 }

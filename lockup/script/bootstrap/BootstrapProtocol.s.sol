@@ -62,7 +62,7 @@ contract BootstrapProtocol is BaseScript {
         uint40[] memory cliffDurations = Solarray.uint40s(0, 0, 0, 0, 1 days, 1 weeks, 12 weeks);
         uint40[] memory totalDurations = Solarray.uint40s(1 seconds, 1 hours, 1 days, 1 weeks, 4 weeks, 12 weeks, 48 weeks);
         for (uint256 i = 0; i < totalDurations.length; ++i) {
-            linear.createWithDurations({
+            linear.createWithDurations(LockupLinear.CreateWithDurations({
                 sender: sender,
                 recipient: recipient,
                 totalAmount: totalAmounts[i],
@@ -70,7 +70,7 @@ contract BootstrapProtocol is BaseScript {
                 cancelable: true,
                 durations: LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] }),
                 broker: Broker(address(0), ud(0))
-            });
+            }));
         }
 
         // Renounce the 5th stream.
@@ -87,7 +87,7 @@ contract BootstrapProtocol is BaseScript {
         LockupPro.SegmentWithDelta[] memory segments = new LockupPro.SegmentWithDelta[](2);
         segments[0] = LockupPro.SegmentWithDelta({ amount: 2_500e18, exponent: ud2x18(3.14e18), delta: 1 hours });
         segments[1] = LockupPro.SegmentWithDelta({ amount: 7_500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
-        pro.createWithDeltas({
+        pro.createWithDeltas(LockupPro.CreateWithDeltas({
             sender: sender,
             recipient: recipient,
             totalAmount: 10_000e18,
@@ -95,6 +95,6 @@ contract BootstrapProtocol is BaseScript {
             cancelable: true,
             segments: segments,
             broker: Broker(address(0), ud(0))
-        });
+        }));
     }
 }

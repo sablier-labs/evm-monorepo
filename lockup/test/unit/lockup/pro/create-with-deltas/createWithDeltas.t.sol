@@ -110,15 +110,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
             );
 
             // Create the stream.
-            pro.createWithDeltas(
-                defaultParams.createWithDeltas.sender,
-                defaultParams.createWithDeltas.recipient,
-                defaultParams.createWithDeltas.totalAmount,
-                defaultParams.createWithDeltas.asset,
-                defaultParams.createWithDeltas.cancelable,
-                segments,
-                defaultParams.createWithDeltas.broker
-            );
+            createDefaultStreamWithDeltas(segments);
         }
     }
 

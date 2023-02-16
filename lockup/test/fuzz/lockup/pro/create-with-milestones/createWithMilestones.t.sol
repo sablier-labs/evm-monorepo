@@ -138,16 +138,10 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         );
 
         // Create the stream.
-        pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            depositAmount,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.segments,
-            defaultParams.createWithMilestones.startTime,
-            Broker({ account: address(0), fee: brokerFee })
-        );
+        LockupPro.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        params.totalAmount = depositAmount;
+        params.broker = Broker({ account: address(0), fee: brokerFee });
+        pro.createWithMilestones(params);
     }
 
     modifier depositAmountEqualToSegmentAmountsSum() {
@@ -187,7 +181,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_BrokerFeeTooHigh(
-        UD60x18 brokerFee
+        Broker memory broker
     )
         external
         recipientNonZeroAddress
@@ -200,20 +194,12 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         depositAmountEqualToSegmentAmountsSum
         protocolFeeNotTooHigh
     {
-        brokerFee = bound(brokerFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
+        vm.assume(broker.account != address(0));
+        broker.fee = bound(broker.fee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, DEFAULT_MAX_FEE)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, DEFAULT_MAX_FEE)
         );
-        pro.createWithMilestones(
-            defaultParams.createWithMilestones.sender,
-            defaultParams.createWithMilestones.recipient,
-            defaultParams.createWithMilestones.totalAmount,
-            defaultParams.createWithMilestones.asset,
-            defaultParams.createWithMilestones.cancelable,
-            defaultParams.createWithMilestones.segments,
-            defaultParams.createWithMilestones.startTime,
-            Broker({ account: users.broker, fee: brokerFee })
-        );
+        createDefaultStreamWithBroker(broker);
     }
 
     modifier brokerFeeNotTooHigh() {
@@ -226,18 +212,6 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
     modifier assetERC20Compliant() {
         _;
-    }
-
-    struct Params {
-        Broker broker;
-        bool cancelable;
-        address funder;
-        uint40[] milestones;
-        UD60x18 protocolFee;
-        address recipient;
-        LockupPro.Segment[] segments;
-        address sender;
-        uint40 startTime;
     }
 
     struct Vars {
@@ -264,7 +238,9 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// - Multiple values for the broker fee, including zero.
     /// - Multiple values for the protocol fee, including zero.
     function testFuzz_CreateWithMilestones(
-        Params memory params
+        address funder,
+        LockupPro.CreateWithMilestones memory params,
+        UD60x18 protocolFee
     )
         external
         recipientNonZeroAddress
@@ -280,10 +256,10 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         assetContract
         assetERC20Compliant
     {
-        vm.assume(params.funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
+        vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.segments.length != 0);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
+        protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
 
         // Fuzz the segment milestones.
@@ -294,37 +270,33 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: UINT128_MAX,
             segments: params.segments,
-            protocolFee: params.protocolFee,
+            protocolFee: protocolFee,
             brokerFee: params.broker.fee
         });
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: params.protocolFee });
+        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: protocolFee });
 
         // Make the fuzzed funder the caller in the rest of this test.
-        changePrank(params.funder);
+        changePrank(funder);
 
         // Mint enough ERC-20 assets to the fuzzed funder.
-        deal({ token: address(DEFAULT_ASSET), to: params.funder, give: vars.totalAmount });
+        deal({ token: address(DEFAULT_ASSET), to: funder, give: vars.totalAmount });
 
         // Approve the {SablierV2LockupPro} contract to transfer the ERC-20 assets from the fuzzed funder.
         DEFAULT_ASSET.approve({ spender: address(pro), amount: UINT256_MAX });
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
         expectTransferFromCall({
-            from: params.funder,
+            from: funder,
             to: address(pro),
             amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
         });
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.createAmounts.brokerFee > 0) {
-            expectTransferFromCall({
-                from: params.funder,
-                to: params.broker.account,
-                amount: vars.createAmounts.brokerFee
-            });
+            expectTransferFromCall({ from: funder, to: params.broker.account, amount: vars.createAmounts.brokerFee });
         }
 
         // Expect a {CreateLockupProStream} event to be emitted.
@@ -335,7 +307,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         });
         emit Events.CreateLockupProStream({
             streamId: streamId,
-            funder: params.funder,
+            funder: funder,
             sender: params.sender,
             recipient: params.recipient,
             amounts: vars.createAmounts,
@@ -348,14 +320,16 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
         // Create the stream.
         pro.createWithMilestones(
-            params.sender,
-            params.recipient,
-            vars.totalAmount,
-            DEFAULT_ASSET,
-            params.cancelable,
-            params.segments,
-            params.startTime,
-            params.broker
+            LockupPro.CreateWithMilestones({
+                sender: params.sender,
+                recipient: params.recipient,
+                totalAmount: vars.totalAmount,
+                asset: DEFAULT_ASSET,
+                cancelable: params.cancelable,
+                segments: params.segments,
+                startTime: params.startTime,
+                broker: params.broker
+            })
         );
 
         // Assert that the stream has been created.

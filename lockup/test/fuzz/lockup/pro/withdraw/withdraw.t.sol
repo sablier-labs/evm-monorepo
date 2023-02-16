@@ -74,16 +74,18 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
         deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
 
         // Create the stream with the fuzzed segments.
-        vars.streamId = pro.createWithMilestones({
-            sender: users.sender,
-            recipient: users.recipient,
-            totalAmount: vars.totalAmount,
-            asset: DEFAULT_ASSET,
-            cancelable: true,
-            segments: params.segments,
-            startTime: DEFAULT_START_TIME,
-            broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
-        });
+        vars.streamId = pro.createWithMilestones(
+            LockupPro.CreateWithMilestones({
+                sender: users.sender,
+                recipient: users.recipient,
+                totalAmount: vars.totalAmount,
+                asset: DEFAULT_ASSET,
+                cancelable: true,
+                segments: params.segments,
+                startTime: DEFAULT_START_TIME,
+                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
+            })
+        );
 
         // Bound the withdraw amount.
         vars.withdrawableAmount = pro.withdrawableAmountOf(vars.streamId);

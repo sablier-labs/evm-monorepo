@@ -155,15 +155,17 @@ abstract contract Linear_E2e_Test is E2e_Test {
         });
 
         // Create the stream.
-        linear.createWithRange({
-            sender: params.sender,
-            recipient: params.recipient,
-            totalAmount: params.totalAmount,
-            asset: asset,
-            cancelable: true,
-            range: params.range,
-            broker: params.broker
-        });
+        linear.createWithRange(
+            LockupLinear.CreateWithRange({
+                sender: params.sender,
+                recipient: params.recipient,
+                totalAmount: params.totalAmount,
+                asset: asset,
+                cancelable: true,
+                range: params.range,
+                broker: params.broker
+            })
+        );
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(vars.streamId);
