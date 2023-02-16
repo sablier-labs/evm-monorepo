@@ -66,8 +66,8 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// @dev Emits a {CreateLockupProStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - As long as they are ordered, it is not an error to set the `startTime` and the milestones to a range that
-    /// is in the past.
+    /// - As long as they are ordered, it is not an error to set the `params.startTime` and the milestones to a range
+    /// that is in the past.
     ///
     /// Requirements:
     /// - `params.recipient` must not be the zero address.
