@@ -141,7 +141,7 @@ abstract contract Linear_E2e_Test is E2e_Test {
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
         vars.streamId = linear.nextStreamId();
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        expectEmit();
         emit Events.CreateLockupLinearStream({
             streamId: vars.streamId,
             funder: holder,
@@ -236,7 +236,7 @@ abstract contract Linear_E2e_Test is E2e_Test {
             vars.initialRecipientBalance = asset.balanceOf(params.recipient);
 
             // Expect a {WithdrawFromLockupStream} event to be emitted.
-            vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+            expectEmit();
             emit Events.WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.recipient,
@@ -282,7 +282,7 @@ abstract contract Linear_E2e_Test is E2e_Test {
             vars.initialRecipientBalance = vars.balances[2];
 
             // Expect a {CancelLockupStream} event to be emitted.
-            vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+            expectEmit();
             vars.senderAmount = linear.returnableAmountOf(vars.streamId);
             vars.recipientAmount = linear.withdrawableAmountOf(vars.streamId);
             emit Events.CancelLockupStream(

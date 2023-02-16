@@ -56,7 +56,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         expectTransferCall({ to: users.recipient, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        expectEmit();
         emit Events.WithdrawFromLockupStream({
             streamId: defaultStreamId,
             to: users.recipient,

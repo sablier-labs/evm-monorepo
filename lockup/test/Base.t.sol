@@ -211,6 +211,12 @@ abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
         vm.expectCall(address(asset), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
     }
 
+    /// @dev Expects an event to be emitted by checking all three topics and the data. As mentioned in the Foundry
+    /// Book, the extra `true` arguments don't hurt.
+    function expectEmit() internal {
+        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+    }
+
     /// @dev Checks if the Foundry profile is "test-optimized".
     function isTestOptimizedProfile() internal returns (bool result) {
         string memory profile = vm.envOr("FOUNDRY_PROFILE", string(""));

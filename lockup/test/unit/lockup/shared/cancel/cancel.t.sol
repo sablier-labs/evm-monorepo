@@ -270,7 +270,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         );
 
         // Expect a {CancelLockupStream} event to be emitted.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        expectEmit();
         emit Events.CancelLockupStream(streamId, users.sender, address(goodRecipient), senderAmount, recipientAmount);
 
         // Cancel the stream.
@@ -450,7 +450,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         );
 
         // Expect a {CancelLockupStream} event to be emitted.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        expectEmit();
         emit Events.CancelLockupStream(streamId, address(goodSender), users.recipient, senderAmount, recipientAmount);
 
         // Cancel the stream.

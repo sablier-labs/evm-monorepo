@@ -13,7 +13,7 @@ contract SetFlashFee_Fuzz_Test is Comptroller_Fuzz_Test {
         newFlashFee = bound(newFlashFee, 0, DEFAULT_MAX_FEE);
 
         // Expect a {SetFlashFee} event to be emitted.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        expectEmit();
         emit Events.SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: newFlashFee });
 
         // She the new flash fee.

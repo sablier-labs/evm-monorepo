@@ -113,7 +113,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         });
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        expectEmit();
         emit Events.CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,

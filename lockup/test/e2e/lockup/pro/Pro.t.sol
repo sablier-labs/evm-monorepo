@@ -147,7 +147,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
 
         // Expect a {CreateLockupProStream} event to be emitted.
         vars.streamId = pro.nextStreamId();
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        expectEmit();
         LockupPro.Range memory range = LockupPro.Range({
             start: params.startTime,
             end: params.segments[params.segments.length - 1].milestone
@@ -245,7 +245,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
             vars.initialRecipientBalance = asset.balanceOf(params.recipient);
 
             // Expect a {WithdrawFromLockupStream} event to be emitted.
-            vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+            expectEmit();
             emit Events.WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.recipient,
@@ -291,7 +291,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
             vars.initialRecipientBalance = vars.balances[2];
 
             // Expect a {CancelLockupStream} event to be emitted.
-            vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+            expectEmit();
             vars.senderAmount = pro.returnableAmountOf(vars.streamId);
             vars.recipientAmount = pro.withdrawableAmountOf(vars.streamId);
             emit Events.CancelLockupStream(

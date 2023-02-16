@@ -177,7 +177,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         expectTransferFromCall({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
 
         // Expect a {FlashLoan} event to be emitted.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        expectEmit();
         emit Events.FlashLoan({
             initiator: users.admin,
             receiver: goodFlashLoanReceiver,
