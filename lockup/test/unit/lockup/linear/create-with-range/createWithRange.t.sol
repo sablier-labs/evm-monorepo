@@ -69,7 +69,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         depositAmountNotZero
         startTimeNotGreaterThanCliffTime
     {
-        uint40 cliffTime = DEFAULT_START_TIME;
+        uint40 cliffTime = DEFAULT_END_TIME;
         uint40 endTime = DEFAULT_CLIFF_TIME;
         vm.expectRevert(
             abi.encodeWithSelector(

@@ -7,17 +7,16 @@ import { ERC721 } from "@openzeppelin/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Errors } from "./libraries/Errors.sol";
-import { Events } from "./libraries/Events.sol";
-import { Helpers } from "./libraries/Helpers.sol";
-import { Broker, Lockup, LockupLinear } from "./types/DataTypes.sol";
-
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "./interfaces/ISablierV2Lockup.sol";
 import { ISablierV2LockupLinear } from "./interfaces/ISablierV2LockupLinear.sol";
 import { ISablierV2LockupRecipient } from "./interfaces/hooks/ISablierV2LockupRecipient.sol";
 import { ISablierV2LockupSender } from "./interfaces/hooks/ISablierV2LockupSender.sol";
+import { Errors } from "./libraries/Errors.sol";
+import { Events } from "./libraries/Events.sol";
+import { Helpers } from "./libraries/Helpers.sol";
+import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 
 /*
 

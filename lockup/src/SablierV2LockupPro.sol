@@ -19,7 +19,7 @@ import { ISablierV2LockupSender } from "./interfaces/hooks/ISablierV2LockupSende
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
-import { Broker, Lockup, LockupPro } from "./types/DataTypes.sol";
+import { Lockup, LockupPro } from "./types/DataTypes.sol";
 
 /*
 

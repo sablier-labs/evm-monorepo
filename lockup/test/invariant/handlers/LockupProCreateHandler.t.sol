@@ -7,7 +7,7 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
-import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
+import { Lockup, LockupPro } from "src/types/DataTypes.sol";
 
 import { BaseHandler } from "./BaseHandler.t.sol";
 import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";

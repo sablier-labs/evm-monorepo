@@ -4,7 +4,7 @@ pragma solidity >=0.8.18;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Broker, LockupLinear } from "../types/DataTypes.sol";
+import { LockupLinear } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupLinear

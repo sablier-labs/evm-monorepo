@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Broker, LockupPro } from "../types/DataTypes.sol";
+import { LockupPro } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupPro
@@ -77,7 +77,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// - The first segment's milestone must be greater than or equal to `params.startTime`.
     /// - `params.startTime` must not be greater than the milestone of the last segment.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
-    /// - If set, `broker.fee` must not be greater than `MAX_FEE`.
+    /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
     ///
     /// @param params Struct that encapsulates the function parameters.
     /// @return streamId The id of the newly created stream.
