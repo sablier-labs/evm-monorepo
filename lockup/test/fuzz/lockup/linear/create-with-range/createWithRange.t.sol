@@ -161,7 +161,9 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     {
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.totalAmount != 0);
-        vm.assume(params.range.start <= params.range.cliff && params.range.cliff < params.range.end);
+        params.range.start = boundUint40(params.range.start, DEFAULT_START_TIME, DEFAULT_START_TIME + 10_000 seconds);
+        params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
+        params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
 
