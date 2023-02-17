@@ -10,8 +10,8 @@ contract LockupHandlerStorage {
 
     uint256 public lastStreamId;
     uint128 public returnedAmountsSum;
-    mapping(uint256 streamId => address) public recipients;
-    mapping(uint256 streamId => address) public senders;
+    mapping(uint256 streamId => address recipient) public recipients;
+    mapping(uint256 streamId => address sender) public senders;
     uint256[] public streamIds;
 
     /*//////////////////////////////////////////////////////////////////////////

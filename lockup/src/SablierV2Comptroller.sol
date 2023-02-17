@@ -47,7 +47,7 @@ contract SablierV2Comptroller is
     mapping(IERC20 asset => bool supported) internal _flashAssets;
 
     /// @dev Global fees mapped by ERC-20 asset addresses.
-    mapping(IERC20 asset => UD60x18) internal _protocolFees;
+    mapping(IERC20 asset => UD60x18 fee) internal _protocolFees;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR

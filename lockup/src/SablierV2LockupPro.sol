@@ -62,7 +62,7 @@ contract SablierV2LockupPro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 pro streams mapped by unsigned integers ids.
-    mapping(uint256 id => LockupPro.Stream) internal _streams;
+    mapping(uint256 id => LockupPro.Stream stream) internal _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
