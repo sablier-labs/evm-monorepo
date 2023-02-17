@@ -58,7 +58,7 @@
     "gas:report": "forge test --gas-report --no-match-path \"./test/e2e/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "gas:snapshot": "forge snapshot --no-match-path \"./test/e2e/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "gas:snapshot:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --no-match-path \"./test/e2e/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
-    "lint": "yarn prettier:check",
+    "lint": "yarn lint:sol && yarn prettier:check",
     "lint:sol": "yarn solhint \"{script,src,test}/**/*.sol\"",
     "postinstall": "husky install",
     "postpublish": "pinst --enable",
