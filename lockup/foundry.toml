@@ -39,6 +39,11 @@
   via_ir = true
 
 # See "SMTChecker and Formal Verification" in the Solidity docs
+[profile.smt]
+  ignored_error_codes = [
+    7737, # Disable inline assembly warnings
+  ]
+
 [profile.smt.model_checker]
   engine = "chc" # constrained Horn clauses
   showUnproved = true
