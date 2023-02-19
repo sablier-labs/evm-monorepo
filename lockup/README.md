@@ -47,7 +47,7 @@ yarn add @sablier/v2-core
 
 ## Usage
 
-This is just a glimpse o Sablier V2 Core. For more code snippets, see the [documentation](https://docs.sablier.com).
+This is just a glimpse of Sablier V2 Core. For more code snippets, see the [documentation](https://docs.sablier.com).
 
 ```solidity
 import { ISablierV2LockupLinear } from "@sablier/v2-core/interfaces/ISablierV2LockupLinear.sol";

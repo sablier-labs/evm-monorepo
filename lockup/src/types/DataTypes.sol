@@ -97,7 +97,7 @@ library LockupLinear {
 
     /// @notice Simple struct that encapsulates (i) the cliff duration and (ii) the total duration.
     /// @param cliff The cliff duration in seconds.
-    /// @param cliff The total duration in seconds.
+    /// @param total The total duration in seconds.
     struct Durations {
         uint40 cliff; // ─┐
         uint40 total; // ─┘
