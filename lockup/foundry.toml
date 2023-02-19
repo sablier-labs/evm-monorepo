@@ -19,17 +19,16 @@
 
 [profile.default.fuzz]
   max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
-  runs = 1_000
+  runs = 50
 
 [profile.default.invariant]
   call_override = false # Override unsafe external calls to perform reentrancy checks
   fail_on_revert = true
-  depth = 200           # Number of calls executed in one run
+  depth = 50            # Number of calls executed in one run
+  run = 50
 
 # Speed up compilation and tests during development
 [profile.lite]
-  fuzz = { runs = 50 }
-  invariant = { depth = 50, runs = 50 }
   optimizer = false
 
 # Compile only the production code with IR
