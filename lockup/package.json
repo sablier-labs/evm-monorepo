@@ -21,15 +21,18 @@
     "solhint-plugin-prettier": "^0.0.5"
   },
   "keywords": [
+    "asset-streaming",
     "blockchain",
     "cryptoassets",
     "ethereum",
     "foundry",
     "money-streaming",
+    "real-time-finance",
     "sablier",
     "sablier-v2",
     "smart-contracts",
-    "solidity"
+    "solidity",
+    "token-streaming"
   ],
   "packageManager": "yarn@3.4.1",
   "private": true,
