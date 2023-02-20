@@ -45,6 +45,8 @@
 
 [profile.smt.model_checker]
   engine = "chc" # constrained Horn clauses
+  invariants = ["contract", "reentrancy"]
+  show_unproved = true
   timeout = 100_000 # in milliseconds
   targets = [
     "assert",
