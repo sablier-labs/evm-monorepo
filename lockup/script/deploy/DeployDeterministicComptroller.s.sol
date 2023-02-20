@@ -8,7 +8,7 @@ import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { BaseScript } from "../shared/Base.s.sol";
 
 /// @dev Deploys the {SablierV2Comptroller} contract at a deterministic address across all chains. Reverts if
-/// the contract has already been deployed via the deterministic CREATE2 factory.
+/// the contract has already been deployed.
 contract DeployDeterministicComptroller is Script, BaseScript {
     /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.
     /// https://github.com/Arachnid/deterministic-deployment-proxy

@@ -13,7 +13,7 @@ import { DeployDeterministicLockupLinear } from "./DeployDeterministicLockupLine
 import { DeployDeterministicLockupPro } from "./DeployDeterministicLockupPro.s.sol";
 
 /// @dev Deploys the entire protocol at deterministic addresses across all chains. Reverts if any
-/// contract has already been deployed via the deterministic CREATE2 factory.
+/// contract has already been deployed.
 ///
 /// The contracts are deployed in the following order:
 ///
