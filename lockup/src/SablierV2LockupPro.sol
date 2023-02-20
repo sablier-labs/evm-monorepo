@@ -171,8 +171,10 @@ contract SablierV2LockupPro is
         }
     }
 
-    /// @inheritdoc ISablierV2Lockup
-    function streamedAmountOf(uint256 streamId) public view override returns (uint128 streamedAmount) {
+    /// @inheritdoc ISablierV2LockupPro
+    function streamedAmountOf(
+        uint256 streamId
+    ) public view override(ISablierV2Lockup, ISablierV2LockupPro) returns (uint128 streamedAmount) {
         // When the stream is null, return zero. When the stream is canceled or depleted, return the withdrawn
         // amount.
         if (_streams[streamId].status != Lockup.Status.ACTIVE) {

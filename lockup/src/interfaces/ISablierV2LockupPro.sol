@@ -9,18 +9,7 @@ import { LockupPro } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupPro
-/// @notice Creates streams with custom streaming curves, based on the following mathematical model:
-///
-/// $$
-/// f(x) = x^{exp} * csa + esas
-/// $$
-///
-/// Where:
-///
-/// - $x$ is the elapsed time divided by the total time in the current segment.
-/// - $exp$ is the current segment exponent.
-/// - $csa$ is the current segment amount.
-/// - $esas$ are the elapsed segment amounts summed up.
+/// @notice Creates and manages lockup streams with custom streaming curves.
 interface ISablierV2LockupPro is ISablierV2Lockup {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
@@ -42,6 +31,23 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// @notice Queries the stream struct entity.
     /// @param streamId The id of the stream to make the query for.
     function getStream(uint256 streamId) external view returns (LockupPro.Stream memory stream);
+
+    /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
+    /// @dev The streaming function is:
+    ///
+    /// $$
+    /// f(x) = x^{exp} * csa + esas
+    /// $$
+    ///
+    /// Where:
+    ///
+    /// - $x$ is the elapsed time divided by the total time in the current segment.
+    /// - $exp$ is the current segment exponent.
+    /// - $csa$ is the current segment amount.
+    /// - $esas$ are the elapsed segment amounts summed up.
+    ///
+    /// @param streamId The id of the stream to make the query for.
+    function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS

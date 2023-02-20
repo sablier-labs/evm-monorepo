@@ -8,17 +8,7 @@ import { LockupLinear } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupLinear
-/// @notice Creates streams whose streaming function is:
-///
-/// $$
-/// f(x) = x * d + c
-/// $$
-///
-/// Where:
-///
-/// - $x$ is the elapsed time divided by the total duration of the stream.
-/// - $d$ is the deposit amount.
-/// - $c$ is the cliff amount.
+/// @notice Creates and manages lockup streams whose streaming function is strictly linear.
 interface ISablierV2LockupLinear is ISablierV2Lockup {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
@@ -36,6 +26,22 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @notice Queries the stream struct entity.
     /// @param streamId The id of the stream to make the query for.
     function getStream(uint256 streamId) external view returns (LockupLinear.Stream memory stream);
+
+    /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
+    /// @dev The streaming function is:
+    ///
+    /// $$
+    /// f(x) = x * d + c
+    /// $$
+    ///
+    /// Where:
+    ///
+    /// - $x$ is the elapsed time divided by the total duration of the stream.
+    /// - $d$ is the deposit amount.
+    /// - $c$ is the cliff amount.
+    ///
+    /// @param streamId The id of the stream to make the query for.
+    function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
