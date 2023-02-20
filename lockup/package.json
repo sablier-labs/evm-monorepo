@@ -7,6 +7,9 @@
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
   },
+  "bugs": {
+    "url": "https://github.com/sablierhq/v2-core/issues"
+  },
   "devDependencies": {
     "@commitlint/cli": "^17.4.2",
     "@commitlint/config-conventional": "^17.4.2",
@@ -20,6 +23,11 @@
     "solhint": "^3.3.8",
     "solhint-plugin-prettier": "^0.0.5"
   },
+  "files": [
+    "/src",
+    "CHANGELOG.md"
+  ],
+  "homepage": "https://github.com/sablierhq/v2-core#readme",
   "keywords": [
     "asset-streaming",
     "blockchain",
@@ -35,7 +43,13 @@
     "token-streaming"
   ],
   "packageManager": "yarn@3.4.1",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sablierhq/v2-core"
+  },
   "scripts": {
     "build": "forge build",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
@@ -47,6 +61,8 @@
     "lint": "yarn prettier:check",
     "lint:sol": "yarn solhint \"{script,src,test}/**/*.sol\"",
     "postinstall": "husky install",
+    "postpublish": "pinst --enable",
+    "prepublishOnly": "pinst --disable",
     "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
     "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",
     "test": "forge test",
