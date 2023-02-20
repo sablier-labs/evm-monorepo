@@ -38,7 +38,7 @@ abstract contract SablierV2Config is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Protocol revenues mapped by ERC-20 asset addresses.
-    mapping(IERC20 asset => uint128) internal _protocolRevenues;
+    mapping(IERC20 asset => uint128 revenues) internal _protocolRevenues;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR

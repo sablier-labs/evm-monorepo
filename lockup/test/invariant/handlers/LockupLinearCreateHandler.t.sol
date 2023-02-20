@@ -66,7 +66,7 @@ contract LockupLinearCreateHandler is BaseHandler {
 
         // Bound the stream parameters.
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        params.durations.cliff = boundUint40(params.durations.cliff, 1, 1_000);
+        params.durations.cliff = boundUint40(params.durations.cliff, 1, DEFAULT_CLIFF_DURATION);
         params.durations.total = boundUint40(params.durations.total, params.durations.cliff + 1, MAX_UNIX_TIMESTAMP);
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
@@ -98,8 +98,8 @@ contract LockupLinearCreateHandler is BaseHandler {
         }
 
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        params.range.start = boundUint40(params.range.start, 0, 1_000);
-        params.range.cliff = boundUint40(params.range.cliff, params.range.start, 5_000);
+        params.range.start = boundUint40(params.range.start, 0, DEFAULT_START_TIME);
+        params.range.cliff = boundUint40(params.range.cliff, params.range.start, 52 weeks);
         params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 

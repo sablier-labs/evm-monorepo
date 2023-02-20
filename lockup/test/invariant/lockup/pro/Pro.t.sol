@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.18 <0.9.0;
 
-import { console2 } from "forge-std/console2.sol";
-
 import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 import { Lockup, LockupPro } from "src/types/DataTypes.sol";
@@ -125,40 +123,5 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
                 }
             }
         }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CALL SUMMARY
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Mark this function as `external` to enable call summaries.
-    function invariant_CallSummary() external onlyInCI {
-        console2.log("\nCall Summary\n");
-        console2.log("Comptroller");
-        console2.log("setFlashFee          ", comptrollerHandler.calls("setFlashFee"));
-        console2.log("setProtocolFee       ", comptrollerHandler.calls("setProtocolFee"));
-        console2.log("toggleFlashAsset     ", comptrollerHandler.calls("toggleFlashAsset"));
-        console2.log("\n  ------------------------\n");
-
-        console2.log("FlashLoan");
-        console2.log("flashLoan            ", flashLoanHandler.calls("flashLoan"));
-        console2.log("\n  ------------------------\n");
-
-        console2.log("LockupPro");
-        console2.log("burn                 ", proHandler.calls("burn"));
-        console2.log("cancel               ", proHandler.calls("cancel"));
-        console2.log("claimProtocolRevenues", proHandler.calls("claimProtocolRevenues"));
-        console2.log("createWithDeltas     ", proCreateHandler.calls("createWithDeltas"));
-        console2.log("createWithMilestones ", proCreateHandler.calls("createWithMilestones"));
-        console2.log("renounce             ", proHandler.calls("renounce"));
-        console2.log("transferNFT          ", proHandler.calls("transferNFT"));
-        console2.log("withdraw             ", proHandler.calls("withdraw"));
-        console2.log("withdrawMax          ", proHandler.calls("withdrawMax"));
-        console2.log("\n  -----------------------\n");
-
-        console2.log(
-            "Total calls:         ",
-            comptrollerHandler.totalCalls() + flashLoanHandler.totalCalls() + proHandler.totalCalls()
-        );
     }
 }

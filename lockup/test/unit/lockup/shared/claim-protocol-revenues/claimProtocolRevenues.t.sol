@@ -52,7 +52,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
         expectTransferCall({ to: users.admin, amount: protocolRevenues });
 
         // Expect a {ClaimProtocolRevenues} event to be emitted.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: false, checkData: true });
+        expectEmit();
         emit Events.ClaimProtocolRevenues(users.admin, DEFAULT_ASSET, protocolRevenues);
 
         // Claim the protocol revenues.

@@ -24,14 +24,24 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_OnlyNullStreams() external {
+    function test_RevertWhen_ArrayCountZero() external {
+        uint256[] memory streamIds = new uint256[](0);
+        lockup.cancelMultiple(streamIds);
+    }
+
+    modifier arrayCountNotZero() {
+        _;
+    }
+
+    /// @dev it should do nothing.
+    function test_RevertWhen_OnlyNullStreams() external arrayCountNotZero {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(nullStreamId);
         lockup.cancelMultiple(streamIds);
     }
 
     /// @dev it should ignore the null streams and cancel the non-null ones.
-    function test_RevertWhen_SomeNullStreams() external {
+    function test_RevertWhen_SomeNullStreams() external arrayCountNotZero {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], nullStreamId);
         lockup.cancelMultiple(streamIds);
@@ -45,7 +55,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_AllStreamsNonCancelable() external onlyNonNullStreams {
+    function test_RevertWhen_AllStreamsNonCancelable() external arrayCountNotZero onlyNonNullStreams {
         // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
 
@@ -54,7 +64,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should ignore the non-cancelable streams and cancel the cancelable streams.
-    function test_RevertWhen_SomeStreamsNonCancelable() external onlyNonNullStreams {
+    function test_RevertWhen_SomeStreamsNonCancelable() external arrayCountNotZero onlyNonNullStreams {
         // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
 
@@ -78,6 +88,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
         external
+        arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
     {
@@ -94,6 +105,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_ApprovedOperator()
         external
+        arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
     {
@@ -113,6 +125,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
+        arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
     {
@@ -130,6 +143,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
         external
+        arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
     {
@@ -149,6 +163,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedSomeStreams_ApprovedOperator()
         external
+        arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
     {
@@ -168,6 +183,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
+        arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
     {
@@ -187,7 +203,13 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
     /// CancelLockupStream events.
-    function test_CancelMultiple_Sender() external onlyNonNullStreams allStreamsCancelable callerAuthorizedAllStreams {
+    function test_CancelMultiple_Sender()
+        external
+        arrayCountNotZero
+        onlyNonNullStreams
+        allStreamsCancelable
+        callerAuthorizedAllStreams
+    {
         changePrank({ msgSender: users.sender });
         test_CancelMultiple();
     }
@@ -230,9 +252,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 senderAmount1 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount1;
 
         // Expect two {CancelLockupStream} events to be emitted.
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        expectEmit();
         emit Events.CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
-        vm.expectEmit({ checkTopic1: true, checkTopic2: true, checkTopic3: true, checkData: true });
+        expectEmit();
         emit Events.CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
 
         // Cancel the streams.
