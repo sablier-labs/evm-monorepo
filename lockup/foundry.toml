@@ -25,7 +25,7 @@
   call_override = false # Override unsafe external calls to perform reentrancy checks
   fail_on_revert = true
   depth = 50            # Number of calls executed in one run
-  run = 50
+  runs = 50
 
 # Speed up compilation and tests during development
 [profile.lite]
