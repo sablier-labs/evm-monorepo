@@ -2,7 +2,6 @@
 pragma solidity >=0.8.18;
 
 import { ERC20GodMode } from "@prb/contracts/token/erc20/ERC20GodMode.sol";
-
 import { Script } from "forge-std/Script.sol";
 
 import { BaseScript } from "../shared/Base.s.sol";

@@ -4,9 +4,9 @@ pragma solidity >=0.8.18 <0.9.0;
 import { Script } from "forge-std/Script.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
-import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
-import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
+import { SablierV2Comptroller } from "../../src/SablierV2Comptroller.sol";
+import { SablierV2LockupLinear } from "../../src/SablierV2LockupLinear.sol";
+import { SablierV2LockupPro } from "../../src/SablierV2LockupPro.sol";
 
 import { DeployDeterministicComptroller } from "./DeployDeterministicComptroller.s.sol";
 import { DeployDeterministicLockupLinear } from "./DeployDeterministicLockupLinear.s.sol";
