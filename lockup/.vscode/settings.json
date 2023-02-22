@@ -5,8 +5,12 @@
   "[toml]": {
     "editor.defaultFormatter": "tamasfe.even-better-toml"
   },
+  "files.associations": {
+    ".gas-snapshot": "julia"
+  },
   "solidity.compileUsingRemoteVersion": "v0.8.18+commit.87f61d96",
   "solidity.formatter": "prettier",
+  "solidity.linter": "solhint",
   "solidity.packageDefaultDependenciesContractsDirectory": "src",
   "solidity.packageDefaultDependenciesDirectory": "lib"
 }
