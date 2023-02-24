@@ -11,12 +11,6 @@
     "url": "https://github.com/sablierhq/v2-core/issues"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.4.4",
-    "@commitlint/config-conventional": "^17.4.4",
-    "commitizen": "^4.3.0",
-    "cz-conventional-changelog": "^3.3.0",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.1.2",
     "prettier": "^2.8.4",
     "prettier-plugin-solidity": "^1.1.2",
     "rimraf": "^4.1.2",
@@ -60,9 +54,6 @@
     "gas:snapshot:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --no-match-path \"./test/e2e/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "yarn lint:sol && yarn prettier:check",
     "lint:sol": "yarn solhint \"{script,src,test}/**/*.sol\"",
-    "postinstall": "husky install",
-    "postpublish": "pinst --enable",
-    "prepublishOnly": "pinst --disable",
     "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
     "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",
     "test": "forge test",
