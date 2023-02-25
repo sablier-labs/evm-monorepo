@@ -53,7 +53,7 @@
     "gas:snapshot": "forge snapshot --no-match-path \"./test/e2e/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "gas:snapshot:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --no-match-path \"./test/e2e/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "yarn lint:sol && yarn prettier:check",
-    "lint:sol": "yarn solhint \"{script,src,test}/**/*.sol\"",
+    "lint:sol": "solhint \"{script,src,test}/**/*.sol\"",
     "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
     "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",
     "test": "forge test",
