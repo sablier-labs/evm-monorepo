@@ -6,27 +6,27 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Events } from "src/libraries/Events.sol";
-import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
+import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { E2e_Test } from "../../E2eTest.t.sol";
+import { Fork_Test } from "../../Fork.t.sol";
 
-abstract contract Pro_E2e_Test is E2e_Test {
+abstract contract Linear_Fork_Test is Fork_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, address holder_) E2e_Test(asset_, holder_) {}
+    constructor(IERC20 asset_, address holder_) Fork_Test(asset_, holder_) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        E2e_Test.setUp();
+        Fork_Test.setUp();
 
-        // Approve the {SablierV2LockupPro} contract to transfer the holder's ERC-20 assets.
+        // Approve the {SablierV2LockupLinear} contract to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
-        (bool success, ) = address(asset).call(abi.encodeCall(IERC20.approve, (address(pro), UINT256_MAX)));
+        (bool success, ) = address(asset).call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
         success;
     }
 
@@ -37,41 +37,40 @@ abstract contract Pro_E2e_Test is E2e_Test {
     struct Params {
         Broker broker;
         UD60x18 protocolFee;
+        LockupLinear.Range range;
         address recipient;
         address sender;
-        uint40 startTime;
         uint40 timeWarp;
-        LockupPro.Segment[] segments;
+        uint128 totalAmount;
         uint128 withdrawAmount;
     }
 
     struct Vars {
         // Generic vars
+        uint256 actualLinearBalance;
+        uint256 actualHolderBalance;
         address actualNFTOwner;
-        uint256 actualProBalance;
         uint256 actualRecipientBalance;
         Lockup.Status actualStatus;
         uint256[] balances;
+        uint256 expectedLinearBalance;
+        uint256 expectedHolderBalance;
         address expectedNFTOwner;
-        uint256 expectedProBalance;
         uint256 expectedRecipientBalance;
         Lockup.Status expectedStatus;
-        uint256 initialProBalance;
+        uint256 initialLinearBalance;
         uint256 initialRecipientBalance;
         uint256 streamId;
         // Create vars
         uint256 actualBrokerBalance;
-        uint256 actualHolderBalance;
         uint256 actualNextStreamId;
         uint256 actualProtocolRevenues;
         Lockup.CreateAmounts createAmounts;
         uint256 expectedBrokerBalance;
-        uint256 expectedHolderBalance;
-        uint256 expectedProtocolRevenues;
         uint256 expectedNextStreamId;
+        uint256 expectedProtocolRevenues;
         uint256 initialBrokerBalance;
         uint256 initialProtocolRevenues;
-        uint128 totalAmount;
         // Withdraw vars
         uint128 actualWithdrawnAmount;
         uint128 expectedWithdrawnAmount;
@@ -91,40 +90,34 @@ abstract contract Pro_E2e_Test is E2e_Test {
     /// - Bump the next stream id.
     /// - Record the protocol fee.
     /// - Mint the NFT.
-    /// - Emit a {CreateLockupProStream} event.
+    /// - Emit a {CreateLockupLinearStream} event.
     /// - Make a withdrawal.
-    /// - Update the withdrawn amounts.
     /// - Emit a {WithdrawFromLockupStream} event.
     /// - Cancel the stream.
     /// - Emit a {CancelLockupStream} event.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Multiple values for the funder, recipient, sender, and broker.
+    /// - Multiple values for the the sender, recipient, and broker.
     /// - Multiple values for the total amount.
     /// - Start time in the past, present and future.
-    /// - Start time equal and not equal to the first segment milestone.
+    /// - Start time lower than and equal to cliff time.
+    /// - Multiple values for the cliff time and the stop time.
     /// - Multiple values for the broker fee, including zero.
     /// - Multiple values for the protocol fee, including zero.
     /// - Multiple values for the withdraw amount, including zero.
-    function testForkFuzz_Pro_CreateWithdrawCancel(Params memory params) external {
-        checkUsers(params.sender, params.recipient, params.broker.account, address(pro));
-        vm.assume(params.segments.length != 0);
+    function testForkFuzz_Linear_CreateWithdrawCancel(Params memory params) external {
+        checkUsers(params.sender, params.recipient, params.broker.account, address(linear));
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
+        params.range.start = boundUint40(
+            params.range.start,
+            uint40(block.timestamp - 1_000 seconds),
+            uint40(block.timestamp + 10_000 seconds)
+        );
+        params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
+        params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
         params.protocolFee = bound(params.protocolFee, 0, DEFAULT_MAX_FEE);
-        params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
-
-        // Fuzz the segment milestones.
-        fuzzSegmentMilestones(params.segments, params.startTime);
-
-        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
-        Vars memory vars;
-        (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
-            upperBound: uint128(initialHolderBalance),
-            segments: params.segments,
-            protocolFee: params.protocolFee,
-            brokerFee: params.broker.fee
-        });
+        params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
@@ -138,21 +131,23 @@ abstract contract Pro_E2e_Test is E2e_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Load the pre-create protocol revenues.
-        vars.initialProtocolRevenues = pro.getProtocolRevenues(asset);
+        Vars memory vars;
+        vars.initialProtocolRevenues = linear.getProtocolRevenues(asset);
 
         // Load the pre-create asset balances.
-        vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(pro), params.broker.account));
-        vars.initialProBalance = vars.balances[0];
+        vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(linear), params.broker.account));
+        vars.initialLinearBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
-        // Expect a {CreateLockupProStream} event to be emitted.
-        vars.streamId = pro.nextStreamId();
+        // Calculate the fee amounts and the deposit amount.
+        vars.createAmounts.protocolFee = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
+        vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
+        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
+
+        // Expect a {CreateLockupLinearStream} event to be emitted.
+        vars.streamId = linear.nextStreamId();
         expectEmit();
-        LockupPro.Range memory range = LockupPro.Range({
-            start: params.startTime,
-            end: params.segments[params.segments.length - 1].milestone
-        });
-        emit Events.CreateLockupProStream({
+        emit Events.CreateLockupLinearStream({
             streamId: vars.streamId,
             funder: holder,
             sender: params.sender,
@@ -160,66 +155,67 @@ abstract contract Pro_E2e_Test is E2e_Test {
             amounts: vars.createAmounts,
             asset: asset,
             cancelable: true,
-            segments: params.segments,
-            range: range,
+            range: params.range,
             broker: params.broker.account
         });
 
         // Create the stream.
-        pro.createWithMilestones(
-            LockupPro.CreateWithMilestones({
+        linear.createWithRange(
+            LockupLinear.CreateWithRange({
                 sender: params.sender,
                 recipient: params.recipient,
-                totalAmount: vars.totalAmount,
+                totalAmount: params.totalAmount,
                 asset: asset,
                 cancelable: true,
-                segments: params.segments,
-                startTime: params.startTime,
+                range: params.range,
                 broker: params.broker
             })
         );
 
         // Assert that the stream has been created.
-        LockupPro.Stream memory actualStream = pro.getStream(vars.streamId);
+        LockupLinear.Stream memory actualStream = linear.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
         assertEq(actualStream.asset, asset, "asset");
-        assertEq(actualStream.endTime, range.end, "endTime");
+        assertEq(actualStream.cliffTime, params.range.cliff, "cliffTime");
+        assertEq(actualStream.endTime, params.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
-        assertEq(actualStream.segments, params.segments);
         assertEq(actualStream.sender, params.sender, "sender");
-        assertEq(actualStream.startTime, range.start, "startTime");
+        assertEq(actualStream.startTime, params.range.start, "startTime");
         assertEq(actualStream.status, Lockup.Status.ACTIVE);
 
         // Assert that the next stream id has been bumped.
-        vars.actualNextStreamId = pro.nextStreamId();
+        vars.actualNextStreamId = linear.nextStreamId();
         vars.expectedNextStreamId = vars.streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = pro.getProtocolRevenues(asset);
+        vars.actualProtocolRevenues = linear.getProtocolRevenues(asset);
         vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
-        vars.actualNFTOwner = pro.ownerOf({ tokenId: vars.streamId });
+        vars.actualNFTOwner = linear.ownerOf({ tokenId: vars.streamId });
         vars.expectedNFTOwner = params.recipient;
-        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
+        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner after create");
 
         // Load the post-create asset balances.
         vars.balances = getTokenBalances(
             address(asset),
-            Solarray.addresses(address(pro), holder, params.broker.account)
+            Solarray.addresses(address(linear), holder, params.broker.account)
         );
-        vars.actualProBalance = vars.balances[0];
+        vars.actualLinearBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
 
-        // Assert that the pro contract's balance has been updated.
-        vars.expectedProBalance = vars.initialProBalance + vars.createAmounts.deposit + vars.createAmounts.protocolFee;
-        assertEq(vars.actualProBalance, vars.expectedProBalance, "post-create pro contract balance");
+        // Assert that the linear contract's balance has been updated.
+        vars.expectedLinearBalance =
+            vars.initialLinearBalance +
+            vars.createAmounts.deposit +
+            vars.createAmounts.protocolFee;
+        assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "post-create linear contract balance");
 
         // Assert that the holder's balance has been updated.
-        vars.expectedHolderBalance = initialHolderBalance - vars.totalAmount;
+        vars.expectedHolderBalance = initialHolderBalance - params.totalAmount;
         assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "post-create holder balance");
 
         // Assert that the broker's balance has been updated.
@@ -231,17 +227,17 @@ abstract contract Pro_E2e_Test is E2e_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Warp into the future.
-        params.timeWarp = boundUint40(params.timeWarp, params.startTime, DEFAULT_END_TIME);
+        params.timeWarp = boundUint40(params.timeWarp, params.range.cliff, params.range.end);
         vm.warp({ timestamp: params.timeWarp });
 
         // Bound the withdraw amount.
-        vars.withdrawableAmount = pro.withdrawableAmountOf(vars.streamId);
+        vars.withdrawableAmount = linear.withdrawableAmountOf(vars.streamId);
         params.withdrawAmount = boundUint128(params.withdrawAmount, 0, vars.withdrawableAmount);
 
         // Only run the withdraw tests if the withdraw amount is not zero.
         if (params.withdrawAmount > 0) {
             // Load the pre-withdraw asset balances.
-            vars.initialProBalance = vars.actualProBalance;
+            vars.initialLinearBalance = vars.actualLinearBalance;
             vars.initialRecipientBalance = asset.balanceOf(params.recipient);
 
             // Expect a {WithdrawFromLockupStream} event to be emitted.
@@ -254,21 +250,21 @@ abstract contract Pro_E2e_Test is E2e_Test {
 
             // Make the withdrawal.
             changePrank(params.recipient);
-            pro.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
+            linear.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
 
             // Assert that the withdrawn amount has been updated.
-            vars.actualWithdrawnAmount = pro.getWithdrawnAmount(vars.streamId);
+            vars.actualWithdrawnAmount = linear.getWithdrawnAmount(vars.streamId);
             vars.expectedWithdrawnAmount = params.withdrawAmount;
             assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
 
             // Load the post-withdraw asset balances.
-            vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(pro), params.recipient));
-            vars.actualProBalance = vars.balances[0];
+            vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(linear), params.recipient));
+            vars.actualLinearBalance = vars.balances[0];
             vars.actualRecipientBalance = vars.balances[1];
 
             // Assert that the contract's balance has been updated.
-            vars.expectedProBalance = vars.initialProBalance - uint256(params.withdrawAmount);
-            assertEq(vars.actualProBalance, vars.expectedProBalance, "post-withdraw pro contract balance");
+            vars.expectedLinearBalance = vars.initialLinearBalance - uint256(params.withdrawAmount);
+            assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "post-withdraw linear contract balance");
 
             // Assert that the recipient's balance has been updated.
             vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(params.withdrawAmount);
@@ -284,16 +280,16 @@ abstract contract Pro_E2e_Test is E2e_Test {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
                 address(asset),
-                Solarray.addresses(address(pro), params.sender, params.recipient)
+                Solarray.addresses(address(linear), params.sender, params.recipient)
             );
-            vars.initialProBalance = vars.balances[0];
+            vars.initialLinearBalance = vars.balances[0];
             vars.initialSenderBalance = vars.balances[1];
             vars.initialRecipientBalance = vars.balances[2];
 
             // Expect a {CancelLockupStream} event to be emitted.
             expectEmit();
-            vars.senderAmount = pro.returnableAmountOf(vars.streamId);
-            vars.recipientAmount = pro.withdrawableAmountOf(vars.streamId);
+            vars.senderAmount = linear.returnableAmountOf(vars.streamId);
+            vars.recipientAmount = linear.withdrawableAmountOf(vars.streamId);
             emit Events.CancelLockupStream(
                 vars.streamId,
                 params.sender,
@@ -304,33 +300,33 @@ abstract contract Pro_E2e_Test is E2e_Test {
 
             // Cancel the stream.
             changePrank(params.sender);
-            pro.cancel(vars.streamId);
+            linear.cancel(vars.streamId);
 
             // Assert that the stream has been marked as canceled.
-            vars.actualStatus = pro.getStatus(vars.streamId);
+            vars.actualStatus = linear.getStatus(vars.streamId);
             vars.expectedStatus = Lockup.Status.CANCELED;
             assertEq(vars.actualStatus, vars.expectedStatus, "status after cancel");
 
             // Assert that the NFT has not been burned.
-            vars.actualNFTOwner = pro.ownerOf({ tokenId: vars.streamId });
+            vars.actualNFTOwner = linear.ownerOf({ tokenId: vars.streamId });
             vars.expectedNFTOwner = params.recipient;
             assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner after cancel");
 
             // Load the post-cancel asset balances.
             vars.balances = getTokenBalances(
                 address(asset),
-                Solarray.addresses(address(pro), params.sender, params.recipient)
+                Solarray.addresses(address(linear), params.sender, params.recipient)
             );
-            vars.actualProBalance = vars.balances[0];
+            vars.actualLinearBalance = vars.balances[0];
             vars.actualSenderBalance = vars.balances[1];
             vars.actualRecipientBalance = vars.balances[2];
 
             // Assert that the contract's balance has been updated.
-            vars.expectedProBalance =
-                vars.initialProBalance -
+            vars.expectedLinearBalance =
+                vars.initialLinearBalance -
                 uint256(vars.senderAmount) -
                 uint256(vars.recipientAmount);
-            assertEq(vars.actualProBalance, vars.expectedProBalance, "post-cancel pro contract balance");
+            assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "post-cancel linear contract balance");
 
             // Assert that the recipient's balance has been updated.
             vars.expectedSenderBalance = vars.initialSenderBalance + uint256(vars.senderAmount);
@@ -342,7 +338,7 @@ abstract contract Pro_E2e_Test is E2e_Test {
         }
         // Otherwise, assert that the stream has been marked as depleted.
         else {
-            vars.actualStatus = pro.getStatus(vars.streamId);
+            vars.actualStatus = linear.getStatus(vars.streamId);
             vars.expectedStatus = Lockup.Status.DEPLETED;
             assertEq(vars.actualStatus, vars.expectedStatus, "status after full withdraw");
         }

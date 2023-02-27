@@ -11,9 +11,9 @@ import { Base_Test } from "../Base.t.sol";
 import { USDCLike } from "../shared/mockups/tokens/USDCLike.t.sol";
 import { USDTLike } from "../shared/mockups/tokens/USDTLike.t.sol";
 
-/// @title E2e_Test
+/// @title Fork_Test
 /// @notice Collections of tests that run against a fork of Ethereum Mainnet.
-abstract contract E2e_Test is Base_Test {
+abstract contract Fork_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/

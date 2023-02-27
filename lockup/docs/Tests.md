@@ -5,8 +5,8 @@ Tests are organized into four categories:
 1. Unit - simple tests that check the behavior of a single function against a local EVM.
 2. Fuzz - similar to the unit tests, but with randomized inputs.
 3. Invariant - condition expressions that should always hold true.
-4. End-to-end - complex tests that run against a fork of Ethereum Mainnet, which ensure that the protocol works with
-   deployed ERC-20 assets.
+4. Fork - complex tests that run against a fork of Ethereum Mainnet, which ensure that the protocol works with deployed
+   ERC-20 assets.
 
 ## Running
 

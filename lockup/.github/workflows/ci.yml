@@ -178,7 +178,7 @@ jobs:
           echo "## Invariant tests result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
-  test-e2e:
+  test-fork:
     env:
       FOUNDRY_FUZZ_RUNS: "1000"
     needs: ["lint", "build"]
@@ -203,12 +203,12 @@ jobs:
         run: |
           echo "FOUNDRY_FUZZ_SEED=$(echo $(($EPOCHSECONDS / 604800)))" >> $GITHUB_ENV
 
-      - name: "Run the end-to-end tests against the optimized build"
-        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/e2e/**/*.sol\""
+      - name: "Run the fork tests against the optimized build"
+        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/fork/**/*.sol\""
 
       - name: "Add test summary"
         run: |
-          echo "## End-to-end tests result" >> $GITHUB_STEP_SUMMARY
+          echo "## Fork tests result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
   coverage:
