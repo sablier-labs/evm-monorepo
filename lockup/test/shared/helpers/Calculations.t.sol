@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.18 <0.9.0;
+pragma solidity >=0.8.19 <0.9.0;
 
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.sol";

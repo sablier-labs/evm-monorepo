@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.18 <0.9.0;
+pragma solidity >=0.8.19 <0.9.0;
 
 import { UD2x18, ud2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";

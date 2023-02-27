@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.18 <0.9.0;
+pragma solidity >=0.8.19 <0.9.0;
 
 import { Unit_Test } from "../Unit.t.sol";
 

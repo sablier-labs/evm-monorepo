@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.18 <0.9.0;
+pragma solidity >=0.8.19 <0.9.0;
 
 /// @title LockupHandlerStorage
 /// @dev Storage contract for the lockup handler streams.

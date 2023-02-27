@@ -13,7 +13,7 @@
   optimizer_runs = 5_000
   out = "out"
   script = "script"
-  solc = "0.8.18"
+  solc = "0.8.19"
   src = "src"
   test = "test"
 
@@ -23,8 +23,8 @@
 
 [profile.default.invariant]
   call_override = false # Override unsafe external calls to perform reentrancy checks
-  fail_on_revert = true
   depth = 50            # Number of calls executed in one run
+  fail_on_revert = true
   runs = 50
 
 # Speed up compilation and tests during development
