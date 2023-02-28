@@ -53,14 +53,14 @@ contract LockupLinearCreateHandler is BaseHandler {
 
     function createWithDurations(
         LockupLinear.CreateWithDurations memory params
-    ) public instrument("createWithDurations") useNewSender(params.sender) {
+    )
+        public
+        checkUsers(params.sender, params.recipient, params.broker.account)
+        instrument("createWithDurations")
+        useNewSender(params.sender)
+    {
         // We don't want to fuzz more than a certain number of streams.
         if (store.lastStreamId() >= MAX_STREAM_COUNT) {
-            return;
-        }
-
-        // The protocol doesn't allow the sender, recipient or broker to be the zero address.
-        if (params.sender == address(0) || params.recipient == address(0) || params.broker.account == address(0)) {
             return;
         }
 
@@ -86,14 +86,14 @@ contract LockupLinearCreateHandler is BaseHandler {
 
     function createWithRange(
         LockupLinear.CreateWithRange memory params
-    ) public instrument("createWithRange") useNewSender(params.sender) {
+    )
+        public
+        checkUsers(params.sender, params.recipient, params.broker.account)
+        instrument("createWithRange")
+        useNewSender(params.sender)
+    {
         // We don't want to fuzz more than a certain number of streams.
         if (store.lastStreamId() >= MAX_STREAM_COUNT) {
-            return;
-        }
-
-        // The protocol doesn't allow the sender, recipient or broker to be the zero address.
-        if (params.sender == address(0) || params.recipient == address(0) || params.broker.account == address(0)) {
             return;
         }
 
@@ -104,7 +104,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // Mint enough ERC-20 assets to the sender.
-        deal({ token: address(asset), to: params.sender, give: params.totalAmount });
+        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve the {SablierV2LockupLinear} contract to spend the ERC-20 assets.
         asset.approve({ spender: address(linear), amount: params.totalAmount });

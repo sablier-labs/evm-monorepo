@@ -43,7 +43,8 @@ contract FlashLoanHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     function flashLoan(uint128 amount) external instrument("flashLoan") {
-        amount = uint128(bound(amount, 0, asset.balanceOf(address(flashLoanContract))));
+        uint128 balance = uint128(asset.balanceOf(address(this)));
+        amount = boundUint128(amount, 0, balance);
 
         // Only supported ERC-20 assets can be flash loaned.
         bool isFlashLoanable = comptroller.isFlashLoanable(asset);
