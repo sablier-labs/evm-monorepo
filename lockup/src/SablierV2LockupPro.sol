@@ -19,6 +19,7 @@ import { ISablierV2LockupSender } from "./interfaces/hooks/ISablierV2LockupSende
 import { Errors } from "./libraries/Errors.sol";
 import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
+import { ISablierV2NftDescriptor } from "./nft-descriptor/ISablierV2NftDescriptor.sol";
 import { Lockup, LockupPro } from "./types/DataTypes.sol";
 
 /*
@@ -71,15 +72,17 @@ contract SablierV2LockupPro is
     /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialComptroller The address of the initial comptroller.
+    /// @param nftDescriptor The address of the NFT descriptor contract.
     /// @param maxFee The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
     /// where 100% = 1e18.
     /// @param maxSegmentCount The maximum number of segments permitted in a stream.
     constructor(
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
+        ISablierV2NftDescriptor nftDescriptor,
         UD60x18 maxFee,
         uint256 maxSegmentCount
-    ) SablierV2Lockup(initialAdmin, initialComptroller, maxFee) {
+    ) SablierV2Lockup(initialAdmin, initialComptroller, nftDescriptor, maxFee) {
         MAX_SEGMENT_COUNT = maxSegmentCount;
     }
 
@@ -206,9 +209,8 @@ contract SablierV2LockupPro is
     }
 
     /// @inheritdoc ERC721
-    function tokenURI(uint256 streamId) public pure override(IERC721Metadata, ERC721) returns (string memory uri) {
-        streamId;
-        uri = "";
+    function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
+        uri = _NFT_DESCRIPTOR.tokenURI(this, streamId);
     }
 
     /// @inheritdoc ISablierV2Lockup

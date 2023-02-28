@@ -8,6 +8,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { Lockup } from "../types/DataTypes.sol";
 import { ISablierV2Config } from "./ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
+import { ISablierV2NftDescriptor } from "../nft-descriptor/ISablierV2NftDescriptor.sol";
 
 /// @title ISablierV2Lockup
 /// @notice The common interface between all Sablier V2 lockup streaming contracts.

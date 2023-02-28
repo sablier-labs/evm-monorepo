@@ -27,6 +27,9 @@ on:
 
           Defaults to 10%.
         required: false
+      nft-descriptor:
+        description: "The address of the contract that generates the NFT descriptor"
+        required: true
 
 jobs:
   deploy-linear:
@@ -48,6 +51,7 @@ jobs:
           --sig "run(address,address,uint256)"
           "${{ github.event.inputs.admin }}"
           "${{ github.event.inputs.comptroller }}"
+          "${{ github.event.inputs.nft-descriptor }}"
           "${{ github.event.inputs.max-fee }}"
           -vvvv
 

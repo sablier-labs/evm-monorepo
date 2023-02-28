@@ -4,6 +4,7 @@ pragma solidity >=0.8.19;
 import { Script } from "forge-std/Script.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { ISablierV2NftDescriptor } from "../../src/nft-descriptor/ISablierV2NftDescriptor.sol";
 import { SablierV2Comptroller } from "../../src/SablierV2Comptroller.sol";
 import { SablierV2LockupLinear } from "../../src/SablierV2LockupLinear.sol";
 import { SablierV2LockupPro } from "../../src/SablierV2LockupPro.sol";
@@ -29,6 +30,7 @@ contract DeployDeterministicProtocol is
     /// https://github.com/Arachnid/deterministic-deployment-proxy
     function run(
         address initialAdmin,
+        ISablierV2NftDescriptor nftDescriptor,
         UD60x18 maxFee,
         uint256 maxSegmentCount
     ) public virtual returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupPro pro) {
@@ -36,9 +38,9 @@ contract DeployDeterministicProtocol is
         comptroller = DeployDeterministicComptroller.run(initialAdmin);
 
         // Deploy the SablierV2LockupLinear contract.
-        linear = DeployDeterministicLockupLinear.run(initialAdmin, comptroller, maxFee);
+        linear = DeployDeterministicLockupLinear.run(initialAdmin, comptroller, nftDescriptor, maxFee);
 
         // Deploy the SablierV2LockupPro contract.
-        pro = DeployDeterministicLockupPro.run(initialAdmin, comptroller, maxFee, maxSegmentCount);
+        pro = DeployDeterministicLockupPro.run(initialAdmin, comptroller, nftDescriptor, maxFee, maxSegmentCount);
     }
 }

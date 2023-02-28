@@ -1,0 +1,40 @@
+name: "Deploy NFT Descriptor"
+
+env:
+  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+  FOUNDRY_PROFILE: "optimized"
+  INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+  MNEMONIC: ${{ secrets.MNEMONIC }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      chain:
+        default: "goerli"
+        description: 'Chain name. Defaults to "goerli" if unspecified'
+        required: false
+
+jobs:
+  deploy-nft-descriptor:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
+      - name: "Deploy the example NFT Descriptor"
+        run: >-
+          forge script script/deploy/DeployNftDescriptor.s.sol
+          --broadcast
+          --rpc-url "${{ github.event.inputs.chain }}"
+          -vvvv
+
+      - name: "Add summary"
+        run: |
+          echo "## Deployment result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+

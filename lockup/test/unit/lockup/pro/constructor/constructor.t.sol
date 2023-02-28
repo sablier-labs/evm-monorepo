@@ -20,6 +20,7 @@ contract Constructor_Pro_Unit_Test is Pro_Unit_Test {
             initialAdmin: users.admin,
             initialComptroller: comptroller,
             maxFee: DEFAULT_MAX_FEE,
+            nftDescriptor: nftDescriptor,
             maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
         });
 

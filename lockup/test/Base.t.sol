@@ -11,13 +11,14 @@ import { DeployProtocol } from "script/deploy/DeployProtocol.s.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
+import { SablierV2NftDescriptor } from "src/nft-descriptor/SablierV2NftDescriptor.sol";
 
-import { GoodFlashLoanReceiver } from "./shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
-import { GoodRecipient } from "./shared/mockups/hooks/GoodRecipient.t.sol";
-import { GoodSender } from "./shared/mockups/hooks/GoodSender.t.sol";
 import { Assertions } from "./shared/helpers/Assertions.t.sol";
 import { Calculations } from "./shared/helpers/Calculations.t.sol";
 import { Fuzzers } from "./shared/helpers/Fuzzers.t.sol";
+import { GoodFlashLoanReceiver } from "./shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
+import { GoodRecipient } from "./shared/mockups/hooks/GoodRecipient.t.sol";
+import { GoodSender } from "./shared/mockups/hooks/GoodSender.t.sol";
 
 /// @title Base_Test
 /// @notice Base test contract with common logic needed by all test contracts.
@@ -65,6 +66,7 @@ abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
     ISablierV2Comptroller internal comptroller;
     IERC20 internal dai = new ERC20("Dai Stablecoin", "DAI");
     ISablierV2LockupLinear internal linear;
+    SablierV2NftDescriptor internal nftDescriptor = new SablierV2NftDescriptor();
     NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
     ISablierV2LockupPro internal pro;
 
@@ -79,6 +81,7 @@ abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
         vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
         vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
         vm.label({ account: address(goodSender), newLabel: "Good Sender" });
+        vm.label({ account: address(nftDescriptor), newLabel: "Sablier V2 NFT Descriptor" });
         vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
     }
 
@@ -165,13 +168,19 @@ abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
             linear = ISablierV2LockupLinear(
                 deployCode(
                     "optimized-out/SablierV2LockupLinear.sol/SablierV2LockupLinear.json",
-                    abi.encode(users.admin, address(comptroller), DEFAULT_MAX_FEE)
+                    abi.encode(users.admin, address(comptroller), address(nftDescriptor), DEFAULT_MAX_FEE)
                 )
             );
             pro = ISablierV2LockupPro(
                 deployCode(
                     "optimized-out/SablierV2LockupPro.sol/SablierV2LockupPro.json",
-                    abi.encode(users.admin, address(comptroller), DEFAULT_MAX_FEE, DEFAULT_MAX_SEGMENT_COUNT)
+                    abi.encode(
+                        users.admin,
+                        address(comptroller),
+                        address(nftDescriptor),
+                        DEFAULT_MAX_FEE,
+                        DEFAULT_MAX_SEGMENT_COUNT
+                    )
                 )
             );
         }
@@ -179,6 +188,7 @@ abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
         else {
             (comptroller, linear, pro) = new DeployProtocol().run({
                 initialAdmin: users.admin,
+                nftDescriptor: nftDescriptor,
                 maxFee: DEFAULT_MAX_FEE,
                 maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
             });
