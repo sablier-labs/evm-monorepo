@@ -71,7 +71,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // Mint enough ERC-20 assets to the sender.
-        deal({ token: address(asset), to: params.sender, give: params.totalAmount });
+        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve the {SablierV2LockupLinear} contract to spend the ERC-20 assets.
         asset.approve({ spender: address(linear), amount: params.totalAmount });

@@ -94,7 +94,7 @@ contract LockupProCreateHandler is BaseHandler {
         });
 
         // Mint enough ERC-20 assets to the sender.
-        deal({ token: address(asset), to: params.sender, give: params.totalAmount });
+        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve the {SablierV2LockupPro} contract to spend the ERC-20 assets.
         asset.approve({ spender: address(pro), amount: params.totalAmount });
@@ -140,7 +140,7 @@ contract LockupProCreateHandler is BaseHandler {
         });
 
         // Mint enough ERC-20 assets to the sender.
-        deal({ token: address(asset), to: params.sender, give: params.totalAmount });
+        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve the {SablierV2LockupPro} contract to spend the ERC-20 assets.
         asset.approve({ spender: address(pro), amount: params.totalAmount });
