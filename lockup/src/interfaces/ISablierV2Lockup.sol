@@ -5,10 +5,10 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { ISablierV2NftDescriptor } from "../interfaces/ISablierV2NftDescriptor.sol";
 import { Lockup } from "../types/DataTypes.sol";
 import { ISablierV2Config } from "./ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
-import { ISablierV2NftDescriptor } from "../nft-descriptor/ISablierV2NftDescriptor.sol";
 
 /// @title ISablierV2Lockup
 /// @notice The common interface between all Sablier V2 lockup streaming contracts.

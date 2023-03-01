@@ -6,7 +6,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "../interfaces/ISablierV2Lockup.sol";
-import { ISablierV2NftDescriptor } from "../nft-descriptor/ISablierV2NftDescriptor.sol";
+import { ISablierV2NftDescriptor } from "../interfaces/ISablierV2NftDescriptor.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { Lockup } from "../types/DataTypes.sol";
 import { SablierV2Config } from "./SablierV2Config.sol";

@@ -4,7 +4,7 @@ pragma solidity >=0.8.19;
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { Script } from "forge-std/Script.sol";
 
-import { ISablierV2NftDescriptor } from "../../src/nft-descriptor/ISablierV2NftDescriptor.sol";
+import { ISablierV2NftDescriptor } from "../../src/interfaces/ISablierV2NftDescriptor.sol";
 import { SablierV2Comptroller } from "../../src/SablierV2Comptroller.sol";
 import { SablierV2LockupLinear } from "../../src/SablierV2LockupLinear.sol";
 import { SablierV2LockupPro } from "../../src/SablierV2LockupPro.sol";

@@ -11,7 +11,7 @@ import { DeployProtocol } from "script/deploy/DeployProtocol.s.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
-import { SablierV2NftDescriptor } from "src/nft-descriptor/SablierV2NftDescriptor.sol";
+import { SablierV2NftDescriptor } from "src/SablierV2NftDescriptor.sol";
 
 import { Assertions } from "./shared/helpers/Assertions.t.sol";
 import { Calculations } from "./shared/helpers/Calculations.t.sol";

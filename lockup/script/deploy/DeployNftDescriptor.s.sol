@@ -3,7 +3,7 @@ pragma solidity >=0.8.18 <0.9.0;
 
 import { Script } from "forge-std/Script.sol";
 
-import { SablierV2NftDescriptor } from "../../src/nft-descriptor/SablierV2NftDescriptor.sol";
+import { SablierV2NftDescriptor } from "../../src/SablierV2NftDescriptor.sol";
 
 import { BaseScript } from "../shared/Base.s.sol";
 
