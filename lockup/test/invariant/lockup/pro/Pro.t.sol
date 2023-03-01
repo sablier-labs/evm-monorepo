@@ -107,7 +107,7 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
                 uint256 streamId = lockupHandlerStorage.streamIds(i);
 
                 // If the stream is null, it doesn't have segments.
-                if (pro.getStatus(streamId) != Lockup.Status.NULL) {
+                if (pro.getStatus(streamId) == Lockup.Status.NULL) {
                     continue;
                 }
 
