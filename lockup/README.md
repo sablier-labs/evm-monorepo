@@ -14,12 +14,13 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 ## Background
 
-Sablier is a cryptoasset streaming protocol that enables trustless streaming of ERC-20 assets. Currently, the protocol
-offers a single type of stream, known as a lockup stream, in which the stream creator locks up a specified amount of
-ERC-20 assets in the contract. Subsequently, the recipient of the stream can withdraw the assets gradually over time.
-The streaming rate is determined by several factors, including the start time, end time, and total amount of assets
-locked up. With Sablier, users can enjoy hassle-free, secure, and transparent streaming of their cryptoassets without
-the need for intermediaries.
+Sablier is a cryptoasset streaming protocol that enables trustless streaming of ERC-20 assets. In this context,
+streaming refers to the ability to make payments by the second.
+
+Currently, the protocol offers a single type of stream, called a lockup stream. In a lockup stream, the stream creator
+locks up a specified amount of ERC-20 assets in the contract. The recipient of the stream can then withdraw the assets
+gradually over time. The streaming rate is determined by various factors, including the start and end times, and the
+total amount of assets locked up
 
 ## Install
 
@@ -31,7 +32,16 @@ First, run the install step:
 forge install sablierhq/v2-core
 ```
 
-Then, add the following remapping:
+Your `.gitmodules` file should now contain the following entry:
+
+```toml
+[submodule "lib/v2-core"]
+  branch = "main"
+  path = "lib/v2-core"
+  url = "https://github.com/sablierhq/v2-core"
+```
+
+Finally, add this to your `remappings.txt` file:
 
 ```text
 @sablier/v2-core/=lib/v2-core/src/
