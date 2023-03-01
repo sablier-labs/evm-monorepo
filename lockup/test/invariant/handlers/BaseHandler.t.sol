@@ -39,6 +39,24 @@ abstract contract BaseHandler is Calculations, Fuzzers, StdCheats {
                                         MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    modifier checkUsers(
+        address sender,
+        address recipient,
+        address broker
+    ) {
+        // The protocol doesn't allow the sender, recipient or broker to be the zero address.
+        if (sender == address(0) || recipient == address(0) || broker == address(0)) {
+            return;
+        }
+
+        // Prevent the contract itself from playing the role of any user.
+        if (sender == address(this) || recipient == address(this) || broker == address(this)) {
+            return;
+        }
+
+        _;
+    }
+
     /// @dev Records a function call for instrumentation purposes.
     modifier instrument(string memory func) {
         calls[func]++;

@@ -63,14 +63,14 @@ contract LockupProCreateHandler is BaseHandler {
 
     function createWithDeltas(
         LockupPro.CreateWithDeltas memory params
-    ) public instrument("createWithDeltas") useNewSender(params.sender) {
+    )
+        public
+        checkUsers(params.sender, params.recipient, params.broker.account)
+        instrument("createWithDeltas")
+        useNewSender(params.sender)
+    {
         // We don't want to fuzz more than a certain number of streams.
         if (store.lastStreamId() > MAX_STREAM_COUNT) {
-            return;
-        }
-
-        // The protocol doesn't allow the sender, recipient or broker to be the zero address.
-        if (params.sender == address(0) || params.recipient == address(0) || params.broker.account == address(0)) {
             return;
         }
 
@@ -94,7 +94,7 @@ contract LockupProCreateHandler is BaseHandler {
         });
 
         // Mint enough ERC-20 assets to the sender.
-        deal({ token: address(asset), to: params.sender, give: params.totalAmount });
+        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve the {SablierV2LockupPro} contract to spend the ERC-20 assets.
         asset.approve({ spender: address(pro), amount: params.totalAmount });
@@ -109,14 +109,14 @@ contract LockupProCreateHandler is BaseHandler {
 
     function createWithMilestones(
         LockupPro.CreateWithMilestones memory params
-    ) public instrument("createWithMilestones") useNewSender(params.sender) {
+    )
+        public
+        checkUsers(params.sender, params.recipient, params.broker.account)
+        instrument("createWithMilestones")
+        useNewSender(params.sender)
+    {
         // We don't want to fuzz more than a certain number of streams.
         if (store.lastStreamId() >= MAX_STREAM_COUNT) {
-            return;
-        }
-
-        // The protocol doesn't allow the sender, recipient or broker to be the zero address.
-        if (params.sender == address(0) || params.recipient == address(0) || params.broker.account == address(0)) {
             return;
         }
 
@@ -140,7 +140,7 @@ contract LockupProCreateHandler is BaseHandler {
         });
 
         // Mint enough ERC-20 assets to the sender.
-        deal({ token: address(asset), to: params.sender, give: params.totalAmount });
+        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve the {SablierV2LockupPro} contract to spend the ERC-20 assets.
         asset.approve({ spender: address(pro), amount: params.totalAmount });
