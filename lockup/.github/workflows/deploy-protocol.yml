@@ -1,9 +1,9 @@
 name: "Deploy Protocol"
 
 env:
-  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+  API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
+  API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
   FOUNDRY_PROFILE: "optimized"
-  INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
   MNEMONIC: ${{ secrets.MNEMONIC }}
 
 on:
