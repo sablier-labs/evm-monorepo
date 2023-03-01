@@ -1,6 +1,3 @@
-This software is available under your choice of the GNU General Public License, version 2 or later, or the Business
-Source License, as set forth below.
-
                     GNU GENERAL PUBLIC LICENSE
                        Version 2, June 1991
 
@@ -322,10 +319,3 @@ covenants to MariaDB, and to all other recipients of the licensed work to be pro
 3. To specify a Change Date.
 
 4. Not to modify this License in any other way.
-
----
-
-Notice
-
-The Business Source License (this document, or the "License") is not an Open Source license. However, the Licensed Work
-will eventually be made available under an Open Source License, as stated in this License.
