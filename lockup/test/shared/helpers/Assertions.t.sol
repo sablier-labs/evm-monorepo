@@ -78,8 +78,8 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     function assertEq(LockupPro.Segment[] memory a, LockupPro.Segment[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
             emit Log("Error: a == b not satisfied [LockupPro.Segment[]]");
-            emit LogNamedArray("  Expected", b);
-            emit LogNamedArray("    Actual", a);
+            emit LogNamedArray("   Left", b);
+            emit LogNamedArray("  Right", a);
             fail();
         }
     }
@@ -106,8 +106,8 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     function assertEqUint128(uint128 a, uint128 b) internal {
         if (a != b) {
             emit Log("Error: a == b not satisfied [uint128]");
-            emit LogNamedUint128("  Expected", b);
-            emit LogNamedUint128("    Actual", a);
+            emit LogNamedUint128("   Left", b);
+            emit LogNamedUint128("  Right", a);
             fail();
         }
     }
@@ -124,8 +124,8 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     function assertEqUint40(uint40 a, uint40 b) internal {
         if (a != b) {
             emit Log("Error: a == b not satisfied [uint40]");
-            emit LogNamedUint40("  Expected", b);
-            emit LogNamedUint40("    Actual", a);
+            emit LogNamedUint40("   Left", b);
+            emit LogNamedUint40("  Right", a);
             fail();
         }
     }
