@@ -75,7 +75,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
     // solhint-disable max-line-length
     function invariant_NullStatus() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId;) {
+        for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             LockupLinear.Stream memory actualStream = linear.getStream(streamId);
             address actualRecipient = lockup.getRecipient(streamId);
@@ -97,39 +97,30 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
                 assertNotEq(actualStream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero");
                 assertNotEq(actualStream.endTime, 0, "Invariant violated: stream non-null, end time zero");
             }
-            unchecked {
-                i += 1;
-            }
         }
     }
 
     function invariant_CliffTimeGteStartTime() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ) {
+        for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             assertGte(
                 linear.getCliffTime(streamId),
                 linear.getStartTime(streamId),
                 "Invariant violated: cliff time < start time"
             );
-            unchecked {
-                i += 1;
-            }
         }
     }
 
     function invariant_EndTimeGtCliffTime() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ) {
+        for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             assertGt(
                 linear.getEndTime(streamId),
                 linear.getCliffTime(streamId),
                 "Invariant violated: end time < cliff time"
             );
-            unchecked {
-                i += 1;
-            }
         }
     }
 }
