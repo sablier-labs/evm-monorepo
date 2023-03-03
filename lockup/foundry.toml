@@ -73,6 +73,7 @@
   avalanche = { key = "${API_KEY_SNOWTRACE" }
   bsc = { key = "${API_KEY_BSCSCAN}" }
   ethereum = { key = "${API_KEY_ETHERSCAN}" }
+  gnosis = { key = "${API_KEY_GNOSISSCAN}" }
   goerli = { key = "${API_KEY_ETHERSCAN}" }
   optimism = { key = "${API_KEY_OPTIMISTIC_ETHERSCAN}" }
   polygon = { key = "${API_KEY_POLYGONSCAN}" }
@@ -83,6 +84,7 @@
   avalanche = "https://avalanche-mainnet.infura.io/v3/${API_KEY_INFURA}"
   bsc = "https://bsc-dataseed.binance.org"
   ethereum = "https://eth-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
+  gnosis = "https://blockscout.com/xdai/mainnet/api/eth-rpc"
   goerli = "https://goerli.infura.io/v3/${API_KEY_INFURA}"
   localhost = "http://localhost:8545"
   optimism = "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}"
