@@ -61,5 +61,5 @@ the appropriate environment values. You need to provide your mnemonic phrase and
 
 You may want to install the following VSCode extensions to get syntax highlighting in VSCode:
 
-- [vscode-solidity](https://marketplace.visualstudio.com/items?itemName=JuanBlanco.solidity)
+- [hardhat-solidity](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity)
 - [vscode-tree-language](https://marketplace.visualstudio.com/items?itemName=CTC.vscode-tree-extension)
