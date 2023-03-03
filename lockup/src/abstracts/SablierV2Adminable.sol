@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.18;
 
 import { ISablierV2Adminable } from "../interfaces/ISablierV2Adminable.sol";
