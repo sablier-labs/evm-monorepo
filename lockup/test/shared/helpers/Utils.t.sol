@@ -43,13 +43,12 @@ abstract contract Utils is StdUtils, PRBMathUtils {
                 exponent: segments[0].exponent,
                 milestone: getBlockTimestamp() + segments[0].delta
             });
-            for (uint256 i = 1; i < segments.length; ) {
+            for (uint256 i = 1; i < segments.length; ++i) {
                 segmentsWithMilestones[i] = LockupPro.Segment({
                     amount: segments[i].amount,
                     exponent: segments[i].exponent,
                     milestone: segmentsWithMilestones[i - 1].milestone + segments[i].delta
                 });
-                i += 1;
             }
         }
     }

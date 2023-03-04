@@ -79,11 +79,10 @@ abstract contract Fuzzers is Constants, Utils {
 
         // Fuzz the other segment amounts by bounding from 0.
         unchecked {
-            for (uint256 i = 1; i < segmentCount; ) {
+            for (uint256 i = 1; i < segmentCount; ++i) {
                 uint128 segmentAmount = boundUint128(segments[i].amount, 0, maxSegmentAmount);
                 segments[i].amount = segmentAmount;
                 estimatedDepositAmount += segmentAmount;
-                i += 1;
             }
         }
 

@@ -98,26 +98,24 @@ contract Pro_Invariant_Test is Lockup_Invariant_Test {
     }
 
     function invariant_SegmentMilestonesOrdered() external {
-        unchecked {
-            uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
-            for (uint256 i = 0; i < lastStreamId; ++i) {
-                uint256 streamId = lockupHandlerStorage.streamIds(i);
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
 
-                // If the stream is null, it doesn't have segments.
-                if (pro.getStatus(streamId) == Lockup.Status.NULL) {
-                    continue;
-                }
+            // If the stream is null, it doesn't have segments.
+            if (pro.getStatus(streamId) == Lockup.Status.NULL) {
+                continue;
+            }
 
-                LockupPro.Segment[] memory segments = pro.getSegments(streamId);
-                uint40 previousMilestone = segments[0].milestone;
-                for (uint256 j = 1; j < segments.length; ++j) {
-                    assertGt(
-                        segments[j].milestone,
-                        previousMilestone,
-                        "Invariant violated: segment milestones not ordered"
-                    );
-                    previousMilestone = segments[j].milestone;
-                }
+            LockupPro.Segment[] memory segments = pro.getSegments(streamId);
+            uint40 previousMilestone = segments[0].milestone;
+            for (uint256 j = 1; j < segments.length; ++j) {
+                assertGt(
+                    segments[j].milestone,
+                    previousMilestone,
+                    "Invariant violated: segment milestones not ordered"
+                );
+                previousMilestone = segments[j].milestone;
             }
         }
     }
