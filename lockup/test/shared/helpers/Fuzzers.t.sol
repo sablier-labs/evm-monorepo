@@ -39,11 +39,8 @@ abstract contract Fuzzers is Constants, Utils {
             protocolFee: DEFAULT_PROTOCOL_FEE,
             brokerFee: DEFAULT_BROKER_FEE
         });
-        for (uint256 i = 0; i < segmentsWithMilestones.length; ) {
+        for (uint256 i = 0; i < segmentsWithMilestones.length; ++i) {
             segments[i].amount = segmentsWithMilestones[i].amount;
-            unchecked {
-                i += 1;
-            }
         }
     }
 
@@ -61,11 +58,8 @@ abstract contract Fuzzers is Constants, Utils {
             protocolFee,
             brokerFee
         );
-        for (uint256 i = 0; i < segmentsWithMilestones.length; ) {
+        for (uint256 i = 0; i < segmentsWithMilestones.length; ++i) {
             segments[i].amount = segmentsWithMilestones[i].amount;
-            unchecked {
-                i += 1;
-            }
         }
     }
 
@@ -85,11 +79,10 @@ abstract contract Fuzzers is Constants, Utils {
 
         // Fuzz the other segment amounts by bounding from 0.
         unchecked {
-            for (uint256 i = 1; i < segmentCount; ) {
+            for (uint256 i = 1; i < segmentCount; ++i) {
                 uint128 segmentAmount = boundUint128(segments[i].amount, 0, maxSegmentAmount);
                 segments[i].amount = segmentAmount;
                 estimatedDepositAmount += segmentAmount;
-                i += 1;
             }
         }
 
@@ -146,13 +139,10 @@ abstract contract Fuzzers is Constants, Utils {
         uint256[] memory milestones = arange(startTime + 1, MAX_UNIX_TIMESTAMP, step);
 
         // Fuzz the milestones in a way that preserves their order in the array.
-        for (uint256 i = 1; i < segmentCount; ) {
+        for (uint256 i = 1; i < segmentCount; ++i) {
             uint256 milestone = milestones[i];
             milestone = bound(milestone, milestone - halfStep, milestone + halfStep);
             segments[i].milestone = uint40(milestone);
-            unchecked {
-                i += 1;
-            }
         }
     }
 }
