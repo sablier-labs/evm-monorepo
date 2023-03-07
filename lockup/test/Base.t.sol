@@ -13,10 +13,10 @@ import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.so
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
 import { SablierV2NftDescriptor } from "src/SablierV2NftDescriptor.sol";
 
-import { Assertions } from "./shared/helpers/Assertions.t.sol";
-import { Calculations } from "./shared/helpers/Calculations.t.sol";
-import { Events } from "./shared/helpers/Events.t.sol";
-import { Fuzzers } from "./shared/helpers/Fuzzers.t.sol";
+import { Assertions } from "./shared/Assertions.t.sol";
+import { Calculations } from "./shared/Calculations.t.sol";
+import { Events } from "./shared/Events.t.sol";
+import { Fuzzers } from "./shared/Fuzzers.t.sol";
 import { GoodFlashLoanReceiver } from "./shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
 import { GoodRecipient } from "./shared/mockups/hooks/GoodRecipient.t.sol";
 import { GoodSender } from "./shared/mockups/hooks/GoodSender.t.sol";

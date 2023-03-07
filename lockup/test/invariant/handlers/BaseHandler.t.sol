@@ -4,9 +4,9 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Vm } from "@prb/test/PRBTest.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 
-import { Calculations } from "../../shared/helpers/Calculations.t.sol";
-import { Constants } from "../../shared/helpers/Constants.t.sol";
-import { Fuzzers } from "../../shared/helpers/Fuzzers.t.sol";
+import { Calculations } from "../../shared/Calculations.t.sol";
+import { Constants } from "../../shared/Constants.t.sol";
+import { Fuzzers } from "../../shared/Fuzzers.t.sol";
 
 /// @title BaseHandler
 /// @notice Base contract with common logic needed by all handler contracts.

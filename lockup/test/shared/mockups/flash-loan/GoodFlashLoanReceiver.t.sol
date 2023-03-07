@@ -4,7 +4,7 @@ pragma solidity >=0.8.19 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
 
-import { Constants } from "../../helpers/Constants.t.sol";
+import { Constants } from "../../Constants.t.sol";
 
 contract GoodFlashLoanReceiver is Constants, IERC3156FlashBorrower {
     function onFlashLoan(
