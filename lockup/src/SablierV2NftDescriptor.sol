@@ -9,6 +9,7 @@ import { ISablierV2NftDescriptor } from "src/interfaces/ISablierV2NftDescriptor.
 contract SablierV2NftDescriptor is ISablierV2NftDescriptor {
     function tokenURI(ISablierV2Lockup lockup, uint256 streamId) external view override returns (string memory uri) {
         lockup.getStartTime(streamId);
-        uri = "This is an NFT descriptor";
+        string memory symbol = lockup.symbol();
+        uri = string.concat("This is the NFT descriptor for ", symbol);
     }
 }
