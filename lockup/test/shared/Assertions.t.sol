@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 
-import { Lockup, LockupLinear, LockupPro } from "src/types/DataTypes.sol";
+import { Lockup, LockupLinear, LockupPro } from "../../src/types/DataTypes.sol";
 
 abstract contract Assertions is PRBTest, PRBMathAssertions {
     /*//////////////////////////////////////////////////////////////////////////

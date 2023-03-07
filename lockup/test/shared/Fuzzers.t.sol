@@ -5,8 +5,9 @@ import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint1
 import { UD60x18, ud, uUNIT } from "@prb/math/UD60x18.sol";
 import { arange } from "solidity-generators/Generators.sol";
 
+import { Lockup, LockupPro } from "../../src/types/DataTypes.sol";
+
 import { Constants } from "./Constants.t.sol";
-import { Lockup, LockupPro } from "src/types/DataTypes.sol";
 import { Utils } from "./Utils.t.sol";
 
 abstract contract Fuzzers is Constants, Utils {
