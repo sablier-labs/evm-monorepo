@@ -5,7 +5,6 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
-import { Events } from "src/libraries/Events.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Fork_Test } from "../../Fork.t.sol";
@@ -147,7 +146,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
         // Expect a {CreateLockupLinearStream} event to be emitted.
         vars.streamId = linear.nextStreamId();
         expectEmit();
-        emit Events.CreateLockupLinearStream({
+        emit CreateLockupLinearStream({
             streamId: vars.streamId,
             funder: holder,
             sender: params.sender,
@@ -242,7 +241,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
             // Expect a {WithdrawFromLockupStream} event to be emitted.
             expectEmit();
-            emit Events.WithdrawFromLockupStream({
+            emit WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.recipient,
                 amount: params.withdrawAmount
@@ -290,7 +289,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
             expectEmit();
             vars.senderAmount = linear.returnableAmountOf(vars.streamId);
             vars.recipientAmount = linear.withdrawableAmountOf(vars.streamId);
-            emit Events.CancelLockupStream(
+            emit CancelLockupStream(
                 vars.streamId,
                 params.sender,
                 params.recipient,

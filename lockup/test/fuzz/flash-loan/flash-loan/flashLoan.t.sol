@@ -6,7 +6,6 @@ import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
 
 import { FlashLoan_Fuzz_Test } from "../FlashLoan.t.sol";
 
@@ -85,7 +84,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
 
         // Expect a {FlashLoan} event to be emitted.
         expectEmit();
-        emit Events.FlashLoan({
+        emit FlashLoan({
             initiator: users.admin,
             receiver: goodFlashLoanReceiver,
             asset: DEFAULT_ASSET,

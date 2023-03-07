@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
+
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
@@ -315,9 +315,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
         expectEmit();
-        emit Events.WithdrawFromLockupStream({ streamId: defaultStreamIds[0], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
+        emit WithdrawFromLockupStream({ streamId: defaultStreamIds[0], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
         expectEmit();
-        emit Events.WithdrawFromLockupStream({ streamId: defaultStreamIds[1], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
+        emit WithdrawFromLockupStream({ streamId: defaultStreamIds[1], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
 
         // Expect the withdrawals to be made.
         expectTransferCall({ to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
@@ -377,9 +377,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
         expectEmit();
-        emit Events.WithdrawFromLockupStream({ streamId: defaultStreamIds[0], to: to, amount: withdrawAmount });
+        emit WithdrawFromLockupStream({ streamId: defaultStreamIds[0], to: to, amount: withdrawAmount });
         expectEmit();
-        emit Events.WithdrawFromLockupStream({ streamId: defaultStreamIds[1], to: to, amount: withdrawAmount });
+        emit WithdrawFromLockupStream({ streamId: defaultStreamIds[1], to: to, amount: withdrawAmount });
 
         // Make the withdrawals.
         uint128[] memory amounts = Solarray.uint128s(withdrawAmount, withdrawAmount);
@@ -454,13 +454,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
         expectEmit();
-        emit Events.WithdrawFromLockupStream({
-            streamId: vars.endedStreamId,
-            to: vars.to,
-            amount: vars.endedWithdrawAmount
-        });
+        emit WithdrawFromLockupStream({ streamId: vars.endedStreamId, to: vars.to, amount: vars.endedWithdrawAmount });
         expectEmit();
-        emit Events.WithdrawFromLockupStream({
+        emit WithdrawFromLockupStream({
             streamId: vars.ongoingStreamId,
             to: vars.to,
             amount: vars.ongoingWithdrawAmount

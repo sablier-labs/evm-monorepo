@@ -7,7 +7,7 @@ import { stdError } from "forge-std/StdError.sol";
 
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
+
 import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
 
 import { Pro_Fuzz_Test } from "../Pro.t.sol";
@@ -305,7 +305,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
             start: params.startTime,
             end: params.segments[params.segments.length - 1].milestone
         });
-        emit Events.CreateLockupProStream({
+        emit CreateLockupProStream({
             streamId: streamId,
             funder: funder,
             sender: params.sender,

@@ -4,7 +4,6 @@ pragma solidity >=0.8.19 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
-import { Events } from "src/libraries/Events.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Fuzz_Test } from "../../../Fuzz.t.sol";
@@ -83,9 +82,9 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Expect two {CancelLockupStream} events to be emitted.
         expectEmit();
-        emit Events.CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
+        emit CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
         expectEmit();
-        emit Events.CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
+        emit CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
 
         // Cancel the streams.
         lockup.cancelMultiple(streamIds);
@@ -162,9 +161,9 @@ abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Expect two {CancelLockupStream} events to be emitted.
         expectEmit();
-        emit Events.CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
+        emit CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
         expectEmit();
-        emit Events.CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
+        emit CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
 
         // Cancel the streams.
         lockup.cancelMultiple(streamIds);

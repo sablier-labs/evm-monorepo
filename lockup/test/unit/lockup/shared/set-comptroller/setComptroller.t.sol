@@ -3,7 +3,7 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
+
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
@@ -34,7 +34,7 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_SetComptroller_SameComptroller() external callerAdmin {
         // Expect a {SetComptroller} event to be emitted.
         expectEmit();
-        emit Events.SetComptroller(users.admin, comptroller, comptroller);
+        emit SetComptroller(users.admin, comptroller, comptroller);
 
         // Re-set the comptroller.
         config.setComptroller(comptroller);
@@ -52,7 +52,7 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect a {SetComptroller} event to be emitted.
         expectEmit();
-        emit Events.SetComptroller(users.admin, comptroller, newComptroller);
+        emit SetComptroller(users.admin, comptroller, newComptroller);
 
         // Set the new comptroller.
         config.setComptroller(newComptroller);

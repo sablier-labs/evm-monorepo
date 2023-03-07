@@ -15,7 +15,6 @@ import { ISablierV2NftDescriptor } from "./interfaces/ISablierV2NftDescriptor.so
 import { ISablierV2LockupRecipient } from "./interfaces/hooks/ISablierV2LockupRecipient.sol";
 import { ISablierV2LockupSender } from "./interfaces/hooks/ISablierV2LockupSender.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { Events } from "./libraries/Events.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 
@@ -352,7 +351,7 @@ contract SablierV2LockupLinear is
         }
 
         // Log the cancellation.
-        emit Events.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
+        emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -417,7 +416,7 @@ contract SablierV2LockupLinear is
         }
 
         // Log the newly created stream, and the address that funded it.
-        emit Events.CreateLockupLinearStream({
+        emit ISablierV2LockupLinear.CreateLockupLinearStream({
             streamId: streamId,
             funder: msg.sender,
             sender: params.sender,
@@ -443,7 +442,7 @@ contract SablierV2LockupLinear is
         }
 
         // Log the renouncement.
-        emit Events.RenounceLockupStream(streamId);
+        emit ISablierV2Lockup.RenounceLockupStream(streamId);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -498,6 +497,6 @@ contract SablierV2LockupLinear is
         }
 
         // Log the withdrawal.
-        emit Events.WithdrawFromLockupStream(streamId, to, amount);
+        emit ISablierV2Lockup.WithdrawFromLockupStream(streamId, to, amount);
     }
 }

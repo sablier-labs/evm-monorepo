@@ -4,7 +4,7 @@ pragma solidity >=0.8.19 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
+
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
@@ -114,7 +114,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
         expectEmit();
-        emit Events.CreateLockupLinearStream({
+        emit CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,
             sender: defaultParams.createWithDurations.sender,

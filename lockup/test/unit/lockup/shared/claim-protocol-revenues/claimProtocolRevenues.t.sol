@@ -4,7 +4,6 @@ pragma solidity >=0.8.19 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
@@ -53,7 +52,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
 
         // Expect a {ClaimProtocolRevenues} event to be emitted.
         expectEmit();
-        emit Events.ClaimProtocolRevenues(users.admin, DEFAULT_ASSET, protocolRevenues);
+        emit ClaimProtocolRevenues(users.admin, DEFAULT_ASSET, protocolRevenues);
 
         // Claim the protocol revenues.
         config.claimProtocolRevenues(DEFAULT_ASSET);

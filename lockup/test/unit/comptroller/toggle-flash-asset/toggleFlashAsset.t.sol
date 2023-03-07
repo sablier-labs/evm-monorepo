@@ -4,7 +4,6 @@ pragma solidity >=0.8.19 <0.9.0;
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
 
 import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
@@ -30,7 +29,7 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
     function test_ToggleFlashAsset_FlagNotEnabled() external callerAdmin {
         // Expect a {ToggleFlashAsset} event to be emitted.
         expectEmit();
-        emit Events.ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: true });
+        emit ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: true });
 
         // Toggle the flash asset.
         comptroller.toggleFlashAsset(DEFAULT_ASSET);
@@ -49,7 +48,7 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
     function test_ToggleFlashAsset() external callerAdmin flagEnabled {
         // Expect a {ToggleFlashAsset} event to be emitted.
         expectEmit();
-        emit Events.ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: false });
+        emit ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: false });
 
         // Toggle the flash asset.
         comptroller.toggleFlashAsset(DEFAULT_ASSET);

@@ -4,7 +4,6 @@ pragma solidity >=0.8.19 <0.9.0;
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
-import { Events } from "src/libraries/Events.sol";
 
 import { Pro_Unit_Test } from "../Pro.t.sol";
 
@@ -13,7 +12,7 @@ contract Constructor_Pro_Unit_Test is Pro_Unit_Test {
     function test_Constructor() external {
         // Expect a {TransferEvent} to be emitted.
         expectEmit();
-        emit Events.TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
+        emit TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
 
         // Construct the pro contract.
         SablierV2LockupPro constructedPro = new SablierV2LockupPro({

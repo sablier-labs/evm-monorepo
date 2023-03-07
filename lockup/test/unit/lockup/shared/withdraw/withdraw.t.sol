@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { ISablierV2LockupRecipient } from "src/interfaces/hooks/ISablierV2LockupRecipient.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
+
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
@@ -263,11 +263,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         expectEmit();
-        emit Events.WithdrawFromLockupStream({
-            streamId: defaultStreamId,
-            to: users.recipient,
-            amount: withdrawAmount
-        });
+        emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
@@ -458,11 +454,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         expectEmit();
-        emit Events.WithdrawFromLockupStream({
-            streamId: streamId,
-            to: address(goodRecipient),
-            amount: withdrawAmount
-        });
+        emit WithdrawFromLockupStream({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });

@@ -3,7 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { ISablierV2LockupRecipient } from "src/interfaces/hooks/ISablierV2LockupRecipient.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
@@ -197,7 +196,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect a {RenounceLockupStream} event to be emitted.
         expectEmit();
-        emit Events.RenounceLockupStream(streamId);
+        emit RenounceLockupStream(streamId);
 
         // RenounceLockupStream the stream.
         lockup.renounce(streamId);

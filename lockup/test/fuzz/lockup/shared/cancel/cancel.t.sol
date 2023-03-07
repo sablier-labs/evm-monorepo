@@ -3,7 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
-import { Events } from "src/libraries/Events.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
@@ -108,7 +107,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Expect a {CancelLockupStream} event to be emitted.
         expectEmit();
-        emit Events.CancelLockupStream(streamId, users.sender, address(goodRecipient), senderAmount, recipientAmount);
+        emit CancelLockupStream(streamId, users.sender, address(goodRecipient), senderAmount, recipientAmount);
 
         // Cancel the stream.
         lockup.cancel(streamId);
@@ -201,7 +200,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Expect a {CancelLockupStream} event to be emitted.
         expectEmit();
-        emit Events.CancelLockupStream(streamId, address(goodSender), users.recipient, senderAmount, recipientAmount);
+        emit CancelLockupStream(streamId, address(goodSender), users.recipient, senderAmount, recipientAmount);
 
         // Cancel the stream.
         lockup.cancel(streamId);

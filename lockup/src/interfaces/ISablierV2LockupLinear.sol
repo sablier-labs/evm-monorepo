@@ -4,12 +4,40 @@ pragma solidity >=0.8.18;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { LockupLinear } from "../types/DataTypes.sol";
+import { Lockup, LockupLinear } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupLinear
 /// @notice Creates and manages lockup streams whose streaming function is strictly linear.
 interface ISablierV2LockupLinear is ISablierV2Lockup {
+    /*//////////////////////////////////////////////////////////////////////////
+                                       EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when a lockup linear stream is created.
+    /// @param streamId The id of the newly created stream.
+    /// @param funder The address which has funded the stream.
+    /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
+    /// @param recipient The address toward which to stream the assets.
+    /// @param amounts Struct that encapsulates (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
+    /// broker fee amount, each in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param range Struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
+    /// and (iii) the end time of the stream, all as Unix timestamps.
+    /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
+    event CreateLockupLinearStream(
+        uint256 streamId,
+        address indexed funder,
+        address indexed sender,
+        address indexed recipient,
+        Lockup.CreateAmounts amounts,
+        IERC20 asset,
+        bool cancelable,
+        LockupLinear.Range range,
+        address broker
+    );
+
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

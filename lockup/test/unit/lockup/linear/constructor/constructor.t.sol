@@ -4,7 +4,6 @@ pragma solidity >=0.8.19 <0.9.0;
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
-import { Events } from "src/libraries/Events.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
@@ -13,7 +12,7 @@ contract Constructor_Linear_Unit_Test is Linear_Unit_Test {
     function test_Constructor() external {
         // Expect a {TransferEvent} to be emitted.
         expectEmit();
-        emit Events.TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
+        emit TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
 
         // Construct the linear contract.
         SablierV2LockupLinear constructedLinear = new SablierV2LockupLinear({
