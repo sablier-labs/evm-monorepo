@@ -5,7 +5,7 @@ pragma solidity >=0.8.19 <0.9.0;
 /// @dev Storage contract for the lockup handler streams.
 contract LockupHandlerStorage {
     /*//////////////////////////////////////////////////////////////////////////
-                               PUBLIC TEST VARIABLES
+                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 public lastStreamId;

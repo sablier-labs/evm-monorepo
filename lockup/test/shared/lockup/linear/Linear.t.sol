@@ -20,7 +20,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   TEST VARIABLES
+                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     LockupLinear.Stream internal defaultStream;

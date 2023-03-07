@@ -20,7 +20,7 @@ abstract contract SablierV2Config is
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
+                                  PUBLIC CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Config

@@ -20,7 +20,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   TEST VARIABLES
+                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     LockupPro.Stream internal defaultStream;

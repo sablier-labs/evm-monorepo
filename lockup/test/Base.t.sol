@@ -51,7 +51,7 @@ abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
     IERC20 internal immutable DEFAULT_ASSET;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   TEST VARIABLES
+                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     Users internal users;

@@ -52,7 +52,7 @@ contract SablierV2LockupPro is
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      CONSTANTS
+                                  PUBLIC CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupPro
@@ -210,7 +210,7 @@ contract SablierV2LockupPro is
 
     /// @inheritdoc ERC721
     function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
-        uri = _NFT_DESCRIPTOR.tokenURI(this, streamId);
+        uri = _nftDescriptor.tokenURI(this, streamId);
     }
 
     /// @inheritdoc ISablierV2Lockup

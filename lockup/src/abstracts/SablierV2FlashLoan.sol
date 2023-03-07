@@ -19,7 +19,7 @@ abstract contract SablierV2FlashLoan is
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
+                                 INTERNAL CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     bytes32 internal constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");

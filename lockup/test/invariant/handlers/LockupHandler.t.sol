@@ -21,7 +21,7 @@ abstract contract LockupHandler is BaseHandler {
     LockupHandlerStorage public store;
 
     /*//////////////////////////////////////////////////////////////////////////
-                              PRIVATE TEST VARIABLES
+                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     address internal currentRecipient;

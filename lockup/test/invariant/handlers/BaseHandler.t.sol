@@ -19,14 +19,7 @@ abstract contract BaseHandler is Calculations, Fuzzers, StdCheats {
     address internal constant HEVM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
 
     /*//////////////////////////////////////////////////////////////////////////
-                                   TEST CONTRACTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev An instance of the HEVM.
-    Vm internal constant vm = Vm(HEVM_ADDRESS);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   TEST VARIABLES
+                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Maps function names to the number of times they have been called.
@@ -34,6 +27,13 @@ abstract contract BaseHandler is Calculations, Fuzzers, StdCheats {
 
     /// @dev The total number of calls made to this contract.
     uint256 public totalCalls;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                   TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev An instance of the HEVM.
+    Vm internal constant vm = Vm(HEVM_ADDRESS);
 
     /*//////////////////////////////////////////////////////////////////////////
                                         MODIFIERS

@@ -22,7 +22,7 @@ abstract contract Fork_Test is Base_Test {
     address internal immutable holder;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    TEST VARIABLES
+                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 internal initialHolderBalance;

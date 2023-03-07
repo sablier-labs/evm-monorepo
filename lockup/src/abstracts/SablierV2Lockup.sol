@@ -20,11 +20,11 @@ abstract contract SablierV2Lockup is
     SablierV2FlashLoan // five dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
+                                 INTERNAL CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Contract that generates the non-fungible token URI.
-    ISablierV2NftDescriptor internal immutable _NFT_DESCRIPTOR;
+    ISablierV2NftDescriptor internal immutable _nftDescriptor;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE
@@ -79,7 +79,7 @@ abstract contract SablierV2Lockup is
         UD60x18 maxFee
     ) SablierV2Config(initialAdmin, initialComptroller, maxFee) {
         nextStreamId = 1;
-        _NFT_DESCRIPTOR = nftDescriptor;
+        _nftDescriptor = nftDescriptor;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
