@@ -42,6 +42,10 @@
   ignored_error_codes = [
     7737, # Disable inline assembly warnings
   ]
+  out = "optimized-out"
+  script = "src"
+  test = "src"
+  via_ir = true
 
 [profile.smt.model_checker]
   engine = "chc" # constrained Horn clauses
