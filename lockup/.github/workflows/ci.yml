@@ -63,7 +63,7 @@ jobs:
           path: "optimized-out"
           key: "foundry-build-${{ github.sha }}"
 
-      - name: "Store contract ABIs as artifacts in GitHub Actions"
+      - name: "Store contract ABIs as artifacts"
         uses: "actions/upload-artifact@v3"
         with:
           name: contract-abis
