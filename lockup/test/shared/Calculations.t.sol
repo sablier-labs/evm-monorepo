@@ -7,7 +7,7 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { LockupPro } from "src/types/DataTypes.sol";
+import { LockupPro } from "../../src/types/DataTypes.sol";
 
 import { Constants } from "./Constants.t.sol";
 

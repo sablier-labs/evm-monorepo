@@ -6,7 +6,7 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { StdUtils } from "forge-std/StdUtils.sol";
 
-import { LockupPro } from "src/types/DataTypes.sol";
+import { LockupPro } from "../../src/types/DataTypes.sol";
 
 abstract contract Utils is StdUtils, PRBMathUtils {
     /*//////////////////////////////////////////////////////////////////////////
