@@ -5,10 +5,10 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+import { ISablierV2Adminable } from "../interfaces/ISablierV2Adminable.sol";
 import { ISablierV2Config } from "../interfaces/ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { Errors } from "../libraries/Errors.sol";
-import { Events } from "../libraries/Events.sol";
 import { SablierV2Adminable } from "./SablierV2Adminable.sol";
 
 /// @title SablierV2Config
@@ -53,7 +53,7 @@ abstract contract SablierV2Config is
         admin = initialAdmin;
         comptroller = initialComptroller;
         MAX_FEE = maxFee;
-        emit Events.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
+        emit ISablierV2Adminable.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -84,7 +84,11 @@ abstract contract SablierV2Config is
         asset.safeTransfer({ to: msg.sender, value: protocolRevenues });
 
         // Log the claim of the protocol revenues.
-        emit Events.ClaimProtocolRevenues({ admin: msg.sender, asset: asset, protocolRevenues: protocolRevenues });
+        emit ISablierV2Config.ClaimProtocolRevenues({
+            admin: msg.sender,
+            asset: asset,
+            protocolRevenues: protocolRevenues
+        });
     }
 
     /// @inheritdoc ISablierV2Config
@@ -94,7 +98,7 @@ abstract contract SablierV2Config is
         comptroller = newComptroller;
 
         // Log the change of the comptroller.
-        emit Events.SetComptroller({
+        emit ISablierV2Config.SetComptroller({
             admin: msg.sender,
             oldComptroller: oldComptroller,
             newComptroller: newComptroller

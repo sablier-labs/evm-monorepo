@@ -3,8 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
-import { Events } from "src/libraries/Events.sol";
-
 import { Comptroller_Fuzz_Test } from "../Comptroller.t.sol";
 
 contract SetFlashFee_Fuzz_Test is Comptroller_Fuzz_Test {
@@ -14,7 +12,7 @@ contract SetFlashFee_Fuzz_Test is Comptroller_Fuzz_Test {
 
         // Expect a {SetFlashFee} event to be emitted.
         expectEmit();
-        emit Events.SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: newFlashFee });
+        emit SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: newFlashFee });
 
         // She the new flash fee.
         comptroller.setFlashFee(newFlashFee);

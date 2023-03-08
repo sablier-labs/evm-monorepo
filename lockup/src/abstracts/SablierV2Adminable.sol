@@ -3,7 +3,6 @@ pragma solidity >=0.8.18;
 
 import { ISablierV2Adminable } from "../interfaces/ISablierV2Adminable.sol";
 import { Errors } from "../libraries/Errors.sol";
-import { Events } from "../libraries/Events.sol";
 
 /// @title SablierV2Adminable
 /// @dev Abstract contract that implements the {ISablierV2Adminable} interface.
@@ -40,6 +39,6 @@ abstract contract SablierV2Adminable is ISablierV2Adminable {
         admin = newAdmin;
 
         // Log the transfer of the admin.
-        emit Events.TransferAdmin(oldAdmin, newAdmin);
+        emit ISablierV2Adminable.TransferAdmin(oldAdmin, newAdmin);
     }
 }

@@ -5,7 +5,6 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
 
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
@@ -211,7 +210,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
         expectEmit();
-        emit Events.CreateLockupLinearStream({
+        emit CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,
             sender: users.sender,

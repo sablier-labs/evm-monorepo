@@ -3,7 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
-import { Events } from "src/libraries/Events.sol";
 import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
 
 import { Withdraw_Fuzz_Test } from "../../shared/withdraw/withdraw.t.sol";
@@ -96,11 +95,7 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         expectEmit();
-        emit Events.WithdrawFromLockupStream({
-            streamId: vars.streamId,
-            to: users.recipient,
-            amount: vars.withdrawAmount
-        });
+        emit WithdrawFromLockupStream({ streamId: vars.streamId, to: users.recipient, amount: vars.withdrawAmount });
 
         // Make the withdrawal.
         pro.withdraw({ streamId: vars.streamId, to: users.recipient, amount: vars.withdrawAmount });

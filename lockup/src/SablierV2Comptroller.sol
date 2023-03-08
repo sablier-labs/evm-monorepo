@@ -5,8 +5,8 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { SablierV2Adminable } from "./abstracts/SablierV2Adminable.sol";
+import { ISablierV2Adminable } from "./interfaces/ISablierV2Adminable.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
-import { Events } from "./libraries/Events.sol";
 
 /*
 
@@ -57,7 +57,7 @@ contract SablierV2Comptroller is
     /// @param initialAdmin The address of the initial contract admin.
     constructor(address initialAdmin) {
         admin = initialAdmin;
-        emit Events.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
+        emit ISablierV2Adminable.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,11 @@ contract SablierV2Comptroller is
         flashFee = newFlashFee;
 
         // Log the change of the flash fee.
-        emit Events.SetFlashFee({ admin: msg.sender, oldFlashFee: oldFlashFee, newFlashFee: newFlashFee });
+        emit ISablierV2Comptroller.SetFlashFee({
+            admin: msg.sender,
+            oldFlashFee: oldFlashFee,
+            newFlashFee: newFlashFee
+        });
     }
 
     /// @inheritdoc ISablierV2Comptroller
@@ -95,7 +99,7 @@ contract SablierV2Comptroller is
         _protocolFees[asset] = newProtocolFee;
 
         // Log the change of the protocol fee.
-        emit Events.SetProtocolFee({
+        emit ISablierV2Comptroller.SetProtocolFee({
             admin: msg.sender,
             asset: asset,
             oldProtocolFee: oldProtocolFee,
@@ -110,6 +114,6 @@ contract SablierV2Comptroller is
         _flashAssets[asset] = !oldFlag;
 
         // Log the change of the flash asset flag.
-        emit Events.ToggleFlashAsset({ admin: msg.sender, asset: asset, newFlag: !oldFlag });
+        emit ISablierV2Comptroller.ToggleFlashAsset({ admin: msg.sender, asset: asset, newFlag: !oldFlag });
     }
 }

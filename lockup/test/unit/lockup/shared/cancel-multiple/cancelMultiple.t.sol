@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
+
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Unit_Test } from "../../../Unit.t.sol";
@@ -253,9 +253,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect two {CancelLockupStream} events to be emitted.
         expectEmit();
-        emit Events.CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
+        emit CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
         expectEmit();
-        emit Events.CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
+        emit CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
 
         // Cancel the streams.
         lockup.cancelMultiple(streamIds);

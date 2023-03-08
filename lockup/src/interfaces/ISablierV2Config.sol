@@ -11,6 +11,26 @@ import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 /// @notice This contract contains the common configuration between all Sablier V2 streaming contracts.
 interface ISablierV2Config is ISablierV2Adminable {
     /*//////////////////////////////////////////////////////////////////////////
+                                       EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when the contract admin claims all protocol revenues accrued for the provided ERC-20 asset.
+    /// @param admin The address of the current contract admin.
+    /// @param asset The contract address of the ERC-20 asset the protocol revenues have been claimed for.
+    /// @param protocolRevenues The amount of protocol revenues claimed, in units of the asset's decimals.
+    event ClaimProtocolRevenues(address indexed admin, IERC20 indexed asset, uint128 protocolRevenues);
+
+    /// @notice Emitted when the contract admin sets a new comptroller contract.
+    /// @param admin The address of the current contract admin.
+    /// @param oldComptroller The address of the old {SablierV2Comptroller} contract.
+    /// @param newComptroller The address of the new {SablierV2Comptroller} contract.
+    event SetComptroller(
+        address indexed admin,
+        ISablierV2Comptroller oldComptroller,
+        ISablierV2Comptroller newComptroller
+    );
+
+    /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 

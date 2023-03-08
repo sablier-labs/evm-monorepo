@@ -8,7 +8,6 @@ import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.
 import { IERC3156FlashLender } from "erc3156/interfaces/IERC3156FlashLender.sol";
 
 import { Errors } from "../libraries/Errors.sol";
-import { Events } from "../libraries/Events.sol";
 import { SablierV2Config } from "./SablierV2Config.sol";
 
 /// @dev Abstract contract that implements the {IERC3156FlashLender} interface.
@@ -17,6 +16,26 @@ abstract contract SablierV2FlashLoan is
     SablierV2Config // three dependencies
 {
     using SafeERC20 for IERC20;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                       EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when a flash loan is executed.
+    /// @param receiver The address of the flash borrower.
+    /// @param initiator The address of the flash loan initiator.
+    /// @param asset The address of the ERC-20 asset that has been flash loaned.
+    /// @param amount The amount of `asset` flash loaned.
+    /// @param feeAmount The fee amount of `asset` charged by the protocol.
+    /// @param data The data passed to the flash borrower.
+    event FlashLoan(
+        address indexed initiator,
+        IERC3156FlashBorrower indexed receiver,
+        IERC20 indexed asset,
+        uint256 amount,
+        uint256 feeAmount,
+        bytes data
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                  INTERNAL CONSTANTS
@@ -147,7 +166,7 @@ abstract contract SablierV2FlashLoan is
         IERC20(asset).safeTransferFrom({ from: address(receiver), to: address(this), value: returnAmount });
 
         // Log the flash loan.
-        emit Events.FlashLoan({
+        emit FlashLoan({
             initiator: msg.sender,
             receiver: receiver,
             asset: IERC20(asset),

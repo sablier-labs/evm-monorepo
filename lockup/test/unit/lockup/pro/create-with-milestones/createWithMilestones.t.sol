@@ -7,7 +7,7 @@ import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { stdError } from "forge-std/StdError.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
+
 import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
 
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
@@ -377,7 +377,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
 
         // Expect a {CreateLockupProStream} event to be emitted.
         expectEmit();
-        emit Events.CreateLockupProStream({
+        emit CreateLockupProStream({
             streamId: streamId,
             funder: funder,
             sender: users.sender,

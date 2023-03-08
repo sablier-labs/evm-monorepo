@@ -4,7 +4,6 @@ pragma solidity >=0.8.19 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
-import { Events } from "src/libraries/Events.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupPro } from "src/types/DataTypes.sol";
 
@@ -90,7 +89,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
 
         // Expect a {CreateLockupProStream} event to be emitted.
         expectEmit();
-        emit Events.CreateLockupProStream({
+        emit CreateLockupProStream({
             streamId: streamId,
             funder: vars.funder,
             sender: defaultParams.createWithDeltas.sender,

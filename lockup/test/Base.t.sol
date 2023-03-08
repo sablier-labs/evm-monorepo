@@ -15,6 +15,7 @@ import { SablierV2NftDescriptor } from "src/SablierV2NftDescriptor.sol";
 
 import { Assertions } from "./shared/helpers/Assertions.t.sol";
 import { Calculations } from "./shared/helpers/Calculations.t.sol";
+import { Events } from "./shared/helpers/Events.t.sol";
 import { Fuzzers } from "./shared/helpers/Fuzzers.t.sol";
 import { GoodFlashLoanReceiver } from "./shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
 import { GoodRecipient } from "./shared/mockups/hooks/GoodRecipient.t.sol";
@@ -22,7 +23,7 @@ import { GoodSender } from "./shared/mockups/hooks/GoodSender.t.sol";
 
 /// @title Base_Test
 /// @notice Base test contract with common logic needed by all test contracts.
-abstract contract Base_Test is Assertions, Calculations, Fuzzers, StdCheats {
+abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
     //////////////////////////////////////////////////////////////////////////*/

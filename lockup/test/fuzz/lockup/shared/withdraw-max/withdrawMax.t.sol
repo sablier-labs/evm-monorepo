@@ -3,8 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
-import { Events } from "src/libraries/Events.sol";
-
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Fuzz_Test } from "../../../Fuzz.t.sol";
 
@@ -39,11 +37,7 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         expectEmit();
-        emit Events.WithdrawFromLockupStream({
-            streamId: defaultStreamId,
-            to: users.recipient,
-            amount: withdrawAmount
-        });
+        emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Make the max withdrawal.
         lockup.withdrawMax(defaultStreamId, users.recipient);

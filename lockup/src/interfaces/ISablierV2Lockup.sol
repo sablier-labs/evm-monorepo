@@ -16,6 +16,34 @@ interface ISablierV2Lockup is
     IERC721Metadata // two dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
+                                       EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when a lockup stream is canceled.
+    /// @param streamId The id of the stream.
+    /// @param sender The address of the sender.
+    /// @param recipient The address of the recipient.
+    /// @param senderAmount The amount of ERC-20 assets returned to the sender, in units of the asset's decimals.
+    /// @param recipientAmount The amount of ERC-20 assets withdrawn to the recipient, in units of the asset's decimals.
+    event CancelLockupStream(
+        uint256 indexed streamId,
+        address indexed sender,
+        address indexed recipient,
+        uint128 senderAmount,
+        uint128 recipientAmount
+    );
+
+    /// @notice Emitted when a sender makes a lockup stream non-cancelable.
+    /// @param streamId The id of the stream.
+    event RenounceLockupStream(uint256 indexed streamId);
+
+    /// @notice Emitted when assets are withdrawn from a lockup stream.
+    /// @param streamId The id of the stream.
+    /// @param to The address that has received the withdrawn assets.
+    /// @param amount The amount of assets withdrawn, in units of the asset's decimals.
+    event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, uint128 amount);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 

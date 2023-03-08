@@ -7,6 +7,15 @@ pragma solidity >=0.8.18;
 /// constructor.
 interface ISablierV2Adminable {
     /*//////////////////////////////////////////////////////////////////////////
+                                       EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when the admin is transferred.
+    /// @param oldAdmin The address of the old admin.
+    /// @param newAdmin The address of the new admin.
+    event TransferAdmin(address indexed oldAdmin, address indexed newAdmin);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 

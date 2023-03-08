@@ -4,7 +4,6 @@ pragma solidity >=0.8.19 <0.9.0;
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
-import { Events } from "src/libraries/Events.sol";
 
 import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
@@ -44,7 +43,7 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
 
         // Expect a {SetProtocolFee} event to be emitted.
         expectEmit();
-        emit Events.SetProtocolFee({
+        emit SetProtocolFee({
             admin: users.admin,
             asset: DEFAULT_ASSET,
             oldProtocolFee: ZERO,
