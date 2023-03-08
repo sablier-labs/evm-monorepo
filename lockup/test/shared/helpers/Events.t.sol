@@ -64,6 +64,14 @@ abstract contract Events {
         uint128 recipientAmount
     );
 
+    event RenounceLockupStream(uint256 indexed streamId);
+
+    event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, uint128 amount);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                              SABLIER-V2-LOCKUP-LINEAR
+    //////////////////////////////////////////////////////////////////////////*/
+
     event CreateLockupLinearStream(
         uint256 streamId,
         address indexed funder,
@@ -75,6 +83,10 @@ abstract contract Events {
         LockupLinear.Range range,
         address broker
     );
+
+    /*//////////////////////////////////////////////////////////////////////////
+                               SABLIER-V2-LOCKUP-PRO
+    //////////////////////////////////////////////////////////////////////////*/
 
     event CreateLockupProStream(
         uint256 streamId,
@@ -88,8 +100,4 @@ abstract contract Events {
         LockupPro.Range range,
         address broker
     );
-
-    event RenounceLockupStream(uint256 indexed streamId);
-
-    event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, uint128 amount);
 }
