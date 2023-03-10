@@ -36,7 +36,6 @@
     "solidity",
     "token-streaming"
   ],
-  "packageManager": "yarn@3.4.1",
   "publishConfig": {
     "access": "public"
   },
@@ -51,13 +50,13 @@
     "clean": "rimraf broadcast cache optimized-out out",
     "gas:report": "forge test --gas-report --no-match-path \"./test/{fuzz,unit}/**/*.sol\" --no-match-test \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "gas:snapshot": "forge snapshot --match-path \"./test/{fuzz,unit}/**/*.sol\" --no-match-test \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
-    "gas:snapshot:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --match-path \"./test/{fuzz,unit}/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
-    "lint": "yarn lint:sol && yarn prettier:check",
+    "gas:snapshot:optimized": "pnpm build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --match-path \"./test/{fuzz,unit}/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "lint": "pnpm lint:sol && pnpm prettier:check",
     "lint:sol": "solhint \"{script,src,test}/**/*.sol\"",
     "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
     "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",
     "test": "forge test",
     "test:lite": "FOUNDRY_PROFILE=lite forge test",
-    "test:optimized": "yarn build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
+    "test:optimized": "pnpm build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   }
 }

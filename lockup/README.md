@@ -52,7 +52,7 @@ Finally, add this to your `remappings.txt` file:
 Sablier V2 Core is available as an npm package:
 
 ```sh
-yarn add @sablier/v2-core
+pnpm add @sablier/v2-core
 ```
 
 ## Usage

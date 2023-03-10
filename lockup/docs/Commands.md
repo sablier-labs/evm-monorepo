@@ -15,7 +15,7 @@ $ forge build
 Build the contracts using the optimized profile:
 
 ```sh
-$ yarn build:optimized
+$ pnpm build:optimized
 ```
 
 This will compile the contracts with the [`--via-ir`](./Tests.md#via-ir) flag enabled.
@@ -26,7 +26,7 @@ Build the contracts with the [SMTChecker](https://docs.soliditylang.org/en/v0.8.
 ignoring any warnings due to the use of assembly blocks:
 
 ```sh
-$ yarn build:smt
+$ pnpm build:smt
 ```
 
 This will attempt to formally prove the correctness of the contracts by trying to break invariants (e.g. by finding
@@ -53,7 +53,7 @@ $ forge build
 Format the code with Prettier:
 
 ```sh
-$ yarn prettier
+$ pnpm prettier
 ```
 
 ## Gas Report
@@ -61,7 +61,7 @@ $ yarn prettier
 Get a gas report:
 
 ```sh
-$ yarn gas:report
+$ pnpm gas:report
 ```
 
 ## Gas Report Optimized
@@ -69,7 +69,7 @@ $ yarn gas:report
 Get a gas report for the optimized version of the contracts:
 
 ```sh
-$ yarn gas:report:optimized
+$ pnpm gas:report:optimized
 ```
 
 ## Gas Snapshot
@@ -77,7 +77,7 @@ $ yarn gas:report:optimized
 Take a gas snapshot:
 
 ```sh
-$ yarn gas:snapshot
+$ pnpm gas:snapshot
 ```
 
 ## Gas Snapshot Optimized
@@ -85,7 +85,7 @@ $ yarn gas:snapshot
 Take a gas snapshot against the optimized version of the contracts:
 
 ```sh
-$ yarn gas:snapshot:optimized
+$ pnpm gas:snapshot:optimized
 ```
 
 ## Lint
@@ -93,7 +93,7 @@ $ yarn gas:snapshot:optimized
 Lint the entire code base (Solidity + other files):
 
 ```sh
-$ yarn lint
+$ pnpm lint
 ```
 
 ## Lint Sol
@@ -101,7 +101,7 @@ $ yarn lint
 Ling the contracts:
 
 ```sh
-$ yarn lint:sol
+$ pnpm lint:sol
 ```
 
 ## Test
@@ -109,7 +109,7 @@ $ yarn lint:sol
 Run the tests:
 
 ```sh
-$ yarn test
+$ pnpm test
 ```
 
 ## Test Optimized
@@ -117,7 +117,7 @@ $ yarn test
 Run the tests against the optimized version of the contracts:
 
 ```sh
-$ yarn test:optimized
+$ pnpm test:optimized
 ```
 
 ## Other

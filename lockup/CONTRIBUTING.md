@@ -14,7 +14,7 @@ You will need the following software on your machine:
 - [Git](https://git-scm.com/downloads)
 - [Foundry](https://github.com/foundry-rs/foundry)
 - [Node.Js](https://nodejs.org/en/download/)
-- [Yarn](https://yarnpkg.com/)
+- [Pnpm](https://pnpm.io/)
 
 In addition, familiarity with [Solidity](https://soliditylang.org/) is requisite.
 
@@ -29,7 +29,7 @@ $ git clone --recurse-submodules -j8 git@github.com:sablierhq/v2-core.git
 Then, inside the project's directory, run this to install the Node.js dependencies:
 
 ```sh
-$ yarn install
+$ pnpm install
 ```
 
 Now you can start making changes.
@@ -47,7 +47,7 @@ When making a pull request, ensure that:
   - Gas snapshots are provided and demonstrate an improvement (or an acceptable deficit given other improvements).
   - Reference contracts are modified correspondingly if relevant.
   - New tests are included for all new features or code paths.
-- If making a modification to third-party Node.js dependencies, `yarn audit` passes.
+- If making a modification to third-party Node.js dependencies, `pnpm audit` passes.
 - A descriptive summary of the PR has been provided.
 
 ## Environment Variables

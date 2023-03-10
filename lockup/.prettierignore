@@ -1,18 +1,16 @@
 # directories
 .github/workflows/
-.yarn/
-**/broadcast
 **/cache
 **/lib
+**/node_modules
 **/out
 **/optimized-out
-**/node_modules
 
 # files
 *.env
 *.log
 .pnp.*
-coverage.json
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+lcov.info
+package-lock.json
+pnpm-lock.yaml
+yarn.lock

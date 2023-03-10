@@ -19,7 +19,7 @@ forge test
 By default, the test are not run against the optimized version of the contracts. To do this, you can use this command:
 
 ```sh
-yarn test:optimized
+pnpm test:optimized
 ```
 
 ## Filtering
@@ -28,14 +28,14 @@ To filter tests by name, you can use the `--match-test` flag (shorthand `--mt`).
 the unit tests for the `createWithRange` function:
 
 ```sh
-yarn test --match-test test_CreateWithRange
+pnpm test --match-test test_CreateWithRange
 ```
 
 You can also filter the tests by the test contract name with the `--match-contract` flag (shorthand `--mc`). Here's an
 example for the test contract that contains all the tests for the `createWithRange` function:
 
 ```sh
-yarn test --match-contract CreateWithRange_Linear_Unit_Test
+pnpm test --match-contract CreateWithRange_Linear_Unit_Test
 ```
 
 ## Sharing
