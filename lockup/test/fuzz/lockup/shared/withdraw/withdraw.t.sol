@@ -153,7 +153,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         expectTransferCall({ to: to, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit WithdrawFromLockupStream({ streamId: streamId, to: to, amount: withdrawAmount });
 
         // Make the withdrawal.
@@ -220,7 +220,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         expectTransferCall({ to: address(goodRecipient), amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit WithdrawFromLockupStream({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
 
         // Make the withdrawal.

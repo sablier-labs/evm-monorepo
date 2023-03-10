@@ -376,7 +376,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         });
 
         // Expect a {CreateLockupProStream} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit CreateLockupProStream({
             streamId: streamId,
             funder: funder,

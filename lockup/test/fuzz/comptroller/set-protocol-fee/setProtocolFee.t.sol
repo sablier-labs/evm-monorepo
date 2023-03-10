@@ -11,7 +11,7 @@ contract SetProtocolFee_Fuzz_Test is Comptroller_Fuzz_Test {
         newProtocolFee = bound(newProtocolFee, 1, DEFAULT_MAX_FEE);
 
         // Expect a {SetProtocolFee} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit SetProtocolFee({
             admin: users.admin,
             asset: DEFAULT_ASSET,

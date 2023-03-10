@@ -314,9 +314,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         address to = users.alice;
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit WithdrawFromLockupStream({ streamId: defaultStreamIds[0], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
-        expectEmit();
+        vm.expectEmit();
         emit WithdrawFromLockupStream({ streamId: defaultStreamIds[1], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
 
         // Expect the withdrawals to be made.
@@ -376,9 +376,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         expectTransferCall({ to: to, amount: withdrawAmount });
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit WithdrawFromLockupStream({ streamId: defaultStreamIds[0], to: to, amount: withdrawAmount });
-        expectEmit();
+        vm.expectEmit();
         emit WithdrawFromLockupStream({ streamId: defaultStreamIds[1], to: to, amount: withdrawAmount });
 
         // Make the withdrawals.
@@ -453,9 +453,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vars.ongoingWithdrawAmount = lockup.withdrawableAmountOf(vars.ongoingStreamId);
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit WithdrawFromLockupStream({ streamId: vars.endedStreamId, to: vars.to, amount: vars.endedWithdrawAmount });
-        expectEmit();
+        vm.expectEmit();
         emit WithdrawFromLockupStream({
             streamId: vars.ongoingStreamId,
             to: vars.to,

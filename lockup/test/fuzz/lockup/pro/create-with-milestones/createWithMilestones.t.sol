@@ -300,7 +300,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         }
 
         // Expect a {CreateLockupProStream} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         LockupPro.Range memory range = LockupPro.Range({
             start: params.startTime,
             end: params.segments[params.segments.length - 1].milestone

@@ -209,7 +209,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         });
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,

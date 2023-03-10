@@ -195,7 +195,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vm.expectCall(address(goodRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
 
         // Expect a {RenounceLockupStream} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit RenounceLockupStream(streamId);
 
         // RenounceLockupStream the stream.

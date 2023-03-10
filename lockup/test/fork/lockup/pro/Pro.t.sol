@@ -146,7 +146,7 @@ abstract contract Pro_Fork_Test is Fork_Test {
 
         // Expect a {CreateLockupProStream} event to be emitted.
         vars.streamId = pro.nextStreamId();
-        expectEmit();
+        vm.expectEmit();
         LockupPro.Range memory range = LockupPro.Range({
             start: params.startTime,
             end: params.segments[params.segments.length - 1].milestone
@@ -244,7 +244,7 @@ abstract contract Pro_Fork_Test is Fork_Test {
             vars.initialRecipientBalance = asset.balanceOf(params.recipient);
 
             // Expect a {WithdrawFromLockupStream} event to be emitted.
-            expectEmit();
+            vm.expectEmit();
             emit WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.recipient,
@@ -290,7 +290,7 @@ abstract contract Pro_Fork_Test is Fork_Test {
             vars.initialRecipientBalance = vars.balances[2];
 
             // Expect a {CancelLockupStream} event to be emitted.
-            expectEmit();
+            vm.expectEmit();
             vars.senderAmount = pro.returnableAmountOf(vars.streamId);
             vars.recipientAmount = pro.withdrawableAmountOf(vars.streamId);
             emit CancelLockupStream(

@@ -94,7 +94,7 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
         expectTransferCall({ to: users.recipient, amount: vars.withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit WithdrawFromLockupStream({ streamId: vars.streamId, to: users.recipient, amount: vars.withdrawAmount });
 
         // Make the withdrawal.

@@ -83,7 +83,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         expectTransferFromCall({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
 
         // Expect a {FlashLoan} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit FlashLoan({
             initiator: users.admin,
             receiver: goodFlashLoanReceiver,

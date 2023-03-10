@@ -15,7 +15,7 @@ contract TransferAdmin_Fuzz_Test is Adminable_Fuzz_Test {
         vm.assume(newAdmin != address(0) && newAdmin != users.admin);
 
         // Expect a {TransferAdmin} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit TransferAdmin({ oldAdmin: users.admin, newAdmin: newAdmin });
 
         // Transfer the admin.

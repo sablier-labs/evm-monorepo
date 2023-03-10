@@ -25,7 +25,7 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
     /// @dev it should emit a {TransferAdmin} event and re-set the admin.
     function test_TransferAdmin_SameAdmin() external callerAdmin {
         // Expect a {TransferAdmin} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit TransferAdmin({ oldAdmin: users.admin, newAdmin: users.admin });
 
         // Transfer the admin.
@@ -44,7 +44,7 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
     /// @dev it should emit a {TransferAdmin} event and set the admin to the zero address.
     function test_TransferAdmin_ZeroAddress() external callerAdmin {
         // Expect a {TransferAdmin} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit TransferAdmin({ oldAdmin: users.admin, newAdmin: address(0) });
 
         // Transfer the admin.
@@ -59,7 +59,7 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
     /// @dev it should emit a {TransferAdmin} event and set the new admin.
     function test_TransferAdmin_NewAdmin() external callerAdmin notZeroAddress {
         // Expect a {TransferAdmin} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit TransferAdmin({ oldAdmin: users.admin, newAdmin: users.alice });
 
         // Transfer the admin.

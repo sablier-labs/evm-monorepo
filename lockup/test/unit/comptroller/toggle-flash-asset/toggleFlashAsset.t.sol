@@ -28,7 +28,7 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
     /// @dev it should toggle the flash asset.
     function test_ToggleFlashAsset_FlagNotEnabled() external callerAdmin {
         // Expect a {ToggleFlashAsset} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: true });
 
         // Toggle the flash asset.
@@ -47,7 +47,7 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
     /// @dev it should toggle the flash asset and emit a {ToggleFlashAsset} event.
     function test_ToggleFlashAsset() external callerAdmin flagEnabled {
         // Expect a {ToggleFlashAsset} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: false });
 
         // Toggle the flash asset.

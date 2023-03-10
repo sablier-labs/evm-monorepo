@@ -10,7 +10,7 @@ contract Constructor_Comptroller_Unit_Test is Comptroller_Unit_Test {
     /// @dev it should initialize all values correctly and emit a {TransferAdmin} event.
     function test_Constructor() external {
         // Expect a {TransferEvent} to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
 
         // Construct the comptroller contract.

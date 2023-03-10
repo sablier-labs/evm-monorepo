@@ -142,7 +142,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         expectTransferFromCall({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
 
         // Expect a {CreateLockupProStream} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit CreateLockupProStream({
             streamId: streamId,
             funder: funder,

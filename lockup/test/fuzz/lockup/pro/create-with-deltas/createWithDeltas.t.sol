@@ -88,7 +88,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         });
 
         // Expect a {CreateLockupProStream} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit CreateLockupProStream({
             streamId: streamId,
             funder: vars.funder,

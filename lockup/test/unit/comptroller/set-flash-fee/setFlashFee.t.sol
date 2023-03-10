@@ -43,7 +43,7 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
         UD60x18 newFlashFee = DEFAULT_FLASH_FEE;
 
         // Expect a {SetFlashFee} event to be emitted.
-        expectEmit();
+        vm.expectEmit();
         emit SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: newFlashFee });
 
         // She the new flash fee.
