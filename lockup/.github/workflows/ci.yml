@@ -5,9 +5,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  API_KEY_ALCHEMY: ${{ secrets.API_KEY_ALCHEMY }}
   API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
   API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
+  RPC_URL_ETHEREUM: ${{ secrets.RPC_URL_ETHEREUM }}
 
 on:
   workflow_dispatch:
