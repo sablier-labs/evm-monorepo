@@ -47,7 +47,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
     /// @notice Queries the range of the stream, a struct that encapsulates (i) the start time of the stream,
-    //// (ii) the cliff time of the stream, and (iii) the end time of the stream, all as Unix timestamps.
+    /// (ii) the cliff time of the stream, and (iii) the end time of the stream, all as Unix timestamps.
     /// @param streamId The id of the stream to make the query for.
     function getRange(uint256 streamId) external view returns (LockupLinear.Range memory range);
 
