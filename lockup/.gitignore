@@ -1,6 +1,7 @@
 # directories
 **/broadcast
 **/cache
+**/docs
 **/node_modules
 **/optimized-out
 **/out

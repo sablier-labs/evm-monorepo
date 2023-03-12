@@ -72,6 +72,11 @@
   src = "test"
   verbosity = 4
 
+[doc]
+  ignore = ["**/*.t.sol"]
+  out = "docs"
+  repository = "https://github.com/sablierhq/v2-core"
+
 [etherscan]
   arbitrum = { key = "${API_KEY_ARBISCAN}" }
   avalanche = { key = "${API_KEY_SNOWTRACE" }

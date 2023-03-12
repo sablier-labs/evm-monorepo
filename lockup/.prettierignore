@@ -1,6 +1,7 @@
 # directories
 .github/workflows/
 **/cache
+**/docs
 **/lib
 **/node_modules
 **/out
