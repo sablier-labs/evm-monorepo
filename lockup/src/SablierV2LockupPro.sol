@@ -40,7 +40,7 @@ import { Lockup, LockupPro } from "./types/DataTypes.sol";
 */
 
 /// @title SablierV2LockupPro
-/// @dev This contract implements the {ISablierV2LockupPro} interface.
+/// @notice See the documentation in the {ISablierV2LockupPro} interface.
 contract SablierV2LockupPro is
     ISablierV2LockupPro, // one dependency
     ERC721("Sablier V2 Lockup Pro NFT", "SAB-V2-LOCKUP-PRO"), // six dependencies

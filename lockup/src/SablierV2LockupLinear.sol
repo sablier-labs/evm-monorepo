@@ -37,7 +37,7 @@ import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 */
 
 /// @title SablierV2LockupLinear
-/// @dev This contract implements the {ISablierV2LockupLinear} interface.
+/// @notice See the documentation in the {ISablierV2LockupLinear} interface.
 contract SablierV2LockupLinear is
     ISablierV2LockupLinear, // one dependency
     ERC721("Sablier V2 Lockup Linear NFT", "SAB-V2-LOCKUP-LIN"), // six dependencies
