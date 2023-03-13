@@ -34,7 +34,7 @@ interface ISablierV2Adminable {
     /// functionality that is only available to the admin.
     ///
     /// Requirements:
-    /// - The caller must be the current contract admin.
+    /// - The caller must be the contract admin.
     ///
     /// @param newAdmin The address of the new admin.
     function transferAdmin(address newAdmin) external;

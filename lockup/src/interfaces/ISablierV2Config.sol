@@ -15,15 +15,15 @@ interface ISablierV2Config is ISablierV2Adminable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the contract admin claims all protocol revenues accrued for the provided ERC-20 asset.
-    /// @param admin The address of the current contract admin.
+    /// @param admin The address of the contract admin.
     /// @param asset The contract address of the ERC-20 asset the protocol revenues have been claimed for.
     /// @param protocolRevenues The amount of protocol revenues claimed, in units of the asset's decimals.
     event ClaimProtocolRevenues(address indexed admin, IERC20 indexed asset, uint128 protocolRevenues);
 
     /// @notice Emitted when the contract admin sets a new comptroller contract.
-    /// @param admin The address of the current contract admin.
-    /// @param oldComptroller The address of the old {SablierV2Comptroller} contract.
-    /// @param newComptroller The address of the new {SablierV2Comptroller} contract.
+    /// @param admin The address of the contract admin.
+    /// @param oldComptroller The address of the old comptroller contract.
+    /// @param newComptroller The address of the new comptroller contract.
     event SetComptroller(
         address indexed admin,
         ISablierV2Comptroller oldComptroller,
@@ -61,7 +61,7 @@ interface ISablierV2Config is ISablierV2Adminable {
     /// @param asset The contract address of the ERC-20 asset to claim the protocol revenues for.
     function claimProtocolRevenues(IERC20 asset) external;
 
-    /// @notice Sets the {SablierV2Comptroller} contract. The comptroller is in charge of the protocol configuration,
+    /// @notice Sets a new comptroller contract. The comptroller is in charge of the protocol configuration,
     /// handling such values as the protocol fees.
     ///
     /// @dev Emits a {SetComptroller} event.
@@ -72,6 +72,6 @@ interface ISablierV2Config is ISablierV2Adminable {
     /// Requirements:
     /// - The caller must be the contract admin.
     ///
-    /// @param newComptroller The address of the new {SablierV2Comptroller} contract.
+    /// @param newComptroller The address of the new comptroller contract.
     function setComptroller(ISablierV2Comptroller newComptroller) external;
 }

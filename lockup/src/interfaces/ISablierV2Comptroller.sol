@@ -15,20 +15,20 @@ interface ISablierV2Comptroller is ISablierV2Adminable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the admin sets a new flash fee.
-    /// @param admin The address of the current contract admin.
+    /// @param admin The address of the contract admin.
     /// @param oldFlashFee The old flash fee, as an UD60x18 number.
     /// @param newFlashFee The new flash fee, as an UD60x18 number.
     event SetFlashFee(address indexed admin, UD60x18 oldFlashFee, UD60x18 newFlashFee);
 
     /// @notice Emitted when the contract admin sets a new protocol fee for the provided ERC-20 asset.
-    /// @param admin The address of the current contract admin.
+    /// @param admin The address of the contract admin.
     /// @param asset The contract address of the ERC-20 asset the new protocol fee has been set for.
     /// @param oldProtocolFee The old protocol fee, as an UD60x18 number.
     /// @param newProtocolFee The new protocol fee, as an UD60x18 number.
     event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
 
     /// @notice Emitted when the admin enables or disables an ERC-20 asset for flash loaning.
-    /// @param admin The address of the current contract admin.
+    /// @param admin The address of the contract admin.
     /// @param asset The contract address of the ERC-20 asset to toggle.
     /// @param newFlag Whether the ERC-20 asset can be flash loaned.
     event ToggleFlashAsset(address indexed admin, IERC20 indexed asset, bool newFlag);

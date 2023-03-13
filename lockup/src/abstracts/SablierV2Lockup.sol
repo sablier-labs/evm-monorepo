@@ -13,7 +13,7 @@ import { SablierV2Config } from "./SablierV2Config.sol";
 import { SablierV2FlashLoan } from "./SablierV2FlashLoan.sol";
 
 /// @title SablierV2Lockup
-/// @dev Abstract contract that implements the {ISablierV2Lockup} interface and other common logic.
+/// @notice See the documentation in the {ISablierV2Lockup} interface.
 abstract contract SablierV2Lockup is
     SablierV2Config, // three dependencies
     ISablierV2Lockup, // four dependencies

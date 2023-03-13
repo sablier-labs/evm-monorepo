@@ -10,7 +10,9 @@ import { IERC3156FlashLender } from "erc3156/interfaces/IERC3156FlashLender.sol"
 import { Errors } from "../libraries/Errors.sol";
 import { SablierV2Config } from "./SablierV2Config.sol";
 
-/// @dev Abstract contract that implements the {IERC3156FlashLender} interface.
+/// @title SablierV2FlashLoan
+/// @notice This contract implements the ERC-3156 standard to enable flash loans.
+/// @dev See https://eips.ethereum.org/EIPS/eip-3156.
 abstract contract SablierV2FlashLoan is
     IERC3156FlashLender, // no dependencies
     SablierV2Config // three dependencies
