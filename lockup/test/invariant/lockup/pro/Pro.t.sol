@@ -14,7 +14,7 @@ import { LockupProCreateHandler } from "../../handlers/LockupProCreateHandler.t.
 /// @dev Invariants for the {SablierV2LockupPro} contract.
 contract Pro_Invariant_Test is Lockup_Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
-                                PUBLIC TEST CONTRACTS
+                                   TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
     LockupProHandler internal proHandler;

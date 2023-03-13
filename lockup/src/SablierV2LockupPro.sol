@@ -86,7 +86,7 @@ contract SablierV2LockupPro is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                              PUBLIC CONSTANT FUNCTIONS
+                           USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
@@ -222,7 +222,7 @@ contract SablierV2LockupPro is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            PUBLIC NON-CONSTANT FUNCTIONS
+                         USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupPro

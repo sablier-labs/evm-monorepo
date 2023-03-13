@@ -57,7 +57,7 @@ abstract contract SablierV2Config is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                              PUBLIC CONSTANT FUNCTIONS
+                           USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Config
@@ -66,7 +66,7 @@ abstract contract SablierV2Config is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            PUBLIC NON-CONSTANT FUNCTIONS
+                         USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Config

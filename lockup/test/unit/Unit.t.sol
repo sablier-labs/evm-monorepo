@@ -46,7 +46,7 @@ abstract contract Unit_Test is Base_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL NON-CONSTANT FUNCTIONS
+                                  HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Label the test contracts.

@@ -70,7 +70,7 @@ contract SablierV2LockupLinear is
     ) SablierV2Lockup(initialAdmin, initialComptroller, nftDescriptor, maxFee) {}
 
     /*//////////////////////////////////////////////////////////////////////////
-                            PUBLIC CONSTANT FUNCTIONS
+                           USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
@@ -223,7 +223,7 @@ contract SablierV2LockupLinear is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            PUBLIC NON-CONSTANT FUNCTIONS
+                         USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupLinear

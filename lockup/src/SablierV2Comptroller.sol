@@ -61,7 +61,7 @@ contract SablierV2Comptroller is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                             PUBLIC CONSTANT FUNCTIONS
+                           USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Comptroller
@@ -75,7 +75,7 @@ contract SablierV2Comptroller is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           PUBLIC NON-CONSTANT FUNCTIONS
+                         USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Comptroller

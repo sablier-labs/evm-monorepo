@@ -57,7 +57,7 @@ abstract contract Fork_Test is Base_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                  HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks the user assumptions.

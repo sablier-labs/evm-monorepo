@@ -27,7 +27,7 @@ abstract contract SablierV2Adminable is ISablierV2Adminable {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           PUBLIC NON-CONSTANT FUNCTIONS
+                         USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Adminable

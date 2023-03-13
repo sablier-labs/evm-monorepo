@@ -13,10 +13,6 @@ import { Utils } from "./Utils.t.sol";
 abstract contract Fuzzers is Constants, Utils {
     using CastingUint128 for uint128;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @dev Just like `fuzzSegmentAmountsAndCalculateCreateAmounts` but uses the defaults.
     function fuzzSegmentAmountsAndCalculateCreateAmounts(
         LockupPro.Segment[] memory segments

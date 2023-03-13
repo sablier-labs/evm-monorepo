@@ -27,6 +27,14 @@ abstract contract Lockup_Shared_Test is Base_Test {
     ISablierV2Lockup internal lockup;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                  SET-UP FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function setUp() public virtual override {
+        Base_Test.setUp();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                   HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -53,12 +61,4 @@ abstract contract Lockup_Shared_Test is Base_Test {
 
     /// @dev Creates the default stream with the provided start time.
     function createDefaultStreamWithStartTime(uint40 startTime) internal virtual returns (uint256 streamId);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  SET-UP FUNCTION
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function setUp() public virtual override {
-        Base_Test.setUp();
-    }
 }

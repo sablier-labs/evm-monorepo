@@ -58,7 +58,7 @@ contract LockupProCreateHandler is BaseHandler {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     FUNCTIONS
+                                 HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     function createWithDeltas(

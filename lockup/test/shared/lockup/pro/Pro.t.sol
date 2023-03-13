@@ -67,7 +67,7 @@ abstract contract Pro_Shared_Test is Lockup_Shared_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                                  HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Creates the default stream.

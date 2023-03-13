@@ -83,7 +83,7 @@ abstract contract SablierV2Lockup is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                              PUBLIC CONSTANT FUNCTIONS
+                           USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
@@ -93,13 +93,13 @@ abstract contract SablierV2Lockup is
     function getStatus(uint256 streamId) public view virtual override returns (Lockup.Status status);
 
     /// @inheritdoc ISablierV2Lockup
-    function withdrawableAmountOf(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
-
-    /// @inheritdoc ISablierV2Lockup
     function isCancelable(uint256 streamId) public view virtual override returns (bool result);
 
+    /// @inheritdoc ISablierV2Lockup
+    function withdrawableAmountOf(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
+
     /*//////////////////////////////////////////////////////////////////////////
-                            PUBLIC NON-CONSTANT FUNCTIONS
+                         USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup

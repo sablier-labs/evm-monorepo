@@ -104,7 +104,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL NON-CONSTANT FUNCTIONS
+                                  HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Approves all Sablier contracts to spend ERC-20 assets from the sender, recipient, Alice and Eve,

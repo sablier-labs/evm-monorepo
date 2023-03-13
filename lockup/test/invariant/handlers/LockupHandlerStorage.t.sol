@@ -15,7 +15,7 @@ contract LockupHandlerStorage {
     uint256[] public streamIds;
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                                  HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     function addReturnedAmount(uint128 returnedAmount) external {

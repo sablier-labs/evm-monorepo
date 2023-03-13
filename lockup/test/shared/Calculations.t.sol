@@ -15,10 +15,6 @@ abstract contract Calculations is Constants {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @dev Calculates the deposit amount by calculating and subtracting the protocol fee amount and the
     /// broker fee amount from the total amount.
     function calculateDepositAmount(

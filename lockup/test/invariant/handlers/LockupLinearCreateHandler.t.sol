@@ -48,7 +48,7 @@ contract LockupLinearCreateHandler is BaseHandler {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     FUNCTIONS
+                                 HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     function createWithDurations(
