@@ -15,7 +15,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when a lockup linear stream is created.
-    /// @param streamId The id of the newly created stream.
+    /// @param streamId The id of the newly created lockup linear stream.
     /// @param funder The address which has funded the stream.
     /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the assets.
@@ -42,17 +42,17 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Queries the cliff time of the stream.
-    /// @param streamId The id of the stream to make the query for.
+    /// @notice Queries the cliff time of the lockup linear stream.
+    /// @param streamId The id of the lockup linear stream to make the query for.
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
-    /// @notice Queries the range of the stream, a struct that encapsulates (i) the start time of the stream,
-    /// (ii) the cliff time of the stream, and (iii) the end time of the stream, all as Unix timestamps.
-    /// @param streamId The id of the stream to make the query for.
+    /// @notice Queries the range of the lockup linear stream, a struct that encapsulates (i) the start time of the
+    /// stream, (ii) the cliff time of the stream, and (iii) the end time of the stream, all as Unix timestamps.
+    /// @param streamId The id of the lockup linear stream to make the query for.
     function getRange(uint256 streamId) external view returns (LockupLinear.Range memory range);
 
-    /// @notice Queries the stream struct entity.
-    /// @param streamId The id of the stream to make the query for.
+    /// @notice Queries the lockup linear stream struct entity.
+    /// @param streamId The id of the lockup linear stream to make the query for.
     function getStream(uint256 streamId) external view returns (LockupLinear.Stream memory stream);
 
     /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
@@ -68,15 +68,16 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - $d$ is the deposit amount.
     /// - $c$ is the cliff amount.
     ///
-    /// @param streamId The id of the stream to make the query for.
+    /// @param streamId The id of the lockup linear stream to make the query for.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a stream by setting the start time to `block.timestamp` and the end time to `block.timestamp +
-    /// params.durations.total`. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
+    /// @notice Creates a lockup linear stream with the start time set to `block.timestamp`, and the end time set
+    /// to `block.timestamp + params.durations.total`. The stream is funded by `msg.sender` and is wrapped in an
+    /// ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
     ///
@@ -84,16 +85,16 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - All from {createWithRange}.
     ///
     /// @param params Struct that encapsulates the function parameters.
-    /// @return streamId The id of the newly created stream.
+    /// @return streamId The id of the newly created lockup linear stream.
     function createWithDurations(LockupLinear.CreateWithDurations calldata params) external returns (uint256 streamId);
 
-    /// @notice Creates a stream with the provided start time and end time as the range of the stream. The stream is
+    /// @notice Creates a lockup linear stream with the provided start time and end time as the range. The stream is
     /// funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - As long as they are ordered, it is not an error to set a range that is in the past.
+    /// - As long as the times are ordered, it is not an error to set a range that is in the past.
     ///
     /// Requirements:
     /// - `params.recipient` must not be the zero address.
@@ -104,6 +105,6 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
     ///
     /// @param params Struct that encapsulates the function parameters.
-    /// @return streamId The id of the newly created stream.
+    /// @return streamId The id of the newly created lockup linear stream.
     function createWithRange(LockupLinear.CreateWithRange calldata params) external returns (uint256 streamId);
 }

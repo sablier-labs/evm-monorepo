@@ -113,7 +113,7 @@ library LockupLinear {
         uint40 end; // ───┘
     }
 
-    /// @notice Lockup linear stream struct used in the {SablierV2LockupLinear} contract.
+    /// @notice Linear lockup stream struct.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
     /// @param amounts Simple struct with the deposit and the withdrawn amount.
     /// @param sender The address of the sender of the stream.
@@ -190,7 +190,7 @@ library LockupPro {
         uint40 end; // ───┘
     }
 
-    /// @notice Segment struct used in the {SablierV2LockupPro} contract.
+    /// @notice Segment struct used in the lockup pro stream.
     /// @param amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
     /// @param exponent The exponent of this segment, as an UD2x18 number.
     /// @param milestone The Unix timestamp for when this segment ends.
@@ -200,7 +200,7 @@ library LockupPro {
         uint40 milestone; // ─┘
     }
 
-    /// @notice Segment struct used in the {SablierV2LockupPro-createWithDeltas} function.
+    /// @notice Segment struct used only at runtime in the {SablierV2LockupPro-createWithDeltas} function.
     /// @param amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
     /// @param exponent The exponent of this segment, as an UD2x18 number.
     /// @param delta The time difference between this segment and the previous one, in seconds.
@@ -210,7 +210,7 @@ library LockupPro {
         uint40 delta; // ───┘
     }
 
-    /// @notice Pro stream struct used in the {SablierV2LockupPro} contract.
+    /// @notice Pro lockup stream struct.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
     /// @param amounts Simple struct with the deposit and the withdrawn amount.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
