@@ -34,6 +34,25 @@ abstract contract SablierV2Lockup is
     uint256 public override nextStreamId;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                     CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @param initialAdmin The address of the initial contract admin.
+    /// @param initialComptroller The address of the initial comptroller.
+    /// @param maxFee The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
+    /// where 100% = 1e18.
+    /// @param nftDescriptor The address of the NFT descriptor contract.
+    constructor(
+        address initialAdmin,
+        ISablierV2Comptroller initialComptroller,
+        ISablierV2NftDescriptor nftDescriptor,
+        UD60x18 maxFee
+    ) SablierV2Config(initialAdmin, initialComptroller, maxFee) {
+        nextStreamId = 1;
+        _nftDescriptor = nftDescriptor;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -61,25 +80,6 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
         _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @param initialAdmin The address of the initial contract admin.
-    /// @param initialComptroller The address of the initial comptroller.
-    /// @param maxFee The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
-    /// where 100% = 1e18.
-    /// @param nftDescriptor The address of the NFT descriptor contract.
-    constructor(
-        address initialAdmin,
-        ISablierV2Comptroller initialComptroller,
-        ISablierV2NftDescriptor nftDescriptor,
-        UD60x18 maxFee
-    ) SablierV2Config(initialAdmin, initialComptroller, maxFee) {
-        nextStreamId = 1;
-        _nftDescriptor = nftDescriptor;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
