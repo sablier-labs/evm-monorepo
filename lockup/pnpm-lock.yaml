@@ -2,9 +2,9 @@ lockfileVersion: 5.4
 
 specifiers:
   prettier: ^2.8.4
-  prettier-plugin-solidity: ^1.1.2
-  rimraf: ^4.1.2
-  solhint: ^3.4.0
+  prettier-plugin-solidity: ^1.1.3
+  rimraf: ^4.4.0
+  solhint: ^3.4.1
   solhint-plugin-prettier: ^0.0.5
 
 devDependencies:
@@ -218,7 +218,7 @@ packages:
     dependencies:
       fs.realpath: 1.0.0
       minimatch: 7.4.2
-      minipass: 4.2.4
+      minipass: 4.2.5
       path-scurry: 1.6.1
     dev: true
 
@@ -326,8 +326,8 @@ packages:
       brace-expansion: 2.0.1
     dev: true
 
-  /minipass/4.2.4:
-    resolution: {integrity: sha512-lwycX3cBMTvcejsHITUgYj6Gy6A7Nh4Q6h9NP4sTHY1ccJlC7yKzDmiShEHsJ16Jf1nKGDEaiHxiltsJEvk0nQ==}
+  /minipass/4.2.5:
+    resolution: {integrity: sha512-+yQl7SX3bIT83Lhb4BVorMAHVuqsskxRdlmO9kTpyukp8vsm2Sn/fUOV9xlnG8/a5JsypJzap21lz/y3FBMJ8Q==}
     engines: {node: '>=8'}
     dev: true
 
@@ -359,7 +359,7 @@ packages:
     engines: {node: '>=14'}
     dependencies:
       lru-cache: 7.18.3
-      minipass: 4.2.4
+      minipass: 4.2.5
     dev: true
 
   /path-type/4.0.0:

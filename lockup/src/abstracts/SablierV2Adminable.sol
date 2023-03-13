@@ -30,7 +30,7 @@ abstract contract SablierV2Adminable is ISablierV2Adminable {
                            PUBLIC NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-        /// @inheritdoc ISablierV2Adminable
+    /// @inheritdoc ISablierV2Adminable
     function transferAdmin(address newAdmin) public virtual override onlyAdmin {
         // Effects: update the admin.
         admin = newAdmin;

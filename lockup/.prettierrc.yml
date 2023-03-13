@@ -1,4 +1,5 @@
 bracketSpacing: true
+plugins: ["prettier-plugin-solidity"]
 printWidth: 120
 proseWrap: "always"
 singleQuote: false
