@@ -30,15 +30,12 @@ abstract contract SablierV2Adminable is ISablierV2Adminable {
                            PUBLIC NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2Adminable
+        /// @inheritdoc ISablierV2Adminable
     function transferAdmin(address newAdmin) public virtual override onlyAdmin {
-        // Load the current admin in memory.
-        address oldAdmin = admin;
-
         // Effects: update the admin.
         admin = newAdmin;
 
         // Log the transfer of the admin.
-        emit ISablierV2Adminable.TransferAdmin(oldAdmin, newAdmin);
+        emit ISablierV2Adminable.TransferAdmin({ oldAdmin: msg.sender, newAdmin: newAdmin });
     }
 }
