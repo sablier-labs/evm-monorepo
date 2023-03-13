@@ -8,5 +8,6 @@
   "files.associations": {
     ".gas-snapshot": "julia"
   },
+  "prettier.documentSelectors": ["**/*.sol"],
   "solidity.formatter": "prettier"
 }

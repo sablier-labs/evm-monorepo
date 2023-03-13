@@ -11,4 +11,5 @@ overrides:
   - files: "*.sol"
     options:
       compiler: "0.8.19"
+      parser: "solidity-parse"
       tabWidth: 4
