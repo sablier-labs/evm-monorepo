@@ -36,7 +36,7 @@ abstract contract BaseHandler is Calculations, Fuzzers, StdCheats {
     Vm internal constant vm = Vm(HEVM_ADDRESS);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                        MODIFIERS
+                                     MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier checkUsers(

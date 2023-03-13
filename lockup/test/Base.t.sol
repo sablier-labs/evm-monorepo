@@ -87,18 +87,6 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Modifier that runs the function only in a CI environment.
-    modifier onlyInCI() {
-        string memory ci = vm.envOr("CI", string(""));
-        if (eqString(ci, "true")) {
-            _;
-        }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
