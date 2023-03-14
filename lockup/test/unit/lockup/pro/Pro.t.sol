@@ -26,6 +26,7 @@ import { IsCancelable_Unit_Test } from "../shared/is-cancelable/isCancelable.t.s
 import { Renounce_Unit_Test } from "../shared/renounce/renounce.t.sol";
 import { ReturnableAmountOf_Unit_Test } from "../shared/returnable-amount-of/returnableAmountOf.t.sol";
 import { SetComptroller_Unit_Test } from "../shared/set-comptroller/setComptroller.t.sol";
+import { SetNFTDescriptor_Unit_Test } from "../shared/set-nft-descriptor/setNFTDescriptor.t.sol";
 import { TokenURI_Unit_Test } from "../shared/token-uri/tokenURI.t.sol";
 import { Withdraw_Unit_Test } from "../shared/withdraw/withdraw.t.sol";
 import { WithdrawMax_Unit_Test } from "../shared/withdraw-max/withdrawMax.t.sol";
@@ -185,6 +186,13 @@ contract SetComptroller_Pro_Unit_Test is Pro_Unit_Test, SetComptroller_Unit_Test
     function setUp() public virtual override(Pro_Unit_Test, SetComptroller_Unit_Test) {
         Pro_Unit_Test.setUp();
         SetComptroller_Unit_Test.setUp();
+    }
+}
+
+contract SetNFTDescriptor_Pro_Unit_Test is Pro_Unit_Test, SetNFTDescriptor_Unit_Test {
+    function setUp() public virtual override(Pro_Unit_Test, SetNFTDescriptor_Unit_Test) {
+        Pro_Unit_Test.setUp();
+        SetNFTDescriptor_Unit_Test.setUp();
     }
 }
 

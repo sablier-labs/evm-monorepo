@@ -8,6 +8,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { Lockup } from "../types/DataTypes.sol";
 import { ISablierV2Config } from "./ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
+import { ISablierV2NFTDescriptor } from "./ISablierV2NFTDescriptor.sol";
 
 /// @title ISablierV2Lockup
 /// @notice The common interface between all Sablier V2 lockup streaming contracts.
@@ -36,6 +37,16 @@ interface ISablierV2Lockup is
     /// @notice Emitted when a sender makes a lockup stream non-cancelable.
     /// @param streamId The id of the lockup stream.
     event RenounceLockupStream(uint256 indexed streamId);
+
+    /// @notice Emitted when the contract admin sets the NFT descriptor contract.
+    /// @param admin The address of the current contract admin.
+    /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
+    /// @param newNFTDescriptor The address of the new NFT descriptor contract.
+    event SetNFTDescriptor(
+        address indexed admin,
+        ISablierV2NFTDescriptor oldNFTDescriptor,
+        ISablierV2NFTDescriptor newNFTDescriptor
+    );
 
     /// @notice Emitted when assets are withdrawn from a lockup stream.
     /// @param streamId The id of the lockup stream.
@@ -175,6 +186,19 @@ interface ISablierV2Lockup is
     ///
     /// @param streamId The id of the lockup stream to renounce.
     function renounce(uint256 streamId) external;
+
+    /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
+    ///
+    /// @dev Emits a {SetNFTDescriptor} event.
+    ///
+    /// Notes:
+    /// - Does not revert if the NFT descriptor is the same.
+    ///
+    /// Requirements:
+    /// - The caller must be the contract admin.
+    ///
+    /// @param newNFTDescriptor The address of the new NFT descriptor contract.
+    function setNFTDescriptor(ISablierV2NFTDescriptor newNFTDescriptor) external;
 
     /// @notice Withdraws the provided amount of assets from the lockup stream to the provided address `to`.
     ///

@@ -11,7 +11,7 @@ import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "./interfaces/ISablierV2Lockup.sol";
 import { ISablierV2LockupLinear } from "./interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2NftDescriptor } from "./interfaces/ISablierV2NftDescriptor.sol";
+import { ISablierV2NFTDescriptor } from "./interfaces/ISablierV2NFTDescriptor.sol";
 import { ISablierV2LockupRecipient } from "./interfaces/hooks/ISablierV2LockupRecipient.sol";
 import { ISablierV2LockupSender } from "./interfaces/hooks/ISablierV2LockupSender.sol";
 import { Errors } from "./libraries/Errors.sol";
@@ -59,15 +59,15 @@ contract SablierV2LockupLinear is
     /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialComptroller The address of the initial comptroller.
-    /// @param nftDescriptor The address of the NFT descriptor contract.
+    /// @param initialNFTDescriptor The address of the initial NFT descriptor.
     /// @param maxFee The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
     /// where 100% = 1e18.
     constructor(
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
-        ISablierV2NftDescriptor nftDescriptor,
+        ISablierV2NFTDescriptor initialNFTDescriptor,
         UD60x18 maxFee
-    ) SablierV2Lockup(initialAdmin, initialComptroller, nftDescriptor, maxFee) {}
+    ) SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor, maxFee) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS

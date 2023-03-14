@@ -6,7 +6,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "../interfaces/ISablierV2Lockup.sol";
-import { ISablierV2NftDescriptor } from "../interfaces/ISablierV2NftDescriptor.sol";
+import { ISablierV2NFTDescriptor } from "../interfaces/ISablierV2NFTDescriptor.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { Lockup } from "../types/DataTypes.sol";
 import { SablierV2Config } from "./SablierV2Config.sol";
@@ -20,13 +20,6 @@ abstract contract SablierV2Lockup is
     SablierV2FlashLoan // five dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
-                                 INTERNAL CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Contract that generates the non-fungible token URI.
-    ISablierV2NftDescriptor internal immutable _nftDescriptor;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -34,22 +27,29 @@ abstract contract SablierV2Lockup is
     uint256 public override nextStreamId;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                  INTERNAL STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Contract that generates the non-fungible token URI.
+    ISablierV2NFTDescriptor internal _nftDescriptor;
+
+    /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialComptroller The address of the initial comptroller.
+    /// @param initialNftDescriptor The address of the initial NFT descriptor.
     /// @param maxFee The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
     /// where 100% = 1e18.
-    /// @param nftDescriptor The address of the NFT descriptor contract.
     constructor(
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
-        ISablierV2NftDescriptor nftDescriptor,
+        ISablierV2NFTDescriptor initialNftDescriptor,
         UD60x18 maxFee
     ) SablierV2Config(initialAdmin, initialComptroller, maxFee) {
         nextStreamId = 1;
-        _nftDescriptor = nftDescriptor;
+        _nftDescriptor = initialNftDescriptor;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -167,6 +167,20 @@ abstract contract SablierV2Lockup is
 
         // Effects: renounce the stream.
         _renounce(streamId);
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function setNFTDescriptor(ISablierV2NFTDescriptor newNFTDescriptor) external override onlyAdmin {
+        // Effects: set the NFT descriptor.
+        ISablierV2NFTDescriptor oldNftDescriptor = _nftDescriptor;
+        _nftDescriptor = newNFTDescriptor;
+
+        // Log the change of the NFT descriptor.
+        emit ISablierV2Lockup.SetNFTDescriptor({
+            admin: msg.sender,
+            oldNFTDescriptor: oldNftDescriptor,
+            newNFTDescriptor: newNFTDescriptor
+        });
     }
 
     /// @inheritdoc ISablierV2Lockup

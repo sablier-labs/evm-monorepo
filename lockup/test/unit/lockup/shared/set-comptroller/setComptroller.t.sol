@@ -3,7 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { Errors } from "src/libraries/Errors.sol";
-
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";

@@ -6,6 +6,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
 
 import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
+import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
 import { Lockup, LockupLinear, LockupPro } from "../../src/types/DataTypes.sol";
 
 /// @title Events
@@ -18,7 +19,7 @@ abstract contract Events {
     event TransferAdmin(address indexed oldAdmin, address indexed newAdmin);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     SABLIER-V2-CONFIG
+                                 SABLIER-V2-CONFIG
     //////////////////////////////////////////////////////////////////////////*/
 
     event ClaimProtocolRevenues(address indexed admin, IERC20 indexed asset, uint128 protocolRevenues);
@@ -65,6 +66,12 @@ abstract contract Events {
     );
 
     event RenounceLockupStream(uint256 indexed streamId);
+
+    event SetNFTDescriptor(
+        address indexed admin,
+        ISablierV2NFTDescriptor oldNFTDescriptor,
+        ISablierV2NFTDescriptor newNFTDescriptor
+    );
 
     event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, uint128 amount);
 

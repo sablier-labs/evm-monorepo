@@ -11,7 +11,7 @@ import { DeployProtocol } from "script/deploy/DeployProtocol.s.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
-import { SablierV2NftDescriptor } from "src/SablierV2NftDescriptor.sol";
+import { SablierV2NFTDescriptor } from "src/SablierV2NFTDescriptor.sol";
 
 import { Assertions } from "./shared/Assertions.t.sol";
 import { Calculations } from "./shared/Calculations.t.sol";
@@ -67,7 +67,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
     ISablierV2Comptroller internal comptroller;
     IERC20 internal dai = new ERC20("Dai Stablecoin", "DAI");
     ISablierV2LockupLinear internal linear;
-    SablierV2NftDescriptor internal nftDescriptor = new SablierV2NftDescriptor();
+    SablierV2NFTDescriptor internal nftDescriptor = new SablierV2NFTDescriptor();
     NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
     ISablierV2LockupPro internal pro;
 
@@ -177,7 +177,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         else {
             (comptroller, linear, pro) = new DeployProtocol().run({
                 initialAdmin: users.admin,
-                nftDescriptor: nftDescriptor,
+                initialNFTDescriptor: nftDescriptor,
                 maxFee: DEFAULT_MAX_FEE,
                 maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
             });
