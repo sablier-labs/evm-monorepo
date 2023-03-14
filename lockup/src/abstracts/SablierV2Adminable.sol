@@ -5,7 +5,7 @@ import { ISablierV2Adminable } from "../interfaces/ISablierV2Adminable.sol";
 import { Errors } from "../libraries/Errors.sol";
 
 /// @title SablierV2Adminable
-/// @notice See the documentation in the {ISablierV2Adminable} interface.
+/// @notice See the documentation in {ISablierV2Adminable}.
 abstract contract SablierV2Adminable is ISablierV2Adminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        STORAGE

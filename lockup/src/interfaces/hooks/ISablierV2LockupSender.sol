@@ -2,7 +2,7 @@
 pragma solidity >=0.8.18;
 
 /// @title ISablierV2LockupSender
-/// @notice Interface for Sablier V2 sender contracts that can react to cancellations.
+/// @notice Interface for sender contracts that can react to cancellations.
 /// @dev Implementing this interface is entirely optional. If a sender contract does not implement this interface,
 /// the function execution will not revert.
 interface ISablierV2LockupSender {
@@ -10,7 +10,7 @@ interface ISablierV2LockupSender {
     /// cancellation triggered by the recipient.
     ///
     /// @dev Notes:
-    /// - This function may revert, but the {SablierV2Lockup} contract will always ignore the revert.
+    /// - This function may revert, but the Sablier contract will always ignore the revert.
     ///
     /// @param streamId The id of the stream that has been canceled.
     /// @param senderAmount The amount of assets returned to the sender, in units of the asset's decimals.

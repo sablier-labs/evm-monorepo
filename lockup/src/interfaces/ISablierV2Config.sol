@@ -39,8 +39,8 @@ interface ISablierV2Config is ISablierV2Adminable {
     /// @dev This is initialized at construction time and cannot be changed later.
     function MAX_FEE() external view returns (UD60x18);
 
-    /// @notice The address of the {SablierV2Comptroller} contract. The comptroller is in charge of the Sablier V2
-    /// protocol configuration, handling such values as the protocol fees.
+    /// @notice The address of the comptroller contract, which is in charge of the Sablier V2 protocol configuration,
+    /// handling such values as the protocol fees.
     function comptroller() external view returns (ISablierV2Comptroller);
 
     /// @notice Queries the protocol revenues accrued for the provided ERC-20 asset, in units of the asset's decimals.

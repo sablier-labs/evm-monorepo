@@ -13,7 +13,7 @@ struct Broker {
     UD60x18 fee;
 }
 
-/// @notice Quasi-namespace for the structs used in the {SablierV2Lockup} contract.
+/// @notice Quasi-namespace for the structs used in both {SablierV2LockupLinear} and {SablierV2LockupPro}.
 library Lockup {
     /// @notice Simple struct that encapsulates the deposit and the withdrawn amounts.
     /// @param deposit The amount of assets that have been originally deposited in the stream, net of fees and
@@ -49,7 +49,7 @@ library Lockup {
     }
 }
 
-/// @notice Quasi-namespace for the structs used in the {SablierV2LockupLinear} contract.
+/// @notice Quasi-namespace for the structs used in {SablierV2LockupLinear}.
 library LockupLinear {
     /// @notice Struct that encapsulates the parameters of the {SablierV2LockupLinear-createWithDurations} function.
     /// @param sender The address from which to stream the assets, which will have the ability to
@@ -135,7 +135,7 @@ library LockupLinear {
     }
 }
 
-/// @notice Quasi-namespace for the structs used in the {SablierV2LockupPro} contract.
+/// @notice Quasi-namespace for the structs used in {SablierV2LockupPro}.
 library LockupPro {
     /// @notice Struct that encapsulates the parameters of the {SablierV2LockupPro-createWithDeltas} function.
     /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.

@@ -37,7 +37,7 @@ import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 */
 
 /// @title SablierV2LockupLinear
-/// @notice See the documentation in the {ISablierV2LockupLinear} interface.
+/// @notice See the documentation in {ISablierV2LockupLinear}.
 contract SablierV2LockupLinear is
     ISablierV2LockupLinear, // one dependency
     ERC721("Sablier V2 Lockup Linear NFT", "SAB-V2-LOCKUP-LIN"), // six dependencies
@@ -154,8 +154,8 @@ contract SablierV2LockupLinear is
             return 0;
         }
 
-        // No need for an assertion here, since the {streamedAmountOf} function checks that the deposit amount
-        // is greater than or equal to the streamed amount.
+        // No need for an assertion here, since {streamedAmountOf} checks that the deposit amount is greater
+        // than or equal to the streamed amount.
         unchecked {
             returnableAmount = _streams[streamId].amounts.deposit - streamedAmountOf(streamId);
         }
@@ -234,9 +234,9 @@ contract SablierV2LockupLinear is
         LockupLinear.Range memory range;
         range.start = uint40(block.timestamp);
 
-        // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because the
-        // {_createWithRange} function will nonetheless check that the end time is greater than or equal to the
-        // cliff time, and also that the cliff time is greater than or equal to the start time.
+        // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because {_createWithRange}
+        // {will nonetheless check that the end time is greater than or equal to the cliff time, and also that the cliff
+        // time is greater than or equal to the start time.
         unchecked {
             range.cliff = range.start + params.durations.cliff;
             range.end = range.start + params.durations.total;

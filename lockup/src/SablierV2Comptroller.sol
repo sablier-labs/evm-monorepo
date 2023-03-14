@@ -27,7 +27,7 @@ import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 */
 
 /// @title SablierV2Comptroller
-/// @notice See the documentation in the {ISablierV2Comptroller} interface.
+/// @notice See the documentation in {ISablierV2Comptroller}.
 contract SablierV2Comptroller is
     ISablierV2Comptroller, // one dependency
     SablierV2Adminable // one dependency

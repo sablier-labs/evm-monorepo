@@ -40,7 +40,7 @@ import { Lockup, LockupPro } from "./types/DataTypes.sol";
 */
 
 /// @title SablierV2LockupPro
-/// @notice See the documentation in the {ISablierV2LockupPro} interface.
+/// @notice See the documentation in {ISablierV2LockupPro}.
 contract SablierV2LockupPro is
     ISablierV2LockupPro, // one dependency
     ERC721("Sablier V2 Lockup Pro NFT", "SAB-V2-LOCKUP-PRO"), // six dependencies
@@ -166,8 +166,8 @@ contract SablierV2LockupPro is
             return 0;
         }
 
-        // No need for an assertion here, since the {streamedAmountOf} function checks that the deposit amount
-        // is greater than or equal to the streamed amount.
+        // No need for an assertion here, since {streamedAmountOf} checks that the deposit amount is greater than
+        // or equal to the streamed amount.
         unchecked {
             returnableAmount = _streams[streamId].amounts.deposit - streamedAmountOf(streamId);
         }

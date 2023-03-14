@@ -12,7 +12,7 @@ import { Errors } from "../libraries/Errors.sol";
 import { SablierV2Adminable } from "./SablierV2Adminable.sol";
 
 /// @title SablierV2Config
-/// @notice See the documentation in the {ISablierV2Config} interface.
+/// @notice See the documentation in {ISablierV2Config}.
 abstract contract SablierV2Config is
     ISablierV2Config, // no dependencies
     SablierV2Adminable // one dependency
