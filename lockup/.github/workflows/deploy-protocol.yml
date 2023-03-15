@@ -52,10 +52,10 @@ jobs:
           forge script script/deploy/DeployProtocol.s.sol
           --broadcast
           --rpc-url "${{ github.event.inputs.chain }}"
-          --sig "run(address,uint256,uint256)"
+          --sig "run(address,address,uint256,uint256)"
           "${{ github.event.inputs.admin }}"
-          "${{ github.event.inputs.max-fee }}"
           "${{ github.event.inputs.nft-descriptor }}"
+          "${{ github.event.inputs.max-fee }}"
           "${{ github.event.inputs.max-segment-count }}"
           -vvvv
 
