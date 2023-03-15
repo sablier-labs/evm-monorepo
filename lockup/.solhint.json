@@ -4,7 +4,7 @@
   "rules": {
     "avoid-low-level-calls": "off",
     "code-complexity": ["error", 8],
-    "compiler-version": ["error", ">=0.8.18"],
+    "compiler-version": ["error", ">=0.8.13"],
     "contract-name-camelcase": "off",
     "const-name-snakecase": "off",
     "func-name-mixedcase": "off",

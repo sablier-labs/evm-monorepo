@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity >=0.8.18;
+pragma solidity >=0.8.13;
 
 /// @title ISablierV2LockupRecipient
 /// @notice Interface for recipient contracts that can react to cancellations and withdrawals.

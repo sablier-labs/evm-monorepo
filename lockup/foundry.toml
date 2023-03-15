@@ -2,7 +2,7 @@
   auto_detect_solc = false
   bytecode_hash = "none"
   cbor_metadata = false
-  fs_permissions = [{ access = "read", path = "./optimized-out" }]
+  fs_permissions = [{ access = "read", path = "optimized-out" }]
   libs = ["lib"]
   gas_reports = [
     "SablierV2Comptroller",
