@@ -79,11 +79,11 @@ program, per the terms defined in the policy.
 ## Licensing
 
 The primary license for Sablier V2 Core is the Business Source License 1.1 (`BUSL-1.1`), see
-[`LICENSE.md`](./LICENSE.md). However, some files are dual-licensed under `GPL-2.0-or-later`:
+[`LICENSE.md`](./LICENSE.md). However, some files are dual-licensed under `GPL-3.0-or-later`:
 
-- All files in `src/interfaces/` and `src/types` may also be licensed under `GPL-2.0-or-later` (as indicated in their
+- All files in `src/interfaces/` and `src/types` may also be licensed under `GPL-3.0-or-later` (as indicated in their
   SPDX headers), see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
-- Several files in `src/libraries/` may also be licensed under `GPL-2.0-or-later` (as indicated in their SPDX headers),
+- Several files in `src/libraries/` may also be licensed under `GPL-3.0-or-later` (as indicated in their SPDX headers),
   see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
 
 ### Other Exceptions

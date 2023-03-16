@@ -13,9 +13,9 @@ Licensed Work: Sablier V2 Core The Licensed Work is (C) 2023 Sablier Labs Ltd
 
 Additional Use Grant: Any uses listed and defined at v2-core-license-grants.sablier.eth
 
-Change Date: The earlier of 2025-06-01 or a date specified at v2-core-license-date.sablier.eth
+Change Date: The earlier of 2025-07-01 or a date specified at v2-core-license-date.sablier.eth
 
-Change License: GNU General Public License v2.0 or later
+Change License: GNU General Public License v3.0 or later
 
 ---
 
@@ -60,9 +60,9 @@ Covenants of Licensor
 In consideration of the right to use this License’s text and the "Business Source License" name and trademark, Licensor
 covenants to MariaDB, and to all other recipients of the licensed work to be provided by Licensor:
 
-1. To specify as the Change License the GPL Version 2.0 or any later version, or a license that is compatible with GPL
-   Version 2.0 or a later version, where "compatible" means that software provided under the Change License can be
-   included in a program with software provided under GPL Version 2.0 or a later version. Licensor may specify
+1. To specify as the Change License the GPL Version 3.0 or any later version, or a license that is compatible with GPL
+   Version 3.0 or a later version, where "compatible" means that software provided under the Change License can be
+   included in a program with software provided under GPL Version 3.0 or a later version. Licensor may specify
    additional Change Licenses without limitation.
 
 2. To either: (a) specify an additional grant of rights to use that does not impose any additional restriction on the

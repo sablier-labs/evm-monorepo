@@ -1,11 +1,11 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.18;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @title Errors
-/// @notice Library with custom errors used across the core contracts.
+/// @notice Library that contains all the custom errors that the protocol can revert with.
 library Errors {
     /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER-V2-ADMINABLE
