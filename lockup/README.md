@@ -14,13 +14,13 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 ## Background
 
-Sablier is a cryptoasset streaming protocol that enables trustless streaming of ERC-20 assets. In this context,
-streaming refers to the ability to make payments by the second.
+Sablier is a smart contract protocol that enables trustless streaming of ERC-20 assets. In this context, streaming means
+the ability to make payments by the second.
 
 Currently, the protocol offers a single type of stream, called a lockup stream. In a lockup stream, the stream creator
-locks up a specified amount of ERC-20 assets in the contract. The recipient of the stream can then withdraw the assets
-gradually over time. The streaming rate is determined by various factors, including the start and end times, and the
-total amount of assets locked up
+locks up a specified amount of ERC-20 assets in a contract. The recipient of the stream can then withdraw the assets
+gradually over time. The streaming rate is determined by multiple factors, including the start and end times, and the
+total amount of assets locked up.
 
 ## Install
 

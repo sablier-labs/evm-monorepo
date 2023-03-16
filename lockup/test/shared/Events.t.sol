@@ -10,7 +10,7 @@ import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescr
 import { Lockup, LockupLinear, LockupPro } from "../../src/types/DataTypes.sol";
 
 /// @title Events
-/// @notice Abstract contract with all the events emitted by the protocol.
+/// @notice Abstract contract that contains all the events emitted by the protocol.
 abstract contract Events {
     /*//////////////////////////////////////////////////////////////////////////
                                 SABLIER-V2-ADMINABLE
