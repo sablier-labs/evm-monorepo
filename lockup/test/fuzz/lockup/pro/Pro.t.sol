@@ -3,7 +3,7 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
-import { ISablierV2Config } from "src/interfaces/ISablierV2Config.sol";
+import { ISablierV2Base } from "src/interfaces/ISablierV2Base.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 
 import { Pro_Shared_Test } from "../../../shared/lockup/pro/Pro.t.sol";
@@ -28,8 +28,8 @@ abstract contract Pro_Fuzz_Test is Fuzz_Test, Pro_Shared_Test {
         Fuzz_Test.setUp();
         Pro_Shared_Test.setUp();
 
-        // Cast the pro contract as {ISablierV2Config} and {ISablierV2Lockup}.
-        config = ISablierV2Config(pro);
+        // Cast the pro contract as {ISablierV2Base} and {ISablierV2Lockup}.
+        base = ISablierV2Base(pro);
         lockup = ISablierV2Lockup(pro);
 
         // Set the default protocol fee.

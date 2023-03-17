@@ -7,9 +7,9 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 import { IAdminable } from "./IAdminable.sol";
 import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 
-/// @title ISablierV2Config
-/// @notice This contract contains the common configuration between all Sablier V2 streaming contracts.
-interface ISablierV2Config is IAdminable {
+/// @title ISablierV2Base
+/// @notice Common base between all Sablier V2 streaming contracts.
+interface ISablierV2Base is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/

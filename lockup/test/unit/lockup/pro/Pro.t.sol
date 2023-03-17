@@ -3,7 +3,7 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
-import { ISablierV2Config } from "src/interfaces/ISablierV2Config.sol";
+import { ISablierV2Base } from "src/interfaces/ISablierV2Base.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
@@ -49,8 +49,8 @@ abstract contract Pro_Unit_Test is Unit_Test, Pro_Shared_Test {
         Unit_Test.setUp();
         Pro_Shared_Test.setUp();
 
-        // Cast the linear contract as {ISablierV2Config} and {ISablierV2Lockup}.
-        config = ISablierV2Lockup(pro);
+        // Cast the linear contract as {ISablierV2Base} and {ISablierV2Lockup}.
+        base = ISablierV2Lockup(pro);
         lockup = ISablierV2Lockup(pro);
 
         // Set the default protocol fee.

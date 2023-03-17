@@ -18,7 +18,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
-        config.claimProtocolRevenues(DEFAULT_ASSET);
+        base.claimProtocolRevenues(DEFAULT_ASSET);
     }
 
     modifier whenCallerAdmin() {
@@ -29,8 +29,8 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
 
     /// @dev it should revert.
     function test_RevertWhen_ProtocolRevenuesZero() external whenCallerAdmin {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Config_NoProtocolRevenues.selector, DEFAULT_ASSET));
-        config.claimProtocolRevenues(DEFAULT_ASSET);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Base_NoProtocolRevenues.selector, DEFAULT_ASSET));
+        base.claimProtocolRevenues(DEFAULT_ASSET);
     }
 
     modifier whenProtocolRevenuesNotZero() {
@@ -53,10 +53,10 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
         emit ClaimProtocolRevenues(users.admin, DEFAULT_ASSET, protocolRevenues);
 
         // Claim the protocol revenues.
-        config.claimProtocolRevenues(DEFAULT_ASSET);
+        base.claimProtocolRevenues(DEFAULT_ASSET);
 
         // Assert that the protocol revenues have been set to zero.
-        uint128 actualProtocolRevenues = config.protocolRevenues(DEFAULT_ASSET);
+        uint128 actualProtocolRevenues = base.protocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }

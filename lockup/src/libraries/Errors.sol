@@ -18,11 +18,11 @@ library Errors {
     error DelegateCall();
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-V2-CONFIG
+                                  SABLIER-V2-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when attempting to claim protocol revenues for an asset that did not accrue any revenues.
-    error SablierV2Config_NoProtocolRevenues(IERC20 asset);
+    error SablierV2Base_NoProtocolRevenues(IERC20 asset);
 
     /*//////////////////////////////////////////////////////////////////////////
                                SABLIER-V2-FLASH-LOAN

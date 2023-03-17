@@ -6,14 +6,14 @@ import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Me
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Lockup } from "../types/DataTypes.sol";
-import { ISablierV2Config } from "./ISablierV2Config.sol";
+import { ISablierV2Base } from "./ISablierV2Base.sol";
 import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 import { ISablierV2NFTDescriptor } from "./ISablierV2NFTDescriptor.sol";
 
 /// @title ISablierV2Lockup
 /// @notice The common interface between all Sablier V2 lockup streaming contracts.
 interface ISablierV2Lockup is
-    ISablierV2Config, // no dependencies
+    ISablierV2Base, // no dependencies
     IERC721Metadata // two dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////

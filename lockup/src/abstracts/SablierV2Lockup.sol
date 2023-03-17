@@ -9,13 +9,13 @@ import { ISablierV2Lockup } from "../interfaces/ISablierV2Lockup.sol";
 import { ISablierV2NFTDescriptor } from "../interfaces/ISablierV2NFTDescriptor.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { Lockup } from "../types/DataTypes.sol";
-import { SablierV2Config } from "./SablierV2Config.sol";
+import { SablierV2Base } from "./SablierV2Base.sol";
 import { SablierV2FlashLoan } from "./SablierV2FlashLoan.sol";
 
 /// @title SablierV2Lockup
 /// @notice See the documentation in {ISablierV2Lockup}.
 abstract contract SablierV2Lockup is
-    SablierV2Config, // four dependencies
+    SablierV2Base, // four dependencies
     ISablierV2Lockup, // four dependencies
     SablierV2FlashLoan // six dependencies
 {
@@ -47,7 +47,7 @@ abstract contract SablierV2Lockup is
         ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNftDescriptor,
         UD60x18 maxFee
-    ) SablierV2Config(initialAdmin, initialComptroller, maxFee) {
+    ) SablierV2Base(initialAdmin, initialComptroller, maxFee) {
         nextStreamId = 1;
         _nftDescriptor = initialNftDescriptor;
     }

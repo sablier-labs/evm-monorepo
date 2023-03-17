@@ -13,13 +13,13 @@ import { Lockup, LockupLinear, LockupPro } from "../../src/types/DataTypes.sol";
 /// @notice Abstract contract that contains all the events emitted by the protocol.
 abstract contract Events {
     /*//////////////////////////////////////////////////////////////////////////
-                                SABLIER-V2-ADMINABLE
+                                      GENERICS
     //////////////////////////////////////////////////////////////////////////*/
 
     event TransferAdmin(address indexed oldAdmin, address indexed newAdmin);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-V2-CONFIG
+                                  SABLIER-V2-BASE
     //////////////////////////////////////////////////////////////////////////*/
 
     event ClaimProtocolRevenues(address indexed admin, IERC20 indexed asset, uint128 protocolRevenues);

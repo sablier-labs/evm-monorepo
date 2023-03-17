@@ -42,7 +42,7 @@ pnpm test --match-contract CreateWithRange_Linear_Unit_Test
 
 You will notice that the tests have an inheritance structure. This is because there is a lot of common logic between the
 `SablierV2LockupLinear` and the `SablierV2LockupPro` contracts, specifically that they both inherit from the
-`SablierV2Config` and the `SablierV2Lockup` abstract contracts.
+`SablierV2Base` and the `SablierV2Lockup` abstract contracts.
 
 We wrote the `Lockup_Shared_Test`, `Linear_Shared_Test`, and `Pro_Shared_Test` contracts to avoid duplicating testing
 logic, and we inherited them in the test contracts for `SablierV2LockupLinear` and the `SablierV2LockupPro` contracts.
