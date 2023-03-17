@@ -10,12 +10,14 @@ abstract contract NoDelegateCall {
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev The address of the original contract that was deployed.
     address private immutable _original;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Sets the original contract address.
     constructor() {
         _original = address(this);
     }
