@@ -27,12 +27,12 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStreamWithDeltas(segments);
     }
 
-    modifier loopCalculationsDoNotOverflowBlockGasLimit() {
+    modifier whenLoopCalculationsDoNotOverflowBlockGasLimit() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_DeltasZero() external loopCalculationsDoNotOverflowBlockGasLimit {
+    function test_RevertWhen_DeltasZero() external whenLoopCalculationsDoNotOverflowBlockGasLimit {
         uint40 startTime = getBlockTimestamp();
         LockupPro.SegmentWithDelta[] memory segments = defaultParams.createWithDeltas.segments;
         segments[1].delta = 0;
@@ -48,15 +48,15 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStreamWithDeltas(segments);
     }
 
-    modifier deltasNotZero() {
+    modifier whenDeltasNotZero() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeNotLessThanFirstSegmentMilestone()
         external
-        loopCalculationsDoNotOverflowBlockGasLimit
-        deltasNotZero
+        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenDeltasNotZero
     {
         unchecked {
             uint40 startTime = getBlockTimestamp();
@@ -77,8 +77,8 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_MilestonesCalculationsOverflows_SegmentMilestonesNotOrdered()
         external
-        loopCalculationsDoNotOverflowBlockGasLimit
-        deltasNotZero
+        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenDeltasNotZero
     {
         unchecked {
             uint40 startTime = getBlockTimestamp();
@@ -113,7 +113,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         }
     }
 
-    modifier milestonesCalculationsDoNotOverflow() {
+    modifier whenMilestonesCalculationsDoNotOverflow() {
         _;
     }
 
@@ -121,9 +121,9 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
     /// record the protocol fee, and emit a {CreateLockupProStream} event.
     function test_CreateWithDeltas()
         external
-        loopCalculationsDoNotOverflowBlockGasLimit
-        deltasNotZero
-        milestonesCalculationsDoNotOverflow
+        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenDeltasNotZero
+        whenMilestonesCalculationsDoNotOverflow
     {
         // Make the sender the funder of the stream.
         address funder = users.sender;

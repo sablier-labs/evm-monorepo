@@ -12,12 +12,12 @@ contract GetCliffTime_Linear_Unit_Test is Linear_Unit_Test {
         assertEq(actualCliffTime, expectedCliffTime, "cliffTime");
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the correct cliff time.
-    function test_GetCliffTime() external streamNonNull {
+    function test_GetCliffTime() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         uint40 actualCliffTime = linear.getCliffTime(streamId);
         uint40 expectedCliffTime = DEFAULT_CLIFF_TIME;

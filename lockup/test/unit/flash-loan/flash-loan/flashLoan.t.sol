@@ -37,12 +37,12 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         });
     }
 
-    modifier amountNotTooHigh() {
+    modifier whenAmountNotTooHigh() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_AssetNotFlashLoanable() external whenNoDelegateCall amountNotTooHigh {
+    function test_RevertWhen_AssetNotFlashLoanable() external whenNoDelegateCall whenAmountNotTooHigh {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, DEFAULT_ASSET)
         );
@@ -54,13 +54,18 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         });
     }
 
-    modifier assetFlashLoanable() {
+    modifier whenAssetFlashLoanable() {
         comptroller.toggleFlashAsset(DEFAULT_ASSET);
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CalculatedFeeTooHigh() external whenNoDelegateCall amountNotTooHigh assetFlashLoanable {
+    function test_RevertWhen_CalculatedFeeTooHigh()
+        external
+        whenNoDelegateCall
+        whenAmountNotTooHigh
+        whenAssetFlashLoanable
+    {
         // Set the comptroller flash fee so that the calculated fee ends up being greater than 2^128.
         comptroller.setFlashFee({ newFlashFee: ud(1.1e18) });
 
@@ -74,14 +79,14 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         });
     }
 
-    modifier calculatedFeeNotTooHigh() {
+    modifier whenCalculatedFeeNotTooHigh() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_InsufficientAssetLiquidity(
         uint128 amount
-    ) external whenNoDelegateCall amountNotTooHigh assetFlashLoanable calculatedFeeNotTooHigh {
+    ) external whenNoDelegateCall whenAmountNotTooHigh whenAssetFlashLoanable whenCalculatedFeeNotTooHigh {
         vm.assume(amount != 0);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -99,7 +104,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         });
     }
 
-    modifier sufficientAssetLiquidity() {
+    modifier whenSufficientAssetLiquidity() {
         _;
     }
 
@@ -107,10 +112,10 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     function test_RevertWhen_BorrowFailed()
         external
         whenNoDelegateCall
-        amountNotTooHigh
-        assetFlashLoanable
-        calculatedFeeNotTooHigh
-        sufficientAssetLiquidity
+        whenAmountNotTooHigh
+        whenAssetFlashLoanable
+        whenCalculatedFeeNotTooHigh
+        whenSufficientAssetLiquidity
     {
         uint256 amount = 100e18;
         deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: amount });
@@ -123,7 +128,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         });
     }
 
-    modifier borrowDoesNotFail() {
+    modifier whenBorrowDoesNotFail() {
         _;
     }
 
@@ -131,11 +136,11 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     function test_RevertWhen_Reentrancy()
         external
         whenNoDelegateCall
-        amountNotTooHigh
-        assetFlashLoanable
-        calculatedFeeNotTooHigh
-        sufficientAssetLiquidity
-        borrowDoesNotFail
+        whenAmountNotTooHigh
+        whenAssetFlashLoanable
+        whenCalculatedFeeNotTooHigh
+        whenSufficientAssetLiquidity
+        whenBorrowDoesNotFail
     {
         uint256 amount = 100e18;
         deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: amount * 2 });
@@ -155,7 +160,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         });
     }
 
-    modifier noReentrancy() {
+    modifier whenNoReentrancy() {
         _;
     }
 
@@ -164,12 +169,12 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     function test_FlashLoan()
         external
         whenNoDelegateCall
-        amountNotTooHigh
-        assetFlashLoanable
-        calculatedFeeNotTooHigh
-        sufficientAssetLiquidity
-        borrowDoesNotFail
-        noReentrancy
+        whenAmountNotTooHigh
+        whenAssetFlashLoanable
+        whenCalculatedFeeNotTooHigh
+        whenSufficientAssetLiquidity
+        whenBorrowDoesNotFail
+        whenNoReentrancy
     {
         uint128 amount = 8_755_001e18;
         bytes memory data = bytes("Hello World");

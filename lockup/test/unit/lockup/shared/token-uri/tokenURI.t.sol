@@ -15,12 +15,12 @@ abstract contract TokenURI_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualTokenURI, expectedTokenURI, "tokenURI");
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the descriptor URI.
-    function test_TokenURI() external streamNonNull {
+    function test_TokenURI() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         string memory actualTokenURI = lockup.tokenURI({ tokenId: streamId });
         string memory expectedTokenURI = string.concat("This is the NFT descriptor for ", lockup.symbol());

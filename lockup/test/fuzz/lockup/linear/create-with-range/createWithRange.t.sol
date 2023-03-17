@@ -20,18 +20,18 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         streamId = linear.nextStreamId();
     }
 
-    modifier recipientNonZeroAddress() {
+    modifier whenRecipientNonZeroAddress() {
         _;
     }
 
-    modifier depositAmountNotZero() {
+    modifier whenDepositAmountNotZero() {
         _;
     }
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(
         uint40 startTime
-    ) external recipientNonZeroAddress depositAmountNotZero {
+    ) external whenRecipientNonZeroAddress whenDepositAmountNotZero {
         startTime = boundUint40(startTime, DEFAULT_CLIFF_TIME + 1, MAX_UNIX_TIMESTAMP);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -43,7 +43,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         createDefaultStreamWithStartTime(startTime);
     }
 
-    modifier startTimeNotGreaterThanCliffTime() {
+    modifier whenStartTimeNotGreaterThanCliffTime() {
         _;
     }
 
@@ -51,7 +51,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     function testFuzz_RevertWhen_CliffTimeNotLessThanEndTime(
         uint40 cliffTime,
         uint40 endTime
-    ) external recipientNonZeroAddress depositAmountNotZero startTimeNotGreaterThanCliffTime {
+    ) external whenRecipientNonZeroAddress whenDepositAmountNotZero whenStartTimeNotGreaterThanCliffTime {
         vm.assume(cliffTime >= endTime);
         vm.assume(endTime > DEFAULT_START_TIME);
 
@@ -65,14 +65,20 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         createDefaultStreamWithRange(LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: cliffTime, end: endTime }));
     }
 
-    modifier cliffTimeLessThanEndTime() {
+    modifier whenCliffTimeLessThanEndTime() {
         _;
     }
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(
         UD60x18 protocolFee
-    ) external recipientNonZeroAddress depositAmountNotZero startTimeNotGreaterThanCliffTime cliffTimeLessThanEndTime {
+    )
+        external
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
+        whenCliffTimeLessThanEndTime
+    {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
         // Set the protocol fee.
@@ -86,7 +92,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         createDefaultStream();
     }
 
-    modifier protocolFeeNotTooHigh() {
+    modifier whenProtocolFeeNotTooHigh() {
         _;
     }
 
@@ -95,11 +101,11 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         Broker memory broker
     )
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        startTimeNotGreaterThanCliffTime
-        cliffTimeLessThanEndTime
-        protocolFeeNotTooHigh
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
         broker.fee = bound(broker.fee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
@@ -109,15 +115,15 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         createDefaultStreamWithBroker(broker);
     }
 
-    modifier brokerFeeNotTooHigh() {
+    modifier whenBrokerFeeNotTooHigh() {
         _;
     }
 
-    modifier assetContract() {
+    modifier whenAssetContract() {
         _;
     }
 
-    modifier assetERC20Compliant() {
+    modifier whenAssetERC20Compliant() {
         _;
     }
 
@@ -151,13 +157,13 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         UD60x18 protocolFee
     )
         external
-        depositAmountNotZero
-        startTimeNotGreaterThanCliffTime
-        cliffTimeLessThanEndTime
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
-        assetContract
-        assetERC20Compliant
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenProtocolFeeNotTooHigh
+        whenBrokerFeeNotTooHigh
+        whenAssetContract
+        whenAssetERC20Compliant
     {
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.totalAmount != 0);

@@ -14,12 +14,12 @@ contract GetSegments_Pro_Unit_Test is Pro_Unit_Test {
         assertEq(actualSegments, expectedSegments, "segments");
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the correct segments.
-    function test_GetSegments() external streamNonNull {
+    function test_GetSegments() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         LockupPro.Segment[] memory actualSegments = pro.getSegments(streamId);
         LockupPro.Segment[] memory expectedSegments = DEFAULT_SEGMENTS;

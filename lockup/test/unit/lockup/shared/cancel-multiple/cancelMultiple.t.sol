@@ -39,19 +39,19 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancelMultiple(streamIds);
     }
 
-    modifier arrayCountNotZero() {
+    modifier whenArrayCountNotZero() {
         _;
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_OnlyNullStreams() external whenNoDelegateCall arrayCountNotZero {
+    function test_RevertWhen_OnlyNullStreams() external whenNoDelegateCall whenArrayCountNotZero {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(nullStreamId);
         lockup.cancelMultiple(streamIds);
     }
 
     /// @dev it should ignore the null streams and cancel the non-null ones.
-    function test_RevertWhen_SomeNullStreams() external whenNoDelegateCall arrayCountNotZero {
+    function test_RevertWhen_SomeNullStreams() external whenNoDelegateCall whenArrayCountNotZero {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], nullStreamId);
         lockup.cancelMultiple(streamIds);
@@ -60,7 +60,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier onlyNonNullStreams() {
+    modifier whenOnlyNonNullStreams() {
         _;
     }
 
@@ -68,8 +68,8 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_AllStreamsNonCancelable()
         external
         whenNoDelegateCall
-        arrayCountNotZero
-        onlyNonNullStreams
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
     {
         // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
@@ -82,8 +82,8 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_SomeStreamsNonCancelable()
         external
         whenNoDelegateCall
-        arrayCountNotZero
-        onlyNonNullStreams
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
     {
         // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
@@ -101,7 +101,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(status, Lockup.Status.ACTIVE, "status1");
     }
 
-    modifier allStreamsCancelable() {
+    modifier whenAllStreamsCancelable() {
         _;
     }
 
@@ -109,9 +109,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
         external
         whenNoDelegateCall
-        arrayCountNotZero
-        onlyNonNullStreams
-        allStreamsCancelable
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenAllStreamsCancelable
     {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -127,9 +127,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedAllStreams_ApprovedOperator()
         external
         whenNoDelegateCall
-        arrayCountNotZero
-        onlyNonNullStreams
-        allStreamsCancelable
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenAllStreamsCancelable
     {
         // Approve the operator for all streams.
         lockup.setApprovalForAll({ operator: users.operator, _approved: true });
@@ -148,9 +148,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
         whenNoDelegateCall
-        arrayCountNotZero
-        onlyNonNullStreams
-        allStreamsCancelable
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenAllStreamsCancelable
     {
         // Transfer the streams to Alice.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -167,9 +167,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
         external
         whenNoDelegateCall
-        arrayCountNotZero
-        onlyNonNullStreams
-        allStreamsCancelable
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenAllStreamsCancelable
     {
         changePrank({ msgSender: users.eve });
 
@@ -188,9 +188,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedSomeStreams_ApprovedOperator()
         external
         whenNoDelegateCall
-        arrayCountNotZero
-        onlyNonNullStreams
-        allStreamsCancelable
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenAllStreamsCancelable
     {
         // Approve the operator to handle the first stream.
         lockup.approve({ to: users.operator, tokenId: defaultStreamIds[0] });
@@ -209,9 +209,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
         whenNoDelegateCall
-        arrayCountNotZero
-        onlyNonNullStreams
-        allStreamsCancelable
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenAllStreamsCancelable
     {
         // Transfer the first stream to Eve.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -223,7 +223,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancelMultiple(defaultStreamIds);
     }
 
-    modifier callerAuthorizedAllStreams() {
+    modifier whenCallerAuthorizedAllStreams() {
         _;
     }
 
@@ -232,10 +232,10 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_CancelMultiple_Sender()
         external
         whenNoDelegateCall
-        arrayCountNotZero
-        onlyNonNullStreams
-        allStreamsCancelable
-        callerAuthorizedAllStreams
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenAllStreamsCancelable
+        whenCallerAuthorizedAllStreams
     {
         changePrank({ msgSender: users.sender });
         test_CancelMultiple();
@@ -246,9 +246,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_CancelMultiple_Recipient()
         external
         whenNoDelegateCall
-        onlyNonNullStreams
-        allStreamsCancelable
-        callerAuthorizedAllStreams
+        whenOnlyNonNullStreams
+        whenAllStreamsCancelable
+        whenCallerAuthorizedAllStreams
     {
         test_CancelMultiple();
     }

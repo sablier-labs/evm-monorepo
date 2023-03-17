@@ -22,12 +22,12 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         });
     }
 
-    modifier amountNotTooHigh() {
+    modifier whenAmountNotTooHigh() {
         _;
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee) external amountNotTooHigh {
+    function testFuzz_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee) external whenAmountNotTooHigh {
         // Bound the flash fee so that the calculated fee ends up being greater than 2^128.
         flashFee = bound(flashFee, ud(1.1e18), ud(10e18));
         comptroller.setFlashFee(flashFee);
@@ -43,7 +43,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         });
     }
 
-    modifier calculatedFeeNotTooHigh() {
+    modifier whenCalculatedFeeNotTooHigh() {
         _;
     }
 
@@ -59,7 +59,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         UD60x18 comptrollerFlashFee,
         uint128 amount,
         bytes calldata data
-    ) external amountNotTooHigh calculatedFeeNotTooHigh {
+    ) external whenAmountNotTooHigh whenCalculatedFeeNotTooHigh {
         comptrollerFlashFee = bound(comptrollerFlashFee, 0, DEFAULT_MAX_FEE);
         comptroller.setFlashFee(comptrollerFlashFee);
 

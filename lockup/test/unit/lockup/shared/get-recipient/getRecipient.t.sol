@@ -15,12 +15,12 @@ abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualRecipient, expectedRecipient, "recipient");
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the correct recipient.
-    function test_GetRecipient() external streamNonNull {
+    function test_GetRecipient() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         address actualRecipient = lockup.getRecipient(streamId);
         address expectedRecipient = users.recipient;

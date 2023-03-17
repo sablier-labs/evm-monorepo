@@ -17,12 +17,12 @@ abstract contract GetAsset_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualAsset, expectedAsset, "asset");
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the correct address of the ERC-20 asset.
-    function test_GetAsset() external streamNonNull {
+    function test_GetAsset() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         IERC20 actualAsset = lockup.getAsset(streamId);
         IERC20 expectedAsset = DEFAULT_ASSET;

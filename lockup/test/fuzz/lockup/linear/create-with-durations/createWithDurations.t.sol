@@ -46,14 +46,14 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         createDefaultStreamWithDurations(LockupLinear.Durations({ cliff: cliffDuration, total: totalDuration }));
     }
 
-    modifier cliffDurationCalculationDoesNotOverflow() {
+    modifier whenCliffDurationCalculationDoesNotOverflow() {
         _;
     }
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_TotalDurationCalculationOverflows(
         LockupLinear.Durations memory durations
-    ) external cliffDurationCalculationDoesNotOverflow {
+    ) external whenCliffDurationCalculationDoesNotOverflow {
         uint40 startTime = getBlockTimestamp();
         durations.cliff = boundUint40(durations.cliff, 0, UINT40_MAX - startTime);
         durations.total = boundUint40(durations.total, UINT40_MAX - startTime + 1, UINT40_MAX);
@@ -79,7 +79,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         createDefaultStreamWithDurations(durations);
     }
 
-    modifier totalDurationCalculationDoesNotOverflow() {
+    modifier whenTotalDurationCalculationDoesNotOverflow() {
         _;
     }
 

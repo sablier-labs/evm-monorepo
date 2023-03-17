@@ -23,14 +23,14 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
         config.setComptroller(ISablierV2Comptroller(users.eve));
     }
 
-    modifier callerAdmin() {
+    modifier whenCallerAdmin() {
         // Make the admin the caller in the rest of this test suite.
         changePrank({ msgSender: users.admin });
         _;
     }
 
     /// @dev it should re-set the comptroller and emit a {SetComptroller} event.
-    function test_SetComptroller_SameComptroller() external callerAdmin {
+    function test_SetComptroller_SameComptroller() external whenCallerAdmin {
         // Expect a {SetComptroller} event to be emitted.
         vm.expectEmit();
         emit SetComptroller(users.admin, comptroller, comptroller);
@@ -45,7 +45,7 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should set the new comptroller and emit a {SetComptroller} event.
-    function test_SetComptroller_NewComptroller() external callerAdmin {
+    function test_SetComptroller_NewComptroller() external whenCallerAdmin {
         // Deploy the new comptroller.
         ISablierV2Comptroller newComptroller = new SablierV2Comptroller({ initialAdmin: users.admin });
 

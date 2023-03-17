@@ -23,19 +23,19 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
         config.claimProtocolRevenues(DEFAULT_ASSET);
     }
 
-    modifier callerAdmin() {
+    modifier whenCallerAdmin() {
         // Make the admin the caller in the rest of this test suite.
         changePrank({ msgSender: users.admin });
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_ProtocolRevenuesZero() external callerAdmin {
+    function test_RevertWhen_ProtocolRevenuesZero() external whenCallerAdmin {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Config_NoProtocolRevenues.selector, DEFAULT_ASSET));
         config.claimProtocolRevenues(DEFAULT_ASSET);
     }
 
-    modifier protocolRevenuesNotZero() {
+    modifier whenProtocolRevenuesNotZero() {
         // Create the default stream, which will accrue revenues for the protocol.
         changePrank({ msgSender: users.sender });
         createDefaultStream();
@@ -45,7 +45,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
 
     /// @dev it should claim the protocol revenues, update the protocol revenues, and emit a {ClaimProtocolRevenues}
     /// event.
-    function test_ClaimProtocolRevenues() external callerAdmin protocolRevenuesNotZero {
+    function test_ClaimProtocolRevenues() external whenCallerAdmin whenProtocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         expectTransferCall({ to: users.admin, amount: protocolRevenues });

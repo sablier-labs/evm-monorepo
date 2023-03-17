@@ -16,13 +16,13 @@ contract MaxFlashLoan_Unit_Test is FlashLoan_Unit_Test {
         assertEq(actualAmount, expectedAmount, "maxFlashLoan amount");
     }
 
-    modifier assetFlashLoanable() {
+    modifier whenAssetFlashLoanable() {
         comptroller.toggleFlashAsset(DEFAULT_ASSET);
         _;
     }
 
     /// @dev it should return the correct flash fee.
-    function test_MaxFlashLoan() external assetFlashLoanable {
+    function test_MaxFlashLoan() external whenAssetFlashLoanable {
         uint256 dealAmount = 14_607_904e18;
         deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: dealAmount });
         uint256 actualAmount = flashLoan.maxFlashLoan(address(DEFAULT_ASSET));

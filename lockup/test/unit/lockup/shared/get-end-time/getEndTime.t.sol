@@ -15,12 +15,12 @@ abstract contract GetEndTime_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualEndTime, expectedEndTime, "endTime");
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the correct end time.
-    function test_GetEndTime() external streamNonNull {
+    function test_GetEndTime() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         uint40 actualEndTime = lockup.getEndTime(streamId);
         uint40 expectedEndTime = DEFAULT_END_TIME;

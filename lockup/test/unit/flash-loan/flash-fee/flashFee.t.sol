@@ -17,13 +17,13 @@ contract FlashFee_Unit_Test is FlashLoan_Unit_Test {
         flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: 0 });
     }
 
-    modifier assetFlashLoanable() {
+    modifier whenAssetFlashLoanable() {
         comptroller.toggleFlashAsset(DEFAULT_ASSET);
         _;
     }
 
     /// @dev it should return the correct flash fee.
-    function test_FlashFee() external assetFlashLoanable {
+    function test_FlashFee() external whenAssetFlashLoanable {
         uint256 amount = 782.23e18;
         uint256 actualFlashFee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: amount });
         uint256 expectedFlashFee = ud(amount).mul(DEFAULT_FLASH_FEE).intoUint256();

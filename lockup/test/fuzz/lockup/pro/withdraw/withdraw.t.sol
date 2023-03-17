@@ -39,17 +39,17 @@ contract Withdraw_Pro_Fuzz_Test is Pro_Fuzz_Test, Withdraw_Fuzz_Test {
         Params memory params
     )
         external
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
-        callerSender
-        currentTimeLessThanEndTime
-        recipientContract
-        recipientImplementsHook
-        recipientDoesNotRevert
-        noRecipientReentrancy
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountLessThanOrEqualToWithdrawableAmount
+        whenCallerSender
+        whenCurrentTimeLessThanEndTime
+        whenRecipientContract
+        whenRecipientImplementsHook
+        whenRecipientDoesNotRevert
+        whenNoRecipientReentrancy
     {
         vm.assume(params.segments.length != 0);
 

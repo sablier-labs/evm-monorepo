@@ -15,12 +15,12 @@ abstract contract GetStartTime_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStartTime, expectedStartTime, "startTime");
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the correct start time.
-    function test_GetStartTime() external streamNonNull {
+    function test_GetStartTime() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         uint40 actualStartTime = lockup.getStartTime(streamId);
         uint40 expectedStartTime = DEFAULT_START_TIME;

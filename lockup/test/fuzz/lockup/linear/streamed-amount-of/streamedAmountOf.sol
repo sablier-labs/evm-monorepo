@@ -11,14 +11,14 @@ import { Linear_Fuzz_Test } from "../Linear.t.sol";
 contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     uint256 internal defaultStreamId;
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function testFuzz_StreamedAmountOf_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external streamActive {
+    function testFuzz_StreamedAmountOf_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external whenStreamActive {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
@@ -26,7 +26,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier cliffTimeLessThanOrEqualToCurrentTime() {
+    modifier whenCliffTimeLessThanOrEqualToCurrentTime() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
@@ -45,7 +45,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     function testFuzz_StreamedAmountOf(
         uint40 timeWarp,
         uint128 depositAmount
-    ) external streamActive cliffTimeLessThanOrEqualToCurrentTime {
+    ) external whenStreamActive whenCliffTimeLessThanOrEqualToCurrentTime {
         vm.assume(depositAmount != 0);
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 

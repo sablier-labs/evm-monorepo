@@ -14,12 +14,12 @@ contract GetStream_Linear_Unit_Test is Linear_Unit_Test {
         assertEq(actualStream, expectedStream);
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the stream.
-    function test_GetStream() external streamNonNull {
+    function test_GetStream() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         LockupLinear.Stream memory expectedStream = defaultStream;

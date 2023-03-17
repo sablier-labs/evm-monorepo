@@ -21,12 +21,12 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
     }
 
     /// @dev The admin is the default caller in the comptroller tests.
-    modifier callerAdmin() {
+    modifier whenCallerAdmin() {
         _;
     }
 
     /// @dev it should toggle the flash asset.
-    function test_ToggleFlashAsset_FlagNotEnabled() external callerAdmin {
+    function test_ToggleFlashAsset_FlagNotEnabled() external whenCallerAdmin {
         // Expect a {ToggleFlashAsset} event to be emitted.
         vm.expectEmit();
         emit ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: true });
@@ -39,13 +39,13 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
         assertTrue(isFlashLoanable, "isFlashLoanable");
     }
 
-    modifier flagEnabled() {
+    modifier whenFlagEnabled() {
         comptroller.toggleFlashAsset(DEFAULT_ASSET);
         _;
     }
 
     /// @dev it should toggle the flash asset and emit a {ToggleFlashAsset} event.
-    function test_ToggleFlashAsset() external callerAdmin flagEnabled {
+    function test_ToggleFlashAsset() external whenCallerAdmin whenFlagEnabled {
         // Expect a {ToggleFlashAsset} event to be emitted.
         vm.expectEmit();
         emit ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: false });

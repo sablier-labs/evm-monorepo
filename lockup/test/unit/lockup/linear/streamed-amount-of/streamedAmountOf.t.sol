@@ -13,12 +13,12 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    modifier streamNotActive() {
+    modifier whenStreamNotActive() {
         _;
     }
 
     /// @dev it should return zero.
-    function test_StreamedAmountOf_StreamNull() external streamNotActive {
+    function test_StreamedAmountOf_StreamNull() external whenStreamNotActive {
         uint256 nullStreamId = 1729;
         uint128 actualStreamedAmount = linear.streamedAmountOf(nullStreamId);
         uint128 expectedStreamedAmount = 0;
@@ -26,7 +26,7 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_StreamedAmountOf_StreamCanceled() external streamNotActive {
+    function test_StreamedAmountOf_StreamCanceled() external whenStreamNotActive {
         lockup.cancel(defaultStreamId);
         uint256 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
         uint256 expectedStreamedAmount = linear.getWithdrawnAmount(defaultStreamId);
@@ -34,7 +34,7 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should return the withdrawn amount.
-    function test_StreamedAmountOf_StreamDepleted() external streamNotActive {
+    function test_StreamedAmountOf_StreamDepleted() external whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         uint128 withdrawAmount = DEFAULT_DEPOSIT_AMOUNT;
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
@@ -43,23 +43,23 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test {
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         _;
     }
 
     /// @dev it should return zero.
-    function test_StreamedAmountOf_CliffTimeGreaterThanCurrentTime() external streamActive {
+    function test_StreamedAmountOf_CliffTimeGreaterThanCurrentTime() external whenStreamActive {
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier cliffTimeLessThanOrEqualToCurrentTime() {
+    modifier whenCliffTimeLessThanOrEqualToCurrentTime() {
         _;
     }
 
     /// @dev it should return the correct streamed amount.
-    function test_StreamedAmountOf() external streamActive cliffTimeLessThanOrEqualToCurrentTime {
+    function test_StreamedAmountOf() external whenStreamActive whenCliffTimeLessThanOrEqualToCurrentTime {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 

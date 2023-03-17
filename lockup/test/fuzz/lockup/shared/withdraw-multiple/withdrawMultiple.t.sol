@@ -28,26 +28,26 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
-    modifier toNonZeroAddress() {
+    modifier whenToNonZeroAddress() {
         _;
     }
 
-    modifier arraysEqual() {
+    modifier whenArraysEqual() {
         _;
     }
 
-    modifier onlyNonNullStreams() {
+    modifier whenOnlyNonNullStreams() {
         _;
     }
 
-    modifier callerAuthorizedAllStreams() {
+    modifier whenCallerAuthorizedAllStreams() {
         _;
     }
 
     /// @dev it should make the withdrawals and update the withdrawn amounts.
     function testFuzz_WithdrawMultiple_CallerApprovedOperator(
         address to
-    ) external toNonZeroAddress arraysEqual onlyNonNullStreams callerAuthorizedAllStreams {
+    ) external whenToNonZeroAddress whenArraysEqual whenOnlyNonNullStreams whenCallerAuthorizedAllStreams {
         vm.assume(to != address(0));
 
         // Approve the operator for all streams.
@@ -75,14 +75,14 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount, "withdrawnAmount1");
     }
 
-    modifier callerRecipient() {
+    modifier whenCallerRecipient() {
         _;
     }
 
-    modifier allAmountsNotZero() {
+    modifier whenAllAmountsNotZero() {
         _;
     }
-    modifier allAmountsLessThanOrEqualToWithdrawableAmounts() {
+    modifier whenAllAmountsLessThanOrEqualToWithdrawableAmounts() {
         _;
     }
 
@@ -93,13 +93,13 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         address to
     )
         external
-        toNonZeroAddress
-        arraysEqual
-        onlyNonNullStreams
-        callerAuthorizedAllStreams
-        callerRecipient
-        allAmountsNotZero
-        allAmountsLessThanOrEqualToWithdrawableAmounts
+        whenToNonZeroAddress
+        whenArraysEqual
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+        whenCallerRecipient
+        whenAllAmountsNotZero
+        whenAllAmountsLessThanOrEqualToWithdrawableAmounts
     {
         vm.assume(to != address(0));
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION);
@@ -151,13 +151,13 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 withdrawAmount
     )
         external
-        toNonZeroAddress
-        arraysEqual
-        onlyNonNullStreams
-        callerAuthorizedAllStreams
-        callerRecipient
-        allAmountsNotZero
-        allAmountsLessThanOrEqualToWithdrawableAmounts
+        whenToNonZeroAddress
+        whenArraysEqual
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+        whenCallerRecipient
+        whenAllAmountsNotZero
+        whenAllAmountsLessThanOrEqualToWithdrawableAmounts
     {
         vm.assume(to != address(0));
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
@@ -231,13 +231,13 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         Params memory params
     )
         external
-        toNonZeroAddress
-        arraysEqual
-        onlyNonNullStreams
-        callerAuthorizedAllStreams
-        callerRecipient
-        allAmountsNotZero
-        allAmountsLessThanOrEqualToWithdrawableAmounts
+        whenToNonZeroAddress
+        whenArraysEqual
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+        whenCallerRecipient
+        whenAllAmountsNotZero
+        whenAllAmountsLessThanOrEqualToWithdrawableAmounts
     {
         vm.assume(params.to != address(0));
         params.timeWarp = bound(params.timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1);

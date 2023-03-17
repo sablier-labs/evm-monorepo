@@ -13,12 +13,12 @@ contract WithdrawableAmountOf_Pro_Unit_Test is Pro_Unit_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    modifier streamNotActive() {
+    modifier whenStreamNotActive() {
         _;
     }
 
     /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StreamNull() external streamNotActive {
+    function test_WithdrawableAmountOf_StreamNull() external whenStreamNotActive {
         uint256 nullStreamId = 1729;
         uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(nullStreamId);
         uint128 expectedWithdrawableAmount = 0;
@@ -26,7 +26,7 @@ contract WithdrawableAmountOf_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StreamCanceled() external streamNotActive {
+    function test_WithdrawableAmountOf_StreamCanceled() external whenStreamNotActive {
         lockup.cancel(defaultStreamId);
         uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = 0;
@@ -34,7 +34,7 @@ contract WithdrawableAmountOf_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StreamDepleted() external streamNotActive {
+    function test_WithdrawableAmountOf_StreamDepleted() external whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
@@ -42,14 +42,14 @@ contract WithdrawableAmountOf_Pro_Unit_Test is Pro_Unit_Test {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StartTimeGreaterThanCurrentTime() external streamActive {
+    function test_WithdrawableAmountOf_StartTimeGreaterThanCurrentTime() external whenStreamActive {
         vm.warp({ timestamp: 0 });
         uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
@@ -57,19 +57,19 @@ contract WithdrawableAmountOf_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StartTimeEqualToCurrentTime() external streamActive {
+    function test_WithdrawableAmountOf_StartTimeEqualToCurrentTime() external whenStreamActive {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualWithdrawableAmount = pro.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier startTimeLessThanCurrentTime() {
+    modifier whenStartTimeLessThanCurrentTime() {
         _;
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_WithdrawableAmountOf_WithoutWithdrawals() external streamActive startTimeLessThanCurrentTime {
+    function test_WithdrawableAmountOf_WithoutWithdrawals() external whenStreamActive whenStartTimeLessThanCurrentTime {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3_750 seconds });
 
@@ -80,12 +80,17 @@ contract WithdrawableAmountOf_Pro_Unit_Test is Pro_Unit_Test {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier withWithdrawals() {
+    modifier whenWithWithdrawals() {
         _;
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_WithdrawableAmountOf() external streamActive startTimeLessThanCurrentTime withWithdrawals {
+    function test_WithdrawableAmountOf()
+        external
+        whenStreamActive
+        whenStartTimeLessThanCurrentTime
+        whenWithWithdrawals
+    {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3_750 seconds });
 

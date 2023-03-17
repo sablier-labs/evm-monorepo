@@ -19,39 +19,39 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    modifier streamNotActive() {
+    modifier whenStreamNotActive() {
         _;
     }
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         _;
     }
 
-    modifier streamCancelable() {
+    modifier whenStreamCancelable() {
         _;
     }
 
-    modifier callerAuthorized() {
+    modifier whenCallerAuthorized() {
         _;
     }
 
-    modifier callerSender() {
+    modifier whenCallerSender() {
         // Make the sender the caller in this test suite.
         changePrank({ msgSender: users.sender });
         _;
     }
-    modifier recipientContract() {
+    modifier whenRecipientContract() {
         _;
     }
 
-    modifier recipientImplementsHook() {
+    modifier whenRecipientImplementsHook() {
         _;
     }
-    modifier recipientDoesNotRevert() {
+    modifier whenRecipientDoesNotRevert() {
         _;
     }
 
-    modifier noRecipientReentrancy() {
+    modifier whenNoRecipientReentrancy() {
         _;
     }
 
@@ -67,14 +67,14 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 withdrawAmount
     )
         external
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerSender
-        recipientContract
-        recipientImplementsHook
-        recipientDoesNotRevert
-        noRecipientReentrancy
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerSender
+        whenRecipientContract
+        whenRecipientImplementsHook
+        whenRecipientDoesNotRevert
+        whenNoRecipientReentrancy
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
@@ -128,23 +128,23 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier callerRecipient() {
+    modifier whenCallerRecipient() {
         _;
     }
 
-    modifier senderContract() {
+    modifier whenSenderContract() {
         _;
     }
 
-    modifier senderImplementsHook() {
+    modifier whenSenderImplementsHook() {
         _;
     }
 
-    modifier senderDoesNotRevert() {
+    modifier whenSenderDoesNotRevert() {
         _;
     }
 
-    modifier noSenderReentrancy() {
+    modifier whenNoSenderReentrancy() {
         _;
     }
 
@@ -160,14 +160,14 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 withdrawAmount
     )
         external
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerRecipient
-        senderContract
-        senderImplementsHook
-        senderDoesNotRevert
-        noSenderReentrancy
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerRecipient
+        whenSenderContract
+        whenSenderImplementsHook
+        whenSenderDoesNotRevert
+        whenNoSenderReentrancy
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 

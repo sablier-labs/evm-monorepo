@@ -20,14 +20,14 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function test_GetWithdrawnAmount_NoWithdrawals() external streamNonNull {
+    function test_GetWithdrawnAmount_NoWithdrawals() external whenStreamNonNull {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
@@ -38,7 +38,7 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
     }
 
     /// @dev it should return the correct withdrawn amount.
-    function test_GetWithdrawnAmount_WithWithdrawals() external streamNonNull {
+    function test_GetWithdrawnAmount_WithWithdrawals() external whenStreamNonNull {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 

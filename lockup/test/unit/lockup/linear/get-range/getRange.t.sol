@@ -14,12 +14,12 @@ contract GetRange_Linear_Unit_Test is Linear_Unit_Test {
         assertEq(actualRange, expectedRange);
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the correct range.
-    function test_GetRange() external streamNonNull {
+    function test_GetRange() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         LockupLinear.Range memory actualRange = linear.getRange(streamId);
         LockupLinear.Range memory expectedRange = DEFAULT_LINEAR_RANGE;

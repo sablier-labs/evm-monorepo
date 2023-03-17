@@ -14,12 +14,12 @@ contract GetStream_Pro_Unit_Test is Pro_Unit_Test {
         assertEq(actualStream, expectedStream);
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the stream.
-    function test_GetStream() external streamNonNull {
+    function test_GetStream() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         LockupPro.Stream memory actualStream = pro.getStream(streamId);
         LockupPro.Stream memory expectedStream = defaultStream;
