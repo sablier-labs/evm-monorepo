@@ -41,7 +41,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
     // solhint-disable max-line-length
     function invariant_ContractBalance() external {
         uint256 contractBalance = DEFAULT_ASSET.balanceOf(address(lockup));
-        uint256 protocolRevenues = lockup.getProtocolRevenues(DEFAULT_ASSET);
+        uint256 protocolRevenues = lockup.protocolRevenues(DEFAULT_ASSET);
         uint256 returnedAmountsSum = lockupHandlerStorage.returnedAmountsSum();
 
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();

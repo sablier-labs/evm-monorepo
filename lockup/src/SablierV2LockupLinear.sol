@@ -392,7 +392,7 @@ contract SablierV2LockupLinear is
         // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
-            _protocolRevenues[params.asset] += createAmounts.protocolFee;
+            protocolRevenues[params.asset] += createAmounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.

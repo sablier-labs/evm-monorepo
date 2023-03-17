@@ -64,7 +64,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         comptroller.setFlashFee(comptrollerFlashFee);
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = flashLoan.getProtocolRevenues(DEFAULT_ASSET);
+        uint128 initialProtocolRevenues = flashLoan.protocolRevenues(DEFAULT_ASSET);
 
         // Load the flash fee.
         uint256 fee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: amount });
@@ -105,7 +105,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         assertTrue(response, "flashLoan response");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
+        uint128 actualProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + uint128(fee);
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }

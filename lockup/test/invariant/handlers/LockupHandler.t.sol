@@ -114,7 +114,7 @@ abstract contract LockupHandler is BaseHandler {
 
     function claimProtocolRevenues() external instrument("claimProtocolRevenues") useAdmin {
         // Can claim revenues only if the protocol has revenues.
-        uint128 protocolRevenues = lockup.getProtocolRevenues(asset);
+        uint128 protocolRevenues = lockup.protocolRevenues(asset);
         if (protocolRevenues == 0) {
             return;
         }

@@ -131,7 +131,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
         // Load the pre-create protocol revenues.
         Vars memory vars;
-        vars.initialProtocolRevenues = linear.getProtocolRevenues(asset);
+        vars.initialProtocolRevenues = linear.protocolRevenues(asset);
 
         // Load the pre-create asset balances.
         vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(linear), params.broker.account));
@@ -188,7 +188,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = linear.getProtocolRevenues(asset);
+        vars.actualProtocolRevenues = linear.protocolRevenues(asset);
         vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 

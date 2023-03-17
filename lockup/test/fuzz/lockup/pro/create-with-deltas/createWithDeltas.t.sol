@@ -63,7 +63,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         vars.funder = users.sender;
 
         // Load the initial protocol revenues.
-        vars.initialProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
+        vars.initialProtocolRevenues = pro.protocolRevenues(DEFAULT_ASSET);
 
         // Mint enough ERC-20 assets to the fuzzed funder.
         deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
@@ -125,7 +125,7 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
+        vars.actualProtocolRevenues = pro.protocolRevenues(DEFAULT_ASSET);
         vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 

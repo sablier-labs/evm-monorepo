@@ -1,4 +1,4 @@
-getProtocolRevenues.t.sol
+protocolRevenues.t.sol
 ├── when the protocol revenues are zero
 │  └── it should return zero
 └── when the protocol revenues are not zero

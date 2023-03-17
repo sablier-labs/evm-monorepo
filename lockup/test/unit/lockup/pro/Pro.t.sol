@@ -16,7 +16,7 @@ import { ClaimProtocolRevenues_Unit_Test } from "../shared/claim-protocol-revenu
 import { GetAsset_Unit_Test } from "../shared/get-asset/getAsset.t.sol";
 import { GetDepositAmount_Unit_Test } from "../shared/get-deposit-amount/getDepositAmount.t.sol";
 import { GetEndTime_Unit_Test } from "../shared/get-end-time/getEndTime.t.sol";
-import { GetProtocolRevenues_Unit_Test } from "../shared/get-protocol-revenues/getProtocolRevenues.t.sol";
+import { ProtocolRevenues_Unit_Test } from "../shared/protocol-revenues/protocolRevenues.t.sol";
 import { GetRecipient_Unit_Test } from "../shared/get-recipient/getRecipient.t.sol";
 import { GetSender_Unit_Test } from "../shared/get-sender/getSender.t.sol";
 import { GetStartTime_Unit_Test } from "../shared/get-start-time/getStartTime.t.sol";
@@ -119,17 +119,17 @@ contract GetEndTime_Pro_Unit_Test is Pro_Unit_Test, GetEndTime_Unit_Test {
     }
 }
 
-contract GetProtocolRevenues_Pro_Unit_Test is Pro_Unit_Test, GetProtocolRevenues_Unit_Test {
-    function setUp() public virtual override(Pro_Unit_Test, GetProtocolRevenues_Unit_Test) {
-        Pro_Unit_Test.setUp();
-        GetProtocolRevenues_Unit_Test.setUp();
-    }
-}
-
 contract GetRecipient_Pro_Unit_Test is Pro_Unit_Test, GetRecipient_Unit_Test {
     function setUp() public virtual override(Pro_Unit_Test, GetRecipient_Unit_Test) {
         Pro_Unit_Test.setUp();
         GetRecipient_Unit_Test.setUp();
+    }
+}
+
+contract ProtocolRevenues_Pro_Unit_Test is Pro_Unit_Test, ProtocolRevenues_Unit_Test {
+    function setUp() public virtual override(Pro_Unit_Test, ProtocolRevenues_Unit_Test) {
+        Pro_Unit_Test.setUp();
+        ProtocolRevenues_Unit_Test.setUp();
     }
 }
 
