@@ -1,11 +1,11 @@
-// SPDX-License-Identifier: BUSL-1.1
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.18;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-/// @title SablierV2NoDelegateCall
+/// @title NoDelegateCall
 /// @notice This contract implements logic to prevent delegate calls.
-abstract contract SablierV2NoDelegateCall {
+abstract contract NoDelegateCall {
     /*//////////////////////////////////////////////////////////////////////////
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -42,7 +42,7 @@ abstract contract SablierV2NoDelegateCall {
     /// and reduce the overall size of the contract.
     function _preventDelegateCall() private view {
         if (address(this) != _original) {
-            revert Errors.SablierV2DelegateCall();
+            revert Errors.DelegateCall();
         }
     }
 }

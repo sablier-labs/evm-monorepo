@@ -12,7 +12,10 @@ library Errors {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when the caller is not the admin.
-    error Adminable_CallerNotAdmin(address admin, address caller);
+    error CallerNotAdmin(address admin, address caller);
+
+    /// @notice Thrown when attempting to delegate call to a function that does not allow delegate calls.
+    error DelegateCall();
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-CONFIG
@@ -20,13 +23,6 @@ library Errors {
 
     /// @notice Thrown when attempting to claim protocol revenues for an asset that did not accrue any revenues.
     error SablierV2Config_NoProtocolRevenues(IERC20 asset);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                            SABLIER-V2-NO-DELEGATE-CALL
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when attempting to delegate call to a Sablier contract.
-    error SablierV2DelegateCall();
 
     /*//////////////////////////////////////////////////////////////////////////
                                SABLIER-V2-FLASH-LOAN

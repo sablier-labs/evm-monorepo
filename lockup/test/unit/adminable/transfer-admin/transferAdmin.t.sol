@@ -14,7 +14,7 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
         changePrank(eve);
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.Adminable_CallerNotAdmin.selector, users.admin, eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, eve));
         adminable.transferAdmin(eve);
     }
 

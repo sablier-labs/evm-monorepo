@@ -21,7 +21,7 @@ abstract contract Adminable is IAdminable {
     /// @notice Reverts if called by any account other than the admin.
     modifier onlyAdmin() {
         if (admin != msg.sender) {
-            revert Errors.Adminable_CallerNotAdmin({ admin: admin, caller: msg.sender });
+            revert Errors.CallerNotAdmin({ admin: admin, caller: msg.sender });
         }
         _;
     }

@@ -54,7 +54,7 @@ abstract contract Unit_Test is Base_Test {
     /// @dev Expects a delegate call error.
     function expectRevertDueToDelegateCall(bool success, bytes memory returnData) internal {
         assertFalse(success, "delegatecall success");
-        assertEq(returnData, abi.encodeWithSelector(Errors.SablierV2DelegateCall.selector), "delegatecall return data");
+        assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
     }
 
     /// @dev Label the test contracts.

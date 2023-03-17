@@ -10,13 +10,13 @@ import { ISablierV2Config } from "../interfaces/ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { Adminable } from "./Adminable.sol";
-import { SablierV2NoDelegateCall } from "./SablierV2NoDelegateCall.sol";
+import { NoDelegateCall } from "./NoDelegateCall.sol";
 
 /// @title SablierV2Config
 /// @notice See the documentation in {ISablierV2Config}.
 abstract contract SablierV2Config is
     ISablierV2Config, // no dependencies
-    SablierV2NoDelegateCall, // no dependencies
+    NoDelegateCall, // no dependencies
     Adminable // one dependency
 {
     using SafeERC20 for IERC20;
