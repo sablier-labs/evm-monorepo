@@ -95,9 +95,10 @@ abstract contract Dynamic_Shared_Test is Lockup_Shared_Test {
     }
 
     /// @dev Creates the default stream with the provided deltas.
-    function createDefaultStreamWithDeltas(
-        LockupDynamic.SegmentWithDelta[] memory segments
-    ) internal returns (uint256 streamId) {
+    function createDefaultStreamWithDeltas(LockupDynamic.SegmentWithDelta[] memory segments)
+        internal
+        returns (uint256 streamId)
+    {
         LockupDynamic.CreateWithDeltas memory params = defaultParams.createWithDeltas;
         params.segments = segments;
         streamId = dynamic.createWithDeltas(params);
@@ -133,9 +134,10 @@ abstract contract Dynamic_Shared_Test is Lockup_Shared_Test {
     }
 
     /// @dev Creates the default stream with the provided segments.
-    function createDefaultStreamWithSegments(
-        LockupDynamic.Segment[] memory segments
-    ) internal returns (uint256 streamId) {
+    function createDefaultStreamWithSegments(LockupDynamic.Segment[] memory segments)
+        internal
+        returns (uint256 streamId)
+    {
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
         params.segments = segments;
         streamId = dynamic.createWithMilestones(params);

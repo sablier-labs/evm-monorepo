@@ -25,9 +25,11 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// - Current time < end time
     /// - Current time = end time
     /// - Current time > end time
-    function testFuzz_StreamedAmountOf_OneSegment(
-        uint40 timeWarp
-    ) external whenStreamActive whenStartTimeLessThanCurrentTime {
+    function testFuzz_StreamedAmountOf_OneSegment(uint40 timeWarp)
+        external
+        whenStreamActive
+        whenStartTimeLessThanCurrentTime
+    {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -47,11 +49,8 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Run the test.
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateStreamedAmountForOneSegment(
-            currentTime,
-            segments[0].exponent,
-            DEFAULT_DEPOSIT_AMOUNT
-        );
+        uint128 expectedStreamedAmount =
+            calculateStreamedAmountForOneSegment(currentTime, segments[0].exponent, DEFAULT_DEPOSIT_AMOUNT);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -70,9 +69,13 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// - Current time < end time
     /// - Current time = end time
     /// - Current time > end time
-    function testFuzz_StreamedAmountOf_CurrentMilestoneNot1st(
-        uint40 timeWarp
-    ) external whenStreamActive whenStartTimeLessThanCurrentTime whenMultipleSegments whenCurrentMilestoneNot1st {
+    function testFuzz_StreamedAmountOf_CurrentMilestoneNot1st(uint40 timeWarp)
+        external
+        whenStreamActive
+        whenStartTimeLessThanCurrentTime
+        whenMultipleSegments
+        whenCurrentMilestoneNot1st
+    {
         timeWarp = boundUint40(timeWarp, MAX_SEGMENTS[0].milestone, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -84,11 +87,8 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Run the test.
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateStreamedAmountForMultipleSegments(
-            currentTime,
-            MAX_SEGMENTS,
-            DEFAULT_DEPOSIT_AMOUNT
-        );
+        uint128 expectedStreamedAmount =
+            calculateStreamedAmountForMultipleSegments(currentTime, MAX_SEGMENTS, DEFAULT_DEPOSIT_AMOUNT);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 }

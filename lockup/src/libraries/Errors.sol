@@ -41,7 +41,9 @@ library Errors {
     error SablierV2FlashLoan_FlashBorrowFail();
 
     /// @notice Thrown when attempting to flash loan more than is available for lending.
-    error SablierV2FlashLoan_InsufficientAssetLiquidity(IERC20 asset, uint256 amountAvailable, uint256 amountRequested);
+    error SablierV2FlashLoan_InsufficientAssetLiquidity(
+        IERC20 asset, uint256 amountAvailable, uint256 amountRequested
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-LOCKUP
@@ -73,9 +75,7 @@ library Errors {
 
     /// @notice Thrown when attempting to withdraw more than can be withdrawn.
     error SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
-        uint256 streamId,
-        uint128 amount,
-        uint128 withdrawableAmount
+        uint256 streamId, uint128 amount, uint128 withdrawableAmount
     );
 
     /// @notice Thrown when attempting to withdraw zero assets from a stream.
@@ -110,8 +110,7 @@ library Errors {
     /// @notice Thrown when attempting to create a stream with a deposit amount that does not equal the segment
     /// amounts sum.
     error SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum(
-        uint128 depositAmount,
-        uint128 segmentAmountsSum
+        uint128 depositAmount, uint128 segmentAmountsSum
     );
 
     /// @notice Thrown when attempting to create a stream with more segments than the maximum permitted.
@@ -122,15 +121,12 @@ library Errors {
 
     /// @notice Thrown when attempting to create a stream with segment milestones that are not ordered.
     error SablierV2LockupDynamic_SegmentMilestonesNotOrdered(
-        uint256 index,
-        uint40 previousMilestone,
-        uint40 currentMilestone
+        uint256 index, uint40 previousMilestone, uint40 currentMilestone
     );
 
     /// @notice Thrown when attempting to create a stream with a start time that is not strictly less than the first
     /// segment milestone.
     error SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone(
-        uint40 startTime,
-        uint40 firstSegmentMilestone
+        uint40 startTime, uint40 firstSegmentMilestone
     );
 }

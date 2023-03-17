@@ -102,7 +102,8 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @dev Emits a {CreateLockupDynamicStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - As long as the milestones are ordered, it is not an error to set the `params.startTime` and the milestones to
+    /// - As long as the milestones are ordered, it is not an error to set the `params.startTime` and the milestones
+    /// to
     /// a range that is in the past.
     ///
     /// Requirements:
@@ -118,7 +119,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     ///
     /// @param params Struct that encapsulates the function parameters.
     /// @return streamId The id of the newly created lockup dynamic stream.
-    function createWithMilestones(
-        LockupDynamic.CreateWithMilestones calldata params
-    ) external returns (uint256 streamId);
+    function createWithMilestones(LockupDynamic.CreateWithMilestones calldata params)
+        external
+        returns (uint256 streamId);
 }

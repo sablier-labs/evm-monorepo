@@ -123,7 +123,11 @@ abstract contract LockupHandler is BaseHandler {
         lockup.claimProtocolRevenues(asset);
     }
 
-    function renounce(uint256 streamIndexSeed) external instrument("renounce") useFuzzedStreamSender(streamIndexSeed) {
+    function renounce(uint256 streamIndexSeed)
+        external
+        instrument("renounce")
+        useFuzzedStreamSender(streamIndexSeed)
+    {
         // Non-cancelable streams cannot be renounced.
         bool isCancelable = lockup.isCancelable(currentStreamId);
         if (!isCancelable) {
@@ -138,7 +142,11 @@ abstract contract LockupHandler is BaseHandler {
         uint256 streamIndexSeed,
         address to,
         uint128 withdrawAmount
-    ) external instrument("withdraw") useFuzzedStreamRecipient(streamIndexSeed) {
+    )
+        external
+        instrument("withdraw")
+        useFuzzedStreamRecipient(streamIndexSeed)
+    {
         // The protocol doesn't allow the `to` address to be the zero address.
         if (to == address(0)) {
             return;
@@ -166,7 +174,11 @@ abstract contract LockupHandler is BaseHandler {
     function withdrawMax(
         uint256 streamIndexSeed,
         address to
-    ) external instrument("withdrawMax") useFuzzedStreamRecipient(streamIndexSeed) {
+    )
+        external
+        instrument("withdrawMax")
+        useFuzzedStreamRecipient(streamIndexSeed)
+    {
         // The protocol doesn't allow the `to` address to be the zero address.
         if (to == address(0)) {
             return;
@@ -195,7 +207,11 @@ abstract contract LockupHandler is BaseHandler {
     function transferNFT(
         uint256 streamIndexSeed,
         address newRecipient
-    ) external instrument("transferNFT") useFuzzedStreamRecipient(streamIndexSeed) {
+    )
+        external
+        instrument("transferNFT")
+        useFuzzedStreamRecipient(streamIndexSeed)
+    {
         // The ERC-721 contract doesn't allow the new recipient to be the zero address.
         if (newRecipient == address(0)) {
             return;

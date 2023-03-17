@@ -21,7 +21,11 @@ abstract contract Calculations is Constants {
         uint128 totalAmount,
         UD60x18 protocolFee,
         UD60x18 brokerFee
-    ) internal pure returns (uint128 depositAmount) {
+    )
+        internal
+        pure
+        returns (uint128 depositAmount)
+    {
         uint128 protocolFeeAmount = ud(totalAmount).mul(protocolFee).intoUint128();
         uint128 brokerFeeAmount = ud(totalAmount).mul(brokerFee).intoUint128();
         depositAmount = totalAmount - protocolFeeAmount - brokerFeeAmount;
@@ -31,7 +35,11 @@ abstract contract Calculations is Constants {
     function calculateStreamedAmount(
         uint40 currentTime,
         uint128 depositAmount
-    ) internal view returns (uint128 streamedAmount) {
+    )
+        internal
+        view
+        returns (uint128 streamedAmount)
+    {
         if (currentTime > DEFAULT_END_TIME) {
             return depositAmount;
         }
@@ -49,7 +57,11 @@ abstract contract Calculations is Constants {
         uint40 currentTime,
         LockupDynamic.Segment[] memory segments,
         uint128 depositAmount
-    ) internal view returns (uint128 streamedAmount) {
+    )
+        internal
+        view
+        returns (uint128 streamedAmount)
+    {
         if (currentTime >= segments[segments.length - 1].milestone) {
             return depositAmount;
         }
@@ -97,7 +109,11 @@ abstract contract Calculations is Constants {
         uint40 currentTime,
         UD2x18 exponent,
         uint128 depositAmount
-    ) internal view returns (uint128 streamedAmount) {
+    )
+        internal
+        view
+        returns (uint128 streamedAmount)
+    {
         if (currentTime >= DEFAULT_END_TIME) {
             return depositAmount;
         }

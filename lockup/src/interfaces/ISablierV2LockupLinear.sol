@@ -86,7 +86,9 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     ///
     /// @param params Struct that encapsulates the function parameters.
     /// @return streamId The id of the newly created lockup linear stream.
-    function createWithDurations(LockupLinear.CreateWithDurations calldata params) external returns (uint256 streamId);
+    function createWithDurations(LockupLinear.CreateWithDurations calldata params)
+        external
+        returns (uint256 streamId);
 
     /// @notice Creates a lockup linear stream with the provided start time and end time as the range. The stream is
     /// funded by `msg.sender` and is wrapped in an ERC-721 NFT.

@@ -10,7 +10,7 @@ abstract contract BaseScript is Script {
 
     function setUp() public virtual {
         mnemonic = vm.envString("MNEMONIC");
-        (deployer, ) = deriveRememberKey(mnemonic, 0);
+        (deployer,) = deriveRememberKey(mnemonic, 0);
     }
 
     modifier broadcaster() {

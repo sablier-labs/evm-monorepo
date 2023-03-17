@@ -35,7 +35,10 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
     function testFuzz_GetWithdrawnAmount_WithWithdrawals(
         uint256 timeWarp,
         uint128 withdrawAmount
-    ) external whenStreamNonNull {
+    )
+        external
+        whenStreamNonNull
+    {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_TIME, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.

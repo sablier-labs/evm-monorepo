@@ -59,7 +59,11 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         UD60x18 comptrollerFlashFee,
         uint128 amount,
         bytes calldata data
-    ) external whenAmountNotTooHigh whenCalculatedFeeNotTooHigh {
+    )
+        external
+        whenAmountNotTooHigh
+        whenCalculatedFeeNotTooHigh
+    {
         comptrollerFlashFee = bound(comptrollerFlashFee, 0, DEFAULT_MAX_FEE);
         comptroller.setFlashFee(comptrollerFlashFee);
 

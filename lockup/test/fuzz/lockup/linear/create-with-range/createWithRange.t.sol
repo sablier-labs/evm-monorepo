@@ -29,15 +29,15 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(
-        uint40 startTime
-    ) external whenRecipientNonZeroAddress whenDepositAmountNotZero {
+    function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(uint40 startTime)
+        external
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+    {
         startTime = boundUint40(startTime, DEFAULT_CLIFF_TIME + 1, MAX_UNIX_TIMESTAMP);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector,
-                startTime,
-                DEFAULT_CLIFF_TIME
+                Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, DEFAULT_CLIFF_TIME
             )
         );
         createDefaultStreamWithStartTime(startTime);
@@ -51,18 +51,23 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     function testFuzz_RevertWhen_CliffTimeNotLessThanEndTime(
         uint40 cliffTime,
         uint40 endTime
-    ) external whenRecipientNonZeroAddress whenDepositAmountNotZero whenStartTimeNotGreaterThanCliffTime {
+    )
+        external
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
+    {
         vm.assume(cliffTime >= endTime);
         vm.assume(endTime > DEFAULT_START_TIME);
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector,
-                cliffTime,
-                endTime
+                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
-        createDefaultStreamWithRange(LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: cliffTime, end: endTime }));
+        createDefaultStreamWithRange(
+            LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: cliffTime, end: endTime })
+        );
     }
 
     modifier whenCliffTimeLessThanEndTime() {
@@ -70,9 +75,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_ProtocolFeeTooHigh(
-        UD60x18 protocolFee
-    )
+    function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
         external
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
@@ -97,9 +100,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_BrokerFeeTooHigh(
-        Broker memory broker
-    )
+    function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
@@ -177,7 +178,8 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         Vars memory vars;
         vars.createAmounts.protocolFee = ud(params.totalAmount).mul(protocolFee).intoUint128();
         vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
+        vars.createAmounts.deposit =
+            params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });

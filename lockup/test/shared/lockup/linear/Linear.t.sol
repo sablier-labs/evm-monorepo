@@ -97,9 +97,10 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
     }
 
     /// @dev Creates the default stream with the provided durations.
-    function createDefaultStreamWithDurations(
-        LockupLinear.Durations memory durations
-    ) internal returns (uint256 streamId) {
+    function createDefaultStreamWithDurations(LockupLinear.Durations memory durations)
+        internal
+        returns (uint256 streamId)
+    {
         LockupLinear.CreateWithDurations memory params = defaultParams.createWithDurations;
         params.durations = durations;
         streamId = linear.createWithDurations(params);

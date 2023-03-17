@@ -5,7 +5,8 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-/// @notice Simple struct that encapsulates the optional broker parameters that can be passed to the create functions.
+/// @notice Simple struct that encapsulates the optional broker parameters that can be passed to the create
+/// functions.
 /// @param account The address of the broker the fee will be paid to.
 /// @param fee The percentage fee that the broker is paid from the total amount, as an UD60x18 number.
 struct Broker {
@@ -73,7 +74,8 @@ library LockupDynamic {
         Broker broker;
     }
 
-    /// @notice Struct that encapsulates the parameters of the {SablierV2LockupDynamic-createWithMilestones} function.
+    /// @notice Struct that encapsulates the parameters of the {SablierV2LockupDynamic-createWithMilestones}
+    /// function.
     /// @param segments  The segments the protocol uses to compose the custom streaming curve.
     /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.

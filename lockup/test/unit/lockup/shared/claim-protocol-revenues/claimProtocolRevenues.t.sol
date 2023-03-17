@@ -9,7 +9,7 @@ import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
 
 abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test {
-    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {}
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
     /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {

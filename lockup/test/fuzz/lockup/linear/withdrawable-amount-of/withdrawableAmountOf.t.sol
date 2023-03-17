@@ -10,6 +10,7 @@ import { Linear_Fuzz_Test } from "../Linear.t.sol";
 
 contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     uint256 internal defaultStreamId;
+
     modifier whenStreamActive() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
@@ -17,7 +18,10 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should return zero.
-    function testFuzz_WithdrawableAmountOf_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external whenStreamActive {
+    function testFuzz_WithdrawableAmountOf_CliffTimeGreaterThanCurrentTime(uint40 timeWarp)
+        external
+        whenStreamActive
+    {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
@@ -44,7 +48,11 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     function testFuzz_WithdrawableAmountOf_NoWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount
-    ) external whenStreamActive whenCliffTimeLessThanOrEqualToCurrentTime {
+    )
+        external
+        whenStreamActive
+        whenCliffTimeLessThanOrEqualToCurrentTime
+    {
         vm.assume(depositAmount != 0);
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
@@ -80,7 +88,11 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint40 timeWarp,
         uint128 depositAmount,
         uint128 withdrawAmount
-    ) external whenStreamActive whenCliffTimeLessThanOrEqualToCurrentTime {
+    )
+        external
+        whenStreamActive
+        whenCliffTimeLessThanOrEqualToCurrentTime
+    {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         depositAmount = boundUint128(depositAmount, 10_000, UINT128_MAX);
 

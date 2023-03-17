@@ -10,6 +10,6 @@ import { Linear_Fork_Test } from "../lockup/linear/Linear.t.sol";
 IERC20 constant asset = IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
 address constant holder = 0xee5B5B923fFcE93A870B3104b7CA09c3db80047A;
 
-contract USDT_Dynamic_Fork_Test is Dynamic_Fork_Test(asset, holder) {}
+contract USDT_Dynamic_Fork_Test is Dynamic_Fork_Test(asset, holder) { }
 
-contract USDT_Linear_Fork_Test is Linear_Fork_Test(asset, holder) {}
+contract USDT_Linear_Fork_Test is Linear_Fork_Test(asset, holder) { }

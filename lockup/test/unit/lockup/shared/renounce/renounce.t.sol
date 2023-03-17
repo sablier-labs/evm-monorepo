@@ -80,7 +80,9 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_RenounceNonCancelableStream.selector, nonCancelableStreamId)
+            abi.encodeWithSelector(
+                Errors.SablierV2Lockup_RenounceNonCancelableStream.selector, nonCancelableStreamId
+            )
         );
         lockup.renounce(nonCancelableStreamId);
     }
@@ -148,8 +150,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect a call to the recipient hook.
         vm.expectCall(
-            address(revertingRecipient),
-            abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
+            address(revertingRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
         );
 
         // Renounce the stream.
@@ -180,8 +181,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect a call to the recipient hook.
         vm.expectCall(
-            address(reentrantRecipient),
-            abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
+            address(reentrantRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
         );
 
         // Renounce the stream.
@@ -212,7 +212,9 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Expect a call to the recipient hook.
-        vm.expectCall(address(goodRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
+        vm.expectCall(
+            address(goodRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
+        );
 
         // Expect a {RenounceLockupStream} event to be emitted.
         vm.expectEmit();

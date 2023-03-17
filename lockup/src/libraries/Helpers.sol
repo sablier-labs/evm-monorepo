@@ -20,7 +20,11 @@ library Helpers {
         UD60x18 protocolFee,
         UD60x18 brokerFee,
         UD60x18 maxFee
-    ) internal pure returns (Lockup.CreateAmounts memory amounts) {
+    )
+        internal
+        pure
+        returns (Lockup.CreateAmounts memory amounts)
+    {
         if (totalAmount == 0) {
             return Lockup.CreateAmounts(0, 0, 0);
         }
@@ -77,7 +81,10 @@ library Helpers {
         LockupDynamic.Segment[] memory segments,
         uint256 maxSegmentCount,
         uint40 startTime
-    ) internal pure {
+    )
+        internal
+        pure
+    {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierV2Lockup_DepositAmountZero();
@@ -99,9 +106,11 @@ library Helpers {
     }
 
     /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
-    function checkDeltasAndCalculateMilestones(
-        LockupDynamic.SegmentWithDelta[] memory segments
-    ) internal view returns (LockupDynamic.Segment[] memory segmentsWithMilestones) {
+    function checkDeltasAndCalculateMilestones(LockupDynamic.SegmentWithDelta[] memory segments)
+        internal
+        view
+        returns (LockupDynamic.Segment[] memory segmentsWithMilestones)
+    {
         uint256 segmentCount = segments.length;
         segmentsWithMilestones = new LockupDynamic.Segment[](segmentCount);
 
@@ -143,12 +152,14 @@ library Helpers {
         LockupDynamic.Segment[] memory segments,
         uint128 depositAmount,
         uint40 startTime
-    ) private pure {
+    )
+        private
+        pure
+    {
         // Checks: the start time is strictly less than the first segment milestone.
         if (startTime >= segments[0].milestone) {
             revert Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone(
-                startTime,
-                segments[0].milestone
+                startTime, segments[0].milestone
             );
         }
 
@@ -160,7 +171,7 @@ library Helpers {
         // Iterate over the segments to sum up the segment amounts and check that the milestones are ordered.
         uint256 index;
         uint256 segmentCount = segments.length;
-        for (index = 0; index < segmentCount; ) {
+        for (index = 0; index < segmentCount;) {
             // Add the current segment amount to the sum. Note that this can overflow.
             segmentAmountsSum += segments[index].amount;
 
@@ -168,9 +179,7 @@ library Helpers {
             currentMilestone = segments[index].milestone;
             if (currentMilestone <= previousMilestone) {
                 revert Errors.SablierV2LockupDynamic_SegmentMilestonesNotOrdered(
-                    index,
-                    previousMilestone,
-                    currentMilestone
+                    index, previousMilestone, currentMilestone
                 );
             }
 
@@ -186,8 +195,7 @@ library Helpers {
         // Check that the deposit amount is equal to the segment amounts sum.
         if (depositAmount != segmentAmountsSum) {
             revert Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum(
-                depositAmount,
-                segmentAmountsSum
+                depositAmount, segmentAmountsSum
             );
         }
     }

@@ -47,7 +47,9 @@ abstract contract SablierV2Lockup is
         ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNftDescriptor,
         UD60x18 maxFee
-    ) SablierV2Base(initialAdmin, initialComptroller, maxFee) {
+    )
+        SablierV2Base(initialAdmin, initialComptroller, maxFee)
+    {
         nextStreamId = 1;
         _nftDescriptor = initialNftDescriptor;
     }
@@ -73,7 +75,8 @@ abstract contract SablierV2Lockup is
         _;
     }
 
-    /// @notice Checks that `msg.sender` is either the sender of the stream or the recipient of the stream (also known
+    /// @notice Checks that `msg.sender` is either the sender of the stream or the recipient of the stream (also
+    /// known
     /// as the owner of the NFT).
     modifier onlySenderOrRecipient(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && msg.sender != getRecipient(streamId)) {
@@ -96,7 +99,12 @@ abstract contract SablierV2Lockup is
     function isCancelable(uint256 streamId) public view virtual override returns (bool result);
 
     /// @inheritdoc ISablierV2Lockup
-    function withdrawableAmountOf(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
+    function withdrawableAmountOf(uint256 streamId)
+        public
+        view
+        virtual
+        override
+        returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
@@ -137,7 +145,7 @@ abstract contract SablierV2Lockup is
         // Iterate over the provided array of stream ids and cancel each stream.
         uint256 count = streamIds.length;
         uint256 streamId;
-        for (uint256 i = 0; i < count; ) {
+        for (uint256 i = 0; i < count;) {
             streamId = streamIds[i];
 
             // Effects and Interactions: cancel the stream.
@@ -188,7 +196,13 @@ abstract contract SablierV2Lockup is
         uint256 streamId,
         address to,
         uint128 amount
-    ) public override noDelegateCall isActiveStream(streamId) isAuthorizedForStream(streamId) {
+    )
+        public
+        override
+        noDelegateCall
+        isActiveStream(streamId)
+        isAuthorizedForStream(streamId)
+    {
         // Checks: if `msg.sender` is the sender of the stream, the provided address is the recipient.
         if (_isCallerStreamSender(streamId) && to != getRecipient(streamId)) {
             revert Errors.SablierV2Lockup_WithdrawSenderUnauthorized(streamId, msg.sender, to);
@@ -213,7 +227,11 @@ abstract contract SablierV2Lockup is
         uint256[] calldata streamIds,
         address to,
         uint128[] calldata amounts
-    ) external override noDelegateCall {
+    )
+        external
+        override
+        noDelegateCall
+    {
         // Checks: the provided address to withdraw to is not zero.
         if (to == address(0)) {
             revert Errors.SablierV2Lockup_WithdrawToZeroAddress();
@@ -228,7 +246,7 @@ abstract contract SablierV2Lockup is
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
         uint256 streamId;
-        for (uint256 i = 0; i < streamIdsCount; ) {
+        for (uint256 i = 0; i < streamIdsCount;) {
             streamId = streamIds[i];
 
             // If the `streamId` does not point to an active stream, simply skip it.
@@ -261,7 +279,11 @@ abstract contract SablierV2Lockup is
     function _isApprovedOrOwner(
         uint256 streamId,
         address spender
-    ) internal view virtual returns (bool isApprovedOrOwner);
+    )
+        internal
+        view
+        virtual
+        returns (bool isApprovedOrOwner);
 
     /// @notice Checks whether `msg.sender` is the sender of the stream or not.
     /// @param streamId The id of the stream to make the query for.

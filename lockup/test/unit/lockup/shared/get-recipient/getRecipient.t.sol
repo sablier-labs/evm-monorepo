@@ -5,7 +5,7 @@ import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
 
 abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
-    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {}
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
     /// @dev it should return zero.
     function test_GetRecipient_StreamNull() external {

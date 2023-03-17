@@ -67,7 +67,9 @@ contract SablierV2LockupLinear is
         ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNFTDescriptor,
         UD60x18 maxFee
-    ) SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor, maxFee) {}
+    )
+        SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor, maxFee)
+    { }
 
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
@@ -103,9 +105,12 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getRecipient(
-        uint256 streamId
-    ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (address recipient) {
+    function getRecipient(uint256 streamId)
+        public
+        view
+        override(ISablierV2Lockup, SablierV2Lockup)
+        returns (address recipient)
+    {
         recipient = _ownerOf(streamId);
     }
 
@@ -120,9 +125,13 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getStatus(
-        uint256 streamId
-    ) public view virtual override(ISablierV2Lockup, SablierV2Lockup) returns (Lockup.Status status) {
+    function getStatus(uint256 streamId)
+        public
+        view
+        virtual
+        override(ISablierV2Lockup, SablierV2Lockup)
+        returns (Lockup.Status status)
+    {
         status = _streams[streamId].status;
     }
 
@@ -137,9 +146,12 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCancelable(
-        uint256 streamId
-    ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (bool result) {
+    function isCancelable(uint256 streamId)
+        public
+        view
+        override(ISablierV2Lockup, SablierV2Lockup)
+        returns (bool result)
+    {
         // A null stream does not exist, and a canceled or depleted stream cannot be canceled anymore.
         if (_streams[streamId].status != Lockup.Status.ACTIVE) {
             return false;
@@ -162,9 +174,12 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2LockupLinear
-    function streamedAmountOf(
-        uint256 streamId
-    ) public view override(ISablierV2Lockup, ISablierV2LockupLinear) returns (uint128 streamedAmount) {
+    function streamedAmountOf(uint256 streamId)
+        public
+        view
+        override(ISablierV2Lockup, ISablierV2LockupLinear)
+        returns (uint128 streamedAmount)
+    {
         // When the stream is null, return zero. When the stream is canceled or depleted, return the withdrawn
         // amount.
         if (_streams[streamId].status != Lockup.Status.ACTIVE) {
@@ -214,9 +229,12 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdrawableAmountOf(
-        uint256 streamId
-    ) public view override(ISablierV2Lockup, SablierV2Lockup) returns (uint128 withdrawableAmount) {
+    function withdrawableAmountOf(uint256 streamId)
+        public
+        view
+        override(ISablierV2Lockup, SablierV2Lockup)
+        returns (uint128 withdrawableAmount)
+    {
         unchecked {
             withdrawableAmount = streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
         }
@@ -227,15 +245,20 @@ contract SablierV2LockupLinear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupLinear
-    function createWithDurations(
-        LockupLinear.CreateWithDurations calldata params
-    ) external override noDelegateCall returns (uint256 streamId) {
+    function createWithDurations(LockupLinear.CreateWithDurations calldata params)
+        external
+        override
+        noDelegateCall
+        returns (uint256 streamId)
+    {
         // Set the current block timestamp as the start time of the stream.
         LockupLinear.Range memory range;
         range.start = uint40(block.timestamp);
 
-        // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because {_createWithRange}
-        // {will nonetheless check that the end time is greater than or equal to the cliff time, and also that the cliff
+        // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because
+        // {_createWithRange}
+        // {will nonetheless check that the end time is greater than or equal to the cliff time, and also that the
+        // cliff
         // time is greater than or equal to the start time.
         unchecked {
             range.cliff = range.start + params.durations.cliff;
@@ -256,9 +279,12 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2LockupLinear
-    function createWithRange(
-        LockupLinear.CreateWithRange calldata params
-    ) public override noDelegateCall returns (uint256 streamId) {
+    function createWithRange(LockupLinear.CreateWithRange calldata params)
+        public
+        override
+        noDelegateCall
+        returns (uint256 streamId)
+    {
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithRange(params);
     }
@@ -271,9 +297,15 @@ contract SablierV2LockupLinear is
     function _isApprovedOrOwner(
         uint256 streamId,
         address spender
-    ) internal view override returns (bool isApprovedOrOwner) {
+    )
+        internal
+        view
+        override
+        returns (bool isApprovedOrOwner)
+    {
         address owner = _ownerOf(streamId);
-        isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
+        isApprovedOrOwner =
+            (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
     }
 
     /// @inheritdoc SablierV2Lockup
@@ -328,13 +360,11 @@ contract SablierV2LockupLinear is
         // potential revert.
         if (msg.sender == sender) {
             if (recipient.code.length > 0) {
-                try
-                    ISablierV2LockupRecipient(recipient).onStreamCanceled({
-                        streamId: streamId,
-                        senderAmount: senderAmount,
-                        recipientAmount: recipientAmount
-                    })
-                {} catch {}
+                try ISablierV2LockupRecipient(recipient).onStreamCanceled({
+                    streamId: streamId,
+                    senderAmount: senderAmount,
+                    recipientAmount: recipientAmount
+                }) { } catch { }
             }
         }
         // Interactions: if the `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
@@ -342,13 +372,11 @@ contract SablierV2LockupLinear is
         // potential revert.
         else {
             if (sender.code.length > 0) {
-                try
-                    ISablierV2LockupSender(sender).onStreamCanceled({
-                        streamId: streamId,
-                        senderAmount: senderAmount,
-                        recipientAmount: recipientAmount
-                    })
-                {} catch {}
+                try ISablierV2LockupSender(sender).onStreamCanceled({
+                    streamId: streamId,
+                    senderAmount: senderAmount,
+                    recipientAmount: recipientAmount
+                }) { } catch { }
             }
         }
 
@@ -363,12 +391,8 @@ contract SablierV2LockupLinear is
 
         // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
         // deposit amount.
-        Lockup.CreateAmounts memory createAmounts = Helpers.checkAndCalculateFees(
-            params.totalAmount,
-            protocolFee,
-            params.broker.fee,
-            MAX_FEE
-        );
+        Lockup.CreateAmounts memory createAmounts =
+            Helpers.checkAndCalculateFees(params.totalAmount, protocolFee, params.broker.fee, MAX_FEE);
 
         // Checks: validate the arguments.
         Helpers.checkCreateLinearParams(createAmounts.deposit, params.range);
@@ -440,7 +464,7 @@ contract SablierV2LockupLinear is
         // reverting if the hook is not implemented, and also without bubbling up any potential revert.
         address recipient = _ownerOf(streamId);
         if (recipient.code.length > 0) {
-            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) {} catch {}
+            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
         }
 
         // Log the renouncement.
@@ -458,9 +482,7 @@ contract SablierV2LockupLinear is
         uint128 withdrawableAmount = withdrawableAmountOf(streamId);
         if (amount > withdrawableAmount) {
             revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
-                streamId,
-                amount,
-                withdrawableAmount
+                streamId, amount, withdrawableAmount
             );
         }
 
@@ -488,14 +510,12 @@ contract SablierV2LockupLinear is
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up
         // any potential revert.
         if (msg.sender != recipient && recipient.code.length > 0) {
-            try
-                ISablierV2LockupRecipient(recipient).onStreamWithdrawn({
-                    streamId: streamId,
-                    caller: msg.sender,
-                    to: to,
-                    amount: amount
-                })
-            {} catch {}
+            try ISablierV2LockupRecipient(recipient).onStreamWithdrawn({
+                streamId: streamId,
+                caller: msg.sender,
+                to: to,
+                amount: amount
+            }) { } catch { }
         }
 
         // Log the withdrawal.

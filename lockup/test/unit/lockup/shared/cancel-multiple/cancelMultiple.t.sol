@@ -158,7 +158,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient)
+            abi.encodeWithSelector(
+                Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient
+            )
         );
         lockup.cancelMultiple(defaultStreamIds);
     }
@@ -218,7 +220,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient)
+            abi.encodeWithSelector(
+                Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient
+            )
         );
         lockup.cancelMultiple(defaultStreamIds);
     }

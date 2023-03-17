@@ -25,9 +25,7 @@ interface ISablierV2Base is IAdminable {
     /// @param oldComptroller The address of the old comptroller contract.
     /// @param newComptroller The address of the new comptroller contract.
     event SetComptroller(
-        address indexed admin,
-        ISablierV2Comptroller oldComptroller,
-        ISablierV2Comptroller newComptroller
+        address indexed admin, ISablierV2Comptroller oldComptroller, ISablierV2Comptroller newComptroller
     );
 
     /*//////////////////////////////////////////////////////////////////////////

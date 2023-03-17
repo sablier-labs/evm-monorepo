@@ -62,9 +62,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDeltas(
-        LockupDynamic.CreateWithDeltas memory params
-    )
+    function createWithDeltas(LockupDynamic.CreateWithDeltas memory params)
         public
         checkUsers(params.sender, params.recipient, params.broker.account)
         instrument("createWithDeltas")
@@ -87,7 +85,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         fuzzSegmentDeltas(params.segments);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
-        (params.totalAmount, ) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+        (params.totalAmount,) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: 1_000_000_000e18,
             segments: params.segments,
             protocolFee: comptroller.getProtocolFee(asset),
@@ -108,9 +106,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    function createWithMilestones(
-        LockupDynamic.CreateWithMilestones memory params
-    )
+    function createWithMilestones(LockupDynamic.CreateWithMilestones memory params)
         public
         checkUsers(params.sender, params.recipient, params.broker.account)
         instrument("createWithMilestones")
@@ -133,7 +129,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         fuzzSegmentMilestones(params.segments, params.startTime);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
-        (params.totalAmount, ) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+        (params.totalAmount,) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: 1_000_000_000e18,
             segments: params.segments,
             protocolFee: comptroller.getProtocolFee(asset),

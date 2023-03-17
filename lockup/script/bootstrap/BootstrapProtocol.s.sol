@@ -17,14 +17,16 @@ import { BaseScript } from "../shared/Base.s.sol";
 
 /// @notice Bootstraps the tocol by setting up the comptroller and creating some streams.
 contract Bootstraptocol is BaseScript {
-    // prettier-ignore
     // solhint-disable max-line-length
     function run(
         ISablierV2Comptroller comptroller,
         ISablierV2LockupLinear linear,
         ISablierV2LockupDynamic dynamic,
         IERC20 asset
-    ) public broadcaster {
+    )
+        public
+        broadcaster
+    {
         address sender = deployer;
         address recipient = vm.addr(vm.deriveKey(mnemonic, 1));
 
@@ -58,19 +60,23 @@ contract Bootstraptocol is BaseScript {
         // - 5th stream: meant to be renounced.
         // - 6th stream: meant to canceled.
         // - 7th stream: meant to be transferred to a third-party.
-        uint128[] memory totalAmounts = Solarray.uint128s(0.1e18, 1e18, 100e18, 1_000e18, 5_000e18, 25_000e18, 100_000e18 );
+        uint128[] memory totalAmounts =
+            Solarray.uint128s(0.1e18, 1e18, 100e18, 1000e18, 5000e18, 25_000e18, 100_000e18);
         uint40[] memory cliffDurations = Solarray.uint40s(0, 0, 0, 0, 1 days, 1 weeks, 12 weeks);
-        uint40[] memory totalDurations = Solarray.uint40s(1 seconds, 1 hours, 1 days, 1 weeks, 4 weeks, 12 weeks, 48 weeks);
+        uint40[] memory totalDurations =
+            Solarray.uint40s(1 seconds, 1 hours, 1 days, 1 weeks, 4 weeks, 12 weeks, 48 weeks);
         for (uint256 i = 0; i < totalDurations.length; ++i) {
-            linear.createWithDurations(LockupLinear.CreateWithDurations({
-                sender: sender,
-                recipient: recipient,
-                totalAmount: totalAmounts[i],
-                asset: asset,
-                cancelable: true,
-                durations: LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] }),
-                broker: Broker(address(0), ud(0))
-            }));
+            linear.createWithDurations(
+                LockupLinear.CreateWithDurations({
+                    sender: sender,
+                    recipient: recipient,
+                    totalAmount: totalAmounts[i],
+                    asset: asset,
+                    cancelable: true,
+                    durations: LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] }),
+                    broker: Broker(address(0), ud(0))
+                })
+            );
         }
 
         // Renounce the 5th stream.
@@ -85,16 +91,18 @@ contract Bootstraptocol is BaseScript {
 
         // Create the default dynamic stream.
         LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](2);
-        segments[0] = LockupDynamic.SegmentWithDelta({ amount: 2_500e18, exponent: ud2x18(3.14e18), delta: 1 hours });
-        segments[1] = LockupDynamic.SegmentWithDelta({ amount: 7_500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
-        dynamic.createWithDeltas(LockupDynamic.CreateWithDeltas({
-            sender: sender,
-            recipient: recipient,
-            totalAmount: 10_000e18,
-            asset: asset,
-            cancelable: true,
-            segments: segments,
-            broker: Broker(address(0), ud(0))
-        }));
+        segments[0] = LockupDynamic.SegmentWithDelta({ amount: 2500e18, exponent: ud2x18(3.14e18), delta: 1 hours });
+        segments[1] = LockupDynamic.SegmentWithDelta({ amount: 7500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
+        dynamic.createWithDeltas(
+            LockupDynamic.CreateWithDeltas({
+                sender: sender,
+                recipient: recipient,
+                totalAmount: 10_000e18,
+                asset: asset,
+                cancelable: true,
+                segments: segments,
+                broker: Broker(address(0), ud(0))
+            })
+        );
     }
 }

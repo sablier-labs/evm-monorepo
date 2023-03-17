@@ -12,13 +12,12 @@
   },
   "devDependencies": {
     "prettier": "^2.8.4",
-    "prettier-plugin-solidity": "^1.1.3",
     "rimraf": "^4.4.0",
-    "solhint": "^3.4.1",
-    "solhint-plugin-prettier": "^0.0.5"
+    "solhint": "^3.4.1"
   },
   "files": [
     "/src",
+    "LICENSE-GPL.md",
     "CHANGELOG.md"
   ],
   "homepage": "https://github.com/sablierhq/v2-core#readme",
@@ -52,9 +51,9 @@
     "gas:snapshot": "forge snapshot --match-path \"./test/{fuzz,unit}/**/*.sol\" --no-match-test \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "gas:snapshot:optimized": "pnpm build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --match-path \"./test/{fuzz,unit}/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "pnpm lint:sol && pnpm prettier:check",
-    "lint:sol": "solhint \"{script,src,test}/**/*.sol\"",
-    "prettier:write": "prettier --write \"**/*.{json,md,sol,yml}\"",
-    "prettier:check": "prettier --check \"**/*.{json,md,sol,yml}\"",
+    "lint:sol": "forge fmt --check && pnpm solhint \"{script,src,test}/**/*.sol\"",
+    "prettier:write": "prettier --write \"**/*.{json,md,yml}\"",
+    "prettier:check": "prettier --check \"**/*.{json,md,yml}\"",
     "test": "forge test",
     "test:lite": "FOUNDRY_PROFILE=lite forge test",
     "test:optimized": "pnpm build:optimized && FOUNDRY_PROFILE=test-optimized forge test"

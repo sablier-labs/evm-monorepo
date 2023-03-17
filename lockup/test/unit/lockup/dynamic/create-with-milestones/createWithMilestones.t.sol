@@ -23,10 +23,8 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(
-            ISablierV2LockupDynamic.createWithMilestones,
-            defaultParams.createWithMilestones
-        );
+        bytes memory callData =
+            abi.encodeCall(ISablierV2LockupDynamic.createWithMilestones, defaultParams.createWithMilestones);
         (bool success, bytes memory returnData) = address(dynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -385,7 +383,8 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         test_createWithMilestones(address(DEFAULT_ASSET));
     }
 
-    /// @dev Shared test logic for `test_CreateWithMilestones_AssetMissingReturnValue` and `test_CreateWithMilestones`.
+    /// @dev Shared test logic for `test_CreateWithMilestones_AssetMissingReturnValue` and
+    /// `test_CreateWithMilestones`.
     function test_createWithMilestones(address asset) internal {
         // Make the sender the funder of the stream.
         address funder = users.sender;

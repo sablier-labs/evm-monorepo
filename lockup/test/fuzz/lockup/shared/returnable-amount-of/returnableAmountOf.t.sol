@@ -7,7 +7,7 @@ import { Fuzz_Test } from "../../../Fuzz.t.sol";
 abstract contract ReturnableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
-    function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {}
+    function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) { }
 
     modifier whenStreamActive() {
         // Create the default stream.

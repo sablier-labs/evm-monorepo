@@ -25,9 +25,7 @@ abstract contract Events {
     event ClaimProtocolRevenues(address indexed admin, IERC20 indexed asset, uint128 protocolRevenues);
 
     event SetComptroller(
-        address indexed admin,
-        ISablierV2Comptroller oldComptroller,
-        ISablierV2Comptroller newComptroller
+        address indexed admin, ISablierV2Comptroller oldComptroller, ISablierV2Comptroller newComptroller
     );
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -36,7 +34,9 @@ abstract contract Events {
 
     event SetFlashFee(address indexed admin, UD60x18 oldFlashFee, UD60x18 newFlashFee);
 
-    event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
+    event SetProtocolFee(
+        address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee
+    );
 
     event ToggleFlashAsset(address indexed admin, IERC20 indexed asset, bool newFlag);
 
@@ -68,9 +68,7 @@ abstract contract Events {
     event RenounceLockupStream(uint256 indexed streamId);
 
     event SetNFTDescriptor(
-        address indexed admin,
-        ISablierV2NFTDescriptor oldNFTDescriptor,
-        ISablierV2NFTDescriptor newNFTDescriptor
+        address indexed admin, ISablierV2NFTDescriptor oldNFTDescriptor, ISablierV2NFTDescriptor newNFTDescriptor
     );
 
     event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, uint128 amount);

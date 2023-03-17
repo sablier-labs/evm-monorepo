@@ -71,7 +71,6 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
                                      INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    // prettier-ignore
     // solhint-disable max-line-length
     function invariant_NullStatus() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
@@ -83,8 +82,14 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
             // If the stream is null, it should contain only zero values.
             if (lockup.getStatus(streamId) == Lockup.Status.NULL) {
                 assertEq(actualStream.amounts.deposit, 0, "Invariant violated: stream null, deposit amount not zero");
-                assertEq(actualStream.amounts.withdrawn, 0, "Invariant violated: stream null, withdrawn amount not zero");
-                assertEq(address(actualStream.asset), address(0), "Invariant violated: stream null, asset not zero address");
+                assertEq(
+                    actualStream.amounts.withdrawn, 0, "Invariant violated: stream null, withdrawn amount not zero"
+                );
+                assertEq(
+                    address(actualStream.asset),
+                    address(0),
+                    "Invariant violated: stream null, asset not zero address"
+                );
                 assertEq(actualStream.cliffTime, 0, "Invariant violated: stream null, cliff time not zero");
                 assertEq(actualStream.endTime, 0, "Invariant violated: stream null, end time not zero");
                 assertEq(actualStream.isCancelable, false, "Invariant violated: stream null, isCancelable not false");
@@ -94,7 +99,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
             }
             // If the stream is not null, it should contain a non-zero deposit amount.
             else {
-                assertNotEq(actualStream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero");
+                assertNotEq(
+                    actualStream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero"
+                );
                 assertNotEq(actualStream.endTime, 0, "Invariant violated: stream non-null, end time zero");
             }
         }

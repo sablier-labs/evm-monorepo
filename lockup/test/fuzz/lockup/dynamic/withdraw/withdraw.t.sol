@@ -35,9 +35,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         uint128 withdrawableAmount;
     }
 
-    function test_Withdraw_FuzzedSegments(
-        Params memory params
-    )
+    function test_Withdraw_FuzzedSegments(Params memory params)
         external
         whenStreamActive
         whenCallerAuthorized

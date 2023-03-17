@@ -32,9 +32,11 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// - Current time < end time
     /// - Current time = end time
     /// - Current time > end time
-    function testFuzz_WithdrawableAmountOf_WithoutWithdrawals(
-        uint40 timeWarp
-    ) external whenStreamActive whenStartTimeLessThanCurrentTime {
+    function testFuzz_WithdrawableAmountOf_WithoutWithdrawals(uint40 timeWarp)
+        external
+        whenStreamActive
+        whenStartTimeLessThanCurrentTime
+    {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -50,11 +52,8 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Run the test.
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(streamId);
-        uint128 expectedWithdrawableAmount = calculateStreamedAmountForMultipleSegments(
-            currentTime,
-            DEFAULT_SEGMENTS,
-            DEFAULT_DEPOSIT_AMOUNT
-        );
+        uint128 expectedWithdrawableAmount =
+            calculateStreamedAmountForMultipleSegments(currentTime, DEFAULT_SEGMENTS, DEFAULT_DEPOSIT_AMOUNT);
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -73,7 +72,12 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,
         uint128 withdrawAmount
-    ) external whenStreamActive whenStartTimeLessThanCurrentTime whenWithWithdrawals {
+    )
+        external
+        whenStreamActive
+        whenStartTimeLessThanCurrentTime
+        whenWithWithdrawals
+    {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -81,11 +85,8 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         vm.warp({ timestamp: currentTime });
 
         // Bound the withdraw amount.
-        uint128 streamedAmount = calculateStreamedAmountForMultipleSegments(
-            currentTime,
-            DEFAULT_SEGMENTS,
-            DEFAULT_DEPOSIT_AMOUNT
-        );
+        uint128 streamedAmount =
+            calculateStreamedAmountForMultipleSegments(currentTime, DEFAULT_SEGMENTS, DEFAULT_DEPOSIT_AMOUNT);
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with

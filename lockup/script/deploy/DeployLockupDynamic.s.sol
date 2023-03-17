@@ -18,7 +18,12 @@ contract DeployLockupDynamic is Script, BaseScript {
         ISablierV2NFTDescriptor initialNFTDescriptor,
         UD60x18 maxFee,
         uint256 maxSegmentCount
-    ) public virtual broadcaster returns (SablierV2LockupDynamic dynamic) {
+    )
+        public
+        virtual
+        broadcaster
+        returns (SablierV2LockupDynamic dynamic)
+    {
         dynamic = new SablierV2LockupDynamic(
             initialAdmin,
             initialComptroller,

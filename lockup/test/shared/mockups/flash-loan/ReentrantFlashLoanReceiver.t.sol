@@ -14,7 +14,10 @@ contract ReentrantFlashLoanReceiver is Constants, IERC3156FlashBorrower {
         uint256 amount,
         uint256 fee,
         bytes calldata data
-    ) external returns (bytes32 response) {
+    )
+        external
+        returns (bytes32 response)
+    {
         initiator;
         amount;
         fee;

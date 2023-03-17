@@ -33,9 +33,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         // Expect a {StartTimeGreaterThanCliffTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector,
-                startTime,
-                cliffTime
+                Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime
             )
         );
 
@@ -51,9 +49,10 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_TotalDurationCalculationOverflows(
-        LockupLinear.Durations memory durations
-    ) external whenCliffDurationCalculationDoesNotOverflow {
+    function testFuzz_RevertWhen_TotalDurationCalculationOverflows(LockupLinear.Durations memory durations)
+        external
+        whenCliffDurationCalculationDoesNotOverflow
+    {
         uint40 startTime = getBlockTimestamp();
         durations.cliff = boundUint40(durations.cliff, 0, UINT40_MAX - startTime);
         durations.total = boundUint40(durations.total, UINT40_MAX - startTime + 1, UINT40_MAX);
@@ -69,9 +68,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         // Expect a {CliffTimeNotLessThanEndTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector,
-                cliffTime,
-                endTime
+                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
 

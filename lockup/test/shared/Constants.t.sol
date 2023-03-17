@@ -14,19 +14,19 @@ abstract contract Constants {
     UD60x18 internal constant DEFAULT_BROKER_FEE = UD60x18.wrap(0.003e18); // 0.3%
     uint128 internal constant DEFAULT_BROKER_FEE_AMOUNT = 30.120481927710843373e18; // 0.3% of total amount
     uint40 internal immutable DEFAULT_CLIFF_TIME;
-    uint40 internal constant DEFAULT_CLIFF_DURATION = 2_500 seconds;
+    uint40 internal constant DEFAULT_CLIFF_DURATION = 2500 seconds;
     uint128 internal constant DEFAULT_DEPOSIT_AMOUNT = 10_000e18;
     uint40 internal immutable DEFAULT_END_TIME;
     UD60x18 internal constant DEFAULT_FLASH_FEE = UD60x18.wrap(0.0005e18); // 0.05%
     UD60x18 internal constant DEFAULT_MAX_FEE = UD60x18.wrap(0.1e18); // 10%
-    uint256 internal constant DEFAULT_MAX_SEGMENT_COUNT = 1_000;
+    uint256 internal constant DEFAULT_MAX_SEGMENT_COUNT = 1000;
     UD60x18 internal constant DEFAULT_PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%
     uint128 internal constant DEFAULT_PROTOCOL_FEE_AMOUNT = 10.040160642570281124e18; // 0.1% of total amount
     uint40 internal immutable DEFAULT_START_TIME;
-    uint40 internal constant DEFAULT_TIME_WARP = 2_600 seconds;
+    uint40 internal constant DEFAULT_TIME_WARP = 2600 seconds;
     uint128 internal constant DEFAULT_TOTAL_AMOUNT = 10_040.160642570281124497e18; // deposit / (1 - fee)
     uint40 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
-    uint128 internal constant DEFAULT_WITHDRAW_AMOUNT = 2_600e18;
+    uint128 internal constant DEFAULT_WITHDRAW_AMOUNT = 2600e18;
     bytes32 internal constant FLASH_LOAN_CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
     uint40 internal constant MAX_UNIX_TIMESTAMP = 2_147_483_647; // 2^31 - 1
     uint128 internal constant UINT128_MAX = type(uint128).max;
@@ -37,13 +37,13 @@ abstract contract Constants {
                                  COMPLEX CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    Lockup.CreateAmounts internal DEFAULT_LOCKUP_CREATE_AMOUNTS =
-        Lockup.CreateAmounts({
-            deposit: DEFAULT_DEPOSIT_AMOUNT,
-            protocolFee: DEFAULT_PROTOCOL_FEE_AMOUNT,
-            brokerFee: DEFAULT_BROKER_FEE_AMOUNT
-        });
-    Lockup.Amounts internal DEFAULT_LOCKUP_AMOUNTS = Lockup.Amounts({ deposit: DEFAULT_DEPOSIT_AMOUNT, withdrawn: 0 });
+    Lockup.CreateAmounts internal DEFAULT_LOCKUP_CREATE_AMOUNTS = Lockup.CreateAmounts({
+        deposit: DEFAULT_DEPOSIT_AMOUNT,
+        protocolFee: DEFAULT_PROTOCOL_FEE_AMOUNT,
+        brokerFee: DEFAULT_BROKER_FEE_AMOUNT
+    });
+    Lockup.Amounts internal DEFAULT_LOCKUP_AMOUNTS =
+        Lockup.Amounts({ deposit: DEFAULT_DEPOSIT_AMOUNT, withdrawn: 0 });
     LockupLinear.Durations internal DEFAULT_DURATIONS =
         LockupLinear.Durations({ cliff: DEFAULT_CLIFF_DURATION, total: DEFAULT_TOTAL_DURATION });
     LockupDynamic.Range internal DEFAULT_DYNAMIC_RANGE;
@@ -60,23 +60,20 @@ abstract contract Constants {
         DEFAULT_START_TIME = uint40(block.timestamp);
         DEFAULT_CLIFF_TIME = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION;
         DEFAULT_END_TIME = DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION;
-        DEFAULT_LINEAR_RANGE = LockupLinear.Range({
-            start: DEFAULT_START_TIME,
-            cliff: DEFAULT_CLIFF_TIME,
-            end: DEFAULT_END_TIME
-        });
+        DEFAULT_LINEAR_RANGE =
+            LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: DEFAULT_CLIFF_TIME, end: DEFAULT_END_TIME });
         DEFAULT_DYNAMIC_RANGE = LockupDynamic.Range({ start: DEFAULT_START_TIME, end: DEFAULT_END_TIME });
 
         DEFAULT_SEGMENTS.push(
             LockupDynamic.Segment({
-                amount: 2_500e18,
+                amount: 2500e18,
                 exponent: ud2x18(3.14e18),
                 milestone: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION
             })
         );
         DEFAULT_SEGMENTS.push(
             LockupDynamic.Segment({
-                amount: 7_500e18,
+                amount: 7500e18,
                 exponent: ud2x18(0.5e18),
                 milestone: DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION
             })
@@ -86,14 +83,14 @@ abstract contract Constants {
             LockupDynamic.SegmentWithDelta({
                 amount: DEFAULT_SEGMENTS[0].amount,
                 exponent: DEFAULT_SEGMENTS[0].exponent,
-                delta: 2_500 seconds
+                delta: 2500 seconds
             })
         );
         DEFAULT_SEGMENTS_WITH_DELTAS.push(
             LockupDynamic.SegmentWithDelta({
                 amount: DEFAULT_SEGMENTS[1].amount,
                 exponent: DEFAULT_SEGMENTS[1].exponent,
-                delta: 7_500 seconds
+                delta: 7500 seconds
             })
         );
 

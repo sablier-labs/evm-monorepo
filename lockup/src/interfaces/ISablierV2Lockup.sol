@@ -25,7 +25,8 @@ interface ISablierV2Lockup is
     /// @param sender The address of the sender.
     /// @param recipient The address of the recipient.
     /// @param senderAmount The amount of ERC-20 assets returned to the sender, in units of the asset's decimals.
-    /// @param recipientAmount The amount of ERC-20 assets withdrawn to the recipient, in units of the asset's decimals.
+    /// @param recipientAmount The amount of ERC-20 assets withdrawn to the recipient, in units of the asset's
+    /// decimals.
     event CancelLockupStream(
         uint256 indexed streamId,
         address indexed sender,
@@ -43,9 +44,7 @@ interface ISablierV2Lockup is
     /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     event SetNFTDescriptor(
-        address indexed admin,
-        ISablierV2NFTDescriptor oldNFTDescriptor,
-        ISablierV2NFTDescriptor newNFTDescriptor
+        address indexed admin, ISablierV2NFTDescriptor oldNFTDescriptor, ISablierV2NFTDescriptor newNFTDescriptor
     );
 
     /// @notice Emitted when assets are withdrawn from a lockup stream.
@@ -166,7 +165,8 @@ interface ISablierV2Lockup is
     ///
     /// Requirements:
     /// - Each stream id in `streamIds` must point to an active lockup.
-    /// - `msg.sender` must be either the sender or the recipient of the stream (also known as the owner of the NFT) of
+    /// - `msg.sender` must be either the sender or the recipient of the stream (also known as the owner of the NFT)
+    /// of
     /// every stream.
     /// - Each stream must be cancelable.
     /// - The call must not be a delegate call.
@@ -248,12 +248,14 @@ interface ISablierV2Lockup is
     ///
     /// Requirements:
     /// - The count of `streamIds` must match the count of `amounts`.
-    /// - `msg.sender` must be either the recipient of the stream (a.k.a the owner of the NFT) or an approved operator.
+    /// - `msg.sender` must be either the recipient of the stream (a.k.a the owner of the NFT) or an approved
+    /// operator.
     /// - Every amount in `amounts` must not be zero and must not exceed the withdrawable amount.
     /// - The call must not be a delegate call.
     ///
     /// @param streamIds The ids of the lockup streams to withdraw.
-    /// @param to The address that receives the withdrawn assets, if the `msg.sender` is not the sender of the stream.
+    /// @param to The address that receives the withdrawn assets, if the `msg.sender` is not the sender of the
+    /// stream.
     /// @param amounts The amounts to withdraw, in units of the asset's decimals.
     function withdrawMultiple(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external;
 }

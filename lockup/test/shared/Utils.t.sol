@@ -33,9 +33,11 @@ abstract contract Utils is StdUtils, PRBMathUtils {
     }
 
     /// @dev Turns the segment with deltas into canonical segments.
-    function getSegmentsWithMilestones(
-        LockupDynamic.SegmentWithDelta[] memory segments
-    ) internal view returns (LockupDynamic.Segment[] memory segmentsWithMilestones) {
+    function getSegmentsWithMilestones(LockupDynamic.SegmentWithDelta[] memory segments)
+        internal
+        view
+        returns (LockupDynamic.Segment[] memory segmentsWithMilestones)
+    {
         unchecked {
             segmentsWithMilestones = new LockupDynamic.Segment[](segments.length);
             segmentsWithMilestones[0] = LockupDynamic.Segment({

@@ -25,7 +25,9 @@ interface ISablierV2Comptroller is IAdminable {
     /// @param asset The contract address of the ERC-20 asset the new protocol fee has been set for.
     /// @param oldProtocolFee The old protocol fee, as an UD60x18 number.
     /// @param newProtocolFee The new protocol fee, as an UD60x18 number.
-    event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
+    event SetProtocolFee(
+        address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee
+    );
 
     /// @notice Emitted when the admin enables or disables an ERC-20 asset for flash loaning.
     /// @param admin The address of the contract admin.
@@ -39,7 +41,8 @@ interface ISablierV2Comptroller is IAdminable {
 
     /// @notice The global flash fee as an UD60x18 number where 100% = 1e18.
     /// @dev Notes:
-    /// - This is a fee percentage, not a fee amount. This should not be confused with {IERC3156FlashLender-flashFee},
+    /// - This is a fee percentage, not a fee amount. This should not be confused with
+    /// {IERC3156FlashLender-flashFee},
     /// which returns the fee amount for a given flash loan amount.
     /// - Unlike the protocol fee, this is not a per-asset fee. It's a global fee applied to all flash loans.
     function flashFee() external view returns (UD60x18);

@@ -14,7 +14,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, address holder_) Fork_Test(asset_, holder_) {}
+    constructor(IERC20 asset_, address holder_) Fork_Test(asset_, holder_) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -25,7 +25,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
         // Approve {SablierV2LockupLinear} to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
-        (bool success, ) = address(asset).call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
+        (bool success,) = address(asset).call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
         success;
     }
 
@@ -109,9 +109,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
         checkUsers(params.sender, params.recipient, params.broker.account, address(linear));
         params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
         params.range.start = boundUint40(
-            params.range.start,
-            uint40(block.timestamp - 1_000 seconds),
-            uint40(block.timestamp + 10_000 seconds)
+            params.range.start, uint40(block.timestamp - 1000 seconds), uint40(block.timestamp + 10_000 seconds)
         );
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
         params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
@@ -141,7 +139,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
         // Calculate the fee amounts and the deposit amount.
         vars.createAmounts.protocolFee = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
         vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
+        vars.createAmounts.deposit =
+            params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
         vars.streamId = linear.nextStreamId();
@@ -198,19 +197,15 @@ abstract contract Linear_Fork_Test is Fork_Test {
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner after create");
 
         // Load the post-create asset balances.
-        vars.balances = getTokenBalances(
-            address(asset),
-            Solarray.addresses(address(linear), holder, params.broker.account)
-        );
+        vars.balances =
+            getTokenBalances(address(asset), Solarray.addresses(address(linear), holder, params.broker.account));
         vars.actualLinearContractBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
 
         // Assert that the linear contract's balance has been updated.
         vars.expectedLinearContractBalance =
-            vars.initialLinearContractBalance +
-            vars.createAmounts.deposit +
-            vars.createAmounts.protocolFee;
+            vars.initialLinearContractBalance + vars.createAmounts.deposit + vars.createAmounts.protocolFee;
         assertEq(
             vars.actualLinearContractBalance,
             vars.expectedLinearContractBalance,
@@ -286,8 +281,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
         if (params.withdrawAmount != vars.createAmounts.deposit) {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(asset),
-                Solarray.addresses(address(linear), params.sender, params.recipient)
+                address(asset), Solarray.addresses(address(linear), params.sender, params.recipient)
             );
             vars.initialLinearContractBalance = vars.balances[0];
             vars.initialSenderBalance = vars.balances[1];
@@ -298,11 +292,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
             vars.senderAmount = linear.returnableAmountOf(vars.streamId);
             vars.recipientAmount = linear.withdrawableAmountOf(vars.streamId);
             emit CancelLockupStream(
-                vars.streamId,
-                params.sender,
-                params.recipient,
-                vars.senderAmount,
-                vars.recipientAmount
+                vars.streamId, params.sender, params.recipient, vars.senderAmount, vars.recipientAmount
             );
 
             // Cancel the stream.
@@ -321,8 +311,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
             // Load the post-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(asset),
-                Solarray.addresses(address(linear), params.sender, params.recipient)
+                address(asset), Solarray.addresses(address(linear), params.sender, params.recipient)
             );
             vars.actualLinearContractBalance = vars.balances[0];
             vars.actualSenderBalance = vars.balances[1];
@@ -330,9 +319,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
             // Assert that the contract's balance has been updated.
             vars.expectedLinearContractBalance =
-                vars.initialLinearContractBalance -
-                uint256(vars.senderAmount) -
-                uint256(vars.recipientAmount);
+                vars.initialLinearContractBalance - uint256(vars.senderAmount) - uint256(vars.recipientAmount);
             assertEq(
                 vars.actualLinearContractBalance,
                 vars.expectedLinearContractBalance,

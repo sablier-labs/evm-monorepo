@@ -44,9 +44,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
-    function testFuzz_Withdraw_CallerRecipient(
-        address to
-    )
+    function testFuzz_Withdraw_CallerRecipient(address to)
         external
         whenStreamActive
         whenCallerAuthorized
@@ -74,9 +72,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
-    function testFuzz_Withdraw_CallerApprovedOperator(
-        address to
-    )
+    function testFuzz_Withdraw_CallerApprovedOperator(address to)
         external
         whenStreamActive
         whenCallerAuthorized
@@ -228,9 +224,8 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Assert that the stream has remained active.
         Lockup.Status actualStatus = lockup.getStatus(streamId);
-        Lockup.Status expectedStatus = withdrawAmount == DEFAULT_DEPOSIT_AMOUNT
-            ? Lockup.Status.DEPLETED
-            : Lockup.Status.ACTIVE;
+        Lockup.Status expectedStatus =
+            withdrawAmount == DEFAULT_DEPOSIT_AMOUNT ? Lockup.Status.DEPLETED : Lockup.Status.ACTIVE;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount has been updated.

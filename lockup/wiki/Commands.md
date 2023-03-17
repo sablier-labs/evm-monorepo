@@ -50,10 +50,10 @@ $ forge build
 
 ## Format
 
-Format the code with Prettier:
+Format the code:
 
 ```sh
-$ pnpm prettier
+$ forge fmt
 ```
 
 ## Gas Report

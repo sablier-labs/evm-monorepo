@@ -46,11 +46,7 @@ contract DeployDeterministicProtocol is
 
         // Deploy the SablierV2LockupDynamic contract.
         dynamic = DeployDeterministicLockupDynamic.run(
-            initialAdmin,
-            comptroller,
-            initialNFTDescriptor,
-            maxFee,
-            maxSegmentCount
+            initialAdmin, comptroller, initialNFTDescriptor, maxFee, maxSegmentCount
         );
     }
 }

@@ -45,9 +45,13 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should make the withdrawals and update the withdrawn amounts.
-    function testFuzz_WithdrawMultiple_CallerApprovedOperator(
-        address to
-    ) external whenToNonZeroAddress whenArraysEqual whenOnlyNonNullStreams whenCallerAuthorizedAllStreams {
+    function testFuzz_WithdrawMultiple_CallerApprovedOperator(address to)
+        external
+        whenToNonZeroAddress
+        whenArraysEqual
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+    {
         vm.assume(to != address(0));
 
         // Approve the operator for all streams.
@@ -82,6 +86,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     modifier whenAllAmountsNotZero() {
         _;
     }
+
     modifier whenAllAmountsLessThanOrEqualToWithdrawableAmounts() {
         _;
     }
@@ -143,7 +148,8 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualNFTOwner1, actualNFTOwner, "NFT owner1");
     }
 
-    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, and update the withdrawn
+    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, and update the
+    /// withdrawn
     /// amounts.
     function testFuzz_WithdrawMultiple_AllStreamsOngoing(
         uint256 timeWarp,
@@ -225,11 +231,10 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         address to;
     }
 
-    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, mark the ended streams as
+    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, mark the ended streams
+    /// as
     /// depleted, and update the withdrawn amounts.
-    function testFuzz_WithdrawMultiple_SomeStreamsEndedSomeStreamsOngoing(
-        Params memory params
-    )
+    function testFuzz_WithdrawMultiple_SomeStreamsEndedSomeStreamsOngoing(Params memory params)
         external
         whenToNonZeroAddress
         whenArraysEqual

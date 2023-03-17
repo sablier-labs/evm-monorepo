@@ -29,10 +29,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(
-            ISablierV2Lockup.withdrawMultiple,
-            (defaultStreamIds, users.recipient, defaultAmounts)
-        );
+        bytes memory callData =
+            abi.encodeCall(ISablierV2Lockup.withdrawMultiple, (defaultStreamIds, users.recipient, defaultAmounts));
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -57,9 +55,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128[] memory amounts = new uint128[](1);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_WithdrawArrayCountsNotEqual.selector,
-                streamIds.length,
-                amounts.length
+                Errors.SablierV2Lockup_WithdrawArrayCountsNotEqual.selector, streamIds.length, amounts.length
             )
         );
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
@@ -172,7 +168,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient)
+            abi.encodeWithSelector(
+                Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient
+            )
         );
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
@@ -220,7 +218,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient)
+            abi.encodeWithSelector(
+                Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient
+            )
         );
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
@@ -383,7 +383,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualNFTOwner1, actualNFTOwner, "NFT owner1");
     }
 
-    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, and update the withdrawn
+    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, and update the
+    /// withdrawn
     /// amounts.
     function test_WithdrawMultiple_AllStreamsOngoing()
         external
@@ -456,7 +457,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         address to;
     }
 
-    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, mark the ended streams as
+    /// @dev it should make the withdrawals, emit multiple {WithdrawFromLockupStream} events, mark the ended streams
+    /// as
     /// depleted, and update the withdrawn amounts.
     function test_WithdrawMultiple_SomeStreamsEndedSomeStreamsOngoing()
         external

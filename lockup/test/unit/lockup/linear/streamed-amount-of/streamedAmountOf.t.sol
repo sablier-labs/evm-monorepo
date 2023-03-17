@@ -65,7 +65,7 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test {
 
         // Run the test.
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = 2_600e18;
+        uint128 expectedStreamedAmount = 2600e18;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 }

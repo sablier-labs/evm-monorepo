@@ -39,11 +39,7 @@ abstract contract BaseHandler is Calculations, Fuzzers, StdCheats {
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier checkUsers(
-        address sender,
-        address recipient,
-        address broker
-    ) {
+    modifier checkUsers(address sender, address recipient, address broker) {
         // The protocol doesn't allow the sender, recipient or broker to be the zero address.
         if (sender == address(0) || recipient == address(0) || broker == address(0)) {
             return;

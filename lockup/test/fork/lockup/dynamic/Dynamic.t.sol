@@ -14,7 +14,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, address holder_) Fork_Test(asset_, holder_) {}
+    constructor(IERC20 asset_, address holder_) Fork_Test(asset_, holder_) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -25,7 +25,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
 
         // Approve {SablierV2LockupDynamic} to transfer the holder's ERC-20 assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
-        (bool success, ) = address(asset).call(abi.encodeCall(IERC20.approve, (address(dynamic), UINT256_MAX)));
+        (bool success,) = address(asset).call(abi.encodeCall(IERC20.approve, (address(dynamic), UINT256_MAX)));
         success;
     }
 
@@ -205,19 +205,15 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
 
         // Load the post-create asset balances.
-        vars.balances = getTokenBalances(
-            address(asset),
-            Solarray.addresses(address(dynamic), holder, params.broker.account)
-        );
+        vars.balances =
+            getTokenBalances(address(asset), Solarray.addresses(address(dynamic), holder, params.broker.account));
         vars.actualDynamicContractBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
 
         // Assert that the dynamic contract's balance has been updated.
         vars.expectedDynamicContractBalance =
-            vars.initialDynamicContractBalance +
-            vars.createAmounts.deposit +
-            vars.createAmounts.protocolFee;
+            vars.initialDynamicContractBalance + vars.createAmounts.deposit + vars.createAmounts.protocolFee;
         assertEq(
             vars.actualDynamicContractBalance,
             vars.expectedDynamicContractBalance,
@@ -293,8 +289,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         if (params.withdrawAmount != vars.createAmounts.deposit) {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(asset),
-                Solarray.addresses(address(dynamic), params.sender, params.recipient)
+                address(asset), Solarray.addresses(address(dynamic), params.sender, params.recipient)
             );
             vars.initialDynamicContractBalance = vars.balances[0];
             vars.initialSenderBalance = vars.balances[1];
@@ -305,11 +300,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             vars.senderAmount = dynamic.returnableAmountOf(vars.streamId);
             vars.recipientAmount = dynamic.withdrawableAmountOf(vars.streamId);
             emit CancelLockupStream(
-                vars.streamId,
-                params.sender,
-                params.recipient,
-                vars.senderAmount,
-                vars.recipientAmount
+                vars.streamId, params.sender, params.recipient, vars.senderAmount, vars.recipientAmount
             );
 
             // Cancel the stream.
@@ -328,8 +319,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
 
             // Load the post-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(asset),
-                Solarray.addresses(address(dynamic), params.sender, params.recipient)
+                address(asset), Solarray.addresses(address(dynamic), params.sender, params.recipient)
             );
             vars.actualDynamicContractBalance = vars.balances[0];
             vars.actualSenderBalance = vars.balances[1];
@@ -337,9 +327,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
 
             // Assert that the contract's balance has been updated.
             vars.expectedDynamicContractBalance =
-                vars.initialDynamicContractBalance -
-                uint256(vars.senderAmount) -
-                uint256(vars.recipientAmount);
+                vars.initialDynamicContractBalance - uint256(vars.senderAmount) - uint256(vars.recipientAmount);
             assertEq(
                 vars.actualDynamicContractBalance,
                 vars.expectedDynamicContractBalance,

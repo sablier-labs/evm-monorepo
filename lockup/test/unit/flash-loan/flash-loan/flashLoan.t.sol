@@ -14,8 +14,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(
-            IERC3156FlashLender.flashLoan,
-            (IERC3156FlashBorrower(address(0)), address(DEFAULT_ASSET), 0, bytes(""))
+            IERC3156FlashLender.flashLoan, (IERC3156FlashBorrower(address(0)), address(DEFAULT_ASSET), 0, bytes(""))
         );
         (bool success, bytes memory returnData) = address(flashLoan).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
@@ -84,16 +83,17 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_InsufficientAssetLiquidity(
-        uint128 amount
-    ) external whenNoDelegateCall whenAmountNotTooHigh whenAssetFlashLoanable whenCalculatedFeeNotTooHigh {
+    function test_RevertWhen_InsufficientAssetLiquidity(uint128 amount)
+        external
+        whenNoDelegateCall
+        whenAmountNotTooHigh
+        whenAssetFlashLoanable
+        whenCalculatedFeeNotTooHigh
+    {
         vm.assume(amount != 0);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2FlashLoan_InsufficientAssetLiquidity.selector,
-                DEFAULT_ASSET,
-                0,
-                amount
+                Errors.SablierV2FlashLoan_InsufficientAssetLiquidity.selector, DEFAULT_ASSET, 0, amount
             )
         );
         flashLoan.flashLoan({
@@ -146,10 +146,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: amount * 2 });
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2FlashLoan_InsufficientAssetLiquidity.selector,
-                DEFAULT_ASSET,
-                0,
-                amount / 2
+                Errors.SablierV2FlashLoan_InsufficientAssetLiquidity.selector, DEFAULT_ASSET, 0, amount / 2
             )
         );
         flashLoan.flashLoan({

@@ -52,9 +52,7 @@ contract LockupLinearCreateHandler is BaseHandler {
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDurations(
-        LockupLinear.CreateWithDurations memory params
-    )
+    function createWithDurations(LockupLinear.CreateWithDurations memory params)
         public
         checkUsers(params.sender, params.recipient, params.broker.account)
         instrument("createWithDurations")
@@ -85,9 +83,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         store.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    function createWithRange(
-        LockupLinear.CreateWithRange memory params
-    )
+    function createWithRange(LockupLinear.CreateWithRange memory params)
         public
         checkUsers(params.sender, params.recipient, params.broker.account)
         instrument("createWithRange")

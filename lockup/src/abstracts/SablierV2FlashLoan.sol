@@ -51,9 +51,11 @@ abstract contract SablierV2FlashLoan is
 
     /// @notice The amount of fees to charge for a hypothetical flash loan amount.
     ///
-    /// @dev You might notice a bit of a terminology clash here, since the ERC-3156 standard refers to the "flash fee"
+    /// @dev You might notice a bit of a terminology clash here, since the ERC-3156 standard refers to the "flash
+    /// fee"
     /// as an amount, whereas the flash fee queried from the comptroller is a percentage. In this code base, the
-    /// "amount" suffix is typically appended to variables that represent amounts, but in this context, the name be kept
+    /// "amount" suffix is typically appended to variables that represent amounts, but in this context, the name be
+    /// kept
     /// unchanged to comply with the ERC.
     ///
     /// Requirements:
@@ -110,7 +112,12 @@ abstract contract SablierV2FlashLoan is
         address asset,
         uint256 amount,
         bytes calldata data
-    ) external override noDelegateCall returns (bool success) {
+    )
+        external
+        override
+        noDelegateCall
+        returns (bool success)
+    {
         // Checks: the amount is less than 2^128. This prevents the below calculations from overflowing.
         if (amount > type(uint128).max) {
             revert Errors.SablierV2FlashLoan_AmountTooHigh(amount);
@@ -139,13 +146,8 @@ abstract contract SablierV2FlashLoan is
         IERC20(asset).safeTransfer({ to: address(receiver), value: amount });
 
         // Interactions: perform the borrower callback.
-        bytes32 response = receiver.onFlashLoan({
-            initiator: msg.sender,
-            token: asset,
-            amount: amount,
-            fee: fee,
-            data: data
-        });
+        bytes32 response =
+            receiver.onFlashLoan({ initiator: msg.sender, token: asset, amount: amount, fee: fee, data: data });
 
         // Checks: the response matches the expected callback success hash.
         if (response != CALLBACK_SUCCESS) {

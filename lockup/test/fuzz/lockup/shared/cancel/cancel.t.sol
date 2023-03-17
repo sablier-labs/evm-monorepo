@@ -40,6 +40,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.sender });
         _;
     }
+
     modifier whenRecipientContract() {
         _;
     }
@@ -47,6 +48,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     modifier whenRecipientImplementsHook() {
         _;
     }
+
     modifier whenRecipientDoesNotRevert() {
         _;
     }

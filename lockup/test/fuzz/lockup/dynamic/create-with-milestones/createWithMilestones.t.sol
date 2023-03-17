@@ -33,9 +33,12 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_SegmentCountTooHigh(
-        uint256 segmentCount
-    ) external whenRecipientNonZeroAddress whenDepositAmountNotZero whenSegmentCountNotZero {
+    function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
+        external
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+    {
         segmentCount = bound(segmentCount, DEFAULT_MAX_SEGMENT_COUNT + 1, DEFAULT_MAX_SEGMENT_COUNT * 10);
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
         vm.expectRevert(
@@ -52,7 +55,13 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     function testFuzz_RevertWhen_SegmentAmountsSumOverflows(
         uint128 amount0,
         uint128 amount1
-    ) external whenRecipientNonZeroAddress whenDepositAmountNotZero whenSegmentCountNotZero whenSegmentCountNotTooHigh {
+    )
+        external
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+    {
         amount0 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
         amount1 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
         LockupDynamic.Segment[] memory segments = DEFAULT_SEGMENTS;
@@ -67,9 +76,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone(
-        uint40 firstMilestone
-    )
+    function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone(uint40 firstMilestone)
         external
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
@@ -105,9 +112,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(
-        uint128 depositDiff
-    )
+    function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositDiff)
         external
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
@@ -149,9 +154,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_ProtocolFeeTooHigh(
-        UD60x18 protocolFee
-    )
+    function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
         external
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
@@ -180,9 +183,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_BrokerFeeTooHigh(
-        Broker memory broker
-    )
+    function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero

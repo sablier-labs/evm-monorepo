@@ -19,10 +19,8 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(
-            ISablierV2LockupLinear.createWithDurations,
-            defaultParams.createWithDurations
-        );
+        bytes memory callData =
+            abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaultParams.createWithDurations);
         (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -45,9 +43,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         // Expect a {StartTimeGreaterThanCliffTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector,
-                startTime,
-                cliffTime
+                Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime
             )
         );
 
@@ -69,10 +65,8 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         whenCliffDurationCalculationDoesNotOverflow
     {
         uint40 startTime = getBlockTimestamp();
-        LockupLinear.Durations memory durations = LockupLinear.Durations({
-            cliff: 0,
-            total: UINT40_MAX - startTime + 1
-        });
+        LockupLinear.Durations memory durations =
+            LockupLinear.Durations({ cliff: 0, total: UINT40_MAX - startTime + 1 });
 
         // Calculate the cliff time and the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -85,9 +79,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         // Expect a {CliffTimeNotLessThanEndTime} error.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector,
-                cliffTime,
-                endTime
+                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
 

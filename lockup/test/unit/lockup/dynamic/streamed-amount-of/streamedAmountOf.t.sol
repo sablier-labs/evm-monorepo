@@ -72,7 +72,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
     /// @dev it should return the correct streamed amount.
     function test_StreamedAmountOf_OneSegment() external whenStreamActive whenStartTimeLessThanCurrentTime {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + 2_000 seconds });
+        vm.warp({ timestamp: DEFAULT_START_TIME + 2000 seconds });
 
         // Create a single-element segment array.
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);
@@ -107,7 +107,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
 
         // Run the test.
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = 0.000000053506725000e18;
+        uint128 expectedStreamedAmount = 0.000000053506725e18;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 

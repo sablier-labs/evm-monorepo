@@ -152,7 +152,9 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         // We deploy from precompiled source if the profile is "test-optimized".
         if (isTestOptimizedProfile()) {
             comptroller = ISablierV2Comptroller(
-                deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json", abi.encode(users.admin))
+                deployCode(
+                    "optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json", abi.encode(users.admin)
+                )
             );
             linear = ISablierV2LockupLinear(
                 deployCode(

@@ -9,7 +9,7 @@ import { Unit_Test } from "../../../Unit.t.sol";
 abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
-    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {}
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
     /// @dev it should return the NULL status.
     function test_GetStatus_Null() external {

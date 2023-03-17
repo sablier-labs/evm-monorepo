@@ -47,9 +47,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, mint the NFT,
     /// record the protocol fee, and emit a {CreateLockupDynamicStream} event.
-    function testFuzz_CreateWithDeltas(
-        LockupDynamic.SegmentWithDelta[] memory segments
-    )
+    function testFuzz_CreateWithDeltas(LockupDynamic.SegmentWithDelta[] memory segments)
         external
         whenLoopCalculationsDoNotOverflowBlockGasLimit
         whenDeltasNotZero

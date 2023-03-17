@@ -69,14 +69,18 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_WithdrawableAmountOf_WithoutWithdrawals() external whenStreamActive whenStartTimeLessThanCurrentTime {
+    function test_WithdrawableAmountOf_WithoutWithdrawals()
+        external
+        whenStreamActive
+        whenStartTimeLessThanCurrentTime
+    {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3_750 seconds });
+        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3750 seconds });
 
         // Run the test.
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
         // The second term is 7,500*0.5^{0.5}
-        uint128 expectedWithdrawableAmount = DEFAULT_SEGMENTS[0].amount + 5_303.30085889910643e18;
+        uint128 expectedWithdrawableAmount = DEFAULT_SEGMENTS[0].amount + 5303.30085889910643e18;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -92,7 +96,7 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenWithWithdrawals
     {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3_750 seconds });
+        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3750 seconds });
 
         // Make the withdrawal.
         dynamic.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -101,9 +105,8 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
 
         // The second term is 7,500*0.5^{0.5}
-        uint128 expectedWithdrawableAmount = DEFAULT_SEGMENTS[0].amount +
-            5_303.30085889910643e18 -
-            DEFAULT_WITHDRAW_AMOUNT;
+        uint128 expectedWithdrawableAmount =
+            DEFAULT_SEGMENTS[0].amount + 5303.30085889910643e18 - DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 }
