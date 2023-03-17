@@ -4,8 +4,8 @@ pragma solidity >=0.8.18;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { SablierV2Adminable } from "./abstracts/SablierV2Adminable.sol";
-import { ISablierV2Adminable } from "./interfaces/ISablierV2Adminable.sol";
+import { Adminable } from "./abstracts/Adminable.sol";
+import { IAdminable } from "./interfaces/IAdminable.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 
 /*
@@ -30,7 +30,7 @@ import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 /// @notice See the documentation in {ISablierV2Comptroller}.
 contract SablierV2Comptroller is
     ISablierV2Comptroller, // one dependency
-    SablierV2Adminable // one dependency
+    Adminable // one dependency
 {
     /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE
@@ -57,7 +57,7 @@ contract SablierV2Comptroller is
     /// @param initialAdmin The address of the initial contract admin.
     constructor(address initialAdmin) {
         admin = initialAdmin;
-        emit ISablierV2Adminable.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
+        emit IAdminable.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

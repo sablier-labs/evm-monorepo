@@ -17,9 +17,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
         changePrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Adminable_CallerNotAdmin.selector, users.admin, users.eve)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
         config.claimProtocolRevenues(DEFAULT_ASSET);
     }
 

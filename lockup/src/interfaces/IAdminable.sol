@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.13;
 
-/// @title ISablierV2Adminable
+/// @title IAdminable
 /// @notice Contract module that provides a basic access control mechanism, with an admin that can be
-/// granted exclusive access to specific functions. The inheriting contract must set the admin in the
-/// constructor.
-interface ISablierV2Adminable {
+/// granted exclusive access to specific functions. The inheriting contract must set the initial admin
+/// in the constructor.
+interface IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/

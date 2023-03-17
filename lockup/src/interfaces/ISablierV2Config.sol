@@ -4,12 +4,12 @@ pragma solidity >=0.8.13;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { ISablierV2Adminable } from "./ISablierV2Adminable.sol";
+import { IAdminable } from "./IAdminable.sol";
 import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 
 /// @title ISablierV2Config
 /// @notice This contract contains the common configuration between all Sablier V2 streaming contracts.
-interface ISablierV2Config is ISablierV2Adminable {
+interface ISablierV2Config is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/

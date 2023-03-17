@@ -8,11 +8,11 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 /// @notice Library that contains all the custom errors that the protocol can revert with.
 library Errors {
     /*//////////////////////////////////////////////////////////////////////////
-                                SABLIER-V2-ADMINABLE
+                                      GENERICS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when the caller is not the admin.
-    error SablierV2Adminable_CallerNotAdmin(address admin, address caller);
+    error Adminable_CallerNotAdmin(address admin, address caller);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-CONFIG

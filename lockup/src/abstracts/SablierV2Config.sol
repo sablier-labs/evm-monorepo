@@ -5,11 +5,11 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { ISablierV2Adminable } from "../interfaces/ISablierV2Adminable.sol";
+import { IAdminable } from "../interfaces/IAdminable.sol";
 import { ISablierV2Config } from "../interfaces/ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { Errors } from "../libraries/Errors.sol";
-import { SablierV2Adminable } from "./SablierV2Adminable.sol";
+import { Adminable } from "./Adminable.sol";
 import { SablierV2NoDelegateCall } from "./SablierV2NoDelegateCall.sol";
 
 /// @title SablierV2Config
@@ -17,7 +17,7 @@ import { SablierV2NoDelegateCall } from "./SablierV2NoDelegateCall.sol";
 abstract contract SablierV2Config is
     ISablierV2Config, // no dependencies
     SablierV2NoDelegateCall, // no dependencies
-    SablierV2Adminable // one dependency
+    Adminable // one dependency
 {
     using SafeERC20 for IERC20;
 
@@ -51,7 +51,7 @@ abstract contract SablierV2Config is
         admin = initialAdmin;
         comptroller = initialComptroller;
         MAX_FEE = maxFee;
-        emit ISablierV2Adminable.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
+        emit IAdminable.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

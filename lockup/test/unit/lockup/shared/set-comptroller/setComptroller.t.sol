@@ -17,9 +17,7 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Adminable_CallerNotAdmin.selector, users.admin, users.eve)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
         config.setComptroller(ISablierV2Comptroller(users.eve));
     }
 

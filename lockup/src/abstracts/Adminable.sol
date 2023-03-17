@@ -1,17 +1,17 @@
-// SPDX-License-Identifier: BUSL-1.1
-pragma solidity >=0.8.18;
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity >=0.8.13;
 
-import { ISablierV2Adminable } from "../interfaces/ISablierV2Adminable.sol";
+import { IAdminable } from "../interfaces/IAdminable.sol";
 import { Errors } from "../libraries/Errors.sol";
 
-/// @title SablierV2Adminable
-/// @notice See the documentation in {ISablierV2Adminable}.
-abstract contract SablierV2Adminable is ISablierV2Adminable {
+/// @title Adminable
+/// @notice See the documentation in {IAdminable}.
+abstract contract Adminable is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2Adminable
+    /// @inheritdoc IAdminable
     address public override admin;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ abstract contract SablierV2Adminable is ISablierV2Adminable {
     /// @notice Reverts if called by any account other than the admin.
     modifier onlyAdmin() {
         if (admin != msg.sender) {
-            revert Errors.SablierV2Adminable_CallerNotAdmin({ admin: admin, caller: msg.sender });
+            revert Errors.Adminable_CallerNotAdmin({ admin: admin, caller: msg.sender });
         }
         _;
     }
@@ -30,12 +30,12 @@ abstract contract SablierV2Adminable is ISablierV2Adminable {
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2Adminable
+    /// @inheritdoc IAdminable
     function transferAdmin(address newAdmin) public virtual override onlyAdmin {
         // Effects: update the admin.
         admin = newAdmin;
 
         // Log the transfer of the admin.
-        emit ISablierV2Adminable.TransferAdmin({ oldAdmin: msg.sender, newAdmin: newAdmin });
+        emit IAdminable.TransferAdmin({ oldAdmin: msg.sender, newAdmin: newAdmin });
     }
 }

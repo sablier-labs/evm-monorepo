@@ -83,8 +83,8 @@ The primary license for Sablier V2 Core is the Business Source License 1.1 (`BUS
 
 - All files in `src/interfaces/` and `src/types` may also be licensed under `GPL-3.0-or-later` (as indicated in their
   SPDX headers), see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
-- Several files in `src/libraries/` may also be licensed under `GPL-3.0-or-later` (as indicated in their SPDX headers),
-  see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
+- Several files in `src/abstracts/` and `src/libraries/` may also be licensed under `GPL-3.0-or-later` (as indicated in
+  their SPDX headers), see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
 
 ### Other Exceptions
 

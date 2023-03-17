@@ -14,9 +14,7 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
         changePrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Adminable_CallerNotAdmin.selector, users.admin, users.eve)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.Adminable_CallerNotAdmin.selector, users.admin, users.eve));
         comptroller.setFlashFee({ newFlashFee: DEFAULT_MAX_FEE });
     }
 
