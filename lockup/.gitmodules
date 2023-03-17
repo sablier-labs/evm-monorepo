@@ -23,7 +23,7 @@
   path = "lib/prb-test"
   url = "https://github.com/PaulRBerg/prb-test"
 [submodule "lib/solarray"]
-  branch = "master"
+  branch = "main"
   path = "lib/solarray"
   url = "https://github.com/PaulRBerg/solarray"
 [submodule "lib/solidity-generators"]
