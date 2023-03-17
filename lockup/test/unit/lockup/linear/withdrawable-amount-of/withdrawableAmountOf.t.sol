@@ -62,14 +62,22 @@ contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_WithdrawableAmountOf_NoWithdrawals() external whenStreamActive whenCliffTimeLessThanOrEqualToCurrentTime {
+    function test_WithdrawableAmountOf_NoWithdrawals()
+        external
+        whenStreamActive
+        whenCliffTimeLessThanOrEqualToCurrentTime
+    {
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_WithdrawableAmountOf_WithWithdrawals() external whenStreamActive whenCliffTimeLessThanOrEqualToCurrentTime {
+    function test_WithdrawableAmountOf_WithWithdrawals()
+        external
+        whenStreamActive
+        whenCliffTimeLessThanOrEqualToCurrentTime
+    {
         // Make the withdrawal.
         linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
 

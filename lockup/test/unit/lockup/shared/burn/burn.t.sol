@@ -70,7 +70,12 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_NFTNonExistent() external whenNoDelegateCall whenStreamCanceledOrDepleted whenCallerAuthorized {
+    function test_RevertWhen_NFTNonExistent()
+        external
+        whenNoDelegateCall
+        whenStreamCanceledOrDepleted
+        whenCallerAuthorized
+    {
         // Burn the NFT so that it no longer exists.
         lockup.burn(streamId);
 
