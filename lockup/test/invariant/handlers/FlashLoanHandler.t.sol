@@ -2,6 +2,7 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
+import { Math } from "@openzeppelin/utils/math/Math.sol";
 import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
 
 import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
@@ -43,8 +44,10 @@ contract FlashLoanHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     function flashLoan(uint128 amount) external instrument("flashLoan") {
-        uint128 balance = uint128(asset.balanceOf(address(this)));
-        amount = boundUint128(amount, 0, balance);
+        // Only up to `UINT128_MAX` tokens can be flash loaned.
+        uint256 balance = asset.balanceOf(address(this));
+        uint128 upperBound = uint128(Math.min(balance, UINT128_MAX));
+        amount = boundUint128(amount, 0, upperBound);
 
         // Only supported ERC-20 assets can be flash loaned.
         bool isFlashLoanable = comptroller.isFlashLoanable(asset);
