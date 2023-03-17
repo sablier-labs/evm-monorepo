@@ -66,7 +66,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// @dev The streaming function is:
     ///
     /// $$
-    /// f(x) = x^{exp} * csa + esas
+    /// f(x) = x^{exp} * csa + \Sigma(esa)
     /// $$
     ///
     /// Where:
@@ -74,7 +74,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// - $x$ is the elapsed time divided by the total time in the current segment.
     /// - $exp$ is the current segment exponent.
     /// - $csa$ is the current segment amount.
-    /// - $esas$ are the elapsed segments' amounts summed up.
+    /// - $\Sigma(esa)$ is the sum of all elapsed segments' amounts.
     ///
     /// @param streamId The id of the lockup pro stream to make the query for.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
