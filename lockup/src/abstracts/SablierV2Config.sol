@@ -10,11 +10,13 @@ import { ISablierV2Config } from "../interfaces/ISablierV2Config.sol";
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { SablierV2Adminable } from "./SablierV2Adminable.sol";
+import { SablierV2NoDelegateCall } from "./SablierV2NoDelegateCall.sol";
 
 /// @title SablierV2Config
 /// @notice See the documentation in {ISablierV2Config}.
 abstract contract SablierV2Config is
     ISablierV2Config, // no dependencies
+    SablierV2NoDelegateCall, // no dependencies
     SablierV2Adminable // one dependency
 {
     using SafeERC20 for IERC20;
@@ -74,7 +76,7 @@ abstract contract SablierV2Config is
         // Checks: the protocol revenues are not zero.
         uint128 protocolRevenues = _protocolRevenues[asset];
         if (protocolRevenues == 0) {
-            revert Errors.SablierV2Lockup_NoProtocolRevenues(asset);
+            revert Errors.SablierV2Config_NoProtocolRevenues(asset);
         }
 
         // Effects: set the protocol revenues to zero.

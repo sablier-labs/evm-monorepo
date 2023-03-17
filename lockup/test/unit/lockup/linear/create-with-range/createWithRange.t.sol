@@ -4,8 +4,8 @@ pragma solidity >=0.8.19 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
+import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { Errors } from "src/libraries/Errors.sol";
-
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
@@ -21,7 +21,18 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_RecipientZeroAddress() external {
+    function test_RevertWhen_DelegateCall() external {
+        bytes memory callData = abi.encodeCall(ISablierV2LockupLinear.createWithRange, defaultParams.createWithRange);
+        (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
+        expectRevertDueToDelegateCall(success, returnData);
+    }
+
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_RecipientZeroAddress() external whenNoDelegateCall {
         vm.expectRevert("ERC721: mint to the zero address");
         createDefaultStreamWithRecipient({ recipient: address(0) });
     }
@@ -34,7 +45,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     ///
     /// It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
     /// `MAX_FEE` is hard coded to 10%.
-    function test_RevertWhen_DepositAmountZero() external recipientNonZeroAddress {
+    function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall recipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
         createDefaultStreamWithTotalAmount(0);
     }
@@ -44,7 +55,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StartTimeGreaterThanCliffTime() external recipientNonZeroAddress depositAmountNotZero {
+    function test_RevertWhen_StartTimeGreaterThanCliffTime()
+        external
+        whenNoDelegateCall
+        recipientNonZeroAddress
+        depositAmountNotZero
+    {
         uint40 startTime = DEFAULT_CLIFF_TIME;
         uint40 cliffTime = DEFAULT_START_TIME;
         vm.expectRevert(

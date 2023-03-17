@@ -114,6 +114,7 @@ interface ISablierV2LockupPro is ISablierV2Lockup {
     /// - `params.startTime` must not be greater than the milestone of the last segment.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
     /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
+    /// - The call must not be a delegate call.
     ///
     /// @param params Struct that encapsulates the function parameters.
     /// @return streamId The id of the newly created lockup pro stream.

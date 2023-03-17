@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
+
 import { Base_Test } from "../Base.t.sol";
 import { Empty } from "../shared/mockups/hooks/Empty.t.sol";
 import { FaultyFlashLoanReceiver } from "../shared/mockups/flash-loan/FaultyFlashLoanReceiver.t.sol";
@@ -48,6 +50,12 @@ abstract contract Unit_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                   HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Expects a delegate call error.
+    function expectRevertDueToDelegateCall(bool success, bytes memory returnData) internal {
+        assertFalse(success, "delegatecall success");
+        assertEq(returnData, abi.encodeWithSelector(Errors.SablierV2DelegateCall.selector), "delegatecall return data");
+    }
 
     /// @dev Label the test contracts.
     function labelTestContracts() internal {

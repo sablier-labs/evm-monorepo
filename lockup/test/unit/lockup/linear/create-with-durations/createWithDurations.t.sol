@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
-
+import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { Errors } from "src/libraries/Errors.sol";
-
 import { LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
@@ -20,8 +17,22 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         streamId = linear.nextStreamId();
     }
 
+    /// @dev it should revert.
+    function test_RevertWhen_DelegateCall() external {
+        bytes memory callData = abi.encodeCall(
+            ISablierV2LockupLinear.createWithDurations,
+            defaultParams.createWithDurations
+        );
+        (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
+        expectRevertDueToDelegateCall(success, returnData);
+    }
+
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
     /// @dev it should revert due to the start time being greater than the cliff time.
-    function test_RevertWhen_CliffDurationCalculationOverflows() external {
+    function test_RevertWhen_CliffDurationCalculationOverflows() external whenNoDelegateCall {
         uint40 startTime = getBlockTimestamp();
         uint40 cliffDuration = UINT40_MAX - startTime + 1;
 
@@ -52,7 +63,11 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_TotalDurationCalculationOverflows() external cliffDurationCalculationDoesNotOverflow {
+    function test_RevertWhen_TotalDurationCalculationOverflows()
+        external
+        whenNoDelegateCall
+        cliffDurationCalculationDoesNotOverflow
+    {
         uint40 startTime = getBlockTimestamp();
         LockupLinear.Durations memory durations = LockupLinear.Durations({
             cliff: 0,
@@ -88,6 +103,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
     /// protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
     function test_CreateWithDurations()
         external
+        whenNoDelegateCall
         cliffDurationCalculationDoesNotOverflow
         totalDurationCalculationDoesNotOverflow
     {

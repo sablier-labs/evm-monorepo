@@ -41,7 +41,7 @@ import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 contract SablierV2LockupLinear is
     ISablierV2LockupLinear, // one dependency
     ERC721("Sablier V2 Lockup Linear NFT", "SAB-V2-LOCKUP-LIN"), // six dependencies
-    SablierV2Lockup // ten dependencies
+    SablierV2Lockup // eleven dependencies
 {
     using SafeERC20 for IERC20;
 
@@ -229,7 +229,7 @@ contract SablierV2LockupLinear is
     /// @inheritdoc ISablierV2LockupLinear
     function createWithDurations(
         LockupLinear.CreateWithDurations calldata params
-    ) external override returns (uint256 streamId) {
+    ) external override noDelegateCall returns (uint256 streamId) {
         // Set the current block timestamp as the start time of the stream.
         LockupLinear.Range memory range;
         range.start = uint40(block.timestamp);
@@ -256,7 +256,9 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2LockupLinear
-    function createWithRange(LockupLinear.CreateWithRange calldata params) public override returns (uint256 streamId) {
+    function createWithRange(
+        LockupLinear.CreateWithRange calldata params
+    ) public override noDelegateCall returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithRange(params);
     }

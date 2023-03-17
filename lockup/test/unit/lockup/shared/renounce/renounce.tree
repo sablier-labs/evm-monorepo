@@ -1,25 +1,28 @@
 renounce.t.sol
-├── when the stream is not active
-│  ├── when the stream is null
-│  │  └── it should revert
-│  ├── when the stream is canceled
-│  │  └── it should revert
-│  └── when the stream is depleted
-│     └── it should revert
-└── when the stream is active
-   ├── when the caller is not the sender
-   │  └── it should revert
-   └── when the caller is the sender
-      ├── when the recipient is not a contract
-      │  └── it should renounce the stream
-      └── when the recipient is a contract
-         ├── when the recipient does not implement the hook
-         │  └── it should renounce the stream, call the recipient hook, and ignore the revert
-         └── when the recipient implements the hook
-            ├── when the recipient reverts
+├── when the call is a delegate call
+│  └── it should revert
+└── when the call is not a delegate call
+   ├── when the stream is not active
+   │  ├── when the stream is null
+   │  │  └── it should revert
+   │  ├── when the stream is canceled
+   │  │  └── it should revert
+   │  └── when the stream is depleted
+   │     └── it should revert
+   └── when the stream is active
+      ├── when the caller is not the sender
+      │  └── it should revert
+      └── when the caller is the sender
+         ├── when the recipient is not a contract
+         │  └── it should renounce the stream
+         └── when the recipient is a contract
+            ├── when the recipient does not implement the hook
             │  └── it should renounce the stream, call the recipient hook, and ignore the revert
-            └── when the recipient does not revert
-               ├── when there is reentrancy
+            └── when the recipient implements the hook
+               ├── when the recipient reverts
                │  └── it should renounce the stream, call the recipient hook, and ignore the revert
-               └── when there is no reentrancy
-                  └── it should renounce the stream, call the recipient hook, and emit a {RenounceLockupStream} event
+               └── when the recipient does not revert
+                  ├── when there is reentrancy
+                  │  └── it should renounce the stream, call the recipient hook, and ignore the revert
+                  └── when there is no reentrancy
+                     └── it should renounce the stream, call the recipient hook, and emit a {RenounceLockupStream} event

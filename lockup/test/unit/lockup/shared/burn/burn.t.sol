@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
@@ -18,7 +19,18 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StreamNull() external {
+    function test_RevertWhen_DelegateCall() external {
+        bytes memory callData = abi.encodeCall(ISablierV2Lockup.burn, streamId);
+        (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
+        expectRevertDueToDelegateCall(success, returnData);
+    }
+
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_StreamNull() external whenNoDelegateCall {
         uint256 nullStreamId = 1729;
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCanceledOrDepleted.selector, nullStreamId)
@@ -27,7 +39,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StreamActive() external {
+    function test_RevertWhen_StreamActive() external whenNoDelegateCall {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCanceledOrDepleted.selector, streamId));
         lockup.burn(streamId);
     }
@@ -44,7 +56,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized() external streamCanceledOrDepleted {
+    function test_RevertWhen_CallerUnauthorized() external whenNoDelegateCall streamCanceledOrDepleted {
         // Make Eve the caller in the rest of this test.
         changePrank({ msgSender: users.eve });
 
@@ -58,7 +70,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_NFTNonExistent() external streamCanceledOrDepleted callerAuthorized {
+    function test_RevertWhen_NFTNonExistent() external whenNoDelegateCall streamCanceledOrDepleted callerAuthorized {
         // Burn the NFT so that it no longer exists.
         lockup.burn(streamId);
 
@@ -72,7 +84,13 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should burn the NFT.
-    function test_Burn_CallerApprovedOperator() external streamCanceledOrDepleted callerAuthorized nftExistent {
+    function test_Burn_CallerApprovedOperator()
+        external
+        whenNoDelegateCall
+        streamCanceledOrDepleted
+        callerAuthorized
+        nftExistent
+    {
         // Approve the operator to handle the stream.
         lockup.approve({ to: users.operator, tokenId: streamId });
 
@@ -89,7 +107,13 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should burn the NFT.
-    function test_Burn_CallerNFTOwner() external streamCanceledOrDepleted callerAuthorized nftExistent {
+    function test_Burn_CallerNFTOwner()
+        external
+        whenNoDelegateCall
+        streamCanceledOrDepleted
+        callerAuthorized
+        nftExistent
+    {
         lockup.burn(streamId);
         address actualNFTOwner = lockup.getRecipient(streamId);
         address expectedNFTOwner = address(0);

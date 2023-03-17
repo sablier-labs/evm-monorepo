@@ -8,9 +8,8 @@ import { stdError } from "forge-std/StdError.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
-
 import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
+import { Broker, Lockup, LockupPro } from "src/types/DataTypes.sol";
 
 import { Pro_Unit_Test } from "../Pro.t.sol";
 
@@ -23,7 +22,21 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_RecipientZeroAddress() external {
+    function test_RevertWhen_DelegateCall() external {
+        bytes memory callData = abi.encodeCall(
+            ISablierV2LockupPro.createWithMilestones,
+            defaultParams.createWithMilestones
+        );
+        (bool success, bytes memory returnData) = address(pro).delegatecall(callData);
+        expectRevertDueToDelegateCall(success, returnData);
+    }
+
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_RecipientZeroAddress() external whenNoDelegateCall {
         vm.expectRevert("ERC721: mint to the zero address");
         address recipient = address(0);
         createDefaultStreamWithRecipient(recipient);
@@ -37,7 +50,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     ///
     /// It is not possible (in principle) to obtain a zero deposit amount from a non-zero total amount,
     /// because we hard-code the `MAX_FEE` to 10%.
-    function test_RevertWhen_DepositAmountZero() external recipientNonZeroAddress {
+    function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall recipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
         uint128 totalAmount = 0;
         createDefaultStreamWithTotalAmount(totalAmount);
@@ -48,7 +61,12 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_SegmentCountZero() external recipientNonZeroAddress depositAmountNotZero {
+    function test_RevertWhen_SegmentCountZero()
+        external
+        whenNoDelegateCall
+        recipientNonZeroAddress
+        depositAmountNotZero
+    {
         LockupPro.Segment[] memory segments;
         vm.expectRevert(Errors.SablierV2LockupPro_SegmentCountZero.selector);
         createDefaultStreamWithSegments(segments);
@@ -61,6 +79,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_SegmentCountTooHigh()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero
@@ -78,6 +97,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev When the segment amounts sum overflows, it should revert.
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero
@@ -97,6 +117,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_StartTimeGreaterThanFirstSegmentMilestone()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero
@@ -123,6 +144,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_StartTimeEqualToFirstSegmentMilestone()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero
@@ -153,6 +175,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_SegmentMilestonesNotOrdered()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero
@@ -186,6 +209,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero
@@ -226,6 +250,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero
@@ -256,6 +281,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_BrokerFeeTooHigh()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero
@@ -281,6 +307,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_AssetNotContract()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero
@@ -313,6 +340,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
     function test_CreateWithMilestones_AssetMissingReturnValue()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero
@@ -337,6 +365,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     /// fee, mint the NFT, and emit a {CreateLockupProStream} event.
     function test_CreateWithMilestones()
         external
+        whenNoDelegateCall
         recipientNonZeroAddress
         depositAmountNotZero
         segmentCountNotZero

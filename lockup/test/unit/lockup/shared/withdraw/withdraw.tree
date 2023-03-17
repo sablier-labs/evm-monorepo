@@ -1,47 +1,50 @@
 withdraw.t.sol
-├── when the stream is not active
-│  ├── when the stream is null
-│  │  └── it should revert
-│  ├── when the stream is canceled
-│  │  └── it should revert
-│  └── when the stream is depleted
-│     └── it should revert
-└── when the stream is active
-   ├── when the caller is unauthorized
-   │  ├── when the caller is a malicious third-party
+├── when the call is a delegate call
+│  └── it should revert
+└── when the call is not a delegate call
+   ├── when the stream is not active
+   │  ├── when the stream is null
    │  │  └── it should revert
-   │  ├── when the caller is the sender
+   │  ├── when the stream is canceled
    │  │  └── it should revert
-   │  └── when the caller is a former recipient
+   │  └── when the stream is depleted
    │     └── it should revert
-   └── when the caller is authorized
-      ├── when the provided address is zero
-      │  └── it should revert
-      └── when the provided address is not zero
-         ├── when the withdraw amount is zero
+   └── when the stream is active
+      ├── when the caller is unauthorized
+      │  ├── when the caller is a malicious third-party
+      │  │  └── it should revert
+      │  ├── when the caller is the sender
+      │  │  └── it should revert
+      │  └── when the caller is a former recipient
+      │     └── it should revert
+      └── when the caller is authorized
+         ├── when the provided address is zero
          │  └── it should revert
-         └── when the withdraw amount is not zero
-            ├── when the amount is greater than the withdrawable amount
+         └── when the provided address is not zero
+            ├── when the withdraw amount is zero
             │  └── it should revert
-            └── when the amount is not greater than the withdrawable amount
-               ├── when the caller is the recipient
-               │  └── it should make the withdrawal and update the withdrawn amount
-               ├── when the caller is an approved operator
-               │  └── it should make the withdrawal and update the withdrawn amount
-               └── when the caller is the sender
-                  ├── when the current time is equal to the end time
-                  │  └── it should make the withdrawal and mark the stream as depleted
-                  └── when the current time is less than the end time
-                     ├── when the recipient is not a contract
-                     │  └── it should make the withdrawal and update the withdrawn amount
-                     └── when the recipient is a contract
-                        ├── when the recipient does not implement the hook
-                        │  └── it should make the withdrawal, update the withdrawn amount, call the recipient hook, and ignore the revert
-                        └── when the recipient implements the hook
-                           ├── when the recipient reverts
+            └── when the withdraw amount is not zero
+               ├── when the amount is greater than the withdrawable amount
+               │  └── it should revert
+               └── when the amount is not greater than the withdrawable amount
+                  ├── when the caller is the recipient
+                  │  └── it should make the withdrawal and update the withdrawn amount
+                  ├── when the caller is an approved operator
+                  │  └── it should make the withdrawal and update the withdrawn amount
+                  └── when the caller is the sender
+                     ├── when the current time is equal to the end time
+                     │  └── it should make the withdrawal and mark the stream as depleted
+                     └── when the current time is less than the end time
+                        ├── when the recipient is not a contract
+                        │  └── it should make the withdrawal and update the withdrawn amount
+                        └── when the recipient is a contract
+                           ├── when the recipient does not implement the hook
                            │  └── it should make the withdrawal, update the withdrawn amount, call the recipient hook, and ignore the revert
-                           └── when the recipient does not revert
-                              ├── when there is reentrancy
-                              │  └── it should make multiple withdrawals, update the withdrawn amounts, and call the recipient hook
-                              └── when there is no reentrancy
-                                 └── it should make the withdrawal, update the withdrawn amount, call the recipient hook, and emit a {WithdrawFromLockupStream} event
+                           └── when the recipient implements the hook
+                              ├── when the recipient reverts
+                              │  └── it should make the withdrawal, update the withdrawn amount, call the recipient hook, and ignore the revert
+                              └── when the recipient does not revert
+                                 ├── when there is reentrancy
+                                 │  └── it should make multiple withdrawals, update the withdrawn amounts, and call the recipient hook
+                                 └── when there is no reentrancy
+                                    └── it should make the withdrawal, update the withdrawn amount, call the recipient hook, and emit a {WithdrawFromLockupStream} event

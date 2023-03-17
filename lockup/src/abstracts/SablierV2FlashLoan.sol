@@ -15,7 +15,7 @@ import { SablierV2Config } from "./SablierV2Config.sol";
 /// @dev See https://eips.ethereum.org/EIPS/eip-3156.
 abstract contract SablierV2FlashLoan is
     IERC3156FlashLender, // no dependencies
-    SablierV2Config // three dependencies
+    SablierV2Config // four dependencies
 {
     using SafeERC20 for IERC20;
 
@@ -110,7 +110,7 @@ abstract contract SablierV2FlashLoan is
         address asset,
         uint256 amount,
         bytes calldata data
-    ) external override returns (bool success) {
+    ) external override noDelegateCall returns (bool success) {
         // Checks: the amount is less than 2^128. This prevents the below calculations from overflowing.
         if (amount > type(uint128).max) {
             revert Errors.SablierV2FlashLoan_AmountTooHigh(amount);

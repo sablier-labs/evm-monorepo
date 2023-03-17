@@ -133,6 +133,7 @@ interface ISablierV2Lockup is
     /// - `streamId` must point to a lockup stream that is either canceled or depleted.
     /// - The NFT must exist.
     /// - `msg.sender` must be either an approved operator or the owner of the NFT.
+    /// - The call must not be a delegate call.
     ///
     /// @param streamId The id of the lockup stream NFT to burn.
     function burn(uint256 streamId) external;
@@ -149,6 +150,7 @@ interface ISablierV2Lockup is
     /// - `streamId` must point to an active lockup stream.
     /// - `msg.sender` must be either the sender or the recipient of the stream (also known as the owner of the NFT).
     /// - The lockup stream must be cancelable.
+    /// - The call must not be a delegate call.
     ///
     /// @param streamId The id of the stream to cancel.
     function cancel(uint256 streamId) external;
@@ -167,6 +169,7 @@ interface ISablierV2Lockup is
     /// - `msg.sender` must be either the sender or the recipient of the stream (also known as the owner of the NFT) of
     /// every stream.
     /// - Each stream must be cancelable.
+    /// - The call must not be a delegate call.
     ///
     /// @param streamIds The ids of the lockup streams to cancel.
     function cancelMultiple(uint256[] calldata streamIds) external;
@@ -183,6 +186,7 @@ interface ISablierV2Lockup is
     /// - `streamId` must point to an active lockup stream.
     /// - `msg.sender` must be the sender of the stream.
     /// - The lockup stream must not be already non-cancelable.
+    /// - The call must not be a delegate call.
     ///
     /// @param streamId The id of the lockup stream to renounce.
     function renounce(uint256 streamId) external;
@@ -213,6 +217,7 @@ interface ISablierV2Lockup is
     /// as the recipient of the stream).
     /// - `to` must be the recipient if `msg.sender` is the sender of the stream.
     /// - `amount` must not be zero and must not exceed the withdrawable amount.
+    /// - The call must not be a delegate call.
     ///
     /// @param streamId The id of the lockup stream to withdraw.
     /// @param to The address that receives the withdrawn assets.
@@ -245,6 +250,7 @@ interface ISablierV2Lockup is
     /// - The count of `streamIds` must match the count of `amounts`.
     /// - `msg.sender` must be either the recipient of the stream (a.k.a the owner of the NFT) or an approved operator.
     /// - Every amount in `amounts` must not be zero and must not exceed the withdrawable amount.
+    /// - The call must not be a delegate call.
     ///
     /// @param streamIds The ids of the lockup streams to withdraw.
     /// @param to The address that receives the withdrawn assets, if the `msg.sender` is not the sender of the stream.

@@ -31,7 +31,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
 
     /// @dev it should revert.
     function test_RevertWhen_ProtocolRevenuesZero() external callerAdmin {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_NoProtocolRevenues.selector, DEFAULT_ASSET));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Config_NoProtocolRevenues.selector, DEFAULT_ASSET));
         config.claimProtocolRevenues(DEFAULT_ASSET);
     }
 

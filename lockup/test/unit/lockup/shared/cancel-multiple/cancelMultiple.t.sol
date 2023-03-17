@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
+import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
-
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Unit_Test } from "../../../Unit.t.sol";
@@ -23,8 +22,19 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
+    /// @dev it should revert.
+    function test_RevertWhen_DelegateCall() external whenNoDelegateCall {
+        bytes memory callData = abi.encodeCall(ISablierV2Lockup.cancelMultiple, (defaultStreamIds));
+        (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
+        expectRevertDueToDelegateCall(success, returnData);
+    }
+
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
     /// @dev it should do nothing.
-    function test_RevertWhen_ArrayCountZero() external {
+    function test_RevertWhen_ArrayCountZero() external whenNoDelegateCall {
         uint256[] memory streamIds = new uint256[](0);
         lockup.cancelMultiple(streamIds);
     }
@@ -34,14 +44,14 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_OnlyNullStreams() external arrayCountNotZero {
+    function test_RevertWhen_OnlyNullStreams() external whenNoDelegateCall arrayCountNotZero {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(nullStreamId);
         lockup.cancelMultiple(streamIds);
     }
 
     /// @dev it should ignore the null streams and cancel the non-null ones.
-    function test_RevertWhen_SomeNullStreams() external arrayCountNotZero {
+    function test_RevertWhen_SomeNullStreams() external whenNoDelegateCall arrayCountNotZero {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], nullStreamId);
         lockup.cancelMultiple(streamIds);
@@ -55,7 +65,12 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_AllStreamsNonCancelable() external arrayCountNotZero onlyNonNullStreams {
+    function test_RevertWhen_AllStreamsNonCancelable()
+        external
+        whenNoDelegateCall
+        arrayCountNotZero
+        onlyNonNullStreams
+    {
         // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
 
@@ -64,7 +79,12 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should ignore the non-cancelable streams and cancel the cancelable streams.
-    function test_RevertWhen_SomeStreamsNonCancelable() external arrayCountNotZero onlyNonNullStreams {
+    function test_RevertWhen_SomeStreamsNonCancelable()
+        external
+        whenNoDelegateCall
+        arrayCountNotZero
+        onlyNonNullStreams
+    {
         // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
 
@@ -88,6 +108,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
         external
+        whenNoDelegateCall
         arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
@@ -105,6 +126,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_ApprovedOperator()
         external
+        whenNoDelegateCall
         arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
@@ -125,6 +147,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
+        whenNoDelegateCall
         arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
@@ -143,6 +166,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
         external
+        whenNoDelegateCall
         arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
@@ -163,6 +187,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedSomeStreams_ApprovedOperator()
         external
+        whenNoDelegateCall
         arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
@@ -183,6 +208,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
+        whenNoDelegateCall
         arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
@@ -205,6 +231,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// CancelLockupStream events.
     function test_CancelMultiple_Sender()
         external
+        whenNoDelegateCall
         arrayCountNotZero
         onlyNonNullStreams
         allStreamsCancelable
@@ -218,6 +245,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// CancelLockupStream events.
     function test_CancelMultiple_Recipient()
         external
+        whenNoDelegateCall
         onlyNonNullStreams
         allStreamsCancelable
         callerAuthorizedAllStreams

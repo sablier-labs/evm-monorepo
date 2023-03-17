@@ -44,7 +44,7 @@ import { Lockup, LockupPro } from "./types/DataTypes.sol";
 contract SablierV2LockupPro is
     ISablierV2LockupPro, // one dependency
     ERC721("Sablier V2 Lockup Pro NFT", "SAB-V2-LOCKUP-PRO"), // six dependencies
-    SablierV2Lockup // ten dependencies
+    SablierV2Lockup // eleven dependencies
 {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
@@ -226,7 +226,9 @@ contract SablierV2LockupPro is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupPro
-    function createWithDeltas(LockupPro.CreateWithDeltas calldata params) external override returns (uint256 streamId) {
+    function createWithDeltas(
+        LockupPro.CreateWithDeltas calldata params
+    ) external override noDelegateCall returns (uint256 streamId) {
         // Checks: check the deltas and generate the canonical segments.
         LockupPro.Segment[] memory segments = Helpers.checkDeltasAndCalculateMilestones(params.segments);
 
@@ -248,7 +250,7 @@ contract SablierV2LockupPro is
     /// @inheritdoc ISablierV2LockupPro
     function createWithMilestones(
         LockupPro.CreateWithMilestones calldata params
-    ) external override returns (uint256 streamId) {
+    ) external override noDelegateCall returns (uint256 streamId) {
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithMilestones(params);
     }
