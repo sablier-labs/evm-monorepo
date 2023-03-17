@@ -129,7 +129,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         address funder = users.sender;
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
+        uint128 initialProtocolRevenues = pro.protocolRevenues(DEFAULT_ASSET);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupPro} contract.
         expectTransferFromCall({
@@ -169,7 +169,7 @@ contract CreateWithDeltas_Pro_Unit_Test is Pro_Unit_Test {
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = pro.getProtocolRevenues(DEFAULT_ASSET);
+        uint128 actualProtocolRevenues = pro.protocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 

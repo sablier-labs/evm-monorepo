@@ -35,12 +35,8 @@ abstract contract SablierV2Config is
     /// @inheritdoc ISablierV2Config
     ISablierV2Comptroller public override comptroller;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                  INTERNAL STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Protocol revenues mapped by ERC-20 asset addresses.
-    mapping(IERC20 asset => uint128 revenues) internal _protocolRevenues;
+    /// @inheritdoc ISablierV2Config
+    mapping(IERC20 asset => uint128 revenues) public override protocolRevenues;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
@@ -59,38 +55,25 @@ abstract contract SablierV2Config is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierV2Config
-    function getProtocolRevenues(IERC20 asset) external view override returns (uint128 protocolRevenues) {
-        protocolRevenues = _protocolRevenues[asset];
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Config
     function claimProtocolRevenues(IERC20 asset) external override onlyAdmin {
         // Checks: the protocol revenues are not zero.
-        uint128 protocolRevenues = _protocolRevenues[asset];
-        if (protocolRevenues == 0) {
+        uint128 revenues = protocolRevenues[asset];
+        if (revenues == 0) {
             revert Errors.SablierV2Config_NoProtocolRevenues(asset);
         }
 
         // Effects: set the protocol revenues to zero.
-        _protocolRevenues[asset] = 0;
+        protocolRevenues[asset] = 0;
 
         // Interactions: perform the ERC-20 transfer to pay the protocol revenues.
-        asset.safeTransfer({ to: msg.sender, value: protocolRevenues });
+        asset.safeTransfer({ to: msg.sender, value: revenues });
 
         // Log the claim of the protocol revenues.
-        emit ISablierV2Config.ClaimProtocolRevenues({
-            admin: msg.sender,
-            asset: asset,
-            protocolRevenues: protocolRevenues
-        });
+        emit ISablierV2Config.ClaimProtocolRevenues({ admin: msg.sender, asset: asset, protocolRevenues: revenues });
     }
 
     /// @inheritdoc ISablierV2Config

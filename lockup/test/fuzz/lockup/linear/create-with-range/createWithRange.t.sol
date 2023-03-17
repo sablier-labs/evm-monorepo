@@ -242,7 +242,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
+        vars.actualProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
         vars.expectedProtocolRevenues = vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 

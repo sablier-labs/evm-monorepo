@@ -16,7 +16,7 @@ import { ClaimProtocolRevenues_Unit_Test } from "../shared/claim-protocol-revenu
 import { GetAsset_Unit_Test } from "../shared/get-asset/getAsset.t.sol";
 import { GetDepositAmount_Unit_Test } from "../shared/get-deposit-amount/getDepositAmount.t.sol";
 import { GetEndTime_Unit_Test } from "../shared/get-end-time/getEndTime.t.sol";
-import { GetProtocolRevenues_Unit_Test } from "../shared/get-protocol-revenues/getProtocolRevenues.t.sol";
+import { ProtocolRevenues_Unit_Test } from "../shared/protocol-revenues/protocolRevenues.t.sol";
 import { GetRecipient_Unit_Test } from "../shared/get-recipient/getRecipient.t.sol";
 import { GetSender_Unit_Test } from "../shared/get-sender/getSender.t.sol";
 import { GetStartTime_Unit_Test } from "../shared/get-start-time/getStartTime.t.sol";
@@ -111,13 +111,6 @@ contract GetEndTime_Linear_Unit_Test is Linear_Unit_Test, GetEndTime_Unit_Test {
     }
 }
 
-contract GetProtocolRevenues_Linear_Unit_Test is Linear_Unit_Test, GetProtocolRevenues_Unit_Test {
-    function setUp() public virtual override(Linear_Unit_Test, GetProtocolRevenues_Unit_Test) {
-        Linear_Unit_Test.setUp();
-        GetProtocolRevenues_Unit_Test.setUp();
-    }
-}
-
 contract GetRecipient_Linear_Unit_Test is Linear_Unit_Test, GetRecipient_Unit_Test {
     function setUp() public virtual override(Linear_Unit_Test, GetRecipient_Unit_Test) {
         Linear_Unit_Test.setUp();
@@ -157,6 +150,13 @@ contract IsCancelable_Linear_Unit_Test is Linear_Unit_Test, IsCancelable_Unit_Te
     function setUp() public virtual override(Linear_Unit_Test, IsCancelable_Unit_Test) {
         Linear_Unit_Test.setUp();
         IsCancelable_Unit_Test.setUp();
+    }
+}
+
+contract ProtocolRevenues_Linear_Unit_Test is Linear_Unit_Test, ProtocolRevenues_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, ProtocolRevenues_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        ProtocolRevenues_Unit_Test.setUp();
     }
 }
 

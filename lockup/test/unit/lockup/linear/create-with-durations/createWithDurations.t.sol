@@ -111,7 +111,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         address funder = users.sender;
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
+        uint128 initialProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
 
         // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
         expectTransferFromCall({
@@ -150,7 +150,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = linear.getProtocolRevenues(DEFAULT_ASSET);
+        uint128 actualProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 

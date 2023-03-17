@@ -469,7 +469,7 @@ contract SablierV2LockupPro is
             // Effects: bump the next stream id and record the protocol fee.
             // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
             nextStreamId = streamId + 1;
-            _protocolRevenues[params.asset] += createAmounts.protocolFee;
+            protocolRevenues[params.asset] += createAmounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.
