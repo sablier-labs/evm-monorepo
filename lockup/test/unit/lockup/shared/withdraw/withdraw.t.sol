@@ -22,7 +22,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_DelegateCall() external whenNoDelegateCall streamActive {
+    function test_RevertWhen_DelegateCall() external whenNoDelegateCall whenStreamActive {
         bytes memory callData = abi.encodeCall(
             ISablierV2Lockup.withdraw,
             (defaultStreamId, users.recipient, DEFAULT_WITHDRAW_AMOUNT)
@@ -35,38 +35,38 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier streamNotActive() {
+    modifier whenStreamNotActive() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StreamNull() external whenNoDelegateCall streamNotActive {
+    function test_RevertWhen_StreamNull() external whenNoDelegateCall whenStreamNotActive {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
         lockup.withdraw({ streamId: nullStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StreamCanceled() external whenNoDelegateCall streamNotActive {
+    function test_RevertWhen_StreamCanceled() external whenNoDelegateCall whenStreamNotActive {
         lockup.cancel(defaultStreamId);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall streamNotActive {
+    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external whenNoDelegateCall streamActive {
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external whenNoDelegateCall whenStreamActive {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
 
@@ -78,7 +78,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_Sender() external whenNoDelegateCall streamActive {
+    function test_RevertWhen_CallerUnauthorized_Sender() external whenNoDelegateCall whenStreamActive {
         // Make the sender the caller in this test.
         changePrank({ msgSender: users.sender });
 
@@ -95,7 +95,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_FormerRecipient() external whenNoDelegateCall streamActive {
+    function test_RevertWhen_FormerRecipient() external whenNoDelegateCall whenStreamActive {
         // Transfer the stream to Alice.
         lockup.transferFrom(users.recipient, users.alice, defaultStreamId);
 
@@ -106,17 +106,17 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    modifier callerAuthorized() {
+    modifier whenCallerAuthorized() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_ToZeroAddress() external whenNoDelegateCall streamActive callerAuthorized {
+    function test_RevertWhen_ToZeroAddress() external whenNoDelegateCall whenStreamActive whenCallerAuthorized {
         vm.expectRevert(Errors.SablierV2Lockup_WithdrawToZeroAddress.selector);
         lockup.withdraw({ streamId: defaultStreamId, to: address(0), amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    modifier toNonZeroAddress() {
+    modifier whenToNonZeroAddress() {
         _;
     }
 
@@ -124,15 +124,15 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_WithdrawAmountZero()
         external
         whenNoDelegateCall
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_WithdrawAmountZero.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
     }
 
-    modifier withdrawAmountNotZero() {
+    modifier whenWithdrawAmountNotZero() {
         _;
     }
 
@@ -140,10 +140,10 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_WithdrawAmountGreaterThanWithdrawableAmount()
         external
         whenNoDelegateCall
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
     {
         uint128 withdrawableAmount = 0;
         vm.expectRevert(
@@ -157,7 +157,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: UINT128_MAX });
     }
 
-    modifier withdrawAmountNotGreaterThanWithdrawableAmount() {
+    modifier whenWithdrawAmountNotGreaterThanWithdrawableAmount() {
         _;
     }
 
@@ -165,11 +165,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Withdraw_CallerRecipient()
         external
         whenNoDelegateCall
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountNotGreaterThanWithdrawableAmount
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -195,11 +195,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Withdraw_CallerApprovedOperator()
         external
         whenNoDelegateCall
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountNotGreaterThanWithdrawableAmount
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
     {
         // Approve the operator to handle the stream.
         lockup.approve({ to: users.operator, tokenId: defaultStreamId });
@@ -224,7 +224,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    modifier callerSender() {
+    modifier whenCallerSender() {
         // Make the sender the caller in this test suite.
         changePrank({ msgSender: users.sender });
         _;
@@ -234,12 +234,12 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Withdraw_CurrentTimeEqualToEndTime()
         external
         whenNoDelegateCall
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountNotGreaterThanWithdrawableAmount
-        callerSender
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenCallerSender
     {
         // Warp to the end of the stream.
         vm.warp({ timestamp: DEFAULT_END_TIME });
@@ -258,7 +258,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier currentTimeLessThanEndTime() {
+    modifier whenCurrentTimeLessThanEndTime() {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
         _;
@@ -268,13 +268,13 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Withdraw_RecipientNotContract()
         external
         whenNoDelegateCall
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountNotGreaterThanWithdrawableAmount
-        callerSender
-        currentTimeLessThanEndTime
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenCallerSender
+        whenCurrentTimeLessThanEndTime
     {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -303,7 +303,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    modifier recipientContract() {
+    modifier whenRecipientContract() {
         _;
     }
 
@@ -311,14 +311,14 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Withdraw_RecipientDoesNotImplementHook()
         external
         whenNoDelegateCall
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountNotGreaterThanWithdrawableAmount
-        callerSender
-        currentTimeLessThanEndTime
-        recipientContract
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenCallerSender
+        whenCurrentTimeLessThanEndTime
+        whenRecipientContract
     {
         // Create the stream with an empty contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
@@ -346,7 +346,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    modifier recipientImplementsHook() {
+    modifier whenRecipientImplementsHook() {
         _;
     }
 
@@ -354,15 +354,15 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Withdraw_RecipientReverts()
         external
         whenNoDelegateCall
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountNotGreaterThanWithdrawableAmount
-        callerSender
-        currentTimeLessThanEndTime
-        recipientContract
-        recipientImplementsHook
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenCallerSender
+        whenCurrentTimeLessThanEndTime
+        whenRecipientContract
+        whenRecipientImplementsHook
     {
         // Create the stream with a reverting contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
@@ -390,7 +390,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    modifier recipientDoesNotRevert() {
+    modifier whenRecipientDoesNotRevert() {
         _;
     }
 
@@ -398,16 +398,16 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Withdraw_RecipientReentrancy()
         external
         whenNoDelegateCall
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountNotGreaterThanWithdrawableAmount
-        callerSender
-        currentTimeLessThanEndTime
-        recipientContract
-        recipientImplementsHook
-        recipientDoesNotRevert
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenCallerSender
+        whenCurrentTimeLessThanEndTime
+        whenRecipientContract
+        whenRecipientImplementsHook
+        whenRecipientDoesNotRevert
     {
         // Create the stream with a reentrant contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
@@ -438,7 +438,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    modifier noRecipientReentrancy() {
+    modifier whenNoRecipientReentrancy() {
         _;
     }
 
@@ -447,17 +447,17 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Withdraw()
         external
         whenNoDelegateCall
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountNotGreaterThanWithdrawableAmount
-        callerSender
-        currentTimeLessThanEndTime
-        recipientContract
-        recipientImplementsHook
-        recipientDoesNotRevert
-        noRecipientReentrancy
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenCallerSender
+        whenCurrentTimeLessThanEndTime
+        whenRecipientContract
+        whenRecipientImplementsHook
+        whenRecipientDoesNotRevert
+        whenNoRecipientReentrancy
     {
         // Create the stream with a contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));

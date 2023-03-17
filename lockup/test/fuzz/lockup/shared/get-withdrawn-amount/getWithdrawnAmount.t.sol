@@ -12,14 +12,14 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
         changePrank({ msgSender: users.recipient });
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return zero.
-    function testFuzz_GetWithdrawnAmount_NoWithdrawals(uint256 timeWarp) external streamNonNull {
+    function testFuzz_GetWithdrawnAmount_NoWithdrawals(uint256 timeWarp) external whenStreamNonNull {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -35,7 +35,7 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
     function testFuzz_GetWithdrawnAmount_WithWithdrawals(
         uint256 timeWarp,
         uint128 withdrawAmount
-    ) external streamNonNull {
+    ) external whenStreamNonNull {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_TIME, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.

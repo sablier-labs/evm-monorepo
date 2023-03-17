@@ -10,7 +10,7 @@ import { Pro_Fuzz_Test } from "../Pro.t.sol";
 contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     uint256 internal defaultStreamId;
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
 
@@ -21,7 +21,7 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
         _;
     }
 
-    modifier startTimeLessThanCurrentTime() {
+    modifier whenStartTimeLessThanCurrentTime() {
         _;
     }
 
@@ -34,7 +34,7 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// - Current time > end time
     function testFuzz_WithdrawableAmountOf_WithoutWithdrawals(
         uint40 timeWarp
-    ) external streamActive startTimeLessThanCurrentTime {
+    ) external whenStreamActive whenStartTimeLessThanCurrentTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -58,7 +58,7 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier withWithdrawals() {
+    modifier whenWithWithdrawals() {
         _;
     }
 
@@ -73,7 +73,7 @@ contract WithdrawableAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,
         uint128 withdrawAmount
-    ) external streamActive startTimeLessThanCurrentTime withWithdrawals {
+    ) external whenStreamActive whenStartTimeLessThanCurrentTime whenWithWithdrawals {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.

@@ -37,7 +37,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStreamWithRecipient({ recipient: address(0) });
     }
 
-    modifier recipientNonZeroAddress() {
+    modifier whenRecipientNonZeroAddress() {
         _;
     }
 
@@ -45,12 +45,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     ///
     /// It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
     /// `MAX_FEE` is hard coded to 10%.
-    function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall recipientNonZeroAddress {
+    function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall whenRecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
         createDefaultStreamWithTotalAmount(0);
     }
 
-    modifier depositAmountNotZero() {
+    modifier whenDepositAmountNotZero() {
         _;
     }
 
@@ -58,8 +58,8 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     function test_RevertWhen_StartTimeGreaterThanCliffTime()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
     {
         uint40 startTime = DEFAULT_CLIFF_TIME;
         uint40 cliffTime = DEFAULT_START_TIME;
@@ -73,16 +73,16 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: DEFAULT_END_TIME }));
     }
 
-    modifier startTimeNotGreaterThanCliffTime() {
+    modifier whenStartTimeNotGreaterThanCliffTime() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_CliffTimeNotLessThanEndTime()
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        startTimeNotGreaterThanCliffTime
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
     {
         uint40 cliffTime = DEFAULT_END_TIME;
         uint40 endTime = DEFAULT_CLIFF_TIME;
@@ -96,17 +96,17 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStreamWithRange(LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: cliffTime, end: endTime }));
     }
 
-    modifier cliffTimeLessThanEndTime() {
+    modifier whenCliffTimeLessThanEndTime() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        startTimeNotGreaterThanCliffTime
-        cliffTimeLessThanEndTime
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
+        whenCliffTimeLessThanEndTime
     {
         UD60x18 protocolFee = DEFAULT_MAX_FEE.add(ud(1));
 
@@ -121,18 +121,18 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStream();
     }
 
-    modifier protocolFeeNotTooHigh() {
+    modifier whenProtocolFeeNotTooHigh() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_BrokerFeeTooHigh()
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        startTimeNotGreaterThanCliffTime
-        cliffTimeLessThanEndTime
-        protocolFeeNotTooHigh
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenProtocolFeeNotTooHigh
     {
         UD60x18 brokerFee = DEFAULT_MAX_FEE.add(ud(1));
         vm.expectRevert(
@@ -141,44 +141,44 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStreamWithBroker(Broker({ account: users.broker, fee: brokerFee }));
     }
 
-    modifier brokerFeeNotTooHigh() {
+    modifier whenBrokerFeeNotTooHigh() {
         _;
     }
 
     /// @dev it should revert.
     function test_RevertWhen_AssetNotContract()
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        startTimeNotGreaterThanCliffTime
-        cliffTimeLessThanEndTime
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenProtocolFeeNotTooHigh
+        whenBrokerFeeNotTooHigh
     {
         address nonContract = address(8128);
         vm.expectRevert("Address: call to non-contract");
         createDefaultStreamWithAsset(IERC20(nonContract));
     }
 
-    modifier assetContract() {
+    modifier whenAssetContract() {
         _;
     }
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
     function test_CreateWithRange_AssetMissingReturnValue()
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        startTimeNotGreaterThanCliffTime
-        cliffTimeLessThanEndTime
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
-        assetContract
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenProtocolFeeNotTooHigh
+        whenBrokerFeeNotTooHigh
+        whenAssetContract
     {
         test_createWithRange(address(nonCompliantAsset));
     }
 
-    modifier assetERC20Compliant() {
+    modifier whenAssetERC20Compliant() {
         _;
     }
 
@@ -192,13 +192,13 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     /// - Emit a {CreateLockupLinearStream} event.
     function test_CreateWithRange()
         external
-        depositAmountNotZero
-        startTimeNotGreaterThanCliffTime
-        cliffTimeLessThanEndTime
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
-        assetContract
-        assetERC20Compliant
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenProtocolFeeNotTooHigh
+        whenBrokerFeeNotTooHigh
+        whenAssetContract
+        whenAssetERC20Compliant
     {
         test_createWithRange(address(DEFAULT_ASSET));
     }

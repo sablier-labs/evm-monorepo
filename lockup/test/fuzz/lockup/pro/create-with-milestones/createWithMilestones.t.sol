@@ -22,29 +22,29 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         streamId = pro.nextStreamId();
     }
 
-    modifier recipientNonZeroAddress() {
+    modifier whenRecipientNonZeroAddress() {
         _;
     }
 
-    modifier depositAmountNotZero() {
+    modifier whenDepositAmountNotZero() {
         _;
     }
 
-    modifier segmentCountNotZero() {
+    modifier whenSegmentCountNotZero() {
         _;
     }
 
     /// @dev it should revert.
     function testFuzz_RevertWhen_SegmentCountTooHigh(
         uint256 segmentCount
-    ) external recipientNonZeroAddress depositAmountNotZero segmentCountNotZero {
+    ) external whenRecipientNonZeroAddress whenDepositAmountNotZero whenSegmentCountNotZero {
         segmentCount = bound(segmentCount, DEFAULT_MAX_SEGMENT_COUNT + 1, DEFAULT_MAX_SEGMENT_COUNT * 10);
         LockupPro.Segment[] memory segments = new LockupPro.Segment[](segmentCount);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2LockupPro_SegmentCountTooHigh.selector, segmentCount));
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier segmentCountNotTooHigh() {
+    modifier whenSegmentCountNotTooHigh() {
         _;
     }
 
@@ -52,7 +52,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
     function testFuzz_RevertWhen_SegmentAmountsSumOverflows(
         uint128 amount0,
         uint128 amount1
-    ) external recipientNonZeroAddress depositAmountNotZero segmentCountNotZero segmentCountNotTooHigh {
+    ) external whenRecipientNonZeroAddress whenDepositAmountNotZero whenSegmentCountNotZero whenSegmentCountNotTooHigh {
         amount0 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
         amount1 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
         LockupPro.Segment[] memory segments = DEFAULT_SEGMENTS;
@@ -62,7 +62,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier segmentAmountsSumDoesNotOverflow() {
+    modifier whenSegmentAmountsSumDoesNotOverflow() {
         _;
     }
 
@@ -71,11 +71,11 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint40 firstMilestone
     )
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
     {
         firstMilestone = boundUint40(firstMilestone, 0, DEFAULT_START_TIME);
 
@@ -96,11 +96,11 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier startTimeLessThanFirstSegmentMilestone() {
+    modifier whenStartTimeLessThanFirstSegmentMilestone() {
         _;
     }
 
-    modifier segmentMilestonesOrdered() {
+    modifier whenSegmentMilestonesOrdered() {
         _;
     }
 
@@ -109,13 +109,13 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         uint128 depositDiff
     )
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        segmentMilestonesOrdered
-        startTimeLessThanFirstSegmentMilestone
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentMilestone
     {
         depositDiff = boundUint128(depositDiff, 100, DEFAULT_TOTAL_AMOUNT);
 
@@ -144,7 +144,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         pro.createWithMilestones(params);
     }
 
-    modifier depositAmountEqualToSegmentAmountsSum() {
+    modifier whenDepositAmountEqualToSegmentAmountsSum() {
         _;
     }
 
@@ -153,14 +153,14 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         UD60x18 protocolFee
     )
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        segmentMilestonesOrdered
-        startTimeLessThanFirstSegmentMilestone
-        depositAmountEqualToSegmentAmountsSum
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenDepositAmountEqualToSegmentAmountsSum
     {
         protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
 
@@ -175,7 +175,7 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         createDefaultStream();
     }
 
-    modifier protocolFeeNotTooHigh() {
+    modifier whenProtocolFeeNotTooHigh() {
         _;
     }
 
@@ -184,15 +184,15 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         Broker memory broker
     )
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        segmentMilestonesOrdered
-        startTimeLessThanFirstSegmentMilestone
-        depositAmountEqualToSegmentAmountsSum
-        protocolFeeNotTooHigh
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenDepositAmountEqualToSegmentAmountsSum
+        whenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
         broker.fee = bound(broker.fee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
@@ -202,15 +202,15 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         createDefaultStreamWithBroker(broker);
     }
 
-    modifier brokerFeeNotTooHigh() {
+    modifier whenBrokerFeeNotTooHigh() {
         _;
     }
 
-    modifier assetContract() {
+    modifier whenAssetContract() {
         _;
     }
 
-    modifier assetERC20Compliant() {
+    modifier whenAssetERC20Compliant() {
         _;
     }
 
@@ -243,18 +243,18 @@ contract CreateWithMilestones_Pro_Fuzz_Test is Pro_Fuzz_Test {
         UD60x18 protocolFee
     )
         external
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        segmentMilestonesOrdered
-        startTimeLessThanFirstSegmentMilestone
-        depositAmountEqualToSegmentAmountsSum
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
-        assetContract
-        assetERC20Compliant
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenDepositAmountEqualToSegmentAmountsSum
+        whenProtocolFeeNotTooHigh
+        whenBrokerFeeNotTooHigh
+        whenAssetContract
+        whenAssetERC20Compliant
     {
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.segments.length != 0);

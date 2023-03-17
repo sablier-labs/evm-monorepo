@@ -23,7 +23,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_DelegateCall() external whenNoDelegateCall streamActive {
+    function test_RevertWhen_DelegateCall() external whenNoDelegateCall whenStreamActive {
         bytes memory callData = abi.encodeCall(ISablierV2Lockup.cancel, defaultStreamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
@@ -33,38 +33,38 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier streamNotActive() {
+    modifier whenStreamNotActive() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StreamNull() external whenNoDelegateCall streamNotActive {
+    function test_RevertWhen_StreamNull() external whenNoDelegateCall whenStreamNotActive {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
         lockup.cancel(nullStreamId);
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StreamCanceled() external whenNoDelegateCall streamNotActive {
+    function test_RevertWhen_StreamCanceled() external whenNoDelegateCall whenStreamNotActive {
         lockup.cancel(defaultStreamId);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall streamNotActive {
+    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_StreamNonCancelable() external whenNoDelegateCall streamActive {
+    function test_RevertWhen_StreamNonCancelable() external whenNoDelegateCall whenStreamActive {
         // Create the non-cancelable stream.
         uint256 streamId = createDefaultStreamNonCancelable();
 
@@ -73,7 +73,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(streamId);
     }
 
-    modifier streamCancelable() {
+    modifier whenStreamCancelable() {
         _;
     }
 
@@ -81,8 +81,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
+        whenStreamActive
+        whenStreamCancelable
         whenNoDelegateCall
     {
         // Make the unauthorized user the caller in this test.
@@ -99,8 +99,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorized_ApprovedOperator()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
+        whenStreamActive
+        whenStreamCancelable
         whenNoDelegateCall
     {
         // Approve Alice for the stream.
@@ -120,8 +120,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorized_FormerRecipient()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
+        whenStreamActive
+        whenStreamCancelable
     {
         // Transfer the stream to Alice.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
@@ -133,11 +133,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(defaultStreamId);
     }
 
-    modifier callerAuthorized() {
+    modifier whenCallerAuthorized() {
         _;
     }
 
-    modifier callerSender() {
+    modifier whenCallerSender() {
         // Make the sender the caller in this test suite.
         changePrank({ msgSender: users.sender });
         _;
@@ -147,11 +147,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_Sender_RecipientNotContract()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
+        whenStreamActive
+        whenStreamCancelable
         whenNoDelegateCall
-        callerAuthorized
-        callerSender
+        whenCallerAuthorized
+        whenCallerSender
     {
         lockup.cancel(defaultStreamId);
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
@@ -159,7 +159,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier recipientContract() {
+    modifier whenRecipientContract() {
         _;
     }
 
@@ -167,11 +167,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_Sender_RecipientDoesNotImplementHook()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerSender
-        recipientContract
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerSender
+        whenRecipientContract
     {
         // Create the stream with an empty contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
@@ -193,7 +193,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier recipientImplementsHook() {
+    modifier whenRecipientImplementsHook() {
         _;
     }
 
@@ -201,12 +201,12 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_Sender_RecipientReverts()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerSender
-        recipientContract
-        recipientImplementsHook
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerSender
+        whenRecipientContract
+        whenRecipientImplementsHook
     {
         // Create the stream with a reverting contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
@@ -228,7 +228,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier recipientDoesNotRevert() {
+    modifier whenRecipientDoesNotRevert() {
         _;
     }
 
@@ -236,13 +236,13 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_Sender_RecipientReentrancy()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerSender
-        recipientContract
-        recipientImplementsHook
-        recipientDoesNotRevert
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerSender
+        whenRecipientContract
+        whenRecipientImplementsHook
+        whenRecipientDoesNotRevert
     {
         // Create the stream with a reentrant contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
@@ -264,7 +264,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier noRecipientReentrancy() {
+    modifier whenNoRecipientReentrancy() {
         _;
     }
 
@@ -273,14 +273,14 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_Sender()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerSender
-        recipientContract
-        recipientImplementsHook
-        recipientDoesNotRevert
-        noRecipientReentrancy
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerSender
+        whenRecipientContract
+        whenRecipientImplementsHook
+        whenRecipientDoesNotRevert
+        whenNoRecipientReentrancy
     {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -325,7 +325,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier callerRecipient() {
+    modifier whenCallerRecipient() {
         _;
     }
 
@@ -333,10 +333,10 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_Recipient_SenderNotContract()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerRecipient
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerRecipient
     {
         lockup.cancel(defaultStreamId);
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
@@ -344,7 +344,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier senderContract() {
+    modifier whenSenderContract() {
         _;
     }
 
@@ -352,11 +352,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_Recipient_SenderDoesNotImplementHook()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerRecipient
-        senderContract
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerRecipient
+        whenSenderContract
     {
         // Create a stream with an empty contract as the sender.
         uint256 streamId = createDefaultStreamWithSender(address(empty));
@@ -378,7 +378,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier senderImplementsHook() {
+    modifier whenSenderImplementsHook() {
         _;
     }
 
@@ -386,12 +386,12 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_Recipient_SenderReverts()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerRecipient
-        senderContract
-        senderImplementsHook
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerRecipient
+        whenSenderContract
+        whenSenderImplementsHook
     {
         // Create a stream with a reverting contract as the sender.
         uint256 streamId = createDefaultStreamWithSender(address(revertingSender));
@@ -413,7 +413,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier senderDoesNotRevert() {
+    modifier whenSenderDoesNotRevert() {
         _;
     }
 
@@ -421,13 +421,13 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_Recipient_SenderReentrancy()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerRecipient
-        senderContract
-        senderImplementsHook
-        senderDoesNotRevert
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerRecipient
+        whenSenderContract
+        whenSenderImplementsHook
+        whenSenderDoesNotRevert
     {
         // Create a stream with a reentrant contract as the sender.
         uint256 streamId = createDefaultStreamWithSender(address(reentrantSender));
@@ -449,7 +449,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier noSenderReentrancy() {
+    modifier whenNoSenderReentrancy() {
         _;
     }
 
@@ -458,14 +458,14 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_Recipient()
         external
         whenNoDelegateCall
-        streamActive
-        streamCancelable
-        callerAuthorized
-        callerRecipient
-        senderContract
-        senderImplementsHook
-        senderDoesNotRevert
-        noSenderReentrancy
+        whenStreamActive
+        whenStreamCancelable
+        whenCallerAuthorized
+        whenCallerRecipient
+        whenSenderContract
+        whenSenderImplementsHook
+        whenSenderDoesNotRevert
+        whenNoSenderReentrancy
     {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });

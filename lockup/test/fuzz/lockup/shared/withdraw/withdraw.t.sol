@@ -19,27 +19,27 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    modifier streamNotActive() {
+    modifier whenStreamNotActive() {
         _;
     }
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         _;
     }
 
-    modifier callerAuthorized() {
+    modifier whenCallerAuthorized() {
         _;
     }
 
-    modifier toNonZeroAddress() {
+    modifier whenToNonZeroAddress() {
         _;
     }
 
-    modifier withdrawAmountNotZero() {
+    modifier whenWithdrawAmountNotZero() {
         _;
     }
 
-    modifier withdrawAmountLessThanOrEqualToWithdrawableAmount() {
+    modifier whenWithdrawAmountLessThanOrEqualToWithdrawableAmount() {
         _;
     }
 
@@ -48,11 +48,11 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         address to
     )
         external
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountLessThanOrEqualToWithdrawableAmount
     {
         vm.assume(to != address(0));
 
@@ -78,11 +78,11 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         address to
     )
         external
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountLessThanOrEqualToWithdrawableAmount
     {
         vm.assume(to != address(0));
 
@@ -109,13 +109,13 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    modifier callerSender() {
+    modifier whenCallerSender() {
         // Make the sender the caller in this test suite.
         changePrank({ msgSender: users.sender });
         _;
     }
 
-    modifier currentTimeLessThanEndTime() {
+    modifier whenCurrentTimeLessThanEndTime() {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
         _;
@@ -128,13 +128,13 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 withdrawAmount
     )
         external
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
-        callerSender
-        currentTimeLessThanEndTime
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountLessThanOrEqualToWithdrawableAmount
+        whenCallerSender
+        whenCurrentTimeLessThanEndTime
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
         vm.assume(to != address(0) && to.code.length == 0);
@@ -170,19 +170,19 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    modifier recipientContract() {
+    modifier whenRecipientContract() {
         _;
     }
 
-    modifier recipientImplementsHook() {
+    modifier whenRecipientImplementsHook() {
         _;
     }
 
-    modifier recipientDoesNotRevert() {
+    modifier whenRecipientDoesNotRevert() {
         _;
     }
 
-    modifier noRecipientReentrancy() {
+    modifier whenNoRecipientReentrancy() {
         _;
     }
 
@@ -192,17 +192,17 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 withdrawAmount
     )
         external
-        streamActive
-        callerAuthorized
-        toNonZeroAddress
-        withdrawAmountNotZero
-        withdrawAmountLessThanOrEqualToWithdrawableAmount
-        callerSender
-        currentTimeLessThanEndTime
-        recipientContract
-        recipientImplementsHook
-        recipientDoesNotRevert
-        noRecipientReentrancy
+        whenStreamActive
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountLessThanOrEqualToWithdrawableAmount
+        whenCallerSender
+        whenCurrentTimeLessThanEndTime
+        whenRecipientContract
+        whenRecipientImplementsHook
+        whenRecipientDoesNotRevert
+        whenNoRecipientReentrancy
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 

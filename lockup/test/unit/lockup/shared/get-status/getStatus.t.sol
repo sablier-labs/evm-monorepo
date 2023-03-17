@@ -19,38 +19,38 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier streamCreated() {
+    modifier whenStreamCreated() {
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return the ACTIVE status.
-    function test_GetStatus_Active() external streamCreated {
+    function test_GetStatus_Active() external whenStreamCreated {
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier streamCanceled() {
+    modifier whenStreamCanceled() {
         lockup.cancel(defaultStreamId);
         _;
     }
 
     /// @dev it should return the CANCELED status.
-    function test_GetStatus_Canceled() external streamCreated streamCanceled {
+    function test_GetStatus_Canceled() external whenStreamCreated whenStreamCanceled {
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier streamDepleted() {
+    modifier whenStreamDepleted() {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         _;
     }
 
     /// @dev it should return the DEPLETED status.
-    function test_GetStatus_Depleted() external streamCreated streamDepleted {
+    function test_GetStatus_Depleted() external whenStreamCreated whenStreamDepleted {
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);

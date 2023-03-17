@@ -9,14 +9,14 @@ abstract contract ReturnableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
 
     function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {}
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
     /// @dev it should return the correct returnable amount.
-    function testFuzz_ReturnableAmountOf(uint256 timeWarp) external streamActive {
+    function testFuzz_ReturnableAmountOf(uint256 timeWarp) external whenStreamActive {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.

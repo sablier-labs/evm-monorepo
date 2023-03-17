@@ -22,13 +22,13 @@ contract GetProtocolFee_Unit_Test is Comptroller_Unit_Test {
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }
 
-    modifier protocolFeeSet() {
+    modifier whenProtocolFeeSet() {
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: DEFAULT_PROTOCOL_FEE });
         _;
     }
 
     /// @dev it should return the correct protocol fee.
-    function test_GetProtocolFee() external protocolFeeSet {
+    function test_GetProtocolFee() external whenProtocolFeeSet {
         UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = DEFAULT_PROTOCOL_FEE;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");

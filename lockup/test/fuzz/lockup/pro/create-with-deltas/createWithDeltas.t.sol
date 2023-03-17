@@ -19,15 +19,15 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
         streamId = pro.nextStreamId();
     }
 
-    modifier loopCalculationsDoNotOverflowBlockGasLimit() {
+    modifier whenLoopCalculationsDoNotOverflowBlockGasLimit() {
         _;
     }
 
-    modifier deltasNotZero() {
+    modifier whenDeltasNotZero() {
         _;
     }
 
-    modifier milestonesCalculationsDoNotOverflow() {
+    modifier whenMilestonesCalculationsDoNotOverflow() {
         _;
     }
 
@@ -49,7 +49,12 @@ contract CreateWithDeltas_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// record the protocol fee, and emit a {CreateLockupProStream} event.
     function testFuzz_CreateWithDeltas(
         LockupPro.SegmentWithDelta[] memory segments
-    ) external loopCalculationsDoNotOverflowBlockGasLimit deltasNotZero milestonesCalculationsDoNotOverflow {
+    )
+        external
+        whenLoopCalculationsDoNotOverflowBlockGasLimit
+        whenDeltasNotZero
+        whenMilestonesCalculationsDoNotOverflow
+    {
         vm.assume(segments.length != 0);
 
         // Fuzz the deltas.

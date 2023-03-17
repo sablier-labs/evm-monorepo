@@ -36,13 +36,13 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier currentTimeLessThanEndTime() {
+    modifier whenCurrentTimeLessThanEndTime() {
         _;
     }
 
     /// @dev it should make the max withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream}
     /// event.
-    function test_WithdrawMax() external currentTimeLessThanEndTime {
+    function test_WithdrawMax() external whenCurrentTimeLessThanEndTime {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 

@@ -14,12 +14,12 @@ contract GetRange_Pro_Unit_Test is Pro_Unit_Test {
         assertEq(actualRange, expectedRange);
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the correct range.
-    function test_GetRange() external streamNonNull {
+    function test_GetRange() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         LockupPro.Range memory actualRange = pro.getRange(streamId);
         LockupPro.Range memory expectedRange = DEFAULT_PRO_RANGE;

@@ -21,24 +21,24 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     /// @dev The admin is the default caller in the comptroller tests.
-    modifier callerAdmin() {
+    modifier whenCallerAdmin() {
         _;
     }
 
     /// @dev it should re-set the protocol fee.
-    function test_SetProtocolFee_SameFee() external callerAdmin {
+    function test_SetProtocolFee_SameFee() external whenCallerAdmin {
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
         UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = ZERO;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }
 
-    modifier newFee() {
+    modifier whenNewFee() {
         _;
     }
 
     /// @dev it should set the new protocol fee and emit a {SetProtocolFee} event.
-    function test_SetProtocolFee() external callerAdmin newFee {
+    function test_SetProtocolFee() external whenCallerAdmin whenNewFee {
         UD60x18 newProtocolFee = DEFAULT_FLASH_FEE;
 
         // Expect a {SetProtocolFee} event to be emitted.

@@ -47,12 +47,12 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: address(0), amounts: defaultAmounts });
     }
 
-    modifier toNonZeroAddress() {
+    modifier whenToNonZeroAddress() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_ArrayCountsNotEqual() external whenNoDelegateCall toNonZeroAddress {
+    function test_RevertWhen_ArrayCountsNotEqual() external whenNoDelegateCall whenToNonZeroAddress {
         uint256[] memory streamIds = new uint256[](2);
         uint128[] memory amounts = new uint128[](1);
         vm.expectRevert(
@@ -65,18 +65,18 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
     }
 
-    modifier arrayCountsNotEqual() {
+    modifier whenArrayCountsNotEqual() {
         _;
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_ArrayCountsZero() external whenNoDelegateCall toNonZeroAddress {
+    function test_RevertWhen_ArrayCountsZero() external whenNoDelegateCall whenToNonZeroAddress {
         uint256[] memory streamIds = new uint256[](0);
         uint128[] memory amounts = new uint128[](0);
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
     }
 
-    modifier arrayCountsNotZero() {
+    modifier whenArrayCountsNotZero() {
         _;
     }
 
@@ -84,9 +84,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_OnlyNullStreams()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
     {
         uint256 nullStreamId = 1729;
         uint256[] memory nonStreamIds = Solarray.uint256s(nullStreamId);
@@ -98,9 +98,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_SomeNullStreams()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
     {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(nullStreamId, defaultStreamIds[0]);
@@ -115,7 +115,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    modifier onlyNonNullStreams() {
+    modifier whenOnlyNonNullStreams() {
         _;
     }
 
@@ -123,10 +123,10 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
     {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -142,10 +142,10 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedAllStreams_Sender()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
     {
         // Make the sender the caller in this test.
         changePrank({ msgSender: users.sender });
@@ -161,10 +161,10 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
     {
         // Transfer all streams to Alice.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -181,10 +181,10 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
     {
         // Create a stream with Eve as the recipient.
         uint256 eveStreamId = createDefaultStreamWithRecipient(users.eve);
@@ -207,10 +207,10 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
     {
         // Transfer one of the streams to Eve.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -225,7 +225,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
-    modifier callerAuthorizedAllStreams() {
+    modifier whenCallerAuthorizedAllStreams() {
         _;
     }
 
@@ -233,11 +233,11 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_WithdrawMultiple_CallerApprovedOperator()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
-        callerAuthorizedAllStreams
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
     {
         // Approve the operator for all streams.
         lockup.setApprovalForAll(users.operator, true);
@@ -264,7 +264,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount, "withdrawnAmount1");
     }
 
-    modifier callerRecipient() {
+    modifier whenCallerRecipient() {
         _;
     }
 
@@ -272,12 +272,12 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_SomeAmountsZero()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
-        callerAuthorizedAllStreams
-        callerRecipient
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+        whenCallerRecipient
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -290,7 +290,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
     }
 
-    modifier allAmountsNotZero() {
+    modifier whenAllAmountsNotZero() {
         _;
     }
 
@@ -298,13 +298,13 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_RevertWhen_SomeAmountsGreaterThanWithdrawableAmount()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
-        callerAuthorizedAllStreams
-        callerRecipient
-        allAmountsNotZero
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+        whenCallerRecipient
+        whenAllAmountsNotZero
     {
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -323,7 +323,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
     }
 
-    modifier allAmountsLessThanOrEqualToWithdrawableAmounts() {
+    modifier whenAllAmountsLessThanOrEqualToWithdrawableAmounts() {
         _;
     }
 
@@ -332,14 +332,14 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_WithdrawMultiple_AllStreamsEnded()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
-        callerAuthorizedAllStreams
-        callerRecipient
-        allAmountsNotZero
-        allAmountsLessThanOrEqualToWithdrawableAmounts
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+        whenCallerRecipient
+        whenAllAmountsNotZero
+        whenAllAmountsLessThanOrEqualToWithdrawableAmounts
     {
         // Warp into the future, past the end time.
         vm.warp({ timestamp: DEFAULT_END_TIME });
@@ -388,14 +388,14 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_WithdrawMultiple_AllStreamsOngoing()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
-        callerAuthorizedAllStreams
-        callerRecipient
-        allAmountsNotZero
-        allAmountsLessThanOrEqualToWithdrawableAmounts
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+        whenCallerRecipient
+        whenAllAmountsNotZero
+        whenAllAmountsLessThanOrEqualToWithdrawableAmounts
     {
         // Warp into the future, before the end time of the streams.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
@@ -461,14 +461,14 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_WithdrawMultiple_SomeStreamsEndedSomeStreamsOngoing()
         external
         whenNoDelegateCall
-        toNonZeroAddress
-        arrayCountsNotEqual
-        arrayCountsNotZero
-        onlyNonNullStreams
-        callerAuthorizedAllStreams
-        callerRecipient
-        allAmountsNotZero
-        allAmountsLessThanOrEqualToWithdrawableAmounts
+        whenToNonZeroAddress
+        whenArrayCountsNotEqual
+        whenArrayCountsNotZero
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+        whenCallerRecipient
+        whenAllAmountsNotZero
+        whenAllAmountsLessThanOrEqualToWithdrawableAmounts
     {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_END_TIME });

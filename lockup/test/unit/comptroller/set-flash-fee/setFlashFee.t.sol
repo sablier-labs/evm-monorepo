@@ -21,12 +21,12 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     /// @dev The admin is the default caller in the comptroller tests.
-    modifier callerAdmin() {
+    modifier whenCallerAdmin() {
         _;
     }
 
     /// @dev it should re-set the flash fee.
-    function test_SetFlashFee_SameFee() external callerAdmin {
+    function test_SetFlashFee_SameFee() external whenCallerAdmin {
         comptroller.setFlashFee({ newFlashFee: ZERO });
 
         UD60x18 actualFlashFee = comptroller.flashFee();
@@ -34,7 +34,7 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
         assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 
-    modifier newFee() {
+    modifier whenNewFee() {
         _;
     }
 

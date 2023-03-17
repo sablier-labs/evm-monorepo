@@ -45,7 +45,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev This modifier runs the test twice, once with a canceled stream, and once with a depleted stream.
-    modifier streamCanceledOrDepleted() {
+    modifier whenStreamCanceledOrDepleted() {
         lockup.cancel(streamId);
         _;
         changePrank({ msgSender: users.recipient });
@@ -56,7 +56,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized() external whenNoDelegateCall streamCanceledOrDepleted {
+    function test_RevertWhen_CallerUnauthorized() external whenNoDelegateCall whenStreamCanceledOrDepleted {
         // Make Eve the caller in the rest of this test.
         changePrank({ msgSender: users.eve });
 
@@ -65,12 +65,12 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.burn(streamId);
     }
 
-    modifier callerAuthorized() {
+    modifier whenCallerAuthorized() {
         _;
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_NFTNonExistent() external whenNoDelegateCall streamCanceledOrDepleted callerAuthorized {
+    function test_RevertWhen_NFTNonExistent() external whenNoDelegateCall whenStreamCanceledOrDepleted whenCallerAuthorized {
         // Burn the NFT so that it no longer exists.
         lockup.burn(streamId);
 
@@ -79,7 +79,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.burn(streamId);
     }
 
-    modifier nftExistent() {
+    modifier whenNFTExistent() {
         _;
     }
 
@@ -87,9 +87,9 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Burn_CallerApprovedOperator()
         external
         whenNoDelegateCall
-        streamCanceledOrDepleted
-        callerAuthorized
-        nftExistent
+        whenStreamCanceledOrDepleted
+        whenCallerAuthorized
+        whenNFTExistent
     {
         // Approve the operator to handle the stream.
         lockup.approve({ to: users.operator, tokenId: streamId });
@@ -110,9 +110,9 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Burn_CallerNFTOwner()
         external
         whenNoDelegateCall
-        streamCanceledOrDepleted
-        callerAuthorized
-        nftExistent
+        whenStreamCanceledOrDepleted
+        whenCallerAuthorized
+        whenNFTExistent
     {
         lockup.burn(streamId);
         address actualNFTOwner = lockup.getRecipient(streamId);

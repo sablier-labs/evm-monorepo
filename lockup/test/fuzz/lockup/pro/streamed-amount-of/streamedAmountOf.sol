@@ -8,13 +8,13 @@ import { Pro_Fuzz_Test } from "../Pro.t.sol";
 contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     uint256 internal defaultStreamId;
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         // Create the default stream.
         defaultStreamId = createDefaultStream();
         _;
     }
 
-    modifier startTimeLessThanCurrentTime() {
+    modifier whenStartTimeLessThanCurrentTime() {
         _;
     }
 
@@ -25,7 +25,9 @@ contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// - Current time < end time
     /// - Current time = end time
     /// - Current time > end time
-    function testFuzz_StreamedAmountOf_OneSegment(uint40 timeWarp) external streamActive startTimeLessThanCurrentTime {
+    function testFuzz_StreamedAmountOf_OneSegment(
+        uint40 timeWarp
+    ) external whenStreamActive whenStartTimeLessThanCurrentTime {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -53,11 +55,11 @@ contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier multipleSegments() {
+    modifier whenMultipleSegments() {
         _;
     }
 
-    modifier currentMilestoneNot1st() {
+    modifier whenCurrentMilestoneNot1st() {
         _;
     }
 
@@ -70,7 +72,7 @@ contract StreamedAmountOf_Pro_Fuzz_Test is Pro_Fuzz_Test {
     /// - Current time > end time
     function testFuzz_StreamedAmountOf_CurrentMilestoneNot1st(
         uint40 timeWarp
-    ) external streamActive startTimeLessThanCurrentTime multipleSegments currentMilestoneNot1st {
+    ) external whenStreamActive whenStartTimeLessThanCurrentTime whenMultipleSegments whenCurrentMilestoneNot1st {
         timeWarp = boundUint40(timeWarp, MAX_SEGMENTS[0].milestone, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.

@@ -12,12 +12,12 @@ abstract contract ReturnableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
         defaultStreamId = createDefaultStream();
     }
 
-    modifier streamNotActive() {
+    modifier whenStreamNotActive() {
         _;
     }
 
     /// @dev it should return zero.
-    function test_ReturnableAmountOf_StreamNull() external streamNotActive {
+    function test_ReturnableAmountOf_StreamNull() external whenStreamNotActive {
         uint256 nullStreamId = 1729;
         uint256 actualReturnableAmount = lockup.returnableAmountOf(nullStreamId);
         uint256 expectedReturnableAmount = 0;
@@ -25,7 +25,7 @@ abstract contract ReturnableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
     }
 
     /// @dev it should return zero.
-    function test_ReturnableAmountOf_StreamCanceled() external streamNotActive {
+    function test_ReturnableAmountOf_StreamCanceled() external whenStreamNotActive {
         lockup.cancel(defaultStreamId);
         uint256 actualReturnableAmount = lockup.returnableAmountOf(defaultStreamId);
         uint256 expectedReturnableAmount = 0;
@@ -33,7 +33,7 @@ abstract contract ReturnableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
     }
 
     /// @dev it should return zero.
-    function test_ReturnableAmountOf_StreamDepleted() external streamNotActive {
+    function test_ReturnableAmountOf_StreamDepleted() external whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint256 actualReturnableAmount = lockup.returnableAmountOf(defaultStreamId);
@@ -41,12 +41,12 @@ abstract contract ReturnableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
         assertEq(actualReturnableAmount, expectedReturnableAmount, "returnableAmount");
     }
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         _;
     }
 
     /// @dev it should return the correct returnable amount.
-    function test_ReturnableAmountOf() external streamActive {
+    function test_ReturnableAmountOf() external whenStreamActive {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 

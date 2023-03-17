@@ -58,7 +58,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStreamWithDurations(LockupLinear.Durations({ cliff: cliffDuration, total: totalDuration }));
     }
 
-    modifier cliffDurationCalculationDoesNotOverflow() {
+    modifier whenCliffDurationCalculationDoesNotOverflow() {
         _;
     }
 
@@ -66,7 +66,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
     function test_RevertWhen_TotalDurationCalculationOverflows()
         external
         whenNoDelegateCall
-        cliffDurationCalculationDoesNotOverflow
+        whenCliffDurationCalculationDoesNotOverflow
     {
         uint40 startTime = getBlockTimestamp();
         LockupLinear.Durations memory durations = LockupLinear.Durations({
@@ -95,7 +95,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStreamWithDurations(durations);
     }
 
-    modifier totalDurationCalculationDoesNotOverflow() {
+    modifier whenTotalDurationCalculationDoesNotOverflow() {
         _;
     }
 
@@ -104,8 +104,8 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
     function test_CreateWithDurations()
         external
         whenNoDelegateCall
-        cliffDurationCalculationDoesNotOverflow
-        totalDurationCalculationDoesNotOverflow
+        whenCliffDurationCalculationDoesNotOverflow
+        whenTotalDurationCalculationDoesNotOverflow
     {
         // Make the sender the funder of the stream.
         address funder = users.sender;

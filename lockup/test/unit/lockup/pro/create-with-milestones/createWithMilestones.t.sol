@@ -42,7 +42,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStreamWithRecipient(recipient);
     }
 
-    modifier recipientNonZeroAddress() {
+    modifier whenRecipientNonZeroAddress() {
         _;
     }
 
@@ -50,13 +50,13 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     ///
     /// It is not possible (in principle) to obtain a zero deposit amount from a non-zero total amount,
     /// because we hard-code the `MAX_FEE` to 10%.
-    function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall recipientNonZeroAddress {
+    function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall whenRecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
         uint128 totalAmount = 0;
         createDefaultStreamWithTotalAmount(totalAmount);
     }
 
-    modifier depositAmountNotZero() {
+    modifier whenDepositAmountNotZero() {
         _;
     }
 
@@ -64,15 +64,15 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_SegmentCountZero()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
     {
         LockupPro.Segment[] memory segments;
         vm.expectRevert(Errors.SablierV2LockupPro_SegmentCountZero.selector);
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier segmentCountNotZero() {
+    modifier whenSegmentCountNotZero() {
         _;
     }
 
@@ -80,9 +80,9 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_SegmentCountTooHigh()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
     {
         uint256 segmentCount = DEFAULT_MAX_SEGMENT_COUNT + 1;
         LockupPro.Segment[] memory segments = new LockupPro.Segment[](segmentCount);
@@ -90,7 +90,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier segmentCountNotTooHigh() {
+    modifier whenSegmentCountNotTooHigh() {
         _;
     }
 
@@ -98,10 +98,10 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
     {
         LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
         segments[0].amount = UINT128_MAX;
@@ -110,7 +110,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier segmentAmountsSumDoesNotOverflow() {
+    modifier whenSegmentAmountsSumDoesNotOverflow() {
         _;
     }
 
@@ -118,11 +118,11 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_StartTimeGreaterThanFirstSegmentMilestone()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
     {
         // Change the milestone of the first segment.
         LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
@@ -145,11 +145,11 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_StartTimeEqualToFirstSegmentMilestone()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
     {
         // Change the milestone of the first segment.
         LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
@@ -168,7 +168,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier startTimeLessThanFirstSegmentMilestone() {
+    modifier whenStartTimeLessThanFirstSegmentMilestone() {
         _;
     }
 
@@ -176,12 +176,12 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_SegmentMilestonesNotOrdered()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        startTimeLessThanFirstSegmentMilestone
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenStartTimeLessThanFirstSegmentMilestone
     {
         // Swap the segment milestones.
         LockupPro.Segment[] memory segments = defaultParams.createWithMilestones.segments;
@@ -202,7 +202,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier segmentMilestonesOrdered() {
+    modifier whenSegmentMilestonesOrdered() {
         _;
     }
 
@@ -210,13 +210,13 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        startTimeLessThanFirstSegmentMilestone
-        segmentMilestonesOrdered
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenSegmentMilestonesOrdered
     {
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
         changePrank({ msgSender: users.admin });
@@ -243,7 +243,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         pro.createWithMilestones(params);
     }
 
-    modifier depositAmountEqualToSegmentAmountsSum() {
+    modifier whenDepositAmountEqualToSegmentAmountsSum() {
         _;
     }
 
@@ -251,15 +251,15 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        startTimeLessThanFirstSegmentMilestone
-        segmentMilestonesOrdered
-        startTimeLessThanFirstSegmentMilestone
-        depositAmountEqualToSegmentAmountsSum
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenDepositAmountEqualToSegmentAmountsSum
     {
         UD60x18 protocolFee = DEFAULT_MAX_FEE.add(ud(1));
 
@@ -274,7 +274,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStream();
     }
 
-    modifier protocolFeeNotTooHigh() {
+    modifier whenProtocolFeeNotTooHigh() {
         _;
     }
 
@@ -282,16 +282,16 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        startTimeLessThanFirstSegmentMilestone
-        segmentMilestonesOrdered
-        startTimeLessThanFirstSegmentMilestone
-        depositAmountEqualToSegmentAmountsSum
-        protocolFeeNotTooHigh
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenDepositAmountEqualToSegmentAmountsSum
+        whenProtocolFeeNotTooHigh
     {
         UD60x18 brokerFee = DEFAULT_MAX_FEE.add(ud(1));
         vm.expectRevert(
@@ -300,7 +300,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStreamWithBroker(Broker({ account: users.broker, fee: brokerFee }));
     }
 
-    modifier brokerFeeNotTooHigh() {
+    modifier whenBrokerFeeNotTooHigh() {
         _;
     }
 
@@ -308,17 +308,17 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_RevertWhen_AssetNotContract()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        startTimeLessThanFirstSegmentMilestone
-        segmentMilestonesOrdered
-        startTimeLessThanFirstSegmentMilestone
-        depositAmountEqualToSegmentAmountsSum
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenDepositAmountEqualToSegmentAmountsSum
+        whenProtocolFeeNotTooHigh
+        whenBrokerFeeNotTooHigh
     {
         address nonContract = address(8128);
 
@@ -333,7 +333,7 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
         createDefaultStreamWithAsset(IERC20(nonContract));
     }
 
-    modifier assetContract() {
+    modifier whenAssetContract() {
         _;
     }
 
@@ -341,23 +341,23 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_CreateWithMilestones_AssetMissingReturnValue()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        startTimeLessThanFirstSegmentMilestone
-        segmentMilestonesOrdered
-        startTimeLessThanFirstSegmentMilestone
-        depositAmountEqualToSegmentAmountsSum
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
-        assetContract
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenDepositAmountEqualToSegmentAmountsSum
+        whenProtocolFeeNotTooHigh
+        whenBrokerFeeNotTooHigh
+        whenAssetContract
     {
         test_createWithMilestones(address(nonCompliantAsset));
     }
 
-    modifier assetERC20Compliant() {
+    modifier whenAssetERC20Compliant() {
         _;
     }
 
@@ -366,19 +366,19 @@ contract CreateWithMilestones_Pro_Unit_Test is Pro_Unit_Test {
     function test_CreateWithMilestones()
         external
         whenNoDelegateCall
-        recipientNonZeroAddress
-        depositAmountNotZero
-        segmentCountNotZero
-        segmentCountNotTooHigh
-        segmentAmountsSumDoesNotOverflow
-        startTimeLessThanFirstSegmentMilestone
-        segmentMilestonesOrdered
-        startTimeLessThanFirstSegmentMilestone
-        depositAmountEqualToSegmentAmountsSum
-        protocolFeeNotTooHigh
-        brokerFeeNotTooHigh
-        assetContract
-        assetERC20Compliant
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenSegmentCountNotZero
+        whenSegmentCountNotTooHigh
+        whenSegmentAmountsSumDoesNotOverflow
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentMilestone
+        whenDepositAmountEqualToSegmentAmountsSum
+        whenProtocolFeeNotTooHigh
+        whenBrokerFeeNotTooHigh
+        whenAssetContract
+        whenAssetERC20Compliant
     {
         test_createWithMilestones(address(DEFAULT_ASSET));
     }

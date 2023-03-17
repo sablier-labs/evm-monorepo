@@ -15,12 +15,12 @@ abstract contract GetSender_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualSender, expectedSender, "sender");
     }
 
-    modifier streamNonNull() {
+    modifier whenStreamNonNull() {
         _;
     }
 
     /// @dev it should return the correct sender.
-    function test_GetSender() external streamNonNull {
+    function test_GetSender() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         address actualSender = lockup.getSender(streamId);
         address expectedSender = users.sender;

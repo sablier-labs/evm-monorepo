@@ -12,48 +12,48 @@ abstract contract IsCancelable_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    modifier streamNotActive() {
+    modifier whenStreamNotActive() {
         _;
     }
 
     /// @dev it should return false.
-    function test_IsCancelable_StreamNull() external streamNotActive {
+    function test_IsCancelable_StreamNull() external whenStreamNotActive {
         uint256 nullStreamId = 1729;
         bool isCancelable = lockup.isCancelable(nullStreamId);
         assertFalse(isCancelable, "isCancelable");
     }
 
     /// @dev it should return false.
-    function test_IsCancelable_StreamCanceled() external streamNotActive {
+    function test_IsCancelable_StreamCanceled() external whenStreamNotActive {
         lockup.cancel(defaultStreamId);
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertFalse(isCancelable, "isCancelable");
     }
 
     /// @dev it should return false.
-    function test_IsCancelable_StreamDepleted() external streamNotActive {
+    function test_IsCancelable_StreamDepleted() external whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertFalse(isCancelable, "isCancelable");
     }
 
-    modifier streamActive() {
+    modifier whenStreamActive() {
         _;
     }
 
     /// @dev it should return true.
-    function test_IsCancelable_CancelableStream() external streamActive {
+    function test_IsCancelable_CancelableStream() external whenStreamActive {
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertTrue(isCancelable, "isCancelable");
     }
 
-    modifier nonCancelableStream() {
+    modifier whenStreamIsNonCancelable() {
         _;
     }
 
     /// @dev it should return false.
-    function test_IsCancelable() external streamActive nonCancelableStream {
+    function test_IsCancelable() external whenStreamActive whenStreamIsNonCancelable {
         uint256 streamId = createDefaultStreamNonCancelable();
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");

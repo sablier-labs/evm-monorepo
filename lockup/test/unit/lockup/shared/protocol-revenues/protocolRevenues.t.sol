@@ -14,7 +14,7 @@ abstract contract ProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }
 
-    modifier protocolRevenuesNotZero() {
+    modifier whenProtocolRevenuesNotZero() {
         // Create the default stream, which will accrue revenues for the protocol.
         changePrank({ msgSender: users.sender });
         createDefaultStream();
@@ -23,7 +23,7 @@ abstract contract ProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should return the correct protocol revenues.
-    function test_ProtocolRevenues() external protocolRevenuesNotZero {
+    function test_ProtocolRevenues() external whenProtocolRevenuesNotZero {
         uint128 actualProtocolRevenues = config.protocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
