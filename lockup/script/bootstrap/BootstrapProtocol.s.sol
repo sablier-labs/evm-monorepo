@@ -15,8 +15,8 @@ import { Broker, LockupLinear, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { BaseScript } from "../shared/Base.s.sol";
 
-/// @notice Bootstraps the tocol by setting up the comptroller and creating some streams.
-contract Bootstraptocol is BaseScript {
+/// @notice Bootstraps the protocol by setting up the comptroller and creating some streams.
+contract BootstrapProtocol is BaseScript {
     // solhint-disable max-line-length
     function run(
         ISablierV2Comptroller comptroller,
