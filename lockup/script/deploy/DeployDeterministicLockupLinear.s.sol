@@ -10,7 +10,7 @@ import { SablierV2LockupLinear } from "../../src/SablierV2LockupLinear.sol";
 
 import { BaseScript } from "../shared/Base.s.sol";
 
-/// @dev Deploys the {SablierV2LockupLinear} contract at a deterministic address across all chains. Reverts if
+/// @dev Deploys {SablierV2LockupLinear} at a deterministic address across all chains. Reverts if
 /// the contract has already been deployed.
 contract DeployDeterministicLockupLinear is Script, BaseScript {
     /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.

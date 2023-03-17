@@ -113,7 +113,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
 
-        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
+        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectTransferFromCall({
             from: funder,
             to: address(linear),

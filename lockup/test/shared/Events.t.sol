@@ -7,7 +7,7 @@ import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.
 
 import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
-import { Lockup, LockupLinear, LockupPro } from "../../src/types/DataTypes.sol";
+import { Lockup, LockupLinear, LockupDynamic } from "../../src/types/DataTypes.sol";
 
 /// @title Events
 /// @notice Abstract contract that contains all the events emitted by the protocol.
@@ -76,6 +76,23 @@ abstract contract Events {
     event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, uint128 amount);
 
     /*//////////////////////////////////////////////////////////////////////////
+                             SABLIER-V2-LOCKUP-DYNAMIC
+    //////////////////////////////////////////////////////////////////////////*/
+
+    event CreateLockupDynamicStream(
+        uint256 streamId,
+        address indexed funder,
+        address indexed sender,
+        address indexed recipient,
+        Lockup.CreateAmounts amounts,
+        IERC20 asset,
+        bool cancelable,
+        LockupDynamic.Segment[] segments,
+        LockupDynamic.Range range,
+        address broker
+    );
+
+    /*//////////////////////////////////////////////////////////////////////////
                               SABLIER-V2-LOCKUP-LINEAR
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -88,23 +105,6 @@ abstract contract Events {
         IERC20 asset,
         bool cancelable,
         LockupLinear.Range range,
-        address broker
-    );
-
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-V2-LOCKUP-PRO
-    //////////////////////////////////////////////////////////////////////////*/
-
-    event CreateLockupProStream(
-        uint256 streamId,
-        address indexed funder,
-        address indexed sender,
-        address indexed recipient,
-        Lockup.CreateAmounts amounts,
-        IERC20 asset,
-        bool cancelable,
-        LockupPro.Segment[] segments,
-        LockupPro.Range range,
         address broker
     );
 }

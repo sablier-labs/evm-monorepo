@@ -10,7 +10,7 @@ import { BaseHandler } from "./BaseHandler.t.sol";
 import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
 /// @title LockupHandler
-/// @dev Common handler logic between {SablierV2LockupLinear} and {SablierV2LockupPro}.
+/// @dev Common handler logic between {SablierV2LockupLinear} and {SablierV2LockupDynamic}.
 abstract contract LockupHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS

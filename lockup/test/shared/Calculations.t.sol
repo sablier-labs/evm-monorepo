@@ -7,7 +7,7 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { LockupPro } from "../../src/types/DataTypes.sol";
+import { LockupDynamic } from "../../src/types/DataTypes.sol";
 
 import { Constants } from "./Constants.t.sol";
 
@@ -27,7 +27,7 @@ abstract contract Calculations is Constants {
         depositAmount = totalAmount - protocolFeeAmount - brokerFeeAmount;
     }
 
-    /// @dev Helper function that replicates the logic of the {SablierV2LockupLinear-streamedAmountOf} function.
+    /// @dev Helper function that replicates the logic of {SablierV2LockupLinear-streamedAmountOf}.
     function calculateStreamedAmount(
         uint40 currentTime,
         uint128 depositAmount
@@ -43,11 +43,11 @@ abstract contract Calculations is Constants {
         }
     }
 
-    /// @dev Helper function that replicates the logic of the
-    /// {SablierV2LockupPro-_calculateStreamedAmountForMultipleSegments} function.
+    /// @dev Helper function that replicates the logic of
+    /// {SablierV2LockupDynamic-_calculateStreamedAmountForMultipleSegments}.
     function calculateStreamedAmountForMultipleSegments(
         uint40 currentTime,
-        LockupPro.Segment[] memory segments,
+        LockupDynamic.Segment[] memory segments,
         uint128 depositAmount
     ) internal view returns (uint128 streamedAmount) {
         if (currentTime >= segments[segments.length - 1].milestone) {
@@ -91,8 +91,8 @@ abstract contract Calculations is Constants {
         }
     }
 
-    /// @dev Helper function that replicates the logic of the
-    /// {SablierV2LockupPro-_calculateStreamedAmountForOneSegment} function.
+    /// @dev Helper function that replicates the logic of
+    /// {SablierV2LockupDynamic-_calculateStreamedAmountForOneSegment}.
     function calculateStreamedAmountForOneSegment(
         uint40 currentTime,
         UD2x18 exponent,

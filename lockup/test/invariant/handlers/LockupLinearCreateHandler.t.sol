@@ -11,7 +11,8 @@ import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
 /// @title LockupLinearCreateHandler
 /// @dev This contract is a complement of {LockupLinearHandler}. The goal is to bias the invariant calls
-/// toward the lockup functions by creating multiple handlers for the lockup contracts.
+/// toward the lockup functions (especially the create stream functions) by creating multiple handlers for
+/// the lockup contracts.
 contract LockupLinearCreateHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
@@ -73,7 +74,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         // Mint enough ERC-20 assets to the sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve the {SablierV2LockupLinear} contract to spend the ERC-20 assets.
+        // Approve {SablierV2LockupLinear} to spend the ERC-20 assets.
         asset.approve({ spender: address(linear), amount: params.totalAmount });
 
         // Create the stream.
@@ -106,7 +107,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         // Mint enough ERC-20 assets to the sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve the {SablierV2LockupLinear} contract to spend the ERC-20 assets.
+        // Approve {SablierV2LockupLinear} to spend the ERC-20 assets.
         asset.approve({ spender: address(linear), amount: params.totalAmount });
 
         // Create the stream.

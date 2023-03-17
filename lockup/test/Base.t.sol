@@ -9,8 +9,8 @@ import { StdCheats } from "forge-std/StdCheats.sol";
 
 import { DeployProtocol } from "script/deploy/DeployProtocol.s.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
+import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
 import { SablierV2NFTDescriptor } from "src/SablierV2NFTDescriptor.sol";
 
 import { Assertions } from "./shared/Assertions.t.sol";
@@ -69,7 +69,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
     ISablierV2LockupLinear internal linear;
     SablierV2NFTDescriptor internal nftDescriptor = new SablierV2NFTDescriptor();
     NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
-    ISablierV2LockupPro internal pro;
+    ISablierV2LockupDynamic internal dynamic;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -112,27 +112,27 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
     function approveProtocol() internal {
         changePrank({ msgSender: users.sender });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
-        dai.approve({ spender: address(pro), amount: UINT256_MAX });
+        dai.approve({ spender: address(dynamic), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(dynamic), value: UINT256_MAX });
 
         changePrank({ msgSender: users.recipient });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
-        dai.approve({ spender: address(pro), amount: UINT256_MAX });
+        dai.approve({ spender: address(dynamic), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(dynamic), value: UINT256_MAX });
 
         changePrank({ msgSender: users.alice });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
-        dai.approve({ spender: address(pro), amount: UINT256_MAX });
+        dai.approve({ spender: address(dynamic), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(dynamic), value: UINT256_MAX });
 
         changePrank({ msgSender: users.eve });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
-        dai.approve({ spender: address(pro), amount: UINT256_MAX });
+        dai.approve({ spender: address(dynamic), amount: UINT256_MAX });
         nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(pro), value: UINT256_MAX });
+        nonCompliantAsset.approve({ spender: address(dynamic), value: UINT256_MAX });
 
         // Finally, change the active prank back to the admin.
         changePrank({ msgSender: users.admin });
@@ -160,9 +160,9 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
                     abi.encode(users.admin, address(comptroller), address(nftDescriptor), DEFAULT_MAX_FEE)
                 )
             );
-            pro = ISablierV2LockupPro(
+            dynamic = ISablierV2LockupDynamic(
                 deployCode(
-                    "optimized-out/SablierV2LockupPro.sol/SablierV2LockupPro.json",
+                    "optimized-out/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json",
                     abi.encode(
                         users.admin,
                         address(comptroller),
@@ -175,7 +175,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         }
         // We deploy normally in all other cases.
         else {
-            (comptroller, linear, pro) = new DeployProtocol().run({
+            (comptroller, linear, dynamic) = new DeployProtocol().run({
                 initialAdmin: users.admin,
                 initialNFTDescriptor: nftDescriptor,
                 maxFee: DEFAULT_MAX_FEE,
@@ -186,7 +186,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         // Finally, label all the contracts just deployed.
         vm.label({ account: address(comptroller), newLabel: "Comptroller" });
         vm.label({ account: address(linear), newLabel: "LockupLinear" });
-        vm.label({ account: address(pro), newLabel: "LockupPro" });
+        vm.label({ account: address(dynamic), newLabel: "LockupDynamic" });
     }
 
     /// @dev Expects a call to the `transfer` function of the default ERC-20 asset.

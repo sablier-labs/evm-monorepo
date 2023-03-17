@@ -4,8 +4,8 @@ pragma solidity >=0.8.19 <0.9.0;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
+import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
-import { SablierV2LockupPro } from "src/SablierV2LockupPro.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import { USDCLike } from "../shared/mockups/tokens/USDCLike.t.sol";

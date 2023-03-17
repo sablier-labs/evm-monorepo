@@ -189,10 +189,10 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         // Mint enough ERC-20 assets to the funder.
         deal({ token: address(DEFAULT_ASSET), to: funder, give: params.totalAmount });
 
-        // Approve the {SablierV2LockupLinear} contract to transfer the ERC-20 assets from the fuzzed funder.
+        // Approve {SablierV2LockupLinear} to transfer the ERC-20 assets from the fuzzed funder.
         DEFAULT_ASSET.approve({ spender: address(linear), amount: UINT256_MAX });
 
-        // Expect the ERC-20 assets to be transferred from the funder to the {SablierV2LockupLinear} contract.
+        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectTransferFromCall({
             from: funder,
             to: address(linear),

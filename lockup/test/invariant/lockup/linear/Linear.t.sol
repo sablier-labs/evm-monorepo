@@ -11,7 +11,7 @@ import { LockupLinearHandler } from "../../handlers/LockupLinearHandler.t.sol";
 import { LockupLinearCreateHandler } from "../../handlers/LockupLinearCreateHandler.t.sol";
 
 /// @title Linear_Invariant_Test
-/// @dev Invariants for the {SablierV2LockupLinear} contract.
+/// @dev Invariants for {SablierV2LockupLinear}.
 contract Linear_Invariant_Test is Lockup_Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
@@ -63,7 +63,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
 
         // Label the handlers.
         vm.label({ account: address(linearHandler), newLabel: "LockupLinearHandler" });
-        vm.label({ account: address(linearCreateHandler), newLabel: "LockupLinearProHandler" });
+        vm.label({ account: address(linearCreateHandler), newLabel: "LockupLinearCreateHandler" });
         vm.label({ account: address(flashLoanHandler), newLabel: "FlashLoanHandler" });
     }
 

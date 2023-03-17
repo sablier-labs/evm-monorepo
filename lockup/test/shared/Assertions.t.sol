@@ -5,14 +5,14 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 
-import { Lockup, LockupLinear, LockupPro } from "../../src/types/DataTypes.sol";
+import { Lockup, LockupLinear, LockupDynamic } from "../../src/types/DataTypes.sol";
 
 abstract contract Assertions is PRBTest, PRBMathAssertions {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    event LogNamedArray(string key, LockupPro.Segment[] segments);
+    event LogNamedArray(string key, LockupDynamic.Segment[] segments);
 
     event LogNamedUint128(string key, uint128 value);
 
@@ -50,8 +50,8 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.asset, b.asset, "asset");
     }
 
-    /// @dev Compares two `LockupPro.Stream` struct entities.
-    function assertEq(LockupPro.Stream memory a, LockupPro.Stream memory b) internal {
+    /// @dev Compares two `LockupDynamic.Stream` struct entities.
+    function assertEq(LockupDynamic.Stream memory a, LockupDynamic.Stream memory b) internal {
         assertEq(a.endTime, b.endTime, "endTime");
         assertEq(a.isCancelable, b.isCancelable, "isCancelable");
         assertEq(a.segments, b.segments, "segments");
@@ -68,24 +68,24 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEqUint40(a.start, b.start, "range.start");
     }
 
-    /// @dev Compares two `LockupPro.Range` struct entities.
-    function assertEq(LockupPro.Range memory a, LockupPro.Range memory b) internal {
+    /// @dev Compares two `LockupDynamic.Range` struct entities.
+    function assertEq(LockupDynamic.Range memory a, LockupDynamic.Range memory b) internal {
         assertEqUint40(a.end, b.end, "range.end");
         assertEqUint40(a.start, b.start, "range.start");
     }
 
     /// @dev Compares two `Segment[]` arrays.
-    function assertEq(LockupPro.Segment[] memory a, LockupPro.Segment[] memory b) internal {
+    function assertEq(LockupDynamic.Segment[] memory a, LockupDynamic.Segment[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit Log("Error: a == b not satisfied [LockupPro.Segment[]]");
+            emit Log("Error: a == b not satisfied [LockupDynamic.Segment[]]");
             emit LogNamedArray("   Left", b);
             emit LogNamedArray("  Right", a);
             fail();
         }
     }
 
-    /// @dev Compares two `LockupPro.Segment[]` arrays.
-    function assertEq(LockupPro.Segment[] memory a, LockupPro.Segment[] memory b, string memory err) internal {
+    /// @dev Compares two `LockupDynamic.Segment[]` arrays.
+    function assertEq(LockupDynamic.Segment[] memory a, LockupDynamic.Segment[] memory b, string memory err) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
             emit LogNamedString("Error", err);
             assertEq(a, b);

@@ -10,7 +10,7 @@ import { SablierV2LockupLinear } from "../../src/SablierV2LockupLinear.sol";
 
 import { BaseScript } from "../shared/Base.s.sol";
 
-/// @notice Deploys the {SablierV2LockupLinear} contract.
+/// @notice Deploys {SablierV2LockupLinear}.
 contract DeployLockupLinear is Script, BaseScript {
     function run(
         address initialAdmin,

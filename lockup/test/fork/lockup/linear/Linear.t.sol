@@ -23,7 +23,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
     function setUp() public virtual override {
         Fork_Test.setUp();
 
-        // Approve the {SablierV2LockupLinear} contract to transfer the asset holder's assets.
+        // Approve {SablierV2LockupLinear} to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
         (bool success, ) = address(asset).call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
         success;
@@ -46,18 +46,18 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
     struct Vars {
         // Generic vars
-        uint256 actualLinearBalance;
+        uint256 actualLinearContractBalance;
         uint256 actualHolderBalance;
         address actualNFTOwner;
         uint256 actualRecipientBalance;
         Lockup.Status actualStatus;
         uint256[] balances;
-        uint256 expectedLinearBalance;
+        uint256 expectedLinearContractBalance;
         uint256 expectedHolderBalance;
         address expectedNFTOwner;
         uint256 expectedRecipientBalance;
         Lockup.Status expectedStatus;
-        uint256 initialLinearBalance;
+        uint256 initialLinearContractBalance;
         uint256 initialRecipientBalance;
         uint256 streamId;
         // Create vars
@@ -135,7 +135,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
         // Load the pre-create asset balances.
         vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(linear), params.broker.account));
-        vars.initialLinearBalance = vars.balances[0];
+        vars.initialLinearContractBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
         // Calculate the fee amounts and the deposit amount.
@@ -202,16 +202,20 @@ abstract contract Linear_Fork_Test is Fork_Test {
             address(asset),
             Solarray.addresses(address(linear), holder, params.broker.account)
         );
-        vars.actualLinearBalance = vars.balances[0];
+        vars.actualLinearContractBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
 
         // Assert that the linear contract's balance has been updated.
-        vars.expectedLinearBalance =
-            vars.initialLinearBalance +
+        vars.expectedLinearContractBalance =
+            vars.initialLinearContractBalance +
             vars.createAmounts.deposit +
             vars.createAmounts.protocolFee;
-        assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "post-create linear contract balance");
+        assertEq(
+            vars.actualLinearContractBalance,
+            vars.expectedLinearContractBalance,
+            "post-create linear contract balance"
+        );
 
         // Assert that the holder's balance has been updated.
         vars.expectedHolderBalance = initialHolderBalance - params.totalAmount;
@@ -236,7 +240,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
         // Only run the withdraw tests if the withdraw amount is not zero.
         if (params.withdrawAmount > 0) {
             // Load the pre-withdraw asset balances.
-            vars.initialLinearBalance = vars.actualLinearBalance;
+            vars.initialLinearContractBalance = vars.actualLinearContractBalance;
             vars.initialRecipientBalance = asset.balanceOf(params.recipient);
 
             // Expect a {WithdrawFromLockupStream} event to be emitted.
@@ -258,12 +262,16 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
             // Load the post-withdraw asset balances.
             vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(linear), params.recipient));
-            vars.actualLinearBalance = vars.balances[0];
+            vars.actualLinearContractBalance = vars.balances[0];
             vars.actualRecipientBalance = vars.balances[1];
 
             // Assert that the contract's balance has been updated.
-            vars.expectedLinearBalance = vars.initialLinearBalance - uint256(params.withdrawAmount);
-            assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "post-withdraw linear contract balance");
+            vars.expectedLinearContractBalance = vars.initialLinearContractBalance - uint256(params.withdrawAmount);
+            assertEq(
+                vars.actualLinearContractBalance,
+                vars.expectedLinearContractBalance,
+                "post-withdraw linear contract balance"
+            );
 
             // Assert that the recipient's balance has been updated.
             vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(params.withdrawAmount);
@@ -281,7 +289,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
                 address(asset),
                 Solarray.addresses(address(linear), params.sender, params.recipient)
             );
-            vars.initialLinearBalance = vars.balances[0];
+            vars.initialLinearContractBalance = vars.balances[0];
             vars.initialSenderBalance = vars.balances[1];
             vars.initialRecipientBalance = vars.balances[2];
 
@@ -316,16 +324,20 @@ abstract contract Linear_Fork_Test is Fork_Test {
                 address(asset),
                 Solarray.addresses(address(linear), params.sender, params.recipient)
             );
-            vars.actualLinearBalance = vars.balances[0];
+            vars.actualLinearContractBalance = vars.balances[0];
             vars.actualSenderBalance = vars.balances[1];
             vars.actualRecipientBalance = vars.balances[2];
 
             // Assert that the contract's balance has been updated.
-            vars.expectedLinearBalance =
-                vars.initialLinearBalance -
+            vars.expectedLinearContractBalance =
+                vars.initialLinearContractBalance -
                 uint256(vars.senderAmount) -
                 uint256(vars.recipientAmount);
-            assertEq(vars.actualLinearBalance, vars.expectedLinearBalance, "post-cancel linear contract balance");
+            assertEq(
+                vars.actualLinearContractBalance,
+                vars.expectedLinearContractBalance,
+                "post-cancel linear contract balance"
+            );
 
             // Assert that the recipient's balance has been updated.
             vars.expectedSenderBalance = vars.initialSenderBalance + uint256(vars.senderAmount);

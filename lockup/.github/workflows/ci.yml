@@ -82,15 +82,15 @@ jobs:
             optimized-out/ISablierV2Base.sol/ISablierV2Base.json
             optimized-out/ISablierV2Comptroller.sol/ISablierV2Comptroller.json
             optimized-out/ISablierV2Lockup.sol/ISablierV2Lockup.json
+            optimized-out/ISablierV2LockupDynamic.sol/ISablierV2LockupDynamic.json
             optimized-out/ISablierV2LockupLinear.sol/ISablierV2LockupLinear.json
-            optimized-out/ISablierV2LockupPro.sol/ISablierV2LockupPro.json
             optimized-out/ISablierV2Recipient.sol/ISablierV2Recipient.json
             optimized-out/ISablierV2Sender.sol/ISablierV2Sender.json
             optimized-out/SablierV2Base.sol/ISablierV2Base.json
             optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json
             optimized-out/SablierV2Lockup.sol/SablierV2Lockup.json
             optimized-out/SablierV2LockupLinear.sol/SablierV2LockupLinear.json
-            optimized-out/SablierV2LockupPro.sol/SablierV2LockupPro.json
+            optimized-out/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json
 
       - name: "Add build summary"
         run: |

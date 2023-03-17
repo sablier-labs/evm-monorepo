@@ -37,12 +37,12 @@ forge script script/deploy/DeployLockupLinear.s.sol \
   MAX_FEE
 ```
 
-### Deploy `SablierV2LockupPro`
+### Deploy `SablierV2LockupDynamic`
 
 You should replace the placeholders with the actual arguments you want to pass.
 
 ```sh
-forge script script/deploy/DeployLockupPro.s.sol \
+forge script script/deploy/DeployLockupDynamic.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address,uint256,uint256)" \

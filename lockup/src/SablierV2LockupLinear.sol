@@ -49,7 +49,7 @@ contract SablierV2LockupLinear is
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Sablier V2 linear lockup streams mapped by unsigned integers.
+    /// @dev Sablier V2 lockup linear streams mapped by unsigned integers.
     mapping(uint256 id => LockupLinear.Stream stream) internal _streams;
 
     /*//////////////////////////////////////////////////////////////////////////

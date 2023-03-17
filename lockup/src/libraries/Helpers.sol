@@ -3,7 +3,7 @@ pragma solidity >=0.8.18;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Lockup, LockupLinear, LockupPro } from "../types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupLinear } from "../types/DataTypes.sol";
 import { Errors } from "./Errors.sol";
 
 /// @title Helpers
@@ -53,7 +53,7 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the arguments of the {SablierV2LockupLinear-_createWithRange} function.
+    /// @dev Checks the parameters of the {SablierV2LockupLinear-_createWithRange} function.
     function checkCreateLinearParams(uint128 depositAmount, LockupLinear.Range memory range) internal pure {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
@@ -71,10 +71,10 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the arguments of the {SablierV2LockupPro-_createWithRange} function.
-    function checkCreateProParams(
+    /// @dev Checks the parameters of the {SablierV2LockupDynamic-_createWithMilestones} function.
+    function checkCreateDynamicParams(
         uint128 depositAmount,
-        LockupPro.Segment[] memory segments,
+        LockupDynamic.Segment[] memory segments,
         uint256 maxSegmentCount,
         uint40 startTime
     ) internal pure {
@@ -86,33 +86,33 @@ library Helpers {
         // Check that the segment count is not zero.
         uint256 segmentCount = segments.length;
         if (segmentCount == 0) {
-            revert Errors.SablierV2LockupPro_SegmentCountZero();
+            revert Errors.SablierV2LockupDynamic_SegmentCountZero();
         }
 
         // Check that the segment count is not greater than the maximum segment count permitted.
         if (segmentCount > maxSegmentCount) {
-            revert Errors.SablierV2LockupPro_SegmentCountTooHigh(segmentCount);
+            revert Errors.SablierV2LockupDynamic_SegmentCountTooHigh(segmentCount);
         }
 
         // Checks: requirements of segments variables.
-        _checkProSegments(segments, depositAmount, startTime);
+        _checkSegments(segments, depositAmount, startTime);
     }
 
     /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
     function checkDeltasAndCalculateMilestones(
-        LockupPro.SegmentWithDelta[] memory segments
-    ) internal view returns (LockupPro.Segment[] memory segmentsWithMilestones) {
+        LockupDynamic.SegmentWithDelta[] memory segments
+    ) internal view returns (LockupDynamic.Segment[] memory segmentsWithMilestones) {
         uint256 segmentCount = segments.length;
-        segmentsWithMilestones = new LockupPro.Segment[](segmentCount);
+        segmentsWithMilestones = new LockupDynamic.Segment[](segmentCount);
 
         // Make the current time the start time of the stream.
         uint40 startTime = uint40(block.timestamp);
 
-        // It is safe to use unchecked arithmetic because the {_createWithMilestone} function will nonetheless check
-        // the soundness of the calculated segment milestones.
+        // It is safe to use unchecked arithmetic because {_createWithMilestone} will nonetheless check the soundness
+        // of the calculated segment milestones.
         unchecked {
             // Precompute the first segment because of the need to add the start time to the first segment delta.
-            segmentsWithMilestones[0] = LockupPro.Segment({
+            segmentsWithMilestones[0] = LockupDynamic.Segment({
                 amount: segments[0].amount,
                 exponent: segments[0].exponent,
                 milestone: startTime + segments[0].delta
@@ -120,7 +120,7 @@ library Helpers {
 
             // Copy the segment amounts and exponents, and calculate the segment milestones.
             for (uint256 i = 1; i < segmentCount; ++i) {
-                segmentsWithMilestones[i] = LockupPro.Segment({
+                segmentsWithMilestones[i] = LockupDynamic.Segment({
                     amount: segments[i].amount,
                     exponent: segments[i].exponent,
                     milestone: segmentsWithMilestones[i - 1].milestone + segments[i].delta
@@ -139,14 +139,14 @@ library Helpers {
     /// 2. The milestones are ordered chronologically.
     /// 3. There are no duplicate milestones.
     /// 4. The deposit amount is equal to the segment amounts summed up.
-    function _checkProSegments(
-        LockupPro.Segment[] memory segments,
+    function _checkSegments(
+        LockupDynamic.Segment[] memory segments,
         uint128 depositAmount,
         uint40 startTime
     ) private pure {
         // Checks: the start time is strictly less than the first segment milestone.
         if (startTime >= segments[0].milestone) {
-            revert Errors.SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone(
+            revert Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone(
                 startTime,
                 segments[0].milestone
             );
@@ -167,7 +167,7 @@ library Helpers {
             // Check that the current milestone is strictly greater than the previous milestone.
             currentMilestone = segments[index].milestone;
             if (currentMilestone <= previousMilestone) {
-                revert Errors.SablierV2LockupPro_SegmentMilestonesNotOrdered(
+                revert Errors.SablierV2LockupDynamic_SegmentMilestonesNotOrdered(
                     index,
                     previousMilestone,
                     currentMilestone
@@ -185,7 +185,10 @@ library Helpers {
 
         // Check that the deposit amount is equal to the segment amounts sum.
         if (depositAmount != segmentAmountsSum) {
-            revert Errors.SablierV2LockupPro_DepositAmountNotEqualToSegmentAmountsSum(depositAmount, segmentAmountsSum);
+            revert Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum(
+                depositAmount,
+                segmentAmountsSum
+            );
         }
     }
 }

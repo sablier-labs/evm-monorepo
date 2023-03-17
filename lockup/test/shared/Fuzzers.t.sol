@@ -5,7 +5,7 @@ import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint1
 import { UD60x18, ud, uUNIT } from "@prb/math/UD60x18.sol";
 import { arange } from "solidity-generators/Generators.sol";
 
-import { Lockup, LockupPro } from "../../src/types/DataTypes.sol";
+import { Lockup, LockupDynamic } from "../../src/types/DataTypes.sol";
 
 import { Constants } from "./Constants.t.sol";
 import { Utils } from "./Utils.t.sol";
@@ -13,9 +13,9 @@ import { Utils } from "./Utils.t.sol";
 abstract contract Fuzzers is Constants, Utils {
     using CastingUint128 for uint128;
 
-    /// @dev Just like `fuzzSegmentAmountsAndCalculateCreateAmounts` but uses the defaults.
+    /// @dev Just like {fuzzSegmentAmountsAndCalculateCreateAmounts} but using some defaults.
     function fuzzSegmentAmountsAndCalculateCreateAmounts(
-        LockupPro.Segment[] memory segments
+        LockupDynamic.Segment[] memory segments
     ) internal view returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts) {
         (totalAmount, createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: UINT128_MAX,
@@ -25,11 +25,11 @@ abstract contract Fuzzers is Constants, Utils {
         });
     }
 
-    /// @dev Just like `fuzzSegmentAmountsAndCalculateCreateAmounts` but uses the defaults.
+    /// @dev Just like {fuzzSegmentAmountsAndCalculateCreateAmounts} but using some defaults.
     function fuzzSegmentAmountsAndCalculateCreateAmounts(
-        LockupPro.SegmentWithDelta[] memory segments
+        LockupDynamic.SegmentWithDelta[] memory segments
     ) internal view returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts) {
-        LockupPro.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
+        LockupDynamic.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
         (totalAmount, createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: UINT128_MAX,
             segments: segmentsWithMilestones,
@@ -44,11 +44,11 @@ abstract contract Fuzzers is Constants, Utils {
     /// @dev Fuzzes the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
     function fuzzSegmentAmountsAndCalculateCreateAmounts(
         uint128 upperBound,
-        LockupPro.SegmentWithDelta[] memory segments,
+        LockupDynamic.SegmentWithDelta[] memory segments,
         UD60x18 protocolFee,
         UD60x18 brokerFee
     ) internal view returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts) {
-        LockupPro.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
+        LockupDynamic.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
         (totalAmount, createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(
             upperBound,
             segmentsWithMilestones,
@@ -63,7 +63,7 @@ abstract contract Fuzzers is Constants, Utils {
     /// @dev Fuzzes the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
     function fuzzSegmentAmountsAndCalculateCreateAmounts(
         uint128 upperBound,
-        LockupPro.Segment[] memory segments,
+        LockupDynamic.Segment[] memory segments,
         UD60x18 protocolFee,
         UD60x18 brokerFee
     ) internal view returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts) {
@@ -87,7 +87,7 @@ abstract contract Fuzzers is Constants, Utils {
         // must equal the deposit amount) using this formula:
         //
         // $$
-        // total = deposit / (1e18 - protocol fee - broker fee)
+        // total = \frac{deposit}{1e18 - protocolFee - brokerFee}
         // $$
         totalAmount = ud(estimatedDepositAmount)
             .div(ud(uUNIT - protocolFee.intoUint256() - brokerFee.intoUint256()))
@@ -99,13 +99,13 @@ abstract contract Fuzzers is Constants, Utils {
 
         // Here, we account for rounding errors and adjust the estimated deposit amount and the segments. We know that
         // the estimated deposit amount is not greater than the adjusted deposit amount below, because the inverse of
-        // the {Helpers-checkAndCalculateFees} function over-expresses the weight of the fees.
+        // {Helpers-checkAndCalculateFees} over-expresses the weight of the fees.
         createAmounts.deposit = totalAmount - createAmounts.protocolFee - createAmounts.brokerFee;
         segments[segments.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }
 
     /// @dev Fuzzes the deltas.
-    function fuzzSegmentDeltas(LockupPro.SegmentWithDelta[] memory segments) internal view {
+    function fuzzSegmentDeltas(LockupDynamic.SegmentWithDelta[] memory segments) internal view {
         unchecked {
             // Precompute the first segment delta.
             segments[0].delta = uint40(bound(segments[0].delta, 1, 100));
@@ -120,7 +120,7 @@ abstract contract Fuzzers is Constants, Utils {
     }
 
     /// @dev Fuzzes the segment milestones.
-    function fuzzSegmentMilestones(LockupPro.Segment[] memory segments, uint40 startTime) internal view {
+    function fuzzSegmentMilestones(LockupDynamic.Segment[] memory segments, uint40 startTime) internal view {
         // Precompute the first milestone so that we don't bump into an underflow in the first loop iteration.
         segments[0].milestone = startTime + 1;
 

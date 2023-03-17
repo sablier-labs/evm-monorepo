@@ -4,7 +4,7 @@ pragma solidity >=0.8.19 <0.9.0;
 import { UD2x18, ud2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Lockup, LockupLinear, LockupPro } from "../../src/types/DataTypes.sol";
+import { Lockup, LockupLinear, LockupDynamic } from "../../src/types/DataTypes.sol";
 
 abstract contract Constants {
     /*//////////////////////////////////////////////////////////////////////////
@@ -46,11 +46,11 @@ abstract contract Constants {
     Lockup.Amounts internal DEFAULT_LOCKUP_AMOUNTS = Lockup.Amounts({ deposit: DEFAULT_DEPOSIT_AMOUNT, withdrawn: 0 });
     LockupLinear.Durations internal DEFAULT_DURATIONS =
         LockupLinear.Durations({ cliff: DEFAULT_CLIFF_DURATION, total: DEFAULT_TOTAL_DURATION });
+    LockupDynamic.Range internal DEFAULT_DYNAMIC_RANGE;
     LockupLinear.Range internal DEFAULT_LINEAR_RANGE;
-    LockupPro.Range internal DEFAULT_PRO_RANGE;
-    LockupPro.Segment[] internal DEFAULT_SEGMENTS;
-    LockupPro.SegmentWithDelta[] internal DEFAULT_SEGMENTS_WITH_DELTAS;
-    LockupPro.Segment[] internal MAX_SEGMENTS;
+    LockupDynamic.Segment[] internal DEFAULT_SEGMENTS;
+    LockupDynamic.SegmentWithDelta[] internal DEFAULT_SEGMENTS_WITH_DELTAS;
+    LockupDynamic.Segment[] internal MAX_SEGMENTS;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -65,17 +65,17 @@ abstract contract Constants {
             cliff: DEFAULT_CLIFF_TIME,
             end: DEFAULT_END_TIME
         });
-        DEFAULT_PRO_RANGE = LockupPro.Range({ start: DEFAULT_START_TIME, end: DEFAULT_END_TIME });
+        DEFAULT_DYNAMIC_RANGE = LockupDynamic.Range({ start: DEFAULT_START_TIME, end: DEFAULT_END_TIME });
 
         DEFAULT_SEGMENTS.push(
-            LockupPro.Segment({
+            LockupDynamic.Segment({
                 amount: 2_500e18,
                 exponent: ud2x18(3.14e18),
                 milestone: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION
             })
         );
         DEFAULT_SEGMENTS.push(
-            LockupPro.Segment({
+            LockupDynamic.Segment({
                 amount: 7_500e18,
                 exponent: ud2x18(0.5e18),
                 milestone: DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION
@@ -83,14 +83,14 @@ abstract contract Constants {
         );
 
         DEFAULT_SEGMENTS_WITH_DELTAS.push(
-            LockupPro.SegmentWithDelta({
+            LockupDynamic.SegmentWithDelta({
                 amount: DEFAULT_SEGMENTS[0].amount,
                 exponent: DEFAULT_SEGMENTS[0].exponent,
                 delta: 2_500 seconds
             })
         );
         DEFAULT_SEGMENTS_WITH_DELTAS.push(
-            LockupPro.SegmentWithDelta({
+            LockupDynamic.SegmentWithDelta({
                 amount: DEFAULT_SEGMENTS[1].amount,
                 exponent: DEFAULT_SEGMENTS[1].exponent,
                 delta: 7_500 seconds
@@ -106,7 +106,7 @@ abstract contract Constants {
             // evenly spread apart.
             for (uint40 i = 0; i < DEFAULT_MAX_SEGMENT_COUNT; ++i) {
                 MAX_SEGMENTS.push(
-                    LockupPro.Segment({
+                    LockupDynamic.Segment({
                         amount: amount,
                         exponent: exponent,
                         milestone: DEFAULT_START_TIME + duration * (i + 1)

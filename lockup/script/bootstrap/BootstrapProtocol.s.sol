@@ -9,20 +9,20 @@ import { Script } from "forge-std/Script.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
+import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2LockupPro } from "src/interfaces/ISablierV2LockupPro.sol";
-import { Broker, LockupLinear, LockupPro } from "src/types/DataTypes.sol";
+import { Broker, LockupLinear, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { BaseScript } from "../shared/Base.s.sol";
 
-/// @notice Bootstraps the protocol by setting up the comptroller and creating some streams.
-contract BootstrapProtocol is BaseScript {
+/// @notice Bootstraps the tocol by setting up the comptroller and creating some streams.
+contract Bootstraptocol is BaseScript {
     // prettier-ignore
     // solhint-disable max-line-length
     function run(
         ISablierV2Comptroller comptroller,
         ISablierV2LockupLinear linear,
-        ISablierV2LockupPro pro,
+        ISablierV2LockupDynamic dynamic,
         IERC20 asset
     ) public broadcaster {
         address sender = deployer;
@@ -49,7 +49,7 @@ contract BootstrapProtocol is BaseScript {
 
         // Approve the Sablier contracts to transfer the ERC-20 assets from the sender.
         asset.approve(address(linear), type(uint256).max);
-        asset.approve(address(pro), type(uint256).max);
+        asset.approve(address(dynamic), type(uint256).max);
 
         // Create 7 linear streams with various amounts and durations.
         //
@@ -80,14 +80,14 @@ contract BootstrapProtocol is BaseScript {
         linear.cancel({ streamId: 6 });
 
         /*//////////////////////////////////////////////////////////////////////////
-                                            PRO
+                                      DYNAMIC
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Create the default pro stream.
-        LockupPro.SegmentWithDelta[] memory segments = new LockupPro.SegmentWithDelta[](2);
-        segments[0] = LockupPro.SegmentWithDelta({ amount: 2_500e18, exponent: ud2x18(3.14e18), delta: 1 hours });
-        segments[1] = LockupPro.SegmentWithDelta({ amount: 7_500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
-        pro.createWithDeltas(LockupPro.CreateWithDeltas({
+        // Create the default dynamic stream.
+        LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](2);
+        segments[0] = LockupDynamic.SegmentWithDelta({ amount: 2_500e18, exponent: ud2x18(3.14e18), delta: 1 hours });
+        segments[1] = LockupDynamic.SegmentWithDelta({ amount: 7_500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
+        dynamic.createWithDeltas(LockupDynamic.CreateWithDeltas({
             sender: sender,
             recipient: recipient,
             totalAmount: 10_000e18,

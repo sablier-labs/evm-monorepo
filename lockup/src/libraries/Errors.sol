@@ -104,21 +104,24 @@ library Errors {
     error SablierV2LockupLinear_StartTimeGreaterThanCliffTime(uint40 startTime, uint40 cliffTime);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-V2-LOCKUP-PRO
+                             SABLIER-V2-LOCKUP-DYNAMIC
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when attempting to create a stream with a deposit amount that does not equal the segment
     /// amounts sum.
-    error SablierV2LockupPro_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositAmount, uint128 segmentAmountsSum);
+    error SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum(
+        uint128 depositAmount,
+        uint128 segmentAmountsSum
+    );
 
     /// @notice Thrown when attempting to create a stream with more segments than the maximum permitted.
-    error SablierV2LockupPro_SegmentCountTooHigh(uint256 count);
+    error SablierV2LockupDynamic_SegmentCountTooHigh(uint256 count);
 
     /// @notice Thrown when attempting to create a stream with zero segments.
-    error SablierV2LockupPro_SegmentCountZero();
+    error SablierV2LockupDynamic_SegmentCountZero();
 
     /// @notice Thrown when attempting to create a stream with segment milestones that are not ordered.
-    error SablierV2LockupPro_SegmentMilestonesNotOrdered(
+    error SablierV2LockupDynamic_SegmentMilestonesNotOrdered(
         uint256 index,
         uint40 previousMilestone,
         uint40 currentMilestone
@@ -126,5 +129,8 @@ library Errors {
 
     /// @notice Thrown when attempting to create a stream with a start time that is not strictly less than the first
     /// segment milestone.
-    error SablierV2LockupPro_StartTimeNotLessThanFirstSegmentMilestone(uint40 startTime, uint40 firstSegmentMilestone);
+    error SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone(
+        uint40 startTime,
+        uint40 firstSegmentMilestone
+    );
 }

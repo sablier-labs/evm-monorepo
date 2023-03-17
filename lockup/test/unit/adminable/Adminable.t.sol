@@ -21,7 +21,7 @@ abstract contract Adminable_Unit_Test is Unit_Test {
     function setUp() public virtual override {
         Unit_Test.setUp();
 
-        // Cast the linear contract as the {IAdminable} contract.
+        // Cast the linear contract as {IAdminable}.
         adminable = IAdminable(address(linear));
     }
 }

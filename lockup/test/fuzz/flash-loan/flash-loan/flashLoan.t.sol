@@ -75,7 +75,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         // Mint the flash fee to the receiver so that they can repay the flash loan.
         deal({ token: address(DEFAULT_ASSET), to: address(goodFlashLoanReceiver), give: fee });
 
-        // Expect `amount` of ERC-20 assets to be transferred from the {SablierV2FlashLoan} contract to the receiver.
+        // Expect `amount` of ERC-20 assets to be transferred from {SablierV2FlashLoan} to the receiver.
         expectTransferCall({ to: address(goodFlashLoanReceiver), amount: amount });
 
         // Expect `amount+fee` of ERC-20 assets to be transferred back from the receiver.

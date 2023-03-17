@@ -6,8 +6,8 @@
   libs = ["lib"]
   gas_reports = [
     "SablierV2Comptroller",
+    "SablierV2LockupDynamic",
     "SablierV2LockupLinear",
-    "SablierV2LockupPro",
   ]
   optimizer = true
   optimizer_runs = 5_000
@@ -62,8 +62,8 @@
   ]
 
 [profile.smt.model_checker.contracts]
+  "src/SablierV2LockupDynamic.sol" = ["SablierV2LockupDynamic"]
   "src/SablierV2LockupLinear.sol" = ["SablierV2LockupLinear"]
-  "src/SablierV2LockupPro.sol" = ["SablierV2LockupPro"]
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]

@@ -6,7 +6,7 @@ import { SD59x18 } from "@prb/math/SD59x18.sol";
 
 import { StdUtils } from "forge-std/StdUtils.sol";
 
-import { LockupPro } from "../../src/types/DataTypes.sol";
+import { LockupDynamic } from "../../src/types/DataTypes.sol";
 
 abstract contract Utils is StdUtils, PRBMathUtils {
     /*//////////////////////////////////////////////////////////////////////////
@@ -34,17 +34,17 @@ abstract contract Utils is StdUtils, PRBMathUtils {
 
     /// @dev Turns the segment with deltas into canonical segments.
     function getSegmentsWithMilestones(
-        LockupPro.SegmentWithDelta[] memory segments
-    ) internal view returns (LockupPro.Segment[] memory segmentsWithMilestones) {
+        LockupDynamic.SegmentWithDelta[] memory segments
+    ) internal view returns (LockupDynamic.Segment[] memory segmentsWithMilestones) {
         unchecked {
-            segmentsWithMilestones = new LockupPro.Segment[](segments.length);
-            segmentsWithMilestones[0] = LockupPro.Segment({
+            segmentsWithMilestones = new LockupDynamic.Segment[](segments.length);
+            segmentsWithMilestones[0] = LockupDynamic.Segment({
                 amount: segments[0].amount,
                 exponent: segments[0].exponent,
                 milestone: getBlockTimestamp() + segments[0].delta
             });
             for (uint256 i = 1; i < segments.length; ++i) {
-                segmentsWithMilestones[i] = LockupPro.Segment({
+                segmentsWithMilestones[i] = LockupDynamic.Segment({
                     amount: segments[i].amount,
                     exponent: segments[i].exponent,
                     milestone: segmentsWithMilestones[i - 1].milestone + segments[i].delta

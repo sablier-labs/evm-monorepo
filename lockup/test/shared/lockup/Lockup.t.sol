@@ -10,20 +10,20 @@ import { Broker } from "../../../src/types/DataTypes.sol";
 import { Base_Test } from "test/Base.t.sol";
 
 /// @title Lockup_Shared_Test
-/// @dev There is a lot of common logic between the {SablierV2LockupLinear} and the {SablierV2LockupPro} contracts,
-/// specifically that they both inherit from the {SablierV2Base} and the {SablierV2Lockup} abstract contracts. We
-/// wrote this test contract to avoid duplicating tests.
+/// @dev There is a lot of common logic between {SablierV2LockupLinear} and {SablierV2LockupDynamic}, specifically
+/// that they both inherit from the {SablierV2Base} and the {SablierV2Lockup} abstract contracts. We wrote this
+/// contract to avoid duplicating tests.
 abstract contract Lockup_Shared_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev A test contract that is meant to be overridden by the child contract.
-    /// This will be either the {SablierV2LockupLinear} or the {SablierV2LockupPro} contract.
+    /// This will be either the {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
     ISablierV2Base internal base;
 
     /// @dev A test contract that is meant to be overridden by the child contract.
-    /// This will be either the {SablierV2LockupLinear} or the {SablierV2LockupPro} contract.
+    /// This will be either the {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
     ISablierV2Lockup internal lockup;
 
     /*//////////////////////////////////////////////////////////////////////////
