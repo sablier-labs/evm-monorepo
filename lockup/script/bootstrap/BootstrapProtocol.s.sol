@@ -17,7 +17,6 @@ import { BaseScript } from "../shared/Base.s.sol";
 
 /// @notice Bootstraps the protocol by setting up the comptroller and creating some streams.
 contract BootstrapProtocol is BaseScript {
-    // solhint-disable max-line-length
     function run(
         ISablierV2Comptroller comptroller,
         ISablierV2LockupLinear linear,
@@ -86,7 +85,7 @@ contract BootstrapProtocol is BaseScript {
         linear.cancel({ streamId: 6 });
 
         /*//////////////////////////////////////////////////////////////////////////
-                                      DYNAMIC
+                                          DYNAMIC
         //////////////////////////////////////////////////////////////////////////*/
 
         // Create the default dynamic stream.

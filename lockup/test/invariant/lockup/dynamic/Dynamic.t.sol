@@ -11,7 +11,7 @@ import { LockupDynamicCreateHandler } from "../../handlers/LockupDynamicCreateHa
 import { LockupDynamicHandler } from "../../handlers/LockupDynamicHandler.t.sol";
 
 /// @title Dynamic_Invariant_Test
-/// @dev Invariants for {SablierV2LockupDynamic}.
+/// @dev Invariant tests for for {SablierV2LockupDynamic}.
 contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS

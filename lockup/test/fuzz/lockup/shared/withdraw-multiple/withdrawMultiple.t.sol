@@ -28,6 +28,10 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
     modifier whenToNonZeroAddress() {
         _;
     }
@@ -98,6 +102,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         address to
     )
         external
+        whenNoDelegateCall
         whenToNonZeroAddress
         whenArraysEqual
         whenOnlyNonNullStreams
@@ -157,6 +162,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 withdrawAmount
     )
         external
+        whenNoDelegateCall
         whenToNonZeroAddress
         whenArraysEqual
         whenOnlyNonNullStreams
@@ -236,6 +242,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     /// depleted, and update the withdrawn amounts.
     function testFuzz_WithdrawMultiple_SomeStreamsEndedSomeStreamsOngoing(Params memory params)
         external
+        whenNoDelegateCall
         whenToNonZeroAddress
         whenArraysEqual
         whenOnlyNonNullStreams

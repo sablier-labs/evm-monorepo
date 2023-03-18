@@ -83,7 +83,8 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Create a lockup dynamic stream by setting the start time to `block.timestamp` and the end time to the
+    /// @notice Creates a lockup dynamic stream by setting the start time to `block.timestamp` and the end time to
+    /// the
     /// sum of `block.timestamp` and all segment deltas. The stream is funded by `msg.sender` and is wrapped in an
     /// ERC-721 NFT.
     ///
@@ -96,7 +97,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @return streamId The id of the newly created lockup dynamic stream.
     function createWithDeltas(LockupDynamic.CreateWithDeltas calldata params) external returns (uint256 streamId);
 
-    /// @notice Create a lockup dynamic stream with the provided milestones, implying the end time from the last
+    /// @notice Creates a lockup dynamic stream with the provided milestones, implying the end time from the last
     /// segment's milestone. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupDynamicStream} and a {Transfer} event.

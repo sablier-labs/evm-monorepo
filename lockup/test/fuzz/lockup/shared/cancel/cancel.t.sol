@@ -19,7 +19,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    modifier whenStreamNotActive() {
+    modifier whenNoDelegateCall() {
         _;
     }
 
@@ -69,6 +69,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 withdrawAmount
     )
         external
+        whenNoDelegateCall
         whenStreamActive
         whenStreamCancelable
         whenCallerAuthorized
@@ -162,6 +163,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 withdrawAmount
     )
         external
+        whenNoDelegateCall
         whenStreamActive
         whenStreamCancelable
         whenCallerAuthorized

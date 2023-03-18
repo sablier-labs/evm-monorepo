@@ -7,7 +7,7 @@ import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.
 
 import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
-import { Lockup, LockupLinear, LockupDynamic } from "../../src/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";
 
 /// @title Events
 /// @notice Abstract contract that contains all the events emitted by the protocol.

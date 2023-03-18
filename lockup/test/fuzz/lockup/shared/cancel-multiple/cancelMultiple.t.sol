@@ -21,6 +21,14 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
+    modifier whenArrayCountNotZero() {
+        _;
+    }
+
     modifier whenOnlyNonNullStreams() {
         _;
     }
@@ -34,7 +42,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
-    /// CancelLockupStream events.
+    /// {CancelLockupStream} events.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
@@ -46,6 +54,8 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint40 endTime
     )
         external
+        whenNoDelegateCall
+        whenArrayCountNotZero
         whenOnlyNonNullStreams
         whenAllStreamsCancelable
         whenCallerAuthorizedAllStreams
@@ -118,7 +128,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
-    /// CancelLockupStream events.
+    /// {CancelLockupStream} events.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
@@ -130,6 +140,8 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint40 endTime
     )
         external
+        whenNoDelegateCall
+        whenArrayCountNotZero
         whenOnlyNonNullStreams
         whenAllStreamsCancelable
         whenCallerAuthorizedAllStreams

@@ -11,7 +11,7 @@ import { LockupLinearHandler } from "../../handlers/LockupLinearHandler.t.sol";
 import { LockupLinearCreateHandler } from "../../handlers/LockupLinearCreateHandler.t.sol";
 
 /// @title Linear_Invariant_Test
-/// @dev Invariants for {SablierV2LockupLinear}.
+/// @dev Invariant tests for {SablierV2LockupLinear}.
 contract Linear_Invariant_Test is Lockup_Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS

@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { PRBMathUtils } from "@prb/math/test/Utils.sol";
-import { SD59x18 } from "@prb/math/SD59x18.sol";
+import {PRBMathUtils} from "@prb/math/test/Utils.sol";
+import {SD59x18} from "@prb/math/SD59x18.sol";
+import {StdUtils} from "forge-std/StdUtils.sol";
 
-import { StdUtils } from "forge-std/StdUtils.sol";
-
-import { LockupDynamic } from "../../src/types/DataTypes.sol";
+import {LockupDynamic} from "../../src/types/DataTypes.sol";
 
 abstract contract Utils is StdUtils, PRBMathUtils {
     /*//////////////////////////////////////////////////////////////////////////

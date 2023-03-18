@@ -10,8 +10,8 @@ import { SablierV2LockupDynamic } from "../../src/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "../../src/SablierV2LockupLinear.sol";
 
 import { DeployComptroller } from "./DeployComptroller.s.sol";
-import { DeployLockupLinear } from "./DeployLockupLinear.s.sol";
 import { DeployLockupDynamic } from "./DeployLockupDynamic.s.sol";
+import { DeployLockupLinear } from "./DeployLockupLinear.s.sol";
 
 /// @notice Deploys the entire protocol. The contracts are deployed in the following order:
 ///

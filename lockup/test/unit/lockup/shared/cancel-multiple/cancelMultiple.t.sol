@@ -232,7 +232,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
-    /// CancelLockupStream events.
+    /// {CancelLockupStream} events.
     function test_CancelMultiple_Sender()
         external
         whenNoDelegateCall
@@ -246,7 +246,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
-    /// CancelLockupStream events.
+    /// {CancelLockupStream} events.
     function test_CancelMultiple_Recipient()
         external
         whenNoDelegateCall

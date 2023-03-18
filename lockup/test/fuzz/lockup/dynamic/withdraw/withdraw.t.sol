@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
-
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { Withdraw_Fuzz_Test } from "../../shared/withdraw/withdraw.t.sol";
@@ -41,7 +39,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountLessThanOrEqualToWithdrawableAmount
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
         whenCallerSender
         whenCurrentTimeLessThanEndTime
         whenRecipientContract

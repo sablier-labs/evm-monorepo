@@ -19,7 +19,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    modifier whenStreamNotActive() {
+    modifier whenNoDelegateCall() {
         _;
     }
 
@@ -39,18 +39,19 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier whenWithdrawAmountLessThanOrEqualToWithdrawableAmount() {
+    modifier whenWithdrawAmountNotGreaterThanWithdrawableAmount() {
         _;
     }
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
     function testFuzz_Withdraw_CallerRecipient(address to)
         external
+        whenNoDelegateCall
         whenStreamActive
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountLessThanOrEqualToWithdrawableAmount
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
     {
         vm.assume(to != address(0));
 
@@ -74,11 +75,12 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     /// @dev it should make the withdrawal and update the withdrawn amount.
     function testFuzz_Withdraw_CallerApprovedOperator(address to)
         external
+        whenNoDelegateCall
         whenStreamActive
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountLessThanOrEqualToWithdrawableAmount
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
     {
         vm.assume(to != address(0));
 
@@ -124,11 +126,12 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 withdrawAmount
     )
         external
+        whenNoDelegateCall
         whenStreamActive
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountLessThanOrEqualToWithdrawableAmount
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
         whenCallerSender
         whenCurrentTimeLessThanEndTime
     {
@@ -188,11 +191,12 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 withdrawAmount
     )
         external
+        whenNoDelegateCall
         whenStreamActive
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountLessThanOrEqualToWithdrawableAmount
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
         whenCallerSender
         whenCurrentTimeLessThanEndTime
         whenRecipientContract

@@ -5,7 +5,6 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { ISablierV2Base } from "src/interfaces/ISablierV2Base.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
-import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
 
 import { Dynamic_Shared_Test } from "../../../shared/lockup/dynamic/Dynamic.t.sol";
 import { Unit_Test } from "../../Unit.t.sol";

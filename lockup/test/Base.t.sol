@@ -61,6 +61,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    ISablierV2LockupDynamic internal dynamic;
     GoodFlashLoanReceiver internal goodFlashLoanReceiver = new GoodFlashLoanReceiver();
     GoodRecipient internal goodRecipient = new GoodRecipient();
     GoodSender internal goodSender = new GoodSender();
@@ -69,7 +70,6 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
     ISablierV2LockupLinear internal linear;
     SablierV2NFTDescriptor internal nftDescriptor = new SablierV2NFTDescriptor();
     NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
-    ISablierV2LockupDynamic internal dynamic;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
