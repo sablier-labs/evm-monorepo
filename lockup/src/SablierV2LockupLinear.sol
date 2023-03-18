@@ -50,7 +50,7 @@ contract SablierV2LockupLinear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 lockup linear streams mapped by unsigned integers.
-    mapping(uint256 id => LockupLinear.Stream stream) internal _streams;
+    mapping(uint256 id => LockupLinear.Stream stream) private _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR

@@ -62,7 +62,7 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 dynamic streams mapped by unsigned integers ids.
-    mapping(uint256 id => LockupDynamic.Stream stream) internal _streams;
+    mapping(uint256 id => LockupDynamic.Stream stream) private _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
