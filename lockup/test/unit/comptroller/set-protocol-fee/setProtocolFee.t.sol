@@ -26,7 +26,7 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     /// @dev it should re-set the protocol fee.
     function test_SetProtocolFee_SameFee() external whenCallerAdmin {
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
-        UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
+        UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = ZERO;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }
@@ -52,7 +52,7 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: newProtocolFee });
 
         // Assert that the protocol fee has been updated.
-        UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
+        UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = newProtocolFee;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }

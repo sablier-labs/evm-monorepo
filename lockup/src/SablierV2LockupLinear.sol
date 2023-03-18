@@ -383,9 +383,8 @@ contract SablierV2LockupLinear is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _createWithRange(LockupLinear.CreateWithRange memory params) internal returns (uint256 streamId) {
-        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
-        // not call other unknown contracts.
-        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
+        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
+        UD60x18 protocolFee = comptroller.protocolFees(params.asset);
 
         // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
         // deposit amount.

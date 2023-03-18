@@ -66,7 +66,7 @@ abstract contract SablierV2FlashLoan is
     /// @return fee The amount of `asset` to charge for the loan on top of the returned principal.
     function flashFee(address asset, uint256 amount) public view override returns (uint256 fee) {
         // Checks: the ERC-20 asset is flash loanable.
-        if (!comptroller.isFlashLoanable(IERC20(asset))) {
+        if (!comptroller.flashAssets(IERC20(asset))) {
             revert Errors.SablierV2FlashLoan_AssetNotFlashLoanable(IERC20(asset));
         }
 
@@ -80,7 +80,7 @@ abstract contract SablierV2FlashLoan is
     /// @return amount The amount of `asset` that can be flash loaned.
     function maxFlashLoan(address asset) external view override returns (uint256 amount) {
         // The default value is zero, so it doesn't have to be explicitly set.
-        if (comptroller.isFlashLoanable(IERC20(asset))) {
+        if (comptroller.flashAssets(IERC20(asset))) {
             amount = IERC20(asset).balanceOf(address(this));
         }
     }

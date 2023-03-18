@@ -88,7 +88,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         (params.totalAmount,) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: 1_000_000_000e18,
             segments: params.segments,
-            protocolFee: comptroller.getProtocolFee(asset),
+            protocolFee: comptroller.protocolFees(asset),
             brokerFee: params.broker.fee
         });
 
@@ -132,7 +132,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         (params.totalAmount,) = fuzzSegmentAmountsAndCalculateCreateAmounts({
             upperBound: 1_000_000_000e18,
             segments: params.segments,
-            protocolFee: comptroller.getProtocolFee(asset),
+            protocolFee: comptroller.protocolFees(asset),
             brokerFee: params.broker.fee
         });
 

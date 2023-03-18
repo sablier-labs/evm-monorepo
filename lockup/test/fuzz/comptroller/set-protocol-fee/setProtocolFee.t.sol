@@ -23,7 +23,7 @@ contract SetProtocolFee_Fuzz_Test is Comptroller_Fuzz_Test {
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: newProtocolFee });
 
         // Assert that the protocol fee has been updated.
-        UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
+        UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = newProtocolFee;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }

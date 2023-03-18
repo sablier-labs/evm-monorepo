@@ -49,11 +49,11 @@ interface ISablierV2Comptroller is IAdminable {
     /// all Sablier V2 contracts.
     /// @param asset The contract address of the ERC-20 asset to make the query for.
     /// @return protocolFee The protocol fee as an UD60x18 number where 100% = 1e18.
-    function getProtocolFee(IERC20 asset) external view returns (UD60x18 protocolFee);
+    function protocolFees(IERC20 asset) external view returns (UD60x18 protocolFee);
 
     /// @notice Checks whether the provided ERC-20 asset is flash loanable or not.
     /// @param token The contract address of the ERC-20 asset to make the query for.
-    function isFlashLoanable(IERC20 token) external view returns (bool result);
+    function flashAssets(IERC20 token) external view returns (bool result);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS

@@ -457,9 +457,8 @@ contract SablierV2LockupDynamic is
         internal
         returns (uint256 streamId)
     {
-        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
-        // not call other unknown contracts.
-        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
+        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
+        UD60x18 protocolFee = comptroller.protocolFees(params.asset);
 
         // Checks: check the fees and calculate the fee amounts.
         Lockup.CreateAmounts memory createAmounts =

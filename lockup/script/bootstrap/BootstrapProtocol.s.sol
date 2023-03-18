@@ -34,7 +34,7 @@ contract BootstrapProtocol is BaseScript {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Enable the ERC-20 asset for flash loaning.
-        if (!comptroller.isFlashLoanable(asset)) {
+        if (!comptroller.flashAssets(asset)) {
             comptroller.toggleFlashAsset(asset);
         }
 
