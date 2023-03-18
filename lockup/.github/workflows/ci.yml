@@ -23,6 +23,9 @@ jobs:
       - name: "Check out the repo"
         uses: "actions/checkout@v3"
 
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
       - name: "Install Pnpm"
         uses: "pnpm/action-setup@v2"
         with:
