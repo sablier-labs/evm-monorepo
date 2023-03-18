@@ -418,11 +418,6 @@ contract SablierV2LockupDynamic is
         // Effects: mark the stream as canceled.
         _streams[streamId].status = Lockup.Status.CANCELED;
 
-        // Interactions: return the assets to the sender, if any.
-        if (senderAmount > 0) {
-            stream.asset.safeTransfer({ to: sender, value: senderAmount });
-        }
-
         if (recipientAmount > 0) {
             // Effects: add the recipient's amount to the withdrawn amount.
             unchecked {
@@ -431,6 +426,11 @@ contract SablierV2LockupDynamic is
 
             // Interactions: withdraw the tokens to the recipient.
             stream.asset.safeTransfer({ to: recipient, value: recipientAmount });
+        }
+
+        // Interactions: return the assets to the sender, if any.
+        if (senderAmount > 0) {
+            stream.asset.safeTransfer({ to: sender, value: senderAmount });
         }
 
         // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
@@ -467,7 +467,8 @@ contract SablierV2LockupDynamic is
         internal
         returns (uint256 streamId)
     {
-        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract.
+        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
+        // not call other unknown contracts.
         UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
 
         // Checks: check the fees and calculate the fee amounts.

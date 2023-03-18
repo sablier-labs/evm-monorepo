@@ -95,16 +95,16 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
             lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
         }
 
-        // Expect the ERC-20 assets to be returned to the sender, if not zero.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
-        if (senderAmount > 0) {
-            expectTransferCall({ to: users.sender, amount: senderAmount });
-        }
-
         // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         if (recipientAmount > 0) {
             expectTransferCall({ to: address(goodRecipient), amount: recipientAmount });
+        }
+
+        // Expect the ERC-20 assets to be returned to the sender, if not zero.
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        if (senderAmount > 0) {
+            expectTransferCall({ to: users.sender, amount: senderAmount });
         }
 
         // Expect a {CancelLockupStream} event to be emitted.
