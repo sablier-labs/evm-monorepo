@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.19 <=0.9.0;
 
 import { UD60x18 } from "@prb/math/UD60x18.sol";
-import { Script } from "forge-std/Script.sol";
 
 import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
 import { SablierV2Comptroller } from "../../src/SablierV2Comptroller.sol";
