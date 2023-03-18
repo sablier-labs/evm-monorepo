@@ -344,7 +344,7 @@ contract SablierV2LockupLinear is
                 _streams[streamId].amounts.withdrawn += recipientAmount;
             }
 
-            // Interactions: withdraw the tokens to the recipient.
+            // Interactions: withdraw the assets to the recipient.
             stream.asset.safeTransfer({ to: recipient, value: recipientAmount });
         }
 

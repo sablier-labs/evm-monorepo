@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @title Errors
-/// @notice Library that contains all the custom errors that the protocol can revert with.
+/// @notice Library that contains all the custom errors that the protocol may revert with.
 library Errors {
     /*//////////////////////////////////////////////////////////////////////////
                                       GENERICS

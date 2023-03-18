@@ -7,20 +7,20 @@
 [foundry]: https://getfoundry.sh/
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
-This repository contains the core smart contracts of the Sablier V2 Protocol. For higher-level logic, see the
+This repository houses the core smart contracts of the Sablier V2 Protocol. For higher-level logic, see the
 [sablierhq/v2-periphery](https://github.com/sablierhq/v2-periphery) repository.
 
 In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
 
 ## Background
 
-Sablier is a smart contract protocol that enables trustless streaming of ERC-20 assets. In this context, streaming means
-the ability to make payments by the second.
+Sablier is a smart contract protocol that enables trustless streaming of ERC-20 assets. In the context of Sablier,,
+streaming means the ability to make payments by the second.
 
-Currently, the protocol offers a single type of stream, called a lockup stream. In a lockup stream, the stream creator
-locks up a specified amount of ERC-20 assets in a contract. The recipient of the stream can then withdraw the assets
-gradually over time. The streaming rate is determined by multiple factors, including the start and end times, and the
-total amount of assets locked up.
+Currently, the protocol offers a type of stream called a lockup stream, in which the stream creator locks up a specified
+amount of ERC-20 assets in a contract. Subsequently, the contract begins gradually allocating the assets to the intended
+recipient, who can claim the assets as they become available. The streaming rate is influenced by various factors,
+including the start and end times, as well as the total amount of assets locked up.
 
 ## Install
 
@@ -45,11 +45,12 @@ Finally, add this to your `remappings.txt` file:
 
 ```text
 @sablier/v2-core/=lib/v2-core/src/
+src/=src/
 ```
 
 ### Hardhat
 
-Sablier V2 Core is available as an npm package:
+Sablier V2 Core is available as a Node.js package:
 
 ```shell
 pnpm add @sablier/v2-core
@@ -57,15 +58,16 @@ pnpm add @sablier/v2-core
 
 ## Usage
 
-This is just a glimpse of Sablier V2 Core. For more code snippets, see the [documentation](https://docs.sablier.com).
+This is just a glimpse of Sablier V2 Core. For more guides and examples, see the
+[documentation](https://docs.sablier.com).
 
 ```solidity
 import { ISablierV2LockupLinear } from "@sablier/v2-core/interfaces/ISablierV2LockupLinear.sol";
 
 contract MyContract {
-  ISablierV2LockupLinear lockupLinear;
+  ISablierV2LockupLinear sablier;
 
-  function doSomethingWithLockupLinear() external {
+  function buildSomethingWithSablier() external {
     // ...
   }
 }
@@ -73,8 +75,8 @@ contract MyContract {
 
 ## Security
 
-For security concerns, please see the [SECURITY](./SECURITY.md) policy. This repository is subject to a bug bounty
-program, per the terms defined in the policy.
+Please refer to the [SECURITY](./SECURITY.md) policy for any security-related concerns. This repository is subject to a
+bug bounty program per the terms outlined in the aforementioned policy.
 
 ## Licensing
 
