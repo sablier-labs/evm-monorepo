@@ -34,9 +34,7 @@ abstract contract Events {
 
     event SetFlashFee(address indexed admin, UD60x18 oldFlashFee, UD60x18 newFlashFee);
 
-    event SetProtocolFee(
-        address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee
-    );
+    event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
 
     event ToggleFlashAsset(address indexed admin, IERC20 indexed asset, bool newFlag);
 

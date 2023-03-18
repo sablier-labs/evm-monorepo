@@ -50,12 +50,12 @@ contract FlashLoanHandler is BaseHandler {
         amount = boundUint128(amount, 0, upperBound);
 
         // Only supported ERC-20 assets can be flash loaned.
-        bool isFlashLoanable = comptroller.isFlashLoanable(asset);
-        if (!isFlashLoanable) {
+        bool isFlashAsset = comptroller.flashAssets(asset);
+        if (!isFlashAsset) {
             return;
         }
 
-        // The flash fee must be less than or equal to type(uint128).max
+        // The flash fee must be less than or equal to `UINT128_MAX`.
         uint256 fee = flashLoanContract.flashFee(address(asset), amount);
         if (fee > type(uint128).max) {
             return;

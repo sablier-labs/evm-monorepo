@@ -302,10 +302,8 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
         vm.expectEmit({ emitter: address(dynamic) });
-        LockupDynamic.Range memory range = LockupDynamic.Range({
-            start: params.startTime,
-            end: params.segments[params.segments.length - 1].milestone
-        });
+        LockupDynamic.Range memory range =
+            LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].milestone });
         emit CreateLockupDynamicStream({
             streamId: streamId,
             funder: funder,

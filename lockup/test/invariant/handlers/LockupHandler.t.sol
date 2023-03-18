@@ -123,11 +123,7 @@ abstract contract LockupHandler is BaseHandler {
         lockup.claimProtocolRevenues(asset);
     }
 
-    function renounce(uint256 streamIndexSeed)
-        external
-        instrument("renounce")
-        useFuzzedStreamSender(streamIndexSeed)
-    {
+    function renounce(uint256 streamIndexSeed) external instrument("renounce") useFuzzedStreamSender(streamIndexSeed) {
         // Non-cancelable streams cannot be renounced.
         bool isCancelable = lockup.isCancelable(currentStreamId);
         if (!isCancelable) {

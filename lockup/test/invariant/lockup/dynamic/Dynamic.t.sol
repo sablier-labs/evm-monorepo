@@ -87,9 +87,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
                     actualStream.amounts.withdrawn, 0, "Invariant violated: stream null, withdrawn amount not zero"
                 );
                 assertEq(
-                    address(actualStream.asset),
-                    address(0),
-                    "Invariant violated: stream null, asset not zero address"
+                    address(actualStream.asset), address(0), "Invariant violated: stream null, asset not zero address"
                 );
                 assertEq(actualStream.endTime, 0, "Invariant violated: stream null, end time not zero");
                 assertEq(actualStream.isCancelable, false, "Invariant violated: stream null, isCancelable not false");
@@ -100,9 +98,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
             }
             // If the stream is not null, it should contain a non-zero deposit amount.
             else {
-                assertNotEq(
-                    actualStream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero"
-                );
+                assertNotEq(actualStream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero");
                 assertNotEq(actualStream.endTime, 0, "Invariant violated: stream non-null, end time zero");
             }
         }
@@ -121,9 +117,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
             LockupDynamic.Segment[] memory segments = dynamic.getSegments(streamId);
             uint40 previousMilestone = segments[0].milestone;
             for (uint256 j = 1; j < segments.length; ++j) {
-                assertGt(
-                    segments[j].milestone, previousMilestone, "Invariant violated: segment milestones not ordered"
-                );
+                assertGt(segments[j].milestone, previousMilestone, "Invariant violated: segment milestones not ordered");
                 previousMilestone = segments[j].milestone;
             }
         }

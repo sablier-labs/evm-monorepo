@@ -3,11 +3,9 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
-import { Errors } from "src/libraries/Errors.sol";
-
 import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
-contract GetProtocolFee_Unit_Test is Comptroller_Unit_Test {
+contract ProtocolFees_Unit_Test is Comptroller_Unit_Test {
     function setUp() public override {
         Comptroller_Unit_Test.setUp();
 
@@ -16,10 +14,10 @@ contract GetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_GetProtocolFee_ProtocolFeeNotSet() external {
-        UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
+    function test_ProtocolFees_ProtocolFeeNotSet() external {
+        UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = ZERO;
-        assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
+        assertEq(actualProtocolFee, expectedProtocolFee, "protocolFees");
     }
 
     modifier whenProtocolFeeSet() {
@@ -28,9 +26,9 @@ contract GetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     /// @dev it should return the correct protocol fee.
-    function test_GetProtocolFee() external whenProtocolFeeSet {
-        UD60x18 actualProtocolFee = comptroller.getProtocolFee(DEFAULT_ASSET);
+    function test_ProtocolFees() external whenProtocolFeeSet {
+        UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = DEFAULT_PROTOCOL_FEE;
-        assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
+        assertEq(actualProtocolFee, expectedProtocolFee, "protocolFees");
     }
 }

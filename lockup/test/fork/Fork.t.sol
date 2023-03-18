@@ -61,15 +61,7 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks the user assumptions.
-    function checkUsers(
-        address sender,
-        address recipient,
-        address broker,
-        address sablierContract
-    )
-        internal
-        virtual
-    {
+    function checkUsers(address sender, address recipient, address broker, address sablierContract) internal virtual {
         // The protocol does not allow the zero address to interact with it.
         vm.assume(sender != address(0) && recipient != address(0) && broker != address(0));
 

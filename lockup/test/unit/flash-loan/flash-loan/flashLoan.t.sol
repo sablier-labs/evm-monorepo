@@ -42,9 +42,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_AssetNotFlashLoanable() external whenNoDelegateCall whenAmountNotTooHigh {
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, DEFAULT_ASSET)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, DEFAULT_ASSET));
         flashLoan.flashLoan({
             receiver: IERC3156FlashBorrower(address(0)),
             asset: address(DEFAULT_ASSET),

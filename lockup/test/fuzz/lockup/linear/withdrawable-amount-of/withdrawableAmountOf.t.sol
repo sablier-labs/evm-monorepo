@@ -18,10 +18,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should return zero.
-    function testFuzz_WithdrawableAmountOf_CliffTimeGreaterThanCurrentTime(uint40 timeWarp)
-        external
-        whenStreamActive
-    {
+    function testFuzz_WithdrawableAmountOf_CliffTimeGreaterThanCurrentTime(uint40 timeWarp) external whenStreamActive {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);

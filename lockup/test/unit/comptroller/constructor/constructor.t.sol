@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { DeployComptroller } from "script/deploy/DeployComptroller.s.sol";
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 
 import { Comptroller_Unit_Test } from "../Comptroller.t.sol";

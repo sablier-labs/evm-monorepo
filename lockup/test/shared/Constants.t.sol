@@ -42,8 +42,7 @@ abstract contract Constants {
         protocolFee: DEFAULT_PROTOCOL_FEE_AMOUNT,
         brokerFee: DEFAULT_BROKER_FEE_AMOUNT
     });
-    Lockup.Amounts internal DEFAULT_LOCKUP_AMOUNTS =
-        Lockup.Amounts({ deposit: DEFAULT_DEPOSIT_AMOUNT, withdrawn: 0 });
+    Lockup.Amounts internal DEFAULT_LOCKUP_AMOUNTS = Lockup.Amounts({ deposit: DEFAULT_DEPOSIT_AMOUNT, withdrawn: 0 });
     LockupLinear.Durations internal DEFAULT_DURATIONS =
         LockupLinear.Durations({ cliff: DEFAULT_CLIFF_DURATION, total: DEFAULT_TOTAL_DURATION });
     LockupDynamic.Range internal DEFAULT_DYNAMIC_RANGE;

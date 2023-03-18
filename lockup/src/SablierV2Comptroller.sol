@@ -39,15 +39,11 @@ contract SablierV2Comptroller is
     /// @inheritdoc ISablierV2Comptroller
     UD60x18 public override flashFee;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                  INTERNAL STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
+    /// @inheritdoc ISablierV2Comptroller
+    mapping(IERC20 asset => bool supported) public override flashAssets;
 
-    /// @dev ERC-20 assets that can be flash loaned.
-    mapping(IERC20 asset => bool supported) internal _flashAssets;
-
-    /// @dev Global fees mapped by ERC-20 asset addresses.
-    mapping(IERC20 asset => UD60x18 fee) internal _protocolFees;
+    /// @inheritdoc ISablierV2Comptroller
+    mapping(IERC20 asset => UD60x18 fee) public override protocolFees;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
@@ -61,20 +57,6 @@ contract SablierV2Comptroller is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                           USER-FACING CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierV2Comptroller
-    function getProtocolFee(IERC20 asset) external view override returns (UD60x18 protocolFee) {
-        protocolFee = _protocolFees[asset];
-    }
-
-    /// @inheritdoc ISablierV2Comptroller
-    function isFlashLoanable(IERC20 asset) external view override returns (bool result) {
-        result = _flashAssets[asset];
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -85,18 +67,14 @@ contract SablierV2Comptroller is
         flashFee = newFlashFee;
 
         // Log the change of the flash fee.
-        emit ISablierV2Comptroller.SetFlashFee({
-            admin: msg.sender,
-            oldFlashFee: oldFlashFee,
-            newFlashFee: newFlashFee
-        });
+        emit ISablierV2Comptroller.SetFlashFee({ admin: msg.sender, oldFlashFee: oldFlashFee, newFlashFee: newFlashFee });
     }
 
     /// @inheritdoc ISablierV2Comptroller
     function setProtocolFee(IERC20 asset, UD60x18 newProtocolFee) external override onlyAdmin {
         // Effects: set the new global fee.
-        UD60x18 oldProtocolFee = _protocolFees[asset];
-        _protocolFees[asset] = newProtocolFee;
+        UD60x18 oldProtocolFee = protocolFees[asset];
+        protocolFees[asset] = newProtocolFee;
 
         // Log the change of the protocol fee.
         emit ISablierV2Comptroller.SetProtocolFee({
@@ -110,8 +88,8 @@ contract SablierV2Comptroller is
     /// @inheritdoc ISablierV2Comptroller
     function toggleFlashAsset(IERC20 asset) external override onlyAdmin {
         // Effects: enable the ERC-20 asset for flash loaning.
-        bool oldFlag = _flashAssets[asset];
-        _flashAssets[asset] = !oldFlag;
+        bool oldFlag = flashAssets[asset];
+        flashAssets[asset] = !oldFlag;
 
         // Log the change of the flash asset flag.
         emit ISablierV2Comptroller.ToggleFlashAsset({ admin: msg.sender, asset: asset, newFlag: !oldFlag });

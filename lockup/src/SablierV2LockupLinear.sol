@@ -50,7 +50,7 @@ contract SablierV2LockupLinear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 lockup linear streams mapped by unsigned integers.
-    mapping(uint256 id => LockupLinear.Stream stream) internal _streams;
+    mapping(uint256 id => LockupLinear.Stream stream) private _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
@@ -302,8 +302,7 @@ contract SablierV2LockupLinear is
         returns (bool isApprovedOrOwner)
     {
         address owner = _ownerOf(streamId);
-        isApprovedOrOwner =
-            (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
+        isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
     }
 
     /// @inheritdoc SablierV2Lockup
@@ -386,7 +385,7 @@ contract SablierV2LockupLinear is
     function _createWithRange(LockupLinear.CreateWithRange memory params) internal returns (uint256 streamId) {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
         // not call other unknown contracts.
-        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
+        UD60x18 protocolFee = comptroller.protocolFees(params.asset);
 
         // Checks: check that neither fee is greater than `MAX_FEE`, and then calculate the fee amounts and the
         // deposit amount.
@@ -433,11 +432,7 @@ contract SablierV2LockupLinear is
 
         // Interactions: pay the broker fee, if not zero.
         if (createAmounts.brokerFee > 0) {
-            params.asset.safeTransferFrom({
-                from: msg.sender,
-                to: params.broker.account,
-                value: createAmounts.brokerFee
-            });
+            params.asset.safeTransferFrom({ from: msg.sender, to: params.broker.account, value: createAmounts.brokerFee });
         }
 
         // Log the newly created stream, and the address that funded it.

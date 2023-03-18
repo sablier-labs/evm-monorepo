@@ -25,9 +25,7 @@ interface ISablierV2Comptroller is IAdminable {
     /// @param asset The contract address of the ERC-20 asset the new protocol fee has been set for.
     /// @param oldProtocolFee The old protocol fee, as an UD60x18 number.
     /// @param newProtocolFee The new protocol fee, as an UD60x18 number.
-    event SetProtocolFee(
-        address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee
-    );
+    event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
 
     /// @notice Emitted when the admin enables or disables an ERC-20 asset for flash loaning.
     /// @param admin The address of the contract admin.
@@ -39,23 +37,22 @@ interface ISablierV2Comptroller is IAdminable {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Whether the provided ERC-20 asset is flash loanable or not.
+    /// @param token The contract address of the ERC-20 asset to make the query for.
+    function flashAssets(IERC20 token) external view returns (bool result);
+
     /// @notice The global flash fee as an UD60x18 number where 100% = 1e18.
     /// @dev Notes:
-    /// - This is a fee percentage, not a fee amount. This should not be confused with
-    /// {IERC3156FlashLender-flashFee},
+    /// - This is a fee percentage, not a fee amount, and it should not be confused with {IERC3156FlashLender-flashFee},
     /// which returns the fee amount for a given flash loan amount.
     /// - Unlike the protocol fee, this is not a per-asset fee. It's a global fee applied to all flash loans.
-    function flashFee() external view returns (UD60x18);
+    function flashFee() external view returns (UD60x18 fee);
 
-    /// @notice Queries the protocol fee charged on all streams created with the provided ERC-20 asset across
-    /// all Sablier V2 contracts.
+    /// @notice The protocol fee charged on all streams created with the provided ERC-20 asset across all
+    /// Sablier V2 contracts.
     /// @param asset The contract address of the ERC-20 asset to make the query for.
-    /// @return protocolFee The protocol fee as an UD60x18 number where 100% = 1e18.
-    function getProtocolFee(IERC20 asset) external view returns (UD60x18 protocolFee);
-
-    /// @notice Checks whether the provided ERC-20 asset is flash loanable or not.
-    /// @param token The contract address of the ERC-20 asset to make the query for.
-    function isFlashLoanable(IERC20 token) external view returns (bool result);
+    /// @return fee The protocol fee as an UD60x18 number where 100% = 1e18.
+    function protocolFees(IERC20 asset) external view returns (UD60x18 fee);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS

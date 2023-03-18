@@ -34,7 +34,7 @@ contract BootstrapProtocol is BaseScript {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Enable the ERC-20 asset for flash loaning.
-        if (!comptroller.isFlashLoanable(asset)) {
+        if (!comptroller.flashAssets(asset)) {
             comptroller.toggleFlashAsset(asset);
         }
 
@@ -59,8 +59,7 @@ contract BootstrapProtocol is BaseScript {
         // - 5th stream: meant to be renounced.
         // - 6th stream: meant to canceled.
         // - 7th stream: meant to be transferred to a third-party.
-        uint128[] memory totalAmounts =
-            Solarray.uint128s(0.1e18, 1e18, 100e18, 1000e18, 5000e18, 25_000e18, 100_000e18);
+        uint128[] memory totalAmounts = Solarray.uint128s(0.1e18, 1e18, 100e18, 1000e18, 5000e18, 25_000e18, 100_000e18);
         uint40[] memory cliffDurations = Solarray.uint40s(0, 0, 0, 0, 1 days, 1 weeks, 12 weeks);
         uint40[] memory totalDurations =
             Solarray.uint40s(1 seconds, 1 hours, 1 days, 1 weeks, 4 weeks, 12 weeks, 48 weeks);

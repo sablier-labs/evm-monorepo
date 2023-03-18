@@ -139,8 +139,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
         // Calculate the fee amounts and the deposit amount.
         vars.createAmounts.protocolFee = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
         vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.createAmounts.deposit =
-            params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
+        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
         vars.streamId = linear.nextStreamId();
@@ -207,9 +206,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
         vars.expectedLinearContractBalance =
             vars.initialLinearContractBalance + vars.createAmounts.deposit + vars.createAmounts.protocolFee;
         assertEq(
-            vars.actualLinearContractBalance,
-            vars.expectedLinearContractBalance,
-            "post-create linear contract balance"
+            vars.actualLinearContractBalance, vars.expectedLinearContractBalance, "post-create linear contract balance"
         );
 
         // Assert that the holder's balance has been updated.
@@ -280,9 +277,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
         // Only run the cancel tests if the stream has not been depleted.
         if (params.withdrawAmount != vars.createAmounts.deposit) {
             // Load the pre-cancel asset balances.
-            vars.balances = getTokenBalances(
-                address(asset), Solarray.addresses(address(linear), params.sender, params.recipient)
-            );
+            vars.balances =
+                getTokenBalances(address(asset), Solarray.addresses(address(linear), params.sender, params.recipient));
             vars.initialLinearContractBalance = vars.balances[0];
             vars.initialSenderBalance = vars.balances[1];
             vars.initialRecipientBalance = vars.balances[2];
@@ -310,9 +306,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
             assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner after cancel");
 
             // Load the post-cancel asset balances.
-            vars.balances = getTokenBalances(
-                address(asset), Solarray.addresses(address(linear), params.sender, params.recipient)
-            );
+            vars.balances =
+                getTokenBalances(address(asset), Solarray.addresses(address(linear), params.sender, params.recipient));
             vars.actualLinearContractBalance = vars.balances[0];
             vars.actualSenderBalance = vars.balances[1];
             vars.actualRecipientBalance = vars.balances[2];

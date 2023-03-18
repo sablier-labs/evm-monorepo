@@ -65,9 +65,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
-        createDefaultStreamWithRange(
-            LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: cliffTime, end: endTime })
-        );
+        createDefaultStreamWithRange(LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: cliffTime, end: endTime }));
     }
 
     modifier whenCliffTimeLessThanEndTime() {
@@ -178,8 +176,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         Vars memory vars;
         vars.createAmounts.protocolFee = ud(params.totalAmount).mul(protocolFee).intoUint128();
         vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.createAmounts.deposit =
-            params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
+        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });

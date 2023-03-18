@@ -62,7 +62,7 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 dynamic streams mapped by unsigned integers ids.
-    mapping(uint256 id => LockupDynamic.Stream stream) internal _streams;
+    mapping(uint256 id => LockupDynamic.Stream stream) private _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
@@ -122,12 +122,7 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2LockupDynamic
-    function getSegments(uint256 streamId)
-        external
-        view
-        override
-        returns (LockupDynamic.Segment[] memory segments)
-    {
+    function getSegments(uint256 streamId) external view override returns (LockupDynamic.Segment[] memory segments) {
         segments = _streams[streamId].segments;
     }
 
@@ -344,11 +339,7 @@ contract SablierV2LockupDynamic is
     }
 
     /// @dev Calculates the withdrawable amount for a stream with one segment.
-    function _calculateStreamedAmountForOneSegment(uint256 streamId)
-        internal
-        view
-        returns (uint128 streamedAmount)
-    {
+    function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128 streamedAmount) {
         unchecked {
             // Load the stream fields as SD59x18 numbers.
             SD59x18 depositAmount = _streams[streamId].amounts.deposit.intoSD59x18();
@@ -382,8 +373,7 @@ contract SablierV2LockupDynamic is
         returns (bool isApprovedOrOwner)
     {
         address owner = _ownerOf(streamId);
-        isApprovedOrOwner =
-            (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
+        isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
     }
 
     /// @inheritdoc SablierV2Lockup
@@ -468,8 +458,8 @@ contract SablierV2LockupDynamic is
         returns (uint256 streamId)
     {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
-        // not call other unknown contracts.
-        UD60x18 protocolFee = comptroller.getProtocolFee(params.asset);
+        // not call other unknown contracts..
+        UD60x18 protocolFee = comptroller.protocolFees(params.asset);
 
         // Checks: check the fees and calculate the fee amounts.
         Lockup.CreateAmounts memory createAmounts =
@@ -524,11 +514,7 @@ contract SablierV2LockupDynamic is
 
         // Interactions: pay the broker fee, if not zero.
         if (createAmounts.brokerFee > 0) {
-            params.asset.safeTransferFrom({
-                from: msg.sender,
-                to: params.broker.account,
-                value: createAmounts.brokerFee
-            });
+            params.asset.safeTransferFrom({ from: msg.sender, to: params.broker.account, value: createAmounts.brokerFee });
         }
 
         // Log the newly created stream, and the address that funded it.

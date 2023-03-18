@@ -1,4 +1,4 @@
-getProtocolFee.t.sol
+protocolFees.t.sol
 ├── when the protocol fee has not been set
 │  └── it should return zero
 └── when the protocol fee has been set
