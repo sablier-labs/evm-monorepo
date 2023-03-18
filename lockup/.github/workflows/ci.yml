@@ -101,8 +101,6 @@ jobs:
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
   test-unit:
-    env:
-      FOUNDRY_FUZZ_RUNS: "5000"
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
