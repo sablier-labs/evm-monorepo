@@ -33,8 +33,8 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
         comptroller.toggleFlashAsset(DEFAULT_ASSET);
 
         // Assert that the flash asset has been toggled.
-        bool flashAssets = comptroller.flashAssets(DEFAULT_ASSET);
-        assertTrue(flashAssets, "flashAssets");
+        bool isFlashAsset = comptroller.flashAssets(DEFAULT_ASSET);
+        assertTrue(isFlashAsset, "isFlashAsset");
     }
 
     modifier whenFlagEnabled() {
@@ -52,7 +52,7 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
         comptroller.toggleFlashAsset(DEFAULT_ASSET);
 
         // Assert that the flash asset has been toggled.
-        bool flashAssets = comptroller.flashAssets(DEFAULT_ASSET);
-        assertFalse(flashAssets, "flashAssets");
+        bool isFlashAsset = comptroller.flashAssets(DEFAULT_ASSET);
+        assertFalse(isFlashAsset, "isFlashAsset");
     }
 }

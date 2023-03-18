@@ -39,11 +39,11 @@ contract SablierV2Comptroller is
     /// @inheritdoc ISablierV2Comptroller
     UD60x18 public override flashFee;
 
-    /// @dev ERC-20 assets that can be flash loaned.
-    mapping(IERC20 asset => bool supported) public flashAssets;
+    /// @inheritdoc ISablierV2Comptroller
+    mapping(IERC20 asset => bool supported) public override flashAssets;
 
-    /// @dev Global fees mapped by ERC-20 asset addresses.
-    mapping(IERC20 asset => UD60x18 fee) public protocolFees;
+    /// @inheritdoc ISablierV2Comptroller
+    mapping(IERC20 asset => UD60x18 fee) public override protocolFees;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
