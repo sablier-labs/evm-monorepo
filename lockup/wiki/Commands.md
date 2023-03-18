@@ -40,14 +40,6 @@ Delete the build artifacts and cache directories:
 $ forge clean
 ```
 
-## Compile
-
-Compile the contracts:
-
-```sh
-$ forge build
-```
-
 ## Format
 
 Format the code:

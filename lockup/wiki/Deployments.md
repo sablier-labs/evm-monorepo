@@ -23,20 +23,6 @@ forge script script/deploy/DeployComptroller.s.sol \
   ADMIN_ADDRESS
 ```
 
-### Deploy `SablierV2LockupLinear`
-
-You should replace the placeholders with the actual arguments you want to pass.
-
-```sh
-forge script script/deploy/DeployLockupLinear.s.sol \
-  --broadcast \
-  --rpc-url goerli \
-  --sig "run(address,uint256)" \
-  ADMIN_ADDRESS \
-  COMPTROLLER_ADDRESS \
-  MAX_FEE
-```
-
 ### Deploy `SablierV2LockupDynamic`
 
 You should replace the placeholders with the actual arguments you want to pass.
@@ -45,11 +31,27 @@ You should replace the placeholders with the actual arguments you want to pass.
 forge script script/deploy/DeployLockupDynamic.s.sol \
   --broadcast \
   --rpc-url goerli \
-  --sig "run(address,uint256,uint256)" \
+  --sig "run(address,address,address,uint256,uint256)" \
   ADMIN_ADDRESS \
   COMPTROLLER_ADDRESS \
+  NFT_DESCRIPTOR_ADDRESS \
   MAX_FEE \
   MAX_SEGMENT_COUNT
+```
+
+### Deploy `SablierV2LockupLinear`
+
+You should replace the placeholders with the actual arguments you want to pass.
+
+```sh
+forge script script/deploy/DeployLockupLinear.s.sol \
+  --broadcast \
+  --rpc-url goerli \
+  --sig "run(address,address,address,uint256)" \
+  ADMIN_ADDRESS \
+  COMPTROLLER_ADDRESS \
+  NFT_DESCRIPTOR_ADDRESS \
+  MAX_FEE
 ```
 
 ### Deploy Protocol
@@ -58,30 +60,24 @@ forge script script/deploy/DeployLockupDynamic.s.sol \
 forge script script/deploy/DeployProtocol.s.sol \
   --broadcast \
   --rpc-url goerli \
-  --sig "run(address,uint256,uint256)" \
+  --sig "run(address,address,uint256,uint256)" \
   ADMIN_ADDRESS \
+  NFT_DESCRIPTOR_ADDRESS \
   MAX_FEE \
   MAX_SEGMENT_COUNT
-```
-
-### Deploy Test Asset
-
-```sh
-forge script script/deploy/DeployTestAsset.s.sol \
-  --broadcast \
-  --rpc-url goerli
 ```
 
 ## Via IR
 
 The contracts have been deployed to the production chains with the
-[`--via-ir`](https://docs.soliditylang.org/en/v0.8.17/ir-breaking-changes.html) flag enabled.
+[`--via-ir`](https://docs.soliditylang.org/en/v0.8.19/ir-breaking-changes.html) flag enabled.
 
-Via IR means that the contracts are compiled with a lot of powerful optimizations, but the cost is very slow compile
-times, which are not great for local development. Nonetheless, we want to run our tests against this optimized version
-of the contracts, since this is what end users will ultimately interact with.
+Using the Via IR compilation pipeline enables a host of powerful optimizations, albeit at the expense of significantly
+slower compilation times, which can hinder local development efficiency. However, it is crucial to test our contracts
+against this optimized version, as this is what end users will ultimately interact with.
 
-To get the best of both worlds, we have come up with a set-up where on our local machines we build and test the
-contracts normally, but in CI we build and test the contracts with IR enabled. This gives us the freedom to develop and
-test the contracts rapidly, but also the peace of mind that they work as expected when deployed (tests pass with and
-without IR enabled).
+In order to strike a balance, we have come up with a setup that allows for efficient development and testing on local
+machines, while still ensuring compatibility with the IR-enabled version. Our approach involves building and testing the
+contracts normally on local machines, while leveraging the CI environment to build and test the IR-enabled contracts.
+This ensures rapid development and testing while providing confidence that the contracts function as intended when
+deployed (with tests passing both with and without IR enabled).
