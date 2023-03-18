@@ -57,24 +57,6 @@ library Helpers {
         }
     }
 
-    /// @dev Checks the parameters of the {SablierV2LockupLinear-_createWithRange} function.
-    function checkCreateLinearParams(uint128 depositAmount, LockupLinear.Range memory range) internal pure {
-        // Checks: the deposit amount is not zero.
-        if (depositAmount == 0) {
-            revert Errors.SablierV2Lockup_DepositAmountZero();
-        }
-
-        // Checks: the start time is less than or equal to the cliff time.
-        if (range.start > range.cliff) {
-            revert Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime(range.start, range.cliff);
-        }
-
-        // Checks: the cliff time is strictly less than the end time.
-        if (range.cliff >= range.end) {
-            revert Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime(range.cliff, range.end);
-        }
-    }
-
     /// @dev Checks the parameters of the {SablierV2LockupDynamic-_createWithMilestones} function.
     function checkCreateDynamicParams(
         uint128 depositAmount,
@@ -103,6 +85,24 @@ library Helpers {
 
         // Checks: requirements of segments variables.
         _checkSegments(segments, depositAmount, startTime);
+    }
+
+    /// @dev Checks the parameters of the {SablierV2LockupLinear-_createWithRange} function.
+    function checkCreateLinearParams(uint128 depositAmount, LockupLinear.Range memory range) internal pure {
+        // Checks: the deposit amount is not zero.
+        if (depositAmount == 0) {
+            revert Errors.SablierV2Lockup_DepositAmountZero();
+        }
+
+        // Checks: the start time is less than or equal to the cliff time.
+        if (range.start > range.cliff) {
+            revert Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime(range.start, range.cliff);
+        }
+
+        // Checks: the cliff time is strictly less than the end time.
+        if (range.cliff >= range.end) {
+            revert Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime(range.cliff, range.end);
+        }
     }
 
     /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the milestones.
