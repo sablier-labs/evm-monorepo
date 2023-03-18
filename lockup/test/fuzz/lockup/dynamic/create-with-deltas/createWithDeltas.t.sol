@@ -91,7 +91,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         });
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(dynamic) });
         emit CreateLockupDynamicStream({
             streamId: streamId,
             funder: vars.funder,

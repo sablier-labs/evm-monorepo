@@ -207,7 +207,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         }
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(linear) });
         emit CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,

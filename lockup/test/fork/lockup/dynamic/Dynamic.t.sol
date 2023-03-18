@@ -146,7 +146,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
         vars.streamId = dynamic.nextStreamId();
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(dynamic) });
         LockupDynamic.Range memory range = LockupDynamic.Range({
             start: params.startTime,
             end: params.segments[params.segments.length - 1].milestone
@@ -247,7 +247,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             vars.initialRecipientBalance = asset.balanceOf(params.recipient);
 
             // Expect a {WithdrawFromLockupStream} event to be emitted.
-            vm.expectEmit();
+            vm.expectEmit({ emitter: address(dynamic) });
             emit WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.recipient,
@@ -296,7 +296,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             vars.initialRecipientBalance = vars.balances[2];
 
             // Expect a {CancelLockupStream} event to be emitted.
-            vm.expectEmit();
+            vm.expectEmit({ emitter: address(dynamic) });
             vars.senderAmount = dynamic.returnableAmountOf(vars.streamId);
             vars.recipientAmount = dynamic.withdrawableAmountOf(vars.streamId);
             emit CancelLockupStream(

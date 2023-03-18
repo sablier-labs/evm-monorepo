@@ -116,7 +116,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         expectTransferFromCall({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(linear) });
         emit CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,

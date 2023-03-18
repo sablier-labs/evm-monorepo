@@ -96,9 +96,9 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         }
 
         // Expect two {CancelLockupStream} events to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
 
         // Cancel the streams.
@@ -182,9 +182,9 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         }
 
         // Expect two {CancelLockupStream} events to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
 
         // Cancel the streams.

@@ -40,7 +40,7 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
         UD60x18 newProtocolFee = DEFAULT_FLASH_FEE;
 
         // Expect a {SetProtocolFee} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(comptroller) });
         emit SetProtocolFee({
             admin: users.admin,
             asset: DEFAULT_ASSET,

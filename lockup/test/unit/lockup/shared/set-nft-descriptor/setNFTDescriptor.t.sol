@@ -30,7 +30,7 @@ abstract contract SetNFTDescriptor_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev it should re-set the NFT descriptor and emit a {SetNFTDescriptor} event.
     function test_SetNFTDescriptor_SameNFTDescriptor() external whenCallerAdmin {
         // Expect a {SetNFTDescriptor} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
 
         // Re-set the NFT descriptor.
@@ -47,7 +47,7 @@ abstract contract SetNFTDescriptor_Unit_Test is Unit_Test, Lockup_Shared_Test {
         ISablierV2NFTDescriptor newNFTDescriptor = new SablierV2NFTDescriptor();
 
         // Expect a {SetNFTDescriptor} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
 
         // Set the new NFT descriptor.

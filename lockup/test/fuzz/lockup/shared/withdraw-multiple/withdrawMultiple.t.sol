@@ -118,9 +118,9 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_END_TIME + timeWarp });
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: defaultStreamIds[0], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: defaultStreamIds[1], to: to, amount: DEFAULT_DEPOSIT_AMOUNT });
 
         // Expect the withdrawals to be made.
@@ -186,9 +186,9 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         expectTransferCall({ to: to, amount: withdrawAmount });
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: defaultStreamIds[0], to: to, amount: withdrawAmount });
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: defaultStreamIds[1], to: to, amount: withdrawAmount });
 
         // Make the withdrawals.
@@ -271,13 +271,13 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         params.ongoingWithdrawAmount = boundUint128(params.ongoingWithdrawAmount, 1, vars.ongoingWithdrawableAmount);
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: vars.endedStreamId,
             to: params.to,
             amount: vars.endedWithdrawAmount
         });
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: vars.ongoingStreamId,
             to: params.to,

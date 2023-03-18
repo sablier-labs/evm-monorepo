@@ -90,7 +90,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         expectTransferCall({ to: users.recipient, amount: vars.withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: vars.streamId, to: users.recipient, amount: vars.withdrawAmount });
 
         // Make the withdrawal.

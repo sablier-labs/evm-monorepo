@@ -217,7 +217,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         );
 
         // Expect a {RenounceLockupStream} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit RenounceLockupStream(streamId);
 
         // RenounceLockupStream the stream.

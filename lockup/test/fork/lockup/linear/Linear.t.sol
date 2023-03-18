@@ -144,7 +144,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
         vars.streamId = linear.nextStreamId();
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(linear) });
         emit CreateLockupLinearStream({
             streamId: vars.streamId,
             funder: holder,
@@ -239,7 +239,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
             vars.initialRecipientBalance = asset.balanceOf(params.recipient);
 
             // Expect a {WithdrawFromLockupStream} event to be emitted.
-            vm.expectEmit();
+            vm.expectEmit({ emitter: address(linear) });
             emit WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.recipient,
@@ -288,7 +288,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
             vars.initialRecipientBalance = vars.balances[2];
 
             // Expect a {CancelLockupStream} event to be emitted.
-            vm.expectEmit();
+            vm.expectEmit({ emitter: address(linear) });
             vars.senderAmount = linear.returnableAmountOf(vars.streamId);
             vars.recipientAmount = linear.withdrawableAmountOf(vars.streamId);
             emit CancelLockupStream(

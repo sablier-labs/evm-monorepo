@@ -109,7 +109,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         }
 
         // Expect a {CancelLockupStream} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamId, users.sender, address(goodRecipient), senderAmount, recipientAmount);
 
         // Cancel the stream.
@@ -203,7 +203,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         }
 
         // Expect a {CancelLockupStream} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamId, address(goodSender), users.recipient, senderAmount, recipientAmount);
 
         // Cancel the stream.

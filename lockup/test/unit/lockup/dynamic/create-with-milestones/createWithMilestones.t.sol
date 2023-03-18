@@ -406,7 +406,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         });
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
-        vm.expectEmit();
+        vm.expectEmit({ emitter: address(dynamic) });
         emit CreateLockupDynamicStream({
             streamId: streamId,
             funder: funder,
