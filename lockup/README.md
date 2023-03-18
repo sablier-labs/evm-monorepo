@@ -28,7 +28,7 @@ total amount of assets locked up.
 
 First, run the install step:
 
-```sh
+```shell
 forge install sablierhq/v2-core
 ```
 
@@ -51,7 +51,7 @@ Finally, add this to your `remappings.txt` file:
 
 Sablier V2 Core is available as an npm package:
 
-```sh
+```shell
 pnpm add @sablier/v2-core
 ```
 

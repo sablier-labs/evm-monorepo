@@ -12,13 +12,13 @@ Tests are organized into four categories:
 
 You can run all tests with this command:
 
-```sh
+```shell
 forge test
 ```
 
 By default, the tests are not run against the optimized version of the contracts. To do this, use the following command:
 
-```sh
+```shell
 pnpm test:optimized
 ```
 
@@ -27,14 +27,14 @@ pnpm test:optimized
 To selectively run tests by name, use the `--match-test` flag (or its shorthand `--mt`). For instance, to execute only
 the unit tests for the `createWithRange` function, run the following command:
 
-```sh
+```shell
 pnpm test --match-test test_CreateWithRange
 ```
 
 Additionally, you can filter tests by contract name with the `--match-contract` flag (shorthand `--mc`). The following
 example demonstrates how to test the contract containing all tests for the `createWithRange` function:
 
-```sh
+```shell
 pnpm test --match-contract CreateWithRange_Linear_Unit_Test
 ```
 

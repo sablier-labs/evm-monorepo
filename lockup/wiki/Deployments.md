@@ -15,7 +15,7 @@ If you want to deploy to a local development chain, you can spin up an instance 
 
 ### Deploy `SablierV2Comptroller`
 
-```sh
+```shell
 forge script script/deploy/DeployComptroller.s.sol \
   --broadcast \
   --rpc-url goerli \
@@ -27,7 +27,7 @@ forge script script/deploy/DeployComptroller.s.sol \
 
 You should replace the placeholders with the actual arguments you want to pass.
 
-```sh
+```shell
 forge script script/deploy/DeployLockupDynamic.s.sol \
   --broadcast \
   --rpc-url goerli \
@@ -43,7 +43,7 @@ forge script script/deploy/DeployLockupDynamic.s.sol \
 
 You should replace the placeholders with the actual arguments you want to pass.
 
-```sh
+```shell
 forge script script/deploy/DeployLockupLinear.s.sol \
   --broadcast \
   --rpc-url goerli \
@@ -56,7 +56,7 @@ forge script script/deploy/DeployLockupLinear.s.sol \
 
 ### Deploy Protocol
 
-```sh
+```shell
 forge script script/deploy/DeployProtocol.s.sol \
   --broadcast \
   --rpc-url goerli \

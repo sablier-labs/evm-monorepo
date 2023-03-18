@@ -6,7 +6,7 @@ This is a list of the most frequently needed commands.
 
 Build the contracts using the default profile:
 
-```sh
+```shell
 $ forge build
 ```
 
@@ -14,7 +14,7 @@ $ forge build
 
 Build the contracts using the optimized profile:
 
-```sh
+```shell
 $ pnpm build:optimized
 ```
 
@@ -25,7 +25,7 @@ This will compile the contracts with the [`--via-ir`](./Tests.md#via-ir) flag en
 Build the contracts with the [SMTChecker](https://docs.soliditylang.org/en/v0.8.18/smtchecker.html) enabled, while
 ignoring any warnings due to the use of assembly blocks:
 
-```sh
+```shell
 $ pnpm build:smt
 ```
 
@@ -36,7 +36,7 @@ failing `assert` statements).
 
 Delete the build artifacts and cache directories:
 
-```sh
+```shell
 $ forge clean
 ```
 
@@ -44,7 +44,7 @@ $ forge clean
 
 Format the code:
 
-```sh
+```shell
 $ forge fmt
 ```
 
@@ -52,7 +52,7 @@ $ forge fmt
 
 Get a gas report:
 
-```sh
+```shell
 $ pnpm gas:report
 ```
 
@@ -60,7 +60,7 @@ $ pnpm gas:report
 
 Get a gas report for the optimized version of the contracts:
 
-```sh
+```shell
 $ pnpm gas:report:optimized
 ```
 
@@ -68,7 +68,7 @@ $ pnpm gas:report:optimized
 
 Take a gas snapshot:
 
-```sh
+```shell
 $ pnpm gas:snapshot
 ```
 
@@ -76,7 +76,7 @@ $ pnpm gas:snapshot
 
 Take a gas snapshot against the optimized version of the contracts:
 
-```sh
+```shell
 $ pnpm gas:snapshot:optimized
 ```
 
@@ -84,7 +84,7 @@ $ pnpm gas:snapshot:optimized
 
 Lint the entire code base (Solidity + other files):
 
-```sh
+```shell
 $ pnpm lint
 ```
 
@@ -92,7 +92,7 @@ $ pnpm lint
 
 Ling the contracts:
 
-```sh
+```shell
 $ pnpm lint:sol
 ```
 
@@ -100,7 +100,7 @@ $ pnpm lint:sol
 
 Run the tests:
 
-```sh
+```shell
 $ pnpm test
 ```
 
@@ -108,7 +108,7 @@ $ pnpm test
 
 Run the tests against the optimized version of the contracts:
 
-```sh
+```shell
 $ pnpm test:optimized
 ```
 

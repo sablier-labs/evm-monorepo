@@ -22,13 +22,13 @@ In addition, familiarity with [Solidity](https://soliditylang.org/) is requisite
 
 Clone this repository including submodules:
 
-```sh
+```shell
 $ git clone --recurse-submodules -j8 git@github.com:sablierhq/v2-core.git
 ```
 
 Then, inside the project's directory, run this to install the Node.js dependencies:
 
-```sh
+```shell
 $ pnpm install
 ```
 
