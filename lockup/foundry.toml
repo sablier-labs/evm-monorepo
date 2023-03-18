@@ -91,7 +91,7 @@
 [fmt]
   bracket_spacing = true
   int_types = "long"
-  line_length = 117               # Lower than 120 because Forge does not treat it as a hard requirement
+  line_length = 120
   multiline_func_header = "all"
   number_underscore = "thousands"
   quote_style = "double"

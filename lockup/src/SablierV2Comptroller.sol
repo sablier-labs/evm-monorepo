@@ -85,11 +85,7 @@ contract SablierV2Comptroller is
         flashFee = newFlashFee;
 
         // Log the change of the flash fee.
-        emit ISablierV2Comptroller.SetFlashFee({
-            admin: msg.sender,
-            oldFlashFee: oldFlashFee,
-            newFlashFee: newFlashFee
-        });
+        emit ISablierV2Comptroller.SetFlashFee({ admin: msg.sender, oldFlashFee: oldFlashFee, newFlashFee: newFlashFee });
     }
 
     /// @inheritdoc ISablierV2Comptroller

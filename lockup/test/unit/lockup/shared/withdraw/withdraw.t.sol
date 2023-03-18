@@ -83,10 +83,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Run the test.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_WithdrawSenderUnauthorized.selector,
-                defaultStreamId,
-                users.sender,
-                users.sender
+                Errors.SablierV2Lockup_WithdrawSenderUnauthorized.selector, defaultStreamId, users.sender, users.sender
             )
         );
         lockup.withdraw({ streamId: defaultStreamId, to: users.sender, amount: DEFAULT_WITHDRAW_AMOUNT });

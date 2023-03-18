@@ -302,8 +302,7 @@ contract SablierV2LockupLinear is
         returns (bool isApprovedOrOwner)
     {
         address owner = _ownerOf(streamId);
-        isApprovedOrOwner =
-            (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
+        isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
     }
 
     /// @inheritdoc SablierV2Lockup
@@ -433,11 +432,7 @@ contract SablierV2LockupLinear is
 
         // Interactions: pay the broker fee, if not zero.
         if (createAmounts.brokerFee > 0) {
-            params.asset.safeTransferFrom({
-                from: msg.sender,
-                to: params.broker.account,
-                value: createAmounts.brokerFee
-            });
+            params.asset.safeTransferFrom({ from: msg.sender, to: params.broker.account, value: createAmounts.brokerFee });
         }
 
         // Log the newly created stream, and the address that funded it.

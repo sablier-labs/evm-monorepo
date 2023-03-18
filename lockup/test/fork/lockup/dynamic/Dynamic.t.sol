@@ -147,10 +147,8 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         // Expect a {CreateLockupDynamicStream} event to be emitted.
         vars.streamId = dynamic.nextStreamId();
         vm.expectEmit({ emitter: address(dynamic) });
-        LockupDynamic.Range memory range = LockupDynamic.Range({
-            start: params.startTime,
-            end: params.segments[params.segments.length - 1].milestone
-        });
+        LockupDynamic.Range memory range =
+            LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].milestone });
         emit CreateLockupDynamicStream({
             streamId: vars.streamId,
             funder: holder,
@@ -288,9 +286,8 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         // Only run the cancel tests if the stream has not been depleted.
         if (params.withdrawAmount != vars.createAmounts.deposit) {
             // Load the pre-cancel asset balances.
-            vars.balances = getTokenBalances(
-                address(asset), Solarray.addresses(address(dynamic), params.sender, params.recipient)
-            );
+            vars.balances =
+                getTokenBalances(address(asset), Solarray.addresses(address(dynamic), params.sender, params.recipient));
             vars.initialDynamicContractBalance = vars.balances[0];
             vars.initialSenderBalance = vars.balances[1];
             vars.initialRecipientBalance = vars.balances[2];
@@ -318,9 +315,8 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner after cancel");
 
             // Load the post-cancel asset balances.
-            vars.balances = getTokenBalances(
-                address(asset), Solarray.addresses(address(dynamic), params.sender, params.recipient)
-            );
+            vars.balances =
+                getTokenBalances(address(asset), Solarray.addresses(address(dynamic), params.sender, params.recipient));
             vars.actualDynamicContractBalance = vars.balances[0];
             vars.actualSenderBalance = vars.balances[1];
             vars.actualRecipientBalance = vars.balances[2];

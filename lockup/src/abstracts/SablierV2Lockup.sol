@@ -99,12 +99,7 @@ abstract contract SablierV2Lockup is
     function isCancelable(uint256 streamId) public view virtual override returns (bool result);
 
     /// @inheritdoc ISablierV2Lockup
-    function withdrawableAmountOf(uint256 streamId)
-        public
-        view
-        virtual
-        override
-        returns (uint128 withdrawableAmount);
+    function withdrawableAmountOf(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS

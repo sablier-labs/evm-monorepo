@@ -272,11 +272,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Expect two {WithdrawFromLockupStream} events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({
-            streamId: vars.endedStreamId,
-            to: params.to,
-            amount: vars.endedWithdrawAmount
-        });
+        emit WithdrawFromLockupStream({ streamId: vars.endedStreamId, to: params.to, amount: vars.endedWithdrawAmount });
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: vars.ongoingStreamId,

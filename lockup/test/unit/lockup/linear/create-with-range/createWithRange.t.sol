@@ -68,9 +68,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
                 Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime
             )
         );
-        createDefaultStreamWithRange(
-            LockupLinear.Range({ start: startTime, cliff: cliffTime, end: DEFAULT_END_TIME })
-        );
+        createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: DEFAULT_END_TIME }));
     }
 
     modifier whenStartTimeNotGreaterThanCliffTime() {
@@ -91,9 +89,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
-        createDefaultStreamWithRange(
-            LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: cliffTime, end: endTime })
-        );
+        createDefaultStreamWithRange(LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: cliffTime, end: endTime }));
     }
 
     modifier whenCliffTimeLessThanEndTime() {

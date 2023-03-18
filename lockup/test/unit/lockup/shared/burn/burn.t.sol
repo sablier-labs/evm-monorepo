@@ -40,9 +40,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_StreamActive() external whenNoDelegateCall {
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCanceledOrDepleted.selector, streamId)
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCanceledOrDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 

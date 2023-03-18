@@ -168,9 +168,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient
-            )
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient)
         );
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
@@ -218,9 +216,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient
-            )
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamIds[0], users.recipient)
         );
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
@@ -284,9 +280,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Run the test.
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT, 0);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_WithdrawAmountZero.selector, defaultStreamIds[1])
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_WithdrawAmountZero.selector, defaultStreamIds[1]));
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
     }
 
@@ -494,11 +488,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: vars.endedStreamId, to: vars.to, amount: vars.endedWithdrawAmount });
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({
-            streamId: vars.ongoingStreamId,
-            to: vars.to,
-            amount: vars.ongoingWithdrawAmount
-        });
+        emit WithdrawFromLockupStream({ streamId: vars.ongoingStreamId, to: vars.to, amount: vars.ongoingWithdrawAmount });
 
         // Run the test.
         vars.streamIds = Solarray.uint256s(vars.endedStreamId, vars.ongoingStreamId);
