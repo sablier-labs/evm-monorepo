@@ -9,7 +9,7 @@ import { Lockup } from "src/types/DataTypes.sol";
 import { Fuzz_Test } from "../../../Fuzz.t.sol";
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 
-abstract contract CancelMultiple_Unit_Test is Fuzz_Test, Lockup_Shared_Test {
+abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     uint256[] internal defaultStreamIds;
 
     function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {

@@ -288,13 +288,13 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Expect the ERC-20 assets to be returned to the sender, if not zero.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
-        expectTransferCall({ to: users.sender, amount: senderAmount });
-
         // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         expectTransferCall({ to: address(goodRecipient), amount: recipientAmount });
+
+        // Expect the ERC-20 assets to be returned to the sender, if not zero.
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        expectTransferCall({ to: users.sender, amount: senderAmount });
 
         // Expect a call to the recipient hook.
         vm.expectCall(
@@ -473,13 +473,13 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
-        // Expect the ERC-20 assets to be returned to the sender.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
-        expectTransferCall({ to: address(goodSender), amount: senderAmount });
-
         // Expect the ERC-20 assets to be withdrawn to the recipient.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         expectTransferCall({ to: users.recipient, amount: recipientAmount });
+
+        // Expect the ERC-20 assets to be returned to the sender.
+        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        expectTransferCall({ to: address(goodSender), amount: senderAmount });
 
         // Expect a call to the sender hook.
         vm.expectCall(
