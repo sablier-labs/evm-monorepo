@@ -43,7 +43,7 @@ interface ISablierV2Base is IAdminable {
 
     /// @notice The protocol revenues accrued for the provided ERC-20 asset, in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset to make the query for.
-    function protocolRevenues(IERC20 asset) external view returns (uint128 protocolRevenues);
+    function protocolRevenues(IERC20 asset) external view returns (uint128 revenues);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
