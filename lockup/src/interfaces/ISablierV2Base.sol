@@ -54,7 +54,7 @@ interface ISablierV2Base is IAdminable {
     /// @dev Emits a {ClaimProtocolRevenues} event.
     ///
     /// Requirements:
-    /// - The caller must be the owner of the contract.
+    /// - The caller must be the contract admin.
     ///
     /// @param asset The contract address of the ERC-20 asset to claim the protocol revenues for.
     function claimProtocolRevenues(IERC20 asset) external;

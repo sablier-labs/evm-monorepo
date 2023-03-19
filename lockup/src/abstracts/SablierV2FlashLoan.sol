@@ -51,12 +51,10 @@ abstract contract SablierV2FlashLoan is
 
     /// @notice The amount of fees to charge for a hypothetical flash loan amount.
     ///
-    /// @dev You might notice a bit of a terminology clash here, since the ERC-3156 standard refers to the "flash
-    /// fee"
+    /// @dev You might notice a bit of a terminology clash here, since the ERC-3156 standard refers to the "flash fee"
     /// as an amount, whereas the flash fee queried from the comptroller is a percentage. In this code base, the
-    /// "amount" suffix is typically appended to variables that represent amounts, but in this context, the name be
-    /// kept
-    /// unchanged to comply with the ERC.
+    /// "amount" suffix is typically appended to variables that represent amounts, but in this context, the name
+    /// must be kept unchanged to comply with the ERC.
     ///
     /// Requirements:
     /// - The ERC-20 asset must be flash loanable.
@@ -95,6 +93,7 @@ abstract contract SablierV2FlashLoan is
     /// @dev Emits a {FlashLoan} event.
     ///
     /// Requirements:
+    /// - The call must not be a delegate call.
     /// - All from {flashFee}.
     /// - `amount` must be less than 2^128.
     /// - `fee` must be less than 2^128.

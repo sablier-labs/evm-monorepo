@@ -42,6 +42,7 @@ interface ISablierV2Comptroller is IAdminable {
     function flashAssets(IERC20 token) external view returns (bool result);
 
     /// @notice The global flash fee as an UD60x18 number where 100% = 1e18.
+    ///
     /// @dev Notes:
     /// - This is a fee percentage, not a fee amount, and it should not be confused with {IERC3156FlashLender-flashFee},
     /// which returns the fee amount for a given flash loan amount.

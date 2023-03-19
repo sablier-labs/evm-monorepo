@@ -98,13 +98,13 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - As long as the times are ordered, it is not an error to set a range that is in the past.
     ///
     /// Requirements:
-    /// - `params.recipient` must not be the zero address.
+    /// - The call must not be a delegate call.
     /// - `params.totalAmount` must not be zero.
+    /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
     /// - `params.range.start` must not be greater than `params.range.cliff`.
     /// - `params.range.cliff` must not be greater than `params.range.end`.
+    /// - `params.recipient` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
-    /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
-    /// - The call must not be a delegate call.
     ///
     /// @param params Struct that encapsulates the function parameters.
     /// @return streamId The id of the newly created lockup linear stream.

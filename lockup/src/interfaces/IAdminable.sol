@@ -26,9 +26,9 @@ interface IAdminable {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Transfers the admin of the contract to a new address.
+    /// @notice Transfers the contract admin to a new address.
     ///
-    /// Notes:
+    /// @dev Notes:
     /// - Does not revert if the admin is the same.
     /// - This function can potentially leave the contract without an admin, thereby removing any
     /// functionality that is only available to the admin.
