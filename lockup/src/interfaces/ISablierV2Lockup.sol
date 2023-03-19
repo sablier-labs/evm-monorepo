@@ -3,7 +3,6 @@ pragma solidity >=0.8.13;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { Lockup } from "../types/DataTypes.sol";
 import { ISablierV2Base } from "./ISablierV2Base.sol";
@@ -93,16 +92,15 @@ interface ISablierV2Lockup is
     /// @notice Checks whether the lockup stream is cancelable or not.
     ///
     /// Notes:
-    /// - Always returns `false` if the lockup stream is not active.
+    /// - Always returns `false` when the lockup stream is not active.
     ///
     /// @param streamId The id of the lockup stream to make the query for.
     function isCancelable(uint256 streamId) external view returns (bool result);
 
-    /// @notice Counter for stream ids.
-    /// @return The next stream id.
+    /// @notice Counter for stream ids, used in the create functions.
     function nextStreamId() external view returns (uint256);
 
-    /// @notice Calculates the amount that the sender would be paid if the lockup stream had been canceled, in units
+    /// @notice Calculates the amount that the sender would be paid if the lockup stream were to be canceled, in units
     /// of the asset's decimals.
     /// @param streamId The id of the lockup stream to make the query for.
     function returnableAmountOf(uint256 streamId) external view returns (uint128 returnableAmount);

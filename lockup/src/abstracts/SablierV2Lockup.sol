@@ -20,13 +20,6 @@ abstract contract SablierV2Lockup is
     SablierV2FlashLoan // six dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
-                                   PUBLIC STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierV2Lockup
-    uint256 public override nextStreamId;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -50,7 +43,6 @@ abstract contract SablierV2Lockup is
     )
         SablierV2Base(initialAdmin, initialComptroller, maxFee)
     {
-        nextStreamId = 1;
         _nftDescriptor = initialNftDescriptor;
     }
 

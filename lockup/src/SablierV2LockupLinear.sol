@@ -46,8 +46,11 @@ contract SablierV2LockupLinear is
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  INTERNAL STORAGE
+                                  PRIVATE STORAGE
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Counter for stream ids, used in the create functions.
+    uint256 private _nextStreamId;
 
     /// @dev Sablier V2 lockup linear streams mapped by unsigned integers.
     mapping(uint256 id => LockupLinear.Stream stream) private _streams;
@@ -69,7 +72,9 @@ contract SablierV2LockupLinear is
         UD60x18 maxFee
     )
         SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor, maxFee)
-    { }
+    {
+        _nextStreamId = 1;
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
@@ -157,6 +162,11 @@ contract SablierV2LockupLinear is
             return false;
         }
         result = _streams[streamId].isCancelable;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function nextStreamId() external view returns (uint256) {
+        return _nextStreamId;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -396,7 +406,7 @@ contract SablierV2LockupLinear is
         Helpers.checkCreateLinearParams(createAmounts.deposit, params.range);
 
         // Load the stream id.
-        streamId = nextStreamId;
+        streamId = _nextStreamId;
 
         // Effects: create the stream.
         _streams[streamId] = LockupLinear.Stream({
@@ -413,7 +423,7 @@ contract SablierV2LockupLinear is
         // Effects: bump the next stream id and record the protocol fee.
         // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
         unchecked {
-            nextStreamId = streamId + 1;
+            _nextStreamId = streamId + 1;
             protocolRevenues[params.asset] += createAmounts.protocolFee;
         }
 
