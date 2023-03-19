@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
-
 import { Errors } from "src/libraries/Errors.sol";
-
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Fuzz_Test } from "../Linear.t.sol";

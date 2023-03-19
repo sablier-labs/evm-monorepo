@@ -1,6 +1,7 @@
 # directories
 broadcast
 cache
+coverage
 docs
 node_modules
 optimized-out
