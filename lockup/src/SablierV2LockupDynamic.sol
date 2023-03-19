@@ -58,10 +58,13 @@ contract SablierV2LockupDynamic is
     uint256 public immutable override MAX_SEGMENT_COUNT;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  INTERNAL STORAGE
+                                  PRIVATE STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Sablier V2 dynamic streams mapped by unsigned integers ids.
+    /// @dev Counter for stream ids, used in the create functions.
+    uint256 private _nextStreamId;
+
+    /// @dev Lockup dynamic streams mapped by unsigned integers ids.
     mapping(uint256 id => LockupDynamic.Stream stream) private _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -85,6 +88,7 @@ contract SablierV2LockupDynamic is
         SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor, maxFee)
     {
         MAX_SEGMENT_COUNT = maxSegmentCount;
+        _nextStreamId = 1;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -169,6 +173,11 @@ contract SablierV2LockupDynamic is
             return false;
         }
         result = _streams[streamId].isCancelable;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function nextStreamId() external view returns (uint256) {
+        return _nextStreamId;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -469,7 +478,7 @@ contract SablierV2LockupDynamic is
         Helpers.checkCreateDynamicParams(createAmounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
         // Load the stream id.
-        streamId = nextStreamId;
+        streamId = _nextStreamId;
 
         // Load the segment count.
         uint256 segmentCount = params.segments.length;
@@ -495,7 +504,7 @@ contract SablierV2LockupDynamic is
 
             // Effects: bump the next stream id and record the protocol fee.
             // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
-            nextStreamId = streamId + 1;
+            _nextStreamId = streamId + 1;
             protocolRevenues[params.asset] += createAmounts.protocolFee;
         }
 
