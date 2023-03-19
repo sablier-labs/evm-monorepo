@@ -44,7 +44,7 @@ contract FlashLoanHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     function flashLoan(uint128 amount) external instrument("flashLoan") {
-        // Only up to `UINT128_MAX` tokens can be flash loaned.
+        // Only up to `UINT128_MAX` assets can be flash loaned.
         uint256 balance = asset.balanceOf(address(this));
         uint128 upperBound = uint128(Math.min(balance, UINT128_MAX));
         amount = boundUint128(amount, 0, upperBound);
