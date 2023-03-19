@@ -8,5 +8,6 @@
   "files.associations": {
     ".gas-snapshot": "julia"
   },
+  "editor.formatOnSave": true,
   "solidity.formatter": "forge"
 }

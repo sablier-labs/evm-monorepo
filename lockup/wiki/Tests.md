@@ -38,11 +38,19 @@ example demonstrates how to test the contract containing all tests for the `crea
 pnpm test --match-contract CreateWithRange_Linear_Unit_Test
 ```
 
+## State Trees
+
+You may notice that every unit test contract is accompanied by a corresponding `.tree` file. The goal with this is to
+structure the tests within a tree in which the parent nodes represent specific state conditions that govern the smart
+contract's behavior, while the leaves signify the conditions being tested.
+
+To replicate the tree in Solidity, we use modifiers following the naming pattern `when<Condition>`.
+
 ## Sharing
 
-You may notice that the tests exhibit an inheritance structure. This is because there is a lot of common logic between
-the `SablierV2LockupLinear` and the `SablierV2LockupDynamic` contracts, specifically that they both inherit from the
-`SablierV2Base` and the `SablierV2Lockup` abstract contracts.
+The tests exhibit a complex inheritance structure because of the significant shared logic between the
+`SablierV2LockupLinear` and `SablierV2LockupDynamic` contracts; namely, that both inherit from `SablierV2Base` and
+`SablierV2Lockup`.
 
 To prevent duplicating test logic, we created the `Lockup_Shared_Test`, `Linear_Shared_Test`, and `Dynamic_Shared_Test`
-contracts and inherited them in the test contracts for both `SablierV2LockupLinear` and `SablierV2LockupDynamic`.
+contracts and inherited them in the test contracts associated with `SablierV2LockupLinear` and `SablierV2LockupDynamic`.

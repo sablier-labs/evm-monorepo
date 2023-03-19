@@ -57,9 +57,10 @@ Some of the features of this repository, such as deployments, require environmen
 Follow the [`.env.example`](./.env.example) file to create a `.env` file at the root of the repo and populate it with
 the appropriate environment values. You need to provide your mnemonic phrase and a few API keys.
 
-## Syntax Highlighting
+## Integration with VSCode:
 
-You may want to install the following VSCode extensions to get syntax highlighting in VSCode:
+Install the following VSCode extensions:
 
+- [esbenp.prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 - [hardhat-solidity](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity)
 - [vscode-tree-language](https://marketplace.visualstudio.com/items?itemName=CTC.vscode-tree-extension)

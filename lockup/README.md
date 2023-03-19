@@ -7,7 +7,7 @@
 [foundry]: https://getfoundry.sh/
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
-This repository houses the core smart contracts of the Sablier V2 Protocol. For higher-level logic, see the
+This repository contains the core smart contracts of the Sablier V2 Protocol. For higher-level logic, see the
 [sablierhq/v2-periphery](https://github.com/sablierhq/v2-periphery) repository.
 
 In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
