@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.13;
 
-import { Errors } from "src/libraries/Errors.sol";
+import { Errors } from "../libraries/Errors.sol";
 
 /// @title NoDelegateCall
 /// @notice This contract implements logic to prevent delegate calls.
