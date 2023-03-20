@@ -37,10 +37,10 @@ contract SablierV2Comptroller is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Comptroller
-    UD60x18 public override flashFee;
+    mapping(IERC20 asset => bool supported) public override flashAssets;
 
     /// @inheritdoc ISablierV2Comptroller
-    mapping(IERC20 asset => bool supported) public override flashAssets;
+    UD60x18 public override flashFee;
 
     /// @inheritdoc ISablierV2Comptroller
     mapping(IERC20 asset => UD60x18 fee) public override protocolFees;
