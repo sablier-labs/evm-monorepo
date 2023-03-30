@@ -98,26 +98,24 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CurrentTimeNotLessThanEndTime()
+    function test_RevertWhen_EndTimeInThePast()
         external
         whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
     {
-        vm.warp(uint256(DEFAULT_END_TIME));
+        vm.warp(DEFAULT_END_TIME);
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2Lockup_CurrentTimeNotLessThanEndTime.selector, DEFAULT_END_TIME, DEFAULT_END_TIME
-            )
+            abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, DEFAULT_END_TIME, DEFAULT_END_TIME)
         );
         createDefaultStream();
     }
 
-    modifier whenCurrentTimeLessThanEndTime() {
+    modifier whenEndTimeNotInThePast() {
         _;
     }
 
@@ -129,7 +127,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
     {
         UD60x18 protocolFee = MAX_FEE.add(ud(1));
 
@@ -156,7 +154,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenProtocolFeeNotTooHigh
     {
         UD60x18 brokerFee = MAX_FEE.add(ud(1));
@@ -176,7 +174,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
     {
@@ -197,7 +195,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
@@ -223,7 +221,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract

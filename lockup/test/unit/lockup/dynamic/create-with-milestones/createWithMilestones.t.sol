@@ -207,7 +207,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_CurrentTimeNotLessThanEndTime()
+    function test_RevertWhen_EndTimeInThePast()
         external
         whenNoDelegateCall
         whenRecipientNonZeroAddress
@@ -217,19 +217,16 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenCurrentTimeLessThanEndTime
     {
-        vm.warp(uint256(DEFAULT_END_TIME));
+        vm.warp(DEFAULT_END_TIME);
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2Lockup_CurrentTimeNotLessThanEndTime.selector, DEFAULT_END_TIME, DEFAULT_END_TIME
-            )
+            abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, DEFAULT_END_TIME, DEFAULT_END_TIME)
         );
         createDefaultStream();
     }
 
-    modifier whenCurrentTimeLessThanEndTime() {
+    modifier whenEndTimeNotInThePast() {
         _;
     }
 
@@ -244,7 +241,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
     {
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
         changePrank({ msgSender: users.admin });
@@ -286,7 +283,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
     {
@@ -318,7 +315,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
@@ -343,7 +340,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
@@ -377,7 +374,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
@@ -403,7 +400,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh

@@ -50,9 +50,8 @@ library Errors {
     /// @notice Thrown when the broker fee is greater than the maximum fee permitted.
     error SablierV2Lockup_BrokerFeeTooHigh(UD60x18 brokerFee, UD60x18 maxFee);
 
-    /// @notice Thrown when attempting to create a stream with a current time that is not strictly less
-    /// than the end time.
-    error SablierV2Lockup_CurrentTimeNotLessThanEndTime(uint40 currentTime, uint40 endTime);
+    /// @notice Thrown when attempting to create a stream with the end time in the past.
+    error SablierV2Lockup_EndTimeInThePast(uint40 currentTime, uint40 endTime);
 
     /// @notice Thrown when attempting to create a stream with a zero deposit amount.
     error SablierV2Lockup_DepositAmountZero();

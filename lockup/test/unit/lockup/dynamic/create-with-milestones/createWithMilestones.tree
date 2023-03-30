@@ -28,9 +28,9 @@ createWithMilestones.t.sol
                         ├── when the segment milestones are not ordered
                         │  └── it should revert
                         └── when the segment milestones are ordered
-                           ├── when the current time is not less than the end time
+                           ├── when the end time is in the past
                            │  └── it should revert
-                           └── when the current time is less than the end time
+                           └── when the end time is not in the past
                               ├── when the deposit amount is not equal to the segment amounts sum
                               │  └── it should revert
                               └── when the deposit amount is equal to the segment amounts sum

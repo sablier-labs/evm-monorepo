@@ -98,16 +98,15 @@ library Helpers {
             revert Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime(range.start, range.cliff);
         }
 
-        // Checks: the cliff time is strictly less than the end time.
+        // Checks: the end time is not in the past.
         if (range.cliff >= range.end) {
             revert Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime(range.cliff, range.end);
         }
 
-        uint40 currentTime = uint40(block.timestamp);
-
         // Checks: the current time is strictly less than the end time.
+        uint40 currentTime = uint40(block.timestamp);
         if (currentTime >= range.end) {
-            revert Errors.SablierV2Lockup_CurrentTimeNotLessThanEndTime(currentTime, range.end);
+            revert Errors.SablierV2Lockup_EndTimeInThePast(currentTime, range.end);
         }
     }
 
@@ -198,11 +197,11 @@ library Helpers {
             }
         }
 
+        // Checks: the end time is not in the past.
+        // When the loop exits, current milestone is actually the last milestone, i.e. the end time of the stream.
         uint40 currentTime = uint40(block.timestamp);
-
-        // Checks: the current time is strictly less than the end time.
         if (currentTime >= currentMilestone) {
-            revert Errors.SablierV2Lockup_CurrentTimeNotLessThanEndTime(currentTime, currentMilestone);
+            revert Errors.SablierV2Lockup_EndTimeInThePast(currentTime, currentMilestone);
         }
 
         // Check that the deposit amount is equal to the segment amounts sum.
