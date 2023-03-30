@@ -17,8 +17,7 @@ contract DeployDeterministicLockupLinear is BaseScript {
     function run(
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
-        ISablierV2NFTDescriptor initialNFTDescriptor,
-        UD60x18 maxFee
+        ISablierV2NFTDescriptor initialNFTDescriptor
     )
         public
         virtual
@@ -28,8 +27,7 @@ contract DeployDeterministicLockupLinear is BaseScript {
         linear = new SablierV2LockupLinear{ salt: ZERO_SALT }(
             initialAdmin,
             initialComptroller,
-            initialNFTDescriptor,
-            maxFee
+            initialNFTDescriptor
         );
     }
 }

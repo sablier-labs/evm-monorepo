@@ -157,19 +157,13 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
             linear = ISablierV2LockupLinear(
                 deployCode(
                     "optimized-out/SablierV2LockupLinear.sol/SablierV2LockupLinear.json",
-                    abi.encode(users.admin, address(comptroller), address(nftDescriptor), DEFAULT_MAX_FEE)
+                    abi.encode(users.admin, address(comptroller), address(nftDescriptor))
                 )
             );
             dynamic = ISablierV2LockupDynamic(
                 deployCode(
                     "optimized-out/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json",
-                    abi.encode(
-                        users.admin,
-                        address(comptroller),
-                        address(nftDescriptor),
-                        DEFAULT_MAX_FEE,
-                        DEFAULT_MAX_SEGMENT_COUNT
-                    )
+                    abi.encode(users.admin, address(comptroller), address(nftDescriptor), DEFAULT_MAX_SEGMENT_COUNT)
                 )
             );
         }
@@ -178,7 +172,6 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
             (comptroller, linear, dynamic) = new DeployProtocol().run({
                 initialAdmin: users.admin,
                 initialNFTDescriptor: nftDescriptor,
-                maxFee: DEFAULT_MAX_FEE,
                 maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
             });
         }

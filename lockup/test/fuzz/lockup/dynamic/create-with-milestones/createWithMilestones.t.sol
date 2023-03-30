@@ -165,7 +165,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
     {
-        protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
+        protocolFee = bound(protocolFee, MAX_FEE.add(ud(1)), MAX_UD60x18);
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
@@ -173,7 +173,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_ProtocolFeeTooHigh.selector, protocolFee, DEFAULT_MAX_FEE)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_ProtocolFeeTooHigh.selector, protocolFee, MAX_FEE)
         );
         createDefaultStream();
     }
@@ -196,10 +196,8 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
-        broker.fee = bound(broker.fee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, DEFAULT_MAX_FEE)
-        );
+        broker.fee = bound(broker.fee, MAX_FEE.add(ud(1)), MAX_UD60x18);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_FEE));
         createDefaultStreamWithBroker(broker);
     }
 
@@ -259,8 +257,8 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     {
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.segments.length != 0);
-        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
+        params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
+        protocolFee = bound(protocolFee, 0, MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
 
         // Fuzz the segment milestones.

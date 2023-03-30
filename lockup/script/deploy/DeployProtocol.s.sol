@@ -21,7 +21,6 @@ contract DeployProtocol is DeployComptroller, DeployLockupLinear, DeployLockupDy
     function run(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor,
-        UD60x18 maxFee,
         uint256 maxSegmentCount
     )
         public
@@ -29,7 +28,7 @@ contract DeployProtocol is DeployComptroller, DeployLockupLinear, DeployLockupDy
         returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupDynamic dynamic)
     {
         comptroller = DeployComptroller.run(initialAdmin);
-        linear = DeployLockupLinear.run(initialAdmin, comptroller, initialNFTDescriptor, maxFee);
-        dynamic = DeployLockupDynamic.run(initialAdmin, comptroller, initialNFTDescriptor, maxFee, maxSegmentCount);
+        linear = DeployLockupLinear.run(initialAdmin, comptroller, initialNFTDescriptor);
+        dynamic = DeployLockupDynamic.run(initialAdmin, comptroller, initialNFTDescriptor, maxSegmentCount);
     }
 }

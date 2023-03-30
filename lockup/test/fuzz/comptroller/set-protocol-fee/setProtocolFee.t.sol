@@ -8,7 +8,7 @@ import { Comptroller_Fuzz_Test } from "../Comptroller.t.sol";
 contract SetProtocolFee_Fuzz_Test is Comptroller_Fuzz_Test {
     /// @dev it should set the new protocol fee and emit a {SetProtocolFee} event.
     function testFuzz_SetProtocolFee(UD60x18 newProtocolFee) external {
-        newProtocolFee = bound(newProtocolFee, 1, DEFAULT_MAX_FEE);
+        newProtocolFee = bound(newProtocolFee, 1, MAX_FEE);
 
         // Expect a {SetProtocolFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });

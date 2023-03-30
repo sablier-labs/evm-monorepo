@@ -15,7 +15,7 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: DEFAULT_MAX_FEE });
+        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: MAX_FEE });
     }
 
     /// @dev The admin is the default caller in the comptroller tests.

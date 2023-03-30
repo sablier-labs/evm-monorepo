@@ -35,7 +35,7 @@ library Helpers {
         }
 
         // Calculate the protocol fee amount.
-        // The cast to uint128 is safe because the maximum fee is hard-coded and it is always less than 1e18.
+        // The cast to uint128 is safe because the maximum fee is hard coded.
         amounts.protocolFee = uint128(ud(totalAmount).mul(protocolFee).intoUint256());
 
         // Checks: the broker fee is not greater than `maxFee`.
@@ -44,7 +44,7 @@ library Helpers {
         }
 
         // Calculate the broker fee amount.
-        // The cast to uint128 is safe because the maximum fee is hard-coded and it is always less than 1e18.
+        // The cast to uint128 is safe because the maximum fee is hard coded.
         amounts.brokerFee = uint128(ud(totalAmount).mul(brokerFee).intoUint256());
 
         unchecked {

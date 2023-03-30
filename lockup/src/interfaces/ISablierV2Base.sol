@@ -34,7 +34,7 @@ interface ISablierV2Base is IAdminable {
 
     /// @notice The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
     /// where 100% = 1e18.
-    /// @dev This is initialized at construction time and cannot be changed later.
+    /// @dev This is stored as a constant.
     function MAX_FEE() external view returns (UD60x18);
 
     /// @notice The address of the comptroller contract, which is in charge of the Sablier V2 protocol configuration,

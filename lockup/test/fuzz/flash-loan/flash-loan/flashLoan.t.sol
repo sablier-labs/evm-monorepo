@@ -63,7 +63,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         whenAmountNotTooHigh
         whenCalculatedFeeNotTooHigh
     {
-        comptrollerFlashFee = bound(comptrollerFlashFee, 0, DEFAULT_MAX_FEE);
+        comptrollerFlashFee = bound(comptrollerFlashFee, 0, MAX_FEE);
         comptroller.setFlashFee(comptrollerFlashFee);
 
         // Load the initial protocol revenues.

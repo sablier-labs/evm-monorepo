@@ -18,7 +18,6 @@ contract Constructor_Dynamic_Unit_Test is Dynamic_Unit_Test {
         SablierV2LockupDynamic constructedDynamic = new SablierV2LockupDynamic({
             initialAdmin: users.admin,
             initialComptroller: comptroller,
-            maxFee: DEFAULT_MAX_FEE,
             initialNFTDescriptor: nftDescriptor,
             maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
         });
@@ -31,10 +30,6 @@ contract Constructor_Dynamic_Unit_Test is Dynamic_Unit_Test {
         address actualComptroller = address(constructedDynamic.comptroller());
         address expectedComptroller = address(comptroller);
         assertEq(actualComptroller, expectedComptroller, "comptroller");
-
-        UD60x18 actualMaxFee = constructedDynamic.MAX_FEE();
-        UD60x18 expectedMaxFee = DEFAULT_MAX_FEE;
-        assertEq(actualMaxFee, expectedMaxFee, "MAX_FEE");
 
         // {SablierV2Lockup-constructor}
         uint256 actualStreamId = constructedDynamic.nextStreamId();

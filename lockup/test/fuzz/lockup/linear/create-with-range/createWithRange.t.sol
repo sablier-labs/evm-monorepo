@@ -78,7 +78,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
     {
-        protocolFee = bound(protocolFee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
+        protocolFee = bound(protocolFee, MAX_FEE.add(ud(1)), MAX_UD60x18);
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
@@ -86,7 +86,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_ProtocolFeeTooHigh.selector, protocolFee, DEFAULT_MAX_FEE)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_ProtocolFeeTooHigh.selector, protocolFee, MAX_FEE)
         );
         createDefaultStream();
     }
@@ -105,10 +105,8 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         whenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
-        broker.fee = bound(broker.fee, DEFAULT_MAX_FEE.add(ud(1)), MAX_UD60x18);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, DEFAULT_MAX_FEE)
-        );
+        broker.fee = bound(broker.fee, MAX_FEE.add(ud(1)), MAX_UD60x18);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_FEE));
         createDefaultStreamWithBroker(broker);
     }
 
@@ -167,8 +165,8 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         params.range.start = boundUint40(params.range.start, DEFAULT_START_TIME, DEFAULT_START_TIME + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
         params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
-        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
-        protocolFee = bound(protocolFee, 0, DEFAULT_MAX_FEE);
+        params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
+        protocolFee = bound(protocolFee, 0, MAX_FEE);
 
         // Calculate the fee amounts and the deposit amount.
         Vars memory vars;

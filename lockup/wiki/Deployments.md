@@ -31,11 +31,10 @@ You should replace the placeholders with the actual arguments you want to pass.
 forge script script/deploy/DeployLockupDynamic.s.sol \
   --broadcast \
   --rpc-url goerli \
-  --sig "run(address,address,address,uint256,uint256)" \
+  --sig "run(address,address,address,uint256)" \
   ADMIN_ADDRESS \
   COMPTROLLER_ADDRESS \
   NFT_DESCRIPTOR_ADDRESS \
-  MAX_FEE \
   MAX_SEGMENT_COUNT
 ```
 
@@ -47,11 +46,10 @@ You should replace the placeholders with the actual arguments you want to pass.
 forge script script/deploy/DeployLockupLinear.s.sol \
   --broadcast \
   --rpc-url goerli \
-  --sig "run(address,address,address,uint256)" \
+  --sig "run(address,address,address)" \
   ADMIN_ADDRESS \
   COMPTROLLER_ADDRESS \
-  NFT_DESCRIPTOR_ADDRESS \
-  MAX_FEE
+  NFT_DESCRIPTOR_ADDRESS
 ```
 
 ### Deploy Protocol
@@ -60,10 +58,9 @@ forge script script/deploy/DeployLockupLinear.s.sol \
 forge script script/deploy/DeployProtocol.s.sol \
   --broadcast \
   --rpc-url goerli \
-  --sig "run(address,address,uint256,uint256)" \
+  --sig "run(address,address,uint256)" \
   ADMIN_ADDRESS \
   NFT_DESCRIPTOR_ADDRESS \
-  MAX_FEE \
   MAX_SEGMENT_COUNT
 ```
 

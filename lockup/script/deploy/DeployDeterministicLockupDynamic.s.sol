@@ -18,7 +18,6 @@ contract DeployDeterministicLockupDynamic is BaseScript {
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNFTDescriptor,
-        UD60x18 maxFee,
         uint256 maxSegmentCount
     )
         public
@@ -30,7 +29,6 @@ contract DeployDeterministicLockupDynamic is BaseScript {
             initialAdmin,
             initialComptroller,
             initialNFTDescriptor,
-            maxFee,
             maxSegmentCount
         );
     }

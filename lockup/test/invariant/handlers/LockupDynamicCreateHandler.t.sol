@@ -79,7 +79,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         }
 
         // Bound the broker fee.
-        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
+        params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
 
         // Fuzz the deltas.
         fuzzSegmentDeltas(params.segments);
@@ -122,7 +122,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
             return;
         }
 
-        params.broker.fee = bound(params.broker.fee, 0, DEFAULT_MAX_FEE);
+        params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
 
         // Fuzz the segment milestones.
