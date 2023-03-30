@@ -111,6 +111,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - The first segment's milestone must be greater than or equal to `params.startTime`.
     /// - The segment milestones must be arranged in ascending order.
     /// - `params.startTime` must not be greater than the last segment's milestone.
+    /// - The current time must not be greater than or equal to `params.range.end`.
     /// - The sum of the segment amounts must be equal to the deposit amount.
     /// - `params.recipient` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.

@@ -14,17 +14,20 @@ createWithRange.t.sol
             ├── when the cliff time is not less than the end time
             │  └── it should revert
             └── when the cliff time is less than the end time
-               ├── when the protocol fee is too high
+               ├── when the current time is not less than the end time
                │  └── it should revert
-               └── when the protocol fee is not too high
-                  ├── when the broker fee is too high
+               └── when the current time is less than the end time
+                  ├── when the protocol fee is too high
                   │  └── it should revert
-                  └── when the broker fee is not too high
-                     ├── when the asset is not a contract
+                  └── when the protocol fee is not too high
+                     ├── when the broker fee is too high
                      │  └── it should revert
-                     └── when the asset is a contract
-                        ├── when the asset misses the return value
-                        │  └── it should perform the ERC-20 transfers, create the stream, bump the next stream id and mint the NFT
-                        └── when the asset is ERC-20 compliant
-                           └── it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event
+                     └── when the broker fee is not too high
+                        ├── when the asset is not a contract
+                        │  └── it should revert
+                        └── when the asset is a contract
+                           ├── when the asset misses the return value
+                           │  └── it should perform the ERC-20 transfers, create the stream, bump the next stream id and mint the NFT
+                           └── when the asset is ERC-20 compliant
+                              └── it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event
 

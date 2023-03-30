@@ -64,7 +64,7 @@ library Helpers {
         uint40 startTime
     )
         internal
-        pure
+        view
     {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
@@ -87,7 +87,7 @@ library Helpers {
     }
 
     /// @dev Checks the parameters of the {SablierV2LockupLinear-_createWithRange} function.
-    function checkCreateLinearParams(uint128 depositAmount, LockupLinear.Range memory range) internal pure {
+    function checkCreateLinearParams(uint128 depositAmount, LockupLinear.Range memory range) internal view {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierV2Lockup_DepositAmountZero();
@@ -101,6 +101,13 @@ library Helpers {
         // Checks: the cliff time is strictly less than the end time.
         if (range.cliff >= range.end) {
             revert Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime(range.cliff, range.end);
+        }
+
+        uint40 currentTime = uint40(block.timestamp);
+
+        // Checks: the current time is strictly less than the end time.
+        if (currentTime >= range.end) {
+            revert Errors.SablierV2Lockup_CurrentTimeNotLessThanEndTime(currentTime, range.end);
         }
     }
 
@@ -153,7 +160,7 @@ library Helpers {
         uint40 startTime
     )
         private
-        pure
+        view
     {
         // Checks: the start time is strictly less than the first segment milestone.
         if (startTime >= segments[0].milestone) {
@@ -189,6 +196,13 @@ library Helpers {
             unchecked {
                 index += 1;
             }
+        }
+
+        uint40 currentTime = uint40(block.timestamp);
+
+        // Checks: the current time is strictly less than the end time.
+        if (currentTime >= currentMilestone) {
+            revert Errors.SablierV2Lockup_CurrentTimeNotLessThanEndTime(currentTime, currentMilestone);
         }
 
         // Check that the deposit amount is equal to the segment amounts sum.
