@@ -62,9 +62,6 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         // Bound the time warp.
         params.timeWarp = bound(params.timeWarp, 1, params.segments[params.segments.length - 1].milestone);
 
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + params.timeWarp });
-
         // Mint enough ERC-20 assets to the sender.
         deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
 
@@ -81,6 +78,9 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
                 broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
             })
         );
+
+        // Warp into the future.
+        vm.warp({ timestamp: DEFAULT_START_TIME + params.timeWarp });
 
         // Bound the withdraw amount.
         vars.withdrawableAmount = dynamic.withdrawableAmountOf(vars.streamId);

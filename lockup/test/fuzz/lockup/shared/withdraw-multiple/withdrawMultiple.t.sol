@@ -253,9 +253,6 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         vm.assume(params.to != address(0));
         params.timeWarp = bound(params.timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1);
 
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + params.timeWarp });
-
         // Use the first default stream as the ended stream.
         Vars memory vars;
         vars.endedStreamId = defaultStreamIds[0];
@@ -264,6 +261,9 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Create a new stream with an end time nearly double that of the default stream.
         vars.ongoingEndTime = DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION;
         vars.ongoingStreamId = createDefaultStreamWithEndTime(vars.ongoingEndTime);
+
+        // Warp into the future.
+        vm.warp({ timestamp: DEFAULT_START_TIME + params.timeWarp });
 
         // Bound the ongoing withdraw amount.
         vars.ongoingWithdrawableAmount = lockup.withdrawableAmountOf(vars.ongoingStreamId);

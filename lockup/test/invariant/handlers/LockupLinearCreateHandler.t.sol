@@ -97,8 +97,14 @@ contract LockupLinearCreateHandler is BaseHandler {
         params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
         params.range.start = boundUint40(params.range.start, 0, DEFAULT_START_TIME);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, 52 weeks);
-        params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
+
+        // If the cliff time is in the past we want to make sure that the end time is not.
+        if (params.range.cliff >= getBlockTimestamp()) {
+            params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
+        } else {
+            params.range.end = boundUint40(params.range.end, getBlockTimestamp() + 1, MAX_UNIX_TIMESTAMP);
+        }
 
         // Mint enough ERC-20 assets to the sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });

@@ -120,7 +120,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             assertGt(
-                linear.getEndTime(streamId), linear.getCliffTime(streamId), "Invariant violated: end time < cliff time"
+                linear.getEndTime(streamId), linear.getCliffTime(streamId), "Invariant violated: end time <= cliff time"
             );
         }
     }

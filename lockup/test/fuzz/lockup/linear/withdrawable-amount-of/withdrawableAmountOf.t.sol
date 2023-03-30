@@ -52,10 +52,6 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         vm.assume(depositAmount != 0);
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
-        // Warp into the future.
-        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
-        vm.warp({ timestamp: currentTime });
-
         // Mint enough ERC-20 assets to the sender.
         deal({ token: address(DEFAULT_ASSET), to: users.sender, give: depositAmount });
 
@@ -64,6 +60,10 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         params.totalAmount = depositAmount;
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = linear.createWithRange(params);
+
+        // Warp into the future.
+        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
+        vm.warp({ timestamp: currentTime });
 
         // Run the test.
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(streamId);
@@ -92,9 +92,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         depositAmount = boundUint128(depositAmount, 10_000, UINT128_MAX);
 
-        // Warp into the future.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
-        vm.warp({ timestamp: currentTime });
 
         // Bound the withdraw amount.
         uint128 streamedAmount = calculateStreamedAmount(currentTime, depositAmount);
@@ -108,6 +106,9 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         params.totalAmount = depositAmount;
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = linear.createWithRange(params);
+
+        // Warp into the future.
+        vm.warp({ timestamp: currentTime });
 
         // Make the withdrawal.
         linear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });

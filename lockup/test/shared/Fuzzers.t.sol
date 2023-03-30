@@ -137,6 +137,10 @@ abstract contract Fuzzers is Constants, Utils {
         // Return here if there's only one segment to not run into division by zero.
         uint40 segmentCount = uint40(segments.length);
         if (segmentCount == 1) {
+            // Make sure that the milestone is strictly greater than the current time.
+            if (segments[0].milestone <= getBlockTimestamp()) {
+                segments[0].milestone = getBlockTimestamp() + 1;
+            }
             return;
         }
 
@@ -150,6 +154,11 @@ abstract contract Fuzzers is Constants, Utils {
             uint256 milestone = milestones[i];
             milestone = bound(milestone, milestone - halfStep, milestone + halfStep);
             segments[i].milestone = uint40(milestone);
+        }
+
+        // Make sure that the last milestone is strictly greater than the current time.
+        if (segments[segmentCount - 1].milestone <= getBlockTimestamp()) {
+            segments[segmentCount - 1].milestone = getBlockTimestamp() + 1;
         }
     }
 }

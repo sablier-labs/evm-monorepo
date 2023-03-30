@@ -62,14 +62,14 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
         endTime = boundUint40(endTime, DEFAULT_CLIFF_TIME + 1, DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION / 2);
 
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
-
         // Make the sender the caller in this test.
         changePrank({ msgSender: users.sender });
 
         // Create a new stream with a different end time.
         uint256 streamId = createDefaultStreamWithEndTime(endTime);
+
+        // Warp into the future.
+        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
@@ -148,14 +148,14 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
         endTime = boundUint40(endTime, DEFAULT_CLIFF_TIME + 1, DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION / 2);
 
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
-
         // Make the recipient the caller in this test.
         changePrank({ msgSender: users.recipient });
 
         // Create a new stream with a different end time.
         uint256 streamId = createDefaultStreamWithEndTime(endTime);
+
+        // Warp into the future.
+        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);

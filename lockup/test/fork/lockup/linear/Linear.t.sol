@@ -116,6 +116,13 @@ abstract contract Linear_Fork_Test is Fork_Test {
         params.protocolFee = bound(params.protocolFee, 0, MAX_FEE);
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
 
+        // If the cliff time is in the past we want to make sure that the end time is not.
+        if (params.range.cliff >= getBlockTimestamp()) {
+            params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
+        } else {
+            params.range.end = boundUint40(params.range.end, getBlockTimestamp() + 1, MAX_UNIX_TIMESTAMP);
+        }
+
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: asset, newProtocolFee: params.protocolFee });
