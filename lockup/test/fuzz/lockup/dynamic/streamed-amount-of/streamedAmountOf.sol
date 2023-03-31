@@ -19,6 +19,12 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     }
 
     /// @dev it should return the correct streamed amount.
+    ///
+    /// The fuzzing ensures that all of the following scenarios are tested:
+    ///
+    /// - Current time < end time
+    /// - Current time = end time
+    /// - Current time > end time
     function testFuzz_StreamedAmountOf_OneSegment(uint40 timeWarp)
         external
         whenStreamActive
@@ -57,6 +63,12 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     }
 
     /// @dev it should return the correct streamed amount.
+    ///
+    /// The fuzzing ensures that all of the following scenarios are tested:
+    ///
+    /// - Current time < end time
+    /// - Current time = end time
+    /// - Current time > end time
     function testFuzz_StreamedAmountOf_CurrentMilestoneNot1st(uint40 timeWarp)
         external
         whenStreamActive

@@ -34,6 +34,12 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should return the correct streamed amount.
+    ///
+    /// The fuzzing ensures that all of the following scenarios are tested:
+    ///
+    /// - Current time < end time
+    /// - Current time = end time
+    /// - Current time > end time
     function testFuzz_StreamedAmountOf(
         uint40 timeWarp,
         uint128 depositAmount
