@@ -107,7 +107,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenCliffTimeLessThanEndTime
         whenEndTimeNotInThePast
     {
-        vm.warp(DEFAULT_END_TIME);
+        vm.warp({ timestamp: DEFAULT_END_TIME });
 
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, DEFAULT_END_TIME, DEFAULT_END_TIME)

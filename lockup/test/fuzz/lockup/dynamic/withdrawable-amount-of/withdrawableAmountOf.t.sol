@@ -80,6 +80,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
+        // Define the current time.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
 
         // Bound the withdraw amount.

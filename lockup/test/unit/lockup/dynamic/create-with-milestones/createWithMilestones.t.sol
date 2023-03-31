@@ -218,7 +218,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
     {
-        vm.warp(DEFAULT_END_TIME);
+        vm.warp({ timestamp: DEFAULT_END_TIME });
 
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, DEFAULT_END_TIME, DEFAULT_END_TIME)

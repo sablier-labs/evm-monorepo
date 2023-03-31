@@ -92,6 +92,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         depositAmount = boundUint128(depositAmount, 10_000, UINT128_MAX);
 
+        // Define the current time.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
 
         // Bound the withdraw amount.
