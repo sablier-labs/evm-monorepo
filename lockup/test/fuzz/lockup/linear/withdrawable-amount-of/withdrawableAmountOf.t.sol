@@ -34,13 +34,6 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
-    /// - Multiple values for the deposit amount
     function testFuzz_WithdrawableAmountOf_NoWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount
@@ -75,11 +68,8 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
     /// - Multiple values for the deposit amount
-    /// - WithdrawFromLockupStream amount equal to deposit amount and not
+    /// - Withdraw amount equal to deposit amount and not
     function testFuzz_WithdrawableAmountOf_WithWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount,

@@ -26,12 +26,6 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     }
 
     /// @dev it should return the correct withdrawable amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
     function testFuzz_WithdrawableAmountOf_WithoutWithdrawals(uint40 timeWarp)
         external
         whenStreamActive
@@ -65,10 +59,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
-    /// - WithdrawFromLockupStream amount equal to deposit amount and not
+    /// - Withdraw amount equal to deposit amount and not
     function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,
         uint128 withdrawAmount

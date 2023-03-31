@@ -19,12 +19,6 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     }
 
     /// @dev it should return the correct streamed amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
     function testFuzz_StreamedAmountOf_OneSegment(uint40 timeWarp)
         external
         whenStreamActive
@@ -63,12 +57,6 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     }
 
     /// @dev it should return the correct streamed amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
     function testFuzz_StreamedAmountOf_CurrentMilestoneNot1st(uint40 timeWarp)
         external
         whenStreamActive
@@ -76,7 +64,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenMultipleSegments
         whenCurrentMilestoneNot1st
     {
-        timeWarp = boundUint40(timeWarp, MAX_SEGMENTS[0].milestone, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = boundUint40(timeWarp, MAX_SEGMENT_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Create the stream with the multiple-segment array.
         uint256 streamId = createDefaultStreamWithSegments(MAX_SEGMENTS);

@@ -39,7 +39,7 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
         external
         whenStreamNonNull
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_TIME, DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
