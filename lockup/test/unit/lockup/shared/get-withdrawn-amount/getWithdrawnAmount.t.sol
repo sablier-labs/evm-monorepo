@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
+
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
 
@@ -12,12 +14,11 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
         changePrank({ msgSender: users.recipient });
     }
 
-    /// @dev it should return zero.
-    function test_GetWithdrawnAmount_StreamNull() external {
+    /// @dev it should revert.
+    function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(nullStreamId);
-        uint128 expectedWithdrawnAmount = 0;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        lockup.getWithdrawnAmount(nullStreamId);
     }
 
     modifier whenStreamNonNull() {

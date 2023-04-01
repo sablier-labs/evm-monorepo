@@ -42,20 +42,23 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Queries the cliff time of the lockup linear stream.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup linear stream to make the query for.
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
     /// @notice Queries the range of the lockup linear stream, a struct that encapsulates (i) the start time of the
     /// stream, (ii) the cliff time of the stream, and (iii) the end time of the stream, all as Unix timestamps.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup linear stream to make the query for.
     function getRange(uint256 streamId) external view returns (LockupLinear.Range memory range);
 
     /// @notice Queries the lockup linear stream entity.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup linear stream to make the query for.
     function getStream(uint256 streamId) external view returns (LockupLinear.Stream memory stream);
 
     /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
-    /// @dev The streaming function is:
+    /// The streaming function is:
     ///
     /// $$
     /// f(x) = x * d + c
@@ -66,6 +69,9 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - $x$ is the elapsed time divided by the total duration of the stream.
     /// - $d$ is the deposit amount.
     /// - $c$ is the cliff amount.
+    ///
+    /// @dev Requirements:
+    /// - `streamId` must not point to a null stream.
     ///
     /// @param streamId The id of the lockup linear stream to make the query for.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);

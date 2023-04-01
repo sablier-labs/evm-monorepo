@@ -54,6 +54,14 @@ abstract contract SablierV2Lockup is
         _;
     }
 
+    /// @dev Checks that `streamId` points to a non-null stream.
+    modifier isNonNull(uint256 streamId) {
+        if (getStatus(streamId) == Lockup.Status.NULL) {
+            revert Errors.SablierV2Lockup_StreamNull(streamId);
+        }
+        _;
+    }
+
     /// @notice Checks that `msg.sender` is either the sender of the stream or the recipient of the stream (also
     /// known as the owner of the NFT).
     modifier onlySenderOrRecipient(uint256 streamId) {

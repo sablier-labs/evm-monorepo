@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
 import { LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
 contract GetStream_Linear_Unit_Test is Linear_Unit_Test {
-    /// @dev it should return a zeroed out stream.
-    function test_GetStream_StreamNull() external {
+    /// @dev it should revert.
+    function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
-        LockupLinear.Stream memory actualStream = linear.getStream(nullStreamId);
-        LockupLinear.Stream memory expectedStream;
-        assertEq(actualStream, expectedStream);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        linear.getStream(nullStreamId);
     }
 
     modifier whenStreamNonNull() {

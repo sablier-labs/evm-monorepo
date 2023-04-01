@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
+
 import { Dynamic_Unit_Test } from "../Dynamic.t.sol";
 
 contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
@@ -17,18 +19,17 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StreamNull() external whenStreamNotActive {
+    /// @dev it should revert.
+    function test_RevertWhen_StreamNull() external whenStreamNotActive {
         uint256 nullStreamId = 1729;
-        uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(nullStreamId);
-        uint128 expectedWithdrawableAmount = 0;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        dynamic.withdrawableAmountOf(nullStreamId);
     }
 
     /// @dev it should return zero.
     function test_WithdrawableAmountOf_StreamCanceled() external whenStreamNotActive {
         lockup.cancel(defaultStreamId);
-        uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
+        uint256 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -37,7 +38,7 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
     function test_WithdrawableAmountOf_StreamDepleted() external whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
+        uint256 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

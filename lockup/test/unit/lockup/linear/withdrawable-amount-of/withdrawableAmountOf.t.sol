@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
+
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
 contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test {
@@ -17,12 +19,11 @@ contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StreamNull() external whenStreamNotActive {
+    /// @dev it should revert.
+    function test_RevertWhen_StreamNull() external whenStreamNotActive {
         uint256 nullStreamId = 1729;
-        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(nullStreamId);
-        uint128 expectedWithdrawableAmount = 0;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        linear.withdrawableAmountOf(nullStreamId);
     }
 
     /// @dev it should return zero.

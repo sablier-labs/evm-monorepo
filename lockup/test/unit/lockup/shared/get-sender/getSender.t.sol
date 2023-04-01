@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
+
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
 
 abstract contract GetSender_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
-    /// @dev it should return zero.
-    function test_GetSender_StreamNull() external {
+    /// @dev it should revert.
+    function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
-        address actualSender = lockup.getSender(nullStreamId);
-        address expectedSender = address(0);
-        assertEq(actualSender, expectedSender, "sender");
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        lockup.getSender(nullStreamId);
     }
 
     modifier whenStreamNonNull() {
