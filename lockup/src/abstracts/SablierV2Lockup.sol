@@ -47,7 +47,7 @@ abstract contract SablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks that `streamId` points to an active stream.
-    modifier isActiveStream(uint256 streamId) {
+    modifier isActive(uint256 streamId) {
         if (getStatus(streamId) != Lockup.Status.ACTIVE) {
             revert Errors.SablierV2Lockup_StreamNotActive(streamId);
         }
@@ -103,7 +103,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId) external override noDelegateCall isActiveStream(streamId) {
+    function cancel(uint256 streamId) external override noDelegateCall isActive(streamId) {
         // Checks: the stream is cancelable.
         if (!isCancelable(streamId)) {
             revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
@@ -135,7 +135,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall isActiveStream(streamId) {
+    function renounce(uint256 streamId) external override noDelegateCall isActive(streamId) {
         // Checks: `msg.sender` is the sender of the stream.
         if (!_isCallerStreamSender(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
@@ -165,16 +165,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount
-    )
-        public
-        override
-        noDelegateCall
-        isActiveStream(streamId)
-    {
+    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall isActive(streamId) {
         // Checks: `msg.sender` is the sender of the stream, the recipient of the stream (also known as
         // the owner of the NFT), or an approved operator.
         if (!_isCallerStreamSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
