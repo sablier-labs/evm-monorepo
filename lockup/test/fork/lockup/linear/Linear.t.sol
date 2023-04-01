@@ -107,21 +107,20 @@ abstract contract Linear_Fork_Test is Fork_Test {
     /// - Multiple values for the withdraw amount, including zero.
     function testForkFuzz_Linear_CreateWithdrawCancel(Params memory params) external {
         checkUsers(params.sender, params.recipient, params.broker.account, address(linear));
+
+        // Bound the parameters.
+        uint40 currentTime = getBlockTimestamp();
         params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
-        params.range.start = boundUint40(
-            params.range.start, uint40(block.timestamp - 1000 seconds), uint40(block.timestamp + 10_000 seconds)
-        );
+        params.range.start = boundUint40(params.range.start, currentTime - 1000 seconds, currentTime + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
-        params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
+        // Fuzz the end time so that it is always after the cliff time, and always greater than the current time.
+        params.range.end = boundUint40(
+            params.range.end,
+            (params.range.cliff <= currentTime ? currentTime : params.range.cliff) + 1,
+            MAX_UNIX_TIMESTAMP
+        );
         params.protocolFee = bound(params.protocolFee, 0, MAX_FEE);
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
-
-        // If the cliff time is in the past we want to make sure that the end time is not.
-        if (params.range.cliff >= getBlockTimestamp()) {
-            params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
-        } else {
-            params.range.end = boundUint40(params.range.end, getBlockTimestamp() + 1, MAX_UNIX_TIMESTAMP);
-        }
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
