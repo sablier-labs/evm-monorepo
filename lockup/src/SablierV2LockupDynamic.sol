@@ -216,8 +216,7 @@ contract SablierV2LockupDynamic is
         uint256 segmentCount = _streams[streamId].segments.length;
         uint40 endTime = _streams[streamId].endTime;
 
-        // If the current time is greater than or equal to the end time, we simply return the deposit minus
-        // the withdrawn amount.
+        // If the current time is greater than or equal to the end time, we simply return the deposit amount.
         if (currentTime >= endTime) {
             return _streams[streamId].amounts.deposit;
         }
@@ -581,7 +580,7 @@ contract SablierV2LockupDynamic is
         LockupDynamic.Stream memory stream = _streams[streamId];
         address recipient = _ownerOf(streamId);
 
-        // Assert that the withdrawn amount is greater than or equal to the deposit amount.
+        // Assert that the deposit amount is greater than or equal to the withdrawn amount.
         assert(stream.amounts.deposit >= stream.amounts.withdrawn);
 
         // Effects: if the entire deposit amount is now withdrawn, mark the stream as depleted.
