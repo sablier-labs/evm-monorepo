@@ -54,18 +54,8 @@ abstract contract SablierV2Lockup is
         _;
     }
 
-    /// @notice Checks that `msg.sender` is the sender of the stream, the recipient of the stream (also known as
-    /// the owner of the NFT), or an approved operator.
-    modifier isAuthorizedForStream(uint256 streamId) {
-        if (!_isCallerStreamSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
-            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-        }
-        _;
-    }
-
     /// @notice Checks that `msg.sender` is either the sender of the stream or the recipient of the stream (also
-    /// known
-    /// as the owner of the NFT).
+    /// known as the owner of the NFT).
     modifier onlySenderOrRecipient(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && msg.sender != getRecipient(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
@@ -184,8 +174,13 @@ abstract contract SablierV2Lockup is
         override
         noDelegateCall
         isActiveStream(streamId)
-        isAuthorizedForStream(streamId)
     {
+        // Checks: `msg.sender` is the sender of the stream, the recipient of the stream (also known as
+        // the owner of the NFT), or an approved operator.
+        if (!_isCallerStreamSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
+            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+        }
+
         // Checks: if `msg.sender` is the sender of the stream, the provided address is the recipient.
         if (_isCallerStreamSender(streamId) && to != getRecipient(streamId)) {
             revert Errors.SablierV2Lockup_WithdrawSenderUnauthorized(streamId, msg.sender, to);
