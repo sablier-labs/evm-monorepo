@@ -168,8 +168,8 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall isActive(streamId) {
-        // Checks: `msg.sender` is the sender of the stream, the recipient of the stream (also known as
-        // the owner of the NFT), or an approved operator.
+        // Checks: `msg.sender` is the sender of the stream, the recipient of the stream (also known as the
+        // owner of the NFT), or an approved operator.
         if (!_isCallerStreamSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
@@ -220,17 +220,19 @@ abstract contract SablierV2Lockup is
         for (uint256 i = 0; i < streamIdsCount;) {
             streamId = streamIds[i];
 
-            // If the `streamId` does not point to an active stream, simply skip it.
-            if (getStatus(streamId) == Lockup.Status.ACTIVE) {
-                // Checks: `msg.sender` is an approved operator or the owner of the NFT (also known as the recipient
-                // of the stream).
-                if (!_isApprovedOrOwner(streamId, msg.sender)) {
-                    revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-                }
-
-                // Checks, Effects and Interactions: make the withdrawal.
-                _withdraw(streamId, to, amounts[i]);
+            // Checks: the stream id points to an active stream.
+            if (getStatus(streamId) != Lockup.Status.ACTIVE) {
+                revert Errors.SablierV2Lockup_StreamNotActive(streamId);
             }
+
+            // Checks: `msg.sender` is an approved operator or the owner of the NFT (also known as the recipient
+            // of the stream).
+            if (!_isApprovedOrOwner(streamId, msg.sender)) {
+                revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+            }
+
+            // Checks, Effects and Interactions: make the withdrawal.
+            _withdraw(streamId, to, amounts[i]);
 
             // Increment the for loop iterator.
             unchecked {

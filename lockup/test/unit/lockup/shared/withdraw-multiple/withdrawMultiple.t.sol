@@ -66,7 +66,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_ArrayCountsZero() external whenNoDelegateCall whenToNonZeroAddress {
+    function test_ArrayCountsZero() external whenNoDelegateCall whenToNonZeroAddress {
         uint256[] memory streamIds = new uint256[](0);
         uint128[] memory amounts = new uint128[](0);
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
@@ -76,7 +76,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should do nothing.
+    /// @dev it should revert.
     function test_RevertWhen_OnlyNullStreams()
         external
         whenNoDelegateCall
@@ -85,12 +85,15 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenArrayCountsNotZero
     {
         uint256 nullStreamId = 1729;
-        uint256[] memory nonStreamIds = Solarray.uint256s(nullStreamId);
-        uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT);
-        lockup.withdrawMultiple({ streamIds: nonStreamIds, to: users.recipient, amounts: amounts });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
+        lockup.withdrawMultiple({
+            streamIds: Solarray.uint256s(nullStreamId),
+            to: users.recipient,
+            amounts: Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT)
+        });
     }
 
-    /// @dev it should ignore the null streams and make the withdrawals for the non-null ones.
+    /// @dev it should revert.
     function test_RevertWhen_SomeNullStreams()
         external
         whenNoDelegateCall
@@ -99,16 +102,16 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenArrayCountsNotZero
     {
         uint256 nullStreamId = 1729;
-        uint256[] memory streamIds = Solarray.uint256s(nullStreamId, defaultStreamIds[0]);
+        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], nullStreamId);
 
         // Warp to 2,600 seconds after the start time (26% of the default stream duration).
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
 
-        // Run the test.
+        // Expect a {StreamNotActive} error.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
+
+        // Withdraw from multiple streams.
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamIds[0]);
-        uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
     modifier whenOnlyNonNullStreams() {
