@@ -163,7 +163,7 @@ interface ISablierV2Lockup is
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - The caller must be either the sender or the recipient of each stream.
+    /// - `msg.sender` must be either the sender or the recipient of each stream.
     ///
     /// @param streamIds The ids of the lockup streams to cancel.
     function cancelMultiple(uint256[] calldata streamIds) external;
@@ -193,7 +193,7 @@ interface ISablierV2Lockup is
     /// - Does not revert if the NFT descriptor is the same.
     ///
     /// Requirements:
-    /// - The caller must be the contract admin.
+    /// - `msg.sender` must be the contract admin.
     ///
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     function setNFTDescriptor(ISablierV2NFTDescriptor newNFTDescriptor) external;
@@ -242,7 +242,7 @@ interface ISablierV2Lockup is
     /// Requirements:
     /// - The call must not be a delegate call.
     /// - The count of `streamIds` must match the count of `amounts`.
-    /// - The caller must be either the recipient or an approved operator of each stream.
+    /// - `msg.sender` must be either the recipient or an approved operator of each stream.
     /// - Every amount in `amounts` must not be zero and must not exceed the withdrawable amount.
     ///
     /// @param streamIds The ids of the lockup streams to withdraw.

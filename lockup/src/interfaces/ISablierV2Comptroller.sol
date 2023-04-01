@@ -67,7 +67,7 @@ interface ISablierV2Comptroller is IAdminable {
     /// - Does not revert if the fee is the same.
     ///
     /// Requirements:
-    /// - The caller must be the contract admin.
+    /// - `msg.sender` must be the contract admin.
     ///
     /// @param newFlashFee The new flash fee to set, as an UD60x18 number where 100% = 1e18.
     function setFlashFee(UD60x18 newFlashFee) external;
@@ -83,7 +83,7 @@ interface ISablierV2Comptroller is IAdminable {
     /// - Does not revert if the fee is the same.
     ///
     /// Requirements:
-    /// - The caller must be the contract admin.
+    /// - `msg.sender` must be the contract admin.
     ///
     /// @param asset The contract address of the ERC-20 asset to make the query for.
     /// @param newProtocolFee The new protocol fee to set, as an UD60x18 number where 100% = 1e18.
@@ -94,7 +94,7 @@ interface ISablierV2Comptroller is IAdminable {
     /// @dev Emits a {ToggleFlashAsset} event.
     ///
     /// Requirements:
-    /// - The caller must be the admin.
+    /// - `msg.sender` must be the admin.
     ///
     /// @param asset The address of the ERC-20 asset to toggle.
     function toggleFlashAsset(IERC20 asset) external;

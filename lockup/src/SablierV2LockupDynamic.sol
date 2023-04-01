@@ -64,7 +64,7 @@ contract SablierV2LockupDynamic is
     /// @dev Counter for stream ids, used in the create functions.
     uint256 private _nextStreamId;
 
-    /// @dev Dynamic lockup streams mapped by unsigned integers ids.
+    /// @dev Lockup dynamic streams mapped by unsigned integers ids.
     mapping(uint256 id => LockupDynamic.Stream stream) private _streams;
 
     /*//////////////////////////////////////////////////////////////////////////

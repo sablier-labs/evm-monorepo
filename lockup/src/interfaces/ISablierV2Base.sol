@@ -54,7 +54,7 @@ interface ISablierV2Base is IAdminable {
     /// @dev Emits a {ClaimProtocolRevenues} event.
     ///
     /// Requirements:
-    /// - The caller must be the contract admin.
+    /// - `msg.sender` must be the contract admin.
     ///
     /// @param asset The contract address of the ERC-20 asset to claim the protocol revenues for.
     function claimProtocolRevenues(IERC20 asset) external;
@@ -68,7 +68,7 @@ interface ISablierV2Base is IAdminable {
     /// - Does not revert if the comptroller is the same.
     ///
     /// Requirements:
-    /// - The caller must be the contract admin.
+    /// - `msg.sender` must be the contract admin.
     ///
     /// @param newComptroller The address of the new comptroller contract.
     function setComptroller(ISablierV2Comptroller newComptroller) external;
