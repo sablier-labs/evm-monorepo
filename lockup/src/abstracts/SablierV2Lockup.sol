@@ -111,7 +111,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId) external override noDelegateCall isActive(streamId) {
+    function cancel(uint256 streamId) public override noDelegateCall isActive(streamId) {
         // Checks: the stream is cancelable.
         if (!isCancelable(streamId)) {
             revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
@@ -125,15 +125,9 @@ abstract contract SablierV2Lockup is
     function cancelMultiple(uint256[] calldata streamIds) external override noDelegateCall {
         // Iterate over the provided array of stream ids and cancel each stream.
         uint256 count = streamIds.length;
-        uint256 streamId;
         for (uint256 i = 0; i < count;) {
-            streamId = streamIds[i];
-
             // Effects and Interactions: cancel the stream.
-            // Cancel this stream only if the `streamId` points to a stream that is active and cancelable.
-            if (getStatus(streamId) == Lockup.Status.ACTIVE && isCancelable(streamId)) {
-                _cancel(streamId);
-            }
+            cancel(streamIds[i]);
 
             // Increment the for loop iterator.
             unchecked {

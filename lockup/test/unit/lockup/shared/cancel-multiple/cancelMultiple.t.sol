@@ -34,7 +34,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should do nothing.
-    function test_RevertWhen_ArrayCountZero() external whenNoDelegateCall {
+    function test_ArrayCountZero() external whenNoDelegateCall {
         uint256[] memory streamIds = new uint256[](0);
         lockup.cancelMultiple(streamIds);
     }
@@ -43,38 +43,35 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should do nothing.
+    /// @dev it should revert.
     function test_RevertWhen_OnlyNullStreams() external whenNoDelegateCall whenArrayCountNotZero {
         uint256 nullStreamId = 1729;
-        uint256[] memory streamIds = Solarray.uint256s(nullStreamId);
-        lockup.cancelMultiple(streamIds);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
+        lockup.cancelMultiple({ streamIds: Solarray.uint256s(nullStreamId) });
     }
 
-    /// @dev it should ignore the null streams and cancel the non-null ones.
+    /// @dev it should revert.
     function test_RevertWhen_SomeNullStreams() external whenNoDelegateCall whenArrayCountNotZero {
         uint256 nullStreamId = 1729;
-        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], nullStreamId);
-        lockup.cancelMultiple(streamIds);
-        Lockup.Status actualStatus = lockup.getStatus(defaultStreamIds[0]);
-        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
-        assertEq(actualStatus, expectedStatus);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
+        lockup.cancelMultiple({ streamIds: Solarray.uint256s(defaultStreamIds[0], nullStreamId) });
     }
 
     modifier whenOnlyNonNullStreams() {
         _;
     }
 
-    /// @dev it should do nothing.
+    /// @dev it should revert.
     function test_RevertWhen_AllStreamsNonCancelable()
         external
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
     {
-        // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
-
-        // Run the test.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNonCancelable.selector, nonCancelableStreamId)
+        );
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(nonCancelableStreamId) });
     }
 
@@ -85,20 +82,11 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenArrayCountNotZero
         whenOnlyNonNullStreams
     {
-        // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
-
-        // Run the test.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNonCancelable.selector, nonCancelableStreamId)
+        );
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(defaultStreamIds[0], nonCancelableStreamId) });
-
-        // Assert that the cancelable stream has been canceled.
-        Lockup.Status actualStatus = lockup.getStatus(defaultStreamIds[0]);
-        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
-        assertEq(actualStatus, expectedStatus, "status0");
-
-        // Assert that the non-cancelable stream has not been canceled.
-        Lockup.Status status = lockup.getStatus(nonCancelableStreamId);
-        assertEq(status, Lockup.Status.ACTIVE, "status1");
     }
 
     modifier whenAllStreamsCancelable() {

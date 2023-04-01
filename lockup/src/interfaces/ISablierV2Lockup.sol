@@ -169,12 +169,11 @@ interface ISablierV2Lockup is
     /// @dev Emits multiple {CancelLockupStream} events.
     ///
     /// Notes:
-    /// - Does not revert if one of the ids points to a lockup stream that is not active or is active but not
-    /// cancelable.
     /// - This function will attempt to call a hook on either the sender or the recipient of each stream.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
+    /// - All streams must be active and cancelable.
     /// - `msg.sender` must be either the sender or the recipient of each stream.
     ///
     /// @param streamIds The ids of the lockup streams to cancel.
