@@ -52,7 +52,7 @@ contract SablierV2LockupLinear is
     /// @dev Counter for stream ids, used in the create functions.
     uint256 private _nextStreamId;
 
-    /// @dev Sablier V2 lockup linear streams mapped by unsigned integers.
+    /// @dev Sablier V2 linear lockup streams mapped by unsigned integers.
     mapping(uint256 id => LockupLinear.Stream stream) private _streams;
 
     /*//////////////////////////////////////////////////////////////////////////

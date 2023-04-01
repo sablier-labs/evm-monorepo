@@ -39,7 +39,8 @@ library Lockup {
 
     /// @notice Enum with all possible statuses of a lockup stream.
     /// @custom:value NULL The stream has not been created yet. This is the default value.
-    /// @custom:value ACTIVE The stream has been created and it is active, meaning assets are being streamed.
+    /// @custom:value ACTIVE The stream has been created and it is active, indicating that assets are either in
+    /// the process of being streamed or are due to be withdrawn.
     /// @custom:value CANCELED The stream has been canceled by either the sender or the recipient.
     /// @custom:value DEPLETED The stream has been depleted, meaning all assets have been withdrawn.
     enum Status {
@@ -65,18 +66,18 @@ library LockupDynamic {
     /// @param broker An optional struct that encapsulates (i) the address of the broker that has helped create the
     /// stream and (ii) the percentage fee that the broker is paid from `totalAmount`, as an UD60x18 number.
     struct CreateWithDeltas {
-        address sender;
+        LockupDynamic.SegmentWithDelta[] segments;
+        address sender; // ──┐
+        bool cancelable; // ─┘
         address recipient;
         uint128 totalAmount;
         IERC20 asset;
-        bool cancelable;
-        LockupDynamic.SegmentWithDelta[] segments;
         Broker broker;
     }
 
     /// @notice Struct that encapsulates the parameters of the {SablierV2LockupDynamic-createWithMilestones}
     /// function.
-    /// @param segments  The segments the protocol uses to compose the custom streaming curve.
+    /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param sender The address from which to stream the assets, which will have the ability to cancel the stream.
     /// It doesn't have to be the same as `msg.sender`.
     /// @param startTime The Unix timestamp for when the stream will start.
@@ -98,7 +99,7 @@ library LockupDynamic {
         Broker broker;
     }
 
-    /// @notice Range struct used as a field in the lockup dynamic stream.
+    /// @notice Range struct used as a field in the dynamic lockup stream.
     /// @param start The Unix timestamp for when the stream will start.
     /// @param end The Unix timestamp for when the stream will end.
     struct Range {
@@ -106,7 +107,7 @@ library LockupDynamic {
         uint40 end; // ───┘
     }
 
-    /// @notice Segment struct used in the lockup dynamic stream.
+    /// @notice Segment struct used in the dynamic lockup stream.
     /// @param amount The amounts of assets to be streamed in this segment, in units of the asset's decimals.
     /// @param exponent The exponent of this segment, as an UD2x18 number.
     /// @param milestone The Unix timestamp for when this segment ends.
@@ -126,7 +127,7 @@ library LockupDynamic {
         uint40 delta; // ───┘
     }
 
-    /// @notice Lockup dynamic stream struct.
+    /// @notice dynamic Lockup stream struct.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
     /// @param amounts Simple struct with the deposit and the withdrawn amount.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
@@ -202,7 +203,7 @@ library LockupLinear {
         uint40 total; // ─┘
     }
 
-    /// @notice Range struct used as a field in the lockup linear stream.
+    /// @notice Range struct used as a field in the linear lockup linear.
     /// @param start The Unix timestamp for when the stream will start.
     /// @param cliff The Unix timestamp for when the cliff period will end.
     /// @param end The Unix timestamp for when the stream will end.
@@ -212,7 +213,7 @@ library LockupLinear {
         uint40 end; // ───┘
     }
 
-    /// @notice Lockup linear stream struct.
+    /// @notice linear Lockup linear struct.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
     /// @param amounts Simple struct with the deposit and the withdrawn amount.
     /// @param sender The address of the sender of the stream.
