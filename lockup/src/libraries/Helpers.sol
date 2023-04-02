@@ -25,6 +25,7 @@ library Helpers {
         pure
         returns (Lockup.CreateAmounts memory amounts)
     {
+        // When the total amount is zero, the fees are also zero.
         if (totalAmount == 0) {
             return Lockup.CreateAmounts(0, 0, 0);
         }
@@ -35,7 +36,7 @@ library Helpers {
         }
 
         // Calculate the protocol fee amount.
-        // The cast to uint128 is safe because the maximum fee is hard-coded and it is always less than 1e18.
+        // The cast to uint128 is safe because the maximum fee is hard coded.
         amounts.protocolFee = uint128(ud(totalAmount).mul(protocolFee).intoUint256());
 
         // Checks: the broker fee is not greater than `maxFee`.
@@ -44,17 +45,15 @@ library Helpers {
         }
 
         // Calculate the broker fee amount.
-        // The cast to uint128 is safe because the maximum fee is hard-coded and it is always less than 1e18.
+        // The cast to uint128 is safe because the maximum fee is hard coded.
         amounts.brokerFee = uint128(ud(totalAmount).mul(brokerFee).intoUint256());
 
-        unchecked {
-            // Assert that the total amount is strictly greater than the sum of the protocol fee amount and the
-            // broker fee amount.
-            assert(totalAmount > amounts.protocolFee + amounts.brokerFee);
+        // Assert that the total amount is strictly greater than the sum of the protocol fee amount and the
+        // broker fee amount.
+        assert(totalAmount > amounts.protocolFee + amounts.brokerFee);
 
-            // Calculate the deposit amount (the amount to stream, net of fees).
-            amounts.deposit = totalAmount - amounts.protocolFee - amounts.brokerFee;
-        }
+        // Calculate the deposit amount (the amount to stream, net of fees).
+        amounts.deposit = totalAmount - amounts.protocolFee - amounts.brokerFee;
     }
 
     /// @dev Checks the parameters of the {SablierV2LockupDynamic-_createWithMilestones} function.

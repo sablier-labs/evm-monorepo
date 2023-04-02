@@ -18,8 +18,7 @@ contract Constructor_Linear_Unit_Test is Linear_Unit_Test {
         SablierV2LockupLinear constructedLinear = new SablierV2LockupLinear({
             initialAdmin: users.admin,
             initialComptroller: comptroller,
-            initialNFTDescriptor: nftDescriptor,
-            maxFee: DEFAULT_MAX_FEE
+            initialNFTDescriptor: nftDescriptor
         });
 
         // {SablierV2-constructor}
@@ -30,10 +29,6 @@ contract Constructor_Linear_Unit_Test is Linear_Unit_Test {
         address actualComptroller = address(constructedLinear.comptroller());
         address expectedComptroller = address(comptroller);
         assertEq(actualComptroller, expectedComptroller, "comptroller");
-
-        UD60x18 actualMaxFee = constructedLinear.MAX_FEE();
-        UD60x18 expectedMaxFee = DEFAULT_MAX_FEE;
-        assertEq(actualMaxFee, expectedMaxFee, "MAX_FEE");
 
         // {SablierV2Lockup-constructor}
         uint256 actualStreamId = constructedLinear.nextStreamId();

@@ -26,7 +26,7 @@ abstract contract SablierV2Base is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Base
-    UD60x18 public immutable override MAX_FEE;
+    UD60x18 public constant override MAX_FEE = UD60x18.wrap(0.1e18);
 
     /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE
@@ -45,12 +45,9 @@ abstract contract SablierV2Base is
     /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialComptroller The address of the initial comptroller.
-    /// @param maxFee The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
-    /// where 100% = 1e18.
-    constructor(address initialAdmin, ISablierV2Comptroller initialComptroller, UD60x18 maxFee) {
+    constructor(address initialAdmin, ISablierV2Comptroller initialComptroller) {
         admin = initialAdmin;
         comptroller = initialComptroller;
-        MAX_FEE = maxFee;
         emit IAdminable.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
     }
 

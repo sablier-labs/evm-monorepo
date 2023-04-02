@@ -20,13 +20,6 @@ on:
       comptroller:
         description: "The address of the previously SablierV2Comptroller contract"
         required: true
-      max-fee:
-        default: "100000000000000000"
-        description: |
-          The maximum fee that can be charged by either the protocol or a broker.
-
-          Defaults to 10%.
-        required: false
       nft-descriptor:
         description: "The address of the contract that generates the NFT descriptor"
         required: true
@@ -52,7 +45,6 @@ jobs:
           "${{ github.event.inputs.admin }}"
           "${{ github.event.inputs.comptroller }}"
           "${{ github.event.inputs.nft-descriptor }}"
-          "${{ github.event.inputs.max-fee }}"
           -vvvv
 
       - name: "Add summary"

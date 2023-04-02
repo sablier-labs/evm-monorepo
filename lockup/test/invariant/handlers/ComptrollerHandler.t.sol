@@ -38,7 +38,7 @@ contract ComptrollerHandler is BaseHandler {
     }
 
     function setProtocolFee(UD60x18 newProtocolFee) external instrument("setProtocolFee") {
-        newProtocolFee = bound(newProtocolFee, 0, DEFAULT_MAX_FEE);
+        newProtocolFee = bound(newProtocolFee, 0, MAX_FEE);
         comptroller.setProtocolFee(asset, newProtocolFee);
     }
 

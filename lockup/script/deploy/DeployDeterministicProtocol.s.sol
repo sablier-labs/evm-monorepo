@@ -30,7 +30,6 @@ contract DeployDeterministicProtocol is
     function run(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor,
-        UD60x18 maxFee,
         uint256 maxSegmentCount
     )
         public
@@ -41,11 +40,9 @@ contract DeployDeterministicProtocol is
         comptroller = DeployDeterministicComptroller.run(initialAdmin);
 
         // Deploy the SablierV2LockupLinear contract.
-        linear = DeployDeterministicLockupLinear.run(initialAdmin, comptroller, initialNFTDescriptor, maxFee);
+        linear = DeployDeterministicLockupLinear.run(initialAdmin, comptroller, initialNFTDescriptor);
 
         // Deploy the SablierV2LockupDynamic contract.
-        dynamic = DeployDeterministicLockupDynamic.run(
-            initialAdmin, comptroller, initialNFTDescriptor, maxFee, maxSegmentCount
-        );
+        dynamic = DeployDeterministicLockupDynamic.run(initialAdmin, comptroller, initialNFTDescriptor, maxSegmentCount);
     }
 }

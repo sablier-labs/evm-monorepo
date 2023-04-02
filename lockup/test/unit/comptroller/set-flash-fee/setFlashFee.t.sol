@@ -15,7 +15,7 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
-        comptroller.setFlashFee({ newFlashFee: DEFAULT_MAX_FEE });
+        comptroller.setFlashFee({ newFlashFee: MAX_FEE });
     }
 
     /// @dev The admin is the default caller in the comptroller tests.

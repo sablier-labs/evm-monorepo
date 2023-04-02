@@ -8,7 +8,7 @@ import { Comptroller_Fuzz_Test } from "../Comptroller.t.sol";
 contract SetFlashFee_Fuzz_Test is Comptroller_Fuzz_Test {
     /// @dev it should set the new flash fee and emit a {SetFlashFee} event.
     function testFuzz_SetFlashFee(UD60x18 newFlashFee) external {
-        newFlashFee = bound(newFlashFee, 0, DEFAULT_MAX_FEE);
+        newFlashFee = bound(newFlashFee, 0, MAX_FEE);
 
         // Expect a {SetFlashFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });

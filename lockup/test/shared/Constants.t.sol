@@ -18,7 +18,6 @@ abstract contract Constants {
     uint128 internal constant DEFAULT_DEPOSIT_AMOUNT = 10_000e18;
     uint40 internal immutable DEFAULT_END_TIME;
     UD60x18 internal constant DEFAULT_FLASH_FEE = UD60x18.wrap(0.0005e18); // 0.05%
-    UD60x18 internal constant DEFAULT_MAX_FEE = UD60x18.wrap(0.1e18); // 10%
     uint256 internal constant DEFAULT_MAX_SEGMENT_COUNT = 1000;
     UD60x18 internal constant DEFAULT_PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%
     uint128 internal constant DEFAULT_PROTOCOL_FEE_AMOUNT = 10.040160642570281124e18; // 0.1% of total amount
@@ -28,6 +27,7 @@ abstract contract Constants {
     uint40 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
     uint128 internal constant DEFAULT_WITHDRAW_AMOUNT = 2600e18;
     bytes32 internal constant FLASH_LOAN_CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
+    UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
     uint40 internal constant MAX_UNIX_TIMESTAMP = 2_147_483_647; // 2^31 - 1
     uint128 internal constant UINT128_MAX = type(uint128).max;
     uint256 internal constant UINT256_MAX = type(uint256).max;

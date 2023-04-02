@@ -33,15 +33,12 @@ abstract contract SablierV2Lockup is
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialComptroller The address of the initial comptroller.
     /// @param initialNftDescriptor The address of the initial NFT descriptor.
-    /// @param maxFee The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
-    /// where 100% = 1e18.
     constructor(
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
-        ISablierV2NFTDescriptor initialNftDescriptor,
-        UD60x18 maxFee
+        ISablierV2NFTDescriptor initialNftDescriptor
     )
-        SablierV2Base(initialAdmin, initialComptroller, maxFee)
+        SablierV2Base(initialAdmin, initialComptroller)
     {
         _nftDescriptor = initialNftDescriptor;
     }
