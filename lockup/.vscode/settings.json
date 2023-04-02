@@ -9,5 +9,6 @@
     ".gas-snapshot": "julia"
   },
   "editor.formatOnSave": true,
+  "npm.exclude": "**/lib/**",
   "solidity.formatter": "forge"
 }
