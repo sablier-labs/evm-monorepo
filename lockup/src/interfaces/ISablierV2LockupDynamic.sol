@@ -56,7 +56,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @param streamId The id of the lockup dynamic stream to make the query for.
     function getSegments(uint256 streamId) external view returns (LockupDynamic.Segment[] memory segments);
 
-    /// @notice Queries the lockup dynamic stream struct entity.
+    /// @notice Queries the lockup dynamic stream entity.
     /// @param streamId The id of the lockup dynamic stream to make the query for.
     function getStream(uint256 streamId) external view returns (LockupDynamic.Stream memory stream);
 
@@ -81,10 +81,9 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a lockup dynamic stream by setting the start time to `block.timestamp` and the end time to
-    /// the
-    /// sum of `block.timestamp` and all segment deltas. The stream is funded by `msg.sender` and is wrapped in an
-    /// ERC-721 NFT.
+    /// @notice Creates a lockup dynamic stream by setting the start time to `block.timestamp`, and the end time
+    /// to the sum of `block.timestamp` and all specified time deltas. The segment milestones are derived from these
+    /// deltas. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupDynamicStream} and a {Transfer} event.
     ///
