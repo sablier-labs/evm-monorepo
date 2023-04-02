@@ -67,7 +67,6 @@ abstract contract Calculations is Constants {
         }
 
         unchecked {
-            // Sum up the amounts found in all preceding segments.
             uint128 previousSegmentAmounts;
             uint40 currentSegmentMilestone = segments[0].milestone;
             uint256 index = 1;
@@ -77,26 +76,20 @@ abstract contract Calculations is Constants {
                 index += 1;
             }
 
-            // After the loop exits, the current segment is found at index `index - 1`, whereas the previous segment
-            // is found at `index - 2` (if there are at least two segments).
             SD59x18 currentSegmentAmount = segments[index - 1].amount.intoSD59x18();
             SD59x18 currentSegmentExponent = segments[index - 1].exponent.intoSD59x18();
             currentSegmentMilestone = segments[index - 1].milestone;
 
             uint40 previousMilestone;
             if (index > 1) {
-                // If the current segment is at an index that is >= 2, we use the previous segment's milestone.
                 previousMilestone = segments[index - 2].milestone;
             } else {
-                // Otherwise, there is only one segment, so we use the start of the stream as the previous milestone.
                 previousMilestone = DEFAULT_START_TIME;
             }
 
-            // Calculate how much time has elapsed since the segment started, and the total time of the segment.
             SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
             SD59x18 totalSegmentTime = (currentSegmentMilestone - previousMilestone).intoSD59x18();
 
-            // Calculate the streamed amount.
             SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
             SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
             streamedAmount = previousSegmentAmounts + uint128(multiplier.mul(currentSegmentAmount).intoUint256());
@@ -118,11 +111,9 @@ abstract contract Calculations is Constants {
             return depositAmount;
         }
         unchecked {
-            // Calculate how much time has elapsed since the stream started, and the total time of the stream.
             SD59x18 elapsedTime = (currentTime - DEFAULT_START_TIME).intoSD59x18();
             SD59x18 totalTime = DEFAULT_TOTAL_DURATION.intoSD59x18();
 
-            // Calculate the streamed amount.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             SD59x18 multiplier = elapsedTimePercentage.pow(exponent.intoSD59x18());
             streamedAmount = uint128(multiplier.mul(depositAmount.intoSD59x18()).intoUint256());
