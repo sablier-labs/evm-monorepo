@@ -18,6 +18,10 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         streamId = dynamic.nextStreamId();
     }
 
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
     modifier whenLoopCalculationsDoNotOverflowBlockGasLimit() {
         _;
     }
@@ -48,6 +52,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// record the protocol fee, and emit a {CreateLockupDynamicStream} event.
     function testFuzz_CreateWithDeltas(LockupDynamic.SegmentWithDelta[] memory segments)
         external
+        whenNoDelegateCall
         whenLoopCalculationsDoNotOverflowBlockGasLimit
         whenDeltasNotZero
         whenMilestonesCalculationsDoNotOverflow

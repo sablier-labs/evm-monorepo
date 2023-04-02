@@ -16,8 +16,12 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         streamId = linear.nextStreamId();
     }
 
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
     /// @dev it should revert due to the start time being greater than the cliff time.
-    function testFuzz_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration) external {
+    function testFuzz_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration) external whenNoDelegateCall {
         uint40 startTime = getBlockTimestamp();
         cliffDuration = boundUint40(cliffDuration, UINT40_MAX - startTime + 1, UINT40_MAX);
 
@@ -48,6 +52,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// @dev it should revert.
     function testFuzz_RevertWhen_TotalDurationCalculationOverflows(LockupLinear.Durations memory durations)
         external
+        whenNoDelegateCall
         whenCliffDurationCalculationDoesNotOverflow
     {
         uint40 startTime = getBlockTimestamp();
@@ -79,7 +84,12 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the
     /// protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
-    function testFuzz_CreateWithDurations(LockupLinear.Durations memory durations) external {
+    function testFuzz_CreateWithDurations(LockupLinear.Durations memory durations)
+        external
+        whenNoDelegateCall
+        whenCliffDurationCalculationDoesNotOverflow
+        whenTotalDurationCalculationDoesNotOverflow
+    {
         durations.total = boundUint40(durations.total, 0, MAX_UNIX_TIMESTAMP);
         vm.assume(durations.cliff < durations.total);
 
