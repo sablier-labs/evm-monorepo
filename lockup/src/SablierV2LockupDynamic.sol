@@ -125,7 +125,11 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getRecipient(uint256 streamId) public view override isNonNull(streamId) returns (address recipient) {
+    function getRecipient(uint256 streamId) external view override returns (address recipient) {
+        // Checks: the stream NFT exists.
+        _requireMinted({ tokenId: streamId });
+
+        // The owner of the stream NFT is the recipient.
         recipient = _ownerOf(streamId);
     }
 
