@@ -79,9 +79,6 @@ abstract contract SablierV2Lockup is
     function getStatus(uint256 streamId) public view virtual override returns (Lockup.Status status);
 
     /// @inheritdoc ISablierV2Lockup
-    function isCancelable(uint256 streamId) public view virtual override returns (bool result);
-
-    /// @inheritdoc ISablierV2Lockup
     function withdrawableAmountOf(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -108,15 +105,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId) public override noDelegateCall isActive(streamId) {
-        // Checks: the stream is cancelable.
-        if (!isCancelable(streamId)) {
-            revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
-        }
-
-        // Effects and Interactions: cancel the stream.
-        _cancel(streamId);
-    }
+    function cancel(uint256 streamId) public virtual override;
 
     /// @inheritdoc ISablierV2Lockup
     function cancelMultiple(uint256[] calldata streamIds) external override noDelegateCall {
@@ -131,22 +120,6 @@ abstract contract SablierV2Lockup is
                 i += 1;
             }
         }
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall isActive(streamId) {
-        // Checks: `msg.sender` is the sender of the stream.
-        if (!_isCallerStreamSender(streamId)) {
-            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-        }
-
-        // Checks: the stream is not already non-cancelable.
-        if (!isCancelable(streamId)) {
-            revert Errors.SablierV2Lockup_RenounceNonCancelableStream(streamId);
-        }
-
-        // Effects: renounce the stream.
-        _renounce(streamId);
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -270,12 +243,6 @@ abstract contract SablierV2Lockup is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _burn(uint256 tokenId) internal virtual;
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _cancel(uint256 streamId) internal virtual;
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _renounce(uint256 streamId) internal virtual;
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _withdraw(uint256 streamId, address to, uint128 amount) internal virtual;

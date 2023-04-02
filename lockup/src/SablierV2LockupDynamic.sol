@@ -125,13 +125,7 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getRecipient(uint256 streamId)
-        public
-        view
-        override
-        isNonNull(streamId)
-        returns (address recipient)
-    {
+    function getRecipient(uint256 streamId) public view override isNonNull(streamId) returns (address recipient) {
         recipient = _ownerOf(streamId);
     }
 
@@ -190,12 +184,7 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCancelable(uint256 streamId)
-        public
-        view
-        override(ISablierV2Lockup, SablierV2Lockup)
-        returns (bool result)
-    {
+    function isCancelable(uint256 streamId) external view override returns (bool result) {
         // If the stream is null, revert.
         if (_streams[streamId].status == Lockup.Status.NULL) {
             revert Errors.SablierV2Lockup_StreamNull(streamId);
@@ -293,6 +282,80 @@ contract SablierV2LockupDynamic is
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @inheritdoc ISablierV2Lockup
+    function cancel(uint256 streamId)
+        public
+        override(ISablierV2Lockup, SablierV2Lockup)
+        noDelegateCall
+        isActive(streamId)
+        onlySenderOrRecipient(streamId)
+    {
+        // Checks: the stream is cancelable.
+        if (!_streams[streamId].isCancelable) {
+            revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
+        }
+
+        // Load the stream in memory.
+        LockupDynamic.Stream memory stream = _streams[streamId];
+
+        // Calculate the sender's and the recipient's amount.
+        uint128 senderAmount;
+        uint128 recipientAmount = withdrawableAmountOf(streamId);
+        unchecked {
+            senderAmount = stream.amounts.deposit - stream.amounts.withdrawn - recipientAmount;
+        }
+
+        // Load the sender and the recipient in memory, they are needed multiple times below.
+        address sender = _streams[streamId].sender;
+        address recipient = _ownerOf(streamId);
+
+        // Effects: mark the stream as canceled.
+        _streams[streamId].status = Lockup.Status.CANCELED;
+
+        if (recipientAmount > 0) {
+            // Effects: add the recipient's amount to the withdrawn amount.
+            unchecked {
+                _streams[streamId].amounts.withdrawn += recipientAmount;
+            }
+
+            // Interactions: withdraw the assets to the recipient.
+            stream.asset.safeTransfer({ to: recipient, value: recipientAmount });
+        }
+
+        // Interactions: return the assets to the sender, if any.
+        if (senderAmount > 0) {
+            stream.asset.safeTransfer({ to: sender, value: senderAmount });
+        }
+
+        // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
+        // hook on the recipient without reverting if the hook is not implemented, and without bubbling up any
+        // potential revert.
+        if (msg.sender == sender) {
+            if (recipient.code.length > 0) {
+                try ISablierV2LockupRecipient(recipient).onStreamCanceled({
+                    streamId: streamId,
+                    senderAmount: senderAmount,
+                    recipientAmount: recipientAmount
+                }) { } catch { }
+            }
+        }
+        // Interactions: if the `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
+        // hook on the sender without reverting if the hook is not implemented, and also without bubbling up any
+        // potential revert.
+        else {
+            if (sender.code.length > 0) {
+                try ISablierV2LockupSender(sender).onStreamCanceled({
+                    streamId: streamId,
+                    senderAmount: senderAmount,
+                    recipientAmount: recipientAmount
+                }) { } catch { }
+            }
+        }
+
+        // Log the cancellation.
+        emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
+    }
+
     /// @inheritdoc ISablierV2LockupDynamic
     function createWithDeltas(LockupDynamic.CreateWithDeltas calldata params)
         external
@@ -327,6 +390,32 @@ contract SablierV2LockupDynamic is
     {
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithMilestones(params);
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function renounce(uint256 streamId) external override noDelegateCall isActive(streamId) {
+        // Checks: `msg.sender` is the sender of the stream.
+        if (!_isCallerStreamSender(streamId)) {
+            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+        }
+
+        // Checks: the stream is cancelable.
+        if (!_streams[streamId].isCancelable) {
+            revert Errors.SablierV2Lockup_RenounceNonCancelableStream(streamId);
+        }
+
+        // Effects: make the stream non-cancelable.
+        _streams[streamId].isCancelable = false;
+
+        // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
+        // reverting if the hook is not implemented, and also without bubbling up any potential revert.
+        address recipient = _ownerOf(streamId);
+        if (recipient.code.length > 0) {
+            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
+        }
+
+        // Log the renouncement.
+        emit ISablierV2Lockup.RenounceLockupStream(streamId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -454,68 +543,6 @@ contract SablierV2LockupDynamic is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
-        LockupDynamic.Stream memory stream = _streams[streamId];
-
-        // Calculate the sender's and the recipient's amount.
-        uint128 senderAmount;
-        uint128 recipientAmount = withdrawableAmountOf(streamId);
-        unchecked {
-            senderAmount = stream.amounts.deposit - stream.amounts.withdrawn - recipientAmount;
-        }
-
-        // Load the sender and the recipient in memory, they are needed multiple times below.
-        address sender = _streams[streamId].sender;
-        address recipient = _ownerOf(streamId);
-
-        // Effects: mark the stream as canceled.
-        _streams[streamId].status = Lockup.Status.CANCELED;
-
-        if (recipientAmount > 0) {
-            // Effects: add the recipient's amount to the withdrawn amount.
-            unchecked {
-                _streams[streamId].amounts.withdrawn += recipientAmount;
-            }
-
-            // Interactions: withdraw the assets to the recipient.
-            stream.asset.safeTransfer({ to: recipient, value: recipientAmount });
-        }
-
-        // Interactions: return the assets to the sender, if any.
-        if (senderAmount > 0) {
-            stream.asset.safeTransfer({ to: sender, value: senderAmount });
-        }
-
-        // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
-        // hook on the recipient without reverting if the hook is not implemented, and without bubbling up any
-        // potential revert.
-        if (msg.sender == sender) {
-            if (recipient.code.length > 0) {
-                try ISablierV2LockupRecipient(recipient).onStreamCanceled({
-                    streamId: streamId,
-                    senderAmount: senderAmount,
-                    recipientAmount: recipientAmount
-                }) { } catch { }
-            }
-        }
-        // Interactions: if the `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
-        // hook on the sender without reverting if the hook is not implemented, and also without bubbling up any
-        // potential revert.
-        else {
-            if (sender.code.length > 0) {
-                try ISablierV2LockupSender(sender).onStreamCanceled({
-                    streamId: streamId,
-                    senderAmount: senderAmount,
-                    recipientAmount: recipientAmount
-                }) { } catch { }
-            }
-        }
-
-        // Log the cancellation.
-        emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
-    }
-
-    /// @dev See the documentation for the public functions that call this internal function.
     function _createWithMilestones(LockupDynamic.CreateWithMilestones memory params)
         internal
         returns (uint256 streamId)
@@ -593,22 +620,6 @@ contract SablierV2LockupDynamic is
             range: LockupDynamic.Range({ start: stream.startTime, end: stream.endTime }),
             broker: params.broker.account
         });
-    }
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _renounce(uint256 streamId) internal override {
-        // Effects: make the stream non-cancelable.
-        _streams[streamId].isCancelable = false;
-
-        // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
-        // reverting if the hook is not implemented, and also without bubbling up any potential revert.
-        address recipient = _ownerOf(streamId);
-        if (recipient.code.length > 0) {
-            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
-        }
-
-        // Log the renouncement.
-        emit ISablierV2Lockup.RenounceLockupStream(streamId);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.

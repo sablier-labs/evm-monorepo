@@ -119,13 +119,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getRecipient(uint256 streamId)
-        public
-        view
-        override
-        isNonNull(streamId)
-        returns (address recipient)
-    {
+    function getRecipient(uint256 streamId) public view override isNonNull(streamId) returns (address recipient) {
         recipient = _ownerOf(streamId);
     }
 
@@ -173,12 +167,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCancelable(uint256 streamId)
-        public
-        view
-        override(ISablierV2Lockup, SablierV2Lockup)
-        returns (bool result)
-    {
+    function isCancelable(uint256 streamId) external view override returns (bool result) {
         // If the stream is null, revert.
         if (_streams[streamId].status == Lockup.Status.NULL) {
             revert Errors.SablierV2Lockup_StreamNull(streamId);
@@ -295,88 +284,20 @@ contract SablierV2LockupLinear is
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2LockupLinear
-    function createWithDurations(LockupLinear.CreateWithDurations calldata params)
-        external
-        override
-        noDelegateCall
-        returns (uint256 streamId)
-    {
-        // Set the current block timestamp as the start time of the stream.
-        LockupLinear.Range memory range;
-        range.start = uint40(block.timestamp);
-
-        // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because
-        // {_createWithRange} will nonetheless check that the end time is greater than or equal to the cliff time,
-        // and also that the cliff time is greater than or equal to the start time.
-        unchecked {
-            range.cliff = range.start + params.durations.cliff;
-            range.end = range.start + params.durations.total;
-        }
-        // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithRange(
-            LockupLinear.CreateWithRange({
-                sender: params.sender,
-                recipient: params.recipient,
-                totalAmount: params.totalAmount,
-                asset: params.asset,
-                cancelable: params.cancelable,
-                range: range,
-                broker: params.broker
-            })
-        );
-    }
-
-    /// @inheritdoc ISablierV2LockupLinear
-    function createWithRange(LockupLinear.CreateWithRange calldata params)
+    /// @inheritdoc ISablierV2Lockup
+    function cancel(uint256 streamId)
         public
-        override
+        override(ISablierV2Lockup, SablierV2Lockup)
         noDelegateCall
-        returns (uint256 streamId)
+        isActive(streamId)
+        onlySenderOrRecipient(streamId)
     {
-        // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithRange(params);
-    }
+        // Checks: the stream is cancelable.
+        if (!_streams[streamId].isCancelable) {
+            revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
+        }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc SablierV2Lockup
-    function _isApprovedOrOwner(
-        uint256 streamId,
-        address spender
-    )
-        internal
-        view
-        override
-        returns (bool isApprovedOrOwner)
-    {
-        address owner = _ownerOf(streamId);
-        isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
-    }
-
-    /// @inheritdoc SablierV2Lockup
-    function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
-        result = msg.sender == _streams[streamId].sender;
-    }
-
-    /// @inheritdoc SablierV2Lockup
-    function _ownerOf(uint256 tokenId) internal view override(ERC721, SablierV2Lockup) returns (address owner) {
-        owner = ERC721._ownerOf(tokenId);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                           INTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _burn(uint256 tokenId) internal override(ERC721, SablierV2Lockup) {
-        ERC721._burn(tokenId);
-    }
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _cancel(uint256 streamId) internal override onlySenderOrRecipient(streamId) {
+        // Load the stream in memory.
         LockupLinear.Stream memory stream = _streams[streamId];
 
         // Calculate the sender's and the recipient's amount.
@@ -435,6 +356,112 @@ contract SablierV2LockupLinear is
 
         // Log the cancellation.
         emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
+    }
+
+    /// @inheritdoc ISablierV2LockupLinear
+    function createWithDurations(LockupLinear.CreateWithDurations calldata params)
+        external
+        override
+        noDelegateCall
+        returns (uint256 streamId)
+    {
+        // Set the current block timestamp as the start time of the stream.
+        LockupLinear.Range memory range;
+        range.start = uint40(block.timestamp);
+
+        // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because
+        // {_createWithRange} will nonetheless check that the end time is greater than or equal to the cliff time,
+        // and also that the cliff time is greater than or equal to the start time.
+        unchecked {
+            range.cliff = range.start + params.durations.cliff;
+            range.end = range.start + params.durations.total;
+        }
+        // Checks, Effects and Interactions: create the stream.
+        streamId = _createWithRange(
+            LockupLinear.CreateWithRange({
+                sender: params.sender,
+                recipient: params.recipient,
+                totalAmount: params.totalAmount,
+                asset: params.asset,
+                cancelable: params.cancelable,
+                range: range,
+                broker: params.broker
+            })
+        );
+    }
+
+    /// @inheritdoc ISablierV2LockupLinear
+    function createWithRange(LockupLinear.CreateWithRange calldata params)
+        public
+        override
+        noDelegateCall
+        returns (uint256 streamId)
+    {
+        // Checks, Effects and Interactions: create the stream.
+        streamId = _createWithRange(params);
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function renounce(uint256 streamId) external override noDelegateCall isActive(streamId) {
+        // Checks: `msg.sender` is the sender of the stream.
+        if (!_isCallerStreamSender(streamId)) {
+            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+        }
+
+        // Checks: the stream is cancelable.
+        if (!_streams[streamId].isCancelable) {
+            revert Errors.SablierV2Lockup_RenounceNonCancelableStream(streamId);
+        }
+
+        // Effects: make the stream non-cancelable.
+        _streams[streamId].isCancelable = false;
+
+        // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
+        // reverting if the hook is not implemented, and also without bubbling up any potential revert.
+        address recipient = _ownerOf(streamId);
+        if (recipient.code.length > 0) {
+            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
+        }
+
+        // Log the renouncement.
+        emit ISablierV2Lockup.RenounceLockupStream(streamId);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                           INTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc SablierV2Lockup
+    function _isApprovedOrOwner(
+        uint256 streamId,
+        address spender
+    )
+        internal
+        view
+        override
+        returns (bool isApprovedOrOwner)
+    {
+        address owner = _ownerOf(streamId);
+        isApprovedOrOwner = (spender == owner || isApprovedForAll(owner, spender) || getApproved(streamId) == spender);
+    }
+
+    /// @inheritdoc SablierV2Lockup
+    function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
+        result = msg.sender == _streams[streamId].sender;
+    }
+
+    /// @inheritdoc SablierV2Lockup
+    function _ownerOf(uint256 tokenId) internal view override(ERC721, SablierV2Lockup) returns (address owner) {
+        owner = ERC721._ownerOf(tokenId);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                           INTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _burn(uint256 tokenId) internal override(ERC721, SablierV2Lockup) {
+        ERC721._burn(tokenId);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -503,22 +530,6 @@ contract SablierV2LockupLinear is
             range: params.range,
             broker: params.broker.account
         });
-    }
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _renounce(uint256 streamId) internal override {
-        // Effects: make the stream non-cancelable.
-        _streams[streamId].isCancelable = false;
-
-        // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
-        // reverting if the hook is not implemented, and also without bubbling up any potential revert.
-        address recipient = _ownerOf(streamId);
-        if (recipient.code.length > 0) {
-            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
-        }
-
-        // Log the renouncement.
-        emit ISablierV2Lockup.RenounceLockupStream(streamId);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
