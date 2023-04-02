@@ -7,7 +7,7 @@ import { ERC721 } from "@openzeppelin/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.sol";
-import { SD59x18, sd } from "@prb/math/SD59x18.sol";
+import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
