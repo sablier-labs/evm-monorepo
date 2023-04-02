@@ -65,7 +65,7 @@ abstract contract SablierV2Lockup is
     /// @notice Checks that `msg.sender` is either the sender of the stream or the recipient of the stream (also
     /// known as the owner of the NFT).
     modifier onlySenderOrRecipient(uint256 streamId) {
-        if (!_isCallerStreamSender(streamId) && msg.sender != getRecipient(streamId)) {
+        if (!_isCallerStreamSender(streamId) && msg.sender != _ownerOf(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
         _;
@@ -74,9 +74,6 @@ abstract contract SablierV2Lockup is
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierV2Lockup
-    function getRecipient(uint256 streamId) public view virtual override returns (address recipient);
 
     /// @inheritdoc ISablierV2Lockup
     function getStatus(uint256 streamId) public view virtual override returns (Lockup.Status status);
@@ -174,8 +171,8 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
-        // Checks: if `msg.sender` is the sender of the stream, the provided address is the recipient.
-        if (_isCallerStreamSender(streamId) && to != getRecipient(streamId)) {
+        // Checks: if `msg.sender` is the sender of the stream, the provided address must be the recipient.
+        if (_isCallerStreamSender(streamId) && to != _ownerOf(streamId)) {
             revert Errors.SablierV2Lockup_WithdrawSenderUnauthorized(streamId, msg.sender, to);
         }
 
@@ -262,6 +259,10 @@ abstract contract SablierV2Lockup is
     /// @param streamId The id of the stream to make the query for.
     /// @return result Whether `msg.sender` is the sender of the stream or not.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
+
+    /// @notice Returns the owner of the NFT without reverting.
+    /// @param tokenId The id of the NFT to make the query for.
+    function _ownerOf(uint256 tokenId) internal view virtual returns (address owner);
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS

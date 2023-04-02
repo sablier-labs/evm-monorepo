@@ -128,7 +128,7 @@ contract SablierV2LockupDynamic is
     function getRecipient(uint256 streamId)
         public
         view
-        override(ISablierV2Lockup, SablierV2Lockup)
+        override
         isNonNull(streamId)
         returns (address recipient)
     {
@@ -437,6 +437,11 @@ contract SablierV2LockupDynamic is
     /// @inheritdoc SablierV2Lockup
     function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
         result = msg.sender == _streams[streamId].sender;
+    }
+
+    /// @inheritdoc SablierV2Lockup
+    function _ownerOf(uint256 tokenId) internal view override(ERC721, SablierV2Lockup) returns (address owner) {
+        owner = ERC721._ownerOf(tokenId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
