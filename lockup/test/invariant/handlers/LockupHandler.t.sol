@@ -163,7 +163,14 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
 
-        // Renounce the stream (make it non-cancelable).
+        // There is an edge case when the sender is the same as the recipient. In this scenario, the `to` address
+        // must be set to the recipient.
+        address sender = store.senders(currentStreamId);
+        if (sender == currentRecipient && to != currentRecipient) {
+            to = currentRecipient;
+        }
+
+        // Withdraw from the stream.
         lockup.withdraw({ streamId: currentStreamId, to: to, amount: withdrawAmount });
     }
 
@@ -192,7 +199,14 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
 
-        // Renounce the stream (make it non-cancelable).
+        // There is an edge case when the sender is the same as the recipient. In this scenario, the `to` address
+        // must be set to the recipient.
+        address sender = store.senders(currentStreamId);
+        if (sender == currentRecipient && to != currentRecipient) {
+            to = currentRecipient;
+        }
+
+        // Withdraw everything from the stream.
         lockup.withdrawMax({ streamId: currentStreamId, to: to });
     }
 
