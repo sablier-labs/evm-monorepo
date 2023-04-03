@@ -10,9 +10,7 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 /// @param account The address of the broker the fee will be paid to.
 /// @param fee The percentage fee that the broker is paid from the total amount, as an UD60x18 number.
 struct Broker {
-    // slot 0
     address account;
-    // slot 1
     UD60x18 fee;
 }
 
@@ -143,17 +141,17 @@ library LockupDynamic {
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     struct Stream {
         // slot 0
-        Lockup.Amounts amounts;
-        // slot 1
-        Segment[] segments;
-        // slot 2
         address sender;
         uint40 startTime;
         uint40 endTime;
         bool isCancelable;
         Lockup.Status status;
-        // slot 3
+        // slot 1
         IERC20 asset;
+        // slot 2
+        Lockup.Amounts amounts;
+        // slots [3..n]
+        Segment[] segments;
     }
 }
 
@@ -216,7 +214,6 @@ library LockupLinear {
     /// @param cliff The Unix timestamp for when the cliff period will end.
     /// @param end The Unix timestamp for when the stream will end.
     struct Range {
-        // slot 0
         uint40 start;
         uint40 cliff;
         uint40 end;
@@ -234,15 +231,15 @@ library LockupLinear {
     /// @param status An enum that indicates the status of the stream.
     struct Stream {
         // slot 0
-        Lockup.Amounts amounts;
-        // slot 1
         address sender;
         uint40 startTime;
         uint40 cliffTime;
         bool isCancelable;
-        // slot 2
+        // slot 1
         IERC20 asset;
         uint40 endTime;
         Lockup.Status status;
+        // slot 2
+        Lockup.Amounts amounts;
     }
 }
