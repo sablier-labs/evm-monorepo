@@ -176,25 +176,27 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function nextStreamId() external view returns (uint256) {
+    function nextStreamId() external view override returns (uint256) {
         return _nextStreamId;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function returnableAmountOf(uint256 streamId) external view returns (uint128 returnableAmount) {
-        // If the stream is null, revert.
-        if (_streams[streamId].status == Lockup.Status.NULL) {
-            revert Errors.SablierV2Lockup_StreamNull(streamId);
-        }
-        // If the stream is active, calculate the returnable amount.
-        else if (_streams[streamId].status == Lockup.Status.ACTIVE) {
+    function returnableAmountOf(uint256 streamId)
+        external
+        view
+        override
+        isNonNull(streamId)
+        returns (uint128 returnableAmount)
+    {
+        // If the stream is active, calculate the returnable amount. In all other cases, the returnable amount is
+        // implicitly zero.
+        if (_streams[streamId].status == Lockup.Status.ACTIVE) {
             unchecked {
                 // No need for an assertion here, since {_streamedAmountOf} checks that the deposit amount is greater
                 // than or equal to the streamed amount.
                 returnableAmount = _streams[streamId].amounts.deposit - _streamedAmountOf(streamId);
             }
         }
-        // In all other cases, the returnable amount is implicitly zero.
     }
 
     /// @inheritdoc ISablierV2LockupLinear
