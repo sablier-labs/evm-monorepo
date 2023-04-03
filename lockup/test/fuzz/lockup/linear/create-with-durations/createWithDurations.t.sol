@@ -106,7 +106,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
         });
 
-        // Expect the broker fee to be paid to the broker, if the amount is not zero.
+        // Expect the broker fee to be paid to the broker.
         expectTransferFromCall({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
 
         // Create the range struct by calculating the start time, cliff time and the end time.

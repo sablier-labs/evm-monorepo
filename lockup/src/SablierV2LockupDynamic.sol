@@ -188,16 +188,8 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCancelable(uint256 streamId) external view override returns (bool result) {
-        // If the stream is null, revert.
-        if (_streams[streamId].status == Lockup.Status.NULL) {
-            revert Errors.SablierV2Lockup_StreamNull(streamId);
-        }
-        // If the stream is active, check if it is cancelable.
-        else if (_streams[streamId].status == Lockup.Status.ACTIVE) {
-            result = _streams[streamId].isCancelable;
-        }
-        // In all other cases, the stream is implicitly non-cancelable.
+    function isCancelable(uint256 streamId) external view override isNonNull(streamId) returns (bool result) {
+        result = _streams[streamId].isCancelable;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -315,6 +307,7 @@ contract SablierV2LockupDynamic is
 
         // Effects: mark the stream as canceled.
         _streams[streamId].status = Lockup.Status.CANCELED;
+        _streams[streamId].isCancelable = false;
 
         if (recipientAmount > 0) {
             // Effects: add the recipient's amount to the withdrawn amount.
@@ -651,6 +644,8 @@ contract SablierV2LockupDynamic is
         // Effects: if the entire deposit amount is now withdrawn, mark the stream as depleted.
         if (stream.amounts.deposit == stream.amounts.withdrawn) {
             _streams[streamId].status = Lockup.Status.DEPLETED;
+            // A depleted stream cannot be canceled anymore.
+            _streams[streamId].isCancelable = false;
         }
 
         // Interactions: perform the ERC-20 transfer.

@@ -30,6 +30,10 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
 
+        // Assert that the stream is not cancelable anymore.
+        bool isCancelable = lockup.isCancelable(defaultStreamId);
+        assertFalse(isCancelable, "isCancelable");
+
         // Assert that the NFT has not been burned.
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
         address expectedNFTOwner = users.recipient;

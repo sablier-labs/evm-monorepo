@@ -241,61 +241,96 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         test_CancelMultiple();
     }
 
-    /// @dev Shared test logic for `test_CancelMultiple_Sender` and `test_CancelMultiple_Recipient`.
+    struct Vars {
+        uint256 ongoingStreamId;
+        uint40 earlyEndTime;
+        uint256 endedStreamId;
+        uint256[] streamIds;
+        uint128 recipientAmount0;
+        uint128 recipientAmount1;
+        uint128 senderAmount0;
+        uint128 senderAmount1;
+        Lockup.Status actualStatus0;
+        Lockup.Status actualStatus1;
+        Lockup.Status expectedStatus;
+        bool isCancelable0;
+        bool isCancelable1;
+        uint128 actualWithdrawnAmount0;
+        uint128 actualWithdrawnAmount1;
+        uint128 expectedWithdrawnAmount0;
+        uint128 expectedWithdrawnAmount1;
+        address actualNFTOwner0;
+        address actualNFTOwner1;
+        address expectedNFTOwner;
+    }
+
+    /// @dev Shared test logic for {test_CancelMultiple_Sender} and {test_CancelMultiple_Recipient}.
     function test_CancelMultiple() internal {
+        Vars memory vars;
+
         // Use the first default stream as the ongoing stream.
-        uint256 ongoingStreamId = defaultStreamIds[0];
+        vars.ongoingStreamId = defaultStreamIds[0];
 
         // Create the ended stream.
-        uint40 earlyEndTime = DEFAULT_START_TIME + DEFAULT_TIME_WARP;
-        uint256 endedStreamId = createDefaultStreamWithEndTime(earlyEndTime);
+        vars.earlyEndTime = DEFAULT_START_TIME + DEFAULT_TIME_WARP;
+        vars.endedStreamId = createDefaultStreamWithEndTime(vars.earlyEndTime);
 
         // Warp to the end of the ended stream.
-        vm.warp({ timestamp: earlyEndTime });
+        vm.warp({ timestamp: vars.earlyEndTime });
 
         // Create the stream ids array.
-        uint256[] memory streamIds = Solarray.uint256s(ongoingStreamId, endedStreamId);
+        vars.streamIds = Solarray.uint256s(vars.ongoingStreamId, vars.endedStreamId);
 
         // Expect the ERC-20 assets to be withdrawn to the recipient.
-        uint128 recipientAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
-        expectTransferCall({ to: users.recipient, amount: recipientAmount0 });
-        uint128 recipientAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
-        expectTransferCall({ to: users.recipient, amount: recipientAmount1 });
+        vars.recipientAmount0 = lockup.withdrawableAmountOf(vars.streamIds[0]);
+        expectTransferCall({ to: users.recipient, amount: vars.recipientAmount0 });
+        vars.recipientAmount1 = lockup.withdrawableAmountOf(vars.streamIds[1]);
+        expectTransferCall({ to: users.recipient, amount: vars.recipientAmount1 });
 
         // Expect some ERC-20 assets to be returned to the sender (only for the ongoing stream).
-        uint128 senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount0;
-        expectTransferCall({ to: users.sender, amount: senderAmount0 });
-        uint128 senderAmount1 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount1;
+        vars.senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - vars.recipientAmount0;
+        expectTransferCall({ to: users.sender, amount: vars.senderAmount0 });
+        vars.senderAmount1 = DEFAULT_DEPOSIT_AMOUNT - vars.recipientAmount1;
 
         // Expect two {CancelLockupStream} events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
+        emit CancelLockupStream(
+            vars.streamIds[0], users.sender, users.recipient, vars.senderAmount0, vars.recipientAmount0
+        );
         vm.expectEmit({ emitter: address(lockup) });
-        emit CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
+        emit CancelLockupStream(
+            vars.streamIds[1], users.sender, users.recipient, vars.senderAmount1, vars.recipientAmount1
+        );
 
         // Cancel the streams.
-        lockup.cancelMultiple(streamIds);
+        lockup.cancelMultiple(vars.streamIds);
 
         // Assert that the streams have been marked as canceled.
-        Lockup.Status actualStatus0 = lockup.getStatus(streamIds[0]);
-        Lockup.Status actualStatus1 = lockup.getStatus(streamIds[1]);
-        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
-        assertEq(actualStatus0, expectedStatus, "status0");
-        assertEq(actualStatus1, expectedStatus, "status1");
+        vars.actualStatus0 = lockup.getStatus(vars.streamIds[0]);
+        vars.actualStatus1 = lockup.getStatus(vars.streamIds[1]);
+        vars.expectedStatus = Lockup.Status.CANCELED;
+        assertEq(vars.actualStatus0, vars.expectedStatus, "status0");
+        assertEq(vars.actualStatus1, vars.expectedStatus, "status1");
+
+        // Assert that the streams are not cancelable anymore.
+        vars.isCancelable0 = lockup.isCancelable(vars.streamIds[0]);
+        vars.isCancelable1 = lockup.isCancelable(vars.streamIds[1]);
+        assertFalse(vars.isCancelable0, "isCancelable0");
+        assertFalse(vars.isCancelable1, "isCancelable1");
 
         // Assert that the withdrawn amounts have been updated.
-        uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(streamIds[0]);
-        uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(streamIds[1]);
-        uint128 expectedWithdrawnAmount0 = recipientAmount0;
-        uint128 expectedWithdrawnAmount1 = recipientAmount1;
-        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0, "withdrawAmount0");
-        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1, "withdrawAmount1");
+        vars.actualWithdrawnAmount0 = lockup.getWithdrawnAmount(vars.streamIds[0]);
+        vars.actualWithdrawnAmount1 = lockup.getWithdrawnAmount(vars.streamIds[1]);
+        vars.expectedWithdrawnAmount0 = vars.recipientAmount0;
+        vars.expectedWithdrawnAmount1 = vars.recipientAmount1;
+        assertEq(vars.actualWithdrawnAmount0, vars.expectedWithdrawnAmount0, "withdrawAmount0");
+        assertEq(vars.actualWithdrawnAmount1, vars.expectedWithdrawnAmount1, "withdrawAmount1");
 
         // Assert that the NFTs have not been burned.
-        address actualNFTOwner0 = lockup.getRecipient(streamIds[0]);
-        address actualNFTOwner1 = lockup.getRecipient(streamIds[1]);
-        address expectedNFTOwner = users.recipient;
-        assertEq(actualNFTOwner0, expectedNFTOwner, "NFT owner0");
-        assertEq(actualNFTOwner1, expectedNFTOwner, "NFT owner1");
+        vars.actualNFTOwner0 = lockup.getRecipient(vars.streamIds[0]);
+        vars.actualNFTOwner1 = lockup.getRecipient(vars.streamIds[1]);
+        vars.expectedNFTOwner = users.recipient;
+        assertEq(vars.actualNFTOwner0, vars.expectedNFTOwner, "NFT owner0");
+        assertEq(vars.actualNFTOwner1, vars.expectedNFTOwner, "NFT owner1");
     }
 }

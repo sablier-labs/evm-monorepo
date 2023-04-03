@@ -112,7 +112,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
             amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
         });
 
-        // Expect the broker fee to be paid to the broker, if the amount is not zero.
+        // Expect the broker fee to be paid to the broker.
         expectTransferFromCall({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
 
         // Expect a {CreateLockupLinearStream} event to be emitted.

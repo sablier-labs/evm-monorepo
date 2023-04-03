@@ -365,6 +365,12 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus0, expectedStatus, "status0");
         assertEq(actualStatus1, expectedStatus, "status1");
 
+        // Assert that the streams are not cancelable anymore.
+        bool isCancelable0 = lockup.isCancelable(defaultStreamIds[0]);
+        bool isCancelable1 = lockup.isCancelable(defaultStreamIds[1]);
+        assertFalse(isCancelable0, "isCancelable0");
+        assertFalse(isCancelable1, "isCancelable1");
+
         // Assert that the withdrawn amounts have been updated.
         uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(defaultStreamIds[0]);
         uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(defaultStreamIds[1]);

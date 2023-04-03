@@ -285,11 +285,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
+        // Expect the ERC-20 assets to be withdrawn to the recipient.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         expectTransferCall({ to: address(goodRecipient), amount: recipientAmount });
 
-        // Expect the ERC-20 assets to be returned to the sender, if not zero.
+        // Expect the ERC-20 assets to be returned to the sender.
         uint128 senderAmount = lockup.returnableAmountOf(streamId);
         expectTransferCall({ to: users.sender, amount: senderAmount });
 
@@ -310,6 +310,10 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         Lockup.Status actualStatus = lockup.getStatus(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
+
+        // Assert that the stream is not cancelable anymore.
+        bool isCancelable = lockup.isCancelable(streamId);
+        assertFalse(isCancelable, "isCancelable");
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
@@ -495,6 +499,10 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         Lockup.Status actualStatus = lockup.getStatus(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
+
+        // Assert that the stream is not cancelable anymore.
+        bool isCancelable = lockup.isCancelable(streamId);
+        assertFalse(isCancelable, "isCancelable");
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
