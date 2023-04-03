@@ -70,7 +70,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_NFTNonExistent()
+    function test_RevertWhen_NFTDoesNotExist()
         external
         whenNoDelegateCall
         whenStreamCanceledOrDepleted
@@ -84,7 +84,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.burn(streamId);
     }
 
-    modifier whenNFTExistent() {
+    modifier whenNFTExists() {
         _;
     }
 
@@ -94,7 +94,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenStreamCanceledOrDepleted
         whenCallerAuthorized
-        whenNFTExistent
+        whenNFTExists
     {
         // Approve the operator to handle the stream.
         lockup.approve({ to: users.operator, tokenId: streamId });
@@ -117,7 +117,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenStreamCanceledOrDepleted
         whenCallerAuthorized
-        whenNFTExistent
+        whenNFTExists
     {
         lockup.burn(streamId);
         address actualNFTOwner = lockup.getRecipient(streamId);

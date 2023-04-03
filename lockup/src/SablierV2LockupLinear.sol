@@ -237,6 +237,10 @@ contract SablierV2LockupLinear is
 
     /// @inheritdoc ERC721
     function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
+        // Checks: the stream NFT exists.
+        _requireMinted({ tokenId: streamId });
+
+        // Generate the URI describing the stream NFT
         uri = _nftDescriptor.tokenURI(this, streamId);
     }
 

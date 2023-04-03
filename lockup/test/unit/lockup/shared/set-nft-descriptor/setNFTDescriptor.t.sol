@@ -9,7 +9,11 @@ import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
 
 abstract contract SetNFTDescriptor_Unit_Test is Unit_Test, Lockup_Shared_Test {
-    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
+    uint256 internal defaultStreamId;
+
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
+        defaultStreamId = createDefaultStream();
+    }
 
     /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
@@ -38,7 +42,7 @@ abstract contract SetNFTDescriptor_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Assert that the new NFT descriptor has been set.
         vm.expectCall(address(nftDescriptor), abi.encodeCall(ISablierV2NFTDescriptor.tokenURI, (lockup, 1)));
-        lockup.tokenURI({ tokenId: 1 });
+        lockup.tokenURI({ tokenId: defaultStreamId });
     }
 
     /// @dev it should set the new NFT descriptor and emit a {SetNFTDescriptor} event.
@@ -55,6 +59,6 @@ abstract contract SetNFTDescriptor_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Assert that the new NFT descriptor has been set.
         vm.expectCall(address(newNFTDescriptor), abi.encodeCall(ISablierV2NFTDescriptor.tokenURI, (lockup, 1)));
-        lockup.tokenURI({ tokenId: 1 });
+        lockup.tokenURI({ tokenId: defaultStreamId });
     }
 }
