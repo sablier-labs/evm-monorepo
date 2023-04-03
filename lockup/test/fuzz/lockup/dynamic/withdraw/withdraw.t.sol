@@ -29,6 +29,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         address funder;
         uint256 streamId;
         uint128 totalAmount;
+        uint40 totalDuration;
         uint128 withdrawAmount;
         uint128 withdrawableAmount;
     }
@@ -60,7 +61,8 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(params.segments);
 
         // Bound the time warp.
-        params.timeWarp = bound(params.timeWarp, 1, params.segments[params.segments.length - 1].milestone);
+        vars.totalDuration = params.segments[params.segments.length - 1].milestone - DEFAULT_START_TIME;
+        params.timeWarp = bound(params.timeWarp, 1, vars.totalDuration);
 
         // Mint enough ERC-20 assets to the sender.
         deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
@@ -82,8 +84,15 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + params.timeWarp });
 
-        // Bound the withdraw amount.
+        // Query the withdrawable amount.
         vars.withdrawableAmount = dynamic.withdrawableAmountOf(vars.streamId);
+
+        // Halt the test if the withdraw amount is zero.
+        if (vars.withdrawableAmount == 0) {
+            return;
+        }
+
+        // Bound the withdraw amount.
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
         // Expect the ERC-20 assets to be transferred to the recipient.
