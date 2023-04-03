@@ -9,8 +9,12 @@ import { Errors } from "src/libraries/Errors.sol";
 import { FlashLoan_Fuzz_Test } from "../FlashLoan.t.sol";
 
 contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
     /// @dev it should revert.
-    function testFuzz_RevertWhen_AmountTooHigh(uint256 amount) external {
+    function testFuzz_RevertWhen_AmountTooHigh(uint256 amount) external whenNoDelegateCall {
         amount = bound(amount, uint256(UINT128_MAX) + 1, UINT256_MAX);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
         flashLoan.flashLoan({
@@ -26,7 +30,11 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
     }
 
     /// @dev it should revert.
-    function testFuzz_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee) external whenAmountNotTooHigh {
+    function testFuzz_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee)
+        external
+        whenNoDelegateCall
+        whenAmountNotTooHigh
+    {
         // Bound the flash fee so that the calculated fee ends up being greater than 2^128.
         flashFee = bound(flashFee, ud(1.1e18), ud(10e18));
         comptroller.setFlashFee(flashFee);
@@ -60,6 +68,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         bytes calldata data
     )
         external
+        whenNoDelegateCall
         whenAmountNotTooHigh
         whenCalculatedFeeNotTooHigh
     {

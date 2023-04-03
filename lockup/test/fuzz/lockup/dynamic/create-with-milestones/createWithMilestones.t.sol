@@ -20,6 +20,10 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         streamId = dynamic.nextStreamId();
     }
 
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
     modifier whenRecipientNonZeroAddress() {
         _;
     }
@@ -35,6 +39,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// @dev it should revert.
     function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -57,6 +62,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint128 amount1
     )
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -78,6 +84,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// @dev it should revert.
     function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone(uint40 firstMilestone)
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -114,6 +121,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// @dev it should revert.
     function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositDiff)
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -156,6 +164,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// @dev it should revert.
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -185,6 +194,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// @dev it should revert.
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -242,6 +252,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         UD60x18 protocolFee
     )
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero

@@ -18,6 +18,10 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         streamId = linear.nextStreamId();
     }
 
+    modifier whenNoDelegateCall() {
+        _;
+    }
+
     modifier whenRecipientNonZeroAddress() {
         _;
     }
@@ -29,6 +33,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// @dev it should revert.
     function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(uint40 startTime)
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
@@ -51,6 +56,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint40 endTime
     )
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -73,6 +79,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// @dev it should revert.
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -98,6 +105,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// @dev it should revert.
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -152,6 +160,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         UD60x18 protocolFee
     )
         external
+        whenNoDelegateCall
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime

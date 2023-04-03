@@ -6,7 +6,6 @@ import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Me
 
 import { Lockup } from "../types/DataTypes.sol";
 import { ISablierV2Base } from "./ISablierV2Base.sol";
-import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 import { ISablierV2NFTDescriptor } from "./ISablierV2NFTDescriptor.sol";
 
 /// @title ISablierV2Lockup
