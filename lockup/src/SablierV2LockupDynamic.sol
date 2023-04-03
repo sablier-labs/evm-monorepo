@@ -213,13 +213,13 @@ contract SablierV2LockupDynamic is
         uint256 segmentCount = _streams[streamId].segments.length;
         uint40 endTime = _streams[streamId].endTime;
 
-        // If the current time is greater than or equal to the end time, we simply return the deposit amount.
+        // If the current time is greater than or equal to the end time, simply return the deposit amount.
         if (currentTime >= endTime) {
             return _streams[streamId].amounts.deposit;
         }
 
         if (segmentCount > 1) {
-            // If there's more than one segment, we have to iterate over all of them.
+            // If there's more than one segment, we may have to iterate over all of them.
             streamedAmount = _calculateStreamedAmountForMultipleSegments(streamId);
         } else {
             // Otherwise, there is only one segment, and the calculation is simple.
@@ -288,10 +288,13 @@ contract SablierV2LockupDynamic is
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Calculates the withdrawable amount for a stream with multiple segments.
+    /// @dev Calculates the streamed amount for a stream with multiple segments.
     ///
-    /// IMPORTANT: this function must be called only after checking that the current time is less than the last
-    /// segment's milestone, lest the loop below encounters an "index out of bounds" error.
+    /// Notes:
+    ///
+    /// 1. Normalization to 18 decimals is not required because there is no mix of amounts with different decimals.
+    /// 2. This function must be called only when the end time of the stream is in the future so that the
+    /// the loop below does not panic with an "index out of bounds" error.
     function _calculateStreamedAmountForMultipleSegments(uint256 streamId)
         internal
         view
@@ -311,7 +314,7 @@ contract SablierV2LockupDynamic is
             }
 
             // After the loop exits, the current segment is found at index `index - 1`, whereas the previous segment
-            // is found at `index - 2` (if there are at least two segments).
+            // is found at `index - 2` (when there are two or more segments).
             SD59x18 currentSegmentAmount = _streams[streamId].segments[index - 1].amount.intoSD59x18();
             SD59x18 currentSegmentExponent = _streams[streamId].segments[index - 1].exponent.intoSD59x18();
             currentSegmentMilestone = _streams[streamId].segments[index - 1].milestone;
@@ -329,12 +332,14 @@ contract SablierV2LockupDynamic is
             SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
             SD59x18 totalSegmentTime = (currentSegmentMilestone - previousMilestone).intoSD59x18();
 
-            // Calculate the streamed amount.
+            // Divide the elapsed segment time by the total duration of the segment.
             SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
+
+            // Calculate the streamed amount using the special formula.
             SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
             SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
 
-            // Assert that the streamed amount is lower than or equal to the current segment amount.
+            // Assert that the streamed amount is less than or equal to the current segment amount.
             assert(segmentStreamedAmount.lte(currentSegmentAmount));
 
             // Finally, calculate the streamed amount by adding up the previous segment amounts and the amount
@@ -343,23 +348,26 @@ contract SablierV2LockupDynamic is
         }
     }
 
-    /// @dev Calculates the withdrawable amount for a stream with one segment.
+    /// @dev Calculates the streamed amount for a stream with one segment. Normalization to 18 decimals is not
+    /// required because there is no mix of amounts with different decimals.
     function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128 streamedAmount) {
         unchecked {
-            // Load the stream fields as SD59x18 numbers.
-            SD59x18 depositAmount = _streams[streamId].amounts.deposit.intoSD59x18();
-            SD59x18 exponent = _streams[streamId].segments[0].exponent.intoSD59x18();
-
             // Calculate how much time has elapsed since the stream started, and the total time of the stream.
             SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
             SD59x18 totalTime = (_streams[streamId].endTime - _streams[streamId].startTime).intoSD59x18();
 
-            // Calculate the streamed amount.
+            // Divide the elapsed time by the total duration of the stream.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+
+            // Cast the stream parameters to SD59x18.
+            SD59x18 exponent = _streams[streamId].segments[0].exponent.intoSD59x18();
+            SD59x18 depositAmount = _streams[streamId].amounts.deposit.intoSD59x18();
+
+            // Calculate the streamed amount using the special formula.
             SD59x18 multiplier = elapsedTimePercentage.pow(exponent);
             SD59x18 streamedAmountUd = multiplier.mul(depositAmount);
 
-            // Assert that the streamed amount is lower than or equal to the deposit amount.
+            // Assert that the streamed amount is less than or equal to the deposit amount.
             assert(streamedAmountUd.lte(depositAmount));
 
             // Casting to uint128 is safe thanks for the assertion above.
@@ -492,8 +500,8 @@ contract SablierV2LockupDynamic is
             stream.endTime = params.segments[segmentCount - 1].milestone;
             stream.startTime = params.startTime;
 
-            // Effects: store the segments. Copying an array from memory to storage was not supported in Solidity
-            // v0.8.19, so it had to be done manually. See https://github.com/ethereum/solidity/issues/12783
+            // Effects: store the segments. Copying an array from memory to storage is not supported, so this has
+            // to be done manually. See https://github.com/ethereum/solidity/issues/12783
             for (uint256 i = 0; i < segmentCount; ++i) {
                 stream.segments.push(params.segments[i]);
             }

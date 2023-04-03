@@ -204,24 +204,30 @@ contract SablierV2LockupLinear is
 
         uint256 endTime = uint256(_streams[streamId].endTime);
 
-        // If the current time is greater than or equal to the end time, we simply return the deposit amount.
+        // If the current time is greater than or equal to the end time, simply return the deposit amount.
         if (currentTime >= endTime) {
             return _streams[streamId].amounts.deposit;
         }
 
+        // In all other cases, calculate how much has been streamed so far. Normalization to 18 decimals is not required
+        // because there is no mix of amounts with different decimals.
         unchecked {
-            // In all other cases, calculate how much has been streamed so far.
-            // First, calculate how much time has elapsed since the stream started, and the total time of the stream.
+            // Begin by calculating how much time has elapsed since the stream started, and the total time of the
+            // stream.
             uint256 startTime = uint256(_streams[streamId].startTime);
             UD60x18 elapsedTime = ud(currentTime - startTime);
             UD60x18 totalTime = ud(endTime - startTime);
 
-            // Then, calculate the streamed amount.
+            // Divide the elapsed time by the total duration of the stream.
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+
+            // Cast the deposit amount to UD60x18.
             UD60x18 depositAmount = ud(_streams[streamId].amounts.deposit);
+
+            // Calculate the streamed amount by multiplying the elapsed time percentage by the deposit amount.
             UD60x18 streamedAmountUd = elapsedTimePercentage.mul(depositAmount);
 
-            // Assert that the streamed amount is lower than or equal to the deposit amount.
+            // Assert that the streamed amount is less than or equal to the deposit amount.
             assert(streamedAmountUd.lte(depositAmount));
 
             // Casting to uint128 is safe thanks to the assertion above.
