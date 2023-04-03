@@ -189,9 +189,9 @@ contract SablierV2LockupLinear is
         // If the stream is active, calculate the returnable amount.
         else if (_streams[streamId].status == Lockup.Status.ACTIVE) {
             unchecked {
-                // No need for an assertion here, since {streamedAmountOf} checks that the deposit amount is greater
+                // No need for an assertion here, since {_streamedAmountOf} checks that the deposit amount is greater
                 // than or equal to the streamed amount.
-                returnableAmount = _streams[streamId].amounts.deposit - streamedAmountOf(streamId);
+                returnableAmount = _streams[streamId].amounts.deposit - _streamedAmountOf(streamId);
             }
         }
         // In all other cases, the returnable amount is implicitly zero.
@@ -202,57 +202,10 @@ contract SablierV2LockupLinear is
         public
         view
         override(ISablierV2Lockup, ISablierV2LockupLinear)
+        isNonNull(streamId)
         returns (uint128 streamedAmount)
     {
-        // If the stream is null, revert.
-        if (_streams[streamId].status == Lockup.Status.NULL) {
-            revert Errors.SablierV2Lockup_StreamNull(streamId);
-        }
-        // If the stream is canceled or depleted, return the withdrawn amount.
-        else if (_streams[streamId].status != Lockup.Status.ACTIVE) {
-            return _streams[streamId].amounts.withdrawn;
-        }
-
-        // If the cliff time is greater than the block timestamp, return zero. Because the cliff time is
-        // always greater than the start time, this also checks whether the start time is greater than
-        // the block timestamp.
-        uint256 currentTime = block.timestamp;
-        uint256 cliffTime = uint256(_streams[streamId].cliffTime);
-        if (cliffTime > currentTime) {
-            return 0;
-        }
-
-        uint256 endTime = uint256(_streams[streamId].endTime);
-
-        // If the current time is greater than or equal to the end time, simply return the deposit amount.
-        if (currentTime >= endTime) {
-            return _streams[streamId].amounts.deposit;
-        }
-
-        // In all other cases, calculate how much has been streamed so far. Normalization to 18 decimals is not required
-        // because there is no mix of amounts with different decimals.
-        unchecked {
-            // Begin by calculating how much time has elapsed since the stream started, and the total time of the
-            // stream.
-            uint256 startTime = uint256(_streams[streamId].startTime);
-            UD60x18 elapsedTime = ud(currentTime - startTime);
-            UD60x18 totalTime = ud(endTime - startTime);
-
-            // Divide the elapsed time by the total duration of the stream.
-            UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-
-            // Cast the deposit amount to UD60x18.
-            UD60x18 depositAmount = ud(_streams[streamId].amounts.deposit);
-
-            // Calculate the streamed amount by multiplying the elapsed time percentage by the deposit amount.
-            UD60x18 streamedAmountUd = elapsedTimePercentage.mul(depositAmount);
-
-            // Assert that the streamed amount is less than or equal to the deposit amount.
-            assert(streamedAmountUd.lte(depositAmount));
-
-            // Casting to uint128 is safe thanks to the assertion above.
-            streamedAmount = uint128(streamedAmountUd.intoUint256());
-        }
+        streamedAmount = _streamedAmountOf(streamId);
     }
 
     /// @inheritdoc ERC721
@@ -269,10 +222,11 @@ contract SablierV2LockupLinear is
         public
         view
         override(ISablierV2Lockup, SablierV2Lockup)
+        isNonNull(streamId)
         returns (uint128 withdrawableAmount)
     {
         unchecked {
-            withdrawableAmount = streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
+            withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
         }
     }
 
@@ -297,13 +251,17 @@ contract SablierV2LockupLinear is
         LockupLinear.Stream memory stream = _streams[streamId];
 
         // Calculate the sender's and the recipient's amount.
+        uint128 streamedAmount = _streamedAmountOf(streamId);
         uint128 senderAmount;
-        uint128 recipientAmount = withdrawableAmountOf(streamId);
+        uint128 recipientAmount;
         unchecked {
-            senderAmount = stream.amounts.deposit - stream.amounts.withdrawn - recipientAmount;
+            // Equivalent to {returnableAmountOf}.
+            senderAmount = stream.amounts.deposit - streamedAmount;
+            // Equivalent to {withdrawableAmountOf}.
+            recipientAmount = streamedAmount - stream.amounts.withdrawn;
         }
 
-        // Load the sender and the recipient in memory, they are needed multiple times below.
+        // Load the sender and the recipient in memory, as they are needed multiple times below.
         address sender = _streams[streamId].sender;
         address recipient = _ownerOf(streamId);
 
@@ -426,6 +384,56 @@ contract SablierV2LockupLinear is
         owner = ERC721._ownerOf(tokenId);
     }
 
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
+        // If the stream is canceled or depleted, return the withdrawn amount.
+        if (_streams[streamId].status != Lockup.Status.ACTIVE) {
+            return _streams[streamId].amounts.withdrawn;
+        }
+
+        // If the cliff time is greater than the block timestamp, return zero. Because the cliff time is
+        // always greater than the start time, this also checks whether the start time is greater than
+        // the block timestamp.
+        uint256 currentTime = block.timestamp;
+        uint256 cliffTime = uint256(_streams[streamId].cliffTime);
+        if (cliffTime > currentTime) {
+            return 0;
+        }
+
+        // Load the end time.
+        uint256 endTime = uint256(_streams[streamId].endTime);
+
+        // If the current time is greater than or equal to the end time, simply return the deposit amount.
+        if (currentTime >= endTime) {
+            return _streams[streamId].amounts.deposit;
+        }
+
+        // In all other cases, calculate how much has been streamed so far. Normalization to 18 decimals is not required
+        // because there is no mix of amounts with different decimals.
+        unchecked {
+            // Begin by calculating how much time has elapsed since the stream started, and the total time of the
+            // stream.
+            uint256 startTime = uint256(_streams[streamId].startTime);
+            UD60x18 elapsedTime = ud(currentTime - startTime);
+            UD60x18 totalTime = ud(endTime - startTime);
+
+            // Divide the elapsed time by the total duration of the stream.
+            UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+
+            // Cast the deposit amount to UD60x18.
+            UD60x18 depositAmount = ud(_streams[streamId].amounts.deposit);
+
+            // Calculate the streamed amount by multiplying the elapsed time percentage by the deposit amount.
+            UD60x18 streamedAmountUd = elapsedTimePercentage.mul(depositAmount);
+
+            // Assert that the streamed amount is less than or equal to the deposit amount.
+            assert(streamedAmountUd.lte(depositAmount));
+
+            // Casting to uint128 is safe thanks to the assertion above.
+            streamedAmount = uint128(streamedAmountUd.intoUint256());
+        }
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -531,20 +539,22 @@ contract SablierV2LockupLinear is
             revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
         }
 
-        // Checks: the amount is not greater than what can be withdrawn.
-        uint128 withdrawableAmount = withdrawableAmountOf(streamId);
-        if (amount > withdrawableAmount) {
-            revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
-                streamId, amount, withdrawableAmount
-            );
-        }
-
-        // Effects: update the withdrawn amount.
         unchecked {
+            // Calculate the withdrawable amount.
+            uint128 withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
+
+            // Checks: the withdraw amount is not greater than the withdrawable amount.
+            if (amount > withdrawableAmount) {
+                revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
+                    streamId, amount, withdrawableAmount
+                );
+            }
+
+            // Effects: update the withdrawn amount.
             _streams[streamId].amounts.withdrawn += amount;
         }
 
-        // Load the stream and the recipient in memory, they will be needed below.
+        // Load the stream and the recipient in memory, as they will be needed below.
         LockupLinear.Stream memory stream = _streams[streamId];
         address recipient = _ownerOf(streamId);
 
