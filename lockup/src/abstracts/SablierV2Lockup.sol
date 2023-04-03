@@ -123,6 +123,17 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
+    function renounce(uint256 streamId) external override noDelegateCall isActive(streamId) {
+        // Checks: `msg.sender` is the sender of the stream.
+        if (!_isCallerStreamSender(streamId)) {
+            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+        }
+
+        // Effects: renounce the stream.
+        _renounce(streamId);
+    }
+
+    /// @inheritdoc ISablierV2Lockup
     function setNFTDescriptor(ISablierV2NFTDescriptor newNFTDescriptor) external override onlyAdmin {
         // Effects: set the NFT descriptor.
         ISablierV2NFTDescriptor oldNftDescriptor = _nftDescriptor;
@@ -242,6 +253,9 @@ abstract contract SablierV2Lockup is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _burn(uint256 tokenId) internal virtual;
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _renounce(uint256 streamId) internal virtual;
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _withdraw(uint256 streamId, address to, uint128 amount) internal virtual;

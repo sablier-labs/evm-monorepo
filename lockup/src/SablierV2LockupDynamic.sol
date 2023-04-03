@@ -396,32 +396,6 @@ contract SablierV2LockupDynamic is
         streamId = _createWithMilestones(params);
     }
 
-    /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall isActive(streamId) {
-        // Checks: `msg.sender` is the sender of the stream.
-        if (!_isCallerStreamSender(streamId)) {
-            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-        }
-
-        // Checks: the stream is cancelable.
-        if (!_streams[streamId].isCancelable) {
-            revert Errors.SablierV2Lockup_RenounceNonCancelableStream(streamId);
-        }
-
-        // Effects: make the stream non-cancelable.
-        _streams[streamId].isCancelable = false;
-
-        // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
-        // reverting if the hook is not implemented, and also without bubbling up any potential revert.
-        address recipient = _ownerOf(streamId);
-        if (recipient.code.length > 0) {
-            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
-        }
-
-        // Log the renouncement.
-        emit ISablierV2Lockup.RenounceLockupStream(streamId);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -624,6 +598,27 @@ contract SablierV2LockupDynamic is
             range: LockupDynamic.Range({ start: stream.startTime, end: stream.endTime }),
             broker: params.broker.account
         });
+    }
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _renounce(uint256 streamId) internal override {
+        // Checks: the stream is cancelable.
+        if (!_streams[streamId].isCancelable) {
+            revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
+        }
+
+        // Effects: make the stream non-cancelable.
+        _streams[streamId].isCancelable = false;
+
+        // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
+        // reverting if the hook is not implemented, and also without bubbling up any potential revert.
+        address recipient = _ownerOf(streamId);
+        if (recipient.code.length > 0) {
+            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
+        }
+
+        // Log the renouncement.
+        emit ISablierV2Lockup.RenounceLockupStream(streamId);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.

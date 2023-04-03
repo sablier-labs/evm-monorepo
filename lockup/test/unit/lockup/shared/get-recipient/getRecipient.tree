@@ -5,4 +5,4 @@ getRecipient.t.sol
    ├── when the NFT has been burned
    │  └── it should revert
    └── when the NFT exists
-      └── it should has not been burned
+      └── it should return the correct recipient

@@ -80,7 +80,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_RenounceNonCancelableStream.selector, nonCancelableStreamId)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNonCancelable.selector, nonCancelableStreamId)
         );
         lockup.renounce(nonCancelableStreamId);
     }
