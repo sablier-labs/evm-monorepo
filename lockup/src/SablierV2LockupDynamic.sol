@@ -449,13 +449,13 @@ contract SablierV2LockupDynamic is
 
             // Calculate the streamed amount using the special formula.
             SD59x18 multiplier = elapsedTimePercentage.pow(exponent);
-            SD59x18 streamedAmountUd = multiplier.mul(depositAmount);
+            SD59x18 streamedAmountSd = multiplier.mul(depositAmount);
 
             // Assert that the streamed amount is less than or equal to the deposit amount.
-            assert(streamedAmountUd.lte(depositAmount));
+            assert(streamedAmountSd.lte(depositAmount));
 
             // Casting to uint128 is safe thanks for the assertion above.
-            streamedAmount = uint128(streamedAmountUd.intoUint256());
+            streamedAmount = uint128(streamedAmountSd.intoUint256());
         }
     }
 
