@@ -376,7 +376,7 @@ contract SablierV2LockupDynamic is
     ///
     /// Notes:
     ///
-    /// 1. Normalization to 18 decimals is not required because there is no mix of amounts with different decimals.
+    /// 1. Normalization to 18 decimals is not needed because there is no mix of amounts with different decimals.
     /// 2. This function must be called only when the end time of the stream is in the future so that the
     /// the loop below does not panic with an "index out of bounds" error.
     function _calculateStreamedAmountForMultipleSegments(uint256 streamId)
@@ -387,7 +387,7 @@ contract SablierV2LockupDynamic is
         unchecked {
             uint40 currentTime = uint40(block.timestamp);
 
-            // Sum up the amounts found in all preceding segments.
+            // Sum the amounts in all preceding segments.
             uint128 previousSegmentAmounts;
             uint40 currentSegmentMilestone = _streams[streamId].segments[0].milestone;
             uint256 index = 1;
@@ -397,22 +397,22 @@ contract SablierV2LockupDynamic is
                 index += 1;
             }
 
-            // After the loop exits, the current segment is found at index `index - 1`, whereas the previous segment
-            // is found at `index - 2` (when there are two or more segments).
+            // After exiting the loop, the current segment is at index `index - 1`, and the previous segment
+            // is at `index - 2` (when there are two or more segments).
             SD59x18 currentSegmentAmount = _streams[streamId].segments[index - 1].amount.intoSD59x18();
             SD59x18 currentSegmentExponent = _streams[streamId].segments[index - 1].exponent.intoSD59x18();
             currentSegmentMilestone = _streams[streamId].segments[index - 1].milestone;
 
             uint40 previousMilestone;
             if (index > 1) {
-                // If the current segment is at an index that is >= 2, use the previous segment's milestone.
+                // If the current segment is at index >= 2, use the previous segment's milestone.
                 previousMilestone = _streams[streamId].segments[index - 2].milestone;
             } else {
-                // Otherwise, the current segment is the first, so use the start time as the previous milestone.
+                // Otherwise, the current segment is the first, so consider the start time the previous milestone.
                 previousMilestone = _streams[streamId].startTime;
             }
 
-            // Calculate how much time has elapsed since the segment started, and the total time of the segment.
+            // Calculate how much time has passed since the segment started, and the total time of the segment.
             SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
             SD59x18 totalSegmentTime = (currentSegmentMilestone - previousMilestone).intoSD59x18();
 
@@ -423,20 +423,24 @@ contract SablierV2LockupDynamic is
             SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
             SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
 
-            // Assert that the streamed amount is less than or equal to the current segment amount.
-            assert(segmentStreamedAmount.lte(currentSegmentAmount));
+            // Although the segment streamed amount should never exceed the total segment amount, this condition is
+            // checked without asserting to avoid locking funds in case of a bug. If this situation occurs, the amount
+            // streamed in the segment is considered zero, and the segment is effectively voided.
+            if (segmentStreamedAmount.gt(currentSegmentAmount)) {
+                return previousSegmentAmounts;
+            }
 
-            // Finally, calculate the streamed amount by adding up the previous segment amounts and the amount
-            // streamed in this segment. Casting to uint128 is safe thanks to the assertion above.
+            // Calculate the total streamed amount by adding the previous segment amounts and the amount streamed in
+            // the current segment. Casting to uint128 is safe due to the if statement above.
             streamedAmount = previousSegmentAmounts + uint128(segmentStreamedAmount.intoUint256());
         }
     }
 
     /// @dev Calculates the streamed amount for a stream with one segment. Normalization to 18 decimals is not
-    /// required because there is no mix of amounts with different decimals.
+    /// needed because there is no mix of amounts with different decimals.
     function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128 streamedAmount) {
         unchecked {
-            // Calculate how much time has elapsed since the stream started, and the total time of the stream.
+            // Calculate how much time has passed since the stream started, and the total time of the stream.
             SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
             SD59x18 totalTime = (_streams[streamId].endTime - _streams[streamId].startTime).intoSD59x18();
 
@@ -451,10 +455,14 @@ contract SablierV2LockupDynamic is
             SD59x18 multiplier = elapsedTimePercentage.pow(exponent);
             SD59x18 streamedAmountSd = multiplier.mul(depositAmount);
 
-            // Assert that the streamed amount is less than or equal to the deposit amount.
-            assert(streamedAmountSd.lte(depositAmount));
+            // Although the streamed amount should never exceed the deposit amount, this condition is checked
+            // without asserting to avoid locking funds in case of a bug. If this situation occurs, the withdrawn
+            // amount is considered to be the streamed amount, and the stream is effectively frozen.
+            if (streamedAmountSd.gt(depositAmount)) {
+                return _streams[streamId].amounts.withdrawn;
+            }
 
-            // Casting to uint128 is safe thanks for the assertion above.
+            // Cast the streamed amount to uint128. This is safe due to the check above.
             streamedAmount = uint128(streamedAmountSd.intoUint256());
         }
     }
@@ -495,7 +503,7 @@ contract SablierV2LockupDynamic is
         uint256 segmentCount = _streams[streamId].segments.length;
         uint40 endTime = _streams[streamId].endTime;
 
-        // If the current time is greater than or equal to the end time, simply return the deposit amount.
+        // If the current time is greater than or equal to the end time, return the deposit amount.
         if (currentTime >= endTime) {
             return _streams[streamId].amounts.deposit;
         }

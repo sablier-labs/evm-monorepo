@@ -388,9 +388,8 @@ contract SablierV2LockupLinear is
             return _streams[streamId].amounts.withdrawn;
         }
 
-        // If the cliff time is greater than the block timestamp, return zero. Because the cliff time is
-        // always greater than the start time, this also checks whether the start time is greater than
-        // the block timestamp.
+        // If the cliff time is greater than the block timestamp, return zero. This also checks if the start time
+        // is greater than the block timestamp, as the cliff time is always greater than the start time.
         uint256 currentTime = block.timestamp;
         uint256 cliffTime = uint256(_streams[streamId].cliffTime);
         if (cliffTime > currentTime) {
@@ -400,16 +399,15 @@ contract SablierV2LockupLinear is
         // Load the end time.
         uint256 endTime = uint256(_streams[streamId].endTime);
 
-        // If the current time is greater than or equal to the end time, simply return the deposit amount.
+        // If the current time is greater than or equal to the end time, return the deposit amount.
         if (currentTime >= endTime) {
             return _streams[streamId].amounts.deposit;
         }
 
-        // In all other cases, calculate how much has been streamed so far. Normalization to 18 decimals is not required
+        // In all other cases, calculate the amount streamed so far. Normalization to 18 decimals is not needed
         // because there is no mix of amounts with different decimals.
         unchecked {
-            // Begin by calculating how much time has elapsed since the stream started, and the total time of the
-            // stream.
+            // Calculate how much time has passed since the stream started, and the total time of the stream.
             uint256 startTime = uint256(_streams[streamId].startTime);
             UD60x18 elapsedTime = ud(currentTime - startTime);
             UD60x18 totalTime = ud(endTime - startTime);
@@ -423,10 +421,14 @@ contract SablierV2LockupLinear is
             // Calculate the streamed amount by multiplying the elapsed time percentage by the deposit amount.
             UD60x18 streamedAmountUd = elapsedTimePercentage.mul(depositAmount);
 
-            // Assert that the streamed amount is less than or equal to the deposit amount.
-            assert(streamedAmountUd.lte(depositAmount));
+            // Although the streamed amount should never exceed the deposit amount, this condition is checked
+            // without asserting to avoid locking funds in case of a bug. If this situation occurs, the withdrawn
+            // amount is considered to be the streamed amount, and the stream is effectively frozen.
+            if (streamedAmountUd.gt(depositAmount)) {
+                return _streams[streamId].amounts.withdrawn;
+            }
 
-            // Casting to uint128 is safe thanks to the assertion above.
+            // Cast the streamed amount to uint128. This is safe due to the check above.
             streamedAmount = uint128(streamedAmountUd.intoUint256());
         }
     }

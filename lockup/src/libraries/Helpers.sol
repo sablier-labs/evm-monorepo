@@ -149,10 +149,10 @@ library Helpers {
 
     /// @dev Checks that:
     ///
-    /// 1. The first milestone is greater than or equal to the start time.
+    /// 1. The first milestone is strictly greater than the start time.
     /// 2. The milestones are ordered chronologically.
     /// 3. There are no duplicate milestones.
-    /// 4. The deposit amount is equal to the segment amounts summed up.
+    /// 4. The deposit amount is equal to the sum of all segment amounts.
     function _checkSegments(
         LockupDynamic.Segment[] memory segments,
         uint128 depositAmount,
@@ -173,7 +173,8 @@ library Helpers {
         uint40 currentMilestone;
         uint40 previousMilestone;
 
-        // Iterate over the segments to sum up the segment amounts and check that the milestones are ordered.
+        // Iterate over the segments to calculate the sum of all segment amounts, and check that the milestones are
+        // ordered.
         uint256 index;
         uint256 segmentCount = segments.length;
         for (index = 0; index < segmentCount;) {
