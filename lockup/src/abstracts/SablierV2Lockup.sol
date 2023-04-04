@@ -95,8 +95,8 @@ abstract contract SablierV2Lockup is
 
         // Checks:
         // 1. NFT exists (see `getApproved`).
-        // 2. `msg.sender` is either the owner of the NFT or an approved operator.
-        if (!_isApprovedOrOwner(streamId, msg.sender)) {
+        // 2. `msg.sender` is either the owner of the NFT or an approved third party.
+        if (!_isCallerStreamRecipientOrApproved(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
@@ -151,7 +151,7 @@ abstract contract SablierV2Lockup is
     function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall isActive(streamId) {
         // Checks: `msg.sender` is the sender of the stream, the recipient of the stream (i.e. the owner of
         // the NFT), or an approved operator.
-        if (!_isCallerStreamSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
+        if (!_isCallerStreamSender(streamId) && !_isCallerStreamRecipientOrApproved(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
@@ -207,7 +207,7 @@ abstract contract SablierV2Lockup is
             }
 
             // Checks: `msg.sender` is an approved operator or the recipient of the stream (i.e. the owner of the NFT).
-            if (!_isApprovedOrOwner(streamId, msg.sender)) {
+            if (!_isCallerStreamRecipientOrApproved(streamId)) {
                 revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
             }
 
@@ -225,22 +225,12 @@ abstract contract SablierV2Lockup is
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Checks whether the spender is authorized to interact with the stream.
-    /// @dev Unlike the ERC-721 implementation, this function does not check whether the owner is the zero address.
+    /// @notice Checks whether `msg.sender` is the recipient of the stream or an approved third party.
     /// @param streamId The id of the stream to make the query for.
-    /// @param spender The spender to make the query for.
-    function _isApprovedOrOwner(
-        uint256 streamId,
-        address spender
-    )
-        internal
-        view
-        virtual
-        returns (bool isApprovedOrOwner);
+    function _isCallerStreamRecipientOrApproved(uint256 streamId) internal view virtual returns (bool result);
 
-    /// @notice Checks whether `msg.sender` is the sender of the stream or not.
+    /// @notice Checks whether `msg.sender` is the sender of the stream.
     /// @param streamId The id of the stream to make the query for.
-    /// @return result Whether `msg.sender` is the sender of the stream or not.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
 
     /// @notice Returns the owner of the NFT without reverting.
