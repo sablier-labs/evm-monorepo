@@ -525,11 +525,8 @@ contract SablierV2LockupLinear is
             revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
         }
 
-        // Load the stream in memory.
-        LockupLinear.Stream memory stream = _streams[streamId];
-
         // Calculate the withdrawable amount.
-        uint128 withdrawableAmount = _streamedAmountOf(streamId) - stream.amounts.withdrawn;
+        uint128 withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
 
         // Checks: the withdraw amount is not greater than the withdrawable amount.
         if (amount > withdrawableAmount) {
@@ -543,11 +540,11 @@ contract SablierV2LockupLinear is
             _streams[streamId].amounts.withdrawn += amount;
         }
 
-        // Load the recipient in memory.
+        // Load the the recipient in memory.
         address recipient = _ownerOf(streamId);
 
         // Effects: if the entire deposit amount is now withdrawn, mark the stream as depleted.
-        if (stream.amounts.deposit == stream.amounts.withdrawn) {
+        if (_streams[streamId].amounts.deposit == _streams[streamId].amounts.withdrawn) {
             _streams[streamId].status = Lockup.Status.DEPLETED;
 
             // A depleted stream cannot be canceled anymore.
@@ -555,7 +552,7 @@ contract SablierV2LockupLinear is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        stream.asset.safeTransfer({ to: to, value: amount });
+        _streams[streamId].asset.safeTransfer({ to: to, value: amount });
 
         // Interactions: if `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up

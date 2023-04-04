@@ -57,7 +57,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         targetContract(address(dynamicHandler));
         targetContract(address(dynamicCreateHandler));
 
-        // Exclude the dynamic handlers from being the `msg.sender`.
+        // Exclude the dynamic handlers from being `msg.sender`.
         excludeSender(address(flashLoanHandler));
         excludeSender(address(dynamicHandler));
         excludeSender(address(dynamicCreateHandler));
