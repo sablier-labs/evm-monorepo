@@ -28,6 +28,7 @@ abstract contract Constants {
     uint128 internal constant DEFAULT_WITHDRAW_AMOUNT = 2600e18;
     bytes32 internal constant FLASH_LOAN_CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
     UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
+    uint40 internal immutable MAX_SEGMENT_DURATION;
     uint40 internal constant MAX_UNIX_TIMESTAMP = 2_147_483_647; // 2^31 - 1
     uint128 internal constant UINT128_MAX = type(uint128).max;
     uint256 internal constant UINT256_MAX = type(uint256).max;
@@ -56,7 +57,7 @@ abstract contract Constants {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
-        DEFAULT_START_TIME = uint40(block.timestamp);
+        DEFAULT_START_TIME = uint40(1_677_632_400); // March 1, 2023 at 00:00 GMT
         DEFAULT_CLIFF_TIME = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION;
         DEFAULT_END_TIME = DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION;
         DEFAULT_LINEAR_RANGE =
@@ -96,7 +97,7 @@ abstract contract Constants {
         unchecked {
             uint128 amount = DEFAULT_DEPOSIT_AMOUNT / uint128(DEFAULT_MAX_SEGMENT_COUNT);
             UD2x18 exponent = ud2x18(2.71e18);
-            uint40 duration = DEFAULT_TOTAL_DURATION / uint40(DEFAULT_MAX_SEGMENT_COUNT);
+            MAX_SEGMENT_DURATION = DEFAULT_TOTAL_DURATION / uint40(DEFAULT_MAX_SEGMENT_COUNT);
 
             // Generate a bunch of segments with the same amount, same exponent, and with milestones
             // evenly spread apart.
@@ -105,7 +106,7 @@ abstract contract Constants {
                     LockupDynamic.Segment({
                         amount: amount,
                         exponent: exponent,
-                        milestone: DEFAULT_START_TIME + duration * (i + 1)
+                        milestone: DEFAULT_START_TIME + MAX_SEGMENT_DURATION * (i + 1)
                     })
                 );
             }

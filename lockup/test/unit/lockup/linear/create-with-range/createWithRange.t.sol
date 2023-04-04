@@ -78,6 +78,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_CliffTimeNotLessThanEndTime()
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -97,12 +98,36 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_ProtocolFeeTooHigh()
+    function test_RevertWhen_EndTimeInThePast()
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
+        whenEndTimeNotInThePast
+    {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, DEFAULT_END_TIME, DEFAULT_END_TIME)
+        );
+        createDefaultStream();
+    }
+
+    modifier whenEndTimeNotInThePast() {
+        _;
+    }
+
+    /// @dev it should revert.
+    function test_RevertWhen_ProtocolFeeTooHigh()
+        external
+        whenNoDelegateCall
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotGreaterThanCliffTime
+        whenCliffTimeLessThanEndTime
+        whenEndTimeNotInThePast
     {
         UD60x18 protocolFee = MAX_FEE.add(ud(1));
 
@@ -124,10 +149,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_BrokerFeeTooHigh()
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenProtocolFeeNotTooHigh
     {
         UD60x18 brokerFee = MAX_FEE.add(ud(1));
@@ -142,10 +169,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     /// @dev it should revert.
     function test_RevertWhen_AssetNotContract()
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
     {
@@ -161,10 +190,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
     function test_CreateWithRange_AssetMissingReturnValue()
         external
+        whenNoDelegateCall
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
@@ -186,9 +217,11 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     /// - Emit a {CreateLockupLinearStream} event.
     function test_CreateWithRange()
         external
+        whenNoDelegateCall
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
+        whenEndTimeNotInThePast
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract

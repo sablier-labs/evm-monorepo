@@ -39,16 +39,16 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
-        // Warp into the future.
-        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
-        vm.warp({ timestamp: currentTime });
-
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
         params.totalAmount = DEFAULT_DEPOSIT_AMOUNT;
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = dynamic.createWithMilestones(params);
+
+        // Warp into the future.
+        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
+        vm.warp({ timestamp: currentTime });
 
         // Run the test.
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(streamId);
@@ -68,7 +68,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// - Current time < end time
     /// - Current time = end time
     /// - Current time > end time
-    /// - WithdrawFromLockupStream amount equal to deposit amount and not
+    /// - Withdraw amount equal to deposit amount and not
     function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,
         uint128 withdrawAmount
@@ -80,9 +80,8 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
-        // Warp into the future.
+        // Define the current time.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
-        vm.warp({ timestamp: currentTime });
 
         // Bound the withdraw amount.
         uint128 streamedAmount =
@@ -95,6 +94,9 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         params.totalAmount = DEFAULT_DEPOSIT_AMOUNT;
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = dynamic.createWithMilestones(params);
+
+        // Warp into the future.
+        vm.warp({ timestamp: currentTime });
 
         // Make the withdrawal.
         dynamic.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });

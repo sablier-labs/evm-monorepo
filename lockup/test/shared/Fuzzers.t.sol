@@ -131,19 +131,22 @@ abstract contract Fuzzers is Constants, Utils {
 
     /// @dev Fuzzes the segment milestones.
     function fuzzSegmentMilestones(LockupDynamic.Segment[] memory segments, uint40 startTime) internal view {
-        // Precompute the first milestone so that we don't bump into an underflow in the first loop iteration.
-        segments[0].milestone = startTime + 1;
-
         // Return here if there's only one segment to not run into division by zero.
         uint40 segmentCount = uint40(segments.length);
         if (segmentCount == 1) {
+            // The end time must not be in the past.
+            segments[0].milestone = getBlockTimestamp() + 2 days;
             return;
         }
 
-        // Generate `segmentCount` milestones linearly spaced between `startTime + 1` and `MAX_UNIX_TIMESTAMP`.
-        uint40 step = (MAX_UNIX_TIMESTAMP - (startTime + 1)) / (segmentCount - 1);
+        // We precompute the first milestone so that we don't bump into an underflow in the first loop iteration. We
+        // have to add 1 because the first milestone must be greater than the start time.
+        segments[0].milestone = startTime + 1;
+
+        // Generate `segmentCount` milestones linearly spaced between the first milestone and `MAX_UNIX_TIMESTAMP`.
+        uint40 step = (MAX_UNIX_TIMESTAMP - segments[0].milestone) / (segmentCount - 1);
         uint40 halfStep = step / 2;
-        uint256[] memory milestones = arange(startTime + 1, MAX_UNIX_TIMESTAMP, step);
+        uint256[] memory milestones = arange(segments[0].milestone, MAX_UNIX_TIMESTAMP, step);
 
         // Fuzz the milestones in a way that preserves their order in the array.
         for (uint256 i = 1; i < segmentCount; ++i) {

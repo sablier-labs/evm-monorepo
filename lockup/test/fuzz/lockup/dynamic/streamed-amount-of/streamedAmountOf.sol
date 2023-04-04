@@ -32,10 +32,6 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
-        // Warp into the future.
-        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
-        vm.warp({ timestamp: currentTime });
-
         // Create a single-element segment array.
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);
         segments[0] = LockupDynamic.Segment({
@@ -46,6 +42,10 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Create the stream with the one-segment array.
         uint256 streamId = createDefaultStreamWithSegments(segments);
+
+        // Warp into the future.
+        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
+        vm.warp({ timestamp: currentTime });
 
         // Run the test.
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(streamId);
@@ -76,14 +76,14 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenMultipleSegments
         whenCurrentMilestoneNot1st
     {
-        timeWarp = boundUint40(timeWarp, MAX_SEGMENTS[0].milestone, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = boundUint40(timeWarp, MAX_SEGMENT_DURATION, DEFAULT_TOTAL_DURATION * 2);
+
+        // Create the stream with the multiple-segment array.
+        uint256 streamId = createDefaultStreamWithSegments(MAX_SEGMENTS);
 
         // Warp into the future.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
-
-        // Create the stream with the multiple-segment array.
-        uint256 streamId = createDefaultStreamWithSegments(MAX_SEGMENTS);
 
         // Run the test.
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(streamId);
