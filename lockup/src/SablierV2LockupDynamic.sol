@@ -412,9 +412,12 @@ contract SablierV2LockupDynamic is
 
             // Although the segment streamed amount should never exceed the total segment amount, this condition is
             // checked without asserting to avoid locking funds in case of a bug. If this situation occurs, the amount
-            // streamed in the segment is considered zero, and the segment is effectively voided.
+            // streamed in the segment is considered zero (except for past withdrawals), and the segment is effectively
+            // voided.
             if (segmentStreamedAmount.gt(currentSegmentAmount)) {
-                return previousSegmentAmounts;
+                return previousSegmentAmounts > _streams[streamId].amounts.withdrawn
+                    ? previousSegmentAmounts
+                    : _streams[streamId].amounts.withdrawn;
             }
 
             // Calculate the total streamed amount by adding the previous segment amounts and the amount streamed in
