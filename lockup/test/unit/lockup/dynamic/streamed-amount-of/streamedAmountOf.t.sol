@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
 import { LockupDynamic } from "src/types/DataTypes.sol";
 
 import { Dynamic_Unit_Test } from "../Dynamic.t.sol";
@@ -19,12 +20,11 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return zero.
-    function test_StreamedAmountOf_StreamNull() external whenStreamNotActive {
+    /// @dev it should revert.
+    function test_RevertWhen_StreamNull() external whenStreamNotActive {
         uint256 nullStreamId = 1729;
-        uint128 actualStreamedAmount = dynamic.streamedAmountOf(nullStreamId);
-        uint128 expectedStreamedAmount = 0;
-        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        dynamic.streamedAmountOf(nullStreamId);
     }
 
     /// @dev it should return zero.

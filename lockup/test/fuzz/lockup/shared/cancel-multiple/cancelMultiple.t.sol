@@ -74,7 +74,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
-        // Expect the ERC-20 assets to be returned to the sender, if not zero.
+        // Expect the ERC-20 assets to be returned to the sender, if the amount is not zero.
         uint128 recipientAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
         if (recipientAmount0 > 0) {
             expectTransferCall({ to: users.recipient, amount: recipientAmount0 });
@@ -84,7 +84,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
             expectTransferCall({ to: users.recipient, amount: recipientAmount1 });
         }
 
-        // Expect the ERC-20 assets to be returned to the sender, if not zero.
+        // Expect the ERC-20 assets to be returned to the sender, if the amount is not zero.
         uint128 senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount0;
         if (senderAmount0 > 0) {
             expectTransferCall({ to: users.sender, amount: senderAmount0 });
@@ -160,7 +160,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
-        // Expect the ERC-20 assets to be withdrawn to the recipient, if not zero.
+        // Expect the ERC-20 assets to be withdrawn to the recipient, if the amount is not zero.
         uint128 recipientAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
         if (recipientAmount0 > 0) {
             expectTransferCall({ to: users.recipient, amount: recipientAmount0 });
@@ -170,7 +170,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
             expectTransferCall({ to: users.recipient, amount: recipientAmount1 });
         }
 
-        // Expect the ERC-20 assets to be returned to the sender, if not zero.
+        // Expect the ERC-20 assets to be returned to the sender, if the amount is not zero.
         uint128 senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount0;
         if (senderAmount0 > 0) {
             expectTransferCall({ to: users.sender, amount: senderAmount0 });

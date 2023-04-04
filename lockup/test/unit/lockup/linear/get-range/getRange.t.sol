@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
 import { LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
 contract GetRange_Linear_Unit_Test is Linear_Unit_Test {
-    /// @dev it should return a zeroed out range.
-    function test_GetRange_StreamNull() external {
+    /// @dev it should revert.
+    function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
-        LockupLinear.Range memory actualRange = linear.getRange(nullStreamId);
-        LockupLinear.Range memory expectedRange = LockupLinear.Range(0, 0, 0);
-        assertEq(actualRange, expectedRange);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        linear.getRange(nullStreamId);
     }
 
     modifier whenStreamNonNull() {

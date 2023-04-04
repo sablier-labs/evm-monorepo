@@ -56,27 +56,33 @@ interface ISablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Queries the address of the ERC-20 asset used for streaming.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup stream to make the query for.
     /// @return asset The contract address of the ERC-20 asset used for streaming.
     function getAsset(uint256 streamId) external view returns (IERC20 asset);
 
     /// @notice Queries the amount deposited in the lockup stream, in units of the asset's decimals.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup stream to make the query for.
     function getDepositAmount(uint256 streamId) external view returns (uint128 depositAmount);
 
     /// @notice Queries the end time of the lockup stream.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup stream to make the query for.
     function getEndTime(uint256 streamId) external view returns (uint40 endTime);
 
     /// @notice Queries the recipient of the lockup stream.
+    /// @dev Reverts if the NFT has been burned.
     /// @param streamId The id of the lockup stream to make the query for.
     function getRecipient(uint256 streamId) external view returns (address recipient);
 
     /// @notice Queries the sender of the lockup stream.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup stream to make the query for.
     function getSender(uint256 streamId) external view returns (address sender);
 
     /// @notice Queries the start time of the lockup stream.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup stream to make the query for.
     function getStartTime(uint256 streamId) external view returns (uint40 startTime);
 
@@ -85,13 +91,17 @@ interface ISablierV2Lockup is
     function getStatus(uint256 streamId) external view returns (Lockup.Status status);
 
     /// @notice Queries the amount withdrawn from the lockup stream, in units of the asset's decimals.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup stream to make the query for.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
     /// @notice Checks whether the lockup stream is cancelable or not.
     ///
     /// @dev Notes:
-    /// - Always returns `false` when the lockup stream is not active.
+    /// - Returns `false` when the lockup stream is not active.
+    ///
+    /// Requirements:
+    /// - `streamId` must not point to a null stream.
     ///
     /// @param streamId The id of the lockup stream to make the query for.
     function isCancelable(uint256 streamId) external view returns (bool result);
@@ -101,15 +111,18 @@ interface ISablierV2Lockup is
 
     /// @notice Calculates the amount that the sender would be paid if the lockup stream were to be canceled, in units
     /// of the asset's decimals.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup stream to make the query for.
     function returnableAmountOf(uint256 streamId) external view returns (uint128 returnableAmount);
 
     /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup stream to make the query for.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
     /// @notice Calculates the amount that the recipient can withdraw from the lockup stream, in units of the asset's
     /// decimals.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup stream to make the query for.
     function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
@@ -156,12 +169,11 @@ interface ISablierV2Lockup is
     /// @dev Emits multiple {CancelLockupStream} events.
     ///
     /// Notes:
-    /// - Does not revert if one of the ids points to a lockup stream that is not active or is active but not
-    /// cancelable.
     /// - This function will attempt to call a hook on either the sender or the recipient of each stream.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
+    /// - All streams must be active and cancelable.
     /// - `msg.sender` must be either the sender or the recipient of each stream.
     ///
     /// @param streamIds The ids of the lockup streams to cancel.

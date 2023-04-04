@@ -47,27 +47,25 @@ abstract contract SablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks that `streamId` points to an active stream.
-    modifier isActiveStream(uint256 streamId) {
+    modifier isActive(uint256 streamId) {
         if (getStatus(streamId) != Lockup.Status.ACTIVE) {
             revert Errors.SablierV2Lockup_StreamNotActive(streamId);
         }
         _;
     }
 
-    /// @notice Checks that `msg.sender` is the sender of the stream, the recipient of the stream (also known as
-    /// the owner of the NFT), or an approved operator.
-    modifier isAuthorizedForStream(uint256 streamId) {
-        if (!_isCallerStreamSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
-            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+    /// @dev Checks that `streamId` points to a non-null stream.
+    modifier isNonNull(uint256 streamId) {
+        if (getStatus(streamId) == Lockup.Status.NULL) {
+            revert Errors.SablierV2Lockup_StreamNull(streamId);
         }
         _;
     }
 
-    /// @notice Checks that `msg.sender` is either the sender of the stream or the recipient of the stream (also
-    /// known
-    /// as the owner of the NFT).
+    /// @notice Checks that `msg.sender` is either the sender of the stream or the recipient of the stream (i.e.
+    /// the owner of the NFT).
     modifier onlySenderOrRecipient(uint256 streamId) {
-        if (!_isCallerStreamSender(streamId) && msg.sender != getRecipient(streamId)) {
+        if (!_isCallerStreamSender(streamId) && msg.sender != _ownerOf(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
         _;
@@ -78,13 +76,7 @@ abstract contract SablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
-    function getRecipient(uint256 streamId) public view virtual override returns (address recipient);
-
-    /// @inheritdoc ISablierV2Lockup
     function getStatus(uint256 streamId) public view virtual override returns (Lockup.Status status);
-
-    /// @inheritdoc ISablierV2Lockup
-    function isCancelable(uint256 streamId) public view virtual override returns (bool result);
 
     /// @inheritdoc ISablierV2Lockup
     function withdrawableAmountOf(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
@@ -113,29 +105,15 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId) external override noDelegateCall isActiveStream(streamId) {
-        // Checks: the stream is cancelable.
-        if (!isCancelable(streamId)) {
-            revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
-        }
-
-        // Effects and Interactions: cancel the stream.
-        _cancel(streamId);
-    }
+    function cancel(uint256 streamId) public virtual override;
 
     /// @inheritdoc ISablierV2Lockup
     function cancelMultiple(uint256[] calldata streamIds) external override noDelegateCall {
         // Iterate over the provided array of stream ids and cancel each stream.
         uint256 count = streamIds.length;
-        uint256 streamId;
         for (uint256 i = 0; i < count;) {
-            streamId = streamIds[i];
-
             // Effects and Interactions: cancel the stream.
-            // Cancel this stream only if the `streamId` points to a stream that is active and cancelable.
-            if (getStatus(streamId) == Lockup.Status.ACTIVE && isCancelable(streamId)) {
-                _cancel(streamId);
-            }
+            cancel(streamIds[i]);
 
             // Increment the for loop iterator.
             unchecked {
@@ -145,15 +123,10 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall isActiveStream(streamId) {
+    function renounce(uint256 streamId) external override noDelegateCall isActive(streamId) {
         // Checks: `msg.sender` is the sender of the stream.
         if (!_isCallerStreamSender(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-        }
-
-        // Checks: the stream is not already non-cancelable.
-        if (!isCancelable(streamId)) {
-            revert Errors.SablierV2Lockup_RenounceNonCancelableStream(streamId);
         }
 
         // Effects: renounce the stream.
@@ -175,19 +148,15 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount
-    )
-        public
-        override
-        noDelegateCall
-        isActiveStream(streamId)
-        isAuthorizedForStream(streamId)
-    {
-        // Checks: if `msg.sender` is the sender of the stream, the provided address is the recipient.
-        if (_isCallerStreamSender(streamId) && to != getRecipient(streamId)) {
+    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall isActive(streamId) {
+        // Checks: `msg.sender` is the sender of the stream, the recipient of the stream (i.e. the owner of
+        // the NFT), or an approved operator.
+        if (!_isCallerStreamSender(streamId) && !_isApprovedOrOwner(streamId, msg.sender)) {
+            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+        }
+
+        // Checks: if `msg.sender` is the sender of the stream, the provided address must be the recipient.
+        if (_isCallerStreamSender(streamId) && to != _ownerOf(streamId)) {
             revert Errors.SablierV2Lockup_WithdrawSenderUnauthorized(streamId, msg.sender, to);
         }
 
@@ -232,17 +201,18 @@ abstract contract SablierV2Lockup is
         for (uint256 i = 0; i < streamIdsCount;) {
             streamId = streamIds[i];
 
-            // If the `streamId` does not point to an active stream, simply skip it.
-            if (getStatus(streamId) == Lockup.Status.ACTIVE) {
-                // Checks: `msg.sender` is an approved operator or the owner of the NFT (also known as the recipient
-                // of the stream).
-                if (!_isApprovedOrOwner(streamId, msg.sender)) {
-                    revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-                }
-
-                // Checks, Effects and Interactions: make the withdrawal.
-                _withdraw(streamId, to, amounts[i]);
+            // Checks: the stream id points to an active stream.
+            if (getStatus(streamId) != Lockup.Status.ACTIVE) {
+                revert Errors.SablierV2Lockup_StreamNotActive(streamId);
             }
+
+            // Checks: `msg.sender` is an approved operator or the recipient of the stream (i.e. the owner of the NFT).
+            if (!_isApprovedOrOwner(streamId, msg.sender)) {
+                revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+            }
+
+            // Checks, Effects and Interactions: make the withdrawal.
+            _withdraw(streamId, to, amounts[i]);
 
             // Increment the for loop iterator.
             unchecked {
@@ -273,15 +243,16 @@ abstract contract SablierV2Lockup is
     /// @return result Whether `msg.sender` is the sender of the stream or not.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
 
+    /// @notice Returns the owner of the NFT without reverting.
+    /// @param tokenId The id of the NFT to make the query for.
+    function _ownerOf(uint256 tokenId) internal view virtual returns (address owner);
+
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _burn(uint256 tokenId) internal virtual;
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _cancel(uint256 streamId) internal virtual;
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _renounce(uint256 streamId) internal virtual;

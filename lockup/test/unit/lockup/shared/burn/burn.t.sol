@@ -106,9 +106,8 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.burn(streamId);
 
         // Assert that the NFT has been burned.
-        address actualNFTOwner = lockup.getRecipient(streamId);
-        address expectedNFTOwner = address(0);
-        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
+        vm.expectRevert("ERC721: invalid token ID");
+        lockup.getRecipient(streamId);
     }
 
     /// @dev it should burn the NFT.
@@ -120,8 +119,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNFTExists
     {
         lockup.burn(streamId);
-        address actualNFTOwner = lockup.getRecipient(streamId);
-        address expectedNFTOwner = address(0);
-        assertEq(actualNFTOwner, expectedNFTOwner);
+        vm.expectRevert("ERC721: invalid token ID");
+        lockup.getRecipient(streamId);
     }
 }

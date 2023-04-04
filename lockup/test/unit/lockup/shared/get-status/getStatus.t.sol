@@ -12,7 +12,7 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
     /// @dev it should return the NULL status.
-    function test_GetStatus_Null() external {
+    function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
         Lockup.Status actualStatus = lockup.getStatus(nullStreamId);
         Lockup.Status expectedStatus = Lockup.Status.NULL;

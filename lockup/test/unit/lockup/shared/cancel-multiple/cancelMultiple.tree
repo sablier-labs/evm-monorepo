@@ -6,14 +6,14 @@ cancelMultiple.t.sol
    │  └── it should do nothing
    └── when the array count is not zero
       ├── when the stream ids array points only to null streams
-      │  └── it should do nothing
+      │  └── it should revert
       ├── when the stream ids array points to some null streams
-      │  └── it should ignore the null streams and cancel the non-null ones
+      │  └── it should revert
       └── when the stream ids array points only to non-null streams
          ├── when all streams are non-cancelable
-         │  └── it should do nothing
+         │  └── it should revert
          ├── when some of the streams are non-cancelable
-         │  └── it should ignore the non-cancelable streams and cancel the cancelable streams
+         │  └── it should revert
          └── when all streams are cancelable
             ├── when the caller is unauthorized for any stream
             │  ├── when the caller is a malicious third-party

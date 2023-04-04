@@ -1,5 +1,5 @@
 getSegments.t.sol
 ├── when the stream is null
-│  └── it should return an empty array
+│  └── it should revert
 └── when the stream is not null
    └── it should return the correct segments

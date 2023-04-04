@@ -49,19 +49,22 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
 
     /// @notice Queries the range of the lockup dynamic stream, a struct that encapsulates (i) the start time of the
     /// stream, and (ii) the end time of of the stream, both as Unix timestamps.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup dynamic stream to make the query for.
     function getRange(uint256 streamId) external view returns (LockupDynamic.Range memory range);
 
     /// @notice Queries the segments the protocol uses to compose the custom streaming curve.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup dynamic stream to make the query for.
     function getSegments(uint256 streamId) external view returns (LockupDynamic.Segment[] memory segments);
 
     /// @notice Queries the lockup dynamic stream entity.
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup dynamic stream to make the query for.
     function getStream(uint256 streamId) external view returns (LockupDynamic.Stream memory stream);
 
     /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
-    /// @dev The streaming function is:
+    /// The streaming function is:
     ///
     /// $$
     /// f(x) = x^{exp} * csa + \Sigma(esa)
@@ -73,6 +76,9 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - $exp$ is the current segment exponent.
     /// - $csa$ is the current segment amount.
     /// - $\Sigma(esa)$ is the sum of all elapsed segments' amounts.
+    ///
+    /// @dev Requirements:
+    /// - `streamId` must not point to a null stream.
     ///
     /// @param streamId The id of the lockup dynamic stream to make the query for.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);

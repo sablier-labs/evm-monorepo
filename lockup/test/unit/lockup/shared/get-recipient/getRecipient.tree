@@ -1,5 +1,8 @@
 getRecipient.t.sol
 ├── when the stream is null
-│  └── it should return zero
+│  └── it should revert
 └── when the stream is not null
-   └── it should return the correct recipient
+   ├── when the NFT has been burned
+   │  └── it should revert
+   └── when the NFT exists
+      └── it should return the correct recipient

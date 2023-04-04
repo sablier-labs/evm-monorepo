@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
+
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../../Unit.t.sol";
 
@@ -17,10 +19,10 @@ abstract contract IsCancelable_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should return false.
-    function test_IsCancelable_StreamNull() external whenStreamNotActive {
+    function test_RevertWhen_StreamNull() external whenStreamNotActive {
         uint256 nullStreamId = 1729;
-        bool isCancelable = lockup.isCancelable(nullStreamId);
-        assertFalse(isCancelable, "isCancelable");
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        lockup.isCancelable(nullStreamId);
     }
 
     /// @dev it should return false.

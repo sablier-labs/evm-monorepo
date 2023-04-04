@@ -12,9 +12,9 @@ withdrawMultiple.t.sol
          │  └── it should do nothing
          └── when the array counts are not zero
             ├── when the stream ids array points only to null streams
-            │  └── it should do nothing
+            │  └── it should revert
             ├── when the stream ids array points to some null streams
-            │  └── it should ignore the null streams and make the withdrawals for the non-null ones
+            │  └── it should revert
             └── when the stream ids array points only to non-null streams
                ├── when the caller is unauthorized for any stream
                │  ├── when the caller is the sender

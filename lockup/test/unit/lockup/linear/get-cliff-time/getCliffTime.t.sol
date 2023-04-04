@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
+
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
 contract GetCliffTime_Linear_Unit_Test is Linear_Unit_Test {
-    /// @dev it should return zero.
-    function test_GetCliffTime_StreamNull() external {
+    /// @dev it should revert.
+    function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
-        uint40 actualCliffTime = linear.getCliffTime(nullStreamId);
-        uint40 expectedCliffTime = 0;
-        assertEq(actualCliffTime, expectedCliffTime, "cliffTime");
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        linear.getCliffTime(nullStreamId);
     }
 
     modifier whenStreamNonNull() {

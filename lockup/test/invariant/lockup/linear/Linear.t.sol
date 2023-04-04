@@ -71,38 +71,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
                                      INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    // solhint-disable max-line-length
-    function invariant_NullStatus() external {
-        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupHandlerStorage.streamIds(i);
-            LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-            address actualRecipient = lockup.getRecipient(streamId);
-
-            // If the stream is null, it should contain only zero values.
-            if (lockup.getStatus(streamId) == Lockup.Status.NULL) {
-                assertEq(actualStream.amounts.deposit, 0, "Invariant violated: stream null, deposit amount not zero");
-                assertEq(
-                    actualStream.amounts.withdrawn, 0, "Invariant violated: stream null, withdrawn amount not zero"
-                );
-                assertEq(
-                    address(actualStream.asset), address(0), "Invariant violated: stream null, asset not zero address"
-                );
-                assertEq(actualStream.cliffTime, 0, "Invariant violated: stream null, cliff time not zero");
-                assertEq(actualStream.endTime, 0, "Invariant violated: stream null, end time not zero");
-                assertEq(actualStream.isCancelable, false, "Invariant violated: stream null, isCancelable not false");
-                assertEq(actualStream.sender, address(0), "Invariant violated: stream null, sender not zero address");
-                assertEq(actualStream.startTime, 0, "Invariant violated: stream null, start time not zero");
-                assertEq(actualRecipient, address(0), "Invariant violated: stream null, recipient not zero address");
-            }
-            // If the stream is not null, it should contain a non-zero deposit amount.
-            else {
-                assertNotEq(actualStream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero");
-                assertNotEq(actualStream.endTime, 0, "Invariant violated: stream non-null, end time zero");
-            }
-        }
-    }
-
+    /// @dev The cliff time cannot be less than the start time.
     function invariant_CliffTimeGteStartTime() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
@@ -115,13 +84,34 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         }
     }
 
+    /// @dev No stream can have a deposit amount of zero.
+    function invariant_DepositAmountNotZero() external {
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            LockupLinear.Stream memory stream = linear.getStream(streamId);
+            assertNotEq(stream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero");
+        }
+    }
+
+    /// @dev The end time cannot be less than or equal to the cliff time.
     function invariant_EndTimeGtCliffTime() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             assertGt(
-                linear.getEndTime(streamId), linear.getCliffTime(streamId), "Invariant violated: end time < cliff time"
+                linear.getEndTime(streamId), linear.getCliffTime(streamId), "Invariant violated: end time <= cliff time"
             );
+        }
+    }
+
+    /// @dev The end time cannot be zero because it must be greater than the start time (which can be zero).
+    function invariant_EndTimeNotZero() external {
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            LockupLinear.Stream memory stream = linear.getStream(streamId);
+            assertNotEq(stream.endTime, 0, "Invariant violated: stream non-null, end time zero");
         }
     }
 }

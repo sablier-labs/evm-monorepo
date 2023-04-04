@@ -72,48 +72,31 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
                                      INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    // solhint-disable max-line-length
-    function invariant_NullStatus() external {
+    /// @dev No stream can have a deposit amount of zero.
+    function invariant_DepositAmountNotZero() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
-            LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
-            address actualRecipient = lockup.getRecipient(streamId);
-
-            // If the stream is null, it should contain only zero values.
-            if (lockup.getStatus(streamId) == Lockup.Status.NULL) {
-                assertEq(actualStream.amounts.deposit, 0, "Invariant violated: stream null, deposit amount not zero");
-                assertEq(
-                    actualStream.amounts.withdrawn, 0, "Invariant violated: stream null, withdrawn amount not zero"
-                );
-                assertEq(
-                    address(actualStream.asset), address(0), "Invariant violated: stream null, asset not zero address"
-                );
-                assertEq(actualStream.endTime, 0, "Invariant violated: stream null, end time not zero");
-                assertEq(actualStream.isCancelable, false, "Invariant violated: stream null, isCancelable not false");
-                assertEq(actualStream.segments.length, 0, "Invariant violated: stream null, segment count not zero");
-                assertEq(actualStream.sender, address(0), "Invariant violated: stream null, sender not zero address");
-                assertEq(actualStream.startTime, 0, "Invariant violated: stream null, start time not zero");
-                assertEq(actualRecipient, address(0), "Invariant violated: stream null, recipient not zero address");
-            }
-            // If the stream is not null, it should contain a non-zero deposit amount.
-            else {
-                assertNotEq(actualStream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero");
-                assertNotEq(actualStream.endTime, 0, "Invariant violated: stream non-null, end time zero");
-            }
+            LockupDynamic.Stream memory stream = dynamic.getStream(streamId);
+            assertNotEq(stream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero");
         }
     }
 
+    /// @dev The end time cannot be zero because it must be greater than the start time (which can be zero).
+    function invariant_EndTimeNotZero() external {
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            LockupDynamic.Stream memory stream = dynamic.getStream(streamId);
+            assertNotEq(stream.endTime, 0, "Invariant violated: end time zero");
+        }
+    }
+
+    /// @dev The protocol does not allow creating streams with unordered segment milestones.
     function invariant_SegmentMilestonesOrdered() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
-
-            // If the stream is null, it doesn't have segments.
-            if (dynamic.getStatus(streamId) == Lockup.Status.NULL) {
-                continue;
-            }
-
             LockupDynamic.Segment[] memory segments = dynamic.getSegments(streamId);
             uint40 previousMilestone = segments[0].milestone;
             for (uint256 j = 1; j < segments.length; ++j) {
