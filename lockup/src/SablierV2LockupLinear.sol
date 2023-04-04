@@ -188,14 +188,9 @@ contract SablierV2LockupLinear is
         isNonNull(streamId)
         returns (uint128 returnableAmount)
     {
-        // If the stream is active, calculate the returnable amount. In all other cases, the returnable amount is
-        // implicitly zero.
+        // Calculate the returnable amount only if the stream is active; otherwise, it is implicitly zero.
         if (_streams[streamId].status == Lockup.Status.ACTIVE) {
-            unchecked {
-                // No need for an assertion here, since {_streamedAmountOf} checks that the deposit amount is greater
-                // than or equal to the streamed amount.
-                returnableAmount = _streams[streamId].amounts.deposit - _streamedAmountOf(streamId);
-            }
+            returnableAmount = _streams[streamId].amounts.deposit - _streamedAmountOf(streamId);
         }
     }
 
@@ -227,9 +222,7 @@ contract SablierV2LockupLinear is
         isNonNull(streamId)
         returns (uint128 withdrawableAmount)
     {
-        unchecked {
-            withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
-        }
+        withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -254,17 +247,11 @@ contract SablierV2LockupLinear is
 
         // Calculate the sender's and the recipient's amount.
         uint128 streamedAmount = _streamedAmountOf(streamId);
-        uint128 senderAmount;
-        uint128 recipientAmount;
-        unchecked {
-            // Equivalent to {returnableAmountOf}.
-            senderAmount = stream.amounts.deposit - streamedAmount;
-            // Equivalent to {withdrawableAmountOf}.
-            recipientAmount = streamedAmount - stream.amounts.withdrawn;
-        }
+        uint128 senderAmount = stream.amounts.deposit - streamedAmount; // equivalent to {returnableAmountOf}
+        uint128 recipientAmount = streamedAmount - stream.amounts.withdrawn; // equivalent to {withdrawableAmountOf}
 
-        // Load the sender and the recipient in memory, as they are needed multiple times below.
-        address sender = _streams[streamId].sender;
+        // Load the sender and the recipient in memory.
+        address sender = stream.sender;
         address recipient = _ownerOf(streamId);
 
         // Effects: mark the stream as canceled.
@@ -286,7 +273,7 @@ contract SablierV2LockupLinear is
             stream.asset.safeTransfer({ to: sender, value: senderAmount });
         }
 
-        // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
+        // Interactions: if `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
         // hook on the recipient without reverting if the hook is not implemented, and without bubbling up any
         // potential revert.
         if (msg.sender == sender) {
@@ -298,7 +285,7 @@ contract SablierV2LockupLinear is
                 }) { } catch { }
             }
         }
-        // Interactions: if the `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
+        // Interactions: if `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
         // hook on the sender without reverting if the hook is not implemented, and also without bubbling up any
         // potential revert.
         else {
@@ -383,14 +370,13 @@ contract SablierV2LockupLinear is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
-        // If the stream is canceled or depleted, return the withdrawn amount.
+        // Return the withdrawn amount if the stream is canceled or depleted.
         if (_streams[streamId].status != Lockup.Status.ACTIVE) {
             return _streams[streamId].amounts.withdrawn;
         }
 
-        // If the cliff time is greater than the block timestamp, return zero. Because the cliff time is
-        // always greater than the start time, this also checks whether the start time is greater than
-        // the block timestamp.
+        // Return zero if the cliff time is greater than the block timestamp. This also checks if the start time
+        // is greater than the block timestamp, as the cliff time is always greater than the start time.
         uint256 currentTime = block.timestamp;
         uint256 cliffTime = uint256(_streams[streamId].cliffTime);
         if (cliffTime > currentTime) {
@@ -400,16 +386,15 @@ contract SablierV2LockupLinear is
         // Load the end time.
         uint256 endTime = uint256(_streams[streamId].endTime);
 
-        // If the current time is greater than or equal to the end time, simply return the deposit amount.
+        // Return the deposit amount if the current time is greater than or equal to the end time.
         if (currentTime >= endTime) {
             return _streams[streamId].amounts.deposit;
         }
 
-        // In all other cases, calculate how much has been streamed so far. Normalization to 18 decimals is not required
+        // In all other cases, calculate the amount streamed so far. Normalization to 18 decimals is not needed
         // because there is no mix of amounts with different decimals.
         unchecked {
-            // Begin by calculating how much time has elapsed since the stream started, and the total time of the
-            // stream.
+            // Calculate how much time has passed since the stream started, and the total time of the stream.
             uint256 startTime = uint256(_streams[streamId].startTime);
             UD60x18 elapsedTime = ud(currentTime - startTime);
             UD60x18 totalTime = ud(endTime - startTime);
@@ -423,10 +408,14 @@ contract SablierV2LockupLinear is
             // Calculate the streamed amount by multiplying the elapsed time percentage by the deposit amount.
             UD60x18 streamedAmountUd = elapsedTimePercentage.mul(depositAmount);
 
-            // Assert that the streamed amount is less than or equal to the deposit amount.
-            assert(streamedAmountUd.lte(depositAmount));
+            // Although the streamed amount should never exceed the deposit amount, this condition is checked
+            // without asserting to avoid locking funds in case of a bug. If this situation occurs, the withdrawn
+            // amount is considered to be the streamed amount, and the stream is effectively frozen.
+            if (streamedAmountUd.gt(depositAmount)) {
+                return _streams[streamId].amounts.withdrawn;
+            }
 
-            // Casting to uint128 is safe thanks to the assertion above.
+            // Cast the streamed amount to uint128. This is safe due to the check above.
             streamedAmount = uint128(streamedAmountUd.intoUint256());
         }
     }
@@ -536,30 +525,26 @@ contract SablierV2LockupLinear is
             revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
         }
 
+        // Calculate the withdrawable amount.
+        uint128 withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
+
+        // Checks: the withdraw amount is not greater than the withdrawable amount.
+        if (amount > withdrawableAmount) {
+            revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
+                streamId, amount, withdrawableAmount
+            );
+        }
+
+        // Effects: update the withdrawn amount.
         unchecked {
-            // Calculate the withdrawable amount.
-            uint128 withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
-
-            // Checks: the withdraw amount is not greater than the withdrawable amount.
-            if (amount > withdrawableAmount) {
-                revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
-                    streamId, amount, withdrawableAmount
-                );
-            }
-
-            // Effects: update the withdrawn amount.
             _streams[streamId].amounts.withdrawn += amount;
         }
 
-        // Load the stream and the recipient in memory, as they will be needed below.
-        LockupLinear.Stream memory stream = _streams[streamId];
+        // Load the the recipient in memory.
         address recipient = _ownerOf(streamId);
 
-        // Assert that the deposit amount is greater than or equal to the withdrawn amount.
-        assert(stream.amounts.deposit >= stream.amounts.withdrawn);
-
         // Effects: if the entire deposit amount is now withdrawn, mark the stream as depleted.
-        if (stream.amounts.deposit == stream.amounts.withdrawn) {
+        if (_streams[streamId].amounts.deposit == _streams[streamId].amounts.withdrawn) {
             _streams[streamId].status = Lockup.Status.DEPLETED;
 
             // A depleted stream cannot be canceled anymore.
@@ -567,9 +552,9 @@ contract SablierV2LockupLinear is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        stream.asset.safeTransfer({ to: to, value: amount });
+        _streams[streamId].asset.safeTransfer({ to: to, value: amount });
 
-        // Interactions: if the `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
+        // Interactions: if `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up
         // any potential revert.
         if (msg.sender != recipient && recipient.code.length > 0) {

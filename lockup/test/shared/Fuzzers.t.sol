@@ -93,7 +93,7 @@ abstract contract Fuzzers is Constants, Utils {
             }
         }
 
-        // Calculate the total amount from the approximated deposit amount (recall that the segment amounts summed up
+        // Calculate the total amount from the approximated deposit amount (recall that the sum of all segment amounts
         // must equal the deposit amount) using this formula:
         //
         // $$

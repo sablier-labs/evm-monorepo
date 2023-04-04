@@ -71,7 +71,7 @@ library Errors {
     /// @notice Thrown when attempting to interact with a null stream.
     error SablierV2Lockup_StreamNull(uint256 streamId);
 
-    /// @notice Thrown when the `msg.sender` is not authorized to perform some action.
+    /// @notice Thrown when `msg.sender` is not authorized to perform some action.
     error SablierV2Lockup_Unauthorized(uint256 streamId, address caller);
 
     /// @notice Thrown when attempting to withdraw more than can be withdrawn.

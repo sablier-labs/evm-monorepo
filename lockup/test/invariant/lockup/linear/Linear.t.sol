@@ -56,7 +56,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         targetContract(address(linearHandler));
         targetContract(address(linearCreateHandler));
 
-        // Exclude the linear handlers from being the `msg.sender`.
+        // Exclude the linear handlers from being `msg.sender`.
         excludeSender(address(flashLoanHandler));
         excludeSender(address(linearHandler));
         excludeSender(address(linearCreateHandler));

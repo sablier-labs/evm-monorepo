@@ -157,7 +157,7 @@ abstract contract SablierV2FlashLoan is
 
         // Using unchecked arithmetic because the checks above prevent these calculations from overflowing.
         unchecked {
-            // Effects: record the flash fee amount in the protocol revenues. The casting to uint128 is safe thanks
+            // Effects: record the flash fee amount in the protocol revenues. The casting to uint128 is safe due
             // to the check at the start of the function.
             protocolRevenues[IERC20(asset)] += uint128(fee);
 

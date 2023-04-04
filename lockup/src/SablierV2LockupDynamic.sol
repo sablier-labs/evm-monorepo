@@ -205,14 +205,9 @@ contract SablierV2LockupDynamic is
         isNonNull(streamId)
         returns (uint128 returnableAmount)
     {
-        // If the stream is active, calculate the returnable amount. In all other cases, the returnable amount is
-        // implicitly zero.
+        // Calculate the returnable amount only if the stream is active; otherwise, it is implicitly zero.
         if (_streams[streamId].status == Lockup.Status.ACTIVE) {
-            unchecked {
-                // No need for an assertion here, since {_streamedAmountOf} checks that the deposit amount is greater
-                // than or equal to the streamed amount.
-                returnableAmount = _streams[streamId].amounts.deposit - _streamedAmountOf(streamId);
-            }
+            returnableAmount = _streams[streamId].amounts.deposit - _streamedAmountOf(streamId);
         }
     }
 
@@ -244,9 +239,7 @@ contract SablierV2LockupDynamic is
         isNonNull(streamId)
         returns (uint128 withdrawableAmount)
     {
-        unchecked {
-            withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
-        }
+        withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -271,17 +264,11 @@ contract SablierV2LockupDynamic is
 
         // Calculate the sender's and the recipient's amount.
         uint128 streamedAmount = _streamedAmountOf(streamId);
-        uint128 senderAmount;
-        uint128 recipientAmount;
-        unchecked {
-            // Equivalent to {returnableAmountOf}.
-            senderAmount = stream.amounts.deposit - streamedAmount;
-            // Equivalent to {withdrawableAmountOf}.
-            recipientAmount = streamedAmount - stream.amounts.withdrawn;
-        }
+        uint128 senderAmount = stream.amounts.deposit - streamedAmount; // equivalent to {returnableAmountOf}
+        uint128 recipientAmount = streamedAmount - stream.amounts.withdrawn; // equivalent to {withdrawableAmountOf}
 
-        // Load the sender and the recipient in memory, as they are needed multiple times below.
-        address sender = _streams[streamId].sender;
+        // Load the sender and the recipient in memory.
+        address sender = stream.sender;
         address recipient = _ownerOf(streamId);
 
         // Effects: mark the stream as canceled.
@@ -303,7 +290,7 @@ contract SablierV2LockupDynamic is
             stream.asset.safeTransfer({ to: sender, value: senderAmount });
         }
 
-        // Interactions: if the `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
+        // Interactions: if `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
         // hook on the recipient without reverting if the hook is not implemented, and without bubbling up any
         // potential revert.
         if (msg.sender == sender) {
@@ -315,7 +302,7 @@ contract SablierV2LockupDynamic is
                 }) { } catch { }
             }
         }
-        // Interactions: if the `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
+        // Interactions: if `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
         // hook on the sender without reverting if the hook is not implemented, and also without bubbling up any
         // potential revert.
         else {
@@ -376,7 +363,7 @@ contract SablierV2LockupDynamic is
     ///
     /// Notes:
     ///
-    /// 1. Normalization to 18 decimals is not required because there is no mix of amounts with different decimals.
+    /// 1. Normalization to 18 decimals is not needed because there is no mix of amounts with different decimals.
     /// 2. This function must be called only when the end time of the stream is in the future so that the
     /// the loop below does not panic with an "index out of bounds" error.
     function _calculateStreamedAmountForMultipleSegments(uint256 streamId)
@@ -387,7 +374,7 @@ contract SablierV2LockupDynamic is
         unchecked {
             uint40 currentTime = uint40(block.timestamp);
 
-            // Sum up the amounts found in all preceding segments.
+            // Sum the amounts in all preceding segments.
             uint128 previousSegmentAmounts;
             uint40 currentSegmentMilestone = _streams[streamId].segments[0].milestone;
             uint256 index = 1;
@@ -397,22 +384,22 @@ contract SablierV2LockupDynamic is
                 index += 1;
             }
 
-            // After the loop exits, the current segment is found at index `index - 1`, whereas the previous segment
-            // is found at `index - 2` (when there are two or more segments).
+            // After exiting the loop, the current segment is at index `index - 1`, and the previous segment
+            // is at `index - 2` (when there are two or more segments).
             SD59x18 currentSegmentAmount = _streams[streamId].segments[index - 1].amount.intoSD59x18();
             SD59x18 currentSegmentExponent = _streams[streamId].segments[index - 1].exponent.intoSD59x18();
             currentSegmentMilestone = _streams[streamId].segments[index - 1].milestone;
 
             uint40 previousMilestone;
             if (index > 1) {
-                // If the current segment is at an index that is >= 2, use the previous segment's milestone.
+                // If the current segment is at index >= 2, use the previous segment's milestone.
                 previousMilestone = _streams[streamId].segments[index - 2].milestone;
             } else {
-                // Otherwise, the current segment is the first, so use the start time as the previous milestone.
+                // Otherwise, the current segment is the first, so consider the start time the previous milestone.
                 previousMilestone = _streams[streamId].startTime;
             }
 
-            // Calculate how much time has elapsed since the segment started, and the total time of the segment.
+            // Calculate how much time has passed since the segment started, and the total time of the segment.
             SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
             SD59x18 totalSegmentTime = (currentSegmentMilestone - previousMilestone).intoSD59x18();
 
@@ -423,20 +410,27 @@ contract SablierV2LockupDynamic is
             SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
             SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
 
-            // Assert that the streamed amount is less than or equal to the current segment amount.
-            assert(segmentStreamedAmount.lte(currentSegmentAmount));
+            // Although the segment streamed amount should never exceed the total segment amount, this condition is
+            // checked without asserting to avoid locking funds in case of a bug. If this situation occurs, the amount
+            // streamed in the segment is considered zero (except for past withdrawals), and the segment is effectively
+            // voided.
+            if (segmentStreamedAmount.gt(currentSegmentAmount)) {
+                return previousSegmentAmounts > _streams[streamId].amounts.withdrawn
+                    ? previousSegmentAmounts
+                    : _streams[streamId].amounts.withdrawn;
+            }
 
-            // Finally, calculate the streamed amount by adding up the previous segment amounts and the amount
-            // streamed in this segment. Casting to uint128 is safe thanks to the assertion above.
+            // Calculate the total streamed amount by adding the previous segment amounts and the amount streamed in
+            // the current segment. Casting to uint128 is safe due to the if statement above.
             streamedAmount = previousSegmentAmounts + uint128(segmentStreamedAmount.intoUint256());
         }
     }
 
     /// @dev Calculates the streamed amount for a stream with one segment. Normalization to 18 decimals is not
-    /// required because there is no mix of amounts with different decimals.
+    /// needed because there is no mix of amounts with different decimals.
     function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128 streamedAmount) {
         unchecked {
-            // Calculate how much time has elapsed since the stream started, and the total time of the stream.
+            // Calculate how much time has passed since the stream started, and the total time of the stream.
             SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
             SD59x18 totalTime = (_streams[streamId].endTime - _streams[streamId].startTime).intoSD59x18();
 
@@ -449,13 +443,17 @@ contract SablierV2LockupDynamic is
 
             // Calculate the streamed amount using the special formula.
             SD59x18 multiplier = elapsedTimePercentage.pow(exponent);
-            SD59x18 streamedAmountUd = multiplier.mul(depositAmount);
+            SD59x18 streamedAmountSd = multiplier.mul(depositAmount);
 
-            // Assert that the streamed amount is less than or equal to the deposit amount.
-            assert(streamedAmountUd.lte(depositAmount));
+            // Although the streamed amount should never exceed the deposit amount, this condition is checked
+            // without asserting to avoid locking funds in case of a bug. If this situation occurs, the withdrawn
+            // amount is considered to be the streamed amount, and the stream is effectively frozen.
+            if (streamedAmountSd.gt(depositAmount)) {
+                return _streams[streamId].amounts.withdrawn;
+            }
 
-            // Casting to uint128 is safe thanks for the assertion above.
-            streamedAmount = uint128(streamedAmountUd.intoUint256());
+            // Cast the streamed amount to uint128. This is safe due to the check above.
+            streamedAmount = uint128(streamedAmountSd.intoUint256());
         }
     }
 
@@ -480,12 +478,12 @@ contract SablierV2LockupDynamic is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
-        // If the stream is canceled or depleted, return the withdrawn amount.
+        // Return the withdrawn amount if the stream is canceled or depleted.
         if (_streams[streamId].status != Lockup.Status.ACTIVE) {
             return _streams[streamId].amounts.withdrawn;
         }
 
-        // If the start time is greater than or equal to the block timestamp, return zero.
+        // Return zero if the start time is greater than or equal to the block timestamp.
         uint40 currentTime = uint40(block.timestamp);
         if (_streams[streamId].startTime >= currentTime) {
             return 0;
@@ -495,7 +493,7 @@ contract SablierV2LockupDynamic is
         uint256 segmentCount = _streams[streamId].segments.length;
         uint40 endTime = _streams[streamId].endTime;
 
-        // If the current time is greater than or equal to the end time, simply return the deposit amount.
+        // Return the deposit amount if the current time is greater than or equal to the end time.
         if (currentTime >= endTime) {
             return _streams[streamId].amounts.deposit;
         }
@@ -626,30 +624,26 @@ contract SablierV2LockupDynamic is
             revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
         }
 
+        // Calculate the withdrawable amount.
+        uint128 withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
+
+        // Checks: the withdraw amount is not greater than the withdrawable amount.
+        if (amount > withdrawableAmount) {
+            revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
+                streamId, amount, withdrawableAmount
+            );
+        }
+
+        // Effects: update the withdrawn amount.
         unchecked {
-            // Calculate the withdrawable amount.
-            uint128 withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
-
-            // Checks: the withdraw amount is not greater than the withdrawable amount.
-            if (amount > withdrawableAmount) {
-                revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
-                    streamId, amount, withdrawableAmount
-                );
-            }
-
-            // Effects: update the withdrawn amount.
             _streams[streamId].amounts.withdrawn += amount;
         }
 
-        // Load the stream and the recipient in memory, as they will be needed below.
-        LockupDynamic.Stream memory stream = _streams[streamId];
+        // Load the recipient in memory.
         address recipient = _ownerOf(streamId);
 
-        // Assert that the deposit amount is greater than or equal to the withdrawn amount.
-        assert(stream.amounts.deposit >= stream.amounts.withdrawn);
-
         // Effects: if the entire deposit amount is now withdrawn, mark the stream as depleted.
-        if (stream.amounts.deposit == stream.amounts.withdrawn) {
+        if (_streams[streamId].amounts.deposit == _streams[streamId].amounts.withdrawn) {
             _streams[streamId].status = Lockup.Status.DEPLETED;
 
             // A depleted stream cannot be canceled anymore.
@@ -657,9 +651,9 @@ contract SablierV2LockupDynamic is
         }
 
         // Interactions: perform the ERC-20 transfer.
-        stream.asset.safeTransfer({ to: to, value: amount });
+        _streams[streamId].asset.safeTransfer({ to: to, value: amount });
 
-        // Interactions: if the `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
+        // Interactions: if `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up
         // any potential revert.
         if (msg.sender != recipient && recipient.code.length > 0) {
