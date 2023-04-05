@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { ISablierV2LockupRecipient } from "src/interfaces/hooks/ISablierV2LockupRecipient.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
@@ -19,6 +20,63 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
     modifier whenNoDelegateCall() {
         _;
+    }
+
+    /// @dev it should make the withdrawal, update the status, update the withdrawn amount, and emit a
+    /// {WithdrawFromLockupStream} event.
+    ///
+    /// - Multiple values for the current time.
+    /// - Multiple values for the withdrawal address.
+    /// - Multiple withdraw amounts.
+    function testFuzz_Withdraw_StreamCanceled(
+        uint256 timeWarp,
+        address to,
+        uint128 withdrawAmount
+    )
+        external
+        whenNoDelegateCall
+    {
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+        vm.assume(to != address(0));
+
+        // Warp into the future.
+        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+
+        // Cancel the stream.
+        lockup.cancel({ streamId: defaultStreamId });
+
+        // Bound the withdraw amount.
+        uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
+        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
+
+        // Expect the assets to be transferred to the fuzzed `to` address.
+        expectTransferCall({ to: to, amount: withdrawAmount });
+
+        // Expect a {WithdrawFromLockupStream} event to be emitted.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit WithdrawFromLockupStream(defaultStreamId, to, withdrawAmount);
+
+        // Make the withdrawal.
+        lockup.withdraw({ streamId: defaultStreamId, to: to, amount: withdrawAmount });
+
+        // Check if the stream has been depleted.
+        uint128 returnedAmount = lockup.getReturnedAmount(defaultStreamId);
+        bool isDepleted = withdrawAmount == DEFAULT_DEPOSIT_AMOUNT - returnedAmount;
+
+        // Assert that the stream has remained canceled or it has been marked as depleted.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = isDepleted ? Lockup.Status.DEPLETED : Lockup.Status.CANCELED;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the withdrawn amount has been updated.
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
+        uint128 expectedWithdrawnAmount = withdrawAmount;
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the NFT has not been burned.
+        address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
+        address expectedNFTOwner = users.recipient;
+        assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
     modifier whenStreamActive() {
@@ -42,6 +100,8 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     }
 
     /// @dev it should make the withdrawal and update the withdrawn amount.
+    ///
+    /// - Multiple values for the withdrawal address.
     function testFuzz_Withdraw_CallerRecipient(address to)
         external
         whenNoDelegateCall
@@ -53,8 +113,8 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     {
         vm.assume(to != address(0));
 
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+        // Warp into the future.
+        vm.warp({ timestamp: WARP_TIME_26 });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -88,8 +148,8 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Make the operator the caller in this test.
         changePrank({ msgSender: users.operator });
 
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+        // Warp into the future.
+        vm.warp({ timestamp: WARP_TIME_26 });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -105,20 +165,17 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    modifier whenCallerSender() {
-        // Make the sender the caller in this test suite.
-        changePrank({ msgSender: users.sender });
-        _;
-    }
-
-    modifier whenCurrentTimeLessThanEndTime() {
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
-        _;
-    }
-
-    /// @dev it should make the withdrawal and update the withdrawn amount.
-    function testFuzz_Withdraw_RecipientNotContract(
+    /// @dev it should make the withdrawal, update the status, update the withdrawn amount, and emit a
+    /// {WithdrawFromLockupStream} event.
+    ///
+    /// The fuzzing ensures that all of the following scenarios are tested:
+    ///
+    /// - End time in the past
+    /// - End time in the present
+    /// - End time in the future
+    /// - Multiple values for the withdrawal address
+    /// - Multiple withdraw amounts
+    function testFuzz_Withdraw(
         uint256 timeWarp,
         address to,
         uint128 withdrawAmount
@@ -130,109 +187,43 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
-        whenCallerSender
-        whenCurrentTimeLessThanEndTime
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
-        vm.assume(to != address(0) && to.code.length == 0);
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
+        vm.assume(to != address(0));
 
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
-        // Create the stream with the fuzzed recipient that is not a contract.
-        uint256 streamId = createDefaultStreamWithRecipient(to);
-
         // Bound the withdraw amount.
-        uint128 withdrawableAmount = lockup.withdrawableAmountOf(streamId);
+        uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
-        // Expect the ERC-20 assets to be transferred to the recipient.
+        // Expect the assets to be transferred to the fuzzed `to` address.
         expectTransferCall({ to: to, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: streamId, to: to, amount: withdrawAmount });
+        emit WithdrawFromLockupStream(defaultStreamId, to, withdrawAmount);
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: streamId, to: to, amount: withdrawAmount });
+        lockup.withdraw(defaultStreamId, to, withdrawAmount);
 
-        // Assert that the stream has remained active.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
-        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        // Check if the stream has been depleted.
+        bool isDepleted = withdrawAmount == DEFAULT_DEPOSIT_AMOUNT;
+
+        // Assert that the stream has remained active or it has been marked as depleted.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = isDepleted ? Lockup.Status.DEPLETED : Lockup.Status.ACTIVE;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
-    }
 
-    modifier whenRecipientContract() {
-        _;
-    }
-
-    modifier whenRecipientImplementsHook() {
-        _;
-    }
-
-    modifier whenRecipientDoesNotRevert() {
-        _;
-    }
-
-    modifier whenNoRecipientReentrancy() {
-        _;
-    }
-
-    /// @dev it should make the withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream} event.
-    function testFuzz_Withdraw(
-        uint256 timeWarp,
-        uint128 withdrawAmount
-    )
-        external
-        whenNoDelegateCall
-        whenStreamActive
-        whenCallerAuthorized
-        whenToNonZeroAddress
-        whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
-        whenCallerSender
-        whenCurrentTimeLessThanEndTime
-        whenRecipientContract
-        whenRecipientImplementsHook
-        whenRecipientDoesNotRevert
-        whenNoRecipientReentrancy
-    {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
-
-        // Create the stream with a contract as the recipient.
-        uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
-
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
-
-        // Bound the withdraw amount.
-        uint128 withdrawableAmount = lockup.withdrawableAmountOf(streamId);
-        withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
-
-        // Expect the ERC-20 assets to be transferred to the recipient.
-        expectTransferCall({ to: address(goodRecipient), amount: withdrawAmount });
-
-        // Expect a {WithdrawFromLockupStream} event to be emitted.
-        vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
-
-        // Make the withdrawal.
-        lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
-
-        // Assert that the stream has remained active.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
-        Lockup.Status expectedStatus =
-            withdrawAmount == DEFAULT_DEPOSIT_AMOUNT ? Lockup.Status.DEPLETED : Lockup.Status.ACTIVE;
-        assertEq(actualStatus, expectedStatus);
-
-        // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
-        uint128 expectedWithdrawnAmount = withdrawAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+        // Assert that the NFT has not been burned.
+        address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
+        address expectedNFTOwner = users.recipient;
+        assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 }

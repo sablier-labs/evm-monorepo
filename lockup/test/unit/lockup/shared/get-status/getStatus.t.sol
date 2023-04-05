@@ -11,7 +11,7 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
-    /// @dev it should return the NULL status.
+    /// @dev it should return NULL.
     function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
         Lockup.Status actualStatus = lockup.getStatus(nullStreamId);
@@ -24,7 +24,7 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should return the ACTIVE status.
+    /// @dev it should return ACTIVE.
     function test_GetStatus_Active() external whenStreamCreated {
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
@@ -32,11 +32,12 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     modifier whenStreamCanceled() {
+        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
         _;
     }
 
-    /// @dev it should return the CANCELED status.
+    /// @dev it should return CANCELED.
     function test_GetStatus_Canceled() external whenStreamCreated whenStreamCanceled {
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
@@ -49,7 +50,7 @@ abstract contract GetStatus_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should return the DEPLETED status.
+    /// @dev it should return DEPLETED.
     function test_GetStatus_Depleted() external whenStreamCreated whenStreamDepleted {
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;

@@ -36,18 +36,16 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
+    modifier whenAllStreamsSettled() {
+        _;
+    }
+
     modifier whenCallerAuthorizedAllStreams() {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
+    /// @dev it should cancel the streams, return the assets to the sender, update the returned amounts, and emit
     /// {CancelLockupStream} events.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - All streams ended.
-    /// - All streams ongoing.
-    /// - Some streams ended, some streams ongoing.
     function testFuzz_CancelMultiple_Sender(
         uint256 timeWarp,
         uint40 endTime
@@ -57,83 +55,18 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenArrayCountNotZero
         whenOnlyNonNullStreams
         whenAllStreamsCancelable
+        whenAllStreamsSettled
         whenCallerAuthorizedAllStreams
     {
-        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
-        endTime = boundUint40(endTime, DEFAULT_CLIFF_TIME + 1, DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION / 2);
-
         // Make the sender the caller in this test.
         changePrank({ msgSender: users.sender });
 
-        // Create a new stream with a different end time.
-        uint256 streamId = createDefaultStreamWithEndTime(endTime);
-
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
-
-        // Create the stream ids array.
-        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
-
-        // Expect the ERC-20 assets to be returned to the sender, if the amount is not zero.
-        uint128 recipientAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
-        if (recipientAmount0 > 0) {
-            expectTransferCall({ to: users.recipient, amount: recipientAmount0 });
-        }
-        uint128 recipientAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
-        if (recipientAmount1 > 0) {
-            expectTransferCall({ to: users.recipient, amount: recipientAmount1 });
-        }
-
-        // Expect the ERC-20 assets to be returned to the sender, if the amount is not zero.
-        uint128 senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount0;
-        if (senderAmount0 > 0) {
-            expectTransferCall({ to: users.sender, amount: senderAmount0 });
-        }
-        uint128 senderAmount1 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount1;
-        if (senderAmount1 > 0) {
-            expectTransferCall({ to: users.sender, amount: senderAmount1 });
-        }
-
-        // Expect two {CancelLockupStream} events to be emitted.
-        vm.expectEmit({ emitter: address(lockup) });
-        emit CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
-        vm.expectEmit({ emitter: address(lockup) });
-        emit CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
-
-        // Cancel the streams.
-        lockup.cancelMultiple(streamIds);
-
-        // Assert that the streams have been marked as canceled.
-        Lockup.Status actualStatus0 = lockup.getStatus(streamIds[0]);
-        Lockup.Status actualStatus1 = lockup.getStatus(streamIds[1]);
-        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
-        assertEq(actualStatus0, expectedStatus, "status0");
-        assertEq(actualStatus1, expectedStatus, "status1");
-
-        // Assert that the withdrawn amounts have been updated.
-        uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(streamIds[0]);
-        uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(streamIds[1]);
-        uint128 expectedWithdrawnAmount0 = recipientAmount0;
-        uint128 expectedWithdrawnAmount1 = recipientAmount1;
-        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0, "withdrawnAmount0");
-        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1, "withdrawnAmount1");
-
-        // Assert that the NFTs have not been burned.
-        address actualNFTOwner0 = lockup.ownerOf({ tokenId: streamIds[0] });
-        address actualNFTOwner1 = lockup.ownerOf({ tokenId: streamIds[1] });
-        address expectedNFTOwner = users.recipient;
-        assertEq(actualNFTOwner0, expectedNFTOwner, "NFT owner0");
-        assertEq(actualNFTOwner1, expectedNFTOwner, "NFT owner1");
+        // Run the test.
+        testFuzz_CancelMultiple(timeWarp, endTime);
     }
 
-    /// @dev it should perform the ERC-20 transfers, cancel the streams, update the withdrawn amounts, and emit
+    /// @dev it should cancel the streams, return the assets to the sender, update the returned amounts, and emit
     /// {CancelLockupStream} events.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - All streams ended.
-    /// - All streams ongoing.
-    /// - Some streams ended, some streams ongoing.
     function testFuzz_CancelMultiple_Recipient(
         uint256 timeWarp,
         uint40 endTime
@@ -143,13 +76,20 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenArrayCountNotZero
         whenOnlyNonNullStreams
         whenAllStreamsCancelable
+        whenAllStreamsSettled
         whenCallerAuthorizedAllStreams
     {
-        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION * 2);
-        endTime = boundUint40(endTime, DEFAULT_CLIFF_TIME + 1, DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION / 2);
-
         // Make the recipient the caller in this test.
         changePrank({ msgSender: users.recipient });
+
+        // Run the tests.
+        testFuzz_CancelMultiple(timeWarp, endTime);
+    }
+
+    /// @dev Test logic shared between {testFuzz_CancelMultiple_Sender} and {testFuzz_CancelMultiple_Recipient}.
+    function testFuzz_CancelMultiple(uint256 timeWarp, uint40 endTime) internal {
+        timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION - 1);
+        endTime = boundUint40(endTime, DEFAULT_END_TIME, DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION);
 
         // Create a new stream with a different end time.
         uint256 streamId = createDefaultStreamWithEndTime(endTime);
@@ -160,55 +100,51 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
-        // Expect the ERC-20 assets to be withdrawn to the recipient, if the amount is not zero.
-        uint128 recipientAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
-        if (recipientAmount0 > 0) {
-            expectTransferCall({ to: users.recipient, amount: recipientAmount0 });
-        }
-        uint128 recipientAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
-        if (recipientAmount1 > 0) {
-            expectTransferCall({ to: users.recipient, amount: recipientAmount1 });
-        }
-
-        // Expect the ERC-20 assets to be returned to the sender, if the amount is not zero.
-        uint128 senderAmount0 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount0;
-        if (senderAmount0 > 0) {
-            expectTransferCall({ to: users.sender, amount: senderAmount0 });
-        }
-        uint128 senderAmount1 = DEFAULT_DEPOSIT_AMOUNT - recipientAmount1;
-        if (senderAmount1 > 0) {
-            expectTransferCall({ to: users.sender, amount: senderAmount1 });
-        }
+        // Expect the assets to be returned to the sender.
+        uint128 senderAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
+        expectTransferCall({ to: users.sender, amount: senderAmount0 });
+        uint128 senderAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
+        expectTransferCall({ to: users.sender, amount: senderAmount1 });
 
         // Expect two {CancelLockupStream} events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit CancelLockupStream(streamIds[0], users.sender, users.recipient, senderAmount0, recipientAmount0);
+        emit CancelLockupStream({
+            streamId: streamIds[0],
+            sender: users.sender,
+            recipient: users.recipient,
+            senderAmount: senderAmount0,
+            recipientAmount: DEFAULT_DEPOSIT_AMOUNT - senderAmount0
+        });
         vm.expectEmit({ emitter: address(lockup) });
-        emit CancelLockupStream(streamIds[1], users.sender, users.recipient, senderAmount1, recipientAmount1);
+        emit CancelLockupStream({
+            streamId: streamIds[1],
+            sender: users.sender,
+            recipient: users.recipient,
+            senderAmount: senderAmount1,
+            recipientAmount: DEFAULT_DEPOSIT_AMOUNT - senderAmount1
+        });
 
         // Cancel the streams.
         lockup.cancelMultiple(streamIds);
 
         // Assert that the streams have been marked as canceled.
-        Lockup.Status actualStatus0 = lockup.getStatus(streamIds[0]);
-        Lockup.Status actualStatus1 = lockup.getStatus(streamIds[1]);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
-        assertEq(actualStatus0, expectedStatus, "status0");
-        assertEq(actualStatus1, expectedStatus, "status1");
+        assertEq(lockup.getStatus(streamIds[0]), expectedStatus, "status0");
+        assertEq(lockup.getStatus(streamIds[1]), expectedStatus, "status1");
 
-        // Assert that the withdrawn amounts have been updated.
-        uint128 actualWithdrawnAmount0 = lockup.getWithdrawnAmount(streamIds[0]);
-        uint128 actualWithdrawnAmount1 = lockup.getWithdrawnAmount(streamIds[1]);
-        uint128 expectedWithdrawnAmount0 = recipientAmount0;
-        uint128 expectedWithdrawnAmount1 = recipientAmount1;
-        assertEq(actualWithdrawnAmount0, expectedWithdrawnAmount0, "withdrawAmount0");
-        assertEq(actualWithdrawnAmount1, expectedWithdrawnAmount1, "withdrawAmount1");
+        // Assert that the streams are not cancelable anymore.
+        assertFalse(lockup.isCancelable(streamIds[0]), "isCancelable0");
+        assertFalse(lockup.isCancelable(streamIds[1]), "isCancelable1");
+
+        // Assert that the returned amounts have been updated.
+        uint128 expectedReturnedAmount0 = senderAmount0;
+        uint128 expectedReturnedAmount1 = senderAmount1;
+        assertEq(lockup.getReturnedAmount(streamIds[0]), expectedReturnedAmount0, "returnedAmount0");
+        assertEq(lockup.getReturnedAmount(streamIds[1]), expectedReturnedAmount1, "returnedAmount1");
 
         // Assert that the NFTs have not been burned.
-        address actualNFTOwner0 = lockup.getRecipient(streamIds[0]);
-        address actualNFTOwner1 = lockup.getRecipient(streamIds[1]);
         address expectedNFTOwner = users.recipient;
-        assertEq(actualNFTOwner0, expectedNFTOwner, "NFT owner0");
-        assertEq(actualNFTOwner1, expectedNFTOwner, "NFT owner1");
+        assertEq(lockup.getRecipient(streamIds[0]), expectedNFTOwner, "NFT owner0");
+        assertEq(lockup.getRecipient(streamIds[1]), expectedNFTOwner, "NFT owner1");
     }
 }

@@ -59,19 +59,26 @@ library Errors {
     /// @notice Thrown when the protocol fee is greater than the maximum fee permitted.
     error SablierV2Lockup_ProtocolFeeTooHigh(UD60x18 protocolFee, UD60x18 maxFee);
 
-    /// @notice Thrown when attempting to cancel a stream that is already non-cancelable.
+    /// @notice Thrown when attempting to withdraw from a stream that is depleted.
+    error SablierV2Lockup_StreamDepleted(uint256 streamId);
+
+    /// @notice Thrown when attempting to cancel or renounce a stream that is non-cancelable.
     error SablierV2Lockup_StreamNonCancelable(uint256 streamId);
 
-    /// @notice Thrown when the stream id points to a stream that is not active.
+    /// @notice Thrown when attempting to perform an action that requires the stream to be active.
     error SablierV2Lockup_StreamNotActive(uint256 streamId);
 
-    /// @notice Thrown when the stream id points to a stream that is not canceled or depleted.
-    error SablierV2Lockup_StreamNotCanceledOrDepleted(uint256 streamId);
+    /// @notice Thrown when attempting to burn a stream that is not depleted.
+    error SablierV2Lockup_StreamNotDepleted(uint256 streamId);
 
     /// @notice Thrown when attempting to interact with a null stream.
     error SablierV2Lockup_StreamNull(uint256 streamId);
 
-    /// @notice Thrown when `msg.sender` is not authorized to perform some action.
+    /// @notice Thrown when attempting to cancel a stream that is settled, i.e. an active stream from which the
+    /// sender cannot recover any more assets.
+    error SablierV2Lockup_StreamSettled(uint256 streamId);
+
+    /// @notice Thrown when `msg.sender` is not authorized to perform an action.
     error SablierV2Lockup_Unauthorized(uint256 streamId, address caller);
 
     /// @notice Thrown when attempting to withdraw more than can be withdrawn.
@@ -83,14 +90,14 @@ library Errors {
     /// @notice The id of the stream.
     error SablierV2Lockup_WithdrawAmountZero(uint256 streamId);
 
-    /// @notice Thrown when attempting to withdraw from multiple streams and the count of the stream ids does
-    /// not match the count of the amounts.
+    /// @notice Thrown when attempting to withdraw from multiple streams and there are not the same number of
+    /// stream ids as amounts.
     error SablierV2Lockup_WithdrawArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
 
     /// @notice Thrown when the sender of the stream attempts to withdraw to some address other than the recipient.
     error SablierV2Lockup_WithdrawSenderUnauthorized(uint256 streamId, address sender, address to);
 
-    /// @notice Thrown when attempting to withdraw to a zero address.
+    /// @notice Thrown when attempting to withdraw to the zero address.
     error SablierV2Lockup_WithdrawToZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,9 @@ import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
 contract Constructor_Linear_Unit_Test is Linear_Unit_Test {
-    /// @dev it should initialize all values correctly and emit a {TransferAdmin} event.
+    /// @dev Checklist:
+    /// - it should initialize all values correctly
+    /// - it should emit a {TransferAdmin} event
     function test_Constructor() external {
         // Expect a {TransferEvent} to be emitted.
         vm.expectEmit();

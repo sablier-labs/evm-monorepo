@@ -192,7 +192,7 @@ library Helpers {
             // Make the current milestone the previous milestone of the next loop iteration.
             previousMilestone = currentMilestone;
 
-            // Increment the for loop iterator.
+            // Increment the loop iterator.
             unchecked {
                 index += 1;
             }

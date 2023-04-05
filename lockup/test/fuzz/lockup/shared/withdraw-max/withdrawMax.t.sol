@@ -15,13 +15,13 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
-    modifier whenCurrentTimeLessThanEndTime() {
+    modifier whenEndTimeInTheFuture() {
         _;
     }
 
     /// @dev it should make the max withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream}
     /// event.
-    function testFuzz_WithdrawMax(uint256 timeWarp) external whenCurrentTimeLessThanEndTime {
+    function testFuzz_WithdrawMax(uint256 timeWarp) external whenEndTimeInTheFuture {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
         // Warp into the future.
@@ -30,7 +30,7 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
-        // Expect the ERC-20 assets to be transferred to the recipient.
+        // Expect the assets to be transferred to the recipient.
         expectTransferCall({ to: users.recipient, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.

@@ -17,7 +17,7 @@ interface ISablierV2Base is IAdminable {
     /// @notice Emitted when the contract admin claims all protocol revenues accrued for the provided ERC-20 asset.
     /// @param admin The address of the contract admin.
     /// @param asset The contract address of the ERC-20 asset the protocol revenues have been claimed for.
-    /// @param protocolRevenues The amount of protocol revenues claimed, in units of the asset's decimals.
+    /// @param protocolRevenues The amount of protocol revenues claimed, denoted in units of the asset's decimals.
     event ClaimProtocolRevenues(address indexed admin, IERC20 indexed asset, uint128 protocolRevenues);
 
     /// @notice Emitted when the contract admin sets a new comptroller contract.
@@ -32,7 +32,7 @@ interface ISablierV2Base is IAdminable {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
+    /// @notice The maximum fee that can be charged by either the protocol or a broker, as a UD60x18 number
     /// where 100% = 1e18.
     /// @dev This is stored as a constant.
     function MAX_FEE() external view returns (UD60x18);
@@ -41,7 +41,7 @@ interface ISablierV2Base is IAdminable {
     /// handling such values as the protocol fees.
     function comptroller() external view returns (ISablierV2Comptroller);
 
-    /// @notice The protocol revenues accrued for the provided ERC-20 asset, in units of the asset's decimals.
+    /// @notice The protocol revenues accrued for the provided ERC-20 asset, denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset to make the query for.
     function protocolRevenues(IERC20 asset) external view returns (uint128 revenues);
 

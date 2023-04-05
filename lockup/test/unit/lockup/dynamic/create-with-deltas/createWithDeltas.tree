@@ -14,5 +14,10 @@ createWithDeltas.t.sol
           │  └── when the segment milestones are not ordered
           │     └── it should revert
           └── when the segment milestone calculations do not overflow uint256
-             └── it should perform the ERC-20 transfers, create the stream, bump the next stream id, mint the NFT, record the protocol fee, and emit a {CreateLockupDynamicStream} event
+             ├── it should perform the ERC-20 transfers
+             ├── it should create the stream
+             ├── it should bump the next stream id
+             ├── it should mint the NFT
+             ├── it should record the protocol fee
+             └── it should emit a {CreateLockupDynamicStream} event
 

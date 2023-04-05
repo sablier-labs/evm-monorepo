@@ -19,7 +19,7 @@ abstract contract Fuzz_Test is Base_Test {
         // Make the admin the default caller in this test suite.
         vm.startPrank({ msgSender: users.admin });
 
-        // Approve all protocol contracts to spend ERC-20 assets from the users.
+        // Approve all protocol contracts to spend assets from the users.
         approveProtocol();
     }
 }

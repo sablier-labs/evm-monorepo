@@ -116,8 +116,13 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, mint the NFT,
-    /// record the protocol fee, and emit a {CreateLockupDynamicStream} event.
+    /// @dev Checklist:
+    /// - it should perform the ERC-20 transfers
+    /// - it should create the stream
+    /// - it should bump the next stream id
+    /// - it should mint the NFT
+    /// - it should record the protocol fee
+    /// - it should emit a {CreateLockupDynamicStream} event
     function test_CreateWithDeltas()
         external
         whenLoopCalculationsDoNotOverflowBlockGasLimit
@@ -130,7 +135,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = dynamic.protocolRevenues(DEFAULT_ASSET);
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupDynamic}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectTransferFromCall({
             from: funder,
             to: address(dynamic),

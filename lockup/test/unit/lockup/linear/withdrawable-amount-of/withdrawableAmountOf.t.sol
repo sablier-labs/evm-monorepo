@@ -15,31 +15,28 @@ contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    modifier whenStreamNotActive() {
-        _;
-    }
-
     /// @dev it should revert.
-    function test_RevertWhen_StreamNull() external whenStreamNotActive {
+    function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
         linear.withdrawableAmountOf(nullStreamId);
     }
 
     /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StreamCanceled() external whenStreamNotActive {
-        lockup.cancel(defaultStreamId);
+    function test_WithdrawableAmountOf_StreamDepleted() external {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StreamDepleted() external whenStreamNotActive {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+    /// @dev it should return the correct withdrawable amount.
+    function test_WithdrawableAmountOf_StreamCanceled() external {
+        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        lockup.cancel(defaultStreamId);
         uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
-        uint256 expectedWithdrawableAmount = 0;
+        uint256 expectedWithdrawableAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_RETURNED_AMOUNT;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -50,35 +47,27 @@ contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_WithdrawableAmountOf_CliffTimeGreaterThanCurrentTime() external whenStreamActive {
+    function test_WithdrawableAmountOf_CliffTimeInTheFuture() external whenStreamActive {
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier whenCliffTimeLessThanOrEqualToCurrentTime() {
+    modifier whenCliffTimeInThePast() {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: WARP_TIME_26 });
         _;
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_WithdrawableAmountOf_NoWithdrawals()
-        external
-        whenStreamActive
-        whenCliffTimeLessThanOrEqualToCurrentTime
-    {
+    function test_WithdrawableAmountOf_NoWithdrawals() external whenStreamActive whenCliffTimeInThePast {
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     /// @dev it should return the correct withdrawable amount.
-    function test_WithdrawableAmountOf_WithWithdrawals()
-        external
-        whenStreamActive
-        whenCliffTimeLessThanOrEqualToCurrentTime
-    {
+    function test_WithdrawableAmountOf_WithWithdrawals() external whenStreamActive whenCliffTimeInThePast {
         // Make the withdrawal.
         linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
 

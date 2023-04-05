@@ -13,7 +13,8 @@ interface ISablierV2LockupSender {
     /// - This function may revert, but the Sablier contract will always ignore the revert.
     ///
     /// @param streamId The id of the stream that has been canceled.
-    /// @param senderAmount The amount of assets returned to the sender, in units of the asset's decimals.
-    /// @param recipientAmount The amount of assets withdrawn to the recipient, in units of the asset's decimals.
+    /// @param senderAmount The amount of assets returned to the sender, denoted in units of the asset's decimals.
+    /// @param recipientAmount The amount of assets withdrawn to the recipient, denoted in units of the asset's
+    /// decimals.
     function onStreamCanceled(uint256 streamId, uint128 senderAmount, uint128 recipientAmount) external;
 }

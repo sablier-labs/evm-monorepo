@@ -26,17 +26,18 @@ abstract contract ReturnableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
     }
 
     /// @dev it should return zero.
-    function test_ReturnableAmountOf_StreamCanceled() external whenStreamNotActive {
-        lockup.cancel(defaultStreamId);
+    function test_ReturnableAmountOf_StreamDepleted() external whenStreamNotActive {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint256 actualReturnableAmount = lockup.returnableAmountOf(defaultStreamId);
         uint256 expectedReturnableAmount = 0;
         assertEq(actualReturnableAmount, expectedReturnableAmount, "returnableAmount");
     }
 
     /// @dev it should return zero.
-    function test_ReturnableAmountOf_StreamDepleted() external whenStreamNotActive {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+    function test_ReturnableAmountOf_StreamCanceled() external whenStreamNotActive {
+        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        lockup.cancel(defaultStreamId);
         uint256 actualReturnableAmount = lockup.returnableAmountOf(defaultStreamId);
         uint256 expectedReturnableAmount = 0;
         assertEq(actualReturnableAmount, expectedReturnableAmount, "returnableAmount");
@@ -49,7 +50,7 @@ abstract contract ReturnableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
     /// @dev it should return the correct returnable amount.
     function test_ReturnableAmountOf() external whenStreamActive {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: WARP_TIME_26 });
 
         // Get the streamed amount.
         uint128 streamedAmount = lockup.streamedAmountOf(defaultStreamId);

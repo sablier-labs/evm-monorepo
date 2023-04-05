@@ -21,7 +21,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    modifier whenStartTimeLessThanCurrentTime() {
+    modifier whenStartTimeInThePast() {
         _;
     }
 
@@ -29,13 +29,13 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
+    /// - End time in the past
+    /// - End time in the present
+    /// - End time in the future
     function testFuzz_WithdrawableAmountOf_WithoutWithdrawals(uint40 timeWarp)
         external
         whenStreamActive
-        whenStartTimeLessThanCurrentTime
+        whenStartTimeInThePast
     {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
@@ -65,9 +65,10 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
+    /// - End time in the past
+    /// - End time in the present
+    /// - End time in the future
+    /// - Multiple withdraw amounts
     /// - Withdraw amount equal to deposit amount and not
     function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,
@@ -75,7 +76,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     )
         external
         whenStreamActive
-        whenStartTimeLessThanCurrentTime
+        whenStartTimeInThePast
         whenWithWithdrawals
     {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);

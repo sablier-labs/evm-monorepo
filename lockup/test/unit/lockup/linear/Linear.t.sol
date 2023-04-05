@@ -16,6 +16,7 @@ import { ClaimProtocolRevenues_Unit_Test } from "../shared/claim-protocol-revenu
 import { GetAsset_Unit_Test } from "../shared/get-asset/getAsset.t.sol";
 import { GetDepositAmount_Unit_Test } from "../shared/get-deposit-amount/getDepositAmount.t.sol";
 import { GetEndTime_Unit_Test } from "../shared/get-end-time/getEndTime.t.sol";
+import { GetReturnedAmount_Unit_Test } from "../shared/get-returned-amount/getReturnedAmount.t.sol";
 import { ProtocolRevenues_Unit_Test } from "../shared/protocol-revenues/protocolRevenues.t.sol";
 import { GetRecipient_Unit_Test } from "../shared/get-recipient/getRecipient.t.sol";
 import { GetSender_Unit_Test } from "../shared/get-sender/getSender.t.sol";
@@ -115,6 +116,13 @@ contract GetRecipient_Linear_Unit_Test is Linear_Unit_Test, GetRecipient_Unit_Te
     function setUp() public virtual override(Linear_Unit_Test, GetRecipient_Unit_Test) {
         Linear_Unit_Test.setUp();
         GetRecipient_Unit_Test.setUp();
+    }
+}
+
+contract GetReturnedAmount_Linear_Unit_Test is Linear_Unit_Test, GetReturnedAmount_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetReturnedAmount_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetReturnedAmount_Unit_Test.setUp();
     }
 }
 

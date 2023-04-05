@@ -27,14 +27,6 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         dynamic.streamedAmountOf(nullStreamId);
     }
 
-    /// @dev it should return zero.
-    function test_StreamedAmountOf_StreamCanceled() external whenStreamNotActive {
-        lockup.cancel(defaultStreamId);
-        uint256 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
-        uint256 expectedStreamedAmount = dynamic.getWithdrawnAmount(defaultStreamId);
-        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
-    }
-
     /// @dev it should return the withdrawn amount.
     function test_StreamedAmountOf_StreamDepleted() external whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
@@ -45,12 +37,21 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
+    /// @dev it should return the correct streamed amount
+    function test_StreamedAmountOf_StreamCanceled() external {
+        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        lockup.cancel(defaultStreamId);
+        uint256 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
+        uint256 expectedStreamedAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_RETURNED_AMOUNT;
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
+    }
+
     modifier whenStreamActive() {
         _;
     }
 
     /// @dev it should return zero.
-    function test_StreamedAmountOf_StartTimeGreaterThanCurrentTime() external whenStreamActive {
+    function test_StreamedAmountOf_StartTimeInTheFuture() external whenStreamActive {
         vm.warp({ timestamp: 0 });
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
@@ -58,19 +59,19 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
     }
 
     /// @dev it should return zero.
-    function test_StreamedAmountOf_StartTimeEqualToCurrentTime() external whenStreamActive {
+    function test_StreamedAmountOf_StartTimeInThePresent() external whenStreamActive {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier whenStartTimeLessThanCurrentTime() {
+    modifier whenStartTimeInThePast() {
         _;
     }
 
     /// @dev it should return the correct streamed amount.
-    function test_StreamedAmountOf_OneSegment() external whenStreamActive whenStartTimeLessThanCurrentTime {
+    function test_StreamedAmountOf_OneSegment() external whenStreamActive whenStartTimeInThePast {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + 2000 seconds });
 
@@ -100,7 +101,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         external
         whenStreamActive
         whenMultipleSegments
-        whenStartTimeLessThanCurrentTime
+        whenStartTimeInThePast
     {
         // Warp one second into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + 1 });
@@ -119,7 +120,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
     function test_StreamedAmountOf_CurrentMilestoneNot1st()
         external
         whenStreamActive
-        whenStartTimeLessThanCurrentTime
+        whenStartTimeInThePast
         whenMultipleSegments
         whenCurrentMilestoneNot1st
     {

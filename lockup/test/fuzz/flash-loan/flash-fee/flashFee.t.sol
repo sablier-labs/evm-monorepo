@@ -10,8 +10,8 @@ contract FlashFee_Fuzz_Test is FlashLoan_Fuzz_Test {
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Multiple values for the comptroller flash fee, including zero.
-    /// - Multiple values for the flash loan amount, including zero.
+    /// - Multiple values for the comptroller flash fee, including zero
+    /// - Multiple values for the flash loan amount, including zero
     function testFuzz_FlashFee(UD60x18 comptrollerFlashFee, uint256 amount) external {
         comptrollerFlashFee = bound(comptrollerFlashFee, 0, MAX_FEE);
         comptroller.setFlashFee(comptrollerFlashFee);

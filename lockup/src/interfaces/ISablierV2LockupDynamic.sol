@@ -19,7 +19,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the assets.
     /// @param amounts Struct that encapsulates (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
-    /// broker fee amount, each in units of the asset's decimals.
+    /// broker fee amount, all denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
@@ -63,7 +63,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @param streamId The id of the lockup dynamic stream to make the query for.
     function getStream(uint256 streamId) external view returns (LockupDynamic.Stream memory stream);
 
-    /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
+    /// @notice Calculates the amount that has been streamed to the recipient, denoted in units of the asset's decimals.
     /// The streaming function is:
     ///
     /// $$
@@ -77,9 +77,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - $csa$ is the current segment amount.
     /// - $\Sigma(esa)$ is the sum of all elapsed segments' amounts.
     ///
-    /// @dev Requirements:
-    /// - `streamId` must not point to a null stream.
-    ///
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup dynamic stream to make the query for.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
@@ -111,13 +109,12 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - `params.totalAmount` must not be zero.
+    /// - `params.totalAmount` must be greater than zero.
     /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
     /// - `params.segments` must have at least one segment, but not more than `MAX_SEGMENT_COUNT`.
-    /// - The first segment's milestone must be greater than or equal to `params.startTime`.
+    /// - `params.startTime` must be less than the first segment's milestone.
     /// - The segment milestones must be arranged in ascending order.
-    /// - `params.startTime` must not be greater than the last segment's milestone.
-    /// - The current time must not be greater than or equal to `params.range.end`.
+    /// - The last segment milestone (i.e. the end time of the stream) must not be in the past.
     /// - The sum of the segment amounts must be equal to the deposit amount.
     /// - `params.recipient` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.

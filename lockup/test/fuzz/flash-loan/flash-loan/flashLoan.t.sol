@@ -54,14 +54,17 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         _;
     }
 
-    /// @dev it should execute the flash loan, make the ERC-20 transfers, update the protocol revenues, and emit
-    /// a {FlashLoan} event.
+    /// @dev Checklist:
+    /// - it should execute the flash loan
+    /// - it should perform the ERC-20 transfers
+    /// - it should update the protocol revenues
+    /// - it should emit a {FlashLoan} event
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Multiple values for the comptroller flash fee, including zero.
-    /// - Multiple values for the flash loan amount, including zero.
-    /// - Multiple values for the data bytes array, including zero length.
+    /// - Multiple values for the comptroller flash fee, including zero
+    /// - Multiple values for the flash loan amount, including zero
+    /// - Multiple values for the data bytes array, including zero length
     function testFuzz_FlashLoanFunction(
         UD60x18 comptrollerFlashFee,
         uint128 amount,
@@ -87,10 +90,10 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         // Mint the flash fee to the receiver so that they can repay the flash loan.
         deal({ token: address(DEFAULT_ASSET), to: address(goodFlashLoanReceiver), give: fee });
 
-        // Expect `amount` of ERC-20 assets to be transferred from {SablierV2FlashLoan} to the receiver.
+        // Expect `amount` of assets to be transferred from {SablierV2FlashLoan} to the receiver.
         expectTransferCall({ to: address(goodFlashLoanReceiver), amount: amount });
 
-        // Expect `amount+fee` of ERC-20 assets to be transferred back from the receiver.
+        // Expect `amount+fee` of assets to be transferred back from the receiver.
         uint256 returnAmount = amount + fee;
         expectTransferFromCall({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
 

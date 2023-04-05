@@ -36,7 +36,9 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
         _;
     }
 
-    /// @dev it should set the new flash fee and emit a {SetFlashFee} event.
+    /// @dev Checklist:
+    /// - it should set the new flash fee
+    /// - it should emit a {SetFlashFee} event
     function test_SetFlashFee() external {
         UD60x18 newFlashFee = DEFAULT_FLASH_FEE;
 

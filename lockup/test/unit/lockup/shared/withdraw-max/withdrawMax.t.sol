@@ -17,8 +17,11 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
-    /// @dev it should make the withdrawal and mark the stream as depleted.
-    function test_WithdrawMax_CurrentTimeEqualToEndTime() external {
+    /// @dev Checklist:
+    /// - it should make the withdrawal
+    /// - it should mark the stream as depleted
+    /// - it should make the stream non-cancelable
+    function test_WithdrawMax_EndTimeInThePast() external {
         // Warp to the end of the stream.
         vm.warp({ timestamp: DEFAULT_END_TIME });
 
@@ -40,20 +43,22 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier whenCurrentTimeLessThanEndTime() {
+    modifier whenEndTimeInTheFuture() {
         _;
     }
 
-    /// @dev it should make the max withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream}
-    /// event.
-    function test_WithdrawMax() external whenCurrentTimeLessThanEndTime {
+    /// @dev Checklist:
+    /// - it should make the max withdrawal
+    /// - it should update the withdrawn amount
+    /// - it should emit a {WithdrawFromLockupStream} event.
+    function test_WithdrawMax() external whenEndTimeInTheFuture {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: WARP_TIME_26 });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
-        // Expect the ERC-20 assets to be transferred to the recipient.
+        // Expect the assets to be transferred to the recipient.
         expectTransferCall({ to: users.recipient, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.

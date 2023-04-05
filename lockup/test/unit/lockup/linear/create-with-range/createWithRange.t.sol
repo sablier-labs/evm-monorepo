@@ -105,7 +105,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
     {
         vm.warp({ timestamp: DEFAULT_END_TIME });
 
@@ -115,7 +115,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStream();
     }
 
-    modifier whenEndTimeNotInThePast() {
+    modifier whenEndTimeInTheFuture() {
         _;
     }
 
@@ -127,7 +127,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
     {
         UD60x18 protocolFee = MAX_FEE.add(ud(1));
 
@@ -154,7 +154,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenProtocolFeeNotTooHigh
     {
         UD60x18 brokerFee = MAX_FEE.add(ud(1));
@@ -174,7 +174,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
     {
@@ -187,7 +187,13 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
+    /// @dev Checklist:
+    /// - it should create the stream
+    /// - it should bump the next stream id
+    /// - it should record the protocol fee
+    /// - it should mint the NFT
+    /// - it should perform the ERC-20 transfers
+    /// - it should emit a {CreateLockupLinearStream} event
     function test_CreateWithRange_AssetMissingReturnValue()
         external
         whenNoDelegateCall
@@ -195,7 +201,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
@@ -207,21 +213,20 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should:
-    ///
-    /// - Perform the ERC-20 transfers.
-    /// - Create the stream.
-    /// - Bump the next stream id.
-    /// - Record the protocol fee.
-    /// - Mint the NFT.
-    /// - Emit a {CreateLockupLinearStream} event.
+    /// @dev Checklist:
+    /// - it should create the stream
+    /// - it should bump the next stream id
+    /// - it should record the protocol fee
+    /// - it should mint the NFT
+    /// - it should perform the ERC-20 transfers
+    /// - it should emit a {CreateLockupLinearStream} event
     function test_CreateWithRange()
         external
         whenNoDelegateCall
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
@@ -230,12 +235,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         test_createWithRange(address(DEFAULT_ASSET));
     }
 
-    /// @dev Shared test logic for `test_CreateWithRange_AssetMissingReturnValue` and `test_CreateWithRange`.
+    /// @dev Test logic shared between `test_CreateWithRange_AssetMissingReturnValue` and `test_CreateWithRange`.
     function test_createWithRange(address asset) internal {
         // Make the sender the funder of the stream.
         address funder = users.sender;
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectTransferFromCall({
             asset: IERC20(asset),
             from: funder,

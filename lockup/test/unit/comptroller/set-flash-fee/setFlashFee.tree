@@ -5,4 +5,5 @@ setFlashFee.t.sol
    ├── when the new flash fee is the same as the current flash fee
    │  └── it should re-set the flash fee
    └── when the new flash fee is not the same as the current flash fee
-      └── it should set the new flash fee and emit a {SetFlashFee} event
+      ├── it should set the new flash fee
+      └── it should emit a {SetFlashFee} event

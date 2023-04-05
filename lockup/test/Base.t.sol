@@ -110,7 +110,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
                                   HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Approves all Sablier contracts to spend ERC-20 assets from the sender, recipient, Alice and Eve,
+    /// @dev Approves all Sablier contracts to spend assets from the sender, recipient, Alice and Eve,
     /// and then change the active prank back to the admin.
     function approveProtocol() internal {
         changePrank({ msgSender: users.sender });

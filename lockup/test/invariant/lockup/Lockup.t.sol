@@ -42,14 +42,15 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
     function invariant_ContractBalance() external {
         uint256 contractBalance = DEFAULT_ASSET.balanceOf(address(lockup));
         uint256 protocolRevenues = lockup.protocolRevenues(DEFAULT_ASSET);
-        uint256 returnedAmountsSum = lockupHandlerStorage.returnedAmountsSum();
 
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         uint256 depositAmountsSum;
+        uint256 returnedAmountsSum;
         uint256 withdrawnAmountsSum;
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             depositAmountsSum += uint256(lockup.getDepositAmount(streamId));
+            returnedAmountsSum += uint256(lockup.getReturnedAmount(streamId));
             withdrawnAmountsSum += uint256(lockup.getWithdrawnAmount(streamId));
         }
 

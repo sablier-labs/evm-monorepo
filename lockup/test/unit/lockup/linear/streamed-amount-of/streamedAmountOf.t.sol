@@ -15,27 +15,15 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    modifier whenStreamNotActive() {
-        _;
-    }
-
     /// @dev it should revert.
-    function test_RevertWhen_StreamNull() external whenStreamNotActive {
+    function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
         linear.streamedAmountOf(nullStreamId);
     }
 
-    /// @dev it should return zero.
-    function test_StreamedAmountOf_StreamCanceled() external whenStreamNotActive {
-        lockup.cancel(defaultStreamId);
-        uint256 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
-        uint256 expectedStreamedAmount = linear.getWithdrawnAmount(defaultStreamId);
-        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
-    }
-
-    /// @dev it should return the withdrawn amount.
-    function test_StreamedAmountOf_StreamDepleted() external whenStreamNotActive {
+    /// @dev it should return the correct streamed amount.
+    function test_StreamedAmountOf_StreamDepleted() external {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         uint128 withdrawAmount = DEFAULT_DEPOSIT_AMOUNT;
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
@@ -44,25 +32,34 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test {
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
+    /// @dev it should return the correct streamed amount
+    function test_StreamedAmountOf_StreamCanceled() external {
+        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        lockup.cancel(defaultStreamId);
+        uint256 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
+        uint256 expectedStreamedAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_RETURNED_AMOUNT;
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
+    }
+
     modifier whenStreamActive() {
         _;
     }
 
     /// @dev it should return zero.
-    function test_StreamedAmountOf_CliffTimeGreaterThanCurrentTime() external whenStreamActive {
+    function test_StreamedAmountOf_CliffTimeInTheFuture() external whenStreamActive {
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier whenCliffTimeLessThanOrEqualToCurrentTime() {
+    modifier whenCliffTimeInThePast() {
         _;
     }
 
     /// @dev it should return the correct streamed amount.
-    function test_StreamedAmountOf() external whenStreamActive whenCliffTimeLessThanOrEqualToCurrentTime {
+    function test_StreamedAmountOf() external whenStreamActive whenCliffTimeInThePast {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: WARP_TIME_26 });
 
         // Run the test.
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);

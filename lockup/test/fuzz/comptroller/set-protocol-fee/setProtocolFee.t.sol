@@ -6,7 +6,9 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Comptroller_Fuzz_Test } from "../Comptroller.t.sol";
 
 contract SetProtocolFee_Fuzz_Test is Comptroller_Fuzz_Test {
-    /// @dev it should set the new protocol fee and emit a {SetProtocolFee} event.
+    /// @dev Checklist:
+    /// - it should set the new protocol fee
+    /// - it should emit a {SetProtocolFee} event
     function testFuzz_SetProtocolFee(UD60x18 newProtocolFee) external {
         newProtocolFee = bound(newProtocolFee, 1, MAX_FEE);
 

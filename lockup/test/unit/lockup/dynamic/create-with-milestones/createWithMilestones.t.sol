@@ -45,10 +45,9 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
     }
 
     /// @dev it should revert.
-    ///
-    /// It is not possible (in principle) to obtain a zero deposit amount from a non-zero total amount,
-    /// because we hard-code the `MAX_FEE` to 10%.
     function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall whenRecipientNonZeroAddress {
+        // It is not possible (in principle) to obtain a zero deposit amount from a non-zero total amount,
+        // because we hard-code the `MAX_FEE` to 10%.
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
         uint128 totalAmount = 0;
         createDefaultStreamWithTotalAmount(totalAmount);
@@ -94,7 +93,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev When the segment amounts sum overflows, it should revert.
+    /// @dev it should revert.
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
         whenNoDelegateCall
@@ -226,7 +225,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         createDefaultStream();
     }
 
-    modifier whenEndTimeNotInThePast() {
+    modifier whenEndTimeInTheFuture() {
         _;
     }
 
@@ -241,7 +240,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
     {
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
         changePrank({ msgSender: users.admin });
@@ -283,7 +282,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
     {
@@ -315,7 +314,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
@@ -340,7 +339,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
@@ -349,7 +348,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         address nonContract = address(8128);
 
         // Set the default protocol fee so that the test does not revert due to the deposit amount not being
-        // equal to the segment amounts sum.
+        // equal to the sum of the segment amounts.
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee(IERC20(nonContract), DEFAULT_PROTOCOL_FEE);
         changePrank({ msgSender: users.sender });
@@ -363,7 +362,13 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
+    /// @dev Checklist:
+    /// - it should create the stream
+    /// - it should bump the next stream id
+    /// - it should record the protocol fee
+    /// - it should mint the NFT
+    /// - it should perform the ERC-20 transfers
+    /// - it should emit a {CreateLockupDynamicStream} event
     function test_CreateWithMilestones_AssetMissingReturnValue()
         external
         whenNoDelegateCall
@@ -374,7 +379,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
@@ -388,8 +393,13 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
-    /// fee, mint the NFT, and emit a {CreateLockupDynamicStream} event.
+    /// @dev Checklist:
+    /// - it should create the stream
+    /// - it should bump the next stream id
+    /// - it should record the protocol fee
+    /// - it should mint the NFT
+    /// - it should perform the ERC-20 transfers
+    /// - it should emit a {CreateLockupDynamicStream} event
     function test_CreateWithMilestones()
         external
         whenNoDelegateCall
@@ -400,7 +410,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentAmountsSumDoesNotOverflow
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
@@ -411,13 +421,13 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         test_createWithMilestones(address(DEFAULT_ASSET));
     }
 
-    /// @dev Shared test logic for `test_CreateWithMilestones_AssetMissingReturnValue` and
-    /// `test_CreateWithMilestones`.
+    /// @dev Test logic shared between {test_CreateWithMilestones_AssetMissingReturnValue} and
+    /// {test_CreateWithMilestones}.
     function test_createWithMilestones(address asset) internal {
         // Make the sender the funder of the stream.
         address funder = users.sender;
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupDynamic}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectTransferFromCall({
             asset: IERC20(asset),
             from: funder,

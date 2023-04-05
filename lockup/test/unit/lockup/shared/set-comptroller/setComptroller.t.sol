@@ -27,7 +27,9 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should re-set the comptroller and emit a {SetComptroller} event.
+    /// @dev Checklist:
+    /// - it should re-set the comptroller
+    /// - it should emit a {SetComptroller} event.
     function test_SetComptroller_SameComptroller() external whenCallerAdmin {
         // Expect a {SetComptroller} event to be emitted.
         vm.expectEmit({ emitter: address(base) });
@@ -42,7 +44,9 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualComptroller, expectedComptroller, "comptroller");
     }
 
-    /// @dev it should set the new comptroller and emit a {SetComptroller} event.
+    /// @dev Checklist:
+    /// - it should set the new comptroller
+    /// - it should emit a {SetComptroller} event.
     function test_SetComptroller_NewComptroller() external whenCallerAdmin {
         // Deploy the new comptroller.
         ISablierV2Comptroller newComptroller = new SablierV2Comptroller({ initialAdmin: users.admin });

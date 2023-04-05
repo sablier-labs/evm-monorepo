@@ -20,4 +20,7 @@ flashLoan.t.sol
                   ├── when there is reentrancy
                   │  └── it should revert
                   └── when there is no reentrancy
-                     └── it should execute the flash loan, make the ERC-20 transfers, update the protocol revenues, and emit a {FlashLoan} event
+                     ├── it should execute the flash loan
+                     ├── it should  make the ERC-20 transfers
+                     ├── it should update the protocol revenues
+                     └── it should emit a {FlashLoan} event

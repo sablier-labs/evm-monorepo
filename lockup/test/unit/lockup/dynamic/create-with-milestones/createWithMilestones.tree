@@ -30,7 +30,7 @@ createWithMilestones.t.sol
                         └── when the segment milestones are ordered
                            ├── when the end time is in the past
                            │  └── it should revert
-                           └── when the end time is not in the past
+                           └── when the end time is in the future
                               ├── when the deposit amount is not equal to the segment amounts sum
                               │  └── it should revert
                               └── when the deposit amount is equal to the segment amounts sum
@@ -46,6 +46,16 @@ createWithMilestones.t.sol
                                        │  └── it should revert
                                        └── when the asset is a contract
                                           ├── when the asset misses the return value
-                                          │  └── it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT
+                                          │  ├── it should create the stream
+                                          │  ├── it should bump the next stream id
+                                          │  ├── it should record the protocol fee
+                                          │  ├── it should mint the NFT
+                                          │  ├── it should perform the ERC-20 transfers
+                                          │  └── it should emit a {CreateLockupDynamicStream} event
                                           └── when the asset is ERC-20 compliant
-                                             └── it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol fee, mint the NFT, and emit a {CreateLockupDynamicStream} event
+                                             ├── it should create the stream
+                                             ├── it should bump the next stream id
+                                             ├── it should record the protocol fee
+                                             ├── it should mint the NFT
+                                             ├── it should perform the ERC-20 transfers
+                                             └── it should emit a {CreateLockupDynamicStream} event

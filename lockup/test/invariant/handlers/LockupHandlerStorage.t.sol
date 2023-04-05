@@ -9,7 +9,6 @@ contract LockupHandlerStorage {
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 public lastStreamId;
-    uint128 public returnedAmountsSum;
     mapping(uint256 streamId => address recipient) public recipients;
     mapping(uint256 streamId => address sender) public senders;
     uint256[] public streamIds;
@@ -17,10 +16,6 @@ contract LockupHandlerStorage {
     /*//////////////////////////////////////////////////////////////////////////
                                   HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    function addReturnedAmount(uint128 returnedAmount) external {
-        returnedAmountsSum += returnedAmount;
-    }
 
     function pushStreamId(uint256 streamId, address sender, address recipient) external {
         // Store the stream id in the ids array and the reverse mappings.

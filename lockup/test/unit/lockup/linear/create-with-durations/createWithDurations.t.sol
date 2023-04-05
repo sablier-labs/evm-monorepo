@@ -91,8 +91,13 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the
-    /// protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
+    /// @dev Checklist:
+    /// - it should create the stream
+    /// - it should bump the next stream id
+    /// - it should record the protocol fee
+    /// - it should mint the NFT
+    /// - it should perform the ERC-20 transfers
+    /// - it should emit a {CreateLockupLinearStream} event
     function test_CreateWithDurations()
         external
         whenNoDelegateCall
@@ -105,7 +110,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectTransferFromCall({
             from: funder,
             to: address(linear),

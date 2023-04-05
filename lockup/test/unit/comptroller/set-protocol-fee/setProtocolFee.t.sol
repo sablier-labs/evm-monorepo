@@ -35,7 +35,9 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
         _;
     }
 
-    /// @dev it should set the new protocol fee and emit a {SetProtocolFee} event.
+    /// @dev Checklist:
+    /// - it should set the new protocol fee
+    /// - it should emit a {SetProtocolFee} event
     function test_SetProtocolFee() external whenCallerAdmin whenNewFee {
         UD60x18 newProtocolFee = DEFAULT_FLASH_FEE;
 

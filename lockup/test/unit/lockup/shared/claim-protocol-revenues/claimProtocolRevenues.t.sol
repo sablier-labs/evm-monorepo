@@ -39,8 +39,10 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
         _;
     }
 
-    /// @dev it should claim the protocol revenues, update the protocol revenues, and emit a {ClaimProtocolRevenues}
-    /// event.
+    /// @dev Checklist:
+    /// - it should claim the protocol revenues
+    /// - it should update the protocol revenues
+    /// - it should and emit a {ClaimProtocolRevenues} event.
     function test_ClaimProtocolRevenues() external whenCallerAdmin whenProtocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;

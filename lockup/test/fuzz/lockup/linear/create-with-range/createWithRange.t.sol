@@ -141,19 +141,24 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint128 initialProtocolRevenues;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
-    /// fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
+    /// @dev Checklist:
+    /// - it should create the stream
+    /// - it should bump the next stream id
+    /// - it should record the protocol fee
+    /// - it should mint the NFT
+    /// - it should perform the ERC-20 transfers
+    /// - it should emit a {CreateLockupLinearStream} event
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - All possible permutations for the funder, sender, recipient, and broker.
-    /// - Multiple values for the total amount.
-    /// - Cancelable and non-cancelable.
-    /// - Start time in the past, present and future.
-    /// - Start time lower than and equal to cliff time.
-    /// - Multiple values for the cliff time and the stop time.
-    /// - Multiple values for the broker fee, including zero.
-    /// - Multiple values for the protocol fee, including zero.
+    /// - All possible permutations for the funder, sender, recipient, and broker
+    /// - Multiple values for the total amount
+    /// - Cancelable and non-cancelable
+    /// - Start time in the past, present and future
+    /// - Start time lower than and equal to cliff time
+    /// - Multiple values for the cliff time and the end time
+    /// - Multiple values for the broker fee, including zero
+    /// - Multiple values for the protocol fee, including zero
     function testFuzz_CreateWithRange(
         address funder,
         LockupLinear.CreateWithRange memory params,
@@ -190,13 +195,13 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         // Make the fuzzed funder the caller in this test.
         changePrank(funder);
 
-        // Mint enough ERC-20 assets to the funder.
+        // Mint enough assets to the funder.
         deal({ token: address(DEFAULT_ASSET), to: funder, give: params.totalAmount });
 
-        // Approve {SablierV2LockupLinear} to transfer the ERC-20 assets from the fuzzed funder.
+        // Approve {SablierV2LockupLinear} to transfer the assets from the fuzzed funder.
         DEFAULT_ASSET.approve({ spender: address(linear), amount: UINT256_MAX });
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectTransferFromCall({
             from: funder,
             to: address(linear),
@@ -237,7 +242,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.cliffTime, params.range.cliff);
         assertEq(actualStream.endTime, params.range.end);

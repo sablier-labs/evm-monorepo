@@ -2,9 +2,9 @@ returnableAmountOf.t.sol
 ├── when the stream is not active
 │  ├── when the stream is null
 │  │  └── it should revert
-│  ├── when the stream is canceled
+│  ├── when the stream is depleted
 │  │  └── it should return zero
-│  └── when the stream is depleted
+│  └── when the stream is canceled
 │     └── it should return zero
 └── when the stream is active
    └── it should return the correct returnable amount

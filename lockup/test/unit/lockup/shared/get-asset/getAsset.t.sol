@@ -22,7 +22,7 @@ abstract contract GetAsset_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should return the correct address of the ERC-20 asset.
+    /// @dev it should return the correct address of the asset.
     function test_GetAsset() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         IERC20 actualAsset = lockup.getAsset(streamId);

@@ -19,7 +19,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the assets.
     /// @param amounts Struct that encapsulates (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
-    /// broker fee amount, each in units of the asset's decimals.
+    /// broker fee amount, all denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
     /// @param range Struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
@@ -57,7 +57,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @param streamId The id of the lockup linear stream to make the query for.
     function getStream(uint256 streamId) external view returns (LockupLinear.Stream memory stream);
 
-    /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
+    /// @notice Calculates the amount that has been streamed to the recipient, denoted in units of the asset's decimals.
     /// The streaming function is:
     ///
     /// $$
@@ -70,9 +70,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - $d$ is the deposit amount.
     /// - $c$ is the cliff amount.
     ///
-    /// @dev Requirements:
-    /// - `streamId` must not point to a null stream.
-    ///
+    /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup linear stream to make the query for.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
@@ -105,11 +103,11 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - `params.totalAmount` must not be zero.
+    /// - `params.totalAmount` must be greater than zero.
     /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
-    /// - `params.range.start` must not be greater than `params.range.cliff`.
-    /// - `params.range.cliff` must not be greater than or equal to `params.range.end`.
-    /// - The current time must not be greater than or equal to `params.range.end`.
+    /// - `params.range.start` must be less than or equal to `params.range.cliff`.
+    /// - `params.range.cliff` must be less than `params.range.end`.
+    /// - `params.range.end` must not be in the past.
     /// - `params.recipient` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
     ///

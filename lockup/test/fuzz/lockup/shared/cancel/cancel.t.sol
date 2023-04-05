@@ -29,7 +29,15 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
+    modifier whenEndTimeInTheFuture() {
+        _;
+    }
+
     modifier whenCallerAuthorized() {
+        _;
+    }
+
+    modifier whenStartTimeInThePast() {
         _;
     }
 
@@ -55,13 +63,13 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, and emit a
+    /// @dev it should cancel the stream, return the assets to the sender, call the sender hook, and emit a
     /// {CancelLockupStream} event.
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Stream ongoing and ended.
-    /// - With and without withdrawals.
+    /// - Multiple values for the current time
+    /// - With and without withdrawals
     function testFuzz_Cancel_Sender(
         uint256 timeWarp,
         uint128 withdrawAmount
@@ -70,14 +78,16 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenStreamActive
         whenStreamCancelable
+        whenEndTimeInTheFuture
         whenCallerAuthorized
+        whenStartTimeInThePast
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
         whenRecipientDoesNotRevert
         whenNoRecipientReentrancy
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
@@ -94,19 +104,12 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
             lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
         }
 
-        // Expect the ERC-20 assets to be withdrawn to the recipient, if the amount is not zero.
-        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
-        if (recipientAmount > 0) {
-            expectTransferCall({ to: address(goodRecipient), amount: recipientAmount });
-        }
-
-        // Expect the ERC-20 assets to be returned to the sender, if the amount is not zero.
+        // Expect the assets to be returned to the sender.
         uint128 senderAmount = lockup.returnableAmountOf(streamId);
-        if (senderAmount > 0) {
-            expectTransferCall({ to: users.sender, amount: senderAmount });
-        }
+        expectTransferCall({ to: users.sender, amount: senderAmount });
 
         // Expect a {CancelLockupStream} event to be emitted.
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamId, users.sender, address(goodRecipient), senderAmount, recipientAmount);
 
@@ -118,10 +121,9 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
-        uint128 expectedWithdrawnAmount = withdrawAmount + recipientAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+        // Assert that the stream is not cancelable anymore.
+        bool isCancelable = lockup.isCancelable(streamId);
+        assertFalse(isCancelable, "isCancelable");
 
         // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
@@ -149,13 +151,8 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, and emit a
+    /// @dev it should cancel the stream, return the assets to the sender, call the sender hook, and emit a
     /// {CancelLockupStream} event.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Stream ongoing and ended.
-    /// - With and without withdrawals.
     function testFuzz_Cancel_Recipient(
         uint256 timeWarp,
         uint128 withdrawAmount
@@ -164,14 +161,16 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenStreamActive
         whenStreamCancelable
+        whenEndTimeInTheFuture
         whenCallerAuthorized
+        whenStartTimeInThePast
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook
         whenSenderDoesNotRevert
         whenNoSenderReentrancy
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
@@ -188,19 +187,12 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
             lockup.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
         }
 
-        // Expect the ERC-20 assets to be returned to the sender, if the amount is not zero.
+        // Expect the assets to be returned to the sender.
         uint128 senderAmount = lockup.returnableAmountOf(streamId);
-        if (senderAmount > 0) {
-            expectTransferCall({ to: address(goodSender), amount: senderAmount });
-        }
-
-        // Expect the ERC-20 assets to be withdrawn to the recipient, if the amount is not zero.
-        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
-        if (recipientAmount > 0) {
-            expectTransferCall({ to: users.recipient, amount: recipientAmount });
-        }
+        expectTransferCall({ to: address(goodSender), amount: senderAmount });
 
         // Expect a {CancelLockupStream} event to be emitted.
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamId, address(goodSender), users.recipient, senderAmount, recipientAmount);
 
@@ -212,10 +204,9 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
-        uint128 expectedWithdrawnAmount = withdrawAmount + recipientAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+        // Assert that the stream is not cancelable anymore.
+        bool isCancelable = lockup.isCancelable(streamId);
+        assertFalse(isCancelable, "isCancelable");
 
         // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });

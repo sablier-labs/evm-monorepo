@@ -27,9 +27,19 @@ abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_NFTBurned() external {
+        // Warp into the future.
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+
+        // Make the recipient the caller.
         changePrank({ msgSender: users.recipient });
-        lockup.cancel(streamId);
+
+        // Deplete the stream.
+        lockup.withdrawMax({ streamId: streamId, to: users.recipient });
+
+        // Burn the NFT.
         lockup.burn(streamId);
+
+        // Expect an error when accessing the recipient.
         vm.expectRevert("ERC721: invalid token ID");
         lockup.getRecipient(streamId);
     }

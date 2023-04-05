@@ -2,4 +2,4 @@ getAsset.t.sol
 ├── when the stream is null
 │  └── it should revert
 └── when the stream is not null
-   └── it should return the correct address of the ERC-20 asset
+   └── it should return the correct address of the asset
