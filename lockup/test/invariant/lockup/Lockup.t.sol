@@ -2,6 +2,7 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Invariant_Test } from "../Invariant.t.sol";
 import { FlashLoanHandler } from "../handlers/FlashLoanHandler.t.sol";
@@ -37,6 +38,20 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                      INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function invariant_CanceledStreamsNonZeroWithdrawableAmounts() external {
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            if (lockup.getStatus(streamId) == Lockup.Status.CANCELED) {
+                assertGt(
+                    lockup.withdrawableAmountOf(streamId),
+                    0,
+                    "Invariant violated: canceled stream has zero withdrawable amount"
+                );
+            }
+        }
+    }
 
     // solhint-disable max-line-length
     function invariant_ContractBalance() external {
