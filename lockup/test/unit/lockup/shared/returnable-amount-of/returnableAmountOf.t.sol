@@ -18,14 +18,12 @@ abstract contract ReturnableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
         _;
     }
 
-    /// @dev it should return zero.
     function test_RevertWhen_StreamNull() external whenStreamNotActive {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
         lockup.returnableAmountOf(nullStreamId);
     }
 
-    /// @dev it should return zero.
     function test_ReturnableAmountOf_StreamDepleted() external whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
@@ -34,7 +32,6 @@ abstract contract ReturnableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
         assertEq(actualReturnableAmount, expectedReturnableAmount, "returnableAmount");
     }
 
-    /// @dev it should return zero.
     function test_ReturnableAmountOf_StreamCanceled() external whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
@@ -47,7 +44,6 @@ abstract contract ReturnableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
         _;
     }
 
-    /// @dev it should return the correct returnable amount.
     function test_ReturnableAmountOf() external whenStreamActive {
         // Warp into the future.
         vm.warp({ timestamp: WARP_TIME_26 });

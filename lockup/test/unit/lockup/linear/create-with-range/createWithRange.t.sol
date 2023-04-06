@@ -20,7 +20,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         streamId = linear.nextStreamId();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(ISablierV2LockupLinear.createWithRange, defaultParams.createWithRange);
         (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
@@ -31,7 +30,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_RecipientZeroAddress() external whenNoDelegateCall {
         vm.expectRevert("ERC721: mint to the zero address");
         createDefaultStreamWithRecipient({ recipient: address(0) });
@@ -41,7 +39,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     ///
     /// It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
     /// `MAX_FEE` is hard coded to 10%.
@@ -54,7 +51,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StartTimeGreaterThanCliffTime()
         external
         whenNoDelegateCall
@@ -75,7 +71,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CliffTimeNotLessThanEndTime()
         external
         whenNoDelegateCall
@@ -97,7 +92,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_EndTimeInThePast()
         external
         whenNoDelegateCall
@@ -119,7 +113,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
         whenNoDelegateCall
@@ -146,7 +139,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         whenNoDelegateCall
@@ -166,7 +158,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_AssetNotContract()
         external
         whenNoDelegateCall
@@ -187,13 +178,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should create the stream
-    /// - it should bump the next stream id
-    /// - it should record the protocol fee
-    /// - it should mint the NFT
-    /// - it should perform the ERC-20 transfers
-    /// - it should emit a {CreateLockupLinearStream} event
     function test_CreateWithRange_AssetMissingReturnValue()
         external
         whenNoDelegateCall
@@ -213,13 +197,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should create the stream
-    /// - it should bump the next stream id
-    /// - it should record the protocol fee
-    /// - it should mint the NFT
-    /// - it should perform the ERC-20 transfers
-    /// - it should emit a {CreateLockupLinearStream} event
     function test_CreateWithRange()
         external
         whenNoDelegateCall

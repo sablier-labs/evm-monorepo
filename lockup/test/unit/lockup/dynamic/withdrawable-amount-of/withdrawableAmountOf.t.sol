@@ -15,14 +15,12 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
         dynamic.withdrawableAmountOf(nullStreamId);
     }
 
-    /// @dev it should return zero.
     function test_WithdrawableAmountOf_StreamDepleted() external {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
@@ -31,7 +29,6 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    /// @dev it should return the correct withdrawable amount.
     function test_WithdrawableAmountOf_StreamCanceled() external {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
@@ -46,7 +43,6 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return zero.
     function test_WithdrawableAmountOf_StartTimeInTheFuture() external whenStreamActive {
         vm.warp({ timestamp: 0 });
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
@@ -54,7 +50,6 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    /// @dev it should return zero.
     function test_WithdrawableAmountOf_StartTimeInThePresent() external whenStreamActive {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
@@ -66,7 +61,6 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct withdrawable amount.
     function test_WithdrawableAmountOf_WithoutWithdrawals() external whenStreamActive whenStartTimeInThePast {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3750 seconds });
@@ -82,7 +76,6 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct withdrawable amount.
     function test_WithdrawableAmountOf() external whenStreamActive whenStartTimeInThePast whenWithWithdrawals {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3750 seconds });

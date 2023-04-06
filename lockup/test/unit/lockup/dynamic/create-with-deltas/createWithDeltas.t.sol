@@ -19,7 +19,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         streamId = dynamic.nextStreamId();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external {
         LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](250_000);
         vm.expectRevert(bytes(""));
@@ -30,7 +29,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DeltasZero() external whenLoopCalculationsDoNotOverflowBlockGasLimit {
         uint40 startTime = getBlockTimestamp();
         LockupDynamic.SegmentWithDelta[] memory segments = defaultParams.createWithDeltas.segments;
@@ -51,7 +49,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeNotLessThanFirstSegmentMilestone()
         external
         whenLoopCalculationsDoNotOverflowBlockGasLimit
@@ -73,7 +70,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         }
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_MilestonesCalculationsOverflows_SegmentMilestonesNotOrdered()
         external
         whenLoopCalculationsDoNotOverflowBlockGasLimit
@@ -116,13 +112,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should perform the ERC-20 transfers
-    /// - it should create the stream
-    /// - it should bump the next stream id
-    /// - it should mint the NFT
-    /// - it should record the protocol fee
-    /// - it should emit a {CreateLockupDynamicStream} event
     function test_CreateWithDeltas()
         external
         whenLoopCalculationsDoNotOverflowBlockGasLimit

@@ -13,7 +13,6 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_AmountTooHigh(uint256 amount) external whenNoDelegateCall {
         amount = bound(amount, uint256(UINT128_MAX) + 1, UINT256_MAX);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
@@ -29,7 +28,6 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee)
         external
         whenNoDelegateCall
@@ -54,13 +52,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should execute the flash loan
-    /// - it should perform the ERC-20 transfers
-    /// - it should update the protocol revenues
-    /// - it should emit a {FlashLoan} event
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - Multiple values for the comptroller flash fee, including zero
     /// - Multiple values for the flash loan amount, including zero

@@ -17,10 +17,6 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawal
-    /// - it should mark the stream as depleted
-    /// - it should make the stream non-cancelable
     function test_WithdrawMax_EndTimeInThePast() external {
         // Warp to the end of the stream.
         vm.warp({ timestamp: DEFAULT_END_TIME });
@@ -47,10 +43,6 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should make the max withdrawal
-    /// - it should update the withdrawn amount
-    /// - it should emit a {WithdrawFromLockupStream} event.
     function test_WithdrawMax() external whenEndTimeInTheFuture {
         // Warp into the future.
         vm.warp({ timestamp: WARP_TIME_26 });

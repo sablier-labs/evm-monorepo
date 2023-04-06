@@ -8,9 +8,6 @@ import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
 import { Dynamic_Unit_Test } from "../Dynamic.t.sol";
 
 contract Constructor_Dynamic_Unit_Test is Dynamic_Unit_Test {
-    /// @dev Checklist:
-    /// - it should initialize all values correctly
-    /// - it should emit a {TransferAdmin} event
     function test_Constructor() external {
         // Expect a {TransferEvent} to be emitted.
         vm.expectEmit();

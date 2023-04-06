@@ -25,9 +25,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should return the correct withdrawable amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - End time in the past
     /// - End time in the present
@@ -61,9 +59,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should return the correct withdrawable amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - End time in the past
     /// - End time in the present

@@ -20,14 +20,12 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external whenStreamNotActive {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
         dynamic.streamedAmountOf(nullStreamId);
     }
 
-    /// @dev it should return the withdrawn amount.
     function test_StreamedAmountOf_StreamDepleted() external whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         uint128 withdrawAmount = DEFAULT_DEPOSIT_AMOUNT;
@@ -37,7 +35,6 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    /// @dev it should return the correct streamed amount
     function test_StreamedAmountOf_StreamCanceled() external {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
@@ -50,7 +47,6 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return zero.
     function test_StreamedAmountOf_StartTimeInTheFuture() external whenStreamActive {
         vm.warp({ timestamp: 0 });
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
@@ -58,7 +54,6 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    /// @dev it should return zero.
     function test_StreamedAmountOf_StartTimeInThePresent() external whenStreamActive {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
@@ -70,7 +65,6 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct streamed amount.
     function test_StreamedAmountOf_OneSegment() external whenStreamActive whenStartTimeInThePast {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + 2000 seconds });
@@ -96,7 +90,6 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct streamed amount.
     function test_StreamedAmountOf_CurrentMilestone1st()
         external
         whenStreamActive
@@ -116,7 +109,6 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct streamed amount.
     function test_StreamedAmountOf_CurrentMilestoneNot1st()
         external
         whenStreamActive

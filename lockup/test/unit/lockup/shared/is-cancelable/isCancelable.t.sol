@@ -14,14 +14,12 @@ abstract contract IsCancelable_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    /// @dev it should return false.
     function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
         lockup.isCancelable(nullStreamId);
     }
 
-    /// @dev it should return false.
     function test_IsCancelable_StreamDepleted() external {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
@@ -29,7 +27,6 @@ abstract contract IsCancelable_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertFalse(isCancelable, "isCancelable");
     }
 
-    /// @dev it should return false.
     function test_IsCancelable_StreamCanceled() external {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
@@ -41,7 +38,6 @@ abstract contract IsCancelable_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should return true.
     function test_IsCancelable_CancelableStream() external whenStreamActive {
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertTrue(isCancelable, "isCancelable");
@@ -51,7 +47,6 @@ abstract contract IsCancelable_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should return false.
     function test_IsCancelable() external whenStreamActive whenStreamIsNonCancelable {
         uint256 streamId = createDefaultStreamNonCancelable();
         bool isCancelable = lockup.isCancelable(streamId);

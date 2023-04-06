@@ -14,7 +14,6 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
         changePrank({ msgSender: users.recipient });
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
@@ -27,7 +26,6 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
         _;
     }
 
-    /// @dev it should return zero.
     function test_GetWithdrawnAmount_NoWithdrawals() external whenStreamNonNull {
         // Warp into the future.
         vm.warp({ timestamp: WARP_TIME_26 });
@@ -38,7 +36,6 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    /// @dev it should return the correct withdrawn amount.
     function test_GetWithdrawnAmount_WithWithdrawals() external whenStreamNonNull {
         // Warp into the future.
         vm.warp({ timestamp: WARP_TIME_26 });

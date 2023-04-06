@@ -16,7 +16,6 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external whenStreamActive {
         bytes memory callData = abi.encodeCall(ISablierV2Lockup.renounce, defaultStreamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
@@ -31,14 +30,12 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external whenNoDelegateCall whenStreamNotActive {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
         lockup.renounce(nullStreamId);
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamCanceled() external whenNoDelegateCall whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
@@ -46,7 +43,6 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.renounce(defaultStreamId);
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
@@ -58,7 +54,6 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerNotSender() external whenNoDelegateCall whenStreamActive {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -74,7 +69,6 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_NonCancelableStream() external whenNoDelegateCall whenStreamActive whenCallerSender {
         // Create the non-cancelable stream.
         uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
@@ -90,7 +84,6 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should renounce the stream.
     function test_Renounce_RecipientNotContract()
         external
         whenNoDelegateCall
@@ -107,10 +100,6 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should renounce the stream
-    /// - it should call the recipient hook
-    /// - it should ignore the revert
     function test_Renounce_RecipientDoesNotImplementHook()
         external
         whenNoDelegateCall
@@ -137,10 +126,6 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should renounce the stream
-    /// - it should call the recipient hook
-    /// - it should ignore the revert
     function test_Renounce_RecipientReverts()
         external
         whenNoDelegateCall
@@ -170,10 +155,6 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should renounce the stream
-    /// - it should call the recipient hook
-    /// - it should ignore the revert
     function test_Renounce_RecipientReentrancy()
         external
         whenNoDelegateCall
@@ -204,10 +185,6 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should call the recipient hook
-    /// - it should renounce the stream
-    /// - it should emit a {RenounceLockupStream} event
     function test_Renounce()
         external
         whenNoDelegateCall

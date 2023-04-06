@@ -8,7 +8,6 @@ import { Errors } from "src/libraries/Errors.sol";
 import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
 contract FlashFee_Unit_Test is FlashLoan_Unit_Test {
-    /// @dev it should revert.
     function test_RevertWhen_AssetNotFlashLoanable() external {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, DEFAULT_ASSET));
         flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: 0 });
@@ -19,7 +18,6 @@ contract FlashFee_Unit_Test is FlashLoan_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct flash fee.
     function test_FlashFee() external whenAssetFlashLoanable {
         uint256 amount = 782.23e18;
         uint256 actualFlashFee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: amount });

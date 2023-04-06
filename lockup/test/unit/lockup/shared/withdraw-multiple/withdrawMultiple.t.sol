@@ -29,7 +29,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2Lockup.withdrawMultiple, (defaultStreamIds, users.recipient, defaultAmounts));
@@ -41,7 +40,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_ZeroAddress() external whenNoDelegateCall {
         vm.expectRevert(Errors.SablierV2Lockup_WithdrawToZeroAddress.selector);
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: address(0), amounts: defaultAmounts });
@@ -51,7 +49,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_ArrayCountsNotEqual() external whenNoDelegateCall whenToNonZeroAddress {
         uint256[] memory streamIds = new uint256[](2);
         uint128[] memory amounts = new uint128[](1);
@@ -67,7 +64,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should do nothing.
     function test_WithdrawMultiple_ArrayCountsZero() external whenNoDelegateCall whenToNonZeroAddress {
         uint256[] memory streamIds = new uint256[](0);
         uint128[] memory amounts = new uint128[](0);
@@ -78,7 +74,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_AllStreamsEitherNullOrDepleted()
         external
         whenNoDelegateCall
@@ -95,7 +90,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         });
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_SomeStreamsEitherNullOrDepleted()
         external
         whenNoDelegateCall
@@ -120,7 +114,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
         external
         whenNoDelegateCall
@@ -139,7 +132,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_Sender()
         external
         whenNoDelegateCall
@@ -158,7 +150,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.sender, amounts: defaultAmounts });
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
         whenNoDelegateCall
@@ -179,7 +170,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
         external
         whenNoDelegateCall
@@ -205,7 +195,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
         whenNoDelegateCall
@@ -231,9 +220,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawals
-    /// - it should update the withdrawn amounts
     function test_WithdrawMultiple_CallerApprovedOperator()
         external
         whenNoDelegateCall
@@ -270,7 +256,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_SomeAmountsZero()
         external
         whenNoDelegateCall
@@ -294,7 +279,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_SomeAmountsGreaterThanWithdrawableAmount()
         external
         whenNoDelegateCall
@@ -327,11 +311,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawals
-    /// - it should update the statuses
-    /// - it should update the withdrawn amounts
-    /// - it should emit multiple {WithdrawFromLockupStream} events
     function test_WithdrawMultiple()
         internal
         whenNoDelegateCall

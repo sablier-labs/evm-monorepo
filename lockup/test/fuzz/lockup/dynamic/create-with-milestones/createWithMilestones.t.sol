@@ -36,7 +36,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
         external
         whenNoDelegateCall
@@ -56,7 +55,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev When the segment amounts sum overflows, it should revert.
     function testFuzz_RevertWhen_SegmentAmountsSumOverflows(
         uint128 amount0,
         uint128 amount1
@@ -81,7 +79,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone(uint40 firstMilestone)
         external
         whenNoDelegateCall
@@ -118,7 +115,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositDiff)
         external
         whenNoDelegateCall
@@ -161,7 +157,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
         external
         whenNoDelegateCall
@@ -191,7 +186,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNoDelegateCall
@@ -234,15 +228,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint128 totalAmount;
     }
 
-    /// @dev Checklist:
-    /// - it should create the stream
-    /// - it should bump the next stream id
-    /// - it should record the protocol fee
-    /// - it should mint the NFT
-    /// - it should perform the ERC-20 transfers
-    /// - it should emit a {CreateLockupDynamicStream} event
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - All possible permutations for the funder, sender, recipient, and broker
     /// - Multiple values for the segment amounts, exponents, and milestones

@@ -48,13 +48,6 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint128 totalAmount;
     }
 
-    /// @dev Checklist:
-    /// - it should create the stream
-    /// - it should bump the next stream id
-    /// - it should record the protocol fee
-    /// - it should mint the NFT
-    /// - it should perform the ERC-20 transfers
-    /// - it should emit a {CreateLockupDynamicStream} event
     function testFuzz_CreateWithDeltas(LockupDynamic.SegmentWithDelta[] memory segments)
         external
         whenNoDelegateCall

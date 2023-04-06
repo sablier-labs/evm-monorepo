@@ -18,7 +18,6 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
         _;
     }
 
-    /// @dev it should return zero.
     function testFuzz_GetWithdrawnAmount_NoWithdrawals(uint256 timeWarp) external whenStreamNonNull {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
@@ -31,7 +30,6 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    /// @dev it should return the correct withdrawn amount.
     function testFuzz_GetWithdrawnAmount_WithWithdrawals(
         uint256 timeWarp,
         uint128 withdrawAmount

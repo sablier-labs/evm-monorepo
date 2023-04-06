@@ -63,10 +63,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the stream, return the assets to the sender, call the sender hook, and emit a
-    /// {CancelLockupStream} event.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - Multiple values for the current time
     /// - With and without withdrawals
@@ -151,8 +148,6 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the stream, return the assets to the sender, call the sender hook, and emit a
-    /// {CancelLockupStream} event.
     function testFuzz_Cancel_Recipient(
         uint256 timeWarp,
         uint128 withdrawAmount

@@ -21,7 +21,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         streamId = dynamic.nextStreamId();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2LockupDynamic.createWithMilestones, defaultParams.createWithMilestones);
@@ -33,7 +32,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_RecipientZeroAddress() external whenNoDelegateCall {
         vm.expectRevert("ERC721: mint to the zero address");
         address recipient = address(0);
@@ -44,7 +42,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall whenRecipientNonZeroAddress {
         // It is not possible to obtain a zero deposit amount from a non-zero total amount, because the `MAX_FEE`
         // is hard coded to 10%.
@@ -57,7 +54,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_SegmentCountZero()
         external
         whenNoDelegateCall
@@ -73,7 +69,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_SegmentCountTooHigh()
         external
         whenNoDelegateCall
@@ -93,7 +88,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
         whenNoDelegateCall
@@ -113,7 +107,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StartTimeGreaterThanFirstSegmentMilestone()
         external
         whenNoDelegateCall
@@ -140,7 +133,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         createDefaultStreamWithSegments(segments);
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StartTimeEqualToFirstSegmentMilestone()
         external
         whenNoDelegateCall
@@ -171,7 +163,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_SegmentMilestonesNotOrdered()
         external
         whenNoDelegateCall
@@ -205,7 +196,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_EndTimeInThePast()
         external
         whenNoDelegateCall
@@ -229,7 +219,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum()
         external
         whenNoDelegateCall
@@ -271,7 +260,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
         whenNoDelegateCall
@@ -303,7 +291,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         whenNoDelegateCall
@@ -328,7 +315,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_AssetNotContract()
         external
         whenNoDelegateCall
@@ -362,13 +348,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should create the stream
-    /// - it should bump the next stream id
-    /// - it should record the protocol fee
-    /// - it should mint the NFT
-    /// - it should perform the ERC-20 transfers
-    /// - it should emit a {CreateLockupDynamicStream} event
     function test_CreateWithMilestones_AssetMissingReturnValue()
         external
         whenNoDelegateCall
@@ -393,13 +372,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should create the stream
-    /// - it should bump the next stream id
-    /// - it should record the protocol fee
-    /// - it should mint the NFT
-    /// - it should perform the ERC-20 transfers
-    /// - it should emit a {CreateLockupDynamicStream} event
     function test_CreateWithMilestones()
         external
         whenNoDelegateCall

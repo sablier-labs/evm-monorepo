@@ -22,8 +22,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawal, update the status, update the withdrawn amount, and emit a
-    /// {WithdrawFromLockupStream} event.
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - Multiple values for the current time.
     /// - Multiple values for the withdrawal address.
@@ -99,7 +98,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawal and update the withdrawn amount.
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - Multiple values for the withdrawal address.
     function testFuzz_Withdraw_CallerRecipient(address to)
@@ -130,7 +129,6 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    /// @dev it should make the withdrawal and update the withdrawn amount.
     function testFuzz_Withdraw_CallerApprovedOperator(address to)
         external
         whenNoDelegateCall
@@ -165,10 +163,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    /// @dev it should make the withdrawal, update the status, update the withdrawn amount, and emit a
-    /// {WithdrawFromLockupStream} event.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - End time in the past
     /// - End time in the present

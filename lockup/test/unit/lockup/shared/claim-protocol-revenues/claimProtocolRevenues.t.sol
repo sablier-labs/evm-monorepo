@@ -9,7 +9,6 @@ import { Unit_Test } from "../../../Unit.t.sol";
 abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -25,7 +24,6 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_ProtocolRevenuesZero() external whenCallerAdmin {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Base_NoProtocolRevenues.selector, DEFAULT_ASSET));
         base.claimProtocolRevenues(DEFAULT_ASSET);
@@ -39,10 +37,6 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should claim the protocol revenues
-    /// - it should update the protocol revenues
-    /// - it should and emit a {ClaimProtocolRevenues} event.
     function test_ClaimProtocolRevenues() external whenCallerAdmin whenProtocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;

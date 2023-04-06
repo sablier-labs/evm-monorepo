@@ -16,7 +16,6 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev it should return zero.
     function testFuzz_StreamedAmountOf_CliffTimeInTheFuture(uint40 timeWarp) external whenStreamActive {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
@@ -33,9 +32,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev it should return the correct streamed amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - End time in the past
     /// - End time in the present

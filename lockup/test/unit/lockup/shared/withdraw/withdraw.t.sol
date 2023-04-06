@@ -21,7 +21,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external whenNoDelegateCall whenStreamNeitherNullNorDepleted {
         bytes memory callData =
             abi.encodeCall(ISablierV2Lockup.withdraw, (defaultStreamId, users.recipient, DEFAULT_WITHDRAW_AMOUNT));
@@ -33,14 +32,12 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external whenNoDelegateCall {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
         lockup.withdraw({ streamId: nullStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamDepleted() external whenNoDelegateCall {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
@@ -52,7 +49,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
         external
         whenNoDelegateCall
@@ -68,7 +64,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_Sender() external whenNoDelegateCall whenStreamNeitherNullNorDepleted {
         // Make the sender the caller in this test.
         changePrank({ msgSender: users.sender });
@@ -82,7 +77,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.sender, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_FormerRecipient() external whenNoDelegateCall whenStreamNeitherNullNorDepleted {
         // Transfer the stream to Alice.
         lockup.transferFrom(users.recipient, users.alice, defaultStreamId);
@@ -98,7 +92,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_ZeroAddress()
         external
         whenNoDelegateCall
@@ -113,7 +106,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_WithdrawAmountZero()
         external
         whenNoDelegateCall
@@ -129,7 +121,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_WithdrawAmountGreaterThanWithdrawableAmount()
         external
         whenNoDelegateCall
@@ -154,9 +145,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawal
-    /// - it should update the withdrawn amount
     function test_Withdraw_CallerRecipient()
         external
         whenNoDelegateCall
@@ -186,9 +174,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawal
-    /// - it should update the withdrawn amount
     function test_Withdraw_CallerApprovedOperator()
         external
         whenNoDelegateCall
@@ -227,11 +212,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawal
-    /// - it should mark the stream as depleted
-    /// - it should make the stream non-cancelable
-    /// - it should not burn the NFT
     function test_Withdraw_EndTimeInThePresent()
         external
         whenNoDelegateCall
@@ -269,9 +249,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklists:
-    /// - it should make the withdrawal
-    /// - it should update the withdrawn amount
     function test_Withdraw_RecipientNotContract()
         external
         whenNoDelegateCall
@@ -311,11 +288,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawal
-    /// - it should update the withdrawn amount
-    /// - it should call the recipient hook
-    /// - it should ignore the revert
     function test_Withdraw_RecipientDoesNotImplementHook()
         external
         whenNoDelegateCall
@@ -358,11 +330,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawal
-    /// - it should update the withdrawn amount
-    /// - it should call the recipient hook
-    /// - it should ignore the revert
     function test_Withdraw_RecipientReverts()
         external
         whenNoDelegateCall
@@ -406,10 +373,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should make multiple withdrawals
-    /// - it should update the withdrawn amounts
-    /// - it should call the recipient hook
     function test_Withdraw_RecipientReentrancy()
         external
         whenNoDelegateCall
@@ -457,11 +420,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawal
-    /// - it should mark the stream as depleted
-    /// - it should call the recipient hook
-    /// - it should update the withdrawn amount
     function test_Withdraw_StreamCanceled()
         external
         whenNoDelegateCall
@@ -505,11 +463,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawal
-    /// - it should update the withdrawn amount
-    /// - it should call the recipient hook
-    /// - it should emit a {WithdrawFromLockupStream} event
     function test_Withdraw_StreamActive()
         external
         whenNoDelegateCall

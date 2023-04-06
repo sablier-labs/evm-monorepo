@@ -6,7 +6,6 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Adminable_Unit_Test } from "../Adminable.t.sol";
 
 contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
-    /// @dev it should revert.
     function testFuzz_RevertWhen_CallerNotAdmin(address eve) external {
         vm.assume(eve != address(0) && eve != users.admin);
 
@@ -22,9 +21,6 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should re-set the admin
-    /// - it should emit a {TransferAdmin} event
     function test_TransferAdmin_SameAdmin() external whenCallerAdmin {
         // Expect a {TransferAdmin} event to be emitted.
         vm.expectEmit({ emitter: address(adminable) });
@@ -43,9 +39,6 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should the admin to the zero address
-    /// - it should emit a {TransferAdmin} event
     function test_TransferAdmin_ZeroAddress() external whenCallerAdmin {
         // Expect a {TransferAdmin} event to be emitted.
         vm.expectEmit({ emitter: address(adminable) });
@@ -60,9 +53,6 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
         assertEq(actualAdmin, expectedAdmin, "admin");
     }
 
-    /// @dev Checklist:
-    /// - it should set the new admin
-    /// - it should emit a {TransferAdmin} event
     function test_TransferAdmin_NewAdmin() external whenCallerAdmin whenNotZeroAddress {
         // Expect a {TransferAdmin} event to be emitted.
         vm.expectEmit({ emitter: address(adminable) });

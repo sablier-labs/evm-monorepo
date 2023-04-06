@@ -6,9 +6,6 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Comptroller_Fuzz_Test } from "../Comptroller.t.sol";
 
 contract SetFlashFee_Fuzz_Test is Comptroller_Fuzz_Test {
-    /// @dev Checklist:
-    /// - it should set the new flash fee
-    /// - it should emit a {SetFlashFee} event
     function testFuzz_SetFlashFee(UD60x18 newFlashFee) external {
         newFlashFee = bound(newFlashFee, 0, MAX_FEE);
 

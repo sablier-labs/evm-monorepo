@@ -15,7 +15,6 @@ abstract contract ReturnableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
         _;
     }
 
-    /// @dev it should return the correct returnable amount.
     function testFuzz_ReturnableAmountOf(uint256 timeWarp) external whenStreamActive {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 

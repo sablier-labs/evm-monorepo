@@ -35,10 +35,6 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         uint128 withdrawableAmount;
     }
 
-    /// @dev Checklist:
-    /// - it should make the withdrawal
-    /// - it should update the withdrawn amount
-    /// - it should ignore the revert
     function test_Withdraw_FuzzedSegments(Params memory params)
         external
         whenStreamActive

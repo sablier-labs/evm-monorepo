@@ -14,7 +14,6 @@ abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
         streamId = createDefaultStream();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert("ERC721: invalid token ID");
@@ -25,7 +24,6 @@ abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_NFTBurned() external {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_END_TIME });
@@ -48,7 +46,6 @@ abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should return the correct recipient.
     function test_GetRecipient() external whenStreamNonNull whenNFTNotBurned {
         address actualRecipient = lockup.getRecipient(streamId);
         address expectedRecipient = users.recipient;

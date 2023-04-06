@@ -6,9 +6,6 @@ import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
 contract Constructor_Comptroller_Unit_Test is Comptroller_Unit_Test {
-    /// @dev Checklist:
-    /// - it should initialize all values correctly
-    /// - it should emit a {TransferAdmin} event
     function test_Constructor() external {
         // Expect a {TransferEvent} to be emitted.
         vm.expectEmit();

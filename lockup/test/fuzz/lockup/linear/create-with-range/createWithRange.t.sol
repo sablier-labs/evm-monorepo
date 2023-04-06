@@ -30,7 +30,6 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(uint40 startTime)
         external
         whenNoDelegateCall
@@ -50,7 +49,6 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_CliffTimeNotLessThanEndTime(
         uint40 cliffTime,
         uint40 endTime
@@ -76,7 +74,6 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
         external
         whenNoDelegateCall
@@ -102,7 +99,6 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNoDelegateCall
@@ -141,15 +137,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint128 initialProtocolRevenues;
     }
 
-    /// @dev Checklist:
-    /// - it should create the stream
-    /// - it should bump the next stream id
-    /// - it should record the protocol fee
-    /// - it should mint the NFT
-    /// - it should perform the ERC-20 transfers
-    /// - it should emit a {CreateLockupLinearStream} event
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - All possible permutations for the funder, sender, recipient, and broker
     /// - Multiple values for the total amount

@@ -10,14 +10,12 @@ contract FlashFee_Unit_Test is Comptroller_Unit_Test {
         Comptroller_Unit_Test.setUp();
     }
 
-    /// @dev it should return zero.
     function test_FlashFee_Zero() external {
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = ZERO;
         assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 
-    /// @dev it should return the correct flash fee.
     function test_FlashFee() external {
         comptroller.setFlashFee(DEFAULT_FLASH_FEE);
         UD60x18 actualFlashFee = comptroller.flashFee();

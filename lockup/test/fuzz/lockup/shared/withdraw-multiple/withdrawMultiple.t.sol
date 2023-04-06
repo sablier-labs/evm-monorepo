@@ -46,7 +46,6 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawals and update the withdrawn amounts.
     function testFuzz_WithdrawMultiple_CallerApprovedOperator(address to)
         external
         whenToNonZeroAddress
@@ -91,8 +90,6 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawals, update the statuses, update the withdrawn amounts, and emit multiple
-    /// {WithdrawFromLockupStream} events.
     function testFuzz_WithdrawMultiple(
         uint256 timeWarp,
         address to,

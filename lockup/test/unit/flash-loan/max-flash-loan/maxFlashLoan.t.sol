@@ -8,7 +8,6 @@ import { Errors } from "src/libraries/Errors.sol";
 import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
 contract MaxFlashLoan_Unit_Test is FlashLoan_Unit_Test {
-    /// @dev it should revert.
     function test_MaxFlashLoan_AssetNotFlashLoanable() external {
         uint256 actualAmount = flashLoan.maxFlashLoan(address(DEFAULT_ASSET));
         uint256 expectedAmount = 0;
@@ -20,7 +19,6 @@ contract MaxFlashLoan_Unit_Test is FlashLoan_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct flash fee.
     function test_MaxFlashLoan() external whenAssetFlashLoanable {
         uint256 dealAmount = 14_607_904e18;
         deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: dealAmount });

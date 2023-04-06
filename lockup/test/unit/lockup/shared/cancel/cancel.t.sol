@@ -22,7 +22,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external whenNoDelegateCall whenStreamActive {
         bytes memory callData = abi.encodeCall(ISablierV2Lockup.cancel, defaultStreamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
@@ -37,14 +36,12 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external whenNoDelegateCall whenStreamNotActive {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
         lockup.cancel(nullStreamId);
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
@@ -52,7 +49,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(defaultStreamId);
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamCanceled() external whenNoDelegateCall whenStreamNotActive {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
@@ -64,7 +60,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamNonCancelable() external whenNoDelegateCall whenStreamActive {
         uint256 streamId = createDefaultStreamNonCancelable();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNonCancelable.selector, streamId));
@@ -75,7 +70,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_EndTimeInThePast() external whenNoDelegateCall whenStreamActive whenStreamCancelable {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamId));
@@ -86,7 +80,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
         external
         whenNoDelegateCall
@@ -104,7 +97,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(defaultStreamId);
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_ApprovedOperator()
         external
         whenNoDelegateCall
@@ -125,7 +117,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(defaultStreamId);
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerUnauthorized_FormerRecipient()
         external
         whenNoDelegateCall
@@ -147,9 +138,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as depleted
     function test_Cancel_StartTimeInTheFuture() external {
         // Warp in the past.
         vm.warp({ timestamp: DEFAULT_START_TIME - 1 });
@@ -175,9 +163,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as canceled
     function test_Cancel_Sender_RecipientNotContract()
         external
         whenNoDelegateCall
@@ -198,11 +183,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as canceled
-    /// - it should call the recipient hook
-    /// - it should ignore the revert
     function test_Cancel_Sender_RecipientDoesNotImplementHook()
         external
         whenNoDelegateCall
@@ -238,11 +218,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as canceled
-    /// - it should call the recipient hook
-    /// - it should ignore the revert
     function test_Cancel_Sender_RecipientReverts()
         external
         whenNoDelegateCall
@@ -279,11 +254,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as canceled
-    /// - it should call the recipient hook
-    /// - it should ignore the revert
     function test_Cancel_Sender_RecipientReentrancy()
         external
         whenNoDelegateCall
@@ -321,13 +291,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as canceled
-    /// - it should update the returned amount
-    /// - it should return the assets to the sender
-    /// - it should call the recipient hook
-    /// - it should emit a {CancelLockupStream} event
     function test_Cancel_Sender()
         external
         whenNoDelegateCall
@@ -387,9 +350,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as canceled
     function test_Cancel_Recipient_SenderNotContract()
         external
         whenNoDelegateCall
@@ -410,11 +370,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as canceled
-    /// - it should call the sender hook
-    /// - it should and ignore the revert
     function test_Cancel_Recipient_SenderDoesNotImplementHook()
         external
         whenNoDelegateCall
@@ -450,11 +405,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as canceled
-    /// - it should call the sender hook
-    /// - it should ignore the revert
     function test_Cancel_Recipient_SenderReverts()
         external
         whenNoDelegateCall
@@ -491,11 +441,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as canceled
-    /// - it should call the sender hook
-    /// - it should  ignore the revert
     function test_Cancel_Recipient_SenderReentrancy()
         external
         whenNoDelegateCall
@@ -533,13 +478,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should cancel the stream
-    /// - it should mark the stream as canceled
-    /// - it should update the returned amount
-    /// - it should return the assets to the sender
-    /// - it should call the sender hook
-    /// - it should emit a {CancelLockupStream} event.
     function test_Cancel_Recipient()
         external
         whenNoDelegateCall

@@ -6,9 +6,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { FlashLoan_Fuzz_Test } from "../FlashLoan.t.sol";
 
 contract FlashFee_Fuzz_Test is FlashLoan_Fuzz_Test {
-    /// @dev it should return the correct flash fee.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - Multiple values for the comptroller flash fee, including zero
     /// - Multiple values for the flash loan amount, including zero

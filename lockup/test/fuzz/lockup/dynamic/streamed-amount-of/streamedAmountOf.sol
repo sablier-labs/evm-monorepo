@@ -18,9 +18,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should return the correct streamed amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - End time in the past
     /// - End time in the present
@@ -58,9 +56,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should return the correct streamed amount.
-    ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - End time in the past
     /// - End time in the present

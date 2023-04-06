@@ -17,7 +17,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         streamId = linear.nextStreamId();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaultParams.createWithDurations);
@@ -29,7 +28,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert due to the start time being greater than the cliff time.
     function test_RevertWhen_CliffDurationCalculationOverflows() external whenNoDelegateCall {
         uint40 startTime = getBlockTimestamp();
         uint40 cliffDuration = UINT40_MAX - startTime + 1;
@@ -58,7 +56,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_TotalDurationCalculationOverflows()
         external
         whenNoDelegateCall
@@ -91,13 +88,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev Checklist:
-    /// - it should create the stream
-    /// - it should bump the next stream id
-    /// - it should record the protocol fee
-    /// - it should mint the NFT
-    /// - it should perform the ERC-20 transfers
-    /// - it should emit a {CreateLockupLinearStream} event
     function test_CreateWithDurations()
         external
         whenNoDelegateCall

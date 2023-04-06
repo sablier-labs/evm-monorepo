@@ -44,8 +44,6 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the streams, return the assets to the sender, update the returned amounts, and emit
-    /// {CancelLockupStream} events.
     function testFuzz_CancelMultiple_Sender(
         uint256 timeWarp,
         uint40 endTime
@@ -65,8 +63,6 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         testFuzz_CancelMultiple(timeWarp, endTime);
     }
 
-    /// @dev it should cancel the streams, return the assets to the sender, update the returned amounts, and emit
-    /// {CancelLockupStream} events.
     function testFuzz_CancelMultiple_Recipient(
         uint256 timeWarp,
         uint40 endTime
