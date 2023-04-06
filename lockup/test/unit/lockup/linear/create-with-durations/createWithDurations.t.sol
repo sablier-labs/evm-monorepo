@@ -104,7 +104,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         whenCliffDurationCalculationDoesNotOverflow
         whenTotalDurationCalculationDoesNotOverflow
     {
-        // Make the sender the funder of the stream.
+        // Make the sender the stream's funder
         address funder = users.sender;
 
         // Load the initial protocol revenues.

@@ -62,8 +62,7 @@ abstract contract SablierV2Lockup is
         _;
     }
 
-    /// @notice Checks that `msg.sender` is either the sender of the stream or the recipient of the stream (i.e.
-    /// the owner of the NFT).
+    /// @notice Checks that `msg.sender` is either the stream's sender or the stream's recipient (i.e. the NFT owner).
     modifier onlySenderOrRecipient(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && msg.sender != _ownerOf(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
@@ -123,7 +122,7 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function renounce(uint256 streamId) external override noDelegateCall isActive(streamId) {
-        // Checks: `msg.sender` is the sender of the stream.
+        // Checks: `msg.sender` is the stream's sender.
         if (!_isCallerStreamSender(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
@@ -162,13 +161,13 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
         }
 
-        // Checks: `msg.sender` is the sender of the stream, the recipient of the stream (i.e. the NFT owner),
-        // or an approved third party.
+        // Checks: `msg.sender` is the stream's sender, the stream's recipient (i.e. the NFT owner), or an
+        // approved third party.
         if (!_isCallerStreamSender(streamId) && !_isCallerStreamRecipientOrApproved(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
-        // Checks: if `msg.sender` is the sender of the stream, the withdrawal address must be the recipient.
+        // Checks: if `msg.sender` is the stream's sender, the withdrawal address must be the recipient.
         if (_isCallerStreamSender(streamId) && to != _ownerOf(streamId)) {
             revert Errors.SablierV2Lockup_WithdrawSenderUnauthorized(streamId, msg.sender, to);
         }
@@ -207,7 +206,7 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_WithdrawToZeroAddress();
         }
 
-        // Checks: there are as many `streamIds` as there are `amounts`.
+        // Checks: there is an equal number of `streamIds` and `amounts`.
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
         if (streamIdsCount != amountsCount) {
@@ -227,7 +226,7 @@ abstract contract SablierV2Lockup is
                 revert Errors.SablierV2Lockup_StreamDepleted(streamId);
             }
 
-            // Checks: `msg.sender` is the recipient of the stream (i.e. the NFT owner) or an approved third party.
+            // Checks: `msg.sender` is the stream's recipient (i.e. the NFT owner) or an approved third party.
             if (!_isCallerStreamRecipientOrApproved(streamId)) {
                 revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
             }
@@ -251,16 +250,16 @@ abstract contract SablierV2Lockup is
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Checks whether `msg.sender` is the recipient of the stream or an approved third party.
-    /// @param streamId The id of the stream to make the query for.
+    /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party.
+    /// @param streamId The stream id for the query.
     function _isCallerStreamRecipientOrApproved(uint256 streamId) internal view virtual returns (bool result);
 
-    /// @notice Checks whether `msg.sender` is the sender of the stream.
-    /// @param streamId The id of the stream to make the query for.
+    /// @notice Checks whether `msg.sender` is the stream's sender.
+    /// @param streamId The stream id for the query.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
 
     /// @notice Returns the owner of the NFT without reverting.
-    /// @param tokenId The id of the NFT to make the query for.
+    /// @param tokenId The NFT id for the query.
     function _ownerOf(uint256 tokenId) internal view virtual returns (address owner);
 
     /*//////////////////////////////////////////////////////////////////////////

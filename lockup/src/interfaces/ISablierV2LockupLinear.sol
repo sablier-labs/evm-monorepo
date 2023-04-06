@@ -15,15 +15,15 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
 
     /// @notice Emitted when a linear stream is created.
     /// @param streamId The id of the newly created linear stream.
-    /// @param funder The address which has funded the stream.
-    /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
-    /// @param recipient The address toward which to stream the assets.
+    /// @param funder The address which funded the stream.
+    /// @param sender The address streaming the assets, with the ability to cancel the stream.
+    /// @param recipient The address receiving the assets.
     /// @param amounts Struct that encapsulates (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
     /// broker fee amount, all denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
-    /// @param range Struct that encapsulates (i) the start time of the stream, (ii) the cliff time of the stream,
-    /// and (iii) the end time of the stream, all as Unix timestamps.
+    /// @param range Struct that encapsulates (i) the stream's start time, (ii) the stream's cliff time, and (iii)
+    /// the stream's end time, all as Unix timestamps.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateLockupLinearStream(
         uint256 streamId,
@@ -41,24 +41,25 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Queries the cliff time of the linear stream.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the linear stream to make the query for.
+    /// @notice Retrieves the linear stream's cliff time, which is a Unix timestamp.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The linear stream id for the query.
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
-    /// @notice Queries the range of the linear stream, a struct that encapsulates (i) the start time of the
-    /// stream, (ii) the cliff time of the stream, and (iii) the end time of the stream, all as Unix timestamps.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the linear stream to make the query for.
+    /// @notice Retrieves the range of the linear stream, a struct that encapsulates (i) the start time of the
+    /// stream, (ii) the stream's cliff time, and (iii) the stream's end time, all as Unix timestamps.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The linear stream id for the query.
     function getRange(uint256 streamId) external view returns (LockupLinear.Range memory range);
 
-    /// @notice Queries the linear stream entity.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the linear stream to make the query for.
+    /// @notice Retrieves the linear stream entity.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The linear stream id for the query.
     function getStream(uint256 streamId) external view returns (LockupLinear.Stream memory stream);
 
-    /// @notice Calculates the amount that has been streamed to the recipient, denoted in units of the asset's decimals.
-    /// The streaming function is:
+    /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
+    ///
+    /// When the stream is active, the streaming function is:
     ///
     /// $$
     /// f(x) = x * d + c
@@ -66,12 +67,24 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     ///
     /// Where:
     ///
-    /// - $x$ is the elapsed time divided by the total duration of the stream.
+    /// - $x$ is the elapsed time divided by the stream's total duration.
     /// - $d$ is the deposited amount.
     /// - $c$ is the cliff amount.
     ///
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the linear stream to make the query for.
+    /// When the stream is canceled, the streamed amount is frozen:
+    ///
+    /// $$
+    /// s = d - r - w
+    /// $$
+    ///
+    /// Where:
+    ///
+    /// - $d$ is the deposited amount.
+    /// - $r$ is the returned amount.
+    /// - $w$ is the withdrawn amount.
+    ///
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The linear stream id for the query.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -129,7 +129,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenDeltasNotZero
         whenMilestonesCalculationsDoNotOverflow
     {
-        // Make the sender the funder of the stream.
+        // Make the sender the stream's funder
         address funder = users.sender;
 
         // Load the initial protocol revenues.

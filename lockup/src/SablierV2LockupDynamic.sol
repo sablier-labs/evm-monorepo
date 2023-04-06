@@ -129,7 +129,7 @@ contract SablierV2LockupDynamic is
         // Checks: the stream NFT exists.
         _requireMinted({ tokenId: streamId });
 
-        // The owner of the stream NFT is the recipient.
+        // The NFT owner is the stream's recipient.
         recipient = _ownerOf(streamId);
     }
 
@@ -369,7 +369,7 @@ contract SablierV2LockupDynamic is
     /// Notes:
     ///
     /// 1. Normalization to 18 decimals is not needed because there is no mix of amounts with different decimals.
-    /// 2. This function must be called only when the end time of the stream is in the future so that the
+    /// 2. This function must be called only when the stream's end time is in the future so that the
     /// the loop below does not panic with an "index out of bounds" error.
     function _calculateStreamedAmountForMultipleSegments(uint256 streamId)
         internal
@@ -435,11 +435,11 @@ contract SablierV2LockupDynamic is
     /// needed because there is no mix of amounts with different decimals.
     function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128 streamedAmount) {
         unchecked {
-            // Calculate how much time has passed since the stream started, and the total time of the stream.
+            // Calculate how much time has passed since the stream started, and the stream's total duration.
             SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
             SD59x18 totalTime = (_streams[streamId].endTime - _streams[streamId].startTime).intoSD59x18();
 
-            // Divide the elapsed time by the total duration of the stream.
+            // Divide the elapsed time by the stream's total duration.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
 
             // Cast the stream parameters to SD59x18.

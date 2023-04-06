@@ -424,7 +424,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
     /// @dev Test logic shared between {test_CreateWithMilestones_AssetMissingReturnValue} and
     /// {test_CreateWithMilestones}.
     function test_createWithMilestones(address asset) internal {
-        // Make the sender the funder of the stream.
+        // Make the sender the stream's funder
         address funder = users.sender;
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.

@@ -123,7 +123,7 @@ contract SablierV2LockupLinear is
         // Checks: the stream NFT exists.
         _requireMinted({ tokenId: streamId });
 
-        // The owner of the stream NFT is the recipient.
+        // The NFT owner is the stream's recipient.
         recipient = _ownerOf(streamId);
     }
 
@@ -314,7 +314,7 @@ contract SablierV2LockupLinear is
         noDelegateCall
         returns (uint256 streamId)
     {
-        // Set the current block timestamp as the start time of the stream.
+        // Set the current block timestamp as the stream's start time.
         LockupLinear.Range memory range;
         range.start = uint40(block.timestamp);
 
@@ -406,12 +406,12 @@ contract SablierV2LockupLinear is
         // In all other cases, calculate the amount streamed so far. Normalization to 18 decimals is not needed
         // because there is no mix of amounts with different decimals.
         unchecked {
-            // Calculate how much time has passed since the stream started, and the total time of the stream.
+            // Calculate how much time has passed since the stream started, and the stream's total duration.
             uint256 startTime = uint256(_streams[streamId].startTime);
             UD60x18 elapsedTime = ud(currentTime - startTime);
             UD60x18 totalTime = ud(endTime - startTime);
 
-            // Divide the elapsed time by the total duration of the stream.
+            // Divide the elapsed time by the stream's total duration.
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
 
             // Cast the deposited amount to UD60x18.

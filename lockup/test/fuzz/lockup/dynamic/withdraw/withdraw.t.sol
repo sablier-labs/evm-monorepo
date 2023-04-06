@@ -50,7 +50,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         vm.assume(params.segments.length != 0);
         vm.assume(params.to != address(0));
 
-        // Make the sender the funder of the stream.
+        // Make the sender the stream's funder.
         Vars memory vars;
         vars.funder = users.sender;
 

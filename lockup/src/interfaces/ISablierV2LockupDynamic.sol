@@ -23,7 +23,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
-    /// @param range Struct that encapsulates (i) the start time of the stream, and (ii) the end time of the stream,
+    /// @param range Struct that encapsulates (i) the stream's start time, and (ii) the stream's end time,
     /// both as Unix timestamps.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateLockupDynamicStream(
@@ -43,28 +43,29 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum number of segments permitted in a dynamic stream.
+    /// @notice The maximum number of segments allowed in a dynamic stream.
     /// @dev This is initialized at construction time and cannot be changed later.
     function MAX_SEGMENT_COUNT() external view returns (uint256);
 
-    /// @notice Queries the range of the dynamic stream, a struct that encapsulates (i) the start time of the
-    /// stream, and (ii) the end time of of the stream, both as Unix timestamps.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the dynamic stream to make the query for.
+    /// @notice Retrieves the dynamic stream's range, a struct that encapsulates (i) the start time of the
+    /// stream, and (ii) the stream's end time, both as Unix timestamps.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The dynamic stream id for the query.
     function getRange(uint256 streamId) external view returns (LockupDynamic.Range memory range);
 
-    /// @notice Queries the segments the protocol uses to compose the custom streaming curve.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the dynamic stream to make the query for.
+    /// @notice Retrieves the segments the protocol uses to compose the custom streaming curve.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The dynamic stream id for the query.
     function getSegments(uint256 streamId) external view returns (LockupDynamic.Segment[] memory segments);
 
-    /// @notice Queries the dynamic stream entity.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the dynamic stream to make the query for.
+    /// @notice Retrieves the dynamic stream entity.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The dynamic stream id for the query.
     function getStream(uint256 streamId) external view returns (LockupDynamic.Stream memory stream);
 
-    /// @notice Calculates the amount that has been streamed to the recipient, denoted in units of the asset's decimals.
-    /// The streaming function is:
+    /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
+    ///
+    /// If the stream is active, the streaming function is:
     ///
     /// $$
     /// f(x) = x^{exp} * csa + \Sigma(esa)
@@ -77,8 +78,20 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - $csa$ is the current segment amount.
     /// - $\Sigma(esa)$ is the sum of all elapsed segments' amounts.
     ///
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the dynamic stream to make the query for.
+    /// If the stream is canceled, the streamed amount is frozen:
+    ///
+    /// $$
+    /// s = d - r - w
+    /// $$
+    ///
+    /// Where:
+    ///
+    /// - $d$ is the deposited amount.
+    /// - $r$ is the returned amount.
+    /// - $w$ is the withdrawn amount.
+    ///
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The dynamic stream id for the query.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -114,7 +127,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - `params.segments` must have at least one segment, but not more than `MAX_SEGMENT_COUNT`.
     /// - `params.startTime` must be less than the first segment's milestone.
     /// - The segment milestones must be arranged in ascending order.
-    /// - The last segment milestone (i.e. the end time of the stream) must not be in the past.
+    /// - The last segment milestone (i.e. the stream's end time) must not be in the past.
     /// - The sum of the segment amounts must be equal to the deposit amount.
     /// - `params.recipient` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.

@@ -119,7 +119,7 @@ library Helpers {
         uint256 segmentCount = segments.length;
         segmentsWithMilestones = new LockupDynamic.Segment[](segmentCount);
 
-        // Make the current time the start time of the stream.
+        // Make the current time the stream's start time.
         uint40 startTime = uint40(block.timestamp);
 
         // It is safe to use unchecked arithmetic because {_createWithMilestone} will nonetheless check the soundness
@@ -199,7 +199,7 @@ library Helpers {
         }
 
         // Checks: the end time is not in the past.
-        // When the loop exits, the current milestone is the last milestone, i.e. the end time of the stream.
+        // When the loop exits, the current milestone is the last milestone, i.e. the stream's end time.
         uint40 currentTime = uint40(block.timestamp);
         if (currentTime >= currentMilestone) {
             revert Errors.SablierV2Lockup_EndTimeInThePast(currentTime, currentMilestone);
