@@ -64,7 +64,7 @@ interface ISablierV2Lockup is
     /// @notice Queries the amount deposited in the lockup stream, denoted in units of the asset's decimals.
     /// @dev Reverts if `streamId` points to a null stream.
     /// @param streamId The id of the lockup stream to make the query for.
-    function getDepositAmount(uint256 streamId) external view returns (uint128 depositAmount);
+    function getDepositedAmount(uint256 streamId) external view returns (uint128 depositedAmount);
 
     /// @notice Queries the end time of the lockup stream.
     /// @dev Reverts if `streamId` points to a null stream.

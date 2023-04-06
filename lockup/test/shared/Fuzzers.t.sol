@@ -107,9 +107,8 @@ abstract contract Fuzzers is Constants, Utils {
         createAmounts.brokerFee = ud(totalAmount).mul(brokerFee).intoUint128();
 
         // Here, we account for rounding errors and adjust the estimated deposit amount and the segments. We know
-        // that
-        // the estimated deposit amount is not greater than the adjusted deposit amount below, because the inverse of
-        // {Helpers-checkAndCalculateFees} over-expresses the weight of the fees.
+        // that the estimated deposit amount is not greater than the adjusted deposit amount below, because the inverse
+        // of {Helpers-checkAndCalculateFees} over-expresses the weight of the fees.
         createAmounts.deposit = totalAmount - createAmounts.protocolFee - createAmounts.brokerFee;
         segments[segments.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }

@@ -79,7 +79,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// - End time in the future
     /// - Multiple deposit amounts
     /// - Multiple withdraw amounts
-    /// - Withdraw amount equal to deposit amount and not
+    /// - Withdraw amount equal to deposited amount and not
     function testFuzz_WithdrawableAmountOf_WithWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount,

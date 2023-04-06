@@ -84,13 +84,13 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         }
     }
 
-    /// @dev No stream can have a deposit amount of zero.
-    function invariant_DepositAmountNotZero() external {
+    /// @dev No stream can have a deposited amount of zero.
+    function invariant_DepositedAmountNotZero() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             LockupLinear.Stream memory stream = linear.getStream(streamId);
-            assertNotEq(stream.amounts.deposit, 0, "Invariant violated: stream non-null, deposit amount zero");
+            assertNotEq(stream.amounts.deposited, 0, "Invariant violated: stream non-null, deposited amount zero");
         }
     }
 

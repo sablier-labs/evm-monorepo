@@ -23,7 +23,7 @@ library Lockup {
     /// @param returned The amount returned to the sender. Unless the stream is canceled, this is always zero.
     struct Amounts {
         // slot 0
-        uint128 deposit;
+        uint128 deposited;
         uint128 withdrawn;
         // slot 1
         uint128 returned;

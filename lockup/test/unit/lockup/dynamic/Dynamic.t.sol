@@ -13,7 +13,7 @@ import { Cancel_Unit_Test } from "../shared/cancel/cancel.t.sol";
 import { CancelMultiple_Unit_Test } from "../shared/cancel-multiple/cancelMultiple.t.sol";
 import { ClaimProtocolRevenues_Unit_Test } from "../shared/claim-protocol-revenues/claimProtocolRevenues.t.sol";
 import { GetAsset_Unit_Test } from "../shared/get-asset/getAsset.t.sol";
-import { GetDepositAmount_Unit_Test } from "../shared/get-deposit-amount/getDepositAmount.t.sol";
+import { GetDepositedAmount_Unit_Test } from "../shared/get-deposited-amount/getDepositedAmount.t.sol";
 import { GetEndTime_Unit_Test } from "../shared/get-end-time/getEndTime.t.sol";
 import { ProtocolRevenues_Unit_Test } from "../shared/protocol-revenues/protocolRevenues.t.sol";
 import { GetRecipient_Unit_Test } from "../shared/get-recipient/getRecipient.t.sol";
@@ -105,10 +105,10 @@ contract GetAsset_Dynamic_Unit_Test is Dynamic_Unit_Test, GetAsset_Unit_Test {
     }
 }
 
-contract GetDepositAmount_Dynamic_Unit_Test is Dynamic_Unit_Test, GetDepositAmount_Unit_Test {
-    function setUp() public virtual override(Dynamic_Unit_Test, GetDepositAmount_Unit_Test) {
+contract GetDepositedAmount_Dynamic_Unit_Test is Dynamic_Unit_Test, GetDepositedAmount_Unit_Test {
+    function setUp() public virtual override(Dynamic_Unit_Test, GetDepositedAmount_Unit_Test) {
         Dynamic_Unit_Test.setUp();
-        GetDepositAmount_Unit_Test.setUp();
+        GetDepositedAmount_Unit_Test.setUp();
     }
 }
 

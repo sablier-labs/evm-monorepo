@@ -46,8 +46,8 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
 
     /// @dev it should revert.
     function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall whenRecipientNonZeroAddress {
-        // It is not possible (in principle) to obtain a zero deposit amount from a non-zero total amount,
-        // because we hard-code the `MAX_FEE` to 10%.
+        // It is not possible to obtain a zero deposit amount from a non-zero total amount, because the `MAX_FEE`
+        // is hard coded to 10%.
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
         uint128 totalAmount = 0;
         createDefaultStreamWithTotalAmount(totalAmount);

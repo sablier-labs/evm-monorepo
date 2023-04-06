@@ -67,7 +67,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// Where:
     ///
     /// - $x$ is the elapsed time divided by the total duration of the stream.
-    /// - $d$ is the deposit amount.
+    /// - $d$ is the deposited amount.
     /// - $c$ is the cliff amount.
     ///
     /// @dev Reverts if `streamId` points to a null stream.

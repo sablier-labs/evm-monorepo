@@ -69,7 +69,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// - End time in the present
     /// - End time in the future
     /// - Multiple withdraw amounts
-    /// - Withdraw amount equal to deposit amount and not
+    /// - Withdraw amount equal to deposited amount and not
     function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,
         uint128 withdrawAmount
