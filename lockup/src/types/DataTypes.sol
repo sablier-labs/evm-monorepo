@@ -40,7 +40,7 @@ library Lockup {
         uint128 brokerFee;
     }
 
-    /// @notice Enum with all possible statuses of a lockup stream.
+    /// @notice Enum with all possible statuses of a stream.
     /// @custom:value NULL The stream has not been created yet. This is the default value.
     /// @custom:value ACTIVE The stream has been created and it is active, indicating that assets are either in
     /// the process of being streamed or can be withdrawn.

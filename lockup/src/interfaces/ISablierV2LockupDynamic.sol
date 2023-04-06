@@ -7,14 +7,14 @@ import { Lockup, LockupDynamic } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupDynamic
-/// @notice Creates and manages lockup streams with custom streaming curves.
+/// @notice Creates and manages lockup streams with custom streaming functions.
 interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when a lockup dynamic stream is created.
-    /// @param streamId The id of the newly created lockup stream.
+    /// @notice Emitted when a dynamic stream is created.
+    /// @param streamId The id of the newly created stream.
     /// @param funder The address which has funded the stream.
     /// @param sender The address from which to stream the assets, who will have the ability to cancel the stream.
     /// @param recipient The address toward which to stream the assets.
@@ -43,24 +43,24 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum number of segments permitted in a lockup dynamic stream.
+    /// @notice The maximum number of segments permitted in a dynamic stream.
     /// @dev This is initialized at construction time and cannot be changed later.
     function MAX_SEGMENT_COUNT() external view returns (uint256);
 
-    /// @notice Queries the range of the lockup dynamic stream, a struct that encapsulates (i) the start time of the
+    /// @notice Queries the range of the dynamic stream, a struct that encapsulates (i) the start time of the
     /// stream, and (ii) the end time of of the stream, both as Unix timestamps.
     /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup dynamic stream to make the query for.
+    /// @param streamId The id of the dynamic stream to make the query for.
     function getRange(uint256 streamId) external view returns (LockupDynamic.Range memory range);
 
     /// @notice Queries the segments the protocol uses to compose the custom streaming curve.
     /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup dynamic stream to make the query for.
+    /// @param streamId The id of the dynamic stream to make the query for.
     function getSegments(uint256 streamId) external view returns (LockupDynamic.Segment[] memory segments);
 
-    /// @notice Queries the lockup dynamic stream entity.
+    /// @notice Queries the dynamic stream entity.
     /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup dynamic stream to make the query for.
+    /// @param streamId The id of the dynamic stream to make the query for.
     function getStream(uint256 streamId) external view returns (LockupDynamic.Stream memory stream);
 
     /// @notice Calculates the amount that has been streamed to the recipient, denoted in units of the asset's decimals.
@@ -78,14 +78,14 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - $\Sigma(esa)$ is the sum of all elapsed segments' amounts.
     ///
     /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup dynamic stream to make the query for.
+    /// @param streamId The id of the dynamic stream to make the query for.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Creates a lockup dynamic stream by setting the start time to `block.timestamp`, and the end time
+    /// @notice Creates a dynamic stream by setting the start time to `block.timestamp`, and the end time
     /// to the sum of `block.timestamp` and all specified time deltas. The segment milestones are derived from these
     /// deltas. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
@@ -95,10 +95,10 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - All from {createWithMilestones}.
     ///
     /// @param params Struct that encapsulates the function parameters.
-    /// @return streamId The id of the newly created lockup dynamic stream.
+    /// @return streamId The id of the newly created dynamic stream.
     function createWithDeltas(LockupDynamic.CreateWithDeltas calldata params) external returns (uint256 streamId);
 
-    /// @notice Creates a lockup dynamic stream with the provided milestones, implying the end time from the last
+    /// @notice Creates a dynamic stream with the provided milestones, implying the end time from the last
     /// segment's milestone. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupDynamicStream} and a {Transfer} event.
@@ -120,7 +120,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
     ///
     /// @param params Struct that encapsulates the function parameters.
-    /// @return streamId The id of the newly created lockup dynamic stream.
+    /// @return streamId The id of the newly created dynamic stream.
     function createWithMilestones(LockupDynamic.CreateWithMilestones calldata params)
         external
         returns (uint256 streamId);
