@@ -28,10 +28,15 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         _;
     }
 
+    modifier whenAssetFlashLoanable() {
+        _;
+    }
+
     function testFuzz_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee)
         external
         whenNoDelegateCall
         whenAmountNotTooHigh
+        whenAssetFlashLoanable
     {
         // Bound the flash fee so that the calculated fee ends up being greater than 2^128.
         flashFee = bound(flashFee, ud(1.1e18), ud(10e18));
@@ -52,6 +57,14 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         _;
     }
 
+    modifier whenBorrowDoesNotFail() {
+        _;
+    }
+
+    modifier whenNoReentrancy() {
+        _;
+    }
+
     /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
     /// - Multiple values for the comptroller flash fee, including zero
@@ -65,7 +78,10 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         external
         whenNoDelegateCall
         whenAmountNotTooHigh
+        whenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh
+        whenBorrowDoesNotFail
+        whenNoReentrancy
     {
         comptrollerFlashFee = bound(comptrollerFlashFee, 0, MAX_FEE);
         comptroller.setFlashFee(comptrollerFlashFee);

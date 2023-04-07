@@ -40,9 +40,6 @@ library Errors {
     /// @notice Thrown when the callback to the flash borrower fails.
     error SablierV2FlashLoan_FlashBorrowFail();
 
-    /// @notice Thrown when trying to flash loan more than the available lending amount.
-    error SablierV2FlashLoan_InsufficientAssetLiquidity(IERC20 asset, uint256 amountAvailable, uint256 amountRequested);
-
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/

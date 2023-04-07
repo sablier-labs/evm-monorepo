@@ -131,16 +131,6 @@ abstract contract SablierV2FlashLoan is
             revert Errors.SablierV2FlashLoan_CalculatedFeeTooHigh(fee);
         }
 
-        // Checks: the amount flash loaned is not greater than the current asset balance of the contract.
-        uint256 initialBalance = IERC20(asset).balanceOf(address(this));
-        if (amount > initialBalance) {
-            revert Errors.SablierV2FlashLoan_InsufficientAssetLiquidity({
-                asset: IERC20(asset),
-                amountAvailable: initialBalance,
-                amountRequested: amount
-            });
-        }
-
         // Interactions: perform the ERC-20 transfer to flash loan the assets to the borrower.
         IERC20(asset).safeTransfer({ to: address(receiver), value: amount });
 
