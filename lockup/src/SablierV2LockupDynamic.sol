@@ -4,7 +4,6 @@ pragma solidity >=0.8.18;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/token/ERC721/ERC721.sol";
-import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
@@ -43,8 +42,7 @@ import { Lockup, LockupDynamic } from "./types/DataTypes.sol";
 /// @notice See the documentation in {ISablierV2LockupDynamic}.
 contract SablierV2LockupDynamic is
     ISablierV2LockupDynamic, // one dependency
-    ERC721("Sablier V2 Lockup Dynamic NFT", "SAB-V2-LOCKUP-DYN"), // six dependencies
-    SablierV2Lockup // eleven dependencies
+    SablierV2Lockup // sixteen dependencies
 {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
@@ -75,13 +73,14 @@ contract SablierV2LockupDynamic is
     /// @param initialAdmin The address of the initial contract admin.
     /// @param initialComptroller The address of the initial comptroller.
     /// @param initialNFTDescriptor The address of the NFT descriptor contract.
-    /// @param maxSegmentCount The maximum number of segments permitted in a stream.
+    /// @param maxSegmentCount The maximum number of segments allowed in a stream.
     constructor(
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNFTDescriptor,
         uint256 maxSegmentCount
     )
+        ERC721("Sablier V2 Lockup Dynamic NFT", "SAB-V2-LOCKUP-DYN")
         SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor)
     {
         MAX_SEGMENT_COUNT = maxSegmentCount;
@@ -122,15 +121,6 @@ contract SablierV2LockupDynamic is
         returns (LockupDynamic.Range memory range)
     {
         range = LockupDynamic.Range({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function getRecipient(uint256 streamId) external view override returns (address recipient) {
-        // Checks: the stream NFT exists.
-        _requireMinted({ tokenId: streamId });
-
-        // The NFT owner is the stream's recipient.
-        recipient = _ownerOf(streamId);
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -240,15 +230,6 @@ contract SablierV2LockupDynamic is
         returns (uint128 streamedAmount)
     {
         streamedAmount = _streamedAmountOf(streamId);
-    }
-
-    /// @inheritdoc ERC721
-    function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
-        // Checks: the stream NFT exists.
-        _requireMinted({ tokenId: streamId });
-
-        // Generate the URI describing the stream NFT
-        uri = _nftDescriptor.tokenURI(this, streamId);
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -406,22 +387,8 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc SablierV2Lockup
-    function _isCallerStreamRecipientOrApproved(uint256 streamId) internal view override returns (bool result) {
-        address recipient = _ownerOf(streamId);
-        result = (
-            msg.sender == recipient || isApprovedForAll({ owner: recipient, operator: msg.sender })
-                || getApproved(streamId) == msg.sender
-        );
-    }
-
-    /// @inheritdoc SablierV2Lockup
     function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
         result = msg.sender == _streams[streamId].sender;
-    }
-
-    /// @inheritdoc SablierV2Lockup
-    function _ownerOf(uint256 tokenId) internal view override(ERC721, SablierV2Lockup) returns (address owner) {
-        owner = ERC721._ownerOf(tokenId);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -472,11 +439,6 @@ contract SablierV2LockupDynamic is
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _burn(uint256 tokenId) internal override(ERC721, SablierV2Lockup) {
-        ERC721._burn(tokenId);
-    }
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _cancel(uint256 streamId) internal override {

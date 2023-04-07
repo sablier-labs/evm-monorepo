@@ -4,7 +4,6 @@ pragma solidity >=0.8.18;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/token/ERC721/ERC721.sol";
-import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
@@ -40,8 +39,7 @@ import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 /// @notice See the documentation in {ISablierV2LockupLinear}.
 contract SablierV2LockupLinear is
     ISablierV2LockupLinear, // one dependency
-    ERC721("Sablier V2 Lockup Linear NFT", "SAB-V2-LOCKUP-LIN"), // six dependencies
-    SablierV2Lockup // eleven dependencies
+    SablierV2Lockup // sixteen dependencies
 {
     using SafeERC20 for IERC20;
 
@@ -68,6 +66,7 @@ contract SablierV2LockupLinear is
         ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNFTDescriptor
     )
+        ERC721("Sablier V2 Lockup Linear NFT", "SAB-V2-LOCKUP-LIN")
         SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor)
     {
         _nextStreamId = 1;
@@ -116,15 +115,6 @@ contract SablierV2LockupLinear is
             cliff: _streams[streamId].cliffTime,
             end: _streams[streamId].endTime
         });
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function getRecipient(uint256 streamId) external view override returns (address recipient) {
-        // Checks: the stream NFT exists.
-        _requireMinted({ tokenId: streamId });
-
-        // The NFT owner is the stream's recipient.
-        recipient = _ownerOf(streamId);
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -225,15 +215,6 @@ contract SablierV2LockupLinear is
         streamedAmount = _streamedAmountOf(streamId);
     }
 
-    /// @inheritdoc ERC721
-    function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
-        // Checks: the stream NFT exists.
-        _requireMinted({ tokenId: streamId });
-
-        // Generate the URI describing the stream NFT
-        uri = _nftDescriptor.tokenURI(this, streamId);
-    }
-
     /// @inheritdoc ISablierV2Lockup
     function withdrawableAmountOf(uint256 streamId)
         public
@@ -297,22 +278,8 @@ contract SablierV2LockupLinear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierV2Lockup
-    function _isCallerStreamRecipientOrApproved(uint256 streamId) internal view override returns (bool result) {
-        address recipient = _ownerOf(streamId);
-        result = (
-            msg.sender == recipient || isApprovedForAll({ owner: recipient, operator: msg.sender })
-                || getApproved(streamId) == msg.sender
-        );
-    }
-
-    /// @inheritdoc SablierV2Lockup
     function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
         result = msg.sender == _streams[streamId].sender;
-    }
-
-    /// @inheritdoc SablierV2Lockup
-    function _ownerOf(uint256 tokenId) internal view override(ERC721, SablierV2Lockup) returns (address owner) {
-        owner = ERC721._ownerOf(tokenId);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -386,11 +353,6 @@ contract SablierV2LockupLinear is
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _burn(uint256 tokenId) internal override(ERC721, SablierV2Lockup) {
-        ERC721._burn(tokenId);
-    }
 
     /// @inheritdoc SablierV2Lockup
     function _cancel(uint256 streamId) internal override {
