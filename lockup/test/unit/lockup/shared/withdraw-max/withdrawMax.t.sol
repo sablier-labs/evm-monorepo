@@ -21,8 +21,20 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Warp to the end of the stream.
         vm.warp({ timestamp: DEFAULT_END_TIME });
 
+        // Expect the ERC-20 assets to be transferred to the recipient.
+        expectTransferCall({ to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
+
+        // Expect a {WithdrawFromLockupStream} event to be emitted.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
+
         // Make the max withdrawal.
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+
+        // Assert that the withdrawn amount has been updated.
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
+        uint128 expectedWithdrawnAmount = DEFAULT_DEPOSIT_AMOUNT;
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the stream has been marked as depleted.
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
@@ -60,14 +72,14 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the max withdrawal.
         lockup.withdrawMax(defaultStreamId, users.recipient);
 
-        // Assert that the stream has remained active.
-        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
-        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
-        assertEq(actualStatus, expectedStatus);
-
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
     }
 }

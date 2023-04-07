@@ -23,7 +23,14 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     function test_SetProtocolFee_SameFee() external whenCallerAdmin {
+        // Expect a {SetProtocolFee} event to be emitted.
+        vm.expectEmit({ emitter: address(comptroller) });
+        emit SetProtocolFee({ admin: users.admin, asset: DEFAULT_ASSET, oldProtocolFee: ZERO, newProtocolFee: ZERO });
+
+        // Set the same protocol fee.
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
+
+        // Assert that the protocol fee has stayed put.
         UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = ZERO;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");

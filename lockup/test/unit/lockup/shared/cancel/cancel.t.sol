@@ -22,7 +22,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    function test_RevertWhen_DelegateCall() external whenNoDelegateCall whenStreamActive {
+    function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(ISablierV2Lockup.cancel, defaultStreamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
