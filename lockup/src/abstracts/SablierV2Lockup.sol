@@ -46,7 +46,7 @@ abstract contract SablierV2Lockup is
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks that `streamId` points to an active stream.
+    /// @dev Checks that `streamId` references an active stream.
     modifier isActive(uint256 streamId) {
         if (getStatus(streamId) != Lockup.Status.ACTIVE) {
             revert Errors.SablierV2Lockup_StreamNotActive(streamId);
@@ -54,7 +54,7 @@ abstract contract SablierV2Lockup is
         _;
     }
 
-    /// @dev Checks that `streamId` points to a stream that is not null.
+    /// @dev Checks that `streamId` references a stream that is not null.
     modifier isNotNull(uint256 streamId) {
         if (getStatus(streamId) == Lockup.Status.NULL) {
             revert Errors.SablierV2Lockup_StreamNull(streamId);
@@ -76,9 +76,6 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function getStatus(uint256 streamId) public view virtual override returns (Lockup.Status status);
-
-    /// @inheritdoc ISablierV2Lockup
-    function withdrawableAmountOf(uint256 streamId) public view virtual override returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
@@ -182,13 +179,21 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
         }
 
-        // Checks, Effects and Interactions: make the withdrawal.
+        // Checks: the withdraw amount is not greater than the withdrawable amount.
+        uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
+        if (amount > withdrawableAmount) {
+            revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
+                streamId, amount, withdrawableAmount
+            );
+        }
+
+        // Effects and Interactions: make the withdrawal.
         _withdraw(streamId, to, amount);
     }
 
     /// @inheritdoc ISablierV2Lockup
     function withdrawMax(uint256 streamId, address to) external override {
-        withdraw(streamId, to, withdrawableAmountOf(streamId));
+        withdraw(streamId, to, _withdrawableAmountOf(streamId));
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -236,6 +241,14 @@ abstract contract SablierV2Lockup is
                 revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
             }
 
+            // Checks: the withdraw amount is not greater than the withdrawable amount.
+            uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
+            if (amounts[i] > withdrawableAmount) {
+                revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
+                    streamId, amounts[i], withdrawableAmount
+                );
+            }
+
             // Checks, Effects and Interactions: make the withdrawal.
             _withdraw(streamId, to, amounts[i]);
 
@@ -261,6 +274,9 @@ abstract contract SablierV2Lockup is
     /// @notice Returns the owner of the NFT without reverting.
     /// @param tokenId The NFT id for the query.
     function _ownerOf(uint256 tokenId) internal view virtual returns (address owner);
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _withdrawableAmountOf(uint256 streamId) internal view virtual returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS

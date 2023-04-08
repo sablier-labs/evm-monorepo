@@ -185,22 +185,22 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         vm.label({ account: address(dynamic), newLabel: "LockupDynamic" });
     }
 
-    /// @dev Expects a call to the `transfer` function of the default ERC-20 asset.
+    /// @dev Expects a call to the `transfer` function of the default ERC-20 contract.
     function expectTransferCall(address to, uint256 amount) internal {
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, amount)));
     }
 
-    /// @dev Expects a call to the `transfer` function of the provided ERC-20 asset.
+    /// @dev Expects a call to the `transfer` function of the provided ERC-20 contract.
     function expectTransferCall(IERC20 asset, address to, uint256 amount) internal {
         vm.expectCall(address(asset), abi.encodeCall(IERC20.transfer, (to, amount)));
     }
 
-    /// @dev Expects a call to the `transfer` function of the default ERC-20 asset.
+    /// @dev Expects a call to the `transfer` function of the default ERC-20 contract.
     function expectTransferFromCall(address from, address to, uint256 amount) internal {
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
     }
 
-    /// @dev Expects a call to the `transfer` function of the provided ERC-20 asset.
+    /// @dev Expects a call to the `transfer` function of the provided ERC-20 contract.
     function expectTransferFromCall(IERC20 asset, address from, address to, uint256 amount) internal {
         vm.expectCall(address(asset), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
     }

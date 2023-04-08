@@ -29,7 +29,7 @@ withdraw.t.sol
                    │  └── it should update the withdrawn amount
                    ├── when the caller is an approved third party
                    │  ├── it should make the withdrawal
-                   │  └── it should make the withdrawal and update the withdrawn amount
+                   │  └── it should update the withdrawn amount
                    └── when the caller is the sender
                       ├── when the end time is in the present
                       │  ├── it should make the withdrawal
@@ -59,6 +59,7 @@ withdraw.t.sol
                                   └── when there is no reentrancy
                                      ├── when the stream is canceled
                                      │  ├── it should make the withdrawal
+                                     │  ├── it should mark the stream as depleted
                                      │  ├── it should update the withdrawn amount
                                      │  ├── it should call the recipient hook
                                      │  └── it should emit a {WithdrawFromLockupStream} event

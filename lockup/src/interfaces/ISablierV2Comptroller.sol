@@ -38,8 +38,8 @@ interface ISablierV2Comptroller is IAdminable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Determines whether the provided ERC-20 asset can be flash loaned.
-    /// @param token The contract address of the ERC-20 asset to check.
-    function flashAssets(IERC20 token) external view returns (bool result);
+    /// @param asset The contract address of the ERC-20 asset to check.
+    function flashAssets(IERC20 asset) external view returns (bool result);
 
     /// @notice Retrieves the global flash fee as a UD60x18 number where 100% = 1e18.
     ///

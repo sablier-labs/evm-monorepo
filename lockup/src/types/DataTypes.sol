@@ -45,7 +45,7 @@ library Lockup {
     /// @custom:value ACTIVE The stream has been created and it is active, indicating that assets are either in
     /// the process of being streamed or can be withdrawn.
     /// @custom:value CANCELED The stream has been canceled while it was active.
-    /// @custom:value DEPLETED The stream has been depleted, meaning all assets have been withdrawn.
+    /// @custom:value DEPLETED The stream has been depleted, meaning all streamed assets have been withdrawn.
     enum Status {
         NULL,
         ACTIVE,
@@ -151,9 +151,9 @@ library LockupDynamic {
         Lockup.Status status;
         // slot 1
         IERC20 asset;
-        // slot 2
+        // slot 2 and 3
         Lockup.Amounts amounts;
-        // slots [3..n]
+        // slots [4..n]
         Segment[] segments;
     }
 }
@@ -242,7 +242,7 @@ library LockupLinear {
         IERC20 asset;
         uint40 endTime;
         Lockup.Status status;
-        // slot 2
+        // slot 2 and 3
         Lockup.Amounts amounts;
     }
 }

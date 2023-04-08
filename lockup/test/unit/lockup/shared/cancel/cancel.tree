@@ -55,7 +55,7 @@ cancel.t.sol
                   │              ├── it should mark the stream as canceled
                   │              ├── it should update the returned amount
                   │              ├── it should return the assets to the sender
-                  │              ├── it should call the recipient hook, and emit a {CancelLockupStream} event
+                  │              ├── it should call the recipient hook
                   │              └── it should emit a {CancelLockupStream} event
                   └── when the caller is the recipient
                      ├── when the sender is not a contract

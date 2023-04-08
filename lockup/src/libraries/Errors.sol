@@ -100,16 +100,6 @@ library Errors {
     error SablierV2Lockup_WithdrawToZeroAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
-                              SABLIER-V2-LOCKUP-LINEAR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when trying to create a linear stream with a cliff time not strictly less than the end time.
-    error SablierV2LockupLinear_CliffTimeNotLessThanEndTime(uint40 cliffTime, uint40 endTime);
-
-    /// @notice Thrown when trying to create a linear stream with a start time greater than the cliff time.
-    error SablierV2LockupLinear_StartTimeGreaterThanCliffTime(uint40 startTime, uint40 cliffTime);
-
-    /*//////////////////////////////////////////////////////////////////////////
                              SABLIER-V2-LOCKUP-DYNAMIC
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -131,9 +121,19 @@ library Errors {
     );
 
     /// segment milestone.
-    /// @notice Thrown when attempting to create a stream with a start time not strictly less than the first
+    /// @notice Thrown when trying to create a stream with a start time not strictly less than the first
     /// segment milestone.
     error SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone(
         uint40 startTime, uint40 firstSegmentMilestone
     );
+
+    /*//////////////////////////////////////////////////////////////////////////
+                              SABLIER-V2-LOCKUP-LINEAR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to create a linear stream with a cliff time not strictly less than the end time.
+    error SablierV2LockupLinear_CliffTimeNotLessThanEndTime(uint40 cliffTime, uint40 endTime);
+
+    /// @notice Thrown when trying to create a linear stream with a start time greater than the cliff time.
+    error SablierV2LockupLinear_StartTimeGreaterThanCliffTime(uint40 startTime, uint40 cliffTime);
 }

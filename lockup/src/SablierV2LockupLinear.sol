@@ -229,7 +229,7 @@ contract SablierV2LockupLinear is
     function withdrawableAmountOf(uint256 streamId)
         public
         view
-        override(ISablierV2Lockup, SablierV2Lockup)
+        override
         isNotNull(streamId)
         returns (uint128 withdrawableAmount)
     {
@@ -263,8 +263,8 @@ contract SablierV2LockupLinear is
             revert Errors.SablierV2Lockup_StreamSettled(streamId);
         }
 
-        // Effects: mark the stream as either canceled or depleted based upon whether there any assets left
-        // for the recipient to withdraw.
+        // Effects: If the recipient has any unwithdrawn streamed assets, mark the stream as canceled.
+        // Otherwise, mark it as depleted.
         _streams[streamId].status = recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
         _streams[streamId].isCancelable = false;
 
@@ -433,12 +433,10 @@ contract SablierV2LockupLinear is
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
-    function _withdrawableAmountOf(uint256 streamId) internal view returns (uint128 withdrawableAmount) {
-        Lockup.Status status = _streams[streamId].status;
-
+    function _withdrawableAmountOf(uint256 streamId) internal view override returns (uint128 withdrawableAmount) {
         // If the stream is active or canceled, calculate the withdrawable amount by subtracting the withdrawn amount
         // from the streamed amount.
-        if (status != Lockup.Status.DEPLETED) {
+        if (_streams[streamId].status != Lockup.Status.DEPLETED) {
             withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
         }
         // If the stream is depleted, the withdrawable amount is implicitly zero.
@@ -543,16 +541,6 @@ contract SablierV2LockupLinear is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _withdraw(uint256 streamId, address to, uint128 amount) internal override {
-        // Calculate the withdrawable amount.
-        uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
-
-        // Checks: the withdraw amount is not greater than the withdrawable amount.
-        if (amount > withdrawableAmount) {
-            revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
-                streamId, amount, withdrawableAmount
-            );
-        }
-
         // Effects: update the withdrawn amount.
         _streams[streamId].amounts.withdrawn += amount;
 
@@ -561,7 +549,7 @@ contract SablierV2LockupLinear is
 
         // Unchecked arithmetic is safe because this calculation has already been performed in {_withdrawableAmountOf}.
         unchecked {
-            // Check if the entire deposited amount is now withdrawn.
+            // Check if the withdrawn amount equals the deposited amount minus the returned amount.
             if (amounts.withdrawn == amounts.deposited - amounts.returned) {
                 // Effects: mark the stream as depleted.
                 _streams[streamId].status = Lockup.Status.DEPLETED;
