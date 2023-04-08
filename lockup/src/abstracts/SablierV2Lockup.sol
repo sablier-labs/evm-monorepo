@@ -54,8 +54,8 @@ abstract contract SablierV2Lockup is
         _;
     }
 
-    /// @dev Checks that `streamId` points to a non-null stream.
-    modifier isNonNull(uint256 streamId) {
+    /// @dev Checks that `streamId` points to a stream that is not null.
+    modifier isNotNull(uint256 streamId) {
         if (getStatus(streamId) == Lockup.Status.NULL) {
             revert Errors.SablierV2Lockup_StreamNull(streamId);
         }
@@ -154,7 +154,7 @@ abstract contract SablierV2Lockup is
         public
         override
         noDelegateCall
-        isNonNull(streamId)
+        isNotNull(streamId)
     {
         // Checks: the stream is not depleted.
         if (getStatus(streamId) == Lockup.Status.DEPLETED) {

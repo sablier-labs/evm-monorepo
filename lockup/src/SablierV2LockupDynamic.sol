@@ -93,7 +93,7 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
-    function getAsset(uint256 streamId) external view override isNonNull(streamId) returns (IERC20 asset) {
+    function getAsset(uint256 streamId) external view override isNotNull(streamId) returns (IERC20 asset) {
         asset = _streams[streamId].asset;
     }
 
@@ -102,14 +102,14 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (uint128 depositedAmount)
     {
         depositedAmount = _streams[streamId].amounts.deposited;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getEndTime(uint256 streamId) external view override isNonNull(streamId) returns (uint40 endTime) {
+    function getEndTime(uint256 streamId) external view override isNotNull(streamId) returns (uint40 endTime) {
         endTime = _streams[streamId].endTime;
     }
 
@@ -118,7 +118,7 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (LockupDynamic.Range memory range)
     {
         range = LockupDynamic.Range({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
@@ -138,7 +138,7 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (uint128 returnedAmount)
     {
         returnedAmount = _streams[streamId].amounts.returned;
@@ -149,19 +149,19 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (LockupDynamic.Segment[] memory segments)
     {
         segments = _streams[streamId].segments;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getSender(uint256 streamId) external view override isNonNull(streamId) returns (address sender) {
+    function getSender(uint256 streamId) external view override isNotNull(streamId) returns (address sender) {
         sender = _streams[streamId].sender;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getStartTime(uint256 streamId) external view override isNonNull(streamId) returns (uint40 startTime) {
+    function getStartTime(uint256 streamId) external view override isNotNull(streamId) returns (uint40 startTime) {
         startTime = _streams[streamId].startTime;
     }
 
@@ -181,7 +181,7 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (LockupDynamic.Stream memory stream)
     {
         stream = _streams[streamId];
@@ -192,14 +192,14 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (uint128 withdrawnAmount)
     {
         withdrawnAmount = _streams[streamId].amounts.withdrawn;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCancelable(uint256 streamId) external view override isNonNull(streamId) returns (bool result) {
+    function isCancelable(uint256 streamId) external view override isNotNull(streamId) returns (bool result) {
         result = _streams[streamId].isCancelable;
     }
 
@@ -213,7 +213,7 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (uint128 returnableAmount)
     {
         // Calculate the returnable amount only if the stream is active; otherwise, it is implicitly zero.
@@ -227,7 +227,7 @@ contract SablierV2LockupDynamic is
         public
         view
         override(ISablierV2Lockup, ISablierV2LockupDynamic)
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (uint128 streamedAmount)
     {
         streamedAmount = _streamedAmountOf(streamId);
@@ -247,7 +247,7 @@ contract SablierV2LockupDynamic is
         public
         view
         override(ISablierV2Lockup, SablierV2Lockup)
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (uint128 withdrawableAmount)
     {
         withdrawableAmount = _withdrawableAmountOf(streamId);
