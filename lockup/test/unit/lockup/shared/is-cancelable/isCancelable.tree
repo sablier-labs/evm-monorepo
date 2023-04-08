@@ -8,5 +8,5 @@ isCancelable.t.sol
 └── when the stream is active
    ├── when the stream is cancelable
    │  └── it should return true
-   └── when the stream is non-cancelable
+   └── when the stream is not cancelable
       └── it should return false

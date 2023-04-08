@@ -57,30 +57,30 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_AllStreamsNonCancelable()
+    function test_RevertWhen_AllStreamsNotCancelable()
         external
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
     {
-        uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
+        uint256 notCancelableStreamId = createDefaultStreamNotCancelable();
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNonCancelable.selector, nonCancelableStreamId)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
         );
-        lockup.cancelMultiple({ streamIds: Solarray.uint256s(nonCancelableStreamId) });
+        lockup.cancelMultiple({ streamIds: Solarray.uint256s(notCancelableStreamId) });
     }
 
-    function test_RevertWhen_SomeStreamsNonCancelable()
+    function test_RevertWhen_SomeStreamsNotCancelable()
         external
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
     {
-        uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
+        uint256 notCancelableStreamId = createDefaultStreamNotCancelable();
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNonCancelable.selector, nonCancelableStreamId)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
         );
-        lockup.cancelMultiple({ streamIds: Solarray.uint256s(defaultStreamIds[0], nonCancelableStreamId) });
+        lockup.cancelMultiple({ streamIds: Solarray.uint256s(defaultStreamIds[0], notCancelableStreamId) });
     }
 
     modifier whenAllStreamsCancelable() {

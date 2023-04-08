@@ -3,7 +3,7 @@ withdrawMax.t.sol
 │  ├── it should make the max withdrawal
 │  ├── it should update the withdrawn amount
 │  ├── it should mark the stream as depleted
-│  ├── it should make the stream non-cancelable
+│  ├── it should make the stream not cancelable
 │  └── it should emit a {WithdrawFromLockupStream} event
 └── when the end time is in the future
    ├── it should make the max withdrawal

@@ -141,7 +141,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     ///
     /// - All possible permutations for the funder, sender, recipient, and broker
     /// - Multiple values for the total amount
-    /// - Cancelable and non-cancelable
+    /// - Cancelable and not cancelable
     /// - Start time in the past, present and future
     /// - Start time lower than and equal to cliff time
     /// - Multiple values for the cliff time and the end time

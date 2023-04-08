@@ -10,7 +10,7 @@ cancel.t.sol
    │  └── when the stream is canceled
    │     └── it should revert
    └── when the stream is active
-      ├── when the stream is non-cancelable
+      ├── when the stream is not cancelable
       │  └── it should revert
       └── when the stream is cancelable
          ├── when the end time is in the past

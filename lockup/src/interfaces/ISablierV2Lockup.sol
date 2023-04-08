@@ -33,7 +33,7 @@ interface ISablierV2Lockup is
         uint128 recipientAmount
     );
 
-    /// @notice Emitted when a sender makes a stream non-cancelable.
+    /// @notice Emitted when a sender gives up the right to cancel a stream.
     /// @param streamId The id of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
 
@@ -174,7 +174,7 @@ interface ISablierV2Lockup is
     /// @param streamIds The ids of the streams to cancel.
     function cancelMultiple(uint256[] calldata streamIds) external;
 
-    /// @notice Makes the stream non-cancelable.
+    /// @notice Removes the right of the sender to cancel the stream.
     ///
     /// @dev Emits a {RenounceLockupStream} event.
     ///

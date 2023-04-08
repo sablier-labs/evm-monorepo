@@ -250,7 +250,7 @@ contract SablierV2LockupLinear is
     {
         // Checks: the stream is cancelable.
         if (!_streams[streamId].isCancelable) {
-            revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
+            revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
         }
 
         // Calculate the sender's and the recipient's amount.
@@ -522,10 +522,10 @@ contract SablierV2LockupLinear is
     function _renounce(uint256 streamId) internal override {
         // Checks: the stream is cancelable.
         if (!_streams[streamId].isCancelable) {
-            revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
+            revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
         }
 
-        // Effects: make the stream non-cancelable.
+        // Effects: make the stream not cancelable.
         _streams[streamId].isCancelable = false;
 
         // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
@@ -554,7 +554,7 @@ contract SablierV2LockupLinear is
                 // Effects: mark the stream as depleted.
                 _streams[streamId].status = Lockup.Status.DEPLETED;
 
-                // Effects: make the stream non-cancelable.
+                // Effects: make the stream not cancelable.
                 _streams[streamId].isCancelable = false;
             }
         }

@@ -34,7 +34,7 @@ withdraw.t.sol
                       ├── when the end time is in the present
                       │  ├── it should make the withdrawal
                       │  ├── it should mark the stream as depleted
-                      │  └── it should make the stream non-cancelable
+                      │  └── it should make the stream not cancelable
                       └── when the end time is in the future
                          ├── when the recipient is not a contract
                          │  └── it should make the withdrawal

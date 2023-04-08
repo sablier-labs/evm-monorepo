@@ -41,8 +41,8 @@ abstract contract Lockup_Shared_Test is Base_Test {
     /// @dev Creates the default stream.
     function createDefaultStream() internal virtual returns (uint256 streamId);
 
-    /// @dev Creates the default stream but make it non-cancelable.
-    function createDefaultStreamNonCancelable() internal virtual returns (uint256 streamId);
+    /// @dev Creates the default stream but make it not cancelable.
+    function createDefaultStreamNotCancelable() internal virtual returns (uint256 streamId);
 
     /// @dev Creates the default stream with the provided address.
     function createDefaultStreamWithAsset(IERC20 asset) internal virtual returns (uint256 streamId);

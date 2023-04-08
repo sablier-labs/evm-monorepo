@@ -69,15 +69,15 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_NonCancelableStream() external whenNoDelegateCall whenStreamActive whenCallerSender {
-        // Create the non-cancelable stream.
-        uint256 nonCancelableStreamId = createDefaultStreamNonCancelable();
+    function test_RevertWhen_StreamNotCancelable() external whenNoDelegateCall whenStreamActive whenCallerSender {
+        // Create the not cancelable stream.
+        uint256 notCancelableStreamId = createDefaultStreamNotCancelable();
 
         // Run the test.
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNonCancelable.selector, nonCancelableStreamId)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
         );
-        lockup.renounce(nonCancelableStreamId);
+        lockup.renounce(notCancelableStreamId);
     }
 
     modifier whenStreamCancelable() {
@@ -117,7 +117,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Renounce the stream.
         lockup.renounce(streamId);
 
-        // Assert that the stream is non-cancelable.
+        // Assert that the stream is not cancelable.
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }
@@ -146,7 +146,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Renounce the stream.
         lockup.renounce(streamId);
 
-        // Assert that the stream is non-cancelable.
+        // Assert that the stream is not cancelable.
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }
@@ -176,7 +176,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Renounce the stream.
         lockup.renounce(streamId);
 
-        // Assert that the stream is non-cancelable.
+        // Assert that the stream is not cancelable.
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }
@@ -209,7 +209,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Renounce the stream.
         lockup.renounce(streamId);
 
-        // Assert that the stream is non-cancelable now.
+        // Assert that the stream is not cancelable now.
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }

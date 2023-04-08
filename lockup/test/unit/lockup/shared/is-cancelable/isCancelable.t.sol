@@ -43,12 +43,12 @@ abstract contract IsCancelable_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertTrue(isCancelable, "isCancelable");
     }
 
-    modifier whenStreamIsNonCancelable() {
+    modifier whenStreamNotCancelable() {
         _;
     }
 
-    function test_IsCancelable() external whenStreamActive whenStreamIsNonCancelable {
-        uint256 streamId = createDefaultStreamNonCancelable();
+    function test_IsCancelable() external whenStreamActive whenStreamNotCancelable {
+        uint256 streamId = createDefaultStreamNotCancelable();
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }

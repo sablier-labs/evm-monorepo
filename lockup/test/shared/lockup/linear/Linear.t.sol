@@ -106,8 +106,8 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         streamId = linear.createWithDurations(params);
     }
 
-    /// @dev Creates the default stream that is non-cancelable.
-    function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
+    /// @dev Creates the default stream that is not cancelable.
+    function createDefaultStreamNotCancelable() internal override returns (uint256 streamId) {
         LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
         params.cancelable = false;
         streamId = linear.createWithRange(params);

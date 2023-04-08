@@ -60,9 +60,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_StreamNonCancelable() external whenNoDelegateCall whenStreamActive {
-        uint256 streamId = createDefaultStreamNonCancelable();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNonCancelable.selector, streamId));
+    function test_RevertWhen_StreamNotCancelable() external whenNoDelegateCall whenStreamActive {
+        uint256 streamId = createDefaultStreamNotCancelable();
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, streamId));
         lockup.cancel(streamId);
     }
 

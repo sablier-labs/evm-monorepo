@@ -140,7 +140,7 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
 
-        // Renounce the stream (make it non-cancelable).
+        // Renounce the stream (make it not cancelable).
         lockup.renounce(currentStreamId);
     }
 

@@ -62,8 +62,8 @@ library Errors {
     /// @notice Thrown when trying to withdraw from a depleted stream.
     error SablierV2Lockup_StreamDepleted(uint256 streamId);
 
-    /// @notice Thrown when trying to cancel or renounce a non-cancelable stream.
-    error SablierV2Lockup_StreamNonCancelable(uint256 streamId);
+    /// @notice Thrown when trying to cancel or renounce a stream that is not cancelable.
+    error SablierV2Lockup_StreamNotCancelable(uint256 streamId);
 
     /// @notice Thrown when an action requires the stream to be active.
     error SablierV2Lockup_StreamNotActive(uint256 streamId);
