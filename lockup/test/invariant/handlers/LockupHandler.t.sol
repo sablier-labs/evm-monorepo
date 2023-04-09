@@ -108,7 +108,7 @@ abstract contract LockupHandler is BaseHandler {
         }
 
         // Settled streams cannot be canceled.
-        uint128 senderAmount = lockup.returnableAmountOf(currentStreamId);
+        uint128 senderAmount = lockup.refundableAmountOf(currentStreamId);
         if (senderAmount == 0) {
             return;
         }

@@ -60,19 +60,19 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
 
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         uint256 depositedAmountsSum;
-        uint256 returnedAmountsSum;
+        uint256 refundedAmountsSum;
         uint256 withdrawnAmountsSum;
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             depositedAmountsSum += uint256(lockup.getDepositedAmount(streamId));
-            returnedAmountsSum += uint256(lockup.getReturnedAmount(streamId));
+            refundedAmountsSum += uint256(lockup.getRefundedAmount(streamId));
             withdrawnAmountsSum += uint256(lockup.getWithdrawnAmount(streamId));
         }
 
         assertGte(
             contractBalance,
-            depositedAmountsSum + protocolRevenues - returnedAmountsSum - withdrawnAmountsSum,
-            unicode"Invariant violated: contract balances < Σ deposited amounts + protocol revenues - Σ returned amounts - Σ withdrawn amounts"
+            depositedAmountsSum + protocolRevenues - refundedAmountsSum - withdrawnAmountsSum,
+            unicode"Invariant violated: contract balances < Σ deposited amounts + protocol revenues - Σ refunded amounts - Σ withdrawn amounts"
         );
     }
 

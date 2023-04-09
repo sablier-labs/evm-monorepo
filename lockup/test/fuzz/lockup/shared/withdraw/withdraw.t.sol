@@ -59,8 +59,8 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: withdrawAmount });
 
         // Check if the stream has been depleted.
-        uint128 returnedAmount = lockup.getReturnedAmount(defaultStreamId);
-        bool isDepleted = withdrawAmount == DEFAULT_DEPOSIT_AMOUNT - returnedAmount;
+        uint128 refundedAmount = lockup.getRefundedAmount(defaultStreamId);
+        bool isDepleted = withdrawAmount == DEFAULT_DEPOSIT_AMOUNT - refundedAmount;
 
         // Assert that the stream has remained canceled or it has been marked as depleted.
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);

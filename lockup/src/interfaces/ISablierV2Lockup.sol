@@ -22,7 +22,7 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream.
     /// @param sender The address of the stream's sender.
     /// @param recipient The address of the stream's recipient.
-    /// @param senderAmount The amount of assets returned to the sender, denoted in units of the asset's decimals.
+    /// @param senderAmount The amount of assets refunded to the sender, denoted in units of the asset's decimals.
     /// @param recipientAmount The amount of assets left to be withdrawn by the recipient, denoted in units of the
     /// asset's decimals.
     event CancelLockupStream(
@@ -75,11 +75,11 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function getRecipient(uint256 streamId) external view returns (address recipient);
 
-    /// @notice Retrieves the amount returned to the sender, denoted in units of the asset's decimals. This amount is
-    /// always zero unless the stream is canceled.
+    /// @notice Retrieves the amount refunded to the sender after a cancellation, denoted in units of the asset's
+    /// decimals. This amount is always zero unless the stream is canceled.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
-    function getReturnedAmount(uint256 streamId) external view returns (uint128 returnedAmount);
+    function getRefundedAmount(uint256 streamId) external view returns (uint128 refundedAmount);
 
     /// @notice Retrieves the stream's sender.
     /// @dev Reverts if `streamId` references a null stream.
@@ -113,7 +113,7 @@ interface ISablierV2Lockup is
     /// of the asset's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
-    function returnableAmountOf(uint256 streamId) external view returns (uint128 returnableAmount);
+    function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
 
     /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
     /// @dev Reverts if `streamId` references a null stream.

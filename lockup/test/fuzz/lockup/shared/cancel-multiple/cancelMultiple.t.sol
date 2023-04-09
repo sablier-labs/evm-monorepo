@@ -96,7 +96,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
-        // Expect the assets to be returned to the sender.
+        // Expect the assets to be refunded to the sender.
         uint128 senderAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
         expectTransferCall({ to: users.sender, amount: senderAmount0 });
         uint128 senderAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
@@ -132,11 +132,11 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertFalse(lockup.isCancelable(streamIds[0]), "isCancelable0");
         assertFalse(lockup.isCancelable(streamIds[1]), "isCancelable1");
 
-        // Assert that the returned amounts have been updated.
+        // Assert that the refunded amounts have been updated.
         uint128 expectedReturnedAmount0 = senderAmount0;
         uint128 expectedReturnedAmount1 = senderAmount1;
-        assertEq(lockup.getReturnedAmount(streamIds[0]), expectedReturnedAmount0, "returnedAmount0");
-        assertEq(lockup.getReturnedAmount(streamIds[1]), expectedReturnedAmount1, "returnedAmount1");
+        assertEq(lockup.getRefundedAmount(streamIds[0]), expectedReturnedAmount0, "refundedAmount0");
+        assertEq(lockup.getRefundedAmount(streamIds[1]), expectedReturnedAmount1, "refundedAmount1");
 
         // Assert that the NFTs have not been burned.
         address expectedNFTOwner = users.recipient;

@@ -53,8 +53,8 @@ cancel.t.sol
                   │           └── when there is no reentrancy
                   │              ├── it should cancel the stream
                   │              ├── it should mark the stream as canceled
-                  │              ├── it should update the returned amount
-                  │              ├── it should return the assets to the sender
+                  │              ├── it should update the refunded amount
+                  │              ├── it should refund the sender
                   │              ├── it should call the recipient hook
                   │              └── it should emit a {CancelLockupStream} event
                   └── when the caller is the recipient
@@ -82,7 +82,7 @@ cancel.t.sol
                                  └── when there is no reentrancy
                                     ├── it should cancel the stream
                                     ├── it should mark the stream as canceled
-                                    ├── it should update the returned amount
-                                    ├── it should return the assets to the sender
+                                    ├── it should update the refunded amount
+                                    ├── it should refund the sender
                                     ├── it should call the sender hook
                                     └── it should emit a {CancelLockupStream} event

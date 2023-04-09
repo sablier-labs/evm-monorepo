@@ -87,7 +87,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// Where:
     ///
     /// - $d$ is the deposited amount.
-    /// - $r$ is the returned amount.
+    /// - $r$ is the refunded amount.
     /// - $w$ is the withdrawn amount.
     ///
     /// @dev Reverts if `streamId` references a null stream.

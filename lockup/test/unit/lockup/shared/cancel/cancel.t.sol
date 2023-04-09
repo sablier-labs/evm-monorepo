@@ -188,7 +188,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
 
         // Expect a call to the recipient hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(empty),
@@ -224,7 +224,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
 
         // Expect a call to the recipient hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(revertingRecipient),
@@ -261,7 +261,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
 
         // Expect a call to the recipient hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(reentrantRecipient),
@@ -298,8 +298,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Expect the assets to be returned to the sender.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        // Expect the assets to be refunded to the sender.
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         expectTransferCall({ to: users.sender, amount: senderAmount });
 
         // Expect a call to the recipient hook.
@@ -325,10 +325,10 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the returned amount has been updated.
-        uint128 actualReturnedAmount = lockup.getReturnedAmount(streamId);
+        // Assert that the refunded amount has been updated.
+        uint128 actualReturnedAmount = lockup.getRefundedAmount(streamId);
         uint128 expectedReturnedAmount = senderAmount;
-        assertEq(actualReturnedAmount, expectedReturnedAmount, "returnedAmount");
+        assertEq(actualReturnedAmount, expectedReturnedAmount, "refundedAmount");
 
         // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
@@ -375,7 +375,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithSender(address(empty));
 
         // Expect a call to the sender hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(empty),
@@ -411,7 +411,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithSender(address(revertingSender));
 
         // Expect a call to the sender hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(revertingSender),
@@ -448,7 +448,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithSender(address(reentrantSender));
 
         // Expect a call to the sender hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(reentrantSender),
@@ -485,8 +485,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
-        // Expect the assets to be returned to the sender.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        // Expect the assets to be refunded to the sender.
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         expectTransferCall({ to: address(goodSender), amount: senderAmount });
 
         // Expect a call to the sender hook.
@@ -512,10 +512,10 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the returned amount has been updated.
-        uint128 actualReturnedAmount = lockup.getReturnedAmount(streamId);
+        // Assert that the refunded amount has been updated.
+        uint128 actualReturnedAmount = lockup.getRefundedAmount(streamId);
         uint128 expectedReturnedAmount = senderAmount;
-        assertEq(actualReturnedAmount, expectedReturnedAmount, "returnedAmount");
+        assertEq(actualReturnedAmount, expectedReturnedAmount, "refundedAmount");
 
         // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });

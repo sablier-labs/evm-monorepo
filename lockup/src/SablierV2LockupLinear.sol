@@ -128,14 +128,14 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getReturnedAmount(uint256 streamId)
+    function getRefundedAmount(uint256 streamId)
         external
         view
         override
         isNotNull(streamId)
-        returns (uint128 returnedAmount)
+        returns (uint128 refundedAmount)
     {
-        returnedAmount = _streams[streamId].amounts.returned;
+        refundedAmount = _streams[streamId].amounts.refunded;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -192,16 +192,16 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function returnableAmountOf(uint256 streamId)
+    function refundableAmountOf(uint256 streamId)
         external
         view
         override
         isNotNull(streamId)
-        returns (uint128 returnableAmount)
+        returns (uint128 refundableAmount)
     {
-        // Calculate the returnable amount only if the stream is active; otherwise, it is implicitly zero.
+        // Calculate the refundable amount only if the stream is active; otherwise, it is implicitly zero.
         if (_streams[streamId].status == Lockup.Status.ACTIVE) {
-            returnableAmount = _streams[streamId].amounts.deposited - _streamedAmountOf(streamId);
+            refundableAmount = _streams[streamId].amounts.deposited - _streamedAmountOf(streamId);
         }
     }
 
@@ -315,9 +315,9 @@ contract SablierV2LockupLinear is
         if (status == Lockup.Status.DEPLETED) {
             return amounts.withdrawn;
         }
-        // Return the deposited amount minus the returned amount if the stream is canceled.
+        // Return the deposited amount minus the refunded amount if the stream is canceled.
         else if (status == Lockup.Status.CANCELED) {
-            return amounts.deposited - amounts.returned;
+            return amounts.deposited - amounts.refunded;
         }
 
         // Return zero if the cliff time is greater than the block timestamp. This also checks if the start time
@@ -406,14 +406,14 @@ contract SablierV2LockupLinear is
         _streams[streamId].status = recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
         _streams[streamId].isCancelable = false;
 
-        // Effects: set the returned amount.
-        _streams[streamId].amounts.returned = senderAmount;
+        // Effects: set the refunded amount.
+        _streams[streamId].amounts.refunded = senderAmount;
 
         // Load the sender and the recipient in memory.
         address sender = _streams[streamId].sender;
         address recipient = _ownerOf(streamId);
 
-        // Interactions: return the assets to the sender.
+        // Interactions: refund the sender.
         _streams[streamId].asset.safeTransfer({ to: sender, value: senderAmount });
 
         // Interactions: if `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
@@ -463,7 +463,7 @@ contract SablierV2LockupLinear is
 
         // Effects: create the stream.
         _streams[streamId] = LockupLinear.Stream({
-            amounts: Lockup.Amounts({ deposited: createAmounts.deposit, returned: 0, withdrawn: 0 }),
+            amounts: Lockup.Amounts({ deposited: createAmounts.deposit, refunded: 0, withdrawn: 0 }),
             asset: params.asset,
             cliffTime: params.range.cliff,
             endTime: params.range.end,
@@ -545,7 +545,7 @@ contract SablierV2LockupLinear is
         unchecked {
             // Using ">=" instead of "==" for additional safety reasons. In the event of any unforeseen increases in the
             // withdrawn amount, the stream will still be marked as depleted and made not cancelable.
-            if (amounts.withdrawn >= amounts.deposited - amounts.returned) {
+            if (amounts.withdrawn >= amounts.deposited - amounts.refunded) {
                 // Effects: mark the stream as depleted.
                 _streams[streamId].status = Lockup.Status.DEPLETED;
 

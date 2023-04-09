@@ -25,7 +25,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two `Lockup.Amounts` struct entities.
     function assertEq(Lockup.Amounts memory a, Lockup.Amounts memory b) internal {
         assertEqUint128(a.deposited, b.deposited, "amounts.deposited");
-        assertEqUint128(a.returned, b.returned, "amounts.returned");
+        assertEqUint128(a.refunded, b.refunded, "amounts.refunded");
         assertEqUint128(a.withdrawn, b.withdrawn, "amounts.withdrawn");
     }
 

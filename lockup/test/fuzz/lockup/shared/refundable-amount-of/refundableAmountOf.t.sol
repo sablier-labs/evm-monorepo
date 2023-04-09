@@ -4,7 +4,7 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
 import { Fuzz_Test } from "../../../Fuzz.t.sol";
 
-abstract contract ReturnableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
+abstract contract RefundableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) { }
@@ -15,7 +15,7 @@ abstract contract ReturnableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
         _;
     }
 
-    function testFuzz_ReturnableAmountOf(uint256 timeWarp) external whenStreamActive {
+    function testFuzz_RefundableAmountOf(uint256 timeWarp) external whenStreamActive {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.
@@ -25,8 +25,8 @@ abstract contract ReturnableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
         uint128 streamedAmount = lockup.streamedAmountOf(defaultStreamId);
 
         // Run the test.
-        uint256 actualReturnableAmount = lockup.returnableAmountOf(defaultStreamId);
-        uint256 expectedReturnableAmount = DEFAULT_DEPOSIT_AMOUNT - streamedAmount;
-        assertEq(actualReturnableAmount, expectedReturnableAmount, "returnableAmount");
+        uint256 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
+        uint256 expectedRefundableAmount = DEFAULT_DEPOSIT_AMOUNT - streamedAmount;
+        assertEq(actualRefundableAmount, expectedRefundableAmount, "refundableAmount");
     }
 }

@@ -287,7 +287,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
 
         // Only run the cancel tests if the stream is not settled. A dynamic stream can settle even before the end time
         // is reached when the last segment amount is zero.
-        vars.senderAmount = dynamic.returnableAmountOf(vars.streamId);
+        vars.senderAmount = dynamic.refundableAmountOf(vars.streamId);
         vars.isSettled = vars.senderAmount == 0;
         if (!vars.isSettled) {
             // Load the pre-cancel asset balances.

@@ -37,11 +37,11 @@ cancelMultiple.t.sol
                └── when the caller is authorized for all streams
                   ├── when the caller is the sender
                   │  ├── it should cancel the streams
-                  │  ├── it should return the assets to the sender
-                  │  ├── it should update the returned amounts
+                  │  ├── it should refund the sender
+                  │  ├── it should update the refunded amounts
                   │  └── it should emit {CancelLockupStream} events
                   └── when the caller is the recipient
                      ├── it should cancel the streams
-                     ├── it should return the assets to the sender
-                     ├── it should update the returned amounts
+                     ├── it should refund the sender
+                     ├── it should update the refunded amounts
                      └── it should emit {CancelLockupStream} events

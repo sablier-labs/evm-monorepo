@@ -16,17 +16,19 @@ struct Broker {
 
 /// @notice Quasi-namespace for the structs used in both {SablierV2LockupLinear} and {SablierV2LockupDynamic}.
 library Lockup {
-    /// @notice Struct that encapsulates the deposit, withdrawn, and returned amounts, all denoted in units
+    /// @notice Struct that encapsulates the deposit, withdrawn, and refunded amounts, all denoted in units
     /// of the asset's decimals.
+    /// @dev Because the deposited and the withdrawn amount are often read together, declaring them in
+    /// the same slot saves gas.
     /// @param deposit The initial amount deposited in the stream, net of fees.
     /// @param withdrawn The cumulative amount withdrawn from the stream.
-    /// @param returned The amount returned to the sender. Unless the stream is canceled, this is always zero.
+    /// @param refunded The amount refunded to the sender. Unless the stream is canceled, this is always zero.
     struct Amounts {
         // slot 0
         uint128 deposited;
         uint128 withdrawn;
         // slot 1
-        uint128 returned;
+        uint128 refunded;
     }
 
     /// @notice Struct that encapsulates the deposit amount, the protocol fee amount, and the broker fee amount,
@@ -139,7 +141,7 @@ library LockupDynamic {
     /// @param isCancelable Boolean indicating if the stream is cancelable.
     /// @param status An enum representing the stream's status.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param amounts Struct containing the deposit, withdrawn, and returned amounts, all denoted in units of the
+    /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.
     /// @param segments Segments used to compose the custom streaming curve.
     struct Stream {
@@ -230,7 +232,7 @@ library LockupLinear {
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param startTime The Unix timestamp indicating the stream's end.
     /// @param status An enum representing the stream's status.
-    /// @param amounts Struct containing the deposit, withdrawn, and returned amounts, all denoted in units of the
+    /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.
     struct Stream {
         // slot 0

@@ -101,8 +101,8 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
             lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
         }
 
-        // Expect the assets to be returned to the sender.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        // Expect the assets to be refunded to the sender.
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         expectTransferCall({ to: users.sender, amount: senderAmount });
 
         // Expect a {CancelLockupStream} event to be emitted.
@@ -182,8 +182,8 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
             lockup.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
         }
 
-        // Expect the assets to be returned to the sender.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        // Expect the assets to be refunded to the sender.
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         expectTransferCall({ to: address(goodSender), amount: senderAmount });
 
         // Expect a {CancelLockupStream} event to be emitted.

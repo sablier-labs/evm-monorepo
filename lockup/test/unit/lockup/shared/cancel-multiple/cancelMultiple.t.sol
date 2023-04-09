@@ -267,10 +267,10 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Warp into the future.
         vm.warp({ timestamp: WARP_TIME_26 });
 
-        // Expect the assets to be returned to the sender.
-        uint128 senderAmount0 = lockup.returnableAmountOf(defaultStreamIds[0]);
+        // Expect the assets to be refunded to the sender.
+        uint128 senderAmount0 = lockup.refundableAmountOf(defaultStreamIds[0]);
         expectTransferCall({ to: users.sender, amount: senderAmount0 });
-        uint128 senderAmount1 = lockup.returnableAmountOf(defaultStreamIds[1]);
+        uint128 senderAmount1 = lockup.refundableAmountOf(defaultStreamIds[1]);
         expectTransferCall({ to: users.sender, amount: senderAmount1 });
 
         // Expect two {CancelLockupStream} events to be emitted.
@@ -303,9 +303,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertFalse(lockup.isCancelable(defaultStreamIds[0]), "isCancelable0");
         assertFalse(lockup.isCancelable(defaultStreamIds[1]), "isCancelable1");
 
-        // Assert that the returned amounts have been updated.
-        assertEq(lockup.getReturnedAmount(defaultStreamIds[0]), senderAmount0, "returnedAmount0");
-        assertEq(lockup.getReturnedAmount(defaultStreamIds[1]), senderAmount1, "returnedAmount1");
+        // Assert that the refunded amounts have been updated.
+        assertEq(lockup.getRefundedAmount(defaultStreamIds[0]), senderAmount0, "refundedAmount0");
+        assertEq(lockup.getRefundedAmount(defaultStreamIds[1]), senderAmount1, "refundedAmount1");
 
         // Assert that the NFTs have not been burned.
         address expectedNFTOwner = users.recipient;

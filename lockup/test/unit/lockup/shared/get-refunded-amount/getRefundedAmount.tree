@@ -1,4 +1,4 @@
-getReturnedAmount.t.sol
+getRefundedAmount.t.sol
 ├── when the stream is null
 │  └── it should revert
 ├── when the stream is active
@@ -6,4 +6,4 @@ getReturnedAmount.t.sol
 ├── when the stream is depleted
 │  └── it should return zero
 └── when the stream is canceled
-   └── it should return the returned amount
+   └── it should return the refunded amount
