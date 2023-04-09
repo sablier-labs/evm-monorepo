@@ -126,7 +126,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_StartTimeInTheFuture() external {
+    function test_Cancel_StreamingHasNotStarted() external {
         // Warp in the past.
         vm.warp({ timestamp: DEFAULT_START_TIME - 1 });
 
@@ -139,7 +139,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier whenStartTimeInThePast() {
+    /// @dev In the linear contract, the streaming starts after the cliff time, whereas in the dynamic contract,
+    /// the streaming starts after the start time.
+    modifier whenStreamingHasStarted() {
         // Warp into the future, after the start time but before the end time.
         vm.warp({ timestamp: WARP_TIME_26 });
         _;
@@ -158,7 +160,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStreamingHasStarted
         whenCallerSender
     {
         lockup.cancel(defaultStreamId);
@@ -178,7 +180,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStreamingHasStarted
         whenCallerSender
         whenRecipientContract
     {
@@ -213,7 +215,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStreamingHasStarted
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
@@ -249,7 +251,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStreamingHasStarted
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
@@ -286,7 +288,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStreamingHasStarted
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
@@ -345,7 +347,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStreamingHasStarted
         whenCallerRecipient
     {
         lockup.cancel(defaultStreamId);
@@ -365,7 +367,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStreamingHasStarted
         whenCallerRecipient
         whenSenderContract
     {
@@ -400,7 +402,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStreamingHasStarted
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook
@@ -436,7 +438,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStreamingHasStarted
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook
@@ -473,7 +475,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStreamingHasStarted
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook

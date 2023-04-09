@@ -34,7 +34,7 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Re-set the comptroller.
         base.setComptroller(comptroller);
 
-        // Assert that the comptroller did not change.
+        // Assert that the comptroller has not been changed.
         address actualComptroller = address(base.comptroller());
         address expectedComptroller = address(comptroller);
         assertEq(actualComptroller, expectedComptroller, "comptroller");

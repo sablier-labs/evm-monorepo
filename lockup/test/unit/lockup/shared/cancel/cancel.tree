@@ -21,13 +21,13 @@ cancel.t.sol
          ├── when the stream is not cancelable
          │  └── it should revert
          └── when the stream is cancelable
-            ├── when the end time is in the past
+            ├── when the stream is settled
             │  └── it should revert
-            └── when the end time is in the future
-               ├── when the start time is in the future
+            └── when the stream is not settled
+               ├── when the streaming has not started
                │  ├── it should cancel the stream
                │  └── it should mark the stream as depleted
-               └── when the start time is in the past
+               └── when the streaming has started
                   ├── when the caller is the sender
                   │  ├── when the recipient is not a contract
                   │  │  ├── it should cancel the stream
