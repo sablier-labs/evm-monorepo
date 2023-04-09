@@ -60,33 +60,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_StreamNotCancelable() external whenNoDelegateCall whenStreamActive {
-        uint256 streamId = createDefaultStreamNotCancelable();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, streamId));
-        lockup.cancel(streamId);
-    }
-
-    modifier whenStreamCancelable() {
-        _;
-    }
-
-    function test_RevertWhen_EndTimeInThePast() external whenNoDelegateCall whenStreamActive whenStreamCancelable {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamId));
-        lockup.cancel(defaultStreamId);
-    }
-
-    modifier whenEndTimeInTheFuture() {
-        _;
-    }
-
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
-        external
-        whenNoDelegateCall
-        whenStreamActive
-        whenStreamCancelable
-        whenEndTimeInTheFuture
-    {
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external whenNoDelegateCall whenStreamActive {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
 
@@ -97,13 +71,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(defaultStreamId);
     }
 
-    function test_RevertWhen_CallerUnauthorized_ApprovedOperator()
-        external
-        whenNoDelegateCall
-        whenStreamActive
-        whenStreamCancelable
-        whenEndTimeInTheFuture
-    {
+    function test_RevertWhen_CallerUnauthorized_ApprovedOperator() external whenNoDelegateCall whenStreamActive {
         // Approve Alice for the stream.
         lockup.approve({ to: users.operator, tokenId: defaultStreamId });
 
@@ -117,13 +85,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(defaultStreamId);
     }
 
-    function test_RevertWhen_CallerUnauthorized_FormerRecipient()
-        external
-        whenNoDelegateCall
-        whenStreamActive
-        whenStreamCancelable
-        whenEndTimeInTheFuture
-    {
+    function test_RevertWhen_CallerUnauthorized_FormerRecipient() external whenNoDelegateCall whenStreamActive {
         // Transfer the stream to Alice.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
 
@@ -135,6 +97,32 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     modifier whenCallerAuthorized() {
+        _;
+    }
+
+    function test_RevertWhen_StreamNotCancelable() external whenNoDelegateCall whenStreamActive whenCallerAuthorized {
+        uint256 streamId = createDefaultStreamNotCancelable();
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, streamId));
+        lockup.cancel(streamId);
+    }
+
+    modifier whenStreamCancelable() {
+        _;
+    }
+
+    function test_RevertWhen_EndTimeInThePast()
+        external
+        whenNoDelegateCall
+        whenStreamActive
+        whenCallerAuthorized
+        whenStreamCancelable
+    {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamId));
+        lockup.cancel(defaultStreamId);
+    }
+
+    modifier whenEndTimeInTheFuture() {
         _;
     }
 
@@ -167,9 +155,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerSender
     {
@@ -187,9 +175,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerSender
         whenRecipientContract
@@ -222,9 +210,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerSender
         whenRecipientContract
@@ -258,9 +246,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerSender
         whenRecipientContract
@@ -295,9 +283,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerSender
         whenRecipientContract
@@ -354,9 +342,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerRecipient
     {
@@ -374,9 +362,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerRecipient
         whenSenderContract
@@ -409,9 +397,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerRecipient
         whenSenderContract
@@ -445,9 +433,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerRecipient
         whenSenderContract
@@ -482,9 +470,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerRecipient
         whenSenderContract

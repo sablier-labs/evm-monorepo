@@ -10,20 +10,20 @@ cancel.t.sol
    │  └── when the stream is canceled
    │     └── it should revert
    └── when the stream is active
-      ├── when the stream is not cancelable
-      │  └── it should revert
-      └── when the stream is cancelable
-         ├── when the end time is in the past
+      ├── when the caller is unauthorized
+      │  ├── when the caller is a malicious third party
+      │  │  └── it should revert
+      │  ├── when the caller is an approved third party
+      │  │  └── it should revert
+      │  └── when the caller is a former recipient
+      │     └── it should revert
+      └── when the caller is authorized
+         ├── when the stream is not cancelable
          │  └── it should revert
-         └── when the end time is in the future
-            ├── when the caller is unauthorized
-            │  ├── when the caller is a malicious third party
-            │  │  └── it should revert
-            │  ├── when the caller is an approved third party
-            │  │  └── it should revert
-            │  └── when the caller is a former recipient
-            │     └── it should revert
-            └── when the caller is authorized
+         └── when the stream is cancelable
+            ├── when the end time is in the past
+            │  └── it should revert
+            └── when the end time is in the future
                ├── when the start time is in the future
                │  ├── it should cancel the stream
                │  └── it should mark the stream as depleted
