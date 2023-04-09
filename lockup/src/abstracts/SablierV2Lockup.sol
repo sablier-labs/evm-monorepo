@@ -100,7 +100,15 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId) public virtual override;
+    function cancel(uint256 streamId)
+        public
+        override
+        noDelegateCall
+        isActive(streamId)
+        onlySenderOrRecipient(streamId)
+    {
+        _cancel(streamId);
+    }
 
     /// @inheritdoc ISablierV2Lockup
     function cancelMultiple(uint256[] calldata streamIds) external override noDelegateCall {
@@ -284,6 +292,9 @@ abstract contract SablierV2Lockup is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _burn(uint256 tokenId) internal virtual;
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _cancel(uint256 tokenId) internal virtual;
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _renounce(uint256 streamId) internal virtual;

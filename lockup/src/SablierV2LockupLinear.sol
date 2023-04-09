@@ -240,73 +240,6 @@ contract SablierV2LockupLinear is
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId)
-        public
-        override(ISablierV2Lockup, SablierV2Lockup)
-        noDelegateCall
-        isActive(streamId)
-        onlySenderOrRecipient(streamId)
-    {
-        // Checks: the stream is cancelable.
-        if (!_streams[streamId].isCancelable) {
-            revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
-        }
-
-        // Calculate the sender's and the recipient's amount.
-        uint128 streamedAmount = _streamedAmountOf(streamId);
-        uint128 senderAmount = _streams[streamId].amounts.deposited - streamedAmount;
-        uint128 recipientAmount = streamedAmount - _streams[streamId].amounts.withdrawn;
-
-        // Checks: the stream is not settled.
-        if (senderAmount == 0) {
-            revert Errors.SablierV2Lockup_StreamSettled(streamId);
-        }
-
-        // Effects: If the recipient has any unwithdrawn streamed assets, mark the stream as canceled.
-        // Otherwise, mark it as depleted.
-        _streams[streamId].status = recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
-        _streams[streamId].isCancelable = false;
-
-        // Effects: set the returned amount.
-        _streams[streamId].amounts.returned = senderAmount;
-
-        // Load the sender and the recipient in memory.
-        address sender = _streams[streamId].sender;
-        address recipient = _ownerOf(streamId);
-
-        // Interactions: return the assets to the sender.
-        _streams[streamId].asset.safeTransfer({ to: sender, value: senderAmount });
-
-        // Interactions: if `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
-        // hook on the recipient without reverting if the hook is not implemented, and without bubbling up any
-        // potential revert.
-        if (msg.sender == sender) {
-            if (recipient.code.length > 0) {
-                try ISablierV2LockupRecipient(recipient).onStreamCanceled({
-                    streamId: streamId,
-                    senderAmount: senderAmount,
-                    recipientAmount: recipientAmount
-                }) { } catch { }
-            }
-        }
-        // Interactions: if `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
-        // hook on the sender without reverting if the hook is not implemented, and also without bubbling up any
-        // potential revert.
-        else {
-            if (sender.code.length > 0) {
-                try ISablierV2LockupSender(sender).onStreamCanceled({
-                    streamId: streamId,
-                    senderAmount: senderAmount,
-                    recipientAmount: recipientAmount
-                }) { } catch { }
-            }
-        }
-
-        // Log the cancellation.
-        emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
-    }
-
     /// @inheritdoc ISablierV2LockupLinear
     function createWithDurations(LockupLinear.CreateWithDurations calldata params)
         external
@@ -449,6 +382,67 @@ contract SablierV2LockupLinear is
     /// @dev See the documentation for the public functions that call this internal function.
     function _burn(uint256 tokenId) internal override(ERC721, SablierV2Lockup) {
         ERC721._burn(tokenId);
+    }
+
+    /// @inheritdoc SablierV2Lockup
+    function _cancel(uint256 streamId) internal override {
+        // Checks: the stream is cancelable.
+        if (!_streams[streamId].isCancelable) {
+            revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
+        }
+
+        // Calculate the sender's and the recipient's amount.
+        uint128 streamedAmount = _streamedAmountOf(streamId);
+        uint128 senderAmount = _streams[streamId].amounts.deposited - streamedAmount;
+        uint128 recipientAmount = streamedAmount - _streams[streamId].amounts.withdrawn;
+
+        // Checks: the stream is not settled.
+        if (senderAmount == 0) {
+            revert Errors.SablierV2Lockup_StreamSettled(streamId);
+        }
+
+        // Effects: If the recipient has any unwithdrawn streamed assets, mark the stream as canceled.
+        // Otherwise, mark it as depleted.
+        _streams[streamId].status = recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
+        _streams[streamId].isCancelable = false;
+
+        // Effects: set the returned amount.
+        _streams[streamId].amounts.returned = senderAmount;
+
+        // Load the sender and the recipient in memory.
+        address sender = _streams[streamId].sender;
+        address recipient = _ownerOf(streamId);
+
+        // Interactions: return the assets to the sender.
+        _streams[streamId].asset.safeTransfer({ to: sender, value: senderAmount });
+
+        // Interactions: if `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
+        // hook on the recipient without reverting if the hook is not implemented, and without bubbling up any
+        // potential revert.
+        if (msg.sender == sender) {
+            if (recipient.code.length > 0) {
+                try ISablierV2LockupRecipient(recipient).onStreamCanceled({
+                    streamId: streamId,
+                    senderAmount: senderAmount,
+                    recipientAmount: recipientAmount
+                }) { } catch { }
+            }
+        }
+        // Interactions: if `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
+        // hook on the sender without reverting if the hook is not implemented, and also without bubbling up any
+        // potential revert.
+        else {
+            if (sender.code.length > 0) {
+                try ISablierV2LockupSender(sender).onStreamCanceled({
+                    streamId: streamId,
+                    senderAmount: senderAmount,
+                    recipientAmount: recipientAmount
+                }) { } catch { }
+            }
+        }
+
+        // Log the cancellation.
+        emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
