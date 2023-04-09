@@ -549,8 +549,9 @@ contract SablierV2LockupLinear is
 
         // Unchecked arithmetic is safe because this calculation has already been performed in {_withdrawableAmountOf}.
         unchecked {
-            // Check if the withdrawn amount equals the deposited amount minus the returned amount.
-            if (amounts.withdrawn == amounts.deposited - amounts.returned) {
+            // Using ">=" instead of "==" for additional safety reasons. In the event of any unforeseen increases in the
+            // withdrawn amount, the stream will still be marked as depleted and made not cancelable.
+            if (amounts.withdrawn >= amounts.deposited - amounts.returned) {
                 // Effects: mark the stream as depleted.
                 _streams[streamId].status = Lockup.Status.DEPLETED;
 
