@@ -24,6 +24,7 @@ import { GetStartTime_Unit_Test } from "../shared/get-start-time/getStartTime.t.
 import { GetStatus_Unit_Test } from "../shared/get-status/getStatus.t.sol";
 import { GetWithdrawnAmount_Unit_Test } from "../shared/get-withdrawn-amount/getWithdrawnAmount.t.sol";
 import { IsCancelable_Unit_Test } from "../shared/is-cancelable/isCancelable.t.sol";
+import { IsSettled_Unit_Test } from "../shared/is-settled/isSettled.t.sol";
 import { Renounce_Unit_Test } from "../shared/renounce/renounce.t.sol";
 import { RefundableAmountOf_Unit_Test } from "../shared/refundable-amount-of/refundableAmountOf.t.sol";
 import { SetComptroller_Unit_Test } from "../shared/set-comptroller/setComptroller.t.sol";
@@ -158,6 +159,13 @@ contract IsCancelable_Linear_Unit_Test is Linear_Unit_Test, IsCancelable_Unit_Te
     function setUp() public virtual override(Linear_Unit_Test, IsCancelable_Unit_Test) {
         Linear_Unit_Test.setUp();
         IsCancelable_Unit_Test.setUp();
+    }
+}
+
+contract IsSettled_Linear_Unit_Test is Linear_Unit_Test, IsSettled_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, IsSettled_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        IsSettled_Unit_Test.setUp();
     }
 }
 

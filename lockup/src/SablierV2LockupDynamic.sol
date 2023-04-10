@@ -204,6 +204,15 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
+    function isSettled(uint256 streamId) external view override isNotNull(streamId) returns (bool result) {
+        if (_streams[streamId].status == Lockup.Status.ACTIVE) {
+            result = _streams[streamId].amounts.deposited == _streamedAmountOf(streamId);
+        } else {
+            result = true;
+        }
+    }
+
+    /// @inheritdoc ISablierV2Lockup
     function nextStreamId() external view override returns (uint256) {
         return _nextStreamId;
     }

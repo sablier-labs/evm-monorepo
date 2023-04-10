@@ -106,10 +106,17 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function isCancelable(uint256 streamId) external view returns (bool result);
 
+    /// @notice Retrieves a flag that indicates whether the stream is settled. A stream is considered settled when the
+    /// refundable amount for the sender upon cancellation is zero. As a result, both canceled and depleted streams
+    /// are inherently settled, as they can no longer be canceled.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isSettled(uint256 streamId) external view returns (bool result);
+
     /// @notice Counter for stream ids, used in the create functions.
     function nextStreamId() external view returns (uint256);
 
-    /// @notice Calculates the amount that the sender would receive if the stream were canceled, denoted in units
+    /// @notice Calculates the amount that the sender would be refunded if the stream were canceled, denoted in units
     /// of the asset's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.

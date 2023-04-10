@@ -101,15 +101,15 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
 
-        // Non-cancelable streams cannot be canceled.
+        // Not cancelable streams cannot be canceled.
         bool isCancelable = lockup.isCancelable(currentStreamId);
         if (!isCancelable) {
             return;
         }
 
         // Settled streams cannot be canceled.
-        uint128 senderAmount = lockup.refundableAmountOf(currentStreamId);
-        if (senderAmount == 0) {
+        bool isSettled = lockup.isSettled(currentStreamId);
+        if (isSettled) {
             return;
         }
 
@@ -134,7 +134,7 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
 
-        // Non-cancelable streams cannot be renounced.
+        // Not cancelable streams cannot be renounced.
         bool isCancelable = lockup.isCancelable(currentStreamId);
         if (!isCancelable) {
             return;

@@ -78,7 +78,6 @@ abstract contract Linear_Fork_Test is Fork_Test {
         uint256 actualSenderBalance;
         uint256 expectedSenderBalance;
         uint256 initialSenderBalance;
-        bool isSettled;
         uint128 recipientAmount;
         uint128 senderAmount;
     }
@@ -283,9 +282,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Only run the cancel tests if the stream is not settled.
-        vars.senderAmount = linear.refundableAmountOf(vars.streamId);
-        vars.isSettled = vars.senderAmount == 0;
-        if (!vars.isSettled) {
+        if (!linear.isSettled(vars.streamId)) {
             // Load the pre-cancel asset balances.
             vars.balances =
                 getTokenBalances(address(asset), Solarray.addresses(address(linear), params.sender, params.recipient));
@@ -295,6 +292,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
             // Expect a {CancelLockupStream} event to be emitted.
             vm.expectEmit({ emitter: address(linear) });
+            vars.senderAmount = linear.refundableAmountOf(vars.streamId);
             vars.recipientAmount = linear.withdrawableAmountOf(vars.streamId);
             emit CancelLockupStream(
                 vars.streamId, params.sender, params.recipient, vars.senderAmount, vars.recipientAmount
