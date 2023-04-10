@@ -49,7 +49,7 @@ contract FlashLoanHandler is BaseHandler {
         uint128 upperBound = uint128(Math.min(balance, UINT128_MAX));
         amount = boundUint128(amount, 0, upperBound);
 
-        // Only supported ERC-20 assets can be flash loaned.
+        // Only supported assets can be flash loaned.
         bool isFlashAsset = comptroller.flashAssets(asset);
         if (!isFlashAsset) {
             return;

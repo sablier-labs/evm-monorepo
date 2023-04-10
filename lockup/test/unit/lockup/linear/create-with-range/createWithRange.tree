@@ -16,7 +16,7 @@ createWithRange.t.sol
             └── when the cliff time is less than the end time
                ├── when the end time is in the past
                │  └── it should revert
-               └── when the end time is not in the past
+               └── when the end time is in the future
                   ├── when the protocol fee is too high
                   │  └── it should revert
                   └── when the protocol fee is not too high
@@ -27,7 +27,17 @@ createWithRange.t.sol
                         │  └── it should revert
                         └── when the asset is a contract
                            ├── when the asset misses the return value
-                           │  └── it should perform the ERC-20 transfers, create the stream, bump the next stream id and mint the NFT
+                           │  ├── it should create the stream
+                           │  ├── it should bump the next stream id
+                           │  ├── it should record the protocol fee
+                           │  ├── it should mint the NFT
+                           │  ├── it should perform the ERC-20 transfers
+                           │  └── it should emit a {CreateLockupLinearStream} event
                            └── when the asset is ERC-20 compliant
-                              └── it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event
+                              ├── it should create the stream
+                              ├── it should bump the next stream id
+                              ├── it should record the protocol fee
+                              ├── it should mint the NFT
+                              ├── it should perform the ERC-20 transfers
+                              └── it should emit a {CreateLockupLinearStream} event
 

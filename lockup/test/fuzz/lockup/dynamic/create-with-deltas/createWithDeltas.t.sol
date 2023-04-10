@@ -48,8 +48,6 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint128 totalAmount;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, mint the NFT,
-    /// record the protocol fee, and emit a {CreateLockupDynamicStream} event.
     function testFuzz_CreateWithDeltas(LockupDynamic.SegmentWithDelta[] memory segments)
         external
         whenNoDelegateCall
@@ -66,16 +64,16 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(segments);
 
-        // Make the sender the funder of the stream.
+        // Make the sender the stream's funder.
         vars.funder = users.sender;
 
         // Load the initial protocol revenues.
         vars.initialProtocolRevenues = dynamic.protocolRevenues(DEFAULT_ASSET);
 
-        // Mint enough ERC-20 assets to the fuzzed funder.
+        // Mint enough assets to the fuzzed funder.
         deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupDynamic}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectTransferFromCall({
             from: vars.funder,
             to: address(dynamic),
@@ -117,7 +115,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");

@@ -8,7 +8,6 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
 contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
-    /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -23,9 +22,15 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
         _;
     }
 
-    /// @dev it should re-set the protocol fee.
     function test_SetProtocolFee_SameFee() external whenCallerAdmin {
+        // Expect a {SetProtocolFee} event to be emitted.
+        vm.expectEmit({ emitter: address(comptroller) });
+        emit SetProtocolFee({ admin: users.admin, asset: DEFAULT_ASSET, oldProtocolFee: ZERO, newProtocolFee: ZERO });
+
+        // Set the same protocol fee.
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
+
+        // Assert that the protocol fee has stayed put.
         UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = ZERO;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
@@ -35,7 +40,6 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
         _;
     }
 
-    /// @dev it should set the new protocol fee and emit a {SetProtocolFee} event.
     function test_SetProtocolFee() external whenCallerAdmin whenNewFee {
         UD60x18 newProtocolFee = DEFAULT_FLASH_FEE;
 

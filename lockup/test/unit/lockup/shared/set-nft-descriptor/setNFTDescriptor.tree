@@ -3,6 +3,8 @@ setNFTDescriptor.t.sol
 │  └── it should revert
 └── when the caller is the admin
    ├── when the new NFT descriptor is the same as the current NFT descriptor
-   │  └── it should re-set the NFT descriptor and emit a {SetNFTDescriptor} event
+   │  ├── it should re-set the NFT descriptor
+   │  └── it should emit a {SetNFTDescriptor} event
    └── when the new NFT descriptor is not the same as the current NFT descriptor
-      └── it should set the new NFT descriptor and emit a {SetNFTDescriptor} event
+      ├── it should set the new NFT descriptor
+      └── it should emit a {SetNFTDescriptor} event

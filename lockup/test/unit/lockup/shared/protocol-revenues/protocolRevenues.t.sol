@@ -7,7 +7,6 @@ import { Unit_Test } from "../../../Unit.t.sol";
 abstract contract ProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
-    /// @dev it should return zero.
     function test_ProtocolRevenues_ProtocolRevenuesZero() external {
         uint128 actualProtocolRevenues = base.protocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = 0;
@@ -22,7 +21,6 @@ abstract contract ProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should return the correct protocol revenues.
     function test_ProtocolRevenues() external whenProtocolRevenuesNotZero {
         uint128 actualProtocolRevenues = base.protocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;

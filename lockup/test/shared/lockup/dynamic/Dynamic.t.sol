@@ -111,8 +111,8 @@ abstract contract Dynamic_Shared_Test is Lockup_Shared_Test {
         streamId = dynamic.createWithMilestones(params);
     }
 
-    /// @dev Creates a non-cancelable stream.
-    function createDefaultStreamNonCancelable() internal override returns (uint256 streamId) {
+    /// @dev Creates a stream that will not be cancelable.
+    function createDefaultStreamNotCancelable() internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
         params.cancelable = false;
         streamId = dynamic.createWithMilestones(params);

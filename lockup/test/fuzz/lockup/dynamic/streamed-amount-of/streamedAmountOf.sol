@@ -14,22 +14,16 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    modifier whenStartTimeLessThanCurrentTime() {
+    modifier whenStartTimeInThePast() {
         _;
     }
 
-    /// @dev it should return the correct streamed amount.
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
-    function testFuzz_StreamedAmountOf_OneSegment(uint40 timeWarp)
-        external
-        whenStreamActive
-        whenStartTimeLessThanCurrentTime
-    {
+    /// - End time in the past
+    /// - End time in the present
+    /// - End time in the future
+    function testFuzz_StreamedAmountOf_OneSegment(uint40 timeWarp) external whenStreamActive whenStartTimeInThePast {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
         // Create a single-element segment array.
@@ -62,17 +56,15 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should return the correct streamed amount.
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
+    /// - End time in the past
+    /// - End time in the present
+    /// - End time in the future
     function testFuzz_StreamedAmountOf_CurrentMilestoneNot1st(uint40 timeWarp)
         external
         whenStreamActive
-        whenStartTimeLessThanCurrentTime
+        whenStartTimeInThePast
         whenMultipleSegments
         whenCurrentMilestoneNot1st
     {

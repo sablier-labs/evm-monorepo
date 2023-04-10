@@ -6,9 +6,8 @@ import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
 contract Constructor_Comptroller_Unit_Test is Comptroller_Unit_Test {
-    /// @dev it should initialize all values correctly and emit a {TransferAdmin} event.
     function test_Constructor() external {
-        // Expect a {TransferEvent} to be emitted.
+        // Expect a {TransferAdmin} to be emitted.
         vm.expectEmit();
         emit TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
 

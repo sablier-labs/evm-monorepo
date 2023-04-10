@@ -36,7 +36,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
         external
         whenNoDelegateCall
@@ -56,7 +55,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev When the segment amounts sum overflows, it should revert.
     function testFuzz_RevertWhen_SegmentAmountsSumOverflows(
         uint128 amount0,
         uint128 amount1
@@ -81,7 +79,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone(uint40 firstMilestone)
         external
         whenNoDelegateCall
@@ -118,7 +115,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositDiff)
         external
         whenNoDelegateCall
@@ -161,7 +157,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
         external
         whenNoDelegateCall
@@ -191,7 +186,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNoDelegateCall
@@ -234,18 +228,15 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint128 totalAmount;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the protocol
-    /// fee, mint the NFT, and emit a {CreateLockupDynamicStream} event.
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - All possible permutations for the funder, sender, recipient, and broker.
-    /// - Multiple values for the segment amounts, exponents, and milestones.
-    /// - Cancelable and non-cancelable.
-    /// - Start time in the past, present and future.
-    /// - Start time equal and not equal to the first segment milestone.
-    /// - Multiple values for the broker fee, including zero.
-    /// - Multiple values for the protocol fee, including zero.
+    /// - All possible permutations for the funder, sender, recipient, and broker
+    /// - Multiple values for the segment amounts, exponents, and milestones
+    /// - Cancelable and not cancelable
+    /// - Start time in the past, present and future
+    /// - Start time equal and not equal to the first segment milestone
+    /// - Multiple values for the broker fee, including zero
+    /// - Multiple values for the protocol fee, including zero
     function testFuzz_CreateWithMilestones(
         address funder,
         LockupDynamic.CreateWithMilestones memory params,
@@ -291,13 +282,13 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         // Make the fuzzed funder the caller in the rest of this test.
         changePrank(funder);
 
-        // Mint enough ERC-20 assets to the fuzzed funder.
+        // Mint enough assets to the fuzzed funder.
         deal({ token: address(DEFAULT_ASSET), to: funder, give: vars.totalAmount });
 
-        // Approve {SablierV2LockupDynamic} to transfer the ERC-20 assets from the fuzzed funder.
+        // Approve {SablierV2LockupDynamic} to transfer the assets from the fuzzed funder.
         DEFAULT_ASSET.approve({ spender: address(dynamic), amount: UINT256_MAX });
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupDynamic}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectTransferFromCall({
             from: funder,
             to: address(dynamic),
@@ -342,7 +333,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");

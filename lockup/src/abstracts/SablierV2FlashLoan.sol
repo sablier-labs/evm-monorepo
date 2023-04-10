@@ -52,8 +52,8 @@ abstract contract SablierV2FlashLoan is
     /// @notice The amount of fees to charge for a hypothetical flash loan amount.
     ///
     /// @dev You might notice a bit of a terminology clash here, since the ERC-3156 standard refers to the "flash fee"
-    /// as an amount, whereas the flash fee queried from the comptroller is a percentage. In this code base, the
-    /// "amount" suffix is typically appended to variables that represent amounts, but in this context, the name
+    /// as an amount, whereas the flash fee retrieved from the comptroller is a percentage. Throughout the code base,
+    /// the "amount" suffix is typically appended to variables that represent amounts, but, in this context, the name
     /// must be kept unchanged to comply with the ERC.
     ///
     /// Requirements:
@@ -72,9 +72,9 @@ abstract contract SablierV2FlashLoan is
         fee = ud(amount).mul(comptroller.flashFee()).intoUint256();
     }
 
-    /// @notice The amount of ERC-20 assets available to be flash loaned.
+    /// @notice The amount of ERC-20 assets available for flash loan.
     /// @dev If the ERC-20 asset is not flash loanable, this function returns zero.
-    /// @param asset The address of the ERC-20 asset to make the query for.
+    /// @param asset The address of the ERC-20 asset to query.
     /// @return amount The amount of `asset` that can be flash loaned.
     function maxFlashLoan(address asset) external view override returns (uint256 amount) {
         // The default value is zero, so it doesn't have to be explicitly set.

@@ -21,8 +21,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_DelegateCall() external whenNoDelegateCall whenStreamActive {
+    function test_RevertWhen_DelegateCall() external whenNoDelegateCall whenStreamNeitherNullNorDepleted {
         bytes memory callData =
             abi.encodeCall(ISablierV2Lockup.withdraw, (defaultStreamId, users.recipient, DEFAULT_WITHDRAW_AMOUNT));
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
@@ -33,38 +32,28 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier whenStreamNotActive() {
-        _;
-    }
-
-    /// @dev it should revert.
-    function test_RevertWhen_StreamNull() external whenNoDelegateCall whenStreamNotActive {
+    function test_RevertWhen_StreamNull() external whenNoDelegateCall {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
         lockup.withdraw({ streamId: nullStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_StreamCanceled() external whenNoDelegateCall whenStreamNotActive {
-        lockup.cancel(defaultStreamId);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
-    }
-
-    /// @dev it should revert.
-    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenStreamNotActive {
+    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    modifier whenStreamActive() {
+    modifier whenStreamNeitherNullNorDepleted() {
         _;
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external whenNoDelegateCall whenStreamActive {
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
+        external
+        whenNoDelegateCall
+        whenStreamNeitherNullNorDepleted
+    {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
 
@@ -75,8 +64,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_Sender() external whenNoDelegateCall whenStreamActive {
+    function test_RevertWhen_CallerUnauthorized_Sender() external whenNoDelegateCall whenStreamNeitherNullNorDepleted {
         // Make the sender the caller in this test.
         changePrank({ msgSender: users.sender });
 
@@ -89,8 +77,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.sender, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_FormerRecipient() external whenNoDelegateCall whenStreamActive {
+    function test_RevertWhen_FormerRecipient() external whenNoDelegateCall whenStreamNeitherNullNorDepleted {
         // Transfer the stream to Alice.
         lockup.transferFrom(users.recipient, users.alice, defaultStreamId);
 
@@ -105,8 +92,12 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_ToZeroAddress() external whenNoDelegateCall whenStreamActive whenCallerAuthorized {
+    function test_RevertWhen_ZeroAddress()
+        external
+        whenNoDelegateCall
+        whenStreamNeitherNullNorDepleted
+        whenCallerAuthorized
+    {
         vm.expectRevert(Errors.SablierV2Lockup_WithdrawToZeroAddress.selector);
         lockup.withdraw({ streamId: defaultStreamId, to: address(0), amount: DEFAULT_WITHDRAW_AMOUNT });
     }
@@ -115,11 +106,10 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_WithdrawAmountZero()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamNeitherNullNorDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
     {
@@ -131,11 +121,10 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_WithdrawAmountGreaterThanWithdrawableAmount()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamNeitherNullNorDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -156,18 +145,17 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawal and update the withdrawn amount.
     function test_Withdraw_CallerRecipient()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamNeitherNullNorDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
     {
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+        // Warp into the future.
+        vm.warp({ timestamp: WARP_TIME_26 });
 
         // Make Alice the `to` address in this test.
         address to = users.alice;
@@ -186,11 +174,10 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    /// @dev it should make the withdrawal and update the withdrawn amount.
     function test_Withdraw_CallerApprovedOperator()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamNeitherNullNorDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -202,8 +189,8 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the operator the caller in this test.
         changePrank({ msgSender: users.operator });
 
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+        // Warp into the future.
+        vm.warp({ timestamp: WARP_TIME_26 });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -225,11 +212,10 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawal and mark the stream as depleted.
-    function test_Withdraw_CurrentTimeEqualToEndTime()
+    function test_Withdraw_EndTimeInThePresent()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamNeitherNullNorDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -257,31 +243,27 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier whenCurrentTimeLessThanEndTime() {
-        // Warp to 2,600 seconds after the start time (26% of the default stream duration).
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+    modifier whenEndTimeInTheFuture() {
+        // Warp into the future.
+        vm.warp({ timestamp: WARP_TIME_26 });
         _;
     }
 
-    /// @dev it should make the withdrawal and update the withdrawn amount.
     function test_Withdraw_RecipientNotContract()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamNeitherNullNorDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
         whenCallerSender
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeInTheFuture
     {
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
-
         // Set the withdraw amount to the streamed amount.
         uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamId);
 
-        // Expect the ERC-20 assets to be transferred to the recipient.
+        // Expect the assets to be transferred to the recipient.
         expectTransferCall({ to: users.recipient, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
@@ -306,18 +288,16 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawal, update the withdrawn amount, call the recipient hook, and ignore the
-    /// revert.
     function test_Withdraw_RecipientDoesNotImplementHook()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamNeitherNullNorDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
         whenCallerSender
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeInTheFuture
         whenRecipientContract
     {
         // Create the stream with an empty contract as the recipient.
@@ -350,18 +330,16 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawal, update the withdrawn amount, call the recipient hook, and ignore the
-    /// revert.
     function test_Withdraw_RecipientReverts()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamNeitherNullNorDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
         whenCallerSender
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeInTheFuture
         whenRecipientContract
         whenRecipientImplementsHook
     {
@@ -395,17 +373,16 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make multiple withdrawals, update the withdrawn amounts, and call the recipient hook.
     function test_Withdraw_RecipientReentrancy()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamNeitherNullNorDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
         whenCallerSender
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeInTheFuture
         whenRecipientContract
         whenRecipientImplementsHook
         whenRecipientDoesNotRevert
@@ -443,18 +420,16 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should make the withdrawal, update the withdrawn amount, call the recipient hook, and emit
-    /// a {WithdrawFromLockupStream} event.
-    function test_Withdraw()
+    function test_Withdraw_StreamCanceled()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamNeitherNullNorDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
         whenCallerSender
-        whenCurrentTimeLessThanEndTime
+        whenEndTimeInTheFuture
         whenRecipientContract
         whenRecipientImplementsHook
         whenRecipientDoesNotRevert
@@ -463,13 +438,53 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Create the stream with a contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+        // Cancel the stream.
+        lockup.cancel(streamId);
+
+        // Set the withdraw amount to the withdrawable amount.
+        uint128 withdrawAmount = lockup.withdrawableAmountOf(streamId);
+
+        // Make the withdrawal.
+        lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
+
+        // Assert that the stream has been marked as depleted.
+        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the withdrawn amount has been updated.
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
+        uint128 expectedWithdrawnAmount = withdrawAmount;
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the NFT has not been burned.
+        address actualNFTowner = lockup.ownerOf({ tokenId: streamId });
+        address expectedNFTOwner = address(goodRecipient);
+        assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
+    }
+
+    function test_Withdraw_StreamActive()
+        external
+        whenNoDelegateCall
+        whenStreamNeitherNullNorDepleted
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenCallerSender
+        whenEndTimeInTheFuture
+        whenRecipientContract
+        whenRecipientImplementsHook
+        whenRecipientDoesNotRevert
+        whenNoRecipientReentrancy
+    {
+        // Create the stream with a contract as the recipient.
+        uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Set the withdraw amount to the streamed amount.
         uint128 withdrawAmount = lockup.streamedAmountOf(streamId);
 
-        // Expect the ERC-20 assets to be transferred to the recipient.
+        // Expect the assets to be transferred to the recipient.
         expectTransferCall({ to: address(goodRecipient), amount: withdrawAmount });
 
         // Expect a call to the recipient hook.

@@ -8,7 +8,6 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
 contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
-    /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -23,10 +22,16 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
         _;
     }
 
-    /// @dev it should re-set the flash fee.
     function test_SetFlashFee_SameFee() external whenCallerAdmin {
+        // Expect a {SetFlashFee} event to be emitted.
+        vm.expectEmit({ emitter: address(comptroller) });
+        emit SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: ZERO });
         comptroller.setFlashFee({ newFlashFee: ZERO });
 
+        // She the same flash fee.
+        comptroller.setFlashFee({ newFlashFee: ZERO });
+
+        // Assert that the flash fee has stayed put.
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = ZERO;
         assertEq(actualFlashFee, expectedFlashFee, "flashFee");
@@ -36,7 +41,6 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
         _;
     }
 
-    /// @dev it should set the new flash fee and emit a {SetFlashFee} event.
     function test_SetFlashFee() external {
         UD60x18 newFlashFee = DEFAULT_FLASH_FEE;
 

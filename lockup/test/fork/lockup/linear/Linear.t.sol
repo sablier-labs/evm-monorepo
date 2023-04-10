@@ -39,8 +39,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
         LockupLinear.Range range;
         address recipient;
         address sender;
-        uint40 timeWarp;
         uint128 totalAmount;
+        uint40 warpTimestamp;
         uint128 withdrawAmount;
     }
 
@@ -82,29 +82,30 @@ abstract contract Linear_Fork_Test is Fork_Test {
         uint128 senderAmount;
     }
 
-    /// @dev it should:
+    /// @dev Checklist:
     ///
-    /// - Perform all expected ERC-20 transfers.
-    /// - Create the stream.
-    /// - Bump the next stream id.
-    /// - Record the protocol fee.
-    /// - Mint the NFT.
-    /// - Emit a {CreateLockupLinearStream} event.
-    /// - Make a withdrawal.
-    /// - Emit a {WithdrawFromLockupStream} event.
-    /// - Cancel the stream.
-    /// - Emit a {CancelLockupStream} event.
+    /// - It should perform all expected ERC-20 transfers.
+    /// - It should create the stream.
+    /// - It should bump the next stream id.
+    /// - It should record the protocol fee.
+    /// - It should mint the NFT.
+    /// - It should emit a {CreateLockupDynamicStream} event.
+    /// - It may make a withdrawal.
+    /// - It may update the withdrawn amounts.
+    /// - It may emit a {WithdrawFromLockupStream} event.
+    /// - It may cancel the stream
+    /// - It may emit a {CancelLockupStream} event
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Multiple values for the the sender, recipient, and broker.
-    /// - Multiple values for the total amount.
-    /// - Start time in the past, present and future.
-    /// - Start time lower than and equal to cliff time.
-    /// - Multiple values for the cliff time and the stop time.
-    /// - Multiple values for the broker fee, including zero.
-    /// - Multiple values for the protocol fee, including zero.
-    /// - Multiple values for the withdraw amount, including zero.
+    /// - Multiple values for the the sender, recipient, and broker
+    /// - Multiple values for the total amount
+    /// - Start time in the past, present and future
+    /// - Start time lower than and equal to cliff time
+    /// - Multiple values for the cliff time and the end time
+    /// - Multiple values for the broker fee, including zero
+    /// - Multiple values for the protocol fee, including zero
+    /// - Multiple values for the withdraw amount, including zero
     function testForkFuzz_Linear_CreateWithdrawCancel(Params memory params) external {
         checkUsers(params.sender, params.recipient, params.broker.account, address(linear));
 
@@ -113,7 +114,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
         params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
         params.range.start = boundUint40(params.range.start, currentTime - 1000 seconds, currentTime + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
-        // Fuzz the end time so that it is always after the cliff time, and always greater than the current time.
+        // Fuzz the end time so that it is always greater than both the current time and the cliff time.
         params.range.end = boundUint40(
             params.range.end,
             (params.range.cliff <= currentTime ? currentTime : params.range.cliff) + 1,
@@ -177,7 +178,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(vars.streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, asset, "asset");
         assertEq(actualStream.cliffTime, params.range.cliff, "cliffTime");
         assertEq(actualStream.endTime, params.range.end, "endTime");
@@ -228,8 +229,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Warp into the future.
-        params.timeWarp = boundUint40(params.timeWarp, params.range.cliff, params.range.end);
-        vm.warp({ timestamp: params.timeWarp });
+        params.warpTimestamp = boundUint40(params.warpTimestamp, params.range.cliff, params.range.end - 1);
+        vm.warp({ timestamp: params.warpTimestamp });
 
         // Bound the withdraw amount.
         vars.withdrawableAmount = linear.withdrawableAmountOf(vars.streamId);
@@ -250,7 +251,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
             });
 
             // Make the withdrawal.
-            changePrank(params.recipient);
+            changePrank({ msgSender: params.recipient });
             linear.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
 
             // Assert that the withdrawn amount has been updated.
@@ -280,8 +281,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
                                           CANCEL
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Only run the cancel tests if the stream has not been depleted.
-        if (params.withdrawAmount != vars.createAmounts.deposit) {
+        // Only run the cancel tests if the stream is not settled.
+        if (!linear.isSettled(vars.streamId)) {
             // Load the pre-cancel asset balances.
             vars.balances =
                 getTokenBalances(address(asset), Solarray.addresses(address(linear), params.sender, params.recipient));
@@ -291,19 +292,19 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
             // Expect a {CancelLockupStream} event to be emitted.
             vm.expectEmit({ emitter: address(linear) });
-            vars.senderAmount = linear.returnableAmountOf(vars.streamId);
+            vars.senderAmount = linear.refundableAmountOf(vars.streamId);
             vars.recipientAmount = linear.withdrawableAmountOf(vars.streamId);
             emit CancelLockupStream(
                 vars.streamId, params.sender, params.recipient, vars.senderAmount, vars.recipientAmount
             );
 
             // Cancel the stream.
-            changePrank(params.sender);
+            changePrank({ msgSender: params.sender });
             linear.cancel(vars.streamId);
 
-            // Assert that the stream has been marked as canceled.
+            // Assert that the status has been updated.
             vars.actualStatus = linear.getStatus(vars.streamId);
-            vars.expectedStatus = Lockup.Status.CANCELED;
+            vars.expectedStatus = vars.recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
             assertEq(vars.actualStatus, vars.expectedStatus, "status after cancel");
 
             // Assert that the NFT has not been burned.
@@ -319,27 +320,20 @@ abstract contract Linear_Fork_Test is Fork_Test {
             vars.actualRecipientBalance = vars.balances[2];
 
             // Assert that the contract's balance has been updated.
-            vars.expectedLinearContractBalance =
-                vars.initialLinearContractBalance - uint256(vars.senderAmount) - uint256(vars.recipientAmount);
+            vars.expectedLinearContractBalance = vars.initialLinearContractBalance - uint256(vars.senderAmount);
             assertEq(
                 vars.actualLinearContractBalance,
                 vars.expectedLinearContractBalance,
                 "post-cancel linear contract balance"
             );
 
-            // Assert that the recipient's balance has been updated.
+            // Assert that the sender's balance has been updated.
             vars.expectedSenderBalance = vars.initialSenderBalance + uint256(vars.senderAmount);
             assertEq(vars.actualSenderBalance, vars.expectedSenderBalance, "post-cancel sender balance");
 
-            // Assert that the recipient's balance has been updated.
-            vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(vars.recipientAmount);
+            // Assert that the recipient's balance has stayed put.
+            vars.expectedRecipientBalance = vars.initialRecipientBalance;
             assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-cancel recipient balance");
-        }
-        // Otherwise, assert that the stream has been marked as depleted.
-        else {
-            vars.actualStatus = linear.getStatus(vars.streamId);
-            vars.expectedStatus = Lockup.Status.DEPLETED;
-            assertEq(vars.actualStatus, vars.expectedStatus, "status after full withdraw");
         }
     }
 }

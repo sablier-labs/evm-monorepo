@@ -17,13 +17,24 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
-    /// @dev it should make the withdrawal and mark the stream as depleted.
-    function test_WithdrawMax_CurrentTimeEqualToEndTime() external {
+    function test_WithdrawMax_EndTimeInThePast() external {
         // Warp to the end of the stream.
         vm.warp({ timestamp: DEFAULT_END_TIME });
 
+        // Expect the ERC-20 assets to be transferred to the recipient.
+        expectTransferCall({ to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
+
+        // Expect a {WithdrawFromLockupStream} event to be emitted.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
+
         // Make the max withdrawal.
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+
+        // Assert that the withdrawn amount has been updated.
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
+        uint128 expectedWithdrawnAmount = DEFAULT_DEPOSIT_AMOUNT;
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the stream has been marked as depleted.
         Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
@@ -40,20 +51,18 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier whenCurrentTimeLessThanEndTime() {
+    modifier whenEndTimeInTheFuture() {
         _;
     }
 
-    /// @dev it should make the max withdrawal, update the withdrawn amount, and emit a {WithdrawFromLockupStream}
-    /// event.
-    function test_WithdrawMax() external whenCurrentTimeLessThanEndTime {
+    function test_WithdrawMax() external whenEndTimeInTheFuture {
         // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
+        vm.warp({ timestamp: WARP_TIME_26 });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
-        // Expect the ERC-20 assets to be transferred to the recipient.
+        // Expect the assets to be transferred to the recipient.
         expectTransferCall({ to: users.recipient, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
@@ -63,14 +72,14 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the max withdrawal.
         lockup.withdrawMax(defaultStreamId, users.recipient);
 
-        // Assert that the stream has remained active.
-        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
-        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
-        assertEq(actualStatus, expectedStatus);
-
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+
+        // Assert that the stream has remained active.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        assertEq(actualStatus, expectedStatus);
     }
 }

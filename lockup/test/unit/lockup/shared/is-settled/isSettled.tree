@@ -1,0 +1,12 @@
+isSettled.t.sol
+├── when the stream is null
+│  └── it should revert
+├── when the stream is depleted
+│  └── it should return true
+├── when the stream is canceled
+│  └── it should return true
+└── when the stream is active
+   ├── when the refundable amount is not zero
+   │  └── it should return false
+   └── when the refundable amount is zero
+      └── it should return true

@@ -10,7 +10,6 @@ contract TransferAdmin_Fuzz_Test is Adminable_Fuzz_Test {
         _;
     }
 
-    /// @dev it should emit a {TransferAdmin} event and set the new admin.
     function testFuzz_TransferAdmin(address newAdmin) external whenCallerAdmin {
         vm.assume(newAdmin != address(0) && newAdmin != users.admin);
 

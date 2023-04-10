@@ -13,7 +13,6 @@ contract ProtocolFees_Unit_Test is Comptroller_Unit_Test {
         changePrank({ msgSender: users.admin });
     }
 
-    /// @dev it should return zero.
     function test_ProtocolFees_ProtocolFeeNotSet() external {
         UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = ZERO;
@@ -25,7 +24,6 @@ contract ProtocolFees_Unit_Test is Comptroller_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct protocol fee.
     function test_ProtocolFees() external whenProtocolFeeSet {
         UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = DEFAULT_PROTOCOL_FEE;

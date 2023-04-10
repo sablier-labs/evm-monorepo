@@ -2,6 +2,7 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Invariant_Test } from "../Invariant.t.sol";
 import { FlashLoanHandler } from "../handlers/FlashLoanHandler.t.sol";
@@ -42,56 +43,57 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
     function invariant_ContractBalance() external {
         uint256 contractBalance = DEFAULT_ASSET.balanceOf(address(lockup));
         uint256 protocolRevenues = lockup.protocolRevenues(DEFAULT_ASSET);
-        uint256 returnedAmountsSum = lockupHandlerStorage.returnedAmountsSum();
 
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
-        uint256 depositAmountsSum;
+        uint256 depositedAmountsSum;
+        uint256 refundedAmountsSum;
         uint256 withdrawnAmountsSum;
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
-            depositAmountsSum += uint256(lockup.getDepositAmount(streamId));
+            depositedAmountsSum += uint256(lockup.getDepositedAmount(streamId));
+            refundedAmountsSum += uint256(lockup.getRefundedAmount(streamId));
             withdrawnAmountsSum += uint256(lockup.getWithdrawnAmount(streamId));
         }
 
         assertGte(
             contractBalance,
-            depositAmountsSum + protocolRevenues - returnedAmountsSum - withdrawnAmountsSum,
-            unicode"Invariant violated: contract balances < Σ deposit amounts + protocol revenues - Σ returned amounts - Σ withdrawn amounts"
+            depositedAmountsSum + protocolRevenues - refundedAmountsSum - withdrawnAmountsSum,
+            unicode"Invariant violated: contract balances < Σ deposited amounts + protocol revenues - Σ refunded amounts - Σ withdrawn amounts"
         );
     }
 
-    function invariant_DepositAmountGteStreamedAmount() external {
+    function invariant_DepositedAmountGteStreamedAmount() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             assertGte(
-                lockup.getDepositAmount(streamId),
+                lockup.getDepositedAmount(streamId),
                 lockup.streamedAmountOf(streamId),
-                "Invariant violated: deposit amount < streamed amount"
+                "Invariant violated: deposited amount < streamed amount"
             );
         }
     }
 
-    function invariant_DepositAmountGteWithdrawableAmount() external {
+    function invariant_DepositedAmountGteWithdrawableAmount() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             assertGte(
-                lockup.getDepositAmount(streamId),
+                lockup.getDepositedAmount(streamId),
                 lockup.withdrawableAmountOf(streamId),
-                "Invariant violated: deposit amount < withdrawable amount"
+                "Invariant violated: deposited amount < withdrawable amount"
             );
         }
     }
 
-    function invariant_DepositAmountGteWithdrawnAmount() external {
+    function invariant_DepositedAmountGteWithdrawnAmount() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             assertGte(
-                lockup.getDepositAmount(streamId),
+                lockup.getDepositedAmount(streamId),
                 lockup.getWithdrawnAmount(streamId),
-                "Invariant violated: deposit amount < withdrawn amount"
+                "Invariant violated: deposited amount < withdrawn amount"
             );
         }
     }
@@ -111,6 +113,34 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 nextStreamId = lockup.nextStreamId();
             assertEq(nextStreamId, lastStreamId + 1, "Invariant violated: nonce did not increment");
+        }
+    }
+
+    function invariant_StreamCanceledNonZeroRefundedAmount() external {
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            if (lockup.getStatus(streamId) == Lockup.Status.CANCELED) {
+                assertGt(
+                    lockup.getRefundedAmount(streamId),
+                    0,
+                    "Invariant violated: canceled stream with zero refunded amount"
+                );
+            }
+        }
+    }
+
+    function invariant_StreamCanceledNonZeroWithdrawableAmount() external {
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            if (lockup.getStatus(streamId) == Lockup.Status.CANCELED) {
+                assertGt(
+                    lockup.withdrawableAmountOf(streamId),
+                    0,
+                    "Invariant violated: canceled stream with zero withdrawable amount"
+                );
+            }
         }
     }
 

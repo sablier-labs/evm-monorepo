@@ -10,7 +10,7 @@ import { Dynamic_Shared_Test } from "../../../shared/lockup/dynamic/Dynamic.t.so
 import { Fuzz_Test } from "../../Fuzz.t.sol";
 import { Cancel_Fuzz_Test } from "../shared/cancel/cancel.t.sol";
 import { GetWithdrawnAmount_Fuzz_Test } from "../shared/get-withdrawn-amount/getWithdrawnAmount.t.sol";
-import { ReturnableAmountOf_Fuzz_Test } from "../shared/returnable-amount-of/returnableAmountOf.t.sol";
+import { RefundableAmountOf_Fuzz_Test } from "../shared/refundable-amount-of/refundableAmountOf.t.sol";
 import { Withdraw_Fuzz_Test } from "../shared/withdraw/withdraw.t.sol";
 import { WithdrawMax_Fuzz_Test } from "../shared/withdraw-max/withdrawMax.t.sol";
 import { WithdrawMultiple_Fuzz_Test } from "../shared/withdraw-multiple/withdrawMultiple.t.sol";
@@ -52,10 +52,10 @@ contract Cancel_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Cancel_Fuzz_Test {
     }
 }
 
-contract ReturnableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, ReturnableAmountOf_Fuzz_Test {
-    function setUp() public virtual override(Dynamic_Fuzz_Test, ReturnableAmountOf_Fuzz_Test) {
+contract RefundableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, RefundableAmountOf_Fuzz_Test {
+    function setUp() public virtual override(Dynamic_Fuzz_Test, RefundableAmountOf_Fuzz_Test) {
         Dynamic_Fuzz_Test.setUp();
-        ReturnableAmountOf_Fuzz_Test.setUp();
+        RefundableAmountOf_Fuzz_Test.setUp();
     }
 }
 

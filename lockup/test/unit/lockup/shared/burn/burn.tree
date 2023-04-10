@@ -6,11 +6,13 @@ burn.t.sol
    │  └── it should revert
    ├── when the stream is active
    │  └── it should revert
-   └── when the stream is either canceled or depleted
+   ├── when the stream is canceled
+   │  └── it should revert
+   └── when the stream is depleted
       ├── when the caller is unauthorized
       │  └── it should revert
       └── when the caller is authorized
-         ├── when the caller is an approved operator
+         ├── when the caller is an approved third party
          │  └── it should burn the NFT
          └── when the caller is the owner of the NFT
             └── it should burn the NFT

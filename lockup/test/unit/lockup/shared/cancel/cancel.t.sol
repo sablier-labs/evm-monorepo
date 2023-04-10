@@ -22,8 +22,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_DelegateCall() external whenNoDelegateCall whenStreamActive {
+    function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(ISablierV2Lockup.cancel, defaultStreamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
@@ -37,24 +36,22 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external whenNoDelegateCall whenStreamNotActive {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
         lockup.cancel(nullStreamId);
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_StreamCanceled() external whenNoDelegateCall whenStreamNotActive {
-        lockup.cancel(defaultStreamId);
+    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenStreamNotActive {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenStreamNotActive {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+    function test_RevertWhen_StreamCanceled() external whenNoDelegateCall whenStreamNotActive {
+        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        lockup.cancel(defaultStreamId);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
@@ -63,26 +60,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_StreamNonCancelable() external whenNoDelegateCall whenStreamActive {
-        uint256 streamId = createDefaultStreamNonCancelable();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNonCancelable.selector, streamId));
-        lockup.cancel(streamId);
-    }
-
-    modifier whenStreamCancelable() {
-        _;
-    }
-
-    /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
-        external
-        whenNoDelegateCall
-        whenStreamActive
-        whenStreamCancelable
-        whenNoDelegateCall
-    {
-        // Make the unauthorized user the caller in this test.
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external whenNoDelegateCall whenStreamActive {
+        // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
 
         // Run the test.
@@ -92,19 +71,12 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(defaultStreamId);
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_ApprovedOperator()
-        external
-        whenNoDelegateCall
-        whenStreamActive
-        whenStreamCancelable
-        whenNoDelegateCall
-    {
+    function test_RevertWhen_CallerUnauthorized_ApprovedOperator() external whenNoDelegateCall whenStreamActive {
         // Approve Alice for the stream.
         lockup.approve({ to: users.operator, tokenId: defaultStreamId });
 
         // Make Alice the caller in this test.
-        changePrank(users.operator);
+        changePrank({ msgSender: users.operator });
 
         // Run the test.
         vm.expectRevert(
@@ -113,13 +85,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(defaultStreamId);
     }
 
-    /// @dev it should revert.
-    function test_RevertWhen_CallerUnauthorized_FormerRecipient()
-        external
-        whenNoDelegateCall
-        whenStreamActive
-        whenStreamCancelable
-    {
+    function test_RevertWhen_CallerUnauthorized_FormerRecipient() external whenNoDelegateCall whenStreamActive {
         // Transfer the stream to Alice.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
 
@@ -134,20 +100,67 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
+    function test_RevertWhen_StreamNotCancelable() external whenNoDelegateCall whenStreamActive whenCallerAuthorized {
+        uint256 streamId = createDefaultStreamNotCancelable();
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, streamId));
+        lockup.cancel(streamId);
+    }
+
+    modifier whenStreamCancelable() {
+        _;
+    }
+
+    function test_RevertWhen_EndTimeInThePast()
+        external
+        whenNoDelegateCall
+        whenStreamActive
+        whenCallerAuthorized
+        whenStreamCancelable
+    {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamId));
+        lockup.cancel(defaultStreamId);
+    }
+
+    modifier whenEndTimeInTheFuture() {
+        _;
+    }
+
+    function test_Cancel_StreamingHasNotStarted() external {
+        // Warp in the past.
+        vm.warp({ timestamp: DEFAULT_START_TIME - 1 });
+
+        // Cancel the stream.
+        lockup.cancel(defaultStreamId);
+
+        // Check the stream status.
+        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
+        assertEq(actualStatus, expectedStatus);
+    }
+
+    /// @dev In the linear contract, the streaming starts after the cliff time, whereas in the dynamic contract,
+    /// the streaming starts after the start time.
+    modifier whenStreamingHasStarted() {
+        // Warp into the future, after the start time but before the end time.
+        vm.warp({ timestamp: WARP_TIME_26 });
+        _;
+    }
+
     modifier whenCallerSender() {
         // Make the sender the caller in this test suite.
         changePrank({ msgSender: users.sender });
         _;
     }
 
-    /// @dev it should cancel the stream.
-    function test_Cancel_Sender_RecipientNotContract()
+    function test_Cancel_CallerSender_RecipientNotContract()
         external
         whenNoDelegateCall
         whenStreamActive
-        whenStreamCancelable
-        whenNoDelegateCall
         whenCallerAuthorized
+        whenStreamCancelable
+        whenEndTimeInTheFuture
+        whenStreamingHasStarted
         whenCallerSender
     {
         lockup.cancel(defaultStreamId);
@@ -160,13 +173,14 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the stream, call the recipient hook, and ignore the revert.
-    function test_Cancel_Sender_RecipientDoesNotImplementHook()
+    function test_Cancel_CallerSender_RecipientDoesNotImplementHook()
         external
         whenNoDelegateCall
         whenStreamActive
-        whenStreamCancelable
         whenCallerAuthorized
+        whenStreamCancelable
+        whenEndTimeInTheFuture
+        whenStreamingHasStarted
         whenCallerSender
         whenRecipientContract
     {
@@ -174,7 +188,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
 
         // Expect a call to the recipient hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(empty),
@@ -194,13 +208,14 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the stream, call the recipient hook, and ignore the revert.
-    function test_Cancel_Sender_RecipientReverts()
+    function test_Cancel_CallerSender_RecipientReverts()
         external
         whenNoDelegateCall
         whenStreamActive
-        whenStreamCancelable
         whenCallerAuthorized
+        whenStreamCancelable
+        whenEndTimeInTheFuture
+        whenStreamingHasStarted
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
@@ -209,7 +224,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
 
         // Expect a call to the recipient hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(revertingRecipient),
@@ -229,13 +244,14 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the stream, call the recipient hook, and ignore the revert.
-    function test_Cancel_Sender_RecipientReentrancy()
+    function test_Cancel_CallerSender_RecipientReentrancy()
         external
         whenNoDelegateCall
         whenStreamActive
-        whenStreamCancelable
         whenCallerAuthorized
+        whenStreamCancelable
+        whenEndTimeInTheFuture
+        whenStreamingHasStarted
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
@@ -245,7 +261,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
 
         // Expect a call to the recipient hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(reentrantRecipient),
@@ -265,35 +281,29 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, cancel the stream, update the withdrawn amount, call the
-    /// recipient hook, and emit a {CancelLockupStream} event.
-    function test_Cancel_Sender()
+    function test_Cancel_CallerSender()
         external
         whenNoDelegateCall
         whenStreamActive
-        whenStreamCancelable
         whenCallerAuthorized
+        whenStreamCancelable
+        whenEndTimeInTheFuture
+        whenStreamingHasStarted
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
         whenRecipientDoesNotRevert
         whenNoRecipientReentrancy
     {
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
-
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Expect the ERC-20 assets to be withdrawn to the recipient.
-        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
-        expectTransferCall({ to: address(goodRecipient), amount: recipientAmount });
-
-        // Expect the ERC-20 assets to be returned to the sender.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        // Expect the assets to be refunded to the sender.
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         expectTransferCall({ to: users.sender, amount: senderAmount });
 
         // Expect a call to the recipient hook.
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(goodRecipient),
             abi.encodeCall(ISablierV2LockupRecipient.onStreamCanceled, (streamId, senderAmount, recipientAmount))
@@ -315,10 +325,10 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
-        uint128 expectedWithdrawnAmount = recipientAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+        // Assert that the refunded amount has been updated.
+        uint128 actualReturnedAmount = lockup.getRefundedAmount(streamId);
+        uint128 expectedReturnedAmount = senderAmount;
+        assertEq(actualReturnedAmount, expectedReturnedAmount, "refundedAmount");
 
         // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
@@ -330,13 +340,14 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the stream.
-    function test_Cancel_Recipient_SenderNotContract()
+    function test_Cancel_CallerRecipient_SenderNotContract()
         external
         whenNoDelegateCall
         whenStreamActive
-        whenStreamCancelable
         whenCallerAuthorized
+        whenStreamCancelable
+        whenEndTimeInTheFuture
+        whenStreamingHasStarted
         whenCallerRecipient
     {
         lockup.cancel(defaultStreamId);
@@ -349,13 +360,14 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the stream, call the sender hook, and ignore the revert.
-    function test_Cancel_Recipient_SenderDoesNotImplementHook()
+    function test_Cancel_CallerRecipient_SenderDoesNotImplementHook()
         external
         whenNoDelegateCall
         whenStreamActive
-        whenStreamCancelable
         whenCallerAuthorized
+        whenStreamCancelable
+        whenEndTimeInTheFuture
+        whenStreamingHasStarted
         whenCallerRecipient
         whenSenderContract
     {
@@ -363,7 +375,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithSender(address(empty));
 
         // Expect a call to the sender hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(empty),
@@ -383,13 +395,14 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the stream, call the sender hook, and ignore the revert.
-    function test_Cancel_Recipient_SenderReverts()
+    function test_Cancel_CallerRecipient_SenderReverts()
         external
         whenNoDelegateCall
         whenStreamActive
-        whenStreamCancelable
         whenCallerAuthorized
+        whenStreamCancelable
+        whenEndTimeInTheFuture
+        whenStreamingHasStarted
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook
@@ -398,7 +411,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithSender(address(revertingSender));
 
         // Expect a call to the sender hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(revertingSender),
@@ -418,13 +431,14 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the stream, call the sender hook, and ignore the revert.
-    function test_Cancel_Recipient_SenderReentrancy()
+    function test_Cancel_CallerRecipient_SenderReentrancy()
         external
         whenNoDelegateCall
         whenStreamActive
-        whenStreamCancelable
         whenCallerAuthorized
+        whenStreamCancelable
+        whenEndTimeInTheFuture
+        whenStreamingHasStarted
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook
@@ -434,7 +448,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithSender(address(reentrantSender));
 
         // Expect a call to the sender hook.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(reentrantSender),
@@ -454,35 +468,29 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should cancel the stream, update the withdrawn amount, perform the ERC-20 transfers, call the
-    /// sender hook, and emit a {CancelLockupStream} event
-    function test_Cancel_Recipient()
+    function test_Cancel_CallerRecipient()
         external
         whenNoDelegateCall
         whenStreamActive
-        whenStreamCancelable
         whenCallerAuthorized
+        whenStreamCancelable
+        whenEndTimeInTheFuture
+        whenStreamingHasStarted
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook
         whenSenderDoesNotRevert
         whenNoSenderReentrancy
     {
-        // Warp into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_TIME_WARP });
-
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
-        // Expect the ERC-20 assets to be withdrawn to the recipient.
-        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
-        expectTransferCall({ to: users.recipient, amount: recipientAmount });
-
-        // Expect the ERC-20 assets to be returned to the sender.
-        uint128 senderAmount = lockup.returnableAmountOf(streamId);
+        // Expect the assets to be refunded to the sender.
+        uint128 senderAmount = lockup.refundableAmountOf(streamId);
         expectTransferCall({ to: address(goodSender), amount: senderAmount });
 
         // Expect a call to the sender hook.
+        uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(goodSender),
             abi.encodeCall(ISablierV2LockupSender.onStreamCanceled, (streamId, senderAmount, recipientAmount))
@@ -504,10 +512,10 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
 
-        // Assert that the withdrawn amount has been updated.
-        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
-        uint128 expectedWithdrawnAmount = recipientAmount;
-        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+        // Assert that the refunded amount has been updated.
+        uint128 actualReturnedAmount = lockup.getRefundedAmount(streamId);
+        uint128 expectedReturnedAmount = senderAmount;
+        assertEq(actualReturnedAmount, expectedReturnedAmount, "refundedAmount");
 
         // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });

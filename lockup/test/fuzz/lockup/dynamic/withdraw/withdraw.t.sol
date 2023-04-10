@@ -18,6 +18,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         uint128 deposit;
         LockupDynamic.Segment[] segments;
         uint256 timeWarp;
+        address to;
     }
 
     struct Vars {
@@ -41,16 +42,11 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
-        whenCallerSender
-        whenCurrentTimeLessThanEndTime
-        whenRecipientContract
-        whenRecipientImplementsHook
-        whenRecipientDoesNotRevert
-        whenNoRecipientReentrancy
     {
         vm.assume(params.segments.length != 0);
+        vm.assume(params.to != address(0));
 
-        // Make the sender the funder of the stream.
+        // Make the sender the stream's funder.
         Vars memory vars;
         vars.funder = users.sender;
 
@@ -64,8 +60,11 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         vars.totalDuration = params.segments[params.segments.length - 1].milestone - DEFAULT_START_TIME;
         params.timeWarp = bound(params.timeWarp, 1, vars.totalDuration);
 
-        // Mint enough ERC-20 assets to the sender.
+        // Mint enough assets to the sender.
         deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
+
+        // Make the sender the caller.
+        changePrank({ msgSender: users.sender });
 
         // Create the stream with the fuzzed segments.
         vars.streamId = dynamic.createWithMilestones(
@@ -95,15 +94,18 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         // Bound the withdraw amount.
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
-        // Expect the ERC-20 assets to be transferred to the recipient.
-        expectTransferCall({ to: users.recipient, amount: vars.withdrawAmount });
+        // Expect the assets to be transferred to the fuzzed `to` address.
+        expectTransferCall({ to: params.to, amount: vars.withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: vars.streamId, to: users.recipient, amount: vars.withdrawAmount });
+        emit WithdrawFromLockupStream({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
+
+        // Make the recipient the caller.
+        changePrank({ msgSender: users.recipient });
 
         // Make the withdrawal.
-        dynamic.withdraw({ streamId: vars.streamId, to: users.recipient, amount: vars.withdrawAmount });
+        dynamic.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
 
         // Assert that the stream has remained active.
         vars.actualStatus = lockup.getStatus(vars.streamId);

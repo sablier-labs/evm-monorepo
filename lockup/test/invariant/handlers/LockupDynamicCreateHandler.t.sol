@@ -92,10 +92,10 @@ contract LockupDynamicCreateHandler is BaseHandler {
             brokerFee: params.broker.fee
         });
 
-        // Mint enough ERC-20 assets to the sender.
+        // Mint enough assets to the sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve {SablierV2LockupDynamic} to spend the ERC-20 assets.
+        // Approve {SablierV2LockupDynamic} to spend the assets.
         asset.approve({ spender: address(dynamic), amount: params.totalAmount });
 
         // Create the stream.
@@ -136,10 +136,10 @@ contract LockupDynamicCreateHandler is BaseHandler {
             brokerFee: params.broker.fee
         });
 
-        // Mint enough ERC-20 assets to the sender.
+        // Mint enough assets to the sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
-        // Approve {SablierV2LockupDynamic} to spend the ERC-20 assets.
+        // Approve {SablierV2LockupDynamic} to spend the assets.
         asset.approve({ spender: address(dynamic), amount: params.totalAmount });
 
         // Create the stream.

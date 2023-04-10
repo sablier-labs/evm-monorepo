@@ -19,7 +19,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         streamId = dynamic.nextStreamId();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external {
         LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](250_000);
         vm.expectRevert(bytes(""));
@@ -30,7 +29,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DeltasZero() external whenLoopCalculationsDoNotOverflowBlockGasLimit {
         uint40 startTime = getBlockTimestamp();
         LockupDynamic.SegmentWithDelta[] memory segments = defaultParams.createWithDeltas.segments;
@@ -51,7 +49,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeNotLessThanFirstSegmentMilestone()
         external
         whenLoopCalculationsDoNotOverflowBlockGasLimit
@@ -73,7 +70,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         }
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_MilestonesCalculationsOverflows_SegmentMilestonesNotOrdered()
         external
         whenLoopCalculationsDoNotOverflowBlockGasLimit
@@ -116,21 +112,19 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, mint the NFT,
-    /// record the protocol fee, and emit a {CreateLockupDynamicStream} event.
     function test_CreateWithDeltas()
         external
         whenLoopCalculationsDoNotOverflowBlockGasLimit
         whenDeltasNotZero
         whenMilestonesCalculationsDoNotOverflow
     {
-        // Make the sender the funder of the stream.
+        // Make the sender the stream's funder
         address funder = users.sender;
 
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = dynamic.protocolRevenues(DEFAULT_ASSET);
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupDynamic}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectTransferFromCall({
             from: funder,
             to: address(dynamic),

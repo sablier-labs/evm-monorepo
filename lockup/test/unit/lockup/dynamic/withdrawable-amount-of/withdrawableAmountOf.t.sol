@@ -15,31 +15,25 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    modifier whenStreamNotActive() {
-        _;
-    }
-
-    /// @dev it should revert.
-    function test_RevertWhen_StreamNull() external whenStreamNotActive {
+    function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
         dynamic.withdrawableAmountOf(nullStreamId);
     }
 
-    /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StreamCanceled() external whenStreamNotActive {
-        lockup.cancel(defaultStreamId);
+    function test_WithdrawableAmountOf_StreamDepleted() external {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint256 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
         uint256 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StreamDepleted() external whenStreamNotActive {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+    function test_WithdrawableAmountOf_StreamCanceled() external {
+        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        lockup.cancel(defaultStreamId);
         uint256 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
-        uint256 expectedWithdrawableAmount = 0;
+        uint256 expectedWithdrawableAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_RETURNED_AMOUNT;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -49,32 +43,25 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StartTimeGreaterThanCurrentTime() external whenStreamActive {
+    function test_WithdrawableAmountOf_StartTimeInTheFuture() external whenStreamActive {
         vm.warp({ timestamp: 0 });
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    /// @dev it should return zero.
-    function test_WithdrawableAmountOf_StartTimeEqualToCurrentTime() external whenStreamActive {
+    function test_WithdrawableAmountOf_StartTimeInThePresent() external whenStreamActive {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier whenStartTimeLessThanCurrentTime() {
+    modifier whenStartTimeInThePast() {
         _;
     }
 
-    /// @dev it should return the correct withdrawable amount.
-    function test_WithdrawableAmountOf_WithoutWithdrawals()
-        external
-        whenStreamActive
-        whenStartTimeLessThanCurrentTime
-    {
+    function test_WithdrawableAmountOf_WithoutWithdrawals() external whenStreamActive whenStartTimeInThePast {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3750 seconds });
 
@@ -89,13 +76,7 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct withdrawable amount.
-    function test_WithdrawableAmountOf()
-        external
-        whenStreamActive
-        whenStartTimeLessThanCurrentTime
-        whenWithWithdrawals
-    {
+    function test_WithdrawableAmountOf() external whenStreamActive whenStartTimeInThePast whenWithWithdrawals {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3750 seconds });
 

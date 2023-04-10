@@ -8,7 +8,6 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Comptroller_Unit_Test } from "../Comptroller.t.sol";
 
 contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
-    /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -23,7 +22,6 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
         _;
     }
 
-    /// @dev it should toggle the flash asset.
     function test_ToggleFlashAsset_FlagNotEnabled() external whenCallerAdmin {
         // Expect a {ToggleFlashAsset} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
@@ -42,7 +40,6 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
         _;
     }
 
-    /// @dev it should toggle the flash asset and emit a {ToggleFlashAsset} event.
     function test_ToggleFlashAsset() external whenCallerAdmin whenFlagEnabled {
         // Expect a {ToggleFlashAsset} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });

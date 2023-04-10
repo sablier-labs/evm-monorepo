@@ -14,8 +14,9 @@ import { Cancel_Unit_Test } from "../shared/cancel/cancel.t.sol";
 import { CancelMultiple_Unit_Test } from "../shared/cancel-multiple/cancelMultiple.t.sol";
 import { ClaimProtocolRevenues_Unit_Test } from "../shared/claim-protocol-revenues/claimProtocolRevenues.t.sol";
 import { GetAsset_Unit_Test } from "../shared/get-asset/getAsset.t.sol";
-import { GetDepositAmount_Unit_Test } from "../shared/get-deposit-amount/getDepositAmount.t.sol";
+import { GetDepositedAmount_Unit_Test } from "../shared/get-deposited-amount/getDepositedAmount.t.sol";
 import { GetEndTime_Unit_Test } from "../shared/get-end-time/getEndTime.t.sol";
+import { GetRefundedAmount_Unit_Test } from "../shared/get-refunded-amount/getRefundedAmount.t.sol";
 import { ProtocolRevenues_Unit_Test } from "../shared/protocol-revenues/protocolRevenues.t.sol";
 import { GetRecipient_Unit_Test } from "../shared/get-recipient/getRecipient.t.sol";
 import { GetSender_Unit_Test } from "../shared/get-sender/getSender.t.sol";
@@ -23,8 +24,9 @@ import { GetStartTime_Unit_Test } from "../shared/get-start-time/getStartTime.t.
 import { GetStatus_Unit_Test } from "../shared/get-status/getStatus.t.sol";
 import { GetWithdrawnAmount_Unit_Test } from "../shared/get-withdrawn-amount/getWithdrawnAmount.t.sol";
 import { IsCancelable_Unit_Test } from "../shared/is-cancelable/isCancelable.t.sol";
+import { IsSettled_Unit_Test } from "../shared/is-settled/isSettled.t.sol";
 import { Renounce_Unit_Test } from "../shared/renounce/renounce.t.sol";
-import { ReturnableAmountOf_Unit_Test } from "../shared/returnable-amount-of/returnableAmountOf.t.sol";
+import { RefundableAmountOf_Unit_Test } from "../shared/refundable-amount-of/refundableAmountOf.t.sol";
 import { SetComptroller_Unit_Test } from "../shared/set-comptroller/setComptroller.t.sol";
 import { SetNFTDescriptor_Unit_Test } from "../shared/set-nft-descriptor/setNFTDescriptor.t.sol";
 import { TokenURI_Unit_Test } from "../shared/token-uri/tokenURI.t.sol";
@@ -97,10 +99,10 @@ contract GetAsset_Linear_Unit_Test is Linear_Unit_Test, GetAsset_Unit_Test {
     }
 }
 
-contract GetDepositAmount_Linear_Unit_Test is Linear_Unit_Test, GetDepositAmount_Unit_Test {
-    function setUp() public virtual override(Linear_Unit_Test, GetDepositAmount_Unit_Test) {
+contract GetDepositedAmount_Linear_Unit_Test is Linear_Unit_Test, GetDepositedAmount_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetDepositedAmount_Unit_Test) {
         Linear_Unit_Test.setUp();
-        GetDepositAmount_Unit_Test.setUp();
+        GetDepositedAmount_Unit_Test.setUp();
     }
 }
 
@@ -115,6 +117,13 @@ contract GetRecipient_Linear_Unit_Test is Linear_Unit_Test, GetRecipient_Unit_Te
     function setUp() public virtual override(Linear_Unit_Test, GetRecipient_Unit_Test) {
         Linear_Unit_Test.setUp();
         GetRecipient_Unit_Test.setUp();
+    }
+}
+
+contract GetRefundedAmount_Linear_Unit_Test is Linear_Unit_Test, GetRefundedAmount_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, GetRefundedAmount_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        GetRefundedAmount_Unit_Test.setUp();
     }
 }
 
@@ -153,6 +162,13 @@ contract IsCancelable_Linear_Unit_Test is Linear_Unit_Test, IsCancelable_Unit_Te
     }
 }
 
+contract IsSettled_Linear_Unit_Test is Linear_Unit_Test, IsSettled_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, IsSettled_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        IsSettled_Unit_Test.setUp();
+    }
+}
+
 contract ProtocolRevenues_Linear_Unit_Test is Linear_Unit_Test, ProtocolRevenues_Unit_Test {
     function setUp() public virtual override(Linear_Unit_Test, ProtocolRevenues_Unit_Test) {
         Linear_Unit_Test.setUp();
@@ -167,10 +183,10 @@ contract Renounce_Linear_Unit_Test is Linear_Unit_Test, Renounce_Unit_Test {
     }
 }
 
-contract ReturnableAmountOf_Linear_Unit_Test is Linear_Unit_Test, ReturnableAmountOf_Unit_Test {
-    function setUp() public virtual override(Linear_Unit_Test, ReturnableAmountOf_Unit_Test) {
+contract RefundableAmountOf_Linear_Unit_Test is Linear_Unit_Test, RefundableAmountOf_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, RefundableAmountOf_Unit_Test) {
         Linear_Unit_Test.setUp();
-        ReturnableAmountOf_Unit_Test.setUp();
+        RefundableAmountOf_Unit_Test.setUp();
     }
 }
 

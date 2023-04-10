@@ -23,7 +23,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
     function setUp() public virtual override {
         Fork_Test.setUp();
 
-        // Approve {SablierV2LockupDynamic} to transfer the holder's ERC-20 assets.
+        // Approve {SablierV2LockupDynamic} to transfer the holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
         (bool success,) = address(asset).call(abi.encodeCall(IERC20.approve, (address(dynamic), UINT256_MAX)));
         success;
@@ -39,7 +39,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         address recipient;
         address sender;
         uint40 startTime;
-        uint40 timeWarp;
+        uint40 warpTimestamp;
         LockupDynamic.Segment[] segments;
         uint128 withdrawAmount;
     }
@@ -57,6 +57,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         Lockup.Status expectedStatus;
         uint256 initialDynamicContractBalance;
         uint256 initialRecipientBalance;
+        LockupDynamic.Range range;
         uint256 streamId;
         // Create vars
         uint256 actualBrokerBalance;
@@ -83,29 +84,29 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         uint128 senderAmount;
     }
 
-    /// @dev it should:
+    /// @dev Checklist:
     ///
-    /// - Perform all expected ERC-20 transfers.
-    /// - Create the stream.
-    /// - Bump the next stream id.
-    /// - Record the protocol fee.
-    /// - Mint the NFT.
-    /// - Emit a {CreateLockupDynamicStream} event.
-    /// - Make a withdrawal.
-    /// - Update the withdrawn amounts.
-    /// - Emit a {WithdrawFromLockupStream} event.
-    /// - Cancel the stream.
-    /// - Emit a {CancelLockupStream} event.
+    /// - It should perform all expected ERC-20 transfers.
+    /// - It should create the stream.
+    /// - It should bump the next stream id.
+    /// - It should record the protocol fee.
+    /// - It should mint the NFT.
+    /// - It should emit a {CreateLockupDynamicStream} event.
+    /// - It may make a withdrawal.
+    /// - It may update the withdrawn amounts.
+    /// - It may emit a {WithdrawFromLockupStream} event.
+    /// - It may cancel the stream
+    /// - It may emit a {CancelLockupStream} event
     ///
     /// The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// - Multiple values for the funder, recipient, sender, and broker.
-    /// - Multiple values for the total amount.
-    /// - Start time in the past, present and future.
-    /// - Start time equal and not equal to the first segment milestone.
-    /// - Multiple values for the broker fee, including zero.
-    /// - Multiple values for the protocol fee, including zero.
-    /// - Multiple values for the withdraw amount, including zero.
+    /// - Multiple values for the funder, recipient, sender, and broker
+    /// - Multiple values for the total amount
+    /// - Start time in the past, present and future
+    /// - Start time equal and not equal to the first segment milestone
+    /// - Multiple values for the broker fee, including zero
+    /// - Multiple values for the protocol fee, including zero
+    /// - Multiple values for the withdraw amount, including zero
     function testForkFuzz_Dynamic_CreateWithdrawCancel(Params memory params) external {
         checkUsers(params.sender, params.recipient, params.broker.account, address(dynamic));
         vm.assume(params.segments.length != 0);
@@ -147,7 +148,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         // Expect a {CreateLockupDynamicStream} event to be emitted.
         vars.streamId = dynamic.nextStreamId();
         vm.expectEmit({ emitter: address(dynamic) });
-        LockupDynamic.Range memory range =
+        vars.range =
             LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].milestone });
         emit CreateLockupDynamicStream({
             streamId: vars.streamId,
@@ -158,7 +159,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             asset: asset,
             cancelable: true,
             segments: params.segments,
-            range: range,
+            range: vars.range,
             broker: params.broker.account
         });
 
@@ -178,13 +179,13 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
 
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(vars.streamId);
-        assertEq(actualStream.amounts, Lockup.Amounts({ deposit: vars.createAmounts.deposit, withdrawn: 0 }));
+        assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, asset, "asset");
-        assertEq(actualStream.endTime, range.end, "endTime");
+        assertEq(actualStream.endTime, vars.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
         assertEq(actualStream.segments, params.segments);
         assertEq(actualStream.sender, params.sender, "sender");
-        assertEq(actualStream.startTime, range.start, "startTime");
+        assertEq(actualStream.startTime, params.startTime, "startTime");
         assertEq(actualStream.status, Lockup.Status.ACTIVE);
 
         // Assert that the next stream id has been bumped.
@@ -231,8 +232,8 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Warp into the future.
-        params.timeWarp = boundUint40(params.timeWarp, params.startTime, DEFAULT_END_TIME);
-        vm.warp({ timestamp: params.timeWarp });
+        params.warpTimestamp = boundUint40(params.warpTimestamp, vars.range.start, vars.range.end - 1);
+        vm.warp({ timestamp: params.warpTimestamp });
 
         // Bound the withdraw amount.
         vars.withdrawableAmount = dynamic.withdrawableAmountOf(vars.streamId);
@@ -253,7 +254,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             });
 
             // Make the withdrawal.
-            changePrank(params.recipient);
+            changePrank({ msgSender: params.recipient });
             dynamic.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
 
             // Assert that the withdrawn amount has been updated.
@@ -283,8 +284,9 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
                                           CANCEL
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Only run the cancel tests if the stream has not been depleted.
-        if (params.withdrawAmount != vars.createAmounts.deposit) {
+        // Only run the cancel tests if the stream is not settled. A dynamic stream can settle even before the end time
+        // is reached when the last segment amount is zero.
+        if (!dynamic.isSettled(vars.streamId)) {
             // Load the pre-cancel asset balances.
             vars.balances =
                 getTokenBalances(address(asset), Solarray.addresses(address(dynamic), params.sender, params.recipient));
@@ -294,19 +296,19 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
 
             // Expect a {CancelLockupStream} event to be emitted.
             vm.expectEmit({ emitter: address(dynamic) });
-            vars.senderAmount = dynamic.returnableAmountOf(vars.streamId);
+            vars.senderAmount = dynamic.refundableAmountOf(vars.streamId);
             vars.recipientAmount = dynamic.withdrawableAmountOf(vars.streamId);
             emit CancelLockupStream(
                 vars.streamId, params.sender, params.recipient, vars.senderAmount, vars.recipientAmount
             );
 
             // Cancel the stream.
-            changePrank(params.sender);
+            changePrank({ msgSender: params.sender });
             dynamic.cancel(vars.streamId);
 
-            // Assert that the stream has been marked as canceled.
+            // Assert that the status has been updated.
             vars.actualStatus = dynamic.getStatus(vars.streamId);
-            vars.expectedStatus = Lockup.Status.CANCELED;
+            vars.expectedStatus = vars.recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
             assertEq(vars.actualStatus, vars.expectedStatus, "status after cancel");
 
             // Assert that the NFT has not been burned.
@@ -322,27 +324,20 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             vars.actualRecipientBalance = vars.balances[2];
 
             // Assert that the contract's balance has been updated.
-            vars.expectedDynamicContractBalance =
-                vars.initialDynamicContractBalance - uint256(vars.senderAmount) - uint256(vars.recipientAmount);
+            vars.expectedDynamicContractBalance = vars.initialDynamicContractBalance - uint256(vars.senderAmount);
             assertEq(
                 vars.actualDynamicContractBalance,
                 vars.expectedDynamicContractBalance,
                 "post-cancel dynamic contract balance"
             );
 
-            // Assert that the recipient's balance has been updated.
+            // Assert that the sender's balance has been updated.
             vars.expectedSenderBalance = vars.initialSenderBalance + uint256(vars.senderAmount);
             assertEq(vars.actualSenderBalance, vars.expectedSenderBalance, "post-cancel sender balance");
 
-            // Assert that the recipient's balance has been updated.
-            vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(vars.recipientAmount);
+            // Assert that the recipient's balance has stayed put.
+            vars.expectedRecipientBalance = vars.initialRecipientBalance;
             assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-cancel recipient balance");
-        }
-        // Otherwise, assert that the stream has been marked as depleted.
-        else {
-            vars.actualStatus = dynamic.getStatus(vars.streamId);
-            vars.expectedStatus = Lockup.Status.DEPLETED;
-            assertEq(vars.actualStatus, vars.expectedStatus, "status after full withdraw");
         }
     }
 }

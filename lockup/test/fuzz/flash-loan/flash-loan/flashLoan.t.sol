@@ -13,7 +13,6 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_AmountTooHigh(uint256 amount) external whenNoDelegateCall {
         amount = bound(amount, uint256(UINT128_MAX) + 1, UINT256_MAX);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
@@ -29,7 +28,6 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee)
         external
         whenNoDelegateCall
@@ -54,14 +52,11 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         _;
     }
 
-    /// @dev it should execute the flash loan, make the ERC-20 transfers, update the protocol revenues, and emit
-    /// a {FlashLoan} event.
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Multiple values for the comptroller flash fee, including zero.
-    /// - Multiple values for the flash loan amount, including zero.
-    /// - Multiple values for the data bytes array, including zero length.
+    /// - Multiple values for the comptroller flash fee, including zero
+    /// - Multiple values for the flash loan amount, including zero
+    /// - Multiple values for the data bytes array, including zero length
     function testFuzz_FlashLoanFunction(
         UD60x18 comptrollerFlashFee,
         uint128 amount,
@@ -87,10 +82,10 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         // Mint the flash fee to the receiver so that they can repay the flash loan.
         deal({ token: address(DEFAULT_ASSET), to: address(goodFlashLoanReceiver), give: fee });
 
-        // Expect `amount` of ERC-20 assets to be transferred from {SablierV2FlashLoan} to the receiver.
+        // Expect `amount` of assets to be transferred from {SablierV2FlashLoan} to the receiver.
         expectTransferCall({ to: address(goodFlashLoanReceiver), amount: amount });
 
-        // Expect `amount+fee` of ERC-20 assets to be transferred back from the receiver.
+        // Expect `amount+fee` of assets to be transferred back from the receiver.
         uint256 returnAmount = amount + fee;
         expectTransferFromCall({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
 

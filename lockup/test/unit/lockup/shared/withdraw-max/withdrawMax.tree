@@ -1,5 +1,11 @@
 withdrawMax.t.sol
-├── when the current time is greater than or equal to the end time
-│  └── it should make the max withdrawal and mark the stream as depleted
-└── when the current time is less than the end time
-   └── it should make the max withdrawal, and update the withdrawn amount, and emit a {WithdrawFromLockupStream} event
+├── when the end time is in the past
+│  ├── it should make the max withdrawal
+│  ├── it should update the withdrawn amount
+│  ├── it should mark the stream as depleted
+│  ├── it should make the stream not cancelable
+│  └── it should emit a {WithdrawFromLockupStream} event
+└── when the end time is in the future
+   ├── it should make the max withdrawal
+   ├── it should update the withdrawn amount
+   └── it should emit a {WithdrawFromLockupStream} event

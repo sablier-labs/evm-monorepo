@@ -1,5 +1,5 @@
 maxFlashLoan.t.sol
-├── when the ERC-20 asset is not flash loanable
+├── when the asset is not flash loanable
 │  └── it should revert
-└── when the ERC-20 asset is flash loanable
-   └── it should return the correct flash fee
+└── when the asset is flash loanable
+   └── it should return the correct max flash loan

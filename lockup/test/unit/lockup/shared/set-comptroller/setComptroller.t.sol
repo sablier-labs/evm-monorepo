@@ -11,7 +11,6 @@ import { Unit_Test } from "../../../Unit.t.sol";
 abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -27,7 +26,6 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should re-set the comptroller and emit a {SetComptroller} event.
     function test_SetComptroller_SameComptroller() external whenCallerAdmin {
         // Expect a {SetComptroller} event to be emitted.
         vm.expectEmit({ emitter: address(base) });
@@ -36,13 +34,12 @@ abstract contract SetComptroller_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Re-set the comptroller.
         base.setComptroller(comptroller);
 
-        // Assert that the comptroller did not change.
+        // Assert that the comptroller has not been changed.
         address actualComptroller = address(base.comptroller());
         address expectedComptroller = address(comptroller);
         assertEq(actualComptroller, expectedComptroller, "comptroller");
     }
 
-    /// @dev it should set the new comptroller and emit a {SetComptroller} event.
     function test_SetComptroller_NewComptroller() external whenCallerAdmin {
         // Deploy the new comptroller.
         ISablierV2Comptroller newComptroller = new SablierV2Comptroller({ initialAdmin: users.admin });

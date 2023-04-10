@@ -93,23 +93,23 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
-    function getAsset(uint256 streamId) external view override isNonNull(streamId) returns (IERC20 asset) {
+    function getAsset(uint256 streamId) external view override isNotNull(streamId) returns (IERC20 asset) {
         asset = _streams[streamId].asset;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getDepositAmount(uint256 streamId)
+    function getDepositedAmount(uint256 streamId)
         external
         view
         override
-        isNonNull(streamId)
-        returns (uint128 depositAmount)
+        isNotNull(streamId)
+        returns (uint128 depositedAmount)
     {
-        depositAmount = _streams[streamId].amounts.deposit;
+        depositedAmount = _streams[streamId].amounts.deposited;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getEndTime(uint256 streamId) external view override isNonNull(streamId) returns (uint40 endTime) {
+    function getEndTime(uint256 streamId) external view override isNotNull(streamId) returns (uint40 endTime) {
         endTime = _streams[streamId].endTime;
     }
 
@@ -118,7 +118,7 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (LockupDynamic.Range memory range)
     {
         range = LockupDynamic.Range({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
@@ -129,8 +129,19 @@ contract SablierV2LockupDynamic is
         // Checks: the stream NFT exists.
         _requireMinted({ tokenId: streamId });
 
-        // The owner of the stream NFT is the recipient.
+        // The NFT owner is the stream's recipient.
         recipient = _ownerOf(streamId);
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function getRefundedAmount(uint256 streamId)
+        external
+        view
+        override
+        isNotNull(streamId)
+        returns (uint128 refundedAmount)
+    {
+        refundedAmount = _streams[streamId].amounts.refunded;
     }
 
     /// @inheritdoc ISablierV2LockupDynamic
@@ -138,19 +149,19 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (LockupDynamic.Segment[] memory segments)
     {
         segments = _streams[streamId].segments;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getSender(uint256 streamId) external view override isNonNull(streamId) returns (address sender) {
+    function getSender(uint256 streamId) external view override isNotNull(streamId) returns (address sender) {
         sender = _streams[streamId].sender;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getStartTime(uint256 streamId) external view override isNonNull(streamId) returns (uint40 startTime) {
+    function getStartTime(uint256 streamId) external view override isNotNull(streamId) returns (uint40 startTime) {
         startTime = _streams[streamId].startTime;
     }
 
@@ -170,7 +181,7 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (LockupDynamic.Stream memory stream)
     {
         stream = _streams[streamId];
@@ -181,15 +192,24 @@ contract SablierV2LockupDynamic is
         external
         view
         override
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (uint128 withdrawnAmount)
     {
         withdrawnAmount = _streams[streamId].amounts.withdrawn;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCancelable(uint256 streamId) external view override isNonNull(streamId) returns (bool result) {
+    function isCancelable(uint256 streamId) external view override isNotNull(streamId) returns (bool result) {
         result = _streams[streamId].isCancelable;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function isSettled(uint256 streamId) external view override isNotNull(streamId) returns (bool result) {
+        if (_streams[streamId].status == Lockup.Status.ACTIVE) {
+            result = _streams[streamId].amounts.deposited == _streamedAmountOf(streamId);
+        } else {
+            result = true;
+        }
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -198,16 +218,16 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function returnableAmountOf(uint256 streamId)
+    function refundableAmountOf(uint256 streamId)
         external
         view
         override
-        isNonNull(streamId)
-        returns (uint128 returnableAmount)
+        isNotNull(streamId)
+        returns (uint128 refundableAmount)
     {
-        // Calculate the returnable amount only if the stream is active; otherwise, it is implicitly zero.
+        // Calculate the refundable amount only if the stream is active; otherwise, it is implicitly zero.
         if (_streams[streamId].status == Lockup.Status.ACTIVE) {
-            returnableAmount = _streams[streamId].amounts.deposit - _streamedAmountOf(streamId);
+            refundableAmount = _streams[streamId].amounts.deposited - _streamedAmountOf(streamId);
         }
     }
 
@@ -216,7 +236,7 @@ contract SablierV2LockupDynamic is
         public
         view
         override(ISablierV2Lockup, ISablierV2LockupDynamic)
-        isNonNull(streamId)
+        isNotNull(streamId)
         returns (uint128 streamedAmount)
     {
         streamedAmount = _streamedAmountOf(streamId);
@@ -235,89 +255,16 @@ contract SablierV2LockupDynamic is
     function withdrawableAmountOf(uint256 streamId)
         public
         view
-        override(ISablierV2Lockup, SablierV2Lockup)
-        isNonNull(streamId)
+        override
+        isNotNull(streamId)
         returns (uint128 withdrawableAmount)
     {
-        withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
+        withdrawableAmount = _withdrawableAmountOf(streamId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId)
-        public
-        override(ISablierV2Lockup, SablierV2Lockup)
-        noDelegateCall
-        isActive(streamId)
-        onlySenderOrRecipient(streamId)
-    {
-        // Checks: the stream is cancelable.
-        if (!_streams[streamId].isCancelable) {
-            revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
-        }
-
-        // Load the stream in memory.
-        LockupDynamic.Stream memory stream = _streams[streamId];
-
-        // Calculate the sender's and the recipient's amount.
-        uint128 streamedAmount = _streamedAmountOf(streamId);
-        uint128 senderAmount = stream.amounts.deposit - streamedAmount; // equivalent to {returnableAmountOf}
-        uint128 recipientAmount = streamedAmount - stream.amounts.withdrawn; // equivalent to {withdrawableAmountOf}
-
-        // Load the sender and the recipient in memory.
-        address sender = stream.sender;
-        address recipient = _ownerOf(streamId);
-
-        // Effects: mark the stream as canceled.
-        _streams[streamId].status = Lockup.Status.CANCELED;
-        _streams[streamId].isCancelable = false;
-
-        if (recipientAmount > 0) {
-            // Effects: add the recipient's amount to the withdrawn amount.
-            unchecked {
-                _streams[streamId].amounts.withdrawn += recipientAmount;
-            }
-
-            // Interactions: withdraw the assets to the recipient.
-            stream.asset.safeTransfer({ to: recipient, value: recipientAmount });
-        }
-
-        // Interactions: return the assets to the sender, if any.
-        if (senderAmount > 0) {
-            stream.asset.safeTransfer({ to: sender, value: senderAmount });
-        }
-
-        // Interactions: if `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
-        // hook on the recipient without reverting if the hook is not implemented, and without bubbling up any
-        // potential revert.
-        if (msg.sender == sender) {
-            if (recipient.code.length > 0) {
-                try ISablierV2LockupRecipient(recipient).onStreamCanceled({
-                    streamId: streamId,
-                    senderAmount: senderAmount,
-                    recipientAmount: recipientAmount
-                }) { } catch { }
-            }
-        }
-        // Interactions: if `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
-        // hook on the sender without reverting if the hook is not implemented, and also without bubbling up any
-        // potential revert.
-        else {
-            if (sender.code.length > 0) {
-                try ISablierV2LockupSender(sender).onStreamCanceled({
-                    streamId: streamId,
-                    senderAmount: senderAmount,
-                    recipientAmount: recipientAmount
-                }) { } catch { }
-            }
-        }
-
-        // Log the cancellation.
-        emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
-    }
 
     /// @inheritdoc ISablierV2LockupDynamic
     function createWithDeltas(LockupDynamic.CreateWithDeltas calldata params)
@@ -364,7 +311,7 @@ contract SablierV2LockupDynamic is
     /// Notes:
     ///
     /// 1. Normalization to 18 decimals is not needed because there is no mix of amounts with different decimals.
-    /// 2. This function must be called only when the end time of the stream is in the future so that the
+    /// 2. This function must be called only when the stream's end time is in the future so that the
     /// the loop below does not panic with an "index out of bounds" error.
     function _calculateStreamedAmountForMultipleSegments(uint256 streamId)
         internal
@@ -430,25 +377,25 @@ contract SablierV2LockupDynamic is
     /// needed because there is no mix of amounts with different decimals.
     function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128 streamedAmount) {
         unchecked {
-            // Calculate how much time has passed since the stream started, and the total time of the stream.
+            // Calculate how much time has passed since the stream started, and the stream's total duration.
             SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
             SD59x18 totalTime = (_streams[streamId].endTime - _streams[streamId].startTime).intoSD59x18();
 
-            // Divide the elapsed time by the total duration of the stream.
+            // Divide the elapsed time by the stream's total duration.
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
 
             // Cast the stream parameters to SD59x18.
             SD59x18 exponent = _streams[streamId].segments[0].exponent.intoSD59x18();
-            SD59x18 depositAmount = _streams[streamId].amounts.deposit.intoSD59x18();
+            SD59x18 depositedAmount = _streams[streamId].amounts.deposited.intoSD59x18();
 
             // Calculate the streamed amount using the special formula.
             SD59x18 multiplier = elapsedTimePercentage.pow(exponent);
-            SD59x18 streamedAmountSd = multiplier.mul(depositAmount);
+            SD59x18 streamedAmountSd = multiplier.mul(depositedAmount);
 
-            // Although the streamed amount should never exceed the deposit amount, this condition is checked
+            // Although the streamed amount should never exceed the deposited amount, this condition is checked
             // without asserting to avoid locking funds in case of a bug. If this situation occurs, the withdrawn
             // amount is considered to be the streamed amount, and the stream is effectively frozen.
-            if (streamedAmountSd.gt(depositAmount)) {
+            if (streamedAmountSd.gt(depositedAmount)) {
                 return _streams[streamId].amounts.withdrawn;
             }
 
@@ -478,9 +425,16 @@ contract SablierV2LockupDynamic is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
-        // Return the withdrawn amount if the stream is canceled or depleted.
-        if (_streams[streamId].status != Lockup.Status.ACTIVE) {
-            return _streams[streamId].amounts.withdrawn;
+        Lockup.Status status = _streams[streamId].status;
+        Lockup.Amounts memory amounts = _streams[streamId].amounts;
+
+        // Return the withdrawn amount if the stream is depleted.
+        if (status == Lockup.Status.DEPLETED) {
+            return amounts.withdrawn;
+        }
+        // Return the deposited amount minus the refunded amount if the stream is canceled.
+        else if (status == Lockup.Status.CANCELED) {
+            return amounts.deposited - amounts.refunded;
         }
 
         // Return zero if the start time is greater than or equal to the block timestamp.
@@ -493,9 +447,9 @@ contract SablierV2LockupDynamic is
         uint256 segmentCount = _streams[streamId].segments.length;
         uint40 endTime = _streams[streamId].endTime;
 
-        // Return the deposit amount if the current time is greater than or equal to the end time.
+        // Return the deposited amount if the current time is greater than or equal to the end time.
         if (currentTime >= endTime) {
-            return _streams[streamId].amounts.deposit;
+            return amounts.deposited;
         }
 
         if (segmentCount > 1) {
@@ -507,6 +461,16 @@ contract SablierV2LockupDynamic is
         }
     }
 
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _withdrawableAmountOf(uint256 streamId) internal view override returns (uint128 withdrawableAmount) {
+        // If the stream is active or canceled, calculate the withdrawable amount by subtracting the withdrawn amount
+        // from the streamed amount.
+        if (_streams[streamId].status != Lockup.Status.DEPLETED) {
+            withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
+        }
+        // If the stream is depleted, the withdrawable amount is implicitly zero.
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -514,6 +478,67 @@ contract SablierV2LockupDynamic is
     /// @dev See the documentation for the public functions that call this internal function.
     function _burn(uint256 tokenId) internal override(ERC721, SablierV2Lockup) {
         ERC721._burn(tokenId);
+    }
+
+    /// @dev See the documentation for the public functions that call this internal function.
+    function _cancel(uint256 streamId) internal override {
+        // Checks: the stream is cancelable.
+        if (!_streams[streamId].isCancelable) {
+            revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
+        }
+
+        // Calculate the sender's and the recipient's amount.
+        uint128 streamedAmount = _streamedAmountOf(streamId);
+        uint128 senderAmount = _streams[streamId].amounts.deposited - streamedAmount;
+        uint128 recipientAmount = streamedAmount - _streams[streamId].amounts.withdrawn;
+
+        // Checks: the stream is not settled.
+        if (senderAmount == 0) {
+            revert Errors.SablierV2Lockup_StreamSettled(streamId);
+        }
+
+        // Effects: If there are any assets left for the recipient to withdraw, mark the stream as canceled.
+        // Otherwise, mark it as depleted.
+        _streams[streamId].status = recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
+        _streams[streamId].isCancelable = false;
+
+        // Effects: set the refunded amount.
+        _streams[streamId].amounts.refunded = senderAmount;
+
+        // Load the sender and the recipient in memory.
+        address sender = _streams[streamId].sender;
+        address recipient = _ownerOf(streamId);
+
+        // Interactions: refund the sender.
+        _streams[streamId].asset.safeTransfer({ to: sender, value: senderAmount });
+
+        // Interactions: if `msg.sender` is the sender and the recipient is a contract, try to invoke the cancel
+        // hook on the recipient without reverting if the hook is not implemented, and without bubbling up any
+        // potential revert.
+        if (msg.sender == sender) {
+            if (recipient.code.length > 0) {
+                try ISablierV2LockupRecipient(recipient).onStreamCanceled({
+                    streamId: streamId,
+                    senderAmount: senderAmount,
+                    recipientAmount: recipientAmount
+                }) { } catch { }
+            }
+        }
+        // Interactions: if `msg.sender` is the recipient and the sender is a contract, try to invoke the cancel
+        // hook on the sender without reverting if the hook is not implemented, and also without bubbling up any
+        // potential revert.
+        else {
+            if (sender.code.length > 0) {
+                try ISablierV2LockupSender(sender).onStreamCanceled({
+                    streamId: streamId,
+                    senderAmount: senderAmount,
+                    recipientAmount: recipientAmount
+                }) { } catch { }
+            }
+        }
+
+        // Log the cancellation.
+        emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
     }
 
     /// @dev See the documentation for the public functions that call this internal function.
@@ -529,7 +554,7 @@ contract SablierV2LockupDynamic is
         Lockup.CreateAmounts memory createAmounts =
             Helpers.checkAndCalculateFees(params.totalAmount, protocolFee, params.broker.fee, MAX_FEE);
 
-        // Checks: validate the arguments.
+        // Checks: validate the user-provided parameters.
         Helpers.checkCreateDynamicParams(createAmounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
         // Load the stream id.
@@ -540,7 +565,7 @@ contract SablierV2LockupDynamic is
 
         // Effects: create the stream.
         LockupDynamic.Stream storage stream = _streams[streamId];
-        stream.amounts = Lockup.Amounts({ deposit: createAmounts.deposit, withdrawn: 0 });
+        stream.amounts = Lockup.Amounts({ deposited: createAmounts.deposit, refunded: 0, withdrawn: 0 });
         stream.asset = params.asset;
         stream.isCancelable = params.cancelable;
         stream.sender = params.sender;
@@ -600,10 +625,10 @@ contract SablierV2LockupDynamic is
     function _renounce(uint256 streamId) internal override {
         // Checks: the stream is cancelable.
         if (!_streams[streamId].isCancelable) {
-            revert Errors.SablierV2Lockup_StreamNonCancelable(streamId);
+            revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
         }
 
-        // Effects: make the stream non-cancelable.
+        // Effects: make the stream not cancelable.
         _streams[streamId].isCancelable = false;
 
         // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
@@ -619,39 +644,30 @@ contract SablierV2LockupDynamic is
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _withdraw(uint256 streamId, address to, uint128 amount) internal override {
-        // Checks: the amount is not zero.
-        if (amount == 0) {
-            revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
-        }
-
-        // Calculate the withdrawable amount.
-        uint128 withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
-
-        // Checks: the withdraw amount is not greater than the withdrawable amount.
-        if (amount > withdrawableAmount) {
-            revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
-                streamId, amount, withdrawableAmount
-            );
-        }
-
         // Effects: update the withdrawn amount.
+        _streams[streamId].amounts.withdrawn += amount;
+
+        // Load the amounts in memory.
+        Lockup.Amounts memory amounts = _streams[streamId].amounts;
+
+        // Unchecked arithmetic is safe because this calculation has already been performed in {_withdrawableAmountOf}.
         unchecked {
-            _streams[streamId].amounts.withdrawn += amount;
-        }
+            // Using ">=" instead of "==" for additional safety reasons. In the event of an unforeseen increase in the
+            // withdrawn amount, the stream will still be marked as depleted and made not cancelable.
+            if (amounts.withdrawn >= amounts.deposited - amounts.refunded) {
+                // Effects: mark the stream as depleted.
+                _streams[streamId].status = Lockup.Status.DEPLETED;
 
-        // Load the recipient in memory.
-        address recipient = _ownerOf(streamId);
-
-        // Effects: if the entire deposit amount is now withdrawn, mark the stream as depleted.
-        if (_streams[streamId].amounts.deposit == _streams[streamId].amounts.withdrawn) {
-            _streams[streamId].status = Lockup.Status.DEPLETED;
-
-            // A depleted stream cannot be canceled anymore.
-            _streams[streamId].isCancelable = false;
+                // Effects: make the stream not cancelable.
+                _streams[streamId].isCancelable = false;
+            }
         }
 
         // Interactions: perform the ERC-20 transfer.
         _streams[streamId].asset.safeTransfer({ to: to, value: amount });
+
+        // Load the recipient in memory.
+        address recipient = _ownerOf(streamId);
 
         // Interactions: if `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up

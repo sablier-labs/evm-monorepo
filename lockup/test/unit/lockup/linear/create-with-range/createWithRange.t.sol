@@ -20,7 +20,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         streamId = linear.nextStreamId();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(ISablierV2LockupLinear.createWithRange, defaultParams.createWithRange);
         (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
@@ -31,7 +30,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_RecipientZeroAddress() external whenNoDelegateCall {
         vm.expectRevert("ERC721: mint to the zero address");
         createDefaultStreamWithRecipient({ recipient: address(0) });
@@ -41,7 +39,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     ///
     /// It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
     /// `MAX_FEE` is hard coded to 10%.
@@ -54,7 +51,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_StartTimeGreaterThanCliffTime()
         external
         whenNoDelegateCall
@@ -75,7 +71,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CliffTimeNotLessThanEndTime()
         external
         whenNoDelegateCall
@@ -97,7 +92,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_EndTimeInThePast()
         external
         whenNoDelegateCall
@@ -105,7 +99,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
     {
         vm.warp({ timestamp: DEFAULT_END_TIME });
 
@@ -115,11 +109,10 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStream();
     }
 
-    modifier whenEndTimeNotInThePast() {
+    modifier whenEndTimeInTheFuture() {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
         whenNoDelegateCall
@@ -127,7 +120,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
     {
         UD60x18 protocolFee = MAX_FEE.add(ud(1));
 
@@ -146,7 +139,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         whenNoDelegateCall
@@ -154,7 +146,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenProtocolFeeNotTooHigh
     {
         UD60x18 brokerFee = MAX_FEE.add(ud(1));
@@ -166,7 +158,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_AssetNotContract()
         external
         whenNoDelegateCall
@@ -174,7 +165,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
     {
@@ -187,7 +178,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, and mint the NFT.
     function test_CreateWithRange_AssetMissingReturnValue()
         external
         whenNoDelegateCall
@@ -195,7 +185,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
@@ -207,21 +197,13 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should:
-    ///
-    /// - Perform the ERC-20 transfers.
-    /// - Create the stream.
-    /// - Bump the next stream id.
-    /// - Record the protocol fee.
-    /// - Mint the NFT.
-    /// - Emit a {CreateLockupLinearStream} event.
     function test_CreateWithRange()
         external
         whenNoDelegateCall
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
-        whenEndTimeNotInThePast
+        whenEndTimeInTheFuture
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
@@ -230,12 +212,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         test_createWithRange(address(DEFAULT_ASSET));
     }
 
-    /// @dev Shared test logic for `test_CreateWithRange_AssetMissingReturnValue` and `test_CreateWithRange`.
+    /// @dev Test logic shared between `test_CreateWithRange_AssetMissingReturnValue` and `test_CreateWithRange`.
     function test_createWithRange(address asset) internal {
-        // Make the sender the funder of the stream.
+        // Make the sender the stream's funder
         address funder = users.sender;
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectTransferFromCall({
             asset: IERC20(asset),
             from: funder,

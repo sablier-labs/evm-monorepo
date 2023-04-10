@@ -21,21 +21,19 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    modifier whenStartTimeLessThanCurrentTime() {
+    modifier whenStartTimeInThePast() {
         _;
     }
 
-    /// @dev it should return the correct withdrawable amount.
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
+    /// - End time in the past
+    /// - End time in the present
+    /// - End time in the future
     function testFuzz_WithdrawableAmountOf_WithoutWithdrawals(uint40 timeWarp)
         external
         whenStreamActive
-        whenStartTimeLessThanCurrentTime
+        whenStartTimeInThePast
     {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
@@ -61,21 +59,20 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         _;
     }
 
-    /// @dev it should return the correct withdrawable amount.
+    /// @dev The fuzzing ensures that all of the following scenarios are tested:
     ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
-    ///
-    /// - Current time < end time
-    /// - Current time = end time
-    /// - Current time > end time
-    /// - Withdraw amount equal to deposit amount and not
+    /// - End time in the past
+    /// - End time in the present
+    /// - End time in the future
+    /// - Multiple withdraw amounts
+    /// - Withdraw amount equal to deposited amount and not
     function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,
         uint128 withdrawAmount
     )
         external
         whenStreamActive
-        whenStartTimeLessThanCurrentTime
+        whenStartTimeInThePast
         whenWithWithdrawals
     {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);

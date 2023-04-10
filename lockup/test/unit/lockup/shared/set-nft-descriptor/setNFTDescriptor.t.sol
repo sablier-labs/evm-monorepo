@@ -15,7 +15,6 @@ abstract contract SetNFTDescriptor_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamId = createDefaultStream();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -31,7 +30,6 @@ abstract contract SetNFTDescriptor_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev it should re-set the NFT descriptor and emit a {SetNFTDescriptor} event.
     function test_SetNFTDescriptor_SameNFTDescriptor() external whenCallerAdmin {
         // Expect a {SetNFTDescriptor} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
@@ -45,7 +43,6 @@ abstract contract SetNFTDescriptor_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.tokenURI({ tokenId: defaultStreamId });
     }
 
-    /// @dev it should set the new NFT descriptor and emit a {SetNFTDescriptor} event.
     function test_SetNFTDescriptor_NewNFTDescriptor() external whenCallerAdmin {
         // Deploy the new NFT descriptor.
         ISablierV2NFTDescriptor newNFTDescriptor = new SablierV2NFTDescriptor();

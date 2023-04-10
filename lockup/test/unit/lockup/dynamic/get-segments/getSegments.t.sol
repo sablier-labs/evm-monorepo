@@ -7,7 +7,6 @@ import { LockupDynamic } from "src/types/DataTypes.sol";
 import { Dynamic_Unit_Test } from "../Dynamic.t.sol";
 
 contract GetSegments_Dynamic_Unit_Test is Dynamic_Unit_Test {
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
@@ -18,7 +17,6 @@ contract GetSegments_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct segments.
     function test_GetSegments() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         LockupDynamic.Segment[] memory actualSegments = dynamic.getSegments(streamId);

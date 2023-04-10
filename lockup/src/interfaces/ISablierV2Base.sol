@@ -14,13 +14,13 @@ interface ISablierV2Base is IAdminable {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the contract admin claims all protocol revenues accrued for the provided ERC-20 asset.
+    /// @notice Emitted when the admin claims all protocol revenues accrued for an ERC-20 asset.
     /// @param admin The address of the contract admin.
     /// @param asset The contract address of the ERC-20 asset the protocol revenues have been claimed for.
-    /// @param protocolRevenues The amount of protocol revenues claimed, in units of the asset's decimals.
+    /// @param protocolRevenues The amount of protocol revenues claimed, denoted in units of the asset's decimals.
     event ClaimProtocolRevenues(address indexed admin, IERC20 indexed asset, uint128 protocolRevenues);
 
-    /// @notice Emitted when the contract admin sets a new comptroller contract.
+    /// @notice Emitted when the admin sets a new comptroller contract.
     /// @param admin The address of the contract admin.
     /// @param oldComptroller The address of the old comptroller contract.
     /// @param newComptroller The address of the new comptroller contract.
@@ -32,35 +32,35 @@ interface ISablierV2Base is IAdminable {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum fee that can be charged by either the protocol or a broker, as an UD60x18 number
+    /// @notice Retrieves the maximum fee that can be charged by the protocol or a broker, as a UD60x18 number
     /// where 100% = 1e18.
-    /// @dev This is stored as a constant.
+    /// @dev This value is hard coded as a constant.
     function MAX_FEE() external view returns (UD60x18);
 
-    /// @notice The address of the comptroller contract, which is in charge of the Sablier V2 protocol configuration,
-    /// handling such values as the protocol fees.
+    /// @notice Retrieves the address of the comptroller contract, responsible for the Sablier V2 protocol
+    /// configuration.
     function comptroller() external view returns (ISablierV2Comptroller);
 
-    /// @notice The protocol revenues accrued for the provided ERC-20 asset, in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset to make the query for.
+    /// @notice Retrieves the protocol revenues accrued for the specified ERC-20 asset, in units of the asset's
+    /// decimals.
+    /// @param asset The contract address of the ERC-20 asset to query.
     function protocolRevenues(IERC20 asset) external view returns (uint128 revenues);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Claims all protocol revenues accrued for the provided ERC-20 asset.
+    /// @notice Claims all accumulated protocol revenues for the provided ERC-20 asset.
     ///
     /// @dev Emits a {ClaimProtocolRevenues} event.
     ///
     /// Requirements:
     /// - `msg.sender` must be the contract admin.
     ///
-    /// @param asset The contract address of the ERC-20 asset to claim the protocol revenues for.
+    /// @param asset The contract address of the ERC-20 asset for which to claim protocol revenues.
     function claimProtocolRevenues(IERC20 asset) external;
 
-    /// @notice Sets a new comptroller contract. The comptroller is in charge of the protocol configuration,
-    /// handling such values as the protocol fees.
+    /// @notice Assigns a new comptroller contract responsible for the protocol configuration.
     ///
     /// @dev Emits a {SetComptroller} event.
     ///

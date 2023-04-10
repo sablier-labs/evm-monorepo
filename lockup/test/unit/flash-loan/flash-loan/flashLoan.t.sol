@@ -10,7 +10,6 @@ import { Errors } from "src/libraries/Errors.sol";
 import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
 contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
-    /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(
             IERC3156FlashLender.flashLoan, (IERC3156FlashBorrower(address(0)), address(DEFAULT_ASSET), 0, bytes(""))
@@ -23,7 +22,6 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_AmountTooHigh() external whenNoDelegateCall {
         uint256 amount = uint256(UINT128_MAX) + 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
@@ -39,7 +37,6 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_AssetNotFlashLoanable() external whenNoDelegateCall whenAmountNotTooHigh {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, DEFAULT_ASSET));
         flashLoan.flashLoan({
@@ -55,7 +52,6 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_CalculatedFeeTooHigh()
         external
         whenNoDelegateCall
@@ -79,7 +75,6 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_InsufficientAssetLiquidity(uint128 amount)
         external
         whenNoDelegateCall
@@ -105,7 +100,6 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_BorrowFailed()
         external
         whenNoDelegateCall
@@ -129,7 +123,6 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_Reentrancy()
         external
         whenNoDelegateCall
@@ -158,8 +151,6 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         _;
     }
 
-    /// @dev it should execute the flash loan, make the ERC-20 transfers, update the protocol revenues, and emit
-    /// a {FlashLoan} event.
     function test_FlashLoan()
         external
         whenNoDelegateCall
@@ -185,10 +176,10 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         // Mint the flash fee to the receiver so that they can repay the flash loan.
         deal({ token: address(DEFAULT_ASSET), to: address(goodFlashLoanReceiver), give: fee });
 
-        // Expect `amount` of ERC-20 assets to be transferred from {SablierV2FlashLoan} to the receiver.
+        // Expect `amount` of assets to be transferred from {SablierV2FlashLoan} to the receiver.
         expectTransferCall({ to: address(goodFlashLoanReceiver), amount: amount });
 
-        // Expect `amount+fee` of ERC-20 assets to be transferred back from the receiver.
+        // Expect `amount+fee` of assets to be transferred back from the receiver.
         uint256 returnAmount = amount + fee;
         expectTransferFromCall({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
 

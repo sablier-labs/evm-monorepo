@@ -20,7 +20,6 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert due to the start time being greater than the cliff time.
     function testFuzz_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration) external whenNoDelegateCall {
         uint40 startTime = getBlockTimestamp();
         cliffDuration = boundUint40(cliffDuration, UINT40_MAX - startTime + 1, UINT40_MAX);
@@ -49,7 +48,6 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev it should revert.
     function testFuzz_RevertWhen_TotalDurationCalculationOverflows(LockupLinear.Durations memory durations)
         external
         whenNoDelegateCall
@@ -82,8 +80,6 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the
-    /// protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
     function testFuzz_CreateWithDurations(LockupLinear.Durations memory durations)
         external
         whenNoDelegateCall
@@ -93,13 +89,13 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         durations.total = boundUint40(durations.total, 0, MAX_UNIX_TIMESTAMP);
         vm.assume(durations.cliff < durations.total);
 
-        // Make the sender the funder of the stream.
+        // Make the sender the stream's funder.
         address funder = users.sender;
 
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectTransferFromCall({
             from: funder,
             to: address(linear),

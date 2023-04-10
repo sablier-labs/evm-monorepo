@@ -7,7 +7,6 @@ import { LockupDynamic } from "src/types/DataTypes.sol";
 import { Dynamic_Unit_Test } from "../Dynamic.t.sol";
 
 contract GetRange_Dynamic_Unit_Test is Dynamic_Unit_Test {
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
@@ -18,7 +17,6 @@ contract GetRange_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    /// @dev it should return the correct range.
     function test_GetRange() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         LockupDynamic.Range memory actualRange = dynamic.getRange(streamId);

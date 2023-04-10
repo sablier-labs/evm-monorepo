@@ -1,15 +1,14 @@
 withdrawableAmountOf.t.sol
-├── when the stream is not active
-│  ├── when the stream is null
-│  │  └── it should revert
-│  ├── when the stream is canceled
-│  │  └── it should return zero
-│  └── when the stream is depleted
-│     └── it should return zero
+├── when the stream is null
+│  └── it should revert
+├── when the stream is depleted
+│  └── it should return zero
+├── when the stream is canceled
+│  └── it should return the correct withdrawable amount
 └── when the stream is active
-   ├── when the cliff time is greater than the current time
+   ├── when the cliff time is in the future
    │  └── it should return zero
-   └── when the cliff time is less than or equal to the current time
+   └── when the cliff time is in the past
       ├── when there have not been withdrawals
       │  └── it should return the correct withdrawable amount
       └── when there have been withdrawals

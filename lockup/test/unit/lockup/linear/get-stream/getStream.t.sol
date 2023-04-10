@@ -7,7 +7,6 @@ import { LockupLinear } from "src/types/DataTypes.sol";
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
 contract GetStream_Linear_Unit_Test is Linear_Unit_Test {
-    /// @dev it should revert.
     function test_RevertWhen_StreamNull() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
@@ -18,7 +17,6 @@ contract GetStream_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should return the stream.
     function test_GetStream() external whenStreamNonNull {
         uint256 streamId = createDefaultStream();
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);

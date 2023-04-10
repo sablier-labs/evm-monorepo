@@ -18,13 +18,14 @@ interface ISablierV2Lockup is
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when a lockup stream is canceled.
-    /// @param streamId The id of the lockup stream.
-    /// @param sender The address of the sender.
-    /// @param recipient The address of the recipient.
-    /// @param senderAmount The amount of ERC-20 assets returned to the sender, in units of the asset's decimals.
-    /// @param recipientAmount The amount of ERC-20 assets withdrawn to the recipient, in units of the asset's
+    /// @notice Emitted when a stream is canceled.
+    /// @param streamId The id of the stream.
+    /// @param sender The address of the stream's sender.
+    /// @param recipient The address of the stream's recipient.
+    /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
     /// decimals.
+    /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of the
+    /// asset's decimals.
     event CancelLockupStream(
         uint256 indexed streamId,
         address indexed sender,
@@ -33,11 +34,11 @@ interface ISablierV2Lockup is
         uint128 recipientAmount
     );
 
-    /// @notice Emitted when a sender makes a lockup stream non-cancelable.
-    /// @param streamId The id of the lockup stream.
+    /// @notice Emitted when a sender gives up the right to cancel a stream.
+    /// @param streamId The id of the stream.
     event RenounceLockupStream(uint256 indexed streamId);
 
-    /// @notice Emitted when the contract admin sets the NFT descriptor contract.
+    /// @notice Emitted when the admin sets a new NFT descriptor contract.
     /// @param admin The address of the current contract admin.
     /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
@@ -45,155 +46,157 @@ interface ISablierV2Lockup is
         address indexed admin, ISablierV2NFTDescriptor oldNFTDescriptor, ISablierV2NFTDescriptor newNFTDescriptor
     );
 
-    /// @notice Emitted when assets are withdrawn from a lockup stream.
-    /// @param streamId The id of the lockup stream.
+    /// @notice Emitted when assets are withdrawn from a stream.
+    /// @param streamId The id of the stream.
     /// @param to The address that has received the withdrawn assets.
-    /// @param amount The amount of assets withdrawn, in units of the asset's decimals.
+    /// @param amount The amount of assets withdrawn, denoted in units of the asset's decimals.
     event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, uint128 amount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Queries the address of the ERC-20 asset used for streaming.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup stream to make the query for.
-    /// @return asset The contract address of the ERC-20 asset used for streaming.
+    /// @notice Retrieves the address of the ERC-20 asset used for streaming.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
     function getAsset(uint256 streamId) external view returns (IERC20 asset);
 
-    /// @notice Queries the amount deposited in the lockup stream, in units of the asset's decimals.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup stream to make the query for.
-    function getDepositAmount(uint256 streamId) external view returns (uint128 depositAmount);
+    /// @notice Retrieves the amount deposited in the stream, denoted in units of the asset's decimals.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function getDepositedAmount(uint256 streamId) external view returns (uint128 depositedAmount);
 
-    /// @notice Queries the end time of the lockup stream.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup stream to make the query for.
+    /// @notice Retrieves the stream's end time, which is a Unix timestamp.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
     function getEndTime(uint256 streamId) external view returns (uint40 endTime);
 
-    /// @notice Queries the recipient of the lockup stream.
+    /// @notice Retrieves the stream's recipient.
     /// @dev Reverts if the NFT has been burned.
-    /// @param streamId The id of the lockup stream to make the query for.
+    /// @param streamId The stream id for the query.
     function getRecipient(uint256 streamId) external view returns (address recipient);
 
-    /// @notice Queries the sender of the lockup stream.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup stream to make the query for.
+    /// @notice Retrieves the amount refunded to the sender after a cancellation, denoted in units of the asset's
+    /// decimals. This amount is always zero unless the stream is canceled.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function getRefundedAmount(uint256 streamId) external view returns (uint128 refundedAmount);
+
+    /// @notice Retrieves the stream's sender.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
     function getSender(uint256 streamId) external view returns (address sender);
 
-    /// @notice Queries the start time of the lockup stream.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup stream to make the query for.
+    /// @notice Retrieves the stream's start time, which is a Unix timestamp.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
     function getStartTime(uint256 streamId) external view returns (uint40 startTime);
 
-    /// @notice Queries the status of the lockup stream.
-    /// @param streamId The id of the lockup stream to make the query for.
+    /// @notice Retrieves the stream's status.
+    /// @param streamId The stream id for the query.
     function getStatus(uint256 streamId) external view returns (Lockup.Status status);
 
-    /// @notice Queries the amount withdrawn from the lockup stream, in units of the asset's decimals.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup stream to make the query for.
+    /// @notice Retrieves the amount withdrawn from the stream, denoted in units of the asset's decimals.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
-    /// @notice Checks whether the lockup stream is cancelable or not.
-    ///
-    /// @dev Notes:
-    /// - Returns `false` when the lockup stream is not active.
-    ///
-    /// Requirements:
-    /// - `streamId` must not point to a null stream.
-    ///
-    /// @param streamId The id of the lockup stream to make the query for.
+    /// @notice Retrieves a flag that indicates whether the stream can be canceled. The flag is always `false`
+    /// when the stream is not active.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
     function isCancelable(uint256 streamId) external view returns (bool result);
+
+    /// @notice Retrieves a flag that indicates whether the stream is settled. A stream is considered settled when the
+    /// refundable amount for the sender upon cancellation is zero. Consequently, both canceled and depleted streams
+    /// are inherently settled, as they can no longer be canceled.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isSettled(uint256 streamId) external view returns (bool result);
 
     /// @notice Counter for stream ids, used in the create functions.
     function nextStreamId() external view returns (uint256);
 
-    /// @notice Calculates the amount that the sender would be paid if the lockup stream were to be canceled, in units
+    /// @notice Calculates the amount that the sender would be refunded if the stream were canceled, denoted in units
     /// of the asset's decimals.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup stream to make the query for.
-    function returnableAmountOf(uint256 streamId) external view returns (uint128 returnableAmount);
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
 
-    /// @notice Calculates the amount that has been streamed to the recipient, in units of the asset's decimals.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup stream to make the query for.
+    /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
-    /// @notice Calculates the amount that the recipient can withdraw from the lockup stream, in units of the asset's
+    /// @notice Calculates the amount that the recipient can withdraw from the stream, denoted in units of the asset's
     /// decimals.
-    /// @dev Reverts if `streamId` points to a null stream.
-    /// @param streamId The id of the lockup stream to make the query for.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
     function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Burns the NFT associated with the lockup stream.
+    /// @notice Burns the NFT associated with the stream.
     ///
     /// @dev Emits a {Transfer} event.
     ///
-    /// Notes:
-    /// - The purpose of this function is to make the integration of Sablier V2 easier. Third-party contracts don't
-    /// have to constantly check for the existence of the NFT. They can decide to burn the NFT themselves, or not.
-    ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - `streamId` must point to a lockup stream that is either canceled or depleted.
+    /// - `streamId` must reference a depleted stream.
     /// - The NFT must exist.
-    /// - `msg.sender` must be either the owner of the NFT or an approved operator.
+    /// - `msg.sender` must be either the NFT owner or an approved third party.
     ///
-    /// @param streamId The id of the lockup stream NFT to burn.
+    /// @param streamId The id of the stream NFT to burn.
     function burn(uint256 streamId) external;
 
-    /// @notice Cancels the lockup stream and transfers any remaining assets to the sender and the recipient.
+    /// @notice Cancels the stream and refunds any remaining assets to the sender.
     ///
-    /// @dev Emits a {CancelLockupStream} event.
+    /// @dev Emits a {CancelLockupStream} event and a {Transfer} event.
     ///
     /// Notes:
-    /// - This function will attempt to call a hook on either the sender or the recipient, depending upon who the
-    /// `msg.sender` is, and if the resolved address is a contract.
+    /// - If there any assets left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
+    /// stream is marked as depleted.
+    /// - This function attempts to invoke a hook on either the sender or the recipient, depending on who `msg.sender`
+    /// is, and if the resolved address is a contract.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - `streamId` must point to an active lockup stream.
-    /// - The lockup stream must be cancelable.
-    /// - `msg.sender` must be either the sender or the recipient of the stream (a.k.a the owner of the NFT).
+    /// - The stream must be active, cancelable, and not settled.
+    /// - `msg.sender` must be either the stream's sender or the stream's recipient (i.e. the NFT owner).
     ///
-    /// @param streamId The id of the lockup stream to cancel.
+    /// @param streamId The id of the stream to cancel.
     function cancel(uint256 streamId) external;
 
-    /// @notice Cancels multiple lockup streams and transfers any remaining assets to the sender and the recipient.
+    /// @notice Cancels multiple streams and refunds any remaining assets to the sender.
     ///
-    /// @dev Emits multiple {CancelLockupStream} events.
+    /// @dev Emits multiple {CancelLockupStream} and {Transfer} events.
     ///
     /// Notes:
-    /// - This function will attempt to call a hook on either the sender or the recipient of each stream.
+    /// - All from {cancel}.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
-    /// - All streams must be active and cancelable.
-    /// - `msg.sender` must be either the sender or the recipient of each stream.
+    /// - All requirements from {cancel} must be met for each stream.
     ///
-    /// @param streamIds The ids of the lockup streams to cancel.
+    /// @param streamIds The ids of the streams to cancel.
     function cancelMultiple(uint256[] calldata streamIds) external;
 
-    /// @notice Makes the lockup stream non-cancelable.
+    /// @notice Removes the right of the stream's sender to cancel the stream.
     ///
     /// @dev Emits a {RenounceLockupStream} event.
     ///
     /// Notes:
     /// - This is an irreversible operation.
-    /// - This function will attempt to call a hook on the recipient of the stream, if the recipient is a contract.
+    /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - `streamId` must point to an active lockup stream.
-    /// - `msg.sender` must be the sender of the stream.
-    /// - The lockup stream must not be non-cancelable.
+    /// - `streamId` must reference an active stream.
+    /// - `msg.sender` must be the stream's sender.
+    /// - The stream must be cancelable.
     ///
-    /// @param streamId The id of the lockup stream to renounce.
+    /// @param streamId The id of the stream to renounce.
     function renounce(uint256 streamId) external;
 
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
@@ -209,26 +212,27 @@ interface ISablierV2Lockup is
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     function setNFTDescriptor(ISablierV2NFTDescriptor newNFTDescriptor) external;
 
-    /// @notice Withdraws the provided amount of assets from the lockup stream to the provided address `to`.
+    /// @notice Withdraws the provided amount of assets from the stream to the specified address `to`.
     ///
     /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - This function will attempt to call a hook on the recipient of the stream, if the recipient is a contract.
+    /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - `streamId` must point to an active lockup stream.
-    /// - `msg.sender` must be either the recipient of the stream (a.k.a the owner of the NFT) or an approved operator.
-    /// - `to` must be the recipient if `msg.sender` is the sender of the stream.
-    /// - `amount` must not be zero and must not exceed the withdrawable amount.
+    /// - `streamId` must reference a stream that is either active or canceled.
+    /// - `msg.sender` must be the stream's sender, the stream's recipient or an approved third party.
+    /// - `to` must be the recipient if `msg.sender` is the stream's sender.
+    /// - `to` must not be the zero address.
+    /// - `amount` must be greater than zero and must not exceed the withdrawable amount.
     ///
-    /// @param streamId The id of the lockup stream to withdraw.
+    /// @param streamId The id of the stream to withdraw from.
     /// @param to The address that receives the withdrawn assets.
-    /// @param amount The amount to withdraw, in units of the asset's decimals.
+    /// @param amount The amount to withdraw, denoted in units of the asset's decimals.
     function withdraw(uint256 streamId, address to, uint128 amount) external;
 
-    /// @notice Withdraws the maximum withdrawable amount from the lockup stream to the provided address `to`.
+    /// @notice Withdraws the maximum withdrawable amount from the stream to the specified address `to`.
     ///
     /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
     ///
@@ -238,26 +242,23 @@ interface ISablierV2Lockup is
     /// Requirements:
     /// - All from {withdraw}.
     ///
-    /// @param streamId The id of the lockup stream to withdraw.
+    /// @param streamId The id of the stream to withdraw from.
     /// @param to The address that receives the withdrawn assets.
     function withdrawMax(uint256 streamId, address to) external;
 
-    /// @notice Withdraws assets from multiple lockup streams to the provided address `to`.
+    /// @notice Withdraws assets from streams to the provided address `to`.
     ///
     /// @dev Emits multiple {WithdrawFromLockupStream} and {Transfer} events.
     ///
     /// Notes:
-    /// - Does not revert if one of the ids points to a lockup stream that is not active.
-    /// - This function will attempt to call a hook on the recipient of each stream.
+    /// - This function attempts to invoke a hook on the recipient of each stream.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
-    /// - The count of `streamIds` must match the count of `amounts`.
-    /// - `msg.sender` must be either the recipient or an approved operator of each stream.
-    /// - Every amount in `amounts` must not be zero and must not exceed the withdrawable amount.
+    /// - All requirements from {withdraw} must be met for each stream.
+    /// - There must be an equal number of `streamIds` and `amounts`
     ///
-    /// @param streamIds The ids of the lockup streams to withdraw.
+    /// @param streamIds The ids of the streams to withdraw from.
     /// @param to The address that receives the withdrawn assets.
-    /// @param amounts The amounts to withdraw, in units of the asset's decimals.
+    /// @param amounts The amounts to withdraw, denoted in units of the asset's decimals.
     function withdrawMultiple(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external;
 }

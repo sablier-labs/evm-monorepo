@@ -17,7 +17,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         streamId = linear.nextStreamId();
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaultParams.createWithDurations);
@@ -29,7 +28,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert due to the start time being greater than the cliff time.
     function test_RevertWhen_CliffDurationCalculationOverflows() external whenNoDelegateCall {
         uint40 startTime = getBlockTimestamp();
         uint40 cliffDuration = UINT40_MAX - startTime + 1;
@@ -58,7 +56,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should revert.
     function test_RevertWhen_TotalDurationCalculationOverflows()
         external
         whenNoDelegateCall
@@ -91,21 +88,19 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    /// @dev it should perform the ERC-20 transfers, create the stream, bump the next stream id, record the
-    /// protocol fee, mint the NFT, and emit a {CreateLockupLinearStream} event.
     function test_CreateWithDurations()
         external
         whenNoDelegateCall
         whenCliffDurationCalculationDoesNotOverflow
         whenTotalDurationCalculationDoesNotOverflow
     {
-        // Make the sender the funder of the stream.
+        // Make the sender the stream's funder
         address funder = users.sender;
 
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
 
-        // Expect the ERC-20 assets to be transferred from the funder to {SablierV2LockupLinear}.
+        // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectTransferFromCall({
             from: funder,
             to: address(linear),
