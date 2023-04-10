@@ -37,10 +37,10 @@ contract SablierV2Comptroller is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Comptroller
-    mapping(IERC20 asset => bool supported) public override flashAssets;
+    UD60x18 public override flashFee;
 
     /// @inheritdoc ISablierV2Comptroller
-    UD60x18 public override flashFee;
+    mapping(IERC20 asset => bool supported) public override isFlashAsset;
 
     /// @inheritdoc ISablierV2Comptroller
     mapping(IERC20 asset => UD60x18 fee) public override protocolFees;
@@ -88,8 +88,8 @@ contract SablierV2Comptroller is
     /// @inheritdoc ISablierV2Comptroller
     function toggleFlashAsset(IERC20 asset) external override onlyAdmin {
         // Effects: enable the ERC-20 asset for flash loaning.
-        bool oldFlag = flashAssets[asset];
-        flashAssets[asset] = !oldFlag;
+        bool oldFlag = isFlashAsset[asset];
+        isFlashAsset[asset] = !oldFlag;
 
         // Log the change of the flash asset flag.
         emit ISablierV2Comptroller.ToggleFlashAsset({ admin: msg.sender, asset: asset, newFlag: !oldFlag });

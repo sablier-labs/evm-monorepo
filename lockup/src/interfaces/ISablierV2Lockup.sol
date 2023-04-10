@@ -217,7 +217,8 @@ interface ISablierV2Lockup is
     /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract.
+    /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract
+    /// and the caller is either the sender or an approved operator.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
@@ -251,7 +252,7 @@ interface ISablierV2Lockup is
     /// @dev Emits multiple {WithdrawFromLockupStream} and {Transfer} events.
     ///
     /// Notes:
-    /// - This function attempts to invoke a hook on the recipient of each stream.
+    /// - This function attempts to call a hook on the recipient of each stream, unless the caller is the recipient.
     ///
     /// Requirements:
     /// - All requirements from {withdraw} must be met for each stream.

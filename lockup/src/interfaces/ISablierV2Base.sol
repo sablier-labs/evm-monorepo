@@ -32,7 +32,7 @@ interface ISablierV2Base is IAdminable {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the maximum fee that can be charged by the protocol or a broker, as a UD60x18 number
+    /// @notice Retrieves the maximum fee that can be charged by the protocol or a broker, as a fixed-point number
     /// where 100% = 1e18.
     /// @dev This value is hard coded as a constant.
     function MAX_FEE() external view returns (UD60x18);

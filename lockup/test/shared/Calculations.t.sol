@@ -69,20 +69,20 @@ abstract contract Calculations is Constants {
         unchecked {
             uint128 previousSegmentAmounts;
             uint40 currentSegmentMilestone = segments[0].milestone;
-            uint256 index = 1;
+            uint256 index = 0;
             while (currentSegmentMilestone < currentTime) {
-                previousSegmentAmounts += segments[index - 1].amount;
-                currentSegmentMilestone = segments[index].milestone;
+                previousSegmentAmounts += segments[index].amount;
                 index += 1;
+                currentSegmentMilestone = segments[index].milestone;
             }
 
-            SD59x18 currentSegmentAmount = segments[index - 1].amount.intoSD59x18();
-            SD59x18 currentSegmentExponent = segments[index - 1].exponent.intoSD59x18();
-            currentSegmentMilestone = segments[index - 1].milestone;
+            SD59x18 currentSegmentAmount = segments[index].amount.intoSD59x18();
+            SD59x18 currentSegmentExponent = segments[index].exponent.intoSD59x18();
+            currentSegmentMilestone = segments[index].milestone;
 
             uint40 previousMilestone;
-            if (index > 1) {
-                previousMilestone = segments[index - 2].milestone;
+            if (index > 0) {
+                previousMilestone = segments[index - 1].milestone;
             } else {
                 previousMilestone = DEFAULT_START_TIME;
             }

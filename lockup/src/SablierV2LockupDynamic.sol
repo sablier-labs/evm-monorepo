@@ -64,7 +64,7 @@ contract SablierV2LockupDynamic is
     /// @dev Counter for stream ids, used in the create functions.
     uint256 private _nextStreamId;
 
-    /// @dev Lockup dynamic streams mapped by unsigned integers ids.
+    /// @dev Lockup dynamic streams mapped by unsigned integer ids.
     mapping(uint256 id => LockupDynamic.Stream stream) private _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -320,30 +320,31 @@ contract SablierV2LockupDynamic is
     {
         unchecked {
             uint40 currentTime = uint40(block.timestamp);
+            LockupDynamic.Stream memory stream = _streams[streamId];
 
-            // Sum the amounts in all preceding segments.
+            // Sum the amounts in all segments that precede the current time.
             uint128 previousSegmentAmounts;
-            uint40 currentSegmentMilestone = _streams[streamId].segments[0].milestone;
-            uint256 index = 1;
+            uint40 currentSegmentMilestone = stream.segments[0].milestone;
+            uint256 index = 0;
             while (currentSegmentMilestone < currentTime) {
-                previousSegmentAmounts += _streams[streamId].segments[index - 1].amount;
-                currentSegmentMilestone = _streams[streamId].segments[index].milestone;
+                previousSegmentAmounts += stream.segments[index].amount;
                 index += 1;
+                currentSegmentMilestone = stream.segments[index].milestone;
             }
 
-            // After exiting the loop, the current segment is at index `index - 1`, and the previous segment
-            // is at `index - 2` (when there are two or more segments).
-            SD59x18 currentSegmentAmount = _streams[streamId].segments[index - 1].amount.intoSD59x18();
-            SD59x18 currentSegmentExponent = _streams[streamId].segments[index - 1].exponent.intoSD59x18();
-            currentSegmentMilestone = _streams[streamId].segments[index - 1].milestone;
+            // After exiting the loop, the current segment is at `index`.
+            SD59x18 currentSegmentAmount = stream.segments[index].amount.intoSD59x18();
+            SD59x18 currentSegmentExponent = stream.segments[index].exponent.intoSD59x18();
+            currentSegmentMilestone = stream.segments[index].milestone;
 
             uint40 previousMilestone;
-            if (index > 1) {
-                // If the current segment is at index >= 2, use the previous segment's milestone.
-                previousMilestone = _streams[streamId].segments[index - 2].milestone;
+            if (index > 0) {
+                // When the current segment's index is greater than or equal to 1, it implies that the segment is not
+                // the first. In this case, use the previous segment's milestone.
+                previousMilestone = stream.segments[index - 1].milestone;
             } else {
-                // Otherwise, the current segment is the first, so consider the start time the previous milestone.
-                previousMilestone = _streams[streamId].startTime;
+                // Otherwise, the current segment is the first, so use the start time as the previous milestone.
+                previousMilestone = stream.startTime;
             }
 
             // Calculate how much time has passed since the segment started, and the total time of the segment.
@@ -358,13 +359,13 @@ contract SablierV2LockupDynamic is
             SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
 
             // Although the segment streamed amount should never exceed the total segment amount, this condition is
-            // checked without asserting to avoid locking funds in case of a bug. If this situation occurs, the amount
-            // streamed in the segment is considered zero (except for past withdrawals), and the segment is effectively
-            // voided.
+            // checked without asserting to avoid locking funds in case of a bug. If this situation occurs, the
+            // amount streamed in the segment is considered zero (except for past withdrawals), and the segment is
+            // effectively voided.
             if (segmentStreamedAmount.gt(currentSegmentAmount)) {
-                return previousSegmentAmounts > _streams[streamId].amounts.withdrawn
+                return previousSegmentAmounts > stream.amounts.withdrawn
                     ? previousSegmentAmounts
-                    : _streams[streamId].amounts.withdrawn;
+                    : stream.amounts.withdrawn;
             }
 
             // Calculate the total streamed amount by adding the previous segment amounts and the amount streamed in
@@ -373,7 +374,7 @@ contract SablierV2LockupDynamic is
         }
     }
 
-    /// @dev Calculates the streamed amount for a stream with one segment. Normalization to 18 decimals is not
+    /// @dev Calculates the streamed amount for a a stream with one segment. Normalization to 18 decimals is not
     /// needed because there is no mix of amounts with different decimals.
     function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128 streamedAmount) {
         unchecked {
@@ -443,20 +444,17 @@ contract SablierV2LockupDynamic is
             return 0;
         }
 
-        // Load the segment count and the end time.
-        uint256 segmentCount = _streams[streamId].segments.length;
-        uint40 endTime = _streams[streamId].endTime;
-
         // Return the deposited amount if the current time is greater than or equal to the end time.
+        uint40 endTime = _streams[streamId].endTime;
         if (currentTime >= endTime) {
             return amounts.deposited;
         }
 
-        if (segmentCount > 1) {
-            // If there's more than one segment, we may have to iterate over all of them.
+        if (_streams[streamId].segments.length > 1) {
+            // If there is more than one segment, it may be necessary to iterate over all of them.
             streamedAmount = _calculateStreamedAmountForMultipleSegments(streamId);
         } else {
-            // Otherwise, there is only one segment, and the calculation is simple.
+            // Otherwise, there is only one segment, and the calculation is simpler.
             streamedAmount = _calculateStreamedAmountForOneSegment(streamId);
         }
     }
@@ -547,7 +545,7 @@ contract SablierV2LockupDynamic is
         returns (uint256 streamId)
     {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
-        // not call other unknown contracts..
+        // not call other unknown contracts.
         UD60x18 protocolFee = comptroller.protocolFees(params.asset);
 
         // Checks: check the fees and calculate the fee amounts.
@@ -606,7 +604,7 @@ contract SablierV2LockupDynamic is
             params.asset.safeTransferFrom({ from: msg.sender, to: params.broker.account, value: createAmounts.brokerFee });
         }
 
-        // Log the newly created stream, and the address that funded it.
+        // Log the newly created stream.
         emit ISablierV2LockupDynamic.CreateLockupDynamicStream({
             streamId: streamId,
             funder: msg.sender,
