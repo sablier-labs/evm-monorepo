@@ -479,6 +479,7 @@ contract SablierV2LockupDynamic is
             if (recipient.code.length > 0) {
                 try ISablierV2LockupRecipient(recipient).onStreamCanceled({
                     streamId: streamId,
+                    sender: sender,
                     senderAmount: senderAmount,
                     recipientAmount: recipientAmount
                 }) { } catch { }
@@ -491,6 +492,7 @@ contract SablierV2LockupDynamic is
             if (sender.code.length > 0) {
                 try ISablierV2LockupSender(sender).onStreamCanceled({
                     streamId: streamId,
+                    recipient: recipient,
                     senderAmount: senderAmount,
                     recipientAmount: recipientAmount
                 }) { } catch { }
@@ -595,7 +597,8 @@ contract SablierV2LockupDynamic is
         // reverting if the hook is not implemented, and also without bubbling up any potential revert.
         address recipient = _ownerOf(streamId);
         if (recipient.code.length > 0) {
-            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
+            try ISablierV2LockupRecipient(recipient).onStreamRenounced({ streamId: streamId, sender: msg.sender }) { }
+                catch { }
         }
 
         // Log the renouncement.

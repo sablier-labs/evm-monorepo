@@ -5,8 +5,16 @@ import { ISablierV2LockupSender } from "../../../../src/interfaces/hooks/ISablie
 import { ISablierV2Lockup } from "../../../../src/interfaces/ISablierV2Lockup.sol";
 
 contract ReentrantSender is ISablierV2LockupSender {
-    function onStreamCanceled(uint256 streamId, uint128 senderAmount, uint128 recipientAmount) external {
+    function onStreamCanceled(
+        uint256 streamId,
+        address recipient,
+        uint128 senderAmount,
+        uint128 recipientAmount
+    )
+        external
+    {
         streamId;
+        recipient;
         senderAmount;
         recipientAmount;
         ISablierV2Lockup(msg.sender).cancel(streamId);
