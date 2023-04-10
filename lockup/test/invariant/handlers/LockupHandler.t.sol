@@ -10,7 +10,7 @@ import { BaseHandler } from "./BaseHandler.t.sol";
 import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
 /// @title LockupHandler
-/// @dev Common handler logic between {SablierV2LockupLinear} and {SablierV2LockupDynamic}.
+/// @dev Common handler logic between {LockupLinearHandler} and {LockupDynamicHandler}.
 abstract contract LockupHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
@@ -54,6 +54,7 @@ abstract contract LockupHandler is BaseHandler {
         if (lastStreamId == 0) {
             return;
         }
+
         currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
         currentRecipient = store.recipients(currentStreamId);
         vm.startPrank(currentRecipient);
@@ -66,6 +67,7 @@ abstract contract LockupHandler is BaseHandler {
         if (lastStreamId == 0) {
             return;
         }
+
         currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
         currentSender = store.senders(currentStreamId);
         vm.startPrank(currentSender);

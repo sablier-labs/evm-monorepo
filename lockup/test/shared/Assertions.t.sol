@@ -75,7 +75,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEqUint40(a.start, b.start, "range.start");
     }
 
-    /// @dev Compares two `Segment[]` arrays.
+    /// @dev Compares two `LockupDynamic.Segment[]` arrays.
     function assertEq(LockupDynamic.Segment[] memory a, LockupDynamic.Segment[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
             emit Log("Error: a == b not satisfied [LockupDynamic.Segment[]]");

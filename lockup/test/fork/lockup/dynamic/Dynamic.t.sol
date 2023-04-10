@@ -130,7 +130,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: asset, newProtocolFee: params.protocolFee });
 
-        // Make the holder the caller in the rest of the test.
+        // Make the holder the caller.
         changePrank(holder);
 
         /*//////////////////////////////////////////////////////////////////////////
@@ -191,17 +191,17 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = dynamic.nextStreamId();
         vars.expectedNextStreamId = vars.streamId + 1;
-        assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
+        assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "post-create nextStreamId");
 
         // Assert that the protocol fee has been recorded.
         vars.actualProtocolRevenues = dynamic.protocolRevenues(asset);
         vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
-        assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
+        assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "post-create protocolRevenues");
 
         // Assert that the NFT has been minted.
         vars.actualNFTOwner = dynamic.ownerOf({ tokenId: vars.streamId });
         vars.expectedNFTOwner = params.recipient;
-        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
+        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "post-create NFT owner");
 
         // Load the post-create asset balances.
         vars.balances =
@@ -260,7 +260,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             // Assert that the withdrawn amount has been updated.
             vars.actualWithdrawnAmount = dynamic.getWithdrawnAmount(vars.streamId);
             vars.expectedWithdrawnAmount = params.withdrawAmount;
-            assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
+            assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "post-withdraw withdrawnAmount");
 
             // Load the post-withdraw asset balances.
             vars.balances = getTokenBalances(address(asset), Solarray.addresses(address(dynamic), params.recipient));
@@ -309,12 +309,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             // Assert that the status has been updated.
             vars.actualStatus = dynamic.getStatus(vars.streamId);
             vars.expectedStatus = vars.recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
-            assertEq(vars.actualStatus, vars.expectedStatus, "status after cancel");
-
-            // Assert that the NFT has not been burned.
-            vars.actualNFTOwner = dynamic.ownerOf({ tokenId: vars.streamId });
-            vars.expectedNFTOwner = params.recipient;
-            assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner after cancel");
+            assertEq(vars.actualStatus, vars.expectedStatus, "post-cancel stream status");
 
             // Load the post-cancel asset balances.
             vars.balances =
@@ -339,5 +334,10 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             vars.expectedRecipientBalance = vars.initialRecipientBalance;
             assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-cancel recipient balance");
         }
+
+        // Assert that the NFT has not been burned.
+        vars.actualNFTOwner = dynamic.ownerOf({ tokenId: vars.streamId });
+        vars.expectedNFTOwner = params.recipient;
+        assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "post-cancel NFT owner");
     }
 }

@@ -103,16 +103,16 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
             assertGt(
-                lockup.getEndTime(streamId), lockup.getStartTime(streamId), "Invariant violated: end time < start time"
+                lockup.getEndTime(streamId), lockup.getStartTime(streamId), "Invariant violated: end time <= start time"
             );
         }
     }
 
-    function invariant_NextStreamIdIncrement() external {
+    function invariant_NextStreamId() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 nextStreamId = lockup.nextStreamId();
-            assertEq(nextStreamId, lastStreamId + 1, "Invariant violated: nonce did not increment");
+            assertEq(nextStreamId, lastStreamId + 1, "Invariant violated: next stream id not incremented");
         }
     }
 

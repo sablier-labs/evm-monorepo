@@ -13,7 +13,7 @@ contract SetFlashFee_Fuzz_Test is Comptroller_Fuzz_Test {
         vm.expectEmit({ emitter: address(comptroller) });
         emit SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: newFlashFee });
 
-        // She the new flash fee.
+        // Set the new flash fee.
         comptroller.setFlashFee(newFlashFee);
 
         // Assert that the flash fee has been updated.

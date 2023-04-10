@@ -31,7 +31,7 @@ abstract contract Utils is StdUtils, PRBMathUtils {
         blockTimestamp = uint40(block.timestamp);
     }
 
-    /// @dev Turns the segment with deltas into canonical segments.
+    /// @dev Turns the segments with deltas into canonical segments, which have milestones.
     function getSegmentsWithMilestones(LockupDynamic.SegmentWithDelta[] memory segments)
         internal
         view

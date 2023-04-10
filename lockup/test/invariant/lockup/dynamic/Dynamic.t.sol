@@ -62,7 +62,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         excludeSender(address(dynamicHandler));
         excludeSender(address(dynamicCreateHandler));
 
-        // Label the dynamic handler.
+        // Label the handler contracts.
         vm.label({ account: address(dynamicHandler), newLabel: "LockupDynamicHandler" });
         vm.label({ account: address(dynamicCreateHandler), newLabel: "LockupDynamicCreateHandler" });
         vm.label({ account: address(flashLoanHandler), newLabel: "FlashLoanHandler" });

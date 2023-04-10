@@ -92,7 +92,8 @@ abstract contract Calculations is Constants {
 
             SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
             SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
-            streamedAmount = previousSegmentAmounts + uint128(multiplier.mul(currentSegmentAmount).intoUint256());
+            SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
+            streamedAmount = previousSegmentAmounts + uint128(segmentStreamedAmount.intoUint256());
         }
     }
 
@@ -116,7 +117,8 @@ abstract contract Calculations is Constants {
 
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             SD59x18 multiplier = elapsedTimePercentage.pow(exponent.intoSD59x18());
-            streamedAmount = uint128(multiplier.mul(depositAmount.intoSD59x18()).intoUint256());
+            SD59x18 streamedAmountSd = multiplier.mul(depositAmount.intoSD59x18());
+            streamedAmount = uint128(streamedAmountSd.intoUint256());
         }
     }
 }

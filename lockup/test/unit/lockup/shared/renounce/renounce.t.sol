@@ -209,7 +209,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Renounce the stream.
         lockup.renounce(streamId);
 
-        // Assert that the stream is not cancelable now.
+        // Assert that the stream is not cancelable.
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }
