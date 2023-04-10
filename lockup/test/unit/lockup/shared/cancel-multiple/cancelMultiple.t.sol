@@ -57,72 +57,11 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_AllStreamsNotCancelable()
-        external
-        whenNoDelegateCall
-        whenArrayCountNotZero
-        whenOnlyNonNullStreams
-    {
-        uint256 notCancelableStreamId = createDefaultStreamNotCancelable();
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
-        );
-        lockup.cancelMultiple({ streamIds: Solarray.uint256s(notCancelableStreamId) });
-    }
-
-    function test_RevertWhen_SomeStreamsNotCancelable()
-        external
-        whenNoDelegateCall
-        whenArrayCountNotZero
-        whenOnlyNonNullStreams
-    {
-        uint256 notCancelableStreamId = createDefaultStreamNotCancelable();
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
-        );
-        lockup.cancelMultiple({ streamIds: Solarray.uint256s(defaultStreamIds[0], notCancelableStreamId) });
-    }
-
-    modifier whenAllStreamsCancelable() {
-        _;
-    }
-
-    function test_RevertWhen_AllStreamsSettled()
-        external
-        whenNoDelegateCall
-        whenArrayCountNotZero
-        whenOnlyNonNullStreams
-        whenAllStreamsCancelable
-    {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamIds[0]));
-        lockup.cancelMultiple({ streamIds: defaultStreamIds });
-    }
-
-    function test_RevertWhen_SomeStreamsSettled()
-        external
-        whenNoDelegateCall
-        whenArrayCountNotZero
-        whenOnlyNonNullStreams
-        whenAllStreamsCancelable
-    {
-        uint256 earlyStreamId = createDefaultStreamWithEndTime({ endTime: DEFAULT_CLIFF_TIME + 1 });
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME + 1 });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, earlyStreamId));
-        lockup.cancelMultiple({ streamIds: Solarray.uint256s(defaultStreamIds[0], earlyStreamId) });
-    }
-
-    modifier whenAllStreamsSettled() {
-        _;
-    }
-
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
         external
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
-        whenAllStreamsCancelable
-        whenAllStreamsSettled
     {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -139,8 +78,6 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
-        whenAllStreamsCancelable
-        whenAllStreamsSettled
     {
         // Approve the operator for all streams.
         lockup.setApprovalForAll({ operator: users.operator, _approved: true });
@@ -160,8 +97,6 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
-        whenAllStreamsCancelable
-        whenAllStreamsSettled
     {
         // Transfer the streams to Alice.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -179,8 +114,6 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
-        whenAllStreamsCancelable
-        whenAllStreamsSettled
     {
         changePrank({ msgSender: users.eve });
 
@@ -200,8 +133,6 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
-        whenAllStreamsCancelable
-        whenAllStreamsSettled
     {
         // Approve the operator to handle the first stream.
         lockup.approve({ to: users.operator, tokenId: defaultStreamIds[0] });
@@ -221,8 +152,6 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
-        whenAllStreamsCancelable
-        whenAllStreamsSettled
     {
         // Transfer the first stream to Eve.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -238,31 +167,94 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_CancelMultiple_Sender()
+    function test_RevertWhen_AllStreamsNotCancelable()
         external
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+    {
+        uint256 notCancelableStreamId = createDefaultStreamNotCancelable();
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
+        );
+        lockup.cancelMultiple({ streamIds: Solarray.uint256s(notCancelableStreamId) });
+    }
+
+    function test_RevertWhen_SomeStreamsNotCancelable()
+        external
+        whenNoDelegateCall
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+    {
+        uint256 notCancelableStreamId = createDefaultStreamNotCancelable();
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
+        );
+        lockup.cancelMultiple({ streamIds: Solarray.uint256s(defaultStreamIds[0], notCancelableStreamId) });
+    }
+
+    modifier whenAllStreamsCancelable() {
+        _;
+    }
+
+    function test_RevertWhen_AllStreamsSettled()
+        external
+        whenNoDelegateCall
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+        whenAllStreamsCancelable
+    {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamIds[0]));
+        lockup.cancelMultiple({ streamIds: defaultStreamIds });
+    }
+
+    function test_RevertWhen_SomeStreamsSettled()
+        external
+        whenNoDelegateCall
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
+        whenAllStreamsCancelable
+    {
+        uint256 earlyStreamId = createDefaultStreamWithEndTime({ endTime: DEFAULT_CLIFF_TIME + 1 });
+        vm.warp({ timestamp: DEFAULT_CLIFF_TIME + 1 });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, earlyStreamId));
+        lockup.cancelMultiple({ streamIds: Solarray.uint256s(defaultStreamIds[0], earlyStreamId) });
+    }
+
+    modifier whenAllStreamsSettled() {
+        _;
+    }
+
+    function test_CancelMultiple_CallerSender()
+        external
+        whenNoDelegateCall
+        whenArrayCountNotZero
+        whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
         whenAllStreamsSettled
-        whenCallerAuthorizedAllStreams
     {
         changePrank({ msgSender: users.sender });
         test_CancelMultiple();
     }
 
-    function test_CancelMultiple_Recipient()
+    function test_CancelMultiple_CallerRecipient()
         external
         whenNoDelegateCall
         whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
         whenAllStreamsSettled
-        whenCallerAuthorizedAllStreams
     {
         test_CancelMultiple();
     }
 
-    /// @dev Test logic shared between {test_CancelMultiple_Sender} and {test_CancelMultiple_Recipient}.
+    /// @dev Test logic shared between {test_CancelMultiple_CallerSender} and {test_CancelMultiple_CallerRecipient}.
     function test_CancelMultiple() internal {
         // Warp into the future.
         vm.warp({ timestamp: WARP_TIME_26 });

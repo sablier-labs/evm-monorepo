@@ -4,7 +4,7 @@ pragma solidity >=0.8.13;
 /// @title ISablierV2LockupRecipient
 /// @notice Interface for recipient contracts capable of reacting to cancellations, renouncements, and withdrawals.
 /// @dev Implementation of this interface is optional. If a recipient contract doesn't implement this
-/// interface or implements it partially, function execution won't revert.
+/// interface or implements it partially, function execution will not revert.
 interface ISablierV2LockupRecipient {
     /// @notice Responds to sender-triggered cancellations.
     ///
@@ -12,8 +12,9 @@ interface ISablierV2LockupRecipient {
     /// - This function may revert, but the Sablier contract will ignore the revert.
     ///
     /// @param streamId The id of the canceled stream.
-    /// @param senderAmount The amount of assets refunded to the sender, denoted in units of the asset's decimals.
-    /// @param recipientAmount The amount of assets left to be withdrawn by the recipient, denoted in units of the
+    /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
+    /// decimals.
+    /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of the
     /// asset's decimals.
     function onStreamCanceled(uint256 streamId, uint128 senderAmount, uint128 recipientAmount) external;
 

@@ -10,31 +10,31 @@ cancelMultiple.t.sol
       ├── when the stream ids array references some null streams
       │  └── it should revert
       └── when the stream ids array references only non-null streams
-         ├── when all streams are not cancelable
-         │  └── it should revert
-         ├── when some streams are not cancelable
-         │  └── it should revert
-         └── when all streams are cancelable
-            ├── when all streams are settled
+         ├── when the caller is unauthorized for all streams
+         │  ├── when the caller is a malicious third party
+         │  │  └── it should revert
+         │  ├── when the caller is an approved third party
+         │  │  └── it should revert
+         │  └── when the caller is a former recipient
+         │     └── it should revert
+         ├── when the caller is unauthorized for some streams
+         │  ├── when the caller is a malicious third party
+         │  │  └── it should revert
+         │  ├── when the caller is an approved third party
+         │  │  └── it should revert
+         │  └── when the caller is a former recipient
+         │     └── it should revert
+         └── when the caller is authorized for all streams
+            ├── when all streams are not cancelable
             │  └── it should revert
-            ├── when some streams are settled
+            ├── when some streams are not cancelable
             │  └── it should revert
-            └── when all streams are settled
-               ├── when the caller is unauthorized for all streams
-               │  ├── when the caller is a malicious third party
-               │  │  └── it should revert
-               │  ├── when the caller is an approved third party
-               │  │  └── it should revert
-               │  └── when the caller is a former recipient
-               │     └── it should revert
-               ├── when the caller is unauthorized for some streams
-               │  ├── when the caller is a malicious third party
-               │  │  └── it should revert
-               │  ├── when the caller is an approved third party
-               │  │  └── it should revert
-               │  └── when the caller is a former recipient
-               │     └── it should revert
-               └── when the caller is authorized for all streams
+            └── when all streams are cancelable
+               ├── when all streams are settled
+               │  └── it should revert
+               ├── when some streams are settled
+               │  └── it should revert
+               └── when all streams are settled
                   ├── when the caller is the sender
                   │  ├── it should cancel the streams
                   │  ├── it should refund the sender

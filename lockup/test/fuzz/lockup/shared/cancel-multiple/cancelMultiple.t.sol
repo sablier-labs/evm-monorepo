@@ -32,6 +32,10 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
+    modifier whenCallerAuthorizedAllStreams() {
+        _;
+    }
+
     modifier whenAllStreamsCancelable() {
         _;
     }
@@ -40,11 +44,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier whenCallerAuthorizedAllStreams() {
-        _;
-    }
-
-    function testFuzz_CancelMultiple_Sender(
+    function testFuzz_CancelMultiple_CallerSender(
         uint256 timeWarp,
         uint40 endTime
     )
@@ -63,7 +63,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         testFuzz_CancelMultiple(timeWarp, endTime);
     }
 
-    function testFuzz_CancelMultiple_Recipient(
+    function testFuzz_CancelMultiple_CallerRecipient(
         uint256 timeWarp,
         uint40 endTime
     )
@@ -82,7 +82,8 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         testFuzz_CancelMultiple(timeWarp, endTime);
     }
 
-    /// @dev Test logic shared between {testFuzz_CancelMultiple_Sender} and {testFuzz_CancelMultiple_Recipient}.
+    /// @dev Test logic shared between {testFuzz_CancelMultiple_CallerSender} and
+    /// {testFuzz_CancelMultiple_CallerRecipient}.
     function testFuzz_CancelMultiple(uint256 timeWarp, uint40 endTime) internal {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION - 1);
         endTime = boundUint40(endTime, DEFAULT_END_TIME, DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION);

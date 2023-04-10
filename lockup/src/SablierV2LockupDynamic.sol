@@ -497,7 +497,7 @@ contract SablierV2LockupDynamic is
             revert Errors.SablierV2Lockup_StreamSettled(streamId);
         }
 
-        // Effects: If the recipient has any unwithdrawn streamed assets, mark the stream as canceled.
+        // Effects: If there are any assets left for the recipient to withdraw, mark the stream as canceled.
         // Otherwise, mark it as depleted.
         _streams[streamId].status = recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
         _streams[streamId].isCancelable = false;
@@ -652,7 +652,7 @@ contract SablierV2LockupDynamic is
 
         // Unchecked arithmetic is safe because this calculation has already been performed in {_withdrawableAmountOf}.
         unchecked {
-            // Using ">=" instead of "==" for additional safety reasons. In the event of any unforeseen increases in the
+            // Using ">=" instead of "==" for additional safety reasons. In the event of an unforeseen increase in the
             // withdrawn amount, the stream will still be marked as depleted and made not cancelable.
             if (amounts.withdrawn >= amounts.deposited - amounts.refunded) {
                 // Effects: mark the stream as depleted.

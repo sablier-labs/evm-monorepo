@@ -22,8 +22,9 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream.
     /// @param sender The address of the stream's sender.
     /// @param recipient The address of the stream's recipient.
-    /// @param senderAmount The amount of assets refunded to the sender, denoted in units of the asset's decimals.
-    /// @param recipientAmount The amount of assets left to be withdrawn by the recipient, denoted in units of the
+    /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
+    /// decimals.
+    /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of the
     /// asset's decimals.
     event CancelLockupStream(
         uint256 indexed streamId,

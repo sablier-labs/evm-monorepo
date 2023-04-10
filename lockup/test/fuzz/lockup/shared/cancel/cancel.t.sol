@@ -25,15 +25,15 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
+    modifier whenCallerAuthorized() {
+        _;
+    }
+
     modifier whenStreamCancelable() {
         _;
     }
 
     modifier whenEndTimeInTheFuture() {
-        _;
-    }
-
-    modifier whenCallerAuthorized() {
         _;
     }
 
@@ -67,16 +67,16 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     ///
     /// - Multiple values for the current time
     /// - With and without withdrawals
-    function testFuzz_Cancel_Sender(
+    function testFuzz_Cancel_CallerSender(
         uint256 timeWarp,
         uint128 withdrawAmount
     )
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerSender
         whenRecipientContract
@@ -148,16 +148,16 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    function testFuzz_Cancel_Recipient(
+    function testFuzz_Cancel_CallerRecipient(
         uint256 timeWarp,
         uint128 withdrawAmount
     )
         external
         whenNoDelegateCall
         whenStreamActive
+        whenCallerAuthorized
         whenStreamCancelable
         whenEndTimeInTheFuture
-        whenCallerAuthorized
         whenStartTimeInThePast
         whenCallerRecipient
         whenSenderContract

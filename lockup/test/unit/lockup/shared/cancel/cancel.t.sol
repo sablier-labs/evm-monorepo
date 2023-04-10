@@ -153,7 +153,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_Sender_RecipientNotContract()
+    function test_Cancel_CallerSender_RecipientNotContract()
         external
         whenNoDelegateCall
         whenStreamActive
@@ -173,7 +173,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_Sender_RecipientDoesNotImplementHook()
+    function test_Cancel_CallerSender_RecipientDoesNotImplementHook()
         external
         whenNoDelegateCall
         whenStreamActive
@@ -208,7 +208,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_Sender_RecipientReverts()
+    function test_Cancel_CallerSender_RecipientReverts()
         external
         whenNoDelegateCall
         whenStreamActive
@@ -244,7 +244,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_Sender_RecipientReentrancy()
+    function test_Cancel_CallerSender_RecipientReentrancy()
         external
         whenNoDelegateCall
         whenStreamActive
@@ -281,7 +281,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_Sender()
+    function test_Cancel_CallerSender()
         external
         whenNoDelegateCall
         whenStreamActive
@@ -340,7 +340,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_Recipient_SenderNotContract()
+    function test_Cancel_CallerRecipient_SenderNotContract()
         external
         whenNoDelegateCall
         whenStreamActive
@@ -360,7 +360,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_Recipient_SenderDoesNotImplementHook()
+    function test_Cancel_CallerRecipient_SenderDoesNotImplementHook()
         external
         whenNoDelegateCall
         whenStreamActive
@@ -395,7 +395,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_Recipient_SenderReverts()
+    function test_Cancel_CallerRecipient_SenderReverts()
         external
         whenNoDelegateCall
         whenStreamActive
@@ -431,7 +431,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_Recipient_SenderReentrancy()
+    function test_Cancel_CallerRecipient_SenderReentrancy()
         external
         whenNoDelegateCall
         whenStreamActive
@@ -468,7 +468,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_Cancel_Recipient()
+    function test_Cancel_CallerRecipient()
         external
         whenNoDelegateCall
         whenStreamActive
