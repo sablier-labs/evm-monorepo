@@ -108,7 +108,7 @@ interface ISablierV2Lockup is
     function isCancelable(uint256 streamId) external view returns (bool result);
 
     /// @notice Retrieves a flag that indicates whether the stream is settled. A stream is considered settled when the
-    /// refundable amount for the sender upon cancellation is zero. As a result, both canceled and depleted streams
+    /// refundable amount for the sender upon cancellation is zero. Consequently, both canceled and depleted streams
     /// are inherently settled, as they can no longer be canceled.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
@@ -151,44 +151,44 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream NFT to burn.
     function burn(uint256 streamId) external;
 
-    /// @notice Cancels the stream and transfers any remaining assets to the sender.
+    /// @notice Cancels the stream and refunds any remaining assets to the sender.
     ///
     /// @dev Emits a {CancelLockupStream} event and a {Transfer} event.
     ///
     /// Notes:
-    /// - This function will attempt to call a hook on either the sender or the recipient, depending on who
-    /// `msg.sender` is, and if the resolved address is a contract.
+    /// - If there any assets left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
+    /// stream is marked as depleted.
+    /// - This function attempts to invoke a hook on either the sender or the recipient, depending on who `msg.sender`
+    /// is, and if the resolved address is a contract.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
     /// - The stream must be active, cancelable, and not settled.
-    /// - `msg.sender` must be either the sender or the stream's recipient (a.k.a the NFT owner).
+    /// - `msg.sender` must be either the stream's sender or the stream's recipient (i.e. the NFT owner).
     ///
     /// @param streamId The id of the stream to cancel.
     function cancel(uint256 streamId) external;
 
-    /// @notice Cancels multiple streams and transfers any remaining assets to the sender.
+    /// @notice Cancels multiple streams and refunds any remaining assets to the sender.
     ///
     /// @dev Emits multiple {CancelLockupStream} and {Transfer} events.
     ///
     /// Notes:
-    /// - This function will attempt to call a hook on either the sender or the recipient of each stream.
+    /// - All from {cancel}.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
-    /// - Each value in `streamIds` must reference a stream that is active, cancelable, and not settled.
-    /// - `msg.sender` must be either the sender or the recipient of each stream.
+    /// - All requirements from {cancel} must be met for each stream.
     ///
     /// @param streamIds The ids of the streams to cancel.
     function cancelMultiple(uint256[] calldata streamIds) external;
 
-    /// @notice Removes the right of the sender to cancel the stream.
+    /// @notice Removes the right of the stream's sender to cancel the stream.
     ///
     /// @dev Emits a {RenounceLockupStream} event.
     ///
     /// Notes:
     /// - This is an irreversible operation.
-    /// - This function will attempt to call a hook on the stream's recipient, if the recipient is a contract.
+    /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
@@ -217,13 +217,12 @@ interface ISablierV2Lockup is
     /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - This function will attempt to call a hook on the stream's recipient, if the recipient is a contract.
+    /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
     /// - `streamId` must reference a stream that is either active or canceled.
-    /// - `msg.sender` must be the stream's sender, the stream's recipient (a.k.a the NFT owner) or an
-    /// approved third party.
+    /// - `msg.sender` must be the stream's sender, the stream's recipient or an approved third party.
     /// - `to` must be the recipient if `msg.sender` is the stream's sender.
     /// - `to` must not be the zero address.
     /// - `amount` must be greater than zero and must not exceed the withdrawable amount.
@@ -252,16 +251,11 @@ interface ISablierV2Lockup is
     /// @dev Emits multiple {WithdrawFromLockupStream} and {Transfer} events.
     ///
     /// Notes:
-    /// - This function will attempt to call a hook on the recipient of each stream.
+    /// - This function attempts to invoke a hook on the recipient of each stream.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
-    /// - `to` must not be the zero address.
-    /// - There must be an equal number of `streamIds` and `amounts`.
-    /// - `msg.sender` must be either the recipient or an approved third party of each stream.
-    /// - Each value in `streamId` must reference a stream that is neither null nor depleted.
-    /// - Each value in `amounts` must be greater than zero and must not exceed the corresponding maximum withdrawable
-    /// amount.
+    /// - All requirements from {withdraw} must be met for each stream.
+    /// - There must be an equal number of `streamIds` and `amounts`
     ///
     /// @param streamIds The ids of the streams to withdraw from.
     /// @param to The address that receives the withdrawn assets.

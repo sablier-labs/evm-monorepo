@@ -39,20 +39,6 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
                                      INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function invariant_CanceledStreamsNonZeroWithdrawableAmounts() external {
-        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupHandlerStorage.streamIds(i);
-            if (lockup.getStatus(streamId) == Lockup.Status.CANCELED) {
-                assertGt(
-                    lockup.withdrawableAmountOf(streamId),
-                    0,
-                    "Invariant violated: canceled stream has zero withdrawable amount"
-                );
-            }
-        }
-    }
-
     // solhint-disable max-line-length
     function invariant_ContractBalance() external {
         uint256 contractBalance = DEFAULT_ASSET.balanceOf(address(lockup));
@@ -127,6 +113,34 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 nextStreamId = lockup.nextStreamId();
             assertEq(nextStreamId, lastStreamId + 1, "Invariant violated: nonce did not increment");
+        }
+    }
+
+    function invariant_StreamCanceledNonZeroRefundedAmount() external {
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            if (lockup.getStatus(streamId) == Lockup.Status.CANCELED) {
+                assertGt(
+                    lockup.getRefundedAmount(streamId),
+                    0,
+                    "Invariant violated: canceled stream with zero refunded amount"
+                );
+            }
+        }
+    }
+
+    function invariant_StreamCanceledNonZeroWithdrawableAmount() external {
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            if (lockup.getStatus(streamId) == Lockup.Status.CANCELED) {
+                assertGt(
+                    lockup.withdrawableAmountOf(streamId),
+                    0,
+                    "Invariant violated: canceled stream with zero withdrawable amount"
+                );
+            }
         }
     }
 
