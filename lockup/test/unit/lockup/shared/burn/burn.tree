@@ -12,7 +12,10 @@ burn.t.sol
       ├── when the caller is unauthorized
       │  └── it should revert
       └── when the caller is authorized
-         ├── when the caller is an approved third party
-         │  └── it should burn the NFT
-         └── when the caller is the owner of the NFT
-            └── it should burn the NFT
+         ├── when NFT does not exist
+         │  └── it should revert
+         └── when NFT exists
+            ├── when the caller is an approved third party
+            │  └── it should burn the NFT
+            └── when the caller is the owner of the NFT
+               └── it should burn the NFT

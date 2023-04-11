@@ -61,7 +61,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         excludeSender(address(linearHandler));
         excludeSender(address(linearCreateHandler));
 
-        // Label the handlers.
+        // Label the handler contracts.
         vm.label({ account: address(linearHandler), newLabel: "LockupLinearHandler" });
         vm.label({ account: address(linearCreateHandler), newLabel: "LockupLinearCreateHandler" });
         vm.label({ account: address(flashLoanHandler), newLabel: "FlashLoanHandler" });

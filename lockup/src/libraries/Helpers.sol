@@ -173,12 +173,14 @@ library Helpers {
         uint40 currentMilestone;
         uint40 previousMilestone;
 
-        // Iterate over the segments to calculate the sum of all segment amounts, and check that the milestones are
-        // ordered.
-        uint256 index;
-        uint256 segmentCount = segments.length;
-        for (index = 0; index < segmentCount;) {
-            // Add the current segment amount to the sum. Note that this can overflow.
+        // Iterate over the segments to:
+        //
+        // 1. Calculate the sum of all segment amounts.
+        // 2. Check that the milestones are ordered.
+        uint256 count = segments.length;
+        for (uint256 index = 0; index < count;) {
+            // Add the current segment amount to the sum. Note that this can overflow, causing the transaction to
+            // revert.
             segmentAmountsSum += segments[index].amount;
 
             // Check that the current milestone is strictly greater than the previous milestone.

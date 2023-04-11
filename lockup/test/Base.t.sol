@@ -195,12 +195,12 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         vm.expectCall(address(asset), abi.encodeCall(IERC20.transfer, (to, amount)));
     }
 
-    /// @dev Expects a call to the `transfer` function of the default ERC-20 contract.
+    /// @dev Expects a call to the `transferFrom` function of the default ERC-20 contract.
     function expectTransferFromCall(address from, address to, uint256 amount) internal {
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
     }
 
-    /// @dev Expects a call to the `transfer` function of the provided ERC-20 contract.
+    /// @dev Expects a call to the `transferFrom` function of the provided ERC-20 contract.
     function expectTransferFromCall(IERC20 asset, address from, address to, uint256 amount) internal {
         vm.expectCall(address(asset), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
     }

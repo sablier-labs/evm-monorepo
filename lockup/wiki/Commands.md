@@ -90,7 +90,7 @@ $ pnpm lint
 
 ## Lint Sol
 
-Ling the contracts:
+Lint the contracts:
 
 ```shell
 $ pnpm lint:sol

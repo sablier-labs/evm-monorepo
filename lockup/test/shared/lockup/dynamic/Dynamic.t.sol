@@ -75,7 +75,7 @@ abstract contract Dynamic_Shared_Test is Lockup_Shared_Test {
         streamId = dynamic.createWithMilestones(defaultParams.createWithMilestones);
     }
 
-    /// @dev Creates the default stream with the provided broker.
+    /// @dev Creates the default stream with the provided asset.
     function createDefaultStreamWithAsset(IERC20 asset) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
         params.asset = asset;

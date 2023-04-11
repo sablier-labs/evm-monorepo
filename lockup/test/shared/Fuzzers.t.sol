@@ -45,7 +45,7 @@ abstract contract Fuzzers is Constants, Utils {
         }
     }
 
-    /// @dev Fuzzes the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker
+    /// @dev Fuzzes the segment amounts and calculates the create amounts (total, deposit, protocol fee, and broker
     /// fee).
     function fuzzSegmentAmountsAndCalculateCreateAmounts(
         uint128 upperBound,
@@ -65,7 +65,7 @@ abstract contract Fuzzers is Constants, Utils {
         }
     }
 
-    /// @dev Fuzzes the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker
+    /// @dev Fuzzes the segment amounts and calculates the create amounts (total, deposit, protocol fee and broker
     /// fee).
     function fuzzSegmentAmountsAndCalculateCreateAmounts(
         uint128 upperBound,

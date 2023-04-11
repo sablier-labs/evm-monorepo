@@ -261,7 +261,7 @@ contract SablierV2LockupLinear is
         range.start = uint40(block.timestamp);
 
         // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because
-        // {_createWithRange} will nonetheless check that the end time is greater than or equal to the cliff time,
+        // {_createWithRange} will nonetheless check that the end time is greater than the cliff time,
         // and also that the cliff time is greater than or equal to the start time.
         unchecked {
             range.cliff = range.start + params.durations.cliff;
@@ -283,7 +283,7 @@ contract SablierV2LockupLinear is
 
     /// @inheritdoc ISablierV2LockupLinear
     function createWithRange(LockupLinear.CreateWithRange calldata params)
-        public
+        external
         override
         noDelegateCall
         returns (uint256 streamId)
@@ -329,8 +329,7 @@ contract SablierV2LockupLinear is
             return amounts.deposited - amounts.refunded;
         }
 
-        // Return zero if the cliff time is greater than the block timestamp. This also checks if the start time
-        // is greater than the block timestamp, as the cliff time is always greater than the start time.
+        // Return zero if the cliff time is greater than the current time.
         uint256 currentTime = block.timestamp;
         uint256 cliffTime = uint256(_streams[streamId].cliffTime);
         if (cliffTime > currentTime) {
@@ -507,7 +506,7 @@ contract SablierV2LockupLinear is
             params.asset.safeTransferFrom({ from: msg.sender, to: params.broker.account, value: createAmounts.brokerFee });
         }
 
-        // Log the newly created stream, and the address that funded it.
+        // Log the newly created stream.
         emit ISablierV2LockupLinear.CreateLockupLinearStream({
             streamId: streamId,
             funder: msg.sender,

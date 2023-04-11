@@ -60,11 +60,16 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
     }
 
-    modifier whenArrayCountsNotEqual() {
+    modifier whenArrayCountsAreEqual() {
         _;
     }
 
-    function test_WithdrawMultiple_ArrayCountsZero() external whenNoDelegateCall whenToNonZeroAddress {
+    function test_WithdrawMultiple_ArrayCountsZero()
+        external
+        whenNoDelegateCall
+        whenToNonZeroAddress
+        whenArrayCountsAreEqual
+    {
         uint256[] memory streamIds = new uint256[](0);
         uint128[] memory amounts = new uint128[](0);
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
@@ -78,7 +83,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
     {
         uint256 nullStreamId = 1729;
@@ -94,7 +99,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
     {
         uint256 nullStreamId = 1729;
@@ -118,7 +123,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenAllStreamsNeitherNullNorDepleted
     {
@@ -136,7 +141,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenAllStreamsNeitherNullNorDepleted
     {
@@ -154,7 +159,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenAllStreamsNeitherNullNorDepleted
     {
@@ -174,7 +179,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenAllStreamsNeitherNullNorDepleted
     {
@@ -199,7 +204,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenAllStreamsNeitherNullNorDepleted
     {
@@ -224,7 +229,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenAllStreamsNeitherNullNorDepleted
         whenCallerAuthorizedAllStreams
@@ -260,7 +265,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenAllStreamsNeitherNullNorDepleted
         whenCallerAuthorizedAllStreams
@@ -283,7 +288,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenAllStreamsNeitherNullNorDepleted
         whenCallerAuthorizedAllStreams
@@ -315,7 +320,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         internal
         whenNoDelegateCall
         whenToNonZeroAddress
-        whenArrayCountsNotEqual
+        whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenAllStreamsNeitherNullNorDepleted
         whenCallerAuthorizedAllStreams

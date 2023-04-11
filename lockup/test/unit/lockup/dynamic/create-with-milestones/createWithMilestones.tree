@@ -14,48 +14,45 @@ createWithMilestones.t.sol
             ├── when the segment count is too high
             │  └── it should revert
             └── when the segment count is not too high
-               ├── when the loop calculations overflow the block gas limit
+               ├── when the segment amounts sum overflows
                │  └── it should revert
-               └── when the loop calculations do not overflow the block gas limit
-                  ├── when the segment amounts sum overflows
+               └── when the segment amounts sum does not overflow
+                  ├── when the start time is greater than the first segment milestone
                   │  └── it should revert
-                  └── when the segment amounts sum does not overflow
-                     ├── when the start time is greater than the first segment milestone
+                  ├── when the start time is equal to the first segment milestone
+                  │  └── it should revert
+                  └── when the start time is less than the first segment milestone
+                     ├── when the segment milestones are not ordered
                      │  └── it should revert
-                     ├── when the start time is equal to the first segment milestone
-                     │  └── it should revert
-                     └── when the start time is less than the first segment milestone
-                        ├── when the segment milestones are not ordered
+                     └── when the segment milestones are ordered
+                        ├── when the end time is in the past
                         │  └── it should revert
-                        └── when the segment milestones are ordered
-                           ├── when the end time is in the past
+                        └── when the end time is in the future
+                           ├── when the deposit amount is not equal to the segment amounts sum
                            │  └── it should revert
-                           └── when the end time is in the future
-                              ├── when the deposit amount is not equal to the segment amounts sum
+                           └── when the deposit amount is equal to the segment amounts sum
+                              ├── when the protocol fee is too high
                               │  └── it should revert
-                              └── when the deposit amount is equal to the segment amounts sum
-                                 ├── when the protocol fee is too high
+                              └── when the protocol fee is not too high
+                                 ├── when the broker fee is too high
                                  │  └── it should revert
-                                 └── when the protocol fee is not too high
-                                    ├── when the broker fee is too high
+                                 └── when the broker fee is not too high
+                                    ├── when the asset is not a contract
                                     │  └── it should revert
-                                    └── when the broker fee is not too high
-                                       ├── when the asset is not a contract
-                                       │  └── it should revert
-                                       ├── when the asset is not a contract
-                                       │  └── it should revert
-                                       └── when the asset is a contract
-                                          ├── when the asset misses the return value
-                                          │  ├── it should create the stream
-                                          │  ├── it should bump the next stream id
-                                          │  ├── it should record the protocol fee
-                                          │  ├── it should mint the NFT
-                                          │  ├── it should perform the ERC-20 transfers
-                                          │  └── it should emit a {CreateLockupDynamicStream} event
-                                          └── when the asset is ERC-20 compliant
-                                             ├── it should create the stream
-                                             ├── it should bump the next stream id
-                                             ├── it should record the protocol fee
-                                             ├── it should mint the NFT
-                                             ├── it should perform the ERC-20 transfers
-                                             └── it should emit a {CreateLockupDynamicStream} event
+                                    ├── when the asset is not a contract
+                                    │  └── it should revert
+                                    └── when the asset is a contract
+                                       ├── when the asset misses the return value
+                                       │  ├── it should create the stream
+                                       │  ├── it should bump the next stream id
+                                       │  ├── it should record the protocol fee
+                                       │  ├── it should mint the NFT
+                                       │  ├── it should perform the ERC-20 transfers
+                                       │  └── it should emit a {CreateLockupDynamicStream} event
+                                       └── when the asset is ERC-20 compliant
+                                          ├── it should create the stream
+                                          ├── it should bump the next stream id
+                                          ├── it should record the protocol fee
+                                          ├── it should mint the NFT
+                                          ├── it should perform the ERC-20 transfers
+                                          └── it should emit a {CreateLockupDynamicStream} event

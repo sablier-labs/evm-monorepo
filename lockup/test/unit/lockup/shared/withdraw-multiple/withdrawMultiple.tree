@@ -17,9 +17,9 @@ withdrawMultiple.t.sol
             │  └── it should revert
             └── when all streams are neither null nor depleted
                ├── when the caller is unauthorized for all streams
-               │  ├── when the caller is the sender
-               │  │  └── it should revert
                │  ├── when the caller is a malicious third party
+               │  │  └── it should revert
+               │  ├── when the caller is the sender
                │  │  └── it should revert
                │  └── when the caller is a former recipient
                │     └── it should revert

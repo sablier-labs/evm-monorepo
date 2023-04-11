@@ -50,7 +50,7 @@ contract FlashLoanHandler is BaseHandler {
         amount = boundUint128(amount, 0, upperBound);
 
         // Only supported assets can be flash loaned.
-        bool isFlashAsset = comptroller.flashAssets(asset);
+        bool isFlashAsset = comptroller.isFlashAsset(asset);
         if (!isFlashAsset) {
             return;
         }

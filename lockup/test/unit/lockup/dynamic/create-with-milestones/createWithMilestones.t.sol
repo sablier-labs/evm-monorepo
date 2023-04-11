@@ -431,18 +431,13 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         });
 
         // Create the stream.
-        createDefaultStreamWithAsset(IERC20(asset));
+        streamId = createDefaultStreamWithAsset(IERC20(asset));
 
-        // Assert that the stream has been created.
+        // Assert that the stream has been created correctly.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
-        assertEq(actualStream.amounts, defaultStream.amounts);
-        assertEq(address(actualStream.asset), asset, "asset");
-        assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.endTime, defaultStream.endTime, "endTime");
-        assertEq(actualStream.sender, defaultStream.sender, "sender");
-        assertEq(actualStream.segments, defaultStream.segments);
-        assertEq(actualStream.startTime, defaultStream.startTime, "startTime");
-        assertEq(actualStream.status, defaultStream.status);
+        LockupDynamic.Stream memory expectedStream = defaultStream;
+        expectedStream.asset = IERC20(asset);
+        assertEq(actualStream, expectedStream);
 
         // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = dynamic.nextStreamId();
