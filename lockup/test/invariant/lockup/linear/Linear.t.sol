@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Lockup_Invariant_Test } from "../Lockup.t.sol";
-import { FlashLoanHandler } from "../../handlers/FlashLoanHandler.t.sol";
 import { LockupLinearHandler } from "../../handlers/LockupLinearHandler.t.sol";
 import { LockupLinearCreateHandler } from "../../handlers/LockupLinearCreateHandler.t.sol";
 
@@ -43,28 +41,17 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         lockup = linear;
         lockupHandler = linearHandler;
 
-        // Deploy the flash loan handler by casting the linear contract as {SablierV2FlashLoan}.
-        flashLoanHandler = new FlashLoanHandler({
-            asset_: DEFAULT_ASSET,
-            comptroller_: comptroller,
-            flashLoanContract_: SablierV2FlashLoan(address(linear)),
-            receiver_: goodFlashLoanReceiver
-        });
-
-        // Target the flash loan handler and the linear handlers for invariant testing.
-        targetContract(address(flashLoanHandler));
+        // Target the linear handlers for invariant testing.
         targetContract(address(linearHandler));
         targetContract(address(linearCreateHandler));
 
         // Exclude the linear handlers from being `msg.sender`.
-        excludeSender(address(flashLoanHandler));
         excludeSender(address(linearHandler));
         excludeSender(address(linearCreateHandler));
 
         // Label the handler contracts.
         vm.label({ account: address(linearHandler), newLabel: "LockupLinearHandler" });
         vm.label({ account: address(linearCreateHandler), newLabel: "LockupLinearCreateHandler" });
-        vm.label({ account: address(flashLoanHandler), newLabel: "FlashLoanHandler" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

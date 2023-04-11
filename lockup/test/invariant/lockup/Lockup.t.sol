@@ -5,7 +5,6 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Invariant_Test } from "../Invariant.t.sol";
-import { FlashLoanHandler } from "../handlers/FlashLoanHandler.t.sol";
 import { LockupHandler } from "../handlers/LockupHandler.t.sol";
 import { LockupHandlerStorage } from "../handlers/LockupHandlerStorage.t.sol";
 
@@ -16,7 +15,6 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    FlashLoanHandler internal flashLoanHandler;
     ISablierV2Lockup internal lockup;
     LockupHandler internal lockupHandler;
     LockupHandlerStorage internal lockupHandlerStorage;

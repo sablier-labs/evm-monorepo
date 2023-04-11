@@ -39,7 +39,7 @@ import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 /// @notice See the documentation in {ISablierV2LockupLinear}.
 contract SablierV2LockupLinear is
     ISablierV2LockupLinear, // one dependency
-    SablierV2Lockup // sixteen dependencies
+    SablierV2Lockup // fourteen dependencies
 {
     using SafeERC20 for IERC20;
 
