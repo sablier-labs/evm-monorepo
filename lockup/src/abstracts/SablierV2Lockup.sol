@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.18;
 
-import { UD60x18 } from "@prb/math/UD60x18.sol";
+import { ERC721 } from "@openzeppelin/token/ERC721/ERC721.sol";
+import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
 
 import { ISablierV2Comptroller } from "../interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "../interfaces/ISablierV2Lockup.sol";
@@ -16,6 +17,7 @@ import { SablierV2FlashLoan } from "./SablierV2FlashLoan.sol";
 abstract contract SablierV2Lockup is
     SablierV2Base, // four dependencies
     ISablierV2Lockup, // four dependencies
+    ERC721, // six dependencies
     SablierV2FlashLoan // six dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
@@ -75,7 +77,25 @@ abstract contract SablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
+    function getRecipient(uint256 streamId) external view override returns (address recipient) {
+        // Checks: the stream NFT exists.
+        _requireMinted({ tokenId: streamId });
+
+        // The NFT owner is the stream's recipient.
+        recipient = _ownerOf(streamId);
+    }
+
+    /// @inheritdoc ISablierV2Lockup
     function getStatus(uint256 streamId) public view virtual override returns (Lockup.Status status);
+
+    /// @inheritdoc ERC721
+    function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
+        // Checks: the stream NFT exists.
+        _requireMinted({ tokenId: streamId });
+
+        // Generate the URI describing the stream NFT.
+        uri = _nftDescriptor.tokenURI(this, streamId);
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
@@ -273,15 +293,17 @@ abstract contract SablierV2Lockup is
 
     /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party.
     /// @param streamId The stream id for the query.
-    function _isCallerStreamRecipientOrApproved(uint256 streamId) internal view virtual returns (bool result);
+    function _isCallerStreamRecipientOrApproved(uint256 streamId) internal view returns (bool result) {
+        address recipient = _ownerOf(streamId);
+        result = (
+            msg.sender == recipient || isApprovedForAll({ owner: recipient, operator: msg.sender })
+                || getApproved(streamId) == msg.sender
+        );
+    }
 
     /// @notice Checks whether `msg.sender` is the stream's sender.
     /// @param streamId The stream id for the query.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
-
-    /// @notice Returns the owner of the NFT without reverting.
-    /// @param tokenId The NFT id for the query.
-    function _ownerOf(uint256 tokenId) internal view virtual returns (address owner);
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _withdrawableAmountOf(uint256 streamId) internal view virtual returns (uint128 withdrawableAmount);
@@ -289,9 +311,6 @@ abstract contract SablierV2Lockup is
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev See the documentation for the public functions that call this internal function.
-    function _burn(uint256 tokenId) internal virtual;
 
     /// @dev See the documentation for the public functions that call this internal function.
     function _cancel(uint256 tokenId) internal virtual;

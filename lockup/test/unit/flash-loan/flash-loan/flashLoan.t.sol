@@ -2,7 +2,6 @@
 pragma solidity >=0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
 import { IERC3156FlashLender } from "erc3156/interfaces/IERC3156FlashLender.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
@@ -13,9 +12,8 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     uint128 internal constant LIQUIDITY_AMOUNT = 8_755_001e18;
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(
-            IERC3156FlashLender.flashLoan, (IERC3156FlashBorrower(address(0)), address(DEFAULT_ASSET), 0, bytes(""))
-        );
+        bytes memory callData =
+            abi.encodeCall(IERC3156FlashLender.flashLoan, (goodFlashLoanReceiver, address(DEFAULT_ASSET), 0, bytes("")));
         (bool success, bytes memory returnData) = address(flashLoan).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -28,7 +26,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         uint256 amount = uint256(UINT128_MAX) + 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
         flashLoan.flashLoan({
-            receiver: IERC3156FlashBorrower(address(0)),
+            receiver: goodFlashLoanReceiver,
             asset: address(DEFAULT_ASSET),
             amount: amount,
             data: bytes("")
@@ -42,7 +40,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
     function test_RevertWhen_AssetNotFlashLoanable() external whenNoDelegateCall whenAmountNotTooHigh {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, DEFAULT_ASSET));
         flashLoan.flashLoan({
-            receiver: IERC3156FlashBorrower(address(0)),
+            receiver: goodFlashLoanReceiver,
             asset: address(DEFAULT_ASSET),
             amount: 0,
             data: bytes("")
@@ -66,7 +64,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         uint256 fee = flashLoan.flashFee({ asset: address(DEFAULT_ASSET), amount: UINT128_MAX });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_CalculatedFeeTooHigh.selector, fee));
         flashLoan.flashLoan({
-            receiver: IERC3156FlashBorrower(address(0)),
+            receiver: goodFlashLoanReceiver,
             asset: address(DEFAULT_ASSET),
             amount: UINT128_MAX,
             data: bytes("")
@@ -77,41 +75,14 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         _;
     }
 
-    function test_RevertWhen_InsufficientAssetLiquidity()
-        external
-        whenNoDelegateCall
-        whenAmountNotTooHigh
-        whenAssetFlashLoanable
-        whenCalculatedFeeNotTooHigh
-    {
-        uint128 amount = 1;
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2FlashLoan_InsufficientAssetLiquidity.selector, DEFAULT_ASSET, 0, amount
-            )
-        );
-        flashLoan.flashLoan({
-            receiver: IERC3156FlashBorrower(address(0)),
-            asset: address(DEFAULT_ASSET),
-            amount: amount,
-            data: bytes("")
-        });
-    }
-
-    modifier whenSufficientAssetLiquidity() {
-        // Mint the flash loan amount to the contract.
-        deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: LIQUIDITY_AMOUNT });
-        _;
-    }
-
     function test_RevertWhen_BorrowFailed()
         external
         whenNoDelegateCall
         whenAmountNotTooHigh
         whenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh
-        whenSufficientAssetLiquidity
     {
+        deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: LIQUIDITY_AMOUNT });
         vm.expectRevert(Errors.SablierV2FlashLoan_FlashBorrowFail.selector);
         flashLoan.flashLoan({
             receiver: faultyFlashLoanReceiver,
@@ -131,14 +102,11 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         whenAmountNotTooHigh
         whenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh
-        whenSufficientAssetLiquidity
         whenBorrowDoesNotFail
     {
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2FlashLoan_InsufficientAssetLiquidity.selector, DEFAULT_ASSET, 0, LIQUIDITY_AMOUNT / 4
-            )
-        );
+        uint256 amount = 100e18;
+        deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: amount * 2 });
+        vm.expectRevert("ERC20: transfer amount exceeds balance");
         flashLoan.flashLoan({
             receiver: reentrantFlashLoanReceiver,
             asset: address(DEFAULT_ASSET),
@@ -157,10 +125,12 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         whenAmountNotTooHigh
         whenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh
-        whenSufficientAssetLiquidity
         whenBorrowDoesNotFail
         whenNoReentrancy
     {
+        // Mint the liquidity amount to the contract.
+        deal({ token: address(DEFAULT_ASSET), to: address(flashLoan), give: LIQUIDITY_AMOUNT });
+
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = flashLoan.protocolRevenues(DEFAULT_ASSET);
 

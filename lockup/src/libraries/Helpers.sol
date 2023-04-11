@@ -77,7 +77,7 @@ library Helpers {
             revert Errors.SablierV2LockupDynamic_SegmentCountZero();
         }
 
-        // Check that the segment count is not greater than the maximum segment count permitted.
+        // Check that the segment count is not greater than the maximum allowed.
         if (segmentCount > maxSegmentCount) {
             revert Errors.SablierV2LockupDynamic_SegmentCountTooHigh(segmentCount);
         }

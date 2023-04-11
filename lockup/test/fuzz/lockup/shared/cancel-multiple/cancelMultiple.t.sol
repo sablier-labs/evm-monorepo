@@ -52,9 +52,9 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
         whenAllStreamsSettled
-        whenCallerAuthorizedAllStreams
     {
         // Make the sender the caller in this test.
         changePrank({ msgSender: users.sender });
@@ -71,9 +71,9 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenArrayCountNotZero
         whenOnlyNonNullStreams
+        whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
         whenAllStreamsSettled
-        whenCallerAuthorizedAllStreams
     {
         // Make the recipient the caller in this test.
         changePrank({ msgSender: users.recipient });
