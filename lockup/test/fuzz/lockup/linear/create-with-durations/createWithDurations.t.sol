@@ -131,14 +131,11 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-        assertEq(actualStream.amounts, defaultStream.amounts);
-        assertEq(actualStream.asset, defaultStream.asset, "asset");
-        assertEq(actualStream.cliffTime, range.cliff, "cliffTime");
-        assertEq(actualStream.endTime, range.end, "endTime");
-        assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.sender, defaultStream.sender, "sender");
-        assertEq(actualStream.startTime, range.start, "startTime");
-        assertEq(actualStream.status, defaultStream.status);
+        LockupLinear.Stream memory expectedStream = defaultStream;
+        expectedStream.cliffTime = range.cliff;
+        expectedStream.endTime = range.end;
+        expectedStream.startTime = range.start;
+        assertEq(actualStream, expectedStream);
 
         // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = linear.nextStreamId();
