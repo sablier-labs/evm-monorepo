@@ -99,7 +99,7 @@ abstract contract SablierV2FlashLoan is
     /// - `fee` must be less than 2^128.
     /// - `amount` must not exceed the liquidity available for `asset`.
     /// - `msg.sender` must allow this contract to spend at least `amount + fee` assets.
-    /// - `receiver` implementation of {IERC3156FlashBorrower-onFlashLoan} must return `CALLBACK_SUCCESS`.
+    /// - `receiver` implementation of {IERC3156FlashBorrower.onFlashLoan} must return `CALLBACK_SUCCESS`.
     ///
     /// @param receiver The receiver of the flash loaned assets, and the receiver of the callback.
     /// @param asset The address of the ERC-20 asset to use for flash borrowing.

@@ -20,7 +20,7 @@ contract Constructor_Linear_Unit_Test is Linear_Unit_Test {
             initialNFTDescriptor: nftDescriptor
         });
 
-        // {SablierV2-constructor}
+        // {SablierV2Base.constructor}
         address actualAdmin = constructedLinear.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");
@@ -29,7 +29,7 @@ contract Constructor_Linear_Unit_Test is Linear_Unit_Test {
         address expectedComptroller = address(comptroller);
         assertEq(actualComptroller, expectedComptroller, "comptroller");
 
-        // {SablierV2Lockup-constructor}
+        // {SablierV2Lockup.constructor}
         uint256 actualStreamId = constructedLinear.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");

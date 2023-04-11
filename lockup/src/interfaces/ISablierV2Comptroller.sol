@@ -40,7 +40,7 @@ interface ISablierV2Comptroller is IAdminable {
     /// @notice Retrieves the global flash fee as a fixed-point number where 100% = 1e18.
     ///
     /// @dev Notes:
-    /// - This fee represents a percentage, not an amount. Do not confuse it with {IERC3156FlashLender-flashFee},
+    /// - This fee represents a percentage, not an amount. Do not confuse it with {IERC3156FlashLender.flashFee},
     /// which calculates the fee amount for a specified flash loan amount.
     /// - Unlike the protocol fee, this is a global fee applied to all flash loans, not a per-asset fee.
     function flashFee() external view returns (UD60x18 fee);

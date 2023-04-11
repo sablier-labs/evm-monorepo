@@ -21,7 +21,7 @@ contract Constructor_Dynamic_Unit_Test is Dynamic_Unit_Test {
             maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
         });
 
-        // {SablierV2-constructor}
+        // {SablierV2Base.constructor}
         address actualAdmin = constructedDynamic.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");
@@ -30,12 +30,12 @@ contract Constructor_Dynamic_Unit_Test is Dynamic_Unit_Test {
         address expectedComptroller = address(comptroller);
         assertEq(actualComptroller, expectedComptroller, "comptroller");
 
-        // {SablierV2Lockup-constructor}
+        // {SablierV2Lockup.constructor}
         uint256 actualStreamId = constructedDynamic.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
 
-        // {SablierV2LockupDynamic-constructor}
+        // {SablierV2LockupDynamic.constructor}
         uint256 actualMaxSegmentCount = constructedDynamic.MAX_SEGMENT_COUNT();
         uint256 expectedMaxSegmentCount = DEFAULT_MAX_SEGMENT_COUNT;
         assertEq(actualMaxSegmentCount, expectedMaxSegmentCount, "MAX_SEGMENT_COUNT");

@@ -31,7 +31,7 @@ abstract contract Calculations is Constants {
         depositAmount = totalAmount - protocolFeeAmount - brokerFeeAmount;
     }
 
-    /// @dev Helper function that replicates the logic of {SablierV2LockupLinear-streamedAmountOf}.
+    /// @dev Helper function that replicates the logic of {SablierV2LockupLinear.streamedAmountOf}.
     function calculateStreamedAmount(
         uint40 currentTime,
         uint128 depositAmount
