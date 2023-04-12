@@ -14,9 +14,9 @@ import { SablierV2Base } from "./SablierV2Base.sol";
 /// @title SablierV2Lockup
 /// @notice See the documentation in {ISablierV2Lockup}.
 abstract contract SablierV2Lockup is
-    SablierV2Base, // four dependencies
-    ISablierV2Lockup, // four dependencies
-    ERC721 // six dependencies
+    SablierV2Base, // 4 inherited components
+    ISablierV2Lockup, // 4 inherited components
+    ERC721 // 6 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
                                   INTERNAL STORAGE

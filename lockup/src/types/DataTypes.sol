@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-/// @notice Basic struct that encapsulates the optional broker parameters that can be passed to the create
+/// @notice Struct encapsulating the optional broker parameters that can be passed to the create
 /// functions.
 /// @param account The address of the broker the fee will be paid to.
 /// @param fee The percentage fee that the broker is paid from the total amount, as a fixed-point number
@@ -17,7 +17,7 @@ struct Broker {
 
 /// @notice Quasi-namespace for the structs used in both {SablierV2LockupLinear} and {SablierV2LockupDynamic}.
 library Lockup {
-    /// @notice Struct that encapsulates the deposit, withdrawn, and refunded amounts, all denoted in units
+    /// @notice Struct encapsulating the deposit, withdrawn, and refunded amounts, all denoted in units
     /// of the asset's decimals.
     /// @dev Because the deposited and the withdrawn amount are often read together, declaring them in
     /// the same slot saves gas.
@@ -32,7 +32,7 @@ library Lockup {
         uint128 refunded;
     }
 
-    /// @notice Struct that encapsulates the deposit amount, the protocol fee amount, and the broker fee amount,
+    /// @notice Struct encapsulating the deposit amount, the protocol fee amount, and the broker fee amount,
     /// all denoted in units of the asset's decimals.
     /// @param deposit The amount to deposit in the stream.
     /// @param protocolFee The protocol fee amount.
@@ -59,7 +59,7 @@ library Lockup {
 
 /// @notice Quasi-namespace for the structs used in {SablierV2LockupDynamic}.
 library LockupDynamic {
-    /// @notice Struct that encapsulates the parameters for the {SablierV2LockupDynamic-createWithDeltas} function.
+    /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithDeltas} function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
     /// same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -82,7 +82,7 @@ library LockupDynamic {
         LockupDynamic.SegmentWithDelta[] segments;
     }
 
-    /// @notice Struct that encapsulates the parameters for the {SablierV2LockupDynamic-createWithMilestones}
+    /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithMilestones}
     /// function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
     /// same as `msg.sender`.
@@ -107,7 +107,7 @@ library LockupDynamic {
         LockupDynamic.Segment[] segments;
     }
 
-    /// @notice Struct that encapsulates the time range of a lockup dynamic stream.
+    /// @notice Struct encapsulating the time range of a lockup dynamic stream.
     /// @param start The Unix timestamp indicating the stream's start.
     /// @param end The Unix timestamp indicating the stream's end.
     struct Range {
@@ -126,7 +126,7 @@ library LockupDynamic {
         uint40 milestone;
     }
 
-    /// @notice Segment struct used at runtime in {SablierV2LockupDynamic-createWithDeltas}.
+    /// @notice Segment struct used at runtime in {SablierV2LockupDynamic.createWithDeltas}.
     /// @param amount The amount of assets to be streamed in this segment, denoted in units of the asset's decimals.
     /// @param exponent The exponent of this segment, as a fixed-point number.
     /// @param delta The time difference in seconds between this segment and the previous one.
@@ -165,7 +165,7 @@ library LockupDynamic {
 
 /// @notice Quasi-namespace for the structs used in {SablierV2LockupLinear}.
 library LockupLinear {
-    /// @notice Struct that encapsulates the parameters for the {SablierV2LockupLinear-createWithDurations} function.
+    /// @notice Struct encapsulating the parameters for the {SablierV2LockupLinear.createWithDurations} function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
     /// same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -187,7 +187,7 @@ library LockupLinear {
         Broker broker;
     }
 
-    /// @notice Struct that encapsulates the parameters for the {SablierV2LockupLinear-createWithRange} function.
+    /// @notice Struct encapsulating the parameters for the {SablierV2LockupLinear.createWithRange} function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
     /// same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -210,7 +210,7 @@ library LockupLinear {
         Broker broker;
     }
 
-    /// @notice Basic struct that encapsulates the cliff duration and the total duration.
+    /// @notice Struct encapsulating the cliff duration and the total duration.
     /// @param cliff The cliff duration in seconds.
     /// @param total The total duration in seconds.
     struct Durations {
@@ -218,7 +218,7 @@ library LockupLinear {
         uint40 total;
     }
 
-    /// @notice Struct that encapsulates the time range of a lockup linear stream.
+    /// @notice Struct encapsulating the time range of a lockup linear stream.
     /// @param start The Unix timestamp for the stream's start.
     /// @param cliff The Unix timestamp for the cliff period's end.
     /// @param end The Unix timestamp for the stream's end.

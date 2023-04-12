@@ -142,6 +142,20 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
+    function invariant_StreamDepleted() external {
+        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            if (lockup.getStatus(streamId) == Lockup.Status.DEPLETED) {
+                assertEq(
+                    lockup.getDepositedAmount(streamId) - lockup.getRefundedAmount(streamId),
+                    lockup.getWithdrawnAmount(streamId),
+                    "Invariant violated: depleted stream with deposited amount - refunded amount != withdrawn amount"
+                );
+            }
+        }
+    }
+
     function invariant_StreamedAmountGteWithdrawableAmount() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
