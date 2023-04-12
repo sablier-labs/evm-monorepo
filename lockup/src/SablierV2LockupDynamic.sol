@@ -41,8 +41,8 @@ import { Lockup, LockupDynamic } from "./types/DataTypes.sol";
 /// @title SablierV2LockupDynamic
 /// @notice See the documentation in {ISablierV2LockupDynamic}.
 contract SablierV2LockupDynamic is
-    ISablierV2LockupDynamic, // one dependency
-    SablierV2Lockup // fourteen dependencies
+    ISablierV2LockupDynamic, // 1 inherited component
+    SablierV2Lockup // 14 inherited components
 {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;

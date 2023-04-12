@@ -29,8 +29,8 @@ import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 /// @title SablierV2Comptroller
 /// @notice See the documentation in {ISablierV2Comptroller}.
 contract SablierV2Comptroller is
-    ISablierV2Comptroller, // one dependency
-    Adminable // one dependency
+    ISablierV2Comptroller, // 1 inherited component
+    Adminable // 1 inherited component
 {
     /*//////////////////////////////////////////////////////////////////////////
                                    PUBLIC STORAGE
