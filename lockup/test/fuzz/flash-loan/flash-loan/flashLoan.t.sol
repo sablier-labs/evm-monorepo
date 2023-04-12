@@ -128,7 +128,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         assertTrue(response, "flashLoan response");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
+        uint128 actualProtocolRevenues = flashLoan.protocolRevenues(DEFAULT_ASSET);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + uint128(fee);
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }

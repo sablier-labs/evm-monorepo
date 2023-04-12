@@ -64,6 +64,16 @@ contract FlashLoanHandler is BaseHandler {
         // Mint the flash fee to the receiver so that they can repay the flash loan.
         deal({ token: address(asset), to: address(receiver), give: fee });
 
+        // Some contracts do not inherit from {SablierV2FlashLoan}.
+        (bool success,) = address(flashLoanContract).staticcall(
+            abi.encodeWithSelector(
+                SablierV2FlashLoan.flashLoan.selector, receiver, address(asset), amount, bytes("Some Data")
+            )
+        );
+        if (!success) {
+            return;
+        }
+
         // Execute the flash loan.
         flashLoanContract.flashLoan({
             receiver: receiver,

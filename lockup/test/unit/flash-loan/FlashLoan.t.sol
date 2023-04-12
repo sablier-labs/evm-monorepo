@@ -3,6 +3,7 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 
+import { FlashLoanMock } from "../../shared/mockups/flash-loan/FlashLoanMock.t.sol";
 import { Unit_Test } from "../Unit.t.sol";
 
 /// @title FlashLoan_Unit_Test
@@ -21,8 +22,8 @@ abstract contract FlashLoan_Unit_Test is Unit_Test {
     function setUp() public virtual override {
         Unit_Test.setUp();
 
-        // Cast the linear contract as {SablierV2FlashLoan}.
-        flashLoan = SablierV2FlashLoan(address(linear));
+        // Deploy the flash loan mock.
+        flashLoan = new FlashLoanMock(users.admin, comptroller);
 
         // Set the default flash fee in the comptroller.
         comptroller.setFlashFee({ newFlashFee: DEFAULT_FLASH_FEE });

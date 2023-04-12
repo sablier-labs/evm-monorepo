@@ -2,11 +2,9 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
-import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { Lockup_Invariant_Test } from "../Lockup.t.sol";
-import { FlashLoanHandler } from "../../handlers/FlashLoanHandler.t.sol";
 import { LockupDynamicCreateHandler } from "../../handlers/LockupDynamicCreateHandler.t.sol";
 import { LockupDynamicHandler } from "../../handlers/LockupDynamicHandler.t.sol";
 
@@ -44,28 +42,17 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         lockup = dynamic;
         lockupHandler = dynamicHandler;
 
-        // Deploy the flash loan handler by casting the dynamic contract as {SablierV2FlashLoan}.
-        flashLoanHandler = new FlashLoanHandler({
-            asset_: DEFAULT_ASSET,
-            comptroller_: comptroller,
-            flashLoanContract_: SablierV2FlashLoan(address(dynamic)),
-            receiver_: goodFlashLoanReceiver
-        });
-
-        // Target the flash loan handler and the dynamic handlers for invariant testing.
-        targetContract(address(flashLoanHandler));
+        // Target the dynamic handlers for invariant testing.
         targetContract(address(dynamicHandler));
         targetContract(address(dynamicCreateHandler));
 
         // Exclude the dynamic handlers from being `msg.sender`.
-        excludeSender(address(flashLoanHandler));
         excludeSender(address(dynamicHandler));
         excludeSender(address(dynamicCreateHandler));
 
         // Label the handler contracts.
         vm.label({ account: address(dynamicHandler), newLabel: "LockupDynamicHandler" });
         vm.label({ account: address(dynamicCreateHandler), newLabel: "LockupDynamicCreateHandler" });
-        vm.label({ account: address(flashLoanHandler), newLabel: "FlashLoanHandler" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

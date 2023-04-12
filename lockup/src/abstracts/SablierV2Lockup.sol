@@ -10,15 +10,13 @@ import { ISablierV2NFTDescriptor } from "../interfaces/ISablierV2NFTDescriptor.s
 import { Errors } from "../libraries/Errors.sol";
 import { Lockup } from "../types/DataTypes.sol";
 import { SablierV2Base } from "./SablierV2Base.sol";
-import { SablierV2FlashLoan } from "./SablierV2FlashLoan.sol";
 
 /// @title SablierV2Lockup
 /// @notice See the documentation in {ISablierV2Lockup}.
 abstract contract SablierV2Lockup is
     SablierV2Base, // four dependencies
     ISablierV2Lockup, // four dependencies
-    ERC721, // six dependencies
-    SablierV2FlashLoan // six dependencies
+    ERC721 // six dependencies
 {
     /*//////////////////////////////////////////////////////////////////////////
                                   INTERNAL STORAGE
