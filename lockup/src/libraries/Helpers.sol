@@ -34,15 +34,14 @@ library Helpers {
         if (protocolFee.gt(maxFee)) {
             revert Errors.SablierV2Lockup_ProtocolFeeTooHigh(protocolFee, maxFee);
         }
-
-        // Calculate the protocol fee amount.
-        // The cast to uint128 is safe because the maximum fee is hard coded.
-        amounts.protocolFee = uint128(ud(totalAmount).mul(protocolFee).intoUint256());
-
         // Checks: the broker fee is not greater than `maxFee`.
         if (brokerFee.gt(maxFee)) {
             revert Errors.SablierV2Lockup_BrokerFeeTooHigh(brokerFee, maxFee);
         }
+
+        // Calculate the protocol fee amount.
+        // The cast to uint128 is safe because the maximum fee is hard coded.
+        amounts.protocolFee = uint128(ud(totalAmount).mul(protocolFee).intoUint256());
 
         // Calculate the broker fee amount.
         // The cast to uint128 is safe because the maximum fee is hard coded.
@@ -71,13 +70,13 @@ library Helpers {
             revert Errors.SablierV2Lockup_DepositAmountZero();
         }
 
-        // Check that the segment count is not zero.
+        // Checks: the segment count is not zero.
         uint256 segmentCount = segments.length;
         if (segmentCount == 0) {
             revert Errors.SablierV2LockupDynamic_SegmentCountZero();
         }
 
-        // Check that the segment count is not greater than the maximum allowed.
+        // Checks: the segment count is not greater than the maximum allowed.
         if (segmentCount > maxSegmentCount) {
             revert Errors.SablierV2LockupDynamic_SegmentCountTooHigh(segmentCount);
         }
@@ -179,11 +178,10 @@ library Helpers {
         // 2. Check that the milestones are ordered.
         uint256 count = segments.length;
         for (uint256 index = 0; index < count;) {
-            // Add the current segment amount to the sum. Note that this can overflow, causing the transaction to
-            // revert.
+            // Add the current segment amount to the sum.
             segmentAmountsSum += segments[index].amount;
 
-            // Check that the current milestone is strictly greater than the previous milestone.
+            // Checks: the current milestone is strictly greater than the previous milestone.
             currentMilestone = segments[index].milestone;
             if (currentMilestone <= previousMilestone) {
                 revert Errors.SablierV2LockupDynamic_SegmentMilestonesNotOrdered(
@@ -207,7 +205,7 @@ library Helpers {
             revert Errors.SablierV2Lockup_EndTimeInThePast(currentTime, currentMilestone);
         }
 
-        // Check that the deposit amount is equal to the segment amounts sum.
+        // Checks: the deposit amount is equal to the segment amounts sum.
         if (depositAmount != segmentAmountsSum) {
             revert Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum(
                 depositAmount, segmentAmountsSum

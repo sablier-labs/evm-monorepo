@@ -149,7 +149,7 @@ abstract contract SablierV2FlashLoan is
         unchecked {
             // Effects: record the flash fee amount in the protocol revenues. The casting to uint128 is safe due
             // to the check at the start of the function.
-            protocolRevenues[IERC20(asset)] += uint128(fee);
+            protocolRevenues[IERC20(asset)] = protocolRevenues[IERC20(asset)] + uint128(fee);
 
             // Calculate the amount that the borrower must return.
             returnAmount = amount + fee;

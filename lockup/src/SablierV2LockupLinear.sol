@@ -449,7 +449,7 @@ contract SablierV2LockupLinear is
         // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
         unchecked {
             _nextStreamId = streamId + 1;
-            protocolRevenues[params.asset] += createAmounts.protocolFee;
+            protocolRevenues[params.asset] = protocolRevenues[params.asset] + createAmounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.
@@ -509,7 +509,7 @@ contract SablierV2LockupLinear is
     /// @dev See the documentation for the public functions that call this internal function.
     function _withdraw(uint256 streamId, address to, uint128 amount) internal override {
         // Effects: update the withdrawn amount.
-        _streams[streamId].amounts.withdrawn += amount;
+        _streams[streamId].amounts.withdrawn = _streams[streamId].amounts.withdrawn + amount;
 
         // Load the amounts in memory.
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
