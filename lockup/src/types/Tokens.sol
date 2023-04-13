@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.8.13;
+pragma solidity >=0.8.19;
 
 // This file simply re-exports all token interfaces needed in v2-core. It is provided for convenience so
 // that users don't have to install OpenZeppelin's contracts library separately.
