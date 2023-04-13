@@ -90,7 +90,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
     ///
     /// Requirements:
-    /// - All from {createWithRange}.
+    /// - All requirements in {createWithRange} must be met for the calculated parameters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @return streamId The id of the newly created linear stream.

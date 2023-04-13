@@ -94,7 +94,7 @@ abstract contract SablierV2FlashLoan is
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - All from {flashFee}.
+    /// - Refer to the requirements in {flashFee}.
     /// - `amount` must be less than 2^128.
     /// - `fee` must be less than 2^128.
     /// - `amount` must not exceed the liquidity available for `asset`.

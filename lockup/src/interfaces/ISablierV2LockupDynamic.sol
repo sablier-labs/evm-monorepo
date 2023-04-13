@@ -96,14 +96,14 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @dev Emits a {CreateLockupDynamicStream} and a {Transfer} event.
     ///
     /// Requirements:
-    /// - All from {createWithMilestones}.
+    /// - All requirements in {createWithMilestones} must be met for the calculated parameters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
     /// @return streamId The id of the newly created dynamic stream.
     function createWithDeltas(LockupDynamic.CreateWithDeltas calldata params) external returns (uint256 streamId);
 
-    /// @notice Creates a dynamic stream with the provided milestones, implying the end time from the last
-    /// segment's milestone. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
+    /// @notice Creates a dynamic stream with the provided segment milestones, implying the end time from the last
+    /// milestone. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateLockupDynamicStream} and a {Transfer} event.
     ///

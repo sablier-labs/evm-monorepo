@@ -174,7 +174,7 @@ interface ISablierV2Lockup is
     /// @dev Emits multiple {CancelLockupStream} and {Transfer} events.
     ///
     /// Notes:
-    /// - All from {cancel}.
+    /// - Refer to the notes in {cancel}.
     ///
     /// Requirements:
     /// - All requirements from {cancel} must be met for each stream.
@@ -238,10 +238,10 @@ interface ISablierV2Lockup is
     /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - All from {withdraw}.
+    /// - Refer to the notes in {withdraw}.
     ///
     /// Requirements:
-    /// - All from {withdraw}.
+    /// - Refer to the requirements in {withdraw}.
     ///
     /// @param streamId The id of the stream to withdraw from.
     /// @param to The address that receives the withdrawn assets.
@@ -256,7 +256,7 @@ interface ISablierV2Lockup is
     ///
     /// Requirements:
     /// - All requirements from {withdraw} must be met for each stream.
-    /// - There must be an equal number of `streamIds` and `amounts`
+    /// - There must be an equal number of `streamIds` and `amounts`.
     ///
     /// @param streamIds The ids of the streams to withdraw from.
     /// @param to The address that receives the withdrawn assets.
