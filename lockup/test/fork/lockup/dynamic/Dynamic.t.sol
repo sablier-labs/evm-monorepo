@@ -119,7 +119,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         Vars memory vars;
-        (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts({
             upperBound: uint128(initialHolderBalance),
             segments: params.segments,
             protocolFee: params.protocolFee,

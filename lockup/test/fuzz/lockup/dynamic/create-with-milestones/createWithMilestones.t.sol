@@ -268,7 +268,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         Vars memory vars;
-        (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts({
             upperBound: UINT128_MAX,
             segments: params.segments,
             protocolFee: protocolFee,

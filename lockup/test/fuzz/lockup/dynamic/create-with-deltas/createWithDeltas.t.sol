@@ -62,9 +62,9 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         fuzzSegmentDeltas(segments);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
-        (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(segments);
+        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(segments);
 
-        // Make the sender the stream's funder.
+        // Make the sender the stream's funder (recall that the sender is the default caller).
         vars.funder = users.sender;
 
         // Load the initial protocol revenues.
