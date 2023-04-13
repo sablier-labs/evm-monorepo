@@ -59,7 +59,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
                                      INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev No created stream can have a deposited amount of zero.
+    /// @dev The deposited amount must not be zero.
     function invariant_DepositedAmountNotZero() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
@@ -79,7 +79,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         }
     }
 
-    /// @dev The protocol does not allow creating streams with unordered segment milestones.
+    /// @dev Unordered segment milestones are not allowed.
     function invariant_SegmentMilestonesOrdered() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {

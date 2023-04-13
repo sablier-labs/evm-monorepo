@@ -228,7 +228,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint128 totalAmount;
     }
 
-    /// @dev The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
     ///
     /// - All possible permutations for the funder, sender, recipient, and broker
     /// - Multiple values for the segment amounts, exponents, and milestones
