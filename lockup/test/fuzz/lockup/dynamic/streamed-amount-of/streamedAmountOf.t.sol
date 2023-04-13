@@ -3,7 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { ZERO } from "@prb/math/UD60x18.sol";
 import { Broker, LockupDynamic } from "src/types/DataTypes.sol";
-import { ud2x18 } from "src/types/Math.sol";
 
 import { Dynamic_Fuzz_Test } from "../Dynamic.t.sol";
 
@@ -42,15 +41,12 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         segment.milestone = boundUint40(segment.milestone, DEFAULT_CLIFF_TIME, DEFAULT_END_TIME);
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
 
-        // Make the sender the stream's funder (recall that the sender is the default caller).
-        address funder = users.sender;
-
         // Create the single-segment array.
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);
         segments[0] = segment;
 
-        // Mint enough assets to the funder.
-        deal({ token: address(DEFAULT_ASSET), to: funder, give: segment.amount });
+        // Mint enough assets to the sender.
+        deal({ token: address(DEFAULT_ASSET), to: users.sender, give: segment.amount });
 
         // Create the stream with the fuzzed segment.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
@@ -95,9 +91,6 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     {
         vm.assume(segments.length > 1);
 
-        // Make the sender the stream's funder (recall that the sender is the default caller).
-        address funder = users.sender;
-
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(segments, DEFAULT_START_TIME);
 
@@ -114,8 +107,8 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint40 totalDuration = segments[segments.length - 1].milestone - DEFAULT_START_TIME;
         timeWarp = boundUint40(timeWarp, firstSegmentDuration, totalDuration);
 
-        // Mint enough assets to the funder.
-        deal({ token: address(DEFAULT_ASSET), to: funder, give: totalAmount });
+        // Mint enough assets to the sender.
+        deal({ token: address(DEFAULT_ASSET), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
@@ -148,9 +141,6 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     {
         vm.assume(segments.length > 1);
 
-        // Make the sender the stream's funder (recall that the sender is the default caller).
-        address funder = users.sender;
-
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(segments, DEFAULT_START_TIME);
 
@@ -168,8 +158,8 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         timeWarp0 = boundUint40(timeWarp0, firstSegmentDuration, totalDuration - 1);
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, totalDuration);
 
-        // Mint enough assets to the funder.
-        deal({ token: address(DEFAULT_ASSET), to: funder, give: totalAmount });
+        // Mint enough assets to the sender.
+        deal({ token: address(DEFAULT_ASSET), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
