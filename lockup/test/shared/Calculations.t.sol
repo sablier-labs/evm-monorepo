@@ -101,23 +101,22 @@ abstract contract Calculations is Constants {
     /// {SablierV2LockupDynamic-_calculateStreamedAmountForOneSegment}.
     function calculateStreamedAmountForOneSegment(
         uint40 currentTime,
-        UD2x18 exponent,
-        uint128 depositAmount
+        LockupDynamic.Segment memory segment
     )
         internal
         view
         returns (uint128 streamedAmount)
     {
-        if (currentTime >= DEFAULT_END_TIME) {
-            return depositAmount;
+        if (currentTime >= segment.milestone) {
+            return segment.amount;
         }
         unchecked {
             SD59x18 elapsedTime = (currentTime - DEFAULT_START_TIME).intoSD59x18();
-            SD59x18 totalTime = DEFAULT_TOTAL_DURATION.intoSD59x18();
+            SD59x18 totalTime = (segment.milestone - DEFAULT_START_TIME).intoSD59x18();
 
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-            SD59x18 multiplier = elapsedTimePercentage.pow(exponent.intoSD59x18());
-            SD59x18 streamedAmountSd = multiplier.mul(depositAmount.intoSD59x18());
+            SD59x18 multiplier = elapsedTimePercentage.pow(segment.exponent.intoSD59x18());
+            SD59x18 streamedAmountSd = multiplier.mul(segment.amount.intoSD59x18());
             streamedAmount = uint128(streamedAmountSd.intoUint256());
         }
     }

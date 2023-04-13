@@ -15,7 +15,6 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
     }
 
     struct Params {
-        uint128 deposit;
         LockupDynamic.Segment[] segments;
         uint256 timeWarp;
         address to;
@@ -24,7 +23,6 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
     struct Vars {
         Lockup.Status actualStatus;
         uint256 actualWithdrawnAmount;
-        Lockup.CreateAmounts createAmounts;
         Lockup.Status expectedStatus;
         uint256 expectedWithdrawnAmount;
         address funder;
@@ -46,39 +44,31 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         vm.assume(params.segments.length != 0);
         vm.assume(params.to != address(0));
 
-        // Make the sender the stream's funder.
+        // Make the sender the stream's funder (recall that the sender is the default caller).
         Vars memory vars;
         vars.funder = users.sender;
 
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(params.segments, DEFAULT_START_TIME);
 
-        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
-        (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts(params.segments);
+        // Fuzz the segment amounts.
+        (vars.totalAmount,) = fuzzDynamicStreamAmounts(params.segments);
 
         // Bound the time warp.
         vars.totalDuration = params.segments[params.segments.length - 1].milestone - DEFAULT_START_TIME;
         params.timeWarp = bound(params.timeWarp, 1, vars.totalDuration);
 
-        // Mint enough assets to the sender.
+        // Mint enough assets to the funder.
         deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
 
         // Make the sender the caller.
         changePrank({ msgSender: users.sender });
 
         // Create the stream with the fuzzed segments.
-        vars.streamId = dynamic.createWithMilestones(
-            LockupDynamic.CreateWithMilestones({
-                sender: users.sender,
-                recipient: users.recipient,
-                totalAmount: vars.totalAmount,
-                asset: DEFAULT_ASSET,
-                cancelable: true,
-                segments: params.segments,
-                startTime: DEFAULT_START_TIME,
-                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
-            })
-        );
+        LockupDynamic.CreateWithMilestones memory createParams = defaultParams.createWithMilestones;
+        createParams.totalAmount = vars.totalAmount;
+        createParams.segments = params.segments;
+        vars.streamId = dynamic.createWithMilestones(createParams);
 
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + params.timeWarp });

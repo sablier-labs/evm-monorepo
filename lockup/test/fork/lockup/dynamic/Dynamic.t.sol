@@ -98,7 +98,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
     /// - It may cancel the stream
     /// - It may emit a {CancelLockupStream} event
     ///
-    /// The fuzzing ensures that all of the following scenarios are tested:
+    /// Given enough test runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the funder, recipient, sender, and broker
     /// - Multiple values for the total amount
@@ -119,7 +119,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         Vars memory vars;
-        (vars.totalAmount, vars.createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts({
             upperBound: uint128(initialHolderBalance),
             segments: params.segments,
             protocolFee: params.protocolFee,

@@ -13,13 +13,13 @@ import { Utils } from "./Utils.t.sol";
 abstract contract Fuzzers is Constants, Utils {
     using CastingUint128 for uint128;
 
-    /// @dev Just like {fuzzSegmentAmountsAndCalculateCreateAmounts} but using some defaults.
-    function fuzzSegmentAmountsAndCalculateCreateAmounts(LockupDynamic.Segment[] memory segments)
+    /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
+    function fuzzDynamicStreamAmounts(LockupDynamic.Segment[] memory segments)
         internal
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
-        (totalAmount, createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+        (totalAmount, createAmounts) = fuzzDynamicStreamAmounts({
             upperBound: UINT128_MAX,
             segments: segments,
             protocolFee: DEFAULT_PROTOCOL_FEE,
@@ -27,14 +27,14 @@ abstract contract Fuzzers is Constants, Utils {
         });
     }
 
-    /// @dev Just like {fuzzSegmentAmountsAndCalculateCreateAmounts} but using some defaults.
-    function fuzzSegmentAmountsAndCalculateCreateAmounts(LockupDynamic.SegmentWithDelta[] memory segments)
+    /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
+    function fuzzDynamicStreamAmounts(LockupDynamic.SegmentWithDelta[] memory segments)
         internal
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
         LockupDynamic.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
-        (totalAmount, createAmounts) = fuzzSegmentAmountsAndCalculateCreateAmounts({
+        (totalAmount, createAmounts) = fuzzDynamicStreamAmounts({
             upperBound: UINT128_MAX,
             segments: segmentsWithMilestones,
             protocolFee: DEFAULT_PROTOCOL_FEE,
@@ -47,7 +47,7 @@ abstract contract Fuzzers is Constants, Utils {
 
     /// @dev Fuzzes the segment amounts and calculates the create amounts (total, deposit, protocol fee, and broker
     /// fee).
-    function fuzzSegmentAmountsAndCalculateCreateAmounts(
+    function fuzzDynamicStreamAmounts(
         uint128 upperBound,
         LockupDynamic.SegmentWithDelta[] memory segments,
         UD60x18 protocolFee,
@@ -59,7 +59,7 @@ abstract contract Fuzzers is Constants, Utils {
     {
         LockupDynamic.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
         (totalAmount, createAmounts) =
-            fuzzSegmentAmountsAndCalculateCreateAmounts(upperBound, segmentsWithMilestones, protocolFee, brokerFee);
+            fuzzDynamicStreamAmounts(upperBound, segmentsWithMilestones, protocolFee, brokerFee);
         for (uint256 i = 0; i < segmentsWithMilestones.length; ++i) {
             segments[i].amount = segmentsWithMilestones[i].amount;
         }
@@ -67,7 +67,7 @@ abstract contract Fuzzers is Constants, Utils {
 
     /// @dev Fuzzes the segment amounts and calculates the create amounts (total, deposit, protocol fee and broker
     /// fee).
-    function fuzzSegmentAmountsAndCalculateCreateAmounts(
+    function fuzzDynamicStreamAmounts(
         uint128 upperBound,
         LockupDynamic.Segment[] memory segments,
         UD60x18 protocolFee,

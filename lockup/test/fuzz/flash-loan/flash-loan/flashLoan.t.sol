@@ -65,7 +65,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         _;
     }
 
-    /// @dev The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the comptroller flash fee, including zero
     /// - Multiple values for the flash loan amount, including zero

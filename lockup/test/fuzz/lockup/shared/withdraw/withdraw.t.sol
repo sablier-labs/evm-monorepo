@@ -22,7 +22,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the current time.
     /// - Multiple values for the withdrawal address.
@@ -98,7 +98,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    /// @dev The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the withdrawal address.
     function testFuzz_Withdraw_CallerRecipient(address to)
@@ -163,7 +163,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    /// @dev The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
     /// - End time in the present

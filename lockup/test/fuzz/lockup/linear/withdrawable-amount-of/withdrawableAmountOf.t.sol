@@ -32,7 +32,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         _;
     }
 
-    /// @dev The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
     /// - End time in the present
@@ -67,7 +67,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    /// @dev The fuzzing ensures that all of the following scenarios are tested:
+    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
     /// - End time in the present

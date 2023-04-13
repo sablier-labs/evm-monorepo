@@ -114,6 +114,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
+    /// @dev A canceled stream must have a non-zero refunded amount.
     function invariant_StreamCanceledNonZeroRefundedAmount() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
@@ -128,6 +129,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
+    /// @dev A canceled stream must have a non-zero withdrawable amount.
     function invariant_StreamCanceledNonZeroWithdrawableAmount() external {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {

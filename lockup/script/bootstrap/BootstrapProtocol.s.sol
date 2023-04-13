@@ -8,10 +8,10 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Script } from "forge-std/Script.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
-import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
-import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
-import { Broker, LockupLinear, LockupDynamic } from "src/types/DataTypes.sol";
+import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
+import { ISablierV2LockupDynamic } from "../../src/interfaces/ISablierV2LockupDynamic.sol";
+import { ISablierV2LockupLinear } from "../../src/interfaces/ISablierV2LockupLinear.sol";
+import { Broker, LockupLinear, LockupDynamic } from "../../src/types/DataTypes.sol";
 
 import { BaseScript } from "../shared/Base.s.sol";
 
