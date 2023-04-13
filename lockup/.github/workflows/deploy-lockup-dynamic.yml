@@ -48,7 +48,7 @@ jobs:
           forge script script/deploy/DeployLockupDynamic.s.sol
           --broadcast
           --rpc-url "${{ github.event.inputs.chain }}"
-          --sig "run(address,address,uint256,uint256)"
+          --sig "run(address,address,address,uint256)"
           "${{ github.event.inputs.admin }}"
           "${{ github.event.inputs.comptroller }}"
           "${{ github.event.inputs.nft-descriptor }}"
