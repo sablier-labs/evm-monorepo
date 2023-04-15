@@ -48,9 +48,14 @@ To replicate the tree in Solidity, we use modifiers following the naming pattern
 
 ## Sharing
 
-The tests exhibit a complex inheritance structure because of the significant shared logic between the
-`SablierV2LockupLinear` and `SablierV2LockupDynamic` contracts; namely, that both inherit from `SablierV2Base` and
-`SablierV2Lockup`.
+The tests have a complex inheritance structure because of the significant shared logic between the
+`SablierV2LockupLinear` and `SablierV2LockupDynamic` contracts; namely, that both of these contracts inherit from
+`SablierV2Base` and `SablierV2Lockup`.
 
-To prevent duplicating test logic, we created the `Lockup_Shared_Test`, `Linear_Shared_Test`, and `Dynamic_Shared_Test`
-contracts and inherited them in the test contracts associated with `SablierV2LockupLinear` and `SablierV2LockupDynamic`.
+To avoid redundant test logic, we created the `Lockup_Shared_Test`, `Linear_Shared_Test`, and `Dynamic_Shared_Test`
+contracts, which are then inherited by the test contracts corresponding to `SablierV2LockupLinear` and
+`SablierV2LockupDynamic`.
+
+Pro tip: to visualize the inheritance tree using UML diagrams, install the
+[Solidity Visual Developer](https://marketplace.visualstudio.com/items?itemName=tintinweb.solidity-visual-auditor)
+extension for VSCode.
