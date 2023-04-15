@@ -16,15 +16,15 @@ interface ISablierV2Comptroller is IAdminable {
 
     /// @notice Emitted when the admin sets a new flash fee.
     /// @param admin The address of the contract admin.
-    /// @param oldFlashFee The old flash fee, as a fixed-point number.
-    /// @param newFlashFee The new flash fee, as a fixed-point number.
+    /// @param oldFlashFee The old flash fee, denoted as a fixed-point number.
+    /// @param newFlashFee The new flash fee, denoted as a fixed-point number.
     event SetFlashFee(address indexed admin, UD60x18 oldFlashFee, UD60x18 newFlashFee);
 
     /// @notice Emitted when the admin sets a new protocol fee for the provided ERC-20 asset.
     /// @param admin The address of the contract admin.
     /// @param asset The contract address of the ERC-20 asset the new protocol fee has been set for.
-    /// @param oldProtocolFee The old protocol fee, as a fixed-point number.
-    /// @param newProtocolFee The new protocol fee, as a fixed-point number.
+    /// @param oldProtocolFee The old protocol fee, denoted as a fixed-point number.
+    /// @param newProtocolFee The new protocol fee, denoted as a fixed-point number.
     event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
 
     /// @notice Emitted when the admin enables or disables an ERC-20 asset for flash loaning.
@@ -37,7 +37,7 @@ interface ISablierV2Comptroller is IAdminable {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the global flash fee as a fixed-point number where 100% = 1e18.
+    /// @notice Retrieves the global flash fee, denoted as a fixed-point number where 1e18 is 100%.
     ///
     /// @dev Notes:
     /// - This fee represents a percentage, not an amount. Do not confuse it with {IERC3156FlashLender.flashFee},
@@ -51,7 +51,7 @@ interface ISablierV2Comptroller is IAdminable {
 
     /// @notice Retrieves the protocol fee for all streams created with the provided ERC-20 asset.
     /// @param asset The contract address of the ERC-20 asset to query.
-    /// @return fee The protocol fee as a fixed-point number where 100% = 1e18.
+    /// @return fee The protocol fee denoted as a fixed-point number where 1e18 is 100%.
     function protocolFees(IERC20 asset) external view returns (UD60x18 fee);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ interface ISablierV2Comptroller is IAdminable {
     /// Requirements:
     /// - `msg.sender` must be the contract admin.
     ///
-    /// @param newFlashFee The new flash fee to set, as a fixed-point number where 100% = 1e18.
+    /// @param newFlashFee The new flash fee to set, denoted as a fixed-point number where 1e18 is 100%.
     function setFlashFee(UD60x18 newFlashFee) external;
 
     /// @notice Sets a new protocol fee that will be charged on all streams created with the provided ERC-20 asset.
@@ -84,7 +84,7 @@ interface ISablierV2Comptroller is IAdminable {
     /// - `msg.sender` must be the contract admin.
     ///
     /// @param asset The contract address of the ERC-20 asset to update the fee for.
-    /// @param newProtocolFee The new protocol fee as a fixed-point number where 100% = 1e18.
+    /// @param newProtocolFee The new protocol fee, denoted as a fixed-point number where 1e18 is 100%.
     function setProtocolFee(IERC20 asset, UD60x18 newProtocolFee) external;
 
     /// @notice Toggles the flash loanability of an ERC-20 asset.
