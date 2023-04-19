@@ -320,14 +320,14 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         // Create the stream.
         dynamic.createWithMilestones(
             LockupDynamic.CreateWithMilestones({
-                sender: params.sender,
-                recipient: params.recipient,
-                totalAmount: vars.totalAmount,
                 asset: DEFAULT_ASSET,
+                broker: params.broker,
                 cancelable: params.cancelable,
+                recipient: params.recipient,
                 segments: params.segments,
+                sender: params.sender,
                 startTime: params.startTime,
-                broker: params.broker
+                totalAmount: vars.totalAmount
             })
         );
 

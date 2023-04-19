@@ -93,13 +93,13 @@ contract BootstrapProtocol is BaseScript {
         segments[1] = LockupDynamic.SegmentWithDelta({ amount: 7500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
         dynamic.createWithDeltas(
             LockupDynamic.CreateWithDeltas({
-                sender: sender,
-                recipient: recipient,
-                totalAmount: 10_000e18,
                 asset: asset,
+                broker: Broker(address(0), ud60x18(0)),
                 cancelable: true,
+                recipient: recipient,
+                sender: sender,
                 segments: segments,
-                broker: Broker(address(0), ud60x18(0))
+                totalAmount: 10_000e18
             })
         );
     }

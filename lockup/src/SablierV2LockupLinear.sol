@@ -251,13 +251,13 @@ contract SablierV2LockupLinear is
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithRange(
             LockupLinear.CreateWithRange({
-                sender: params.sender,
-                recipient: params.recipient,
-                totalAmount: params.totalAmount,
                 asset: params.asset,
+                broker: params.broker,
                 cancelable: params.cancelable,
                 range: range,
-                broker: params.broker
+                recipient: params.recipient,
+                sender: params.sender,
+                totalAmount: params.totalAmount
             })
         );
     }
