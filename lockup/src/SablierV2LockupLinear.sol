@@ -354,7 +354,7 @@ contract SablierV2LockupLinear is
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc SablierV2Lockup
+    /// @dev See the documentation for the public functions that call this internal function.
     function _cancel(uint256 streamId) internal override {
         // Checks: the stream is cancelable.
         if (!_streams[streamId].isCancelable) {
@@ -514,17 +514,14 @@ contract SablierV2LockupLinear is
         // Load the amounts in memory.
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
 
-        // Unchecked arithmetic is safe because this calculation has already been performed in {_withdrawableAmountOf}.
-        unchecked {
-            // Using ">=" instead of "==" for additional safety reasons. In the event of an unforeseen increase in the
-            // withdrawn amount, the stream will still be marked as depleted and made not cancelable.
-            if (amounts.withdrawn >= amounts.deposited - amounts.refunded) {
-                // Effects: mark the stream as depleted.
-                _streams[streamId].status = Lockup.Status.DEPLETED;
+        // Using ">=" instead of "==" for additional safety reasons. In the event of an unforeseen increase in the
+        // withdrawn amount, the stream will still be marked as depleted and made not cancelable.
+        if (amounts.withdrawn >= amounts.deposited - amounts.refunded) {
+            // Effects: mark the stream as depleted.
+            _streams[streamId].status = Lockup.Status.DEPLETED;
 
-                // Effects: make the stream not cancelable.
-                _streams[streamId].isCancelable = false;
-            }
+            // Effects: make the stream not cancelable.
+            _streams[streamId].isCancelable = false;
         }
 
         // Interactions: perform the ERC-20 transfer.
