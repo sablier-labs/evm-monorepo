@@ -57,7 +57,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_WithdrawMax() external whenEndTimeInTheFuture {
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);

@@ -62,7 +62,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.operator });
 
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Expect the withdrawals to be made.
         uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;

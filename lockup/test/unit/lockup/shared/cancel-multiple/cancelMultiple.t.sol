@@ -257,7 +257,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev Test logic shared between {test_CancelMultiple_CallerSender} and {test_CancelMultiple_CallerRecipient}.
     function test_CancelMultiple() internal {
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Expect the assets to be refunded to the sender.
         uint128 senderAmount0 = lockup.refundableAmountOf(defaultStreamIds[0]);

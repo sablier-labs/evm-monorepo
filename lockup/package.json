@@ -52,8 +52,8 @@
     "gas:snapshot:optimized": "pnpm build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --match-path \"./test/{fuzz,unit}/**/*.sol\" --no-match-test \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "pnpm lint:sol && pnpm prettier:check",
     "lint:sol": "forge fmt --check && pnpm solhint \"{script,src,test}/**/*.sol\"",
-    "prettier:write": "prettier --write \"**/*.{json,md,yml}\"",
     "prettier:check": "prettier --check \"**/*.{json,md,yml}\"",
+    "prettier:write": "prettier --write \"**/*.{json,md,yml}\"",
     "test": "forge test",
     "test:lite": "FOUNDRY_PROFILE=lite forge test",
     "test:optimized": "pnpm build:optimized && FOUNDRY_PROFILE=test-optimized forge test"

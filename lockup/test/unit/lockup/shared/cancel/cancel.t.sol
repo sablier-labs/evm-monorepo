@@ -143,7 +143,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// the streaming starts after the start time.
     modifier whenStreamingHasStarted() {
         // Warp into the future, after the start time but before the end time.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
         _;
     }
 

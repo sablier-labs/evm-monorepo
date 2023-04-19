@@ -24,7 +24,7 @@ abstract contract Invariant_Test is Base_Test, StdInvariant {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Deploy the entire protocol.
+        // Deploy V2 Core.
         deployProtocolConditionally();
 
         // Deploy the comptroller handler.

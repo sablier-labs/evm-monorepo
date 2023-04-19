@@ -155,7 +155,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
     {
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Make Alice the `to` address in this test.
         address to = users.alice;
@@ -190,7 +190,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.operator });
 
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
@@ -245,7 +245,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     modifier whenEndTimeInTheFuture() {
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
         _;
     }
 

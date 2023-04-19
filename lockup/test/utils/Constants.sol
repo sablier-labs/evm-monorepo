@@ -21,7 +21,7 @@ abstract contract Constants {
     uint256 internal constant DEFAULT_MAX_SEGMENT_COUNT = 1000;
     UD60x18 internal constant DEFAULT_PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%
     uint128 internal constant DEFAULT_PROTOCOL_FEE_AMOUNT = 10.040160642570281124e18; // 0.1% of total amount
-    uint128 internal constant DEFAULT_RETURNED_AMOUNT = 7500e18; // deposit - cliff amount
+    uint128 internal constant DEFAULT_REFUND_AMOUNT = 7500e18; // deposit - cliff amount
     uint40 internal immutable DEFAULT_START_TIME;
     uint128 internal constant DEFAULT_TOTAL_AMOUNT = 10_040.160642570281124497e18; // deposit / (1 - fee)
     uint40 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
@@ -33,7 +33,7 @@ abstract contract Constants {
     uint128 internal constant UINT128_MAX = type(uint128).max;
     uint256 internal constant UINT256_MAX = type(uint256).max;
     uint40 internal constant UINT40_MAX = type(uint40).max;
-    uint40 internal immutable WARP_TIME_26; // 26% of the way through the stream
+    uint40 internal immutable WARP_26_PERCENT; // 26% of the way through the stream
 
     /*//////////////////////////////////////////////////////////////////////////
                                  COMPLEX CONSTANTS
@@ -65,7 +65,7 @@ abstract contract Constants {
         DEFAULT_LINEAR_RANGE =
             LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: DEFAULT_CLIFF_TIME, end: DEFAULT_END_TIME });
         DEFAULT_DYNAMIC_RANGE = LockupDynamic.Range({ start: DEFAULT_START_TIME, end: DEFAULT_END_TIME });
-        WARP_TIME_26 = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 100;
+        WARP_26_PERCENT = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 100 seconds;
 
         DEFAULT_SEGMENTS.push(
             LockupDynamic.Segment({
