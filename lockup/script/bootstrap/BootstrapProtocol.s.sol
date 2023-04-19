@@ -3,8 +3,7 @@ pragma solidity >=0.8.19 <=0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { ERC20GodMode } from "@prb/contracts/token/erc20/ERC20GodMode.sol";
-import { ud2x18 } from "@prb/math/UD2x18.sol";
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+
 import { Script } from "forge-std/Script.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
@@ -12,6 +11,7 @@ import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptrolle
 import { ISablierV2LockupDynamic } from "../../src/interfaces/ISablierV2LockupDynamic.sol";
 import { ISablierV2LockupLinear } from "../../src/interfaces/ISablierV2LockupLinear.sol";
 import { Broker, LockupLinear, LockupDynamic } from "../../src/types/DataTypes.sol";
+import { ud2x18, ud60x18 } from "../../src/types/Math.sol";
 
 import { BaseScript } from "../shared/Base.s.sol";
 
@@ -39,7 +39,7 @@ contract BootstrapProtocol is BaseScript {
         }
 
         // Set the flash fee to 0.05%.
-        comptroller.setFlashFee({ newFlashFee: ud(0.0005e18) });
+        comptroller.setFlashFee({ newFlashFee: ud60x18(0.0005e18) });
 
         /*//////////////////////////////////////////////////////////////////////////
                                           LINEAR
@@ -72,7 +72,7 @@ contract BootstrapProtocol is BaseScript {
                     asset: asset,
                     cancelable: true,
                     durations: LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] }),
-                    broker: Broker(address(0), ud(0))
+                    broker: Broker(address(0), ud60x18(0))
                 })
             );
         }
@@ -99,7 +99,7 @@ contract BootstrapProtocol is BaseScript {
                 asset: asset,
                 cancelable: true,
                 segments: segments,
-                broker: Broker(address(0), ud(0))
+                broker: Broker(address(0), ud60x18(0))
             })
         );
     }
