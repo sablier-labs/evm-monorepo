@@ -9,7 +9,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { LockupDynamic } from "../../src/types/DataTypes.sol";
 
-import { Constants } from "./Constants.t.sol";
+import { Constants } from "./Constants.sol";
 
 abstract contract Calculations is Constants {
     using CastingUint128 for uint128;

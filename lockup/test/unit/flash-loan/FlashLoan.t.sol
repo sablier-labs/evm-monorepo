@@ -3,7 +3,7 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 
-import { FlashLoanMock } from "../../shared/mockups/flash-loan/FlashLoanMock.t.sol";
+import { FlashLoanMock } from "../../mocks/flash-loan/FlashLoanMock.sol";
 import { Unit_Test } from "../Unit.t.sol";
 
 /// @title FlashLoan_Unit_Test

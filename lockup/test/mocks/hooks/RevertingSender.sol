@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { ISablierV2Lockup } from "../../../../src/interfaces/ISablierV2Lockup.sol";
-import { ISablierV2LockupSender } from "../../../../src/interfaces/hooks/ISablierV2LockupSender.sol";
+import { ISablierV2Lockup } from "../../../src/interfaces/ISablierV2Lockup.sol";
+import { ISablierV2LockupSender } from "../../../src/interfaces/hooks/ISablierV2LockupSender.sol";
 
 contract RevertingSender is ISablierV2LockupSender {
     function onStreamCanceled(

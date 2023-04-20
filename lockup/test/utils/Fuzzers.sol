@@ -7,8 +7,8 @@ import { arange } from "solidity-generators/Generators.sol";
 
 import { Lockup, LockupDynamic } from "../../src/types/DataTypes.sol";
 
-import { Constants } from "./Constants.t.sol";
-import { Utils } from "./Utils.t.sol";
+import { Constants } from "./Constants.sol";
+import { Utils } from "./Utils.sol";
 
 abstract contract Fuzzers is Constants, Utils {
     using CastingUint128 for uint128;

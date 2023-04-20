@@ -8,8 +8,8 @@ import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 
 import { Base_Test } from "../Base.t.sol";
-import { USDCLike } from "../shared/mockups/erc20/USDCLike.t.sol";
-import { USDTLike } from "../shared/mockups/erc20/USDTLike.t.sol";
+import { USDCLike } from "../mocks/erc20/USDCLike.sol";
+import { USDTLike } from "../mocks/erc20/USDTLike.sol";
 
 /// @title Fork_Test
 /// @notice Collections of tests that run against a fork of Ethereum Mainnet.

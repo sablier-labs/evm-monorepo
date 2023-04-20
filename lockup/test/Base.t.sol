@@ -13,13 +13,13 @@ import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { SablierV2NFTDescriptor } from "src/SablierV2NFTDescriptor.sol";
 
-import { Assertions } from "./shared/Assertions.t.sol";
-import { Calculations } from "./shared/Calculations.t.sol";
-import { Events } from "./shared/Events.t.sol";
-import { Fuzzers } from "./shared/Fuzzers.t.sol";
-import { GoodFlashLoanReceiver } from "./shared/mockups/flash-loan/GoodFlashLoanReceiver.t.sol";
-import { GoodRecipient } from "./shared/mockups/hooks/GoodRecipient.t.sol";
-import { GoodSender } from "./shared/mockups/hooks/GoodSender.t.sol";
+import { Assertions } from "./utils/Assertions.sol";
+import { Calculations } from "./utils/Calculations.sol";
+import { Events } from "./utils/Events.sol";
+import { Fuzzers } from "./utils/Fuzzers.sol";
+import { GoodFlashLoanReceiver } from "./mocks/flash-loan/GoodFlashLoanReceiver.sol";
+import { GoodRecipient } from "./mocks/hooks/GoodRecipient.sol";
+import { GoodSender } from "./mocks/hooks/GoodSender.sol";
 
 /// @title Base_Test
 /// @notice Base test contract with common logic needed by all test contracts.
@@ -29,7 +29,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
     //////////////////////////////////////////////////////////////////////////*/
 
     struct Users {
-        // Default admin of all Sablier V2 contracts.
+        // Default admin for all Sablier V2 contracts.
         address payable admin;
         // Neutral user.
         address payable alice;
