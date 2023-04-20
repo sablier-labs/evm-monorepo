@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.19;
 
+import { ISablierV2Lockup } from "../ISablierV2Lockup.sol";
+
 /// @title ISablierV2LockupSender
 /// @notice Interface for sender contracts capable of reacting to cancellations.
 /// @dev Implementation of this interface is optional. If a sender contract doesn't implement this interface,
@@ -11,6 +13,7 @@ interface ISablierV2LockupSender {
     /// @dev Notes:
     /// - This function may revert, but the Sablier contract will ignore the revert.
     ///
+    /// @param lockup The lockup contract on which cancellation was triggered.
     /// @param streamId The id of the canceled stream.
     /// @param recipient The stream's recipient, who canceled the stream.
     /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
@@ -18,6 +21,7 @@ interface ISablierV2LockupSender {
     /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of the
     /// asset's decimals.
     function onStreamCanceled(
+        ISablierV2Lockup lockup,
         uint256 streamId,
         address recipient,
         uint128 senderAmount,

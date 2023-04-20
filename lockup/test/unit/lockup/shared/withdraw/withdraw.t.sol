@@ -308,7 +308,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
             address(empty),
             abi.encodeCall(
                 ISablierV2LockupRecipient.onStreamWithdrawn,
-                (streamId, users.sender, address(empty), DEFAULT_WITHDRAW_AMOUNT)
+                (lockup, streamId, users.sender, address(empty), DEFAULT_WITHDRAW_AMOUNT)
             )
         );
 
@@ -351,7 +351,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
             address(revertingRecipient),
             abi.encodeCall(
                 ISablierV2LockupRecipient.onStreamWithdrawn,
-                (streamId, users.sender, address(revertingRecipient), DEFAULT_WITHDRAW_AMOUNT)
+                (lockup, streamId, users.sender, address(revertingRecipient), DEFAULT_WITHDRAW_AMOUNT)
             )
         );
 
@@ -398,7 +398,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
             address(reentrantRecipient),
             abi.encodeCall(
                 ISablierV2LockupRecipient.onStreamWithdrawn,
-                (streamId, users.sender, address(reentrantRecipient), withdrawAmount)
+                (lockup, streamId, users.sender, address(reentrantRecipient), withdrawAmount)
             )
         );
 
@@ -492,7 +492,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
             address(goodRecipient),
             abi.encodeCall(
                 ISablierV2LockupRecipient.onStreamWithdrawn,
-                (streamId, users.sender, address(goodRecipient), withdrawAmount)
+                (lockup, streamId, users.sender, address(goodRecipient), withdrawAmount)
             )
         );
 

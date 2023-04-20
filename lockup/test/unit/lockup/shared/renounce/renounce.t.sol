@@ -112,9 +112,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithRecipient(address(empty));
 
         // Expect a call to the recipient hook.
-        vm.expectCall(
-            address(empty), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId, users.sender))
-        );
+        vm.expectCall(address(empty), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (lockup, streamId)));
 
         // Renounce the stream.
         lockup.renounce(streamId);
@@ -142,8 +140,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect a call to the recipient hook.
         vm.expectCall(
-            address(revertingRecipient),
-            abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId, users.sender))
+            address(revertingRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (lockup, streamId))
         );
 
         // Renounce the stream.
@@ -173,8 +170,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect a call to the recipient hook.
         vm.expectCall(
-            address(reentrantRecipient),
-            abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId, users.sender))
+            address(reentrantRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (lockup, streamId))
         );
 
         // Renounce the stream.
@@ -205,8 +201,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect a call to the recipient hook.
         vm.expectCall(
-            address(goodRecipient),
-            abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId, users.sender))
+            address(goodRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (lockup, streamId))
         );
 
         // Expect a {RenounceLockupStream} event to be emitted.
