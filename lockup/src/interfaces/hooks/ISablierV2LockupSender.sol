@@ -13,7 +13,7 @@ interface ISablierV2LockupSender {
     /// @dev Notes:
     /// - This function may revert, but the Sablier contract will ignore the revert.
     ///
-    /// @param lockup The lockup contract on which cancellation was triggered.
+    /// @param lockup The lockup streaming contract in which the stream was canceled.
     /// @param streamId The id of the canceled stream.
     /// @param recipient The stream's recipient, who canceled the stream.
     /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
