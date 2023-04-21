@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-// solhint-disable max-line-length
+// solhint-disable max-line-length,no-inline-assembly
 pragma solidity >=0.8.19;
 
 import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
