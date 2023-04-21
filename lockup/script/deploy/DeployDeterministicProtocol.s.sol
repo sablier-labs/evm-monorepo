@@ -33,7 +33,7 @@ contract DeployDeterministicProtocol is
     )
         public
         virtual
-        returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupDynamic dynamic)
+        returns (SablierV2Comptroller comptroller, SablierV2LockupDynamic dynamic, SablierV2LockupLinear linear)
     {
         comptroller = DeployDeterministicComptroller.run(initialAdmin);
         dynamic = DeployDeterministicLockupDynamic.run(initialAdmin, comptroller, initialNFTDescriptor, maxSegmentCount);

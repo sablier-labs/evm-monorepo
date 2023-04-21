@@ -197,12 +197,12 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         // We deploy from precompiled source if the profile is "test-optimized".
         if (isTestOptimizedProfile()) {
             comptroller = deployPrecompiledComptroller(users.admin);
-            linear = deployPrecompiledLinear(users.admin, comptroller, nftDescriptor);
             dynamic = deployPrecompiledDynamic(users.admin, comptroller, nftDescriptor);
+            linear = deployPrecompiledLinear(users.admin, comptroller, nftDescriptor);
         }
         // We deploy normally in all other cases.
         else {
-            (comptroller, linear, dynamic) = new DeployProtocol().run({
+            (comptroller, dynamic, linear) = new DeployProtocol().run({
                 initialAdmin: users.admin,
                 initialNFTDescriptor: nftDescriptor,
                 maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT

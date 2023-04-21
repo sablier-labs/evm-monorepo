@@ -9,7 +9,6 @@ import { SablierV2LockupDynamic } from "../../src/SablierV2LockupDynamic.sol";
 
 import { BaseScript } from "../shared/Base.s.sol";
 
-/// @notice Deploys {SablierV2LockupDynamic}.
 contract DeployLockupDynamic is BaseScript {
     function run(
         address initialAdmin,
