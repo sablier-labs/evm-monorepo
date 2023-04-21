@@ -47,7 +47,7 @@ abstract contract Fork_Test is Base_Test {
         vm.createSelectFork({ urlOrAlias: "mainnet", blockNumber: 16_126_000 });
 
         // Deploy the entire protocol.
-        deployProtocol();
+        deployProtocolConditionally();
 
         // Make the asset holder the caller in this test suite.
         vm.startPrank(holder);

@@ -11,6 +11,7 @@ import { DeployProtocol } from "script/deploy/DeployProtocol.s.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierV2NFTDescriptor } from "src/interfaces/ISablierV2NFTDescriptor.sol";
 import { SablierV2NFTDescriptor } from "src/SablierV2NFTDescriptor.sol";
 
 import { Assertions } from "./utils/Assertions.sol";
@@ -150,25 +151,54 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         deal({ token: address(nonCompliantAsset), to: addr, give: 1_000_000e18 });
     }
 
-    /// @dev Conditionally deploy contracts normally or from precompiled source.
-    function deployProtocol() internal {
+    /// @dev Deploys {SablierV2Comptroller} from precompiled source.
+    function deployPrecompiledComptroller(address initialAdmin) internal returns (ISablierV2Comptroller comptroller_) {
+        comptroller_ = ISablierV2Comptroller(
+            deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json", abi.encode(initialAdmin))
+        );
+    }
+
+    /// @dev Deploys {SablierV2LockupDynamic} from precompiled source.
+    function deployPrecompiledDynamic(
+        address initialAdmin,
+        ISablierV2Comptroller comptroller_,
+        ISablierV2NFTDescriptor nftDescriptor_
+    )
+        internal
+        returns (ISablierV2LockupDynamic dynamic_)
+    {
+        dynamic_ = ISablierV2LockupDynamic(
+            deployCode(
+                "optimized-out/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json",
+                abi.encode(initialAdmin, address(comptroller_), address(nftDescriptor_), DEFAULT_MAX_SEGMENT_COUNT)
+            )
+        );
+    }
+
+    /// @dev Deploys {SablierV2LockupLinear} from precompiled source.
+    function deployPrecompiledLinear(
+        address initialAdmin,
+        ISablierV2Comptroller comptroller_,
+        ISablierV2NFTDescriptor nftDescriptor_
+    )
+        internal
+        returns (ISablierV2LockupLinear linear_)
+    {
+        linear_ = ISablierV2LockupLinear(
+            deployCode(
+                "optimized-out/SablierV2LockupLinear.sol/SablierV2LockupLinear.json",
+                abi.encode(initialAdmin, address(comptroller_), address(nftDescriptor_))
+            )
+        );
+    }
+
+    /// @dev Conditionally deploy V2 Core normally or from a source precompiled with via IR.
+    function deployProtocolConditionally() internal {
         // We deploy from precompiled source if the profile is "test-optimized".
         if (isTestOptimizedProfile()) {
-            comptroller = ISablierV2Comptroller(
-                deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json", abi.encode(users.admin))
-            );
-            linear = ISablierV2LockupLinear(
-                deployCode(
-                    "optimized-out/SablierV2LockupLinear.sol/SablierV2LockupLinear.json",
-                    abi.encode(users.admin, address(comptroller), address(nftDescriptor))
-                )
-            );
-            dynamic = ISablierV2LockupDynamic(
-                deployCode(
-                    "optimized-out/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json",
-                    abi.encode(users.admin, address(comptroller), address(nftDescriptor), DEFAULT_MAX_SEGMENT_COUNT)
-                )
-            );
+            comptroller = deployPrecompiledComptroller(users.admin);
+            linear = deployPrecompiledLinear(users.admin, comptroller, nftDescriptor);
+            dynamic = deployPrecompiledDynamic(users.admin, comptroller, nftDescriptor);
         }
         // We deploy normally in all other cases.
         else {
@@ -181,8 +211,8 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
 
         // Finally, label all the contracts just deployed.
         vm.label({ account: address(comptroller), newLabel: "Comptroller" });
-        vm.label({ account: address(linear), newLabel: "LockupLinear" });
         vm.label({ account: address(dynamic), newLabel: "LockupDynamic" });
+        vm.label({ account: address(linear), newLabel: "LockupLinear" });
     }
 
     /// @dev Expects a call to the `transfer` function of the default ERC-20 contract.

@@ -35,7 +35,7 @@ abstract contract Unit_Test is Base_Test {
         Base_Test.setUp();
 
         // Deploy the entire protocol.
-        deployProtocol();
+        deployProtocolConditionally();
 
         // Make the admin the default caller in this test suite.
         vm.startPrank({ msgSender: users.admin });
