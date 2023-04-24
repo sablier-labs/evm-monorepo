@@ -303,19 +303,19 @@ abstract contract SablierV2Lockup is
     /// @param streamId The stream id for the query.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
 
-    /// @dev See the documentation for the public functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdrawableAmountOf(uint256 streamId) internal view virtual returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev See the documentation for the public functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _cancel(uint256 tokenId) internal virtual;
 
-    /// @dev See the documentation for the public functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _renounce(uint256 streamId) internal virtual;
 
-    /// @dev See the documentation for the public functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdraw(uint256 streamId, address to, uint128 amount) internal virtual;
 }

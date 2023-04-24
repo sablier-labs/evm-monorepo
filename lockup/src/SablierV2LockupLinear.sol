@@ -282,7 +282,7 @@ contract SablierV2LockupLinear is
         result = msg.sender == _streams[streamId].sender;
     }
 
-    /// @dev See the documentation for the public functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
         Lockup.Status status = _streams[streamId].status;
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
@@ -340,7 +340,7 @@ contract SablierV2LockupLinear is
         }
     }
 
-    /// @dev See the documentation for the public functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdrawableAmountOf(uint256 streamId) internal view override returns (uint128 withdrawableAmount) {
         // If the stream is active or canceled, calculate the withdrawable amount by subtracting the withdrawn amount
         // from the streamed amount.
@@ -354,7 +354,7 @@ contract SablierV2LockupLinear is
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev See the documentation for the public functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _cancel(uint256 streamId) internal override {
         // Checks: the stream is cancelable.
         if (!_streams[streamId].isCancelable) {
@@ -419,7 +419,7 @@ contract SablierV2LockupLinear is
         emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, senderAmount, recipientAmount);
     }
 
-    /// @dev See the documentation for the public functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _createWithRange(LockupLinear.CreateWithRange memory params) internal returns (uint256 streamId) {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
         // not call other unknown contracts.
@@ -486,7 +486,7 @@ contract SablierV2LockupLinear is
         });
     }
 
-    /// @dev See the documentation for the public functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _renounce(uint256 streamId) internal override {
         // Checks: the stream is cancelable.
         if (!_streams[streamId].isCancelable) {
@@ -508,7 +508,7 @@ contract SablierV2LockupLinear is
         emit ISablierV2Lockup.RenounceLockupStream(streamId);
     }
 
-    /// @dev See the documentation for the public functions that call this internal function.
+    /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdraw(uint256 streamId, address to, uint128 amount) internal override {
         // Effects: update the withdrawn amount.
         _streams[streamId].amounts.withdrawn = _streams[streamId].amounts.withdrawn + amount;
