@@ -62,6 +62,9 @@ library Errors {
     /// @notice Thrown when the protocol fee exceeds the maximum allowed fee.
     error SablierV2Lockup_ProtocolFeeTooHigh(UD60x18 protocolFee, UD60x18 maxFee);
 
+    /// @notice Thrown when trying to cancel or renounce a cold stream, i.e. settled, canceled, or depleted.
+    error SablierV2Lockup_StreamCold(uint256 streamId);
+
     /// @notice Thrown when trying to withdraw from a depleted stream.
     error SablierV2Lockup_StreamDepleted(uint256 streamId);
 
@@ -70,9 +73,6 @@ library Errors {
 
     /// @notice Thrown when trying to burn a stream that is not depleted.
     error SablierV2Lockup_StreamNotDepleted(uint256 streamId);
-
-    /// @notice Thrown when trying to cancel or renounce a stream that is not warm, i.e. neither pending nor streaming.
-    error SablierV2Lockup_StreamNotWarm(uint256 streamId);
 
     /// @notice Thrown when trying to withdraw from a pending stream.
     error SablierV2Lockup_StreamPending(uint256 streamId);

@@ -103,10 +103,20 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function isCancelable(uint256 streamId) external view returns (bool result);
 
+    /// @notice Retrieves a flag indicating whether the stream is cold, i.e. settled, canceled, or depleted.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isCold(uint256 streamId) external view returns (bool result);
+
     /// @notice Retrieves a flag indicating whether the stream exists.
     /// @dev Does not revert if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function isStream(uint256 streamId) external view returns (bool result);
+
+    /// @notice Retrieves a flag indicating whether the stream is warm, i.e. either pending or streaming.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isWarm(uint256 streamId) external view returns (bool result);
 
     /// @notice Counter for stream ids, used in the create functions.
     function nextStreamId() external view returns (uint256);

@@ -10,11 +10,11 @@ cancelMultiple.t.sol
       ├── when the stream ids array references some null streams
       │  └── it should revert
       └── when the stream ids array references only streams that are not null
-         ├── when all streams' statuses are settled
+         ├── when all streams are cold
          │  └── it should revert
-         ├── when some streams' statuses are settled
+         ├── when some streams are cold
          │  └── it should revert
-         └── when no stream's status is settled
+         └── when all streams are warm
             ├── when the caller is unauthorized for all streams
             │  ├── when the caller is a malicious third party
             │  │  └── it should revert

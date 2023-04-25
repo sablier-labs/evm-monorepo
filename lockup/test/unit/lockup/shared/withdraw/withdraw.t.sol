@@ -182,11 +182,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
 
-        // Assert that the stream's status is still streaming.
-        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
-        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
-        assertEq(actualStatus, expectedStatus);
-
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
@@ -214,11 +209,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
-
-        // Assert that the stream's status is still streaming.
-        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
-        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
-        assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);

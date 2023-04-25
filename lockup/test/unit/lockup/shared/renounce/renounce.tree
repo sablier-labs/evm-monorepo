@@ -5,7 +5,7 @@ renounce.t.sol
    ├── when the id references a null stream
    │  └── it should revert
    └──  when the id does not reference a null stream
-      ├── when the stream is not warm
+      ├── when the stream is cold
       │  ├── when the stream's status is "SETTLED"
       │  │  └── it should revert
       │  ├── when the stream's status is "CANCELED"

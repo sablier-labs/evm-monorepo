@@ -108,8 +108,7 @@ abstract contract LockupHandler is BaseHandler {
         useFuzzedStreamSender
     {
         // Cold streams cannot be withdrawn from.
-        Lockup.Status status = lockup.statusOf(currentStreamId);
-        if (status != Lockup.Status.PENDING && status != Lockup.Status.STREAMING) {
+        if (lockup.isCold(currentStreamId)) {
             return;
         }
 
@@ -140,9 +139,8 @@ abstract contract LockupHandler is BaseHandler {
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
-        // Only warm streams can be canceled.
-        Lockup.Status status = lockup.statusOf(currentStreamId);
-        if (status != Lockup.Status.PENDING && status != Lockup.Status.STREAMING) {
+        // Cold streams cannot be renounced.
+        if (lockup.isCold(currentStreamId)) {
             return;
         }
 

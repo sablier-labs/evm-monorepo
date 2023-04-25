@@ -46,7 +46,16 @@ abstract contract SablierV2Lockup is
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks that `streamId` references a stream that is not null.
+    /// @dev Checks that `streamId` does not reference a cold stream.
+    modifier notCold(uint256 streamId) {
+        Lockup.Status status = statusOf(streamId);
+        if (status == Lockup.Status.SETTLED || status == Lockup.Status.CANCELED || status == Lockup.Status.DEPLETED) {
+            revert Errors.SablierV2Lockup_StreamCold(streamId);
+        }
+        _;
+    }
+
+    /// @dev Checks that `streamId` does not reference a null stream.
     modifier notNull(uint256 streamId) {
         if (!isStream(streamId)) {
             revert Errors.SablierV2Lockup_Null(streamId);
@@ -58,14 +67,6 @@ abstract contract SablierV2Lockup is
     modifier onlySenderOrRecipient(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && msg.sender != _ownerOf(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-        }
-        _;
-    }
-
-    /// @dev Checks that `streamId` references a warm stream, i.e. either pending or streaming.
-    modifier warm(uint256 streamId) {
-        if (statusOf(streamId) != Lockup.Status.PENDING && statusOf(streamId) != Lockup.Status.STREAMING) {
-            revert Errors.SablierV2Lockup_StreamNotWarm(streamId);
         }
         _;
     }
@@ -137,7 +138,7 @@ abstract contract SablierV2Lockup is
         override
         noDelegateCall
         notNull(streamId)
-        warm(streamId)
+        notCold(streamId)
         onlySenderOrRecipient(streamId)
     {
         _cancel(streamId);
@@ -159,7 +160,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) warm(streamId) {
+    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) notCold(streamId) {
         // Checks: `msg.sender` is the stream's sender.
         if (!_isCallerStreamSender(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
