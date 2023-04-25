@@ -59,7 +59,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
 
     /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
     ///
-    /// When the stream is active, the streaming function is:
+    /// When the stream is warm, the streaming function is:
     ///
     /// $$
     /// f(x) = x * d + c
@@ -72,8 +72,8 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - $c$ is the cliff amount.
     ///
     /// Upon cancellation of the stream, the amount streamed is calculated as the difference between the deposited
-    /// amount and the refunded amount. Ultimately, when the stream is fully depleted, the streamed amount becomes
-    /// equivalent to the total amount withdrawn.
+    /// amount and the refunded amount. Ultimately, when the stream is depleted, the streamed amount becomes equivalent
+    /// to the total amount withdrawn.
     ///
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The linear stream id for the query.

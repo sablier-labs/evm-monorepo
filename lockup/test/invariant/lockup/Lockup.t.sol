@@ -119,7 +119,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
-            if (lockup.getStatus(streamId) == Lockup.Status.CANCELED) {
+            if (lockup.statusOf(streamId) == Lockup.Status.CANCELED) {
                 assertGt(
                     lockup.getRefundedAmount(streamId),
                     0,
@@ -134,7 +134,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
-            if (lockup.getStatus(streamId) == Lockup.Status.CANCELED) {
+            if (lockup.statusOf(streamId) == Lockup.Status.CANCELED) {
                 assertGt(
                     lockup.withdrawableAmountOf(streamId),
                     0,
@@ -148,7 +148,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
-            if (lockup.getStatus(streamId) == Lockup.Status.DEPLETED) {
+            if (lockup.statusOf(streamId) == Lockup.Status.DEPLETED) {
                 assertEq(
                     lockup.getDepositedAmount(streamId) - lockup.getRefundedAmount(streamId),
                     lockup.getWithdrawnAmount(streamId),

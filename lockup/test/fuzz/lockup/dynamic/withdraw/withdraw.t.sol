@@ -23,8 +23,11 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
     struct Vars {
         Lockup.Status actualStatus;
         uint256 actualWithdrawnAmount;
+        Lockup.CreateAmounts createAmounts;
         Lockup.Status expectedStatus;
         uint256 expectedWithdrawnAmount;
+        bool isDepleted;
+        bool isSettled;
         address funder;
         uint256 streamId;
         uint128 totalAmount;
@@ -33,9 +36,10 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         uint128 withdrawableAmount;
     }
 
-    function test_Withdraw_FuzzedSegments(Params memory params)
+    function testFuzz_Withdraw_SegmentFuzing(Params memory params)
         external
-        whenStreamActive
+        whenNoDelegateCall
+        whenNotNull
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -52,11 +56,11 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         fuzzSegmentMilestones(params.segments, DEFAULT_START_TIME);
 
         // Fuzz the segment amounts.
-        (vars.totalAmount,) = fuzzDynamicStreamAmounts(params.segments);
+        (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(params.segments);
 
         // Bound the time warp.
         vars.totalDuration = params.segments[params.segments.length - 1].milestone - DEFAULT_START_TIME;
-        params.timeWarp = bound(params.timeWarp, 1, vars.totalDuration);
+        params.timeWarp = bound(params.timeWarp, 1, vars.totalDuration + 100 seconds);
 
         // Mint enough assets to the funder.
         deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
@@ -88,7 +92,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         expectTransferCall({ to: params.to, amount: vars.withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
-        vm.expectEmit({ emitter: address(lockup) });
+        vm.expectEmit({ emitter: address(dynamic) });
         emit WithdrawFromLockupStream({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
 
         // Make the recipient the caller.
@@ -97,9 +101,20 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         // Make the withdrawal.
         dynamic.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
 
-        // Assert that the stream has remained active.
-        vars.actualStatus = lockup.getStatus(vars.streamId);
-        vars.expectedStatus = Lockup.Status.ACTIVE;
+        // Check if the stream is depleted or settled. It is possible for the stream to be just settled
+        // and not depleted because the withdraw amount is fuzzed.
+        vars.isDepleted = vars.withdrawAmount == vars.createAmounts.deposit;
+        vars.isSettled = dynamic.refundableAmountOf(vars.streamId) == 0;
+
+        // Assert that the stream's status is correct.
+        vars.actualStatus = dynamic.statusOf(vars.streamId);
+        if (vars.isDepleted) {
+            vars.expectedStatus = Lockup.Status.DEPLETED;
+        } else if (vars.isSettled) {
+            vars.expectedStatus = Lockup.Status.SETTLED;
+        } else {
+            vars.expectedStatus = Lockup.Status.STREAMING;
+        }
         assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the withdrawn amount has been updated.

@@ -7,17 +7,17 @@ import { LockupLinear } from "src/types/DataTypes.sol";
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
 contract GetRange_Linear_Unit_Test is Linear_Unit_Test {
-    function test_RevertWhen_StreamNull() external {
+    function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         linear.getRange(nullStreamId);
     }
 
-    modifier whenStreamNonNull() {
+    modifier whenNotNull() {
         _;
     }
 
-    function test_GetRange() external whenStreamNonNull {
+    function test_GetRange() external whenNotNull {
         uint256 streamId = createDefaultStream();
         LockupLinear.Range memory actualRange = linear.getRange(streamId);
         LockupLinear.Range memory expectedRange = DEFAULT_LINEAR_RANGE;

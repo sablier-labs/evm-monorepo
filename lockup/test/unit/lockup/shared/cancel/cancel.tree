@@ -2,32 +2,33 @@ cancel.t.sol
 ├── when the call is a delegate call
 │  └── it should revert
 └── when the call is not a delegate call
-   ├── when the stream is not active
-   │  ├── when the stream is null
-   │  │  └── it should revert
-   │  ├── when the stream is depleted
-   │  │  └── it should revert
-   │  └── when the stream is canceled
-   │     └── it should revert
-   └── when the stream is active
-      ├── when the caller is unauthorized
-      │  ├── when the caller is a malicious third party
+   ├── when the id references a null stream
+   │  └── it should revert
+   └── when the id does not reference a null stream
+      ├── when the stream is not warm
+      │  ├── when the stream's status is "SETTLED"
       │  │  └── it should revert
-      │  ├── when the caller is an approved third party
+      │  ├── when the stream's status is "CANCELED"
       │  │  └── it should revert
-      │  └── when the caller is a former recipient
+      │  └── when the stream's status is "DEPLETED"
       │     └── it should revert
-      └── when the caller is authorized
-         ├── when the stream is not cancelable
-         │  └── it should revert
-         └── when the stream is cancelable
-            ├── when the stream is settled
+      └── when the stream is warm
+         ├── when the caller is unauthorized
+         │  ├── when the caller is a malicious third party
+         │  │  └── it should revert
+         │  ├── when the caller is an approved third party
+         │  │  └── it should revert
+         │  └── when the caller is a former recipient
+         │     └── it should revert
+         └── when the caller is authorized
+            ├── when the stream is not cancelable
             │  └── it should revert
-            └── when the stream is not settled
-               ├── when the streaming has not started
+            └── when the stream is cancelable
+               ├── when the stream's status is "PENDING"
                │  ├── it should cancel the stream
-               │  └── it should mark the stream as depleted
-               └── when the streaming has started
+               │  ├── it should mark the stream as depleted
+               │  └── it should make the stream not cancelable
+               └── when the stream's status is "STREAMING"
                   ├── when the caller is the sender
                   │  ├── when the recipient is not a contract
                   │  │  ├── it should cancel the stream
@@ -53,6 +54,7 @@ cancel.t.sol
                   │           └── when there is no reentrancy
                   │              ├── it should cancel the stream
                   │              ├── it should mark the stream as canceled
+                  │              ├── it should make the stream not cancelable
                   │              ├── it should update the refunded amount
                   │              ├── it should refund the sender
                   │              ├── it should call the recipient hook
@@ -82,6 +84,7 @@ cancel.t.sol
                                  └── when there is no reentrancy
                                     ├── it should cancel the stream
                                     ├── it should mark the stream as canceled
+                                    ├── it should make the stream not cancelable
                                     ├── it should update the refunded amount
                                     ├── it should refund the sender
                                     ├── it should call the sender hook

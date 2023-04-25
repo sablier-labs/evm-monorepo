@@ -27,6 +27,7 @@ abstract contract Constants {
     uint40 internal constant DEFAULT_TOTAL_DURATION = 10_000 seconds;
     uint128 internal constant DEFAULT_WITHDRAW_AMOUNT = 2600e18;
     bytes32 internal constant FLASH_LOAN_CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
+    uint40 internal constant MARCH_1_2023 = 1_677_632_400; // March 1, 2023 at 00:00 GMT
     UD60x18 internal constant MAX_FEE = UD60x18.wrap(0.1e18); // 10%
     uint40 internal immutable MAX_SEGMENT_DURATION;
     uint40 internal constant MAX_UNIX_TIMESTAMP = 2_147_483_647; // 2^31 - 1
@@ -59,7 +60,7 @@ abstract contract Constants {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
-        DEFAULT_START_TIME = uint40(1_677_632_400); // March 1, 2023 at 00:00 GMT
+        DEFAULT_START_TIME = uint40(MARCH_1_2023); // March 1, 2023 at 00:00 GMT
         DEFAULT_CLIFF_TIME = DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION;
         DEFAULT_END_TIME = DEFAULT_START_TIME + DEFAULT_TOTAL_DURATION;
         DEFAULT_LINEAR_RANGE =

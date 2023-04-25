@@ -138,8 +138,8 @@ abstract contract Fuzzers is Constants, Utils {
             return;
         }
 
-        // We precompute the first milestone so that we don't bump into an underflow in the first loop iteration. We
-        // have to add 1 because the first milestone must be greater than the start time.
+        // The first milestones is precomputed to avoid an underflow in the first loop iteration. We have to
+        // add 1 because the first milestone must be greater than the start time.
         segments[0].milestone = startTime + 1;
 
         // Generate `segmentCount` milestones linearly spaced between the first milestone and `MAX_UNIX_TIMESTAMP`.

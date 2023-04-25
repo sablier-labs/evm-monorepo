@@ -10,8 +10,7 @@ import { Dynamic_Fuzz_Test } from "../Dynamic.t.sol";
 contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     uint256 internal defaultStreamId;
 
-    modifier whenStreamActive() {
-        // Create the default stream.
+    modifier whenStatusStreaming() {
         defaultStreamId = createDefaultStream();
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
@@ -30,9 +29,11 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// - End time in the past
     /// - End time in the present
     /// - End time in the future
-    function testFuzz_WithdrawableAmountOf_WithoutWithdrawals(uint40 timeWarp)
+    /// - Status streaming
+    /// - Status settled
+    function testFuzz_WithdrawableAmountOf_NoPreviousWithdrawals(uint40 timeWarp)
         external
-        whenStreamActive
+        whenStatusStreaming
         whenStartTimeInThePast
     {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
@@ -65,13 +66,16 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// - End time in the present
     /// - End time in the future
     /// - Multiple withdraw amounts
+    /// - Status streaming
+    /// - Status settled
+    /// - Status depleted
     /// - Withdraw amount equal to deposited amount and not
     function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,
         uint128 withdrawAmount
     )
         external
-        whenStreamActive
+        whenStatusStreaming
         whenStartTimeInThePast
         whenWithWithdrawals
     {

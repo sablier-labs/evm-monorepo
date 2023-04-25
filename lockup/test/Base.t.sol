@@ -105,7 +105,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
 
         // Warp to March 1, 2023 at 00:00 GMT to provide a more realistic testing environment.
-        vm.warp({ timestamp: DEFAULT_START_TIME });
+        vm.warp({ timestamp: MARCH_1_2023 });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

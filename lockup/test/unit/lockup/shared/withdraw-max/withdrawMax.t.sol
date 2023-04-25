@@ -10,16 +10,13 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        // Create the default stream.
         defaultStreamId = createDefaultStream();
-
-        // Make the recipient the caller in this test suite.
         changePrank({ msgSender: users.recipient });
     }
 
     function test_WithdrawMax_EndTimeInThePast() external {
         // Warp to the end of the stream.
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: DEFAULT_END_TIME + 1 seconds });
 
         // Expect the ERC-20 assets to be transferred to the recipient.
         expectTransferCall({ to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
@@ -36,8 +33,8 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 expectedWithdrawnAmount = DEFAULT_DEPOSIT_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the stream has been marked as depleted.
-        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        // Assert that the stream's status is depleted.
+        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
 
@@ -77,9 +74,9 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 expectedWithdrawnAmount = withdrawAmount;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the stream has remained active.
-        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
-        Lockup.Status expectedStatus = Lockup.Status.ACTIVE;
+        // Assert that the stream's status is still streaming.
+        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
     }
 }

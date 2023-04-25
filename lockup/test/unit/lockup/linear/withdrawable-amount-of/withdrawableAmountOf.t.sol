@@ -4,68 +4,59 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
+import { WithdrawableAmountOf_Unit_Test } from "../../shared/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 
-contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override {
+contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test, WithdrawableAmountOf_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, WithdrawableAmountOf_Unit_Test) {
         Linear_Unit_Test.setUp();
-
-        // Create the default stream.
-        defaultStreamId = createDefaultStream();
+        WithdrawableAmountOf_Unit_Test.setUp();
     }
 
-    function test_RevertWhen_StreamNull() external {
-        uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
-        linear.withdrawableAmountOf(nullStreamId);
-    }
-
-    function test_WithdrawableAmountOf_StreamDepleted() external {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
-        uint256 expectedWithdrawableAmount = 0;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
-    }
-
-    function test_WithdrawableAmountOf_StreamCanceled() external {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
-        lockup.cancel(defaultStreamId);
-        uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
-        uint256 expectedWithdrawableAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_REFUND_AMOUNT;
-        assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
-    }
-
-    modifier whenStreamActive() {
-        // Create the default stream.
-        defaultStreamId = createDefaultStream();
+    modifier whenStatusStreaming() {
         _;
     }
 
-    function test_WithdrawableAmountOf_CliffTimeInTheFuture() external whenStreamActive {
+    function test_WithdrawableAmountOf_CliffTimeInTheFuture()
+        external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+        whenStatusStreaming
+    {
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     modifier whenCliffTimeInThePast() {
-        // Warp into the future.
         vm.warp({ timestamp: WARP_26_PERCENT });
         _;
     }
 
-    function test_WithdrawableAmountOf_NoWithdrawals() external whenStreamActive whenCliffTimeInThePast {
+    function test_WithdrawableAmountOf_NoPreviousWithdrawals()
+        external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+        whenStatusStreaming
+        whenCliffTimeInThePast
+    {
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = DEFAULT_WITHDRAW_AMOUNT;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    function test_WithdrawableAmountOf_WithWithdrawals() external whenStreamActive whenCliffTimeInThePast {
-        // Make the withdrawal.
+    modifier whenPreviousWithdrawals() {
         linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+        _;
+    }
 
-        // Run the test.
+    function test_WithdrawableAmountOf_WithWithdrawals()
+        external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+        whenStatusStreaming
+        whenCliffTimeInThePast
+        whenPreviousWithdrawals
+    {
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");

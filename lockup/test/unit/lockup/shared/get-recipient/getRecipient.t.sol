@@ -10,17 +10,16 @@ abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal streamId;
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        // Create the default stream, since most tests need it.
         streamId = createDefaultStream();
     }
 
-    function test_RevertWhen_StreamNull() external {
+    function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert("ERC721: invalid token ID");
         lockup.getRecipient(nullStreamId);
     }
 
-    modifier whenStreamNonNull() {
+    modifier whenNotNull() {
         _;
     }
 
@@ -46,7 +45,7 @@ abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_GetRecipient() external whenStreamNonNull whenNFTNotBurned {
+    function test_GetRecipient() external whenNotNull whenNFTNotBurned {
         address actualRecipient = lockup.getRecipient(streamId);
         address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient, "recipient");

@@ -12,11 +12,10 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        // Create the default stream.
         defaultStreamId = createDefaultStream();
     }
 
-    function test_RevertWhen_DelegateCall() external whenStreamActive {
+    function test_RevertWhen_DelegateCall() external whenStreamWarm {
         bytes memory callData = abi.encodeCall(ISablierV2Lockup.renounce, defaultStreamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
@@ -26,35 +25,50 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier whenStreamNotActive() {
-        _;
-    }
-
-    function test_RevertWhen_StreamNull() external whenNoDelegateCall whenStreamNotActive {
+    function test_RevertWhen_Null() external whenNoDelegateCall {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.renounce(nullStreamId);
     }
 
-    function test_RevertWhen_StreamCanceled() external whenNoDelegateCall whenStreamNotActive {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
-        lockup.cancel(defaultStreamId);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
-        lockup.renounce(defaultStreamId);
-    }
-
-    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenStreamNotActive {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
-        lockup.renounce(defaultStreamId);
-    }
-
-    modifier whenStreamActive() {
+    modifier whenNotNull() {
         _;
     }
 
-    function test_RevertWhen_CallerNotSender() external whenNoDelegateCall whenStreamActive {
+    modifier whenStreamNotWarm() {
+        _;
+    }
+
+    function test_RevertWhen_StreamNotWarm_StatusCanceled() external whenNoDelegateCall whenStreamNotWarm {
+        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        lockup.cancel(defaultStreamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotWarm.selector, defaultStreamId));
+        lockup.renounce(defaultStreamId);
+    }
+
+    function test_RevertWhen_StreamNotWarm_StatusSettled() external whenNoDelegateCall whenStreamNotWarm {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotWarm.selector, defaultStreamId));
+        lockup.renounce(defaultStreamId);
+    }
+
+    function test_RevertWhen_StreamNotWarm_StatusDepleted() external whenNoDelegateCall whenStreamNotWarm {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotWarm.selector, defaultStreamId));
+        lockup.renounce(defaultStreamId);
+    }
+
+    /// @dev This modifier runs the test twice: once with a "PENDING" status, and once with a "STREAMING" status.
+    modifier whenStreamWarm() {
+        vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
+        _;
+        vm.warp({ timestamp: DEFAULT_START_TIME });
+        defaultStreamId = createDefaultStream();
+        _;
+    }
+
+    function test_RevertWhen_CallerNotSender() external whenNoDelegateCall whenStreamWarm {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
 
@@ -69,7 +83,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_StreamNotCancelable() external whenNoDelegateCall whenStreamActive whenCallerSender {
+    function test_RevertWhen_StreamNotCancelable() external whenNoDelegateCall whenStreamWarm whenCallerSender {
         // Create the not cancelable stream.
         uint256 notCancelableStreamId = createDefaultStreamNotCancelable();
 
@@ -87,7 +101,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Renounce_RecipientNotContract()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamWarm
         whenCallerSender
         whenStreamCancelable
     {
@@ -103,7 +117,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Renounce_RecipientDoesNotImplementHook()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamWarm
         whenCallerSender
         whenStreamCancelable
         whenRecipientContract
@@ -117,7 +131,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Renounce the stream.
         lockup.renounce(streamId);
 
-        // Assert that the stream is not cancelable.
+        // Assert that the stream is not cancelable anymore.
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }
@@ -129,7 +143,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Renounce_RecipientReverts()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamWarm
         whenCallerSender
         whenStreamCancelable
         whenRecipientContract
@@ -146,7 +160,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Renounce the stream.
         lockup.renounce(streamId);
 
-        // Assert that the stream is not cancelable.
+        // Assert that the stream is not cancelable anymore.
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }
@@ -158,7 +172,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Renounce_RecipientReentrancy()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamWarm
         whenCallerSender
         whenStreamCancelable
         whenRecipientContract
@@ -176,7 +190,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Renounce the stream.
         lockup.renounce(streamId);
 
-        // Assert that the stream is not cancelable.
+        // Assert that the stream is not cancelable anymore.
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }
@@ -188,7 +202,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Renounce()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenStreamWarm
         whenCallerSender
         whenStreamCancelable
         whenRecipientContract
@@ -211,7 +225,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Renounce the stream.
         lockup.renounce(streamId);
 
-        // Assert that the stream is not cancelable.
+        // Assert that the stream is not cancelable anymore.
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");
     }

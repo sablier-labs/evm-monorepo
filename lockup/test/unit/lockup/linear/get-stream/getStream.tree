@@ -1,5 +1,5 @@
 getStream.t.sol
-├── when the stream is null
+├── when the id references a null stream
 │  └── it should revert
-└── when the stream is not null
+└── when the id does not reference a null stream
    └── it should return the stream

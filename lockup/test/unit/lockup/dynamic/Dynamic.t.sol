@@ -20,14 +20,13 @@ import { GetRecipient_Unit_Test } from "../shared/get-recipient/getRecipient.t.s
 import { GetRefundedAmount_Unit_Test } from "../shared/get-refunded-amount/getRefundedAmount.t.sol";
 import { GetSender_Unit_Test } from "../shared/get-sender/getSender.t.sol";
 import { GetStartTime_Unit_Test } from "../shared/get-start-time/getStartTime.t.sol";
-import { GetStatus_Unit_Test } from "../shared/get-status/getStatus.t.sol";
 import { GetWithdrawnAmount_Unit_Test } from "../shared/get-withdrawn-amount/getWithdrawnAmount.t.sol";
 import { IsCancelable_Unit_Test } from "../shared/is-cancelable/isCancelable.t.sol";
-import { IsSettled_Unit_Test } from "../shared/is-settled/isSettled.t.sol";
 import { RefundableAmountOf_Unit_Test } from "../shared/refundable-amount-of/refundableAmountOf.t.sol";
 import { Renounce_Unit_Test } from "../shared/renounce/renounce.t.sol";
 import { SetComptroller_Unit_Test } from "../shared/set-comptroller/setComptroller.t.sol";
 import { SetNFTDescriptor_Unit_Test } from "../shared/set-nft-descriptor/setNFTDescriptor.t.sol";
+import { StatusOf_Unit_Test } from "../shared/status-of/statusOf.t.sol";
 import { TokenURI_Unit_Test } from "../shared/token-uri/tokenURI.t.sol";
 import { Withdraw_Unit_Test } from "../shared/withdraw/withdraw.t.sol";
 import { WithdrawMax_Unit_Test } from "../shared/withdraw-max/withdrawMax.t.sol";
@@ -45,7 +44,7 @@ abstract contract Dynamic_Unit_Test is Unit_Test, Dynamic_Shared_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override(Unit_Test, Dynamic_Shared_Test) {
-        // Both of these contracts inherit from {Base_Test}, but this is fine because multiple inheritance is
+        // Both of these contracts inherit from {Base_Test}, which is fine because multiple inheritance is
         // allowed in Solidity, and {Base_Test-setUp} will only be called once.
         Unit_Test.setUp();
         Dynamic_Shared_Test.setUp();
@@ -158,13 +157,6 @@ contract GetStartTime_Dynamic_Unit_Test is Dynamic_Unit_Test, GetStartTime_Unit_
     }
 }
 
-contract GetStatus_Dynamic_Unit_Test is Dynamic_Unit_Test, GetStatus_Unit_Test {
-    function setUp() public virtual override(Dynamic_Unit_Test, GetStatus_Unit_Test) {
-        Dynamic_Unit_Test.setUp();
-        GetStatus_Unit_Test.setUp();
-    }
-}
-
 contract GetWithdrawnAmount_Dynamic_Unit_Test is Dynamic_Unit_Test, GetWithdrawnAmount_Unit_Test {
     function setUp() public virtual override(Dynamic_Unit_Test, GetWithdrawnAmount_Unit_Test) {
         Dynamic_Unit_Test.setUp();
@@ -176,13 +168,6 @@ contract IsCancelable_Dynamic_Unit_Test is Dynamic_Unit_Test, IsCancelable_Unit_
     function setUp() public virtual override(Dynamic_Unit_Test, IsCancelable_Unit_Test) {
         Dynamic_Unit_Test.setUp();
         IsCancelable_Unit_Test.setUp();
-    }
-}
-
-contract IsSettled_Dynamic_Unit_Test is Dynamic_Unit_Test, IsSettled_Unit_Test {
-    function setUp() public virtual override(Dynamic_Unit_Test, IsSettled_Unit_Test) {
-        Dynamic_Unit_Test.setUp();
-        IsSettled_Unit_Test.setUp();
     }
 }
 
@@ -204,6 +189,13 @@ contract SetNFTDescriptor_Dynamic_Unit_Test is Dynamic_Unit_Test, SetNFTDescript
     function setUp() public virtual override(Dynamic_Unit_Test, SetNFTDescriptor_Unit_Test) {
         Dynamic_Unit_Test.setUp();
         SetNFTDescriptor_Unit_Test.setUp();
+    }
+}
+
+contract StatusOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StatusOf_Unit_Test {
+    function setUp() public virtual override(Dynamic_Unit_Test, StatusOf_Unit_Test) {
+        Dynamic_Unit_Test.setUp();
+        StatusOf_Unit_Test.setUp();
     }
 }
 

@@ -15,11 +15,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        // Make the recipient the caller in this test suite.
-        changePrank({ msgSender: users.recipient });
-
-        // Create the default stream.
         defaultStreamId = createDefaultStream();
+        changePrank({ msgSender: users.recipient });
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -32,35 +29,55 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier whenStreamNotActive() {
-        _;
-    }
-
-    function test_RevertWhen_StreamNull() external whenNoDelegateCall whenStreamNotActive {
+    function test_RevertWhen_Null() external whenNoDelegateCall {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.cancel(nullStreamId);
     }
 
-    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenStreamNotActive {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
-        lockup.cancel(defaultStreamId);
-    }
-
-    function test_RevertWhen_StreamCanceled() external whenNoDelegateCall whenStreamNotActive {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
-        lockup.cancel(defaultStreamId);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotActive.selector, defaultStreamId));
-        lockup.cancel(defaultStreamId);
-    }
-
-    modifier whenStreamActive() {
+    modifier whenNotNull() {
         _;
     }
 
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty() external whenNoDelegateCall whenStreamActive {
+    modifier whenStreamNotWarm() {
+        _;
+    }
+
+    function test_RevertWhen_StreamNotWarm_StatusSettled() external whenNoDelegateCall whenNotNull whenStreamNotWarm {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotWarm.selector, defaultStreamId));
+        lockup.cancel(defaultStreamId);
+    }
+
+    function test_RevertWhen_StreamNotWarm_StatusCanceled() external whenNoDelegateCall whenNotNull whenStreamNotWarm {
+        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        lockup.cancel(defaultStreamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotWarm.selector, defaultStreamId));
+        lockup.cancel(defaultStreamId);
+    }
+
+    function test_RevertWhen_StreamNotWarm_StatusDepleted() external whenNoDelegateCall whenNotNull whenStreamNotWarm {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotWarm.selector, defaultStreamId));
+        lockup.cancel(defaultStreamId);
+    }
+
+    modifier whenStreamWarm() {
+        _;
+    }
+
+    modifier whenCallerUnauthorized() {
+        _;
+    }
+
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamWarm
+        whenCallerUnauthorized
+    {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
 
@@ -71,7 +88,13 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(defaultStreamId);
     }
 
-    function test_RevertWhen_CallerUnauthorized_ApprovedOperator() external whenNoDelegateCall whenStreamActive {
+    function test_RevertWhen_CallerUnauthorized_ApprovedOperator()
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamWarm
+        whenCallerUnauthorized
+    {
         // Approve Alice for the stream.
         lockup.approve({ to: users.operator, tokenId: defaultStreamId });
 
@@ -85,7 +108,13 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(defaultStreamId);
     }
 
-    function test_RevertWhen_CallerUnauthorized_FormerRecipient() external whenNoDelegateCall whenStreamActive {
+    function test_RevertWhen_CallerUnauthorized_FormerRecipient()
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamWarm
+        whenCallerUnauthorized
+    {
         // Transfer the stream to Alice.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
 
@@ -100,7 +129,13 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_StreamNotCancelable() external whenNoDelegateCall whenStreamActive whenCallerAuthorized {
+    function test_RevertWhen_StreamNotCancelable()
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamWarm
+        whenCallerAuthorized
+    {
         uint256 streamId = createDefaultStreamNotCancelable();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, streamId));
         lockup.cancel(streamId);
@@ -110,45 +145,32 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_EndTimeInThePast()
-        external
-        whenNoDelegateCall
-        whenStreamActive
-        whenCallerAuthorized
-        whenStreamCancelable
-    {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamId));
-        lockup.cancel(defaultStreamId);
-    }
-
-    modifier whenEndTimeInTheFuture() {
-        _;
-    }
-
-    function test_Cancel_StreamingHasNotStarted() external {
-        // Warp in the past.
-        vm.warp({ timestamp: DEFAULT_START_TIME - 1 });
+    function test_Cancel_StatusPending() external {
+        // Warp into the past.
+        vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
 
         // Cancel the stream.
         lockup.cancel(defaultStreamId);
 
-        // Check the stream status.
-        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        // Assert that the stream's status is depleted.
+        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
+
+        // Assert that the stream is not cancelable anymore.
+        bool isCancelable = lockup.isCancelable(defaultStreamId);
+        assertFalse(isCancelable, "isCancelable");
     }
 
     /// @dev In the linear contract, the streaming starts after the cliff time, whereas in the dynamic contract,
     /// the streaming starts after the start time.
-    modifier whenStreamingHasStarted() {
+    modifier whenStatusStreaming() {
         // Warp into the future, after the start time but before the end time.
         vm.warp({ timestamp: WARP_26_PERCENT });
         _;
     }
 
     modifier whenCallerSender() {
-        // Make the sender the caller in this test suite.
         changePrank({ msgSender: users.sender });
         _;
     }
@@ -156,15 +178,15 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_CallerSender_RecipientNotContract()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStreamingHasStarted
+        whenStatusStreaming
         whenCallerSender
     {
         lockup.cancel(defaultStreamId);
-        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -176,11 +198,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_CallerSender_RecipientDoesNotImplementHook()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStreamingHasStarted
+        whenStatusStreaming
         whenCallerSender
         whenRecipientContract
     {
@@ -202,7 +224,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(streamId);
 
         // Assert that the stream has been canceled.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -214,11 +236,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_CallerSender_RecipientReverts()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStreamingHasStarted
+        whenStatusStreaming
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
@@ -241,7 +263,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(streamId);
 
         // Assert that the stream has been canceled.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -253,11 +275,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_CallerSender_RecipientReentrancy()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStreamingHasStarted
+        whenStatusStreaming
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
@@ -281,7 +303,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancel(streamId);
 
         // Assert that the stream has been canceled.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -293,11 +315,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_CallerSender()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStreamingHasStarted
+        whenStatusStreaming
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
@@ -328,8 +350,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream has been marked as canceled.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        // Assert that the stream's status is canceled.
+        Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
@@ -355,15 +377,15 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_CallerRecipient_SenderNotContract()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStreamingHasStarted
+        whenStatusStreaming
         whenCallerRecipient
     {
         lockup.cancel(defaultStreamId);
-        Lockup.Status actualStatus = lockup.getStatus(defaultStreamId);
+        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -375,11 +397,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_CallerRecipient_SenderDoesNotImplementHook()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStreamingHasStarted
+        whenStatusStreaming
         whenCallerRecipient
         whenSenderContract
     {
@@ -400,8 +422,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream has been marked as canceled.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        // Assert that the stream's status is canceled.
+        Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -413,11 +435,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_CallerRecipient_SenderReverts()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStreamingHasStarted
+        whenStatusStreaming
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook
@@ -439,8 +461,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream has been marked as canceled.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        // Assert that the stream's status is canceled.
+        Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -452,11 +474,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_CallerRecipient_SenderReentrancy()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStreamingHasStarted
+        whenStatusStreaming
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook
@@ -479,8 +501,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream has been marked as canceled.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        // Assert that the stream's status is canceled.
+        Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
     }
@@ -492,11 +514,11 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Cancel_CallerRecipient()
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStreamingHasStarted
+        whenStatusStreaming
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook
@@ -527,8 +549,8 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream has been marked as canceled.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        // Assert that the stream's status is canceled.
+        Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 

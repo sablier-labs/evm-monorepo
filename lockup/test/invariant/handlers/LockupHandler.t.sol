@@ -81,7 +81,7 @@ abstract contract LockupHandler is BaseHandler {
 
     function burn(uint256 streamIndexSeed) external instrument("burn") useFuzzedStreamRecipient(streamIndexSeed) {
         // Only depleted streams can be burned.
-        if (lockup.getStatus(currentStreamId) != Lockup.Status.DEPLETED) {
+        if (lockup.statusOf(currentStreamId) != Lockup.Status.DEPLETED) {
             return;
         }
 
@@ -98,20 +98,15 @@ abstract contract LockupHandler is BaseHandler {
     }
 
     function cancel(uint256 streamIndexSeed) external instrument("cancel") useFuzzedStreamSender(streamIndexSeed) {
-        // Only active streams can be canceled.
-        if (lockup.getStatus(currentStreamId) != Lockup.Status.ACTIVE) {
+        // Null, pending, and depleted streams cannot be withdrawn from.
+        Lockup.Status status = lockup.statusOf(currentStreamId);
+        if (status == Lockup.Status.NULL || status == Lockup.Status.PENDING || status == Lockup.Status.DEPLETED) {
             return;
         }
 
         // Not cancelable streams cannot be canceled.
         bool isCancelable = lockup.isCancelable(currentStreamId);
         if (!isCancelable) {
-            return;
-        }
-
-        // Settled streams cannot be canceled.
-        bool isSettled = lockup.isSettled(currentStreamId);
-        if (isSettled) {
             return;
         }
 
@@ -131,8 +126,9 @@ abstract contract LockupHandler is BaseHandler {
     }
 
     function renounce(uint256 streamIndexSeed) external instrument("renounce") useFuzzedStreamSender(streamIndexSeed) {
-        // Only active streams can be canceled.
-        if (lockup.getStatus(currentStreamId) != Lockup.Status.ACTIVE) {
+        // Only warm streams can be canceled.
+        Lockup.Status status = lockup.statusOf(currentStreamId);
+        if (status != Lockup.Status.PENDING && status != Lockup.Status.STREAMING) {
             return;
         }
 
@@ -155,9 +151,9 @@ abstract contract LockupHandler is BaseHandler {
         instrument("withdraw")
         useFuzzedStreamRecipient(streamIndexSeed)
     {
-        // Only active or canceled streams can be withdrawn from.
-        Lockup.Status status = lockup.getStatus(currentStreamId);
-        if (status != Lockup.Status.ACTIVE && status != Lockup.Status.CANCELED) {
+        // Null, pending, and depleted streams cannot be withdrawn from.
+        Lockup.Status status = lockup.statusOf(currentStreamId);
+        if (status == Lockup.Status.NULL || status == Lockup.Status.PENDING || status == Lockup.Status.DEPLETED) {
             return;
         }
 
@@ -174,11 +170,6 @@ abstract contract LockupHandler is BaseHandler {
 
         // Bound the withdraw amount so that it is not zero.
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
-
-        // Non-active streams cannot be withdrawn from.
-        if (status != Lockup.Status.ACTIVE) {
-            return;
-        }
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.
@@ -199,6 +190,12 @@ abstract contract LockupHandler is BaseHandler {
         instrument("withdrawMax")
         useFuzzedStreamRecipient(streamIndexSeed)
     {
+        // Null, pending, and depleted streams cannot be withdrawn from.
+        Lockup.Status status = lockup.statusOf(currentStreamId);
+        if (status == Lockup.Status.NULL || status == Lockup.Status.PENDING || status == Lockup.Status.DEPLETED) {
+            return;
+        }
+
         // The protocol doesn't allow the withdrawal address to be the zero address.
         if (to == address(0)) {
             return;
@@ -207,12 +204,6 @@ abstract contract LockupHandler is BaseHandler {
         // The protocol doesn't allow a zero amount to be withdrawn.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(currentStreamId);
         if (withdrawableAmount == 0) {
-            return;
-        }
-
-        // Non-active streams cannot be withdrawn from.
-        Lockup.Status status = lockup.getStatus(currentStreamId);
-        if (status != Lockup.Status.ACTIVE) {
             return;
         }
 

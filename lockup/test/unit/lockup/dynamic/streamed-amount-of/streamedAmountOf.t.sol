@@ -5,56 +5,36 @@ import { Errors } from "src/libraries/Errors.sol";
 import { LockupDynamic } from "src/types/DataTypes.sol";
 
 import { Dynamic_Unit_Test } from "../Dynamic.t.sol";
+import { StreamedAmountOf_Unit_Test } from "../../shared/streamed-amount-of/streamedAmountOf.t.sol";
 
-contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override {
+contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StreamedAmountOf_Unit_Test {
+    function setUp() public virtual override(Dynamic_Unit_Test, StreamedAmountOf_Unit_Test) {
         Dynamic_Unit_Test.setUp();
-
-        // Create the default stream.
-        defaultStreamId = createDefaultStream();
+        StreamedAmountOf_Unit_Test.setUp();
     }
 
-    modifier whenStreamNotActive() {
+    modifier whenStatusStreaming() {
         _;
     }
 
-    function test_RevertWhen_StreamNull() external whenStreamNotActive {
-        uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
-        dynamic.streamedAmountOf(nullStreamId);
-    }
-
-    function test_StreamedAmountOf_StreamDepleted() external whenStreamNotActive {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        uint128 withdrawAmount = DEFAULT_DEPOSIT_AMOUNT;
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
-        uint256 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
-        uint256 expectedStreamedAmount = withdrawAmount;
-        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
-    }
-
-    function test_StreamedAmountOf_StreamCanceled() external {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
-        lockup.cancel(defaultStreamId);
-        uint256 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
-        uint256 expectedStreamedAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_REFUND_AMOUNT;
-        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
-    }
-
-    modifier whenStreamActive() {
-        _;
-    }
-
-    function test_StreamedAmountOf_StartTimeInTheFuture() external whenStreamActive {
+    function test_StreamedAmountOf_StartTimeInTheFuture()
+        external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+        whenStatusStreaming
+    {
         vm.warp({ timestamp: 0 });
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    function test_StreamedAmountOf_StartTimeInThePresent() external whenStreamActive {
+    function test_StreamedAmountOf_StartTimeInThePresent()
+        external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+        whenStatusStreaming
+    {
         vm.warp({ timestamp: DEFAULT_START_TIME });
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
@@ -65,11 +45,17 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         _;
     }
 
-    function test_StreamedAmountOf_OneSegment() external whenStreamActive whenStartTimeInThePast {
+    function test_StreamedAmountOf_OneSegment()
+        external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+        whenStatusStreaming
+        whenStartTimeInThePast
+    {
         // Warp into the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + 2000 seconds });
 
-        // Create a single-element segment array.
+        // Create an array with one segment.
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);
         segments[0] = LockupDynamic.Segment({
             amount: DEFAULT_DEPOSIT_AMOUNT,
@@ -77,7 +63,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
             milestone: DEFAULT_END_TIME
         });
 
-        // Create the stream with the one-segment array.
+        // Create the stream.
         uint256 streamId = createDefaultStreamWithSegments(segments);
 
         // Run the test.
@@ -92,12 +78,14 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
 
     function test_StreamedAmountOf_CurrentMilestone1st()
         external
-        whenStreamActive
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+        whenStatusStreaming
         whenMultipleSegments
         whenStartTimeInThePast
     {
-        // Warp one second into the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + 1 });
+        // Warp 1 second into the future.
+        vm.warp({ timestamp: DEFAULT_START_TIME + 1 seconds });
 
         // Run the test.
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
@@ -111,7 +99,9 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
 
     function test_StreamedAmountOf_CurrentMilestoneNot1st()
         external
-        whenStreamActive
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+        whenStatusStreaming
         whenStartTimeInThePast
         whenMultipleSegments
         whenCurrentMilestoneNot1st

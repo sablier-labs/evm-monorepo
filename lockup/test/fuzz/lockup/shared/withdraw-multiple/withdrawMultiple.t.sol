@@ -14,15 +14,12 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     uint256[] internal defaultStreamIds;
 
     function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
-        // Define the default amounts, since most tests need them.
         defaultAmounts.push(DEFAULT_WITHDRAW_AMOUNT);
         defaultAmounts.push(DEFAULT_WITHDRAW_AMOUNT);
 
-        // Create the default streams, since most tests need them.
         defaultStreamIds.push(createDefaultStream());
         defaultStreamIds.push(createDefaultStream());
 
-        // Make the recipient the caller in this test suite.
         changePrank({ msgSender: users.recipient });
     }
 
@@ -38,7 +35,11 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier whenAllStreamsEitherActiveOrCanceled() {
+    modifier whenNoNull() {
+        _;
+    }
+
+    modifier whenNoStatusPendingOrDepleted() {
         _;
     }
 
@@ -50,7 +51,8 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         external
         whenToNonZeroAddress
         whenArraysEqual
-        whenAllStreamsEitherActiveOrCanceled
+        whenNoNull
+        whenNoStatusPendingOrDepleted
         whenCallerAuthorizedAllStreams
     {
         vm.assume(to != address(0));
@@ -99,14 +101,15 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenNoDelegateCall
         whenToNonZeroAddress
         whenArraysEqual
-        whenAllStreamsEitherActiveOrCanceled
+        whenNoNull
+        whenNoStatusPendingOrDepleted
         whenCallerAuthorizedAllStreams
         whenCallerRecipient
         whenAllAmountsNotZero
         whenAllAmountsLessThanOrEqualToWithdrawableAmounts
     {
         vm.assume(to != address(0));
-        timeWarp = bound(timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1);
+        timeWarp = bound(timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1 seconds);
 
         // Create a new stream with an end time nearly double that of the default stream.
         uint40 ongoingEndTime = DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION;
@@ -123,6 +126,10 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 ongoingWithdrawableAmount = lockup.withdrawableAmountOf(ongoingStreamId);
         ongoingWithdrawAmount = boundUint128(ongoingWithdrawAmount, 1, ongoingWithdrawableAmount);
 
+        // Expect the withdrawals to be made.
+        expectTransferCall({ to: to, amount: ongoingWithdrawAmount });
+        expectTransferCall({ to: to, amount: settledWithdrawAmount });
+
         // Expect the {WithdrawFromLockupStream} events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: ongoingStreamId, to: to, amount: ongoingWithdrawAmount });
@@ -134,9 +141,9 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128[] memory amounts = Solarray.uint128s(ongoingWithdrawAmount, settledWithdrawAmount);
         lockup.withdrawMultiple({ streamIds: streamIds, to: to, amounts: amounts });
 
-        // Assert that the settled stream has been marked as depleted, and the ongoing stream has not been.
-        assertEq(lockup.getStatus(streamIds[0]), Lockup.Status.ACTIVE, "status0");
-        assertEq(lockup.getStatus(streamIds[1]), Lockup.Status.DEPLETED, "status1");
+        // Assert that the statuses have been updated.
+        assertEq(lockup.statusOf(streamIds[0]), Lockup.Status.STREAMING, "status0");
+        assertEq(lockup.statusOf(streamIds[1]), Lockup.Status.DEPLETED, "status1");
 
         // Assert that the withdrawn amounts have been updated.
         assertEq(lockup.getWithdrawnAmount(streamIds[0]), amounts[0], "withdrawnAmount0");

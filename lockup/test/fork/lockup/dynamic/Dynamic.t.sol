@@ -57,6 +57,8 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         Lockup.Status expectedStatus;
         uint256 initialDynamicContractBalance;
         uint256 initialRecipientBalance;
+        bool isSettled;
+        bool isDepleted;
         LockupDynamic.Range range;
         uint256 streamId;
         // Create vars
@@ -107,6 +109,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
     /// - Multiple values for the broker fee, including zero
     /// - Multiple values for the protocol fee, including zero
     /// - Multiple values for the withdraw amount, including zero
+    /// - The whole gamut of stream statuses
     function testForkFuzz_Dynamic_CreateWithdrawCancel(Params memory params) external {
         checkUsers(params.sender, params.recipient, params.broker.account, address(dynamic));
         vm.assume(params.segments.length != 0);
@@ -183,10 +186,27 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         assertEq(actualStream.asset, asset, "asset");
         assertEq(actualStream.endTime, vars.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
+        assertEq(actualStream.isCanceled, false, "isCanceled");
+        assertEq(actualStream.isDepleted, false, "isDepleted");
+        assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.segments, params.segments);
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.startTime, "startTime");
-        assertEq(actualStream.status, Lockup.Status.ACTIVE);
+
+        // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
+        // because segment amounts can be zero.
+        vars.isSettled = dynamic.refundableAmountOf(vars.streamId) == 0;
+
+        // Assert that the stream's status is correct.
+        vars.actualStatus = dynamic.statusOf(vars.streamId);
+        if (params.startTime > getBlockTimestamp()) {
+            vars.expectedStatus = Lockup.Status.PENDING;
+        } else if (vars.isSettled) {
+            vars.expectedStatus = Lockup.Status.SETTLED;
+        } else {
+            vars.expectedStatus = Lockup.Status.STREAMING;
+        }
+        assertEq(vars.actualStatus, vars.expectedStatus, "post-create stream status");
 
         // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = dynamic.nextStreamId();
@@ -210,7 +230,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
 
-        // Assert that the dynamic contract's balance has been updated.
+        // Assert that the contract's balance has been updated.
         vars.expectedDynamicContractBalance =
             vars.initialDynamicContractBalance + vars.createAmounts.deposit + vars.createAmounts.protocolFee;
         assertEq(
@@ -232,12 +252,17 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Warp into the future.
-        params.warpTimestamp = boundUint40(params.warpTimestamp, vars.range.start, vars.range.end - 1);
+        params.warpTimestamp = boundUint40(params.warpTimestamp, vars.range.start, vars.range.end + 100 seconds);
         vm.warp({ timestamp: params.warpTimestamp });
 
         // Bound the withdraw amount.
         vars.withdrawableAmount = dynamic.withdrawableAmountOf(vars.streamId);
         params.withdrawAmount = boundUint128(params.withdrawAmount, 0, vars.withdrawableAmount);
+
+        // Check if the stream is depleted or settled. It is possible for the stream to be just settled
+        // and not depleted because the withdraw amount is fuzzed.
+        vars.isDepleted = params.withdrawAmount == vars.createAmounts.deposit;
+        vars.isSettled = dynamic.refundableAmountOf(vars.streamId) == 0;
 
         // Only run the withdraw tests if the withdraw amount is not zero.
         if (params.withdrawAmount > 0) {
@@ -256,6 +281,17 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             // Make the withdrawal.
             changePrank({ msgSender: params.recipient });
             dynamic.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
+
+            // Assert that the stream's status is correct.
+            vars.actualStatus = dynamic.statusOf(vars.streamId);
+            if (vars.isDepleted) {
+                vars.expectedStatus = Lockup.Status.DEPLETED;
+            } else if (vars.isSettled) {
+                vars.expectedStatus = Lockup.Status.SETTLED;
+            } else {
+                vars.expectedStatus = Lockup.Status.STREAMING;
+            }
+            assertEq(vars.actualStatus, vars.expectedStatus, "post-withdraw stream status");
 
             // Assert that the withdrawn amount has been updated.
             vars.actualWithdrawnAmount = dynamic.getWithdrawnAmount(vars.streamId);
@@ -284,9 +320,8 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
                                           CANCEL
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Only run the cancel tests if the stream is not settled. A dynamic stream can settle even before the end time
-        // is reached when the last segment amount is zero.
-        if (!dynamic.isSettled(vars.streamId)) {
+        // Only run the cancel tests if the stream is neither depleted nor settled.
+        if (!vars.isDepleted && !vars.isSettled) {
             // Load the pre-cancel asset balances.
             vars.balances =
                 getTokenBalances(address(asset), Solarray.addresses(address(dynamic), params.sender, params.recipient));
@@ -306,8 +341,8 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             changePrank({ msgSender: params.sender });
             dynamic.cancel(vars.streamId);
 
-            // Assert that the status has been updated.
-            vars.actualStatus = dynamic.getStatus(vars.streamId);
+            // Assert that the stream's status is correct.
+            vars.actualStatus = dynamic.statusOf(vars.streamId);
             vars.expectedStatus = vars.recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
             assertEq(vars.actualStatus, vars.expectedStatus, "post-cancel stream status");
 
@@ -330,7 +365,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             vars.expectedSenderBalance = vars.initialSenderBalance + uint256(vars.senderAmount);
             assertEq(vars.actualSenderBalance, vars.expectedSenderBalance, "post-cancel sender balance");
 
-            // Assert that the recipient's balance has stayed put.
+            // Assert that the recipient's balance has not changed.
             vars.expectedRecipientBalance = vars.initialRecipientBalance;
             assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-cancel recipient balance");
         }

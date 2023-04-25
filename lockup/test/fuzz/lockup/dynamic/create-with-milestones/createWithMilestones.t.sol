@@ -337,10 +337,12 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
+        assertEq(actualStream.isCanceled, defaultStream.isCanceled, "isCanceled");
+        assertEq(actualStream.isDepleted, defaultStream.isDepleted, "isStream");
+        assertEq(actualStream.isStream, defaultStream.isStream, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.segments, params.segments);
         assertEq(actualStream.startTime, range.start, "startTime");
-        assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = dynamic.nextStreamId();

@@ -10,18 +10,19 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
-        // Make the recipient the caller in this test suite.
-        changePrank({ msgSender: users.recipient });
-
-        // Create the default stream.
         defaultStreamId = createDefaultStream();
+        changePrank({ msgSender: users.recipient });
     }
 
     modifier whenNoDelegateCall() {
         _;
     }
 
-    modifier whenStreamActive() {
+    modifier whenNotNull() {
+        _;
+    }
+
+    modifier whenStreamWarm() {
         _;
     }
 
@@ -33,16 +34,37 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier whenEndTimeInTheFuture() {
-        _;
+    function testFuzz_Cancel_StatusPending(uint256 timeWarp)
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamWarm
+        whenCallerAuthorized
+        whenStreamCancelable
+    {
+        timeWarp = bound(timeWarp, 1 seconds, 100 weeks);
+
+        // Warp into the past.
+        vm.warp({ timestamp: getBlockTimestamp() - timeWarp });
+
+        // Cancel the stream.
+        lockup.cancel(defaultStreamId);
+
+        // Assert that the stream's status is depleted.
+        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the stream is not cancelable anymore.
+        bool isCancelable = lockup.isCancelable(defaultStreamId);
+        assertFalse(isCancelable, "isCancelable");
     }
 
-    modifier whenStartTimeInThePast() {
+    modifier whenStatusStreaming() {
         _;
     }
 
     modifier whenCallerSender() {
-        // Make the sender the caller in this test suite.
         changePrank({ msgSender: users.sender });
         _;
     }
@@ -73,11 +95,11 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     )
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStatusStreaming
         whenCallerSender
         whenRecipientContract
         whenRecipientImplementsHook
@@ -113,8 +135,8 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream has been marked as canceled.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        // Assert that the stream's status is canceled.
+        Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 
@@ -148,17 +170,21 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
+    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    ///
+    /// - Multiple values for the current time
+    /// - With and without withdrawals
     function testFuzz_Cancel_CallerRecipient(
         uint256 timeWarp,
         uint128 withdrawAmount
     )
         external
         whenNoDelegateCall
-        whenStreamActive
+        whenNotNull
+        whenStreamWarm
         whenCallerAuthorized
         whenStreamCancelable
-        whenEndTimeInTheFuture
-        whenStartTimeInThePast
+        whenStatusStreaming
         whenCallerRecipient
         whenSenderContract
         whenSenderImplementsHook
@@ -194,8 +220,8 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream has been marked as canceled.
-        Lockup.Status actualStatus = lockup.getStatus(streamId);
+        // Assert that the stream's status is canceled.
+        Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
 

@@ -13,7 +13,6 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     function setUp() public virtual override {
         Linear_Fuzz_Test.setUp();
 
-        // Create the default stream.
         defaultStreamId = createDefaultStream();
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
@@ -22,11 +21,11 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         changePrank({ msgSender: users.sender });
     }
 
-    modifier whenStreamActive() {
+    modifier whenStatusStreaming() {
         _;
     }
 
-    function testFuzz_StreamedAmountOf_CliffTimeInTheFuture(uint40 timeWarp) external whenStreamActive {
+    function testFuzz_StreamedAmountOf_CliffTimeInTheFuture(uint40 timeWarp) external {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
@@ -44,12 +43,13 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// - End time in the present
     /// - End time in the future
     /// - Multiple deposit amounts
+    /// - Status streaming
+    /// - Status settled
     function testFuzz_StreamedAmountOf_Calculation(
         uint40 timeWarp,
         uint128 depositAmount
     )
         external
-        whenStreamActive
         whenCliffTimeInThePast
     {
         vm.assume(depositAmount != 0);
@@ -81,7 +81,6 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint128 depositAmount
     )
         external
-        whenStreamActive
         whenCliffTimeInThePast
     {
         vm.assume(depositAmount != 0);

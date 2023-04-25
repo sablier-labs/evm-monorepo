@@ -155,17 +155,6 @@ contract SablierV2LockupDynamic is
         startTime = _streams[streamId].startTime;
     }
 
-    /// @inheritdoc ISablierV2Lockup
-    function getStatus(uint256 streamId)
-        public
-        view
-        virtual
-        override(ISablierV2Lockup, SablierV2Lockup)
-        returns (Lockup.Status status)
-    {
-        status = _streams[streamId].status;
-    }
-
     /// @inheritdoc ISablierV2LockupDynamic
     function getStream(uint256 streamId)
         external
@@ -194,15 +183,6 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isSettled(uint256 streamId) external view override isNotNull(streamId) returns (bool result) {
-        if (_streams[streamId].status == Lockup.Status.ACTIVE) {
-            result = _streams[streamId].amounts.deposited == _streamedAmountOf(streamId);
-        } else {
-            result = true;
-        }
-    }
-
-    /// @inheritdoc ISablierV2Lockup
     function nextStreamId() external view override returns (uint256) {
         return _nextStreamId;
     }
@@ -215,9 +195,38 @@ contract SablierV2LockupDynamic is
         isNotNull(streamId)
         returns (uint128 refundableAmount)
     {
-        // Calculate the refundable amount only if the stream is active; otherwise, it is implicitly zero.
-        if (_streams[streamId].status == Lockup.Status.ACTIVE) {
-            refundableAmount = _streams[streamId].amounts.deposited - _streamedAmountOf(streamId);
+        // If the stream is neither depleted nor canceled, subtract the streamed amount from the deposited amount.
+        // Both of these checks are needed because {_calculateStreamedAmount} does not look up the stream's status.
+        if (!_streams[streamId].isDepleted && !_streams[streamId].isCanceled) {
+            refundableAmount = _streams[streamId].amounts.deposited - _calculateStreamedAmount(streamId);
+        }
+        // Otherwise, if the stream is either depleted or canceled, the result is implicitly zero.
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function statusOf(uint256 streamId)
+        public
+        view
+        override(ISablierV2Lockup, SablierV2Lockup)
+        returns (Lockup.Status status)
+    {
+        // If the stream entity does not exist, the status is implicitly `NULL`.
+        if (_streams[streamId].isStream) {
+            if (_streams[streamId].isDepleted) {
+                return Lockup.Status.DEPLETED;
+            } else if (_streams[streamId].isCanceled) {
+                return Lockup.Status.CANCELED;
+            }
+
+            if (block.timestamp < _streams[streamId].startTime) {
+                return Lockup.Status.PENDING;
+            }
+
+            if (_calculateStreamedAmount(streamId) < _streams[streamId].amounts.deposited) {
+                status = Lockup.Status.STREAMING;
+            } else {
+                status = Lockup.Status.SETTLED;
+            }
         }
     }
 
@@ -230,17 +239,6 @@ contract SablierV2LockupDynamic is
         returns (uint128 streamedAmount)
     {
         streamedAmount = _streamedAmountOf(streamId);
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function withdrawableAmountOf(uint256 streamId)
-        public
-        view
-        override
-        isNotNull(streamId)
-        returns (uint128 withdrawableAmount)
-    {
-        withdrawableAmount = _withdrawableAmountOf(streamId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -287,13 +285,37 @@ contract SablierV2LockupDynamic is
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Calculates the streamed amount without looking up the stream's status.
+    function _calculateStreamedAmount(uint256 streamId) internal view returns (uint128 streamedAmount) {
+        // If the start time is in the future, return zero.
+        uint40 currentTime = uint40(block.timestamp);
+        if (_streams[streamId].startTime >= currentTime) {
+            return 0;
+        }
+
+        // If the end time is in the past, return the deposited amount.
+        uint40 endTime = _streams[streamId].endTime;
+        if (endTime <= currentTime) {
+            return _streams[streamId].amounts.deposited;
+        }
+
+        if (_streams[streamId].segments.length > 1) {
+            // If there is more than one segment, it may be necessary to iterate over all of them.
+            streamedAmount = _calculateStreamedAmountForMultipleSegments(streamId);
+        } else {
+            // Otherwise, there is only one segment, and the calculation is simpler.
+            streamedAmount = _calculateStreamedAmountForOneSegment(streamId);
+        }
+    }
+
     /// @dev Calculates the streamed amount for a stream with multiple segments.
     ///
     /// Notes:
     ///
     /// 1. Normalization to 18 decimals is not needed because there is no mix of amounts with different decimals.
-    /// 2. This function must be called only when the stream's end time is in the future so that the
-    /// the loop below does not panic with an "index out of bounds" error.
+    /// 2. The stream's start time must be in the past so that the calculations below do not overflow.
+    /// 3. The stream's end time must be in the future so that the the loop below does not panic with an "index out of
+    /// bounds" error.
     function _calculateStreamedAmountForMultipleSegments(uint256 streamId)
         internal
         view
@@ -393,47 +415,24 @@ contract SablierV2LockupDynamic is
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
-        Lockup.Status status = _streams[streamId].status;
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
 
-        // Return the withdrawn amount if the stream is depleted.
-        if (status == Lockup.Status.DEPLETED) {
+        // If the stream is depleted, return the withdrawn amount.
+        if (_streams[streamId].isDepleted) {
             return amounts.withdrawn;
         }
-        // Return the deposited amount minus the refunded amount if the stream is canceled.
-        else if (status == Lockup.Status.CANCELED) {
+        // If the stream is canceled, return the deposited amount minus the refunded amount.
+        else if (_streams[streamId].isCanceled) {
             return amounts.deposited - amounts.refunded;
         }
 
-        // Return zero if the start time is greater than or equal to the block timestamp.
-        uint40 currentTime = uint40(block.timestamp);
-        if (_streams[streamId].startTime >= currentTime) {
-            return 0;
-        }
-
-        // Return the deposited amount if the current time is greater than or equal to the end time.
-        uint40 endTime = _streams[streamId].endTime;
-        if (currentTime >= endTime) {
-            return amounts.deposited;
-        }
-
-        if (_streams[streamId].segments.length > 1) {
-            // If there is more than one segment, it may be necessary to iterate over all of them.
-            streamedAmount = _calculateStreamedAmountForMultipleSegments(streamId);
-        } else {
-            // Otherwise, there is only one segment, and the calculation is simpler.
-            streamedAmount = _calculateStreamedAmountForOneSegment(streamId);
-        }
+        // Calculate the streamed amount.
+        streamedAmount = _calculateStreamedAmount(streamId);
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdrawableAmountOf(uint256 streamId) internal view override returns (uint128 withdrawableAmount) {
-        // If the stream is active or canceled, calculate the withdrawable amount by subtracting the withdrawn amount
-        // from the streamed amount.
-        if (_streams[streamId].status != Lockup.Status.DEPLETED) {
-            withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
-        }
-        // If the stream is depleted, the withdrawable amount is implicitly zero.
+        withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -448,19 +447,20 @@ contract SablierV2LockupDynamic is
         }
 
         // Calculate the sender's and the recipient's amount.
-        uint128 streamedAmount = _streamedAmountOf(streamId);
+        uint128 streamedAmount = _calculateStreamedAmount(streamId);
         uint128 senderAmount = _streams[streamId].amounts.deposited - streamedAmount;
         uint128 recipientAmount = streamedAmount - _streams[streamId].amounts.withdrawn;
 
-        // Checks: the stream is not settled.
-        if (senderAmount == 0) {
-            revert Errors.SablierV2Lockup_StreamSettled(streamId);
-        }
+        // Effects: make the stream not cancelable, because a stream can only be canceled once.
+        _streams[streamId].isCancelable = false;
 
         // Effects: If there are any assets left for the recipient to withdraw, mark the stream as canceled.
         // Otherwise, mark it as depleted.
-        _streams[streamId].status = recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
-        _streams[streamId].isCancelable = false;
+        if (recipientAmount > 0) {
+            _streams[streamId].isCanceled = true;
+        } else {
+            _streams[streamId].isDepleted = true;
+        }
 
         // Effects: set the refunded amount.
         _streams[streamId].amounts.refunded = senderAmount;
@@ -529,11 +529,11 @@ contract SablierV2LockupDynamic is
 
         // Effects: create the stream.
         LockupDynamic.Stream storage stream = _streams[streamId];
-        stream.amounts = Lockup.Amounts({ deposited: createAmounts.deposit, refunded: 0, withdrawn: 0 });
+        stream.amounts.deposited = createAmounts.deposit;
         stream.asset = params.asset;
         stream.isCancelable = params.cancelable;
+        stream.isStream = true;
         stream.sender = params.sender;
-        stream.status = Lockup.Status.ACTIVE;
 
         unchecked {
             // The segment count cannot be zero at this point.
@@ -609,6 +609,14 @@ contract SablierV2LockupDynamic is
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdraw(uint256 streamId, address to, uint128 amount) internal override {
+        // Checks: the withdraw amount is not greater than the withdrawable amount.
+        uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
+        if (amount > withdrawableAmount) {
+            revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
+                streamId, amount, withdrawableAmount
+            );
+        }
+
         // Effects: update the withdrawn amount.
         _streams[streamId].amounts.withdrawn = _streams[streamId].amounts.withdrawn + amount;
 
@@ -616,13 +624,16 @@ contract SablierV2LockupDynamic is
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
 
         // Using ">=" instead of "==" for additional safety reasons. In the event of an unforeseen increase in the
-        // withdrawn amount, the stream will still be marked as depleted and made not cancelable.
+        // withdrawn amount, the stream will still be marked as depleted.
         if (amounts.withdrawn >= amounts.deposited - amounts.refunded) {
             // Effects: mark the stream as depleted.
-            _streams[streamId].status = Lockup.Status.DEPLETED;
+            _streams[streamId].isDepleted = true;
 
-            // Effects: make the stream not cancelable.
+            // Effects: make the stream not cancelable, because a depleted stream cannot be canceled anymore.
             _streams[streamId].isCancelable = false;
+
+            // Effects: mark the stream as not canceled, because a stream cannot be both canceled and depleted.
+            _streams[streamId].isCanceled = false;
         }
 
         // Interactions: perform the ERC-20 transfer.

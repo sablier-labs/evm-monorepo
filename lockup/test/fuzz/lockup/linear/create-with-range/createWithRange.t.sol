@@ -36,7 +36,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
-        startTime = boundUint40(startTime, DEFAULT_CLIFF_TIME + 1, MAX_UNIX_TIMESTAMP);
+        startTime = boundUint40(startTime, DEFAULT_CLIFF_TIME + 1 seconds, MAX_UNIX_TIMESTAMP);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, DEFAULT_CLIFF_TIME
@@ -235,9 +235,11 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assertEq(actualStream.cliffTime, params.range.cliff);
         assertEq(actualStream.endTime, params.range.end);
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
+        assertEq(actualStream.isCanceled, defaultStream.isCanceled, "isCanceled");
+        assertEq(actualStream.isDepleted, defaultStream.isDepleted, "isStream");
+        assertEq(actualStream.isStream, defaultStream.isStream, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.range.start);
-        assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = linear.nextStreamId();

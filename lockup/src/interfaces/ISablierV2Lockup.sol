@@ -92,27 +92,16 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function getStartTime(uint256 streamId) external view returns (uint40 startTime);
 
-    /// @notice Retrieves the stream's status.
-    /// @param streamId The stream id for the query.
-    function getStatus(uint256 streamId) external view returns (Lockup.Status status);
-
     /// @notice Retrieves the amount withdrawn from the stream, denoted in units of the asset's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
     /// @notice Retrieves a flag that indicates whether the stream can be canceled. The flag is always `false`
-    /// when the stream is not active.
+    /// when the stream is not warm.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function isCancelable(uint256 streamId) external view returns (bool result);
-
-    /// @notice Retrieves a flag that indicates whether the stream is settled. A stream is considered settled when the
-    /// refundable amount for the sender upon cancellation is zero. Consequently, both canceled and depleted streams
-    /// are inherently settled, as they can no longer be canceled.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream id for the query.
-    function isSettled(uint256 streamId) external view returns (bool result);
 
     /// @notice Counter for stream ids, used in the create functions.
     function nextStreamId() external view returns (uint256);
@@ -122,6 +111,10 @@ interface ISablierV2Lockup is
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
+
+    /// @notice Retrieves the stream's status.
+    /// @param streamId The stream id for the query.
+    function statusOf(uint256 streamId) external view returns (Lockup.Status status);
 
     /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
     /// @dev Reverts if `streamId` references a null stream.
@@ -163,7 +156,7 @@ interface ISablierV2Lockup is
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - The stream must be active, cancelable, and not settled.
+    /// - The stream must be warm and cancelable.
     /// - `msg.sender` must be either the stream's sender or the stream's recipient (i.e. the NFT owner).
     ///
     /// @param streamId The id of the stream to cancel.
@@ -192,7 +185,7 @@ interface ISablierV2Lockup is
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - `streamId` must reference an active stream.
+    /// - `streamId` must reference a warm stream.
     /// - `msg.sender` must be the stream's sender.
     /// - The stream must be cancelable.
     ///
@@ -218,11 +211,11 @@ interface ISablierV2Lockup is
     ///
     /// Notes:
     /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract
-    /// and the caller is either the sender or an approved operator.
+    /// and `msg.sender` is either the sender or an approved operator.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - `streamId` must reference a stream that is either active or canceled.
+    /// - `streamId` must not reference a null, pending, or depleted stream.
     /// - `msg.sender` must be the stream's sender, the stream's recipient or an approved third party.
     /// - `to` must be the recipient if `msg.sender` is the stream's sender.
     /// - `to` must not be the zero address.
@@ -252,7 +245,7 @@ interface ISablierV2Lockup is
     /// @dev Emits multiple {WithdrawFromLockupStream} and {Transfer} events.
     ///
     /// Notes:
-    /// - This function attempts to call a hook on the recipient of each stream, unless the caller is the recipient.
+    /// - This function attempts to call a hook on the recipient of each stream, unless `msg.sender` is the recipient.
     ///
     /// Requirements:
     /// - All requirements from {withdraw} must be met for each stream.

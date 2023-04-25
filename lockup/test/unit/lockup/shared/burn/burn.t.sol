@@ -11,7 +11,6 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal streamId;
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        // Create the default stream, since most tests need it.
         streamId = createDefaultStream();
 
         // Make the recipient (owner of the NFT) the caller in this test suite.
@@ -28,31 +27,72 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_StreamNull() external whenNoDelegateCall {
+    function test_RevertWhen_Null() external whenNoDelegateCall {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.burn(nullStreamId);
     }
 
-    function test_RevertWhen_StreamActive() external whenNoDelegateCall {
+    modifier whenNotNull() {
+        _;
+    }
+
+    modifier whenStreamHasNotBeenDepleted() {
+        _;
+    }
+
+    function test_RevertWhen_StreamHasNotBeenDepleted_StatusPending()
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamHasNotBeenDepleted
+    {
+        vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
-    function test_RevertWhen_StreamCanceled() external whenNoDelegateCall {
+    function test_RevertWhen_StreamHasNotBeenDepleted_StatusStreaming()
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamHasNotBeenDepleted
+    {
+        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
+        lockup.burn(streamId);
+    }
+
+    function test_RevertWhen_StreamHasNotBeenDepleted_StatusSettled()
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamHasNotBeenDepleted
+    {
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
+        lockup.burn(streamId);
+    }
+
+    function test_RevertWhen_StreamHasNotBeenDepleted_StatusCanceled()
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamHasNotBeenDepleted
+    {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(streamId);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
-    modifier whenStreamDepleted() {
+    modifier whenStreamHasBeenDepleted() {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: streamId, to: users.recipient });
         _;
     }
 
-    function test_RevertWhen_CallerUnauthorized() external whenNoDelegateCall whenStreamDepleted {
+    function test_RevertWhen_CallerUnauthorized() external whenNoDelegateCall whenNotNull whenStreamHasBeenDepleted {
         // Make Eve the caller in the rest of this test.
         changePrank({ msgSender: users.eve });
 
@@ -65,7 +105,13 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_NFTDoesNotExist() external whenNoDelegateCall whenStreamDepleted whenCallerAuthorized {
+    function test_RevertWhen_NFTDoesNotExist()
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamHasBeenDepleted
+        whenCallerAuthorized
+    {
         // Burn the NFT so that it no longer exists.
         lockup.burn(streamId);
 
@@ -81,7 +127,8 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Burn_CallerApprovedOperator()
         external
         whenNoDelegateCall
-        whenStreamDepleted
+        whenNotNull
+        whenStreamHasBeenDepleted
         whenCallerAuthorized
         whenNFTExists
     {
@@ -102,7 +149,8 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_Burn_CallerNFTOwner()
         external
         whenNoDelegateCall
-        whenStreamDepleted
+        whenNotNull
+        whenStreamHasBeenDepleted
         whenCallerAuthorized
         whenNFTExists
     {

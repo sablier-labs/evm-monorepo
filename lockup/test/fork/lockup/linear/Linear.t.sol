@@ -59,6 +59,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
         Lockup.Status expectedStatus;
         uint256 initialLinearContractBalance;
         uint256 initialRecipientBalance;
+        bool isSettled;
+        bool isDepleted;
         uint256 streamId;
         // Create vars
         uint256 actualBrokerBalance;
@@ -100,28 +102,31 @@ abstract contract Linear_Fork_Test is Fork_Test {
     ///
     /// - Multiple values for the the sender, recipient, and broker
     /// - Multiple values for the total amount
-    /// - Start time in the past, present and future
-    /// - Start time lower than and equal to cliff time
     /// - Multiple values for the cliff time and the end time
     /// - Multiple values for the broker fee, including zero
     /// - Multiple values for the protocol fee, including zero
     /// - Multiple values for the withdraw amount, including zero
+    /// - Start time in the past, present and future
+    /// - Start time lower than and equal to cliff time
+    /// - The whole gamut of stream statuses
     function testForkFuzz_Linear_CreateWithdrawCancel(Params memory params) external {
         checkUsers(params.sender, params.recipient, params.broker.account, address(linear));
 
         // Bound the parameters.
         uint40 currentTime = getBlockTimestamp();
         params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
+        params.protocolFee = bound(params.protocolFee, 0, MAX_FEE);
         params.range.start = boundUint40(params.range.start, currentTime - 1000 seconds, currentTime + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
-        // Fuzz the end time so that it is always greater than both the current time and the cliff time.
+        params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
+
+        // Bound the end time so that it is always greater than both the current time and the cliff time (this is
+        // a requirement of the protocol).
         params.range.end = boundUint40(
             params.range.end,
             (params.range.cliff <= currentTime ? currentTime : params.range.cliff) + 1,
             MAX_UNIX_TIMESTAMP
         );
-        params.protocolFee = bound(params.protocolFee, 0, MAX_FEE);
-        params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
@@ -183,9 +188,16 @@ abstract contract Linear_Fork_Test is Fork_Test {
         assertEq(actualStream.cliffTime, params.range.cliff, "cliffTime");
         assertEq(actualStream.endTime, params.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
+        assertEq(actualStream.isCanceled, false, "isCanceled");
+        assertEq(actualStream.isDepleted, false, "isDepleted");
+        assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.range.start, "startTime");
-        assertEq(actualStream.status, Lockup.Status.ACTIVE);
+
+        // Assert that the stream's status is correct.
+        vars.actualStatus = linear.statusOf(vars.streamId);
+        vars.expectedStatus = params.range.start > currentTime ? Lockup.Status.PENDING : Lockup.Status.STREAMING;
+        assertEq(vars.actualStatus, vars.expectedStatus, "post-create stream status");
 
         // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = linear.nextStreamId();
@@ -229,12 +241,17 @@ abstract contract Linear_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Warp into the future.
-        params.warpTimestamp = boundUint40(params.warpTimestamp, params.range.cliff, params.range.end - 1);
+        params.warpTimestamp = boundUint40(params.warpTimestamp, params.range.cliff, params.range.end + 100 seconds);
         vm.warp({ timestamp: params.warpTimestamp });
 
         // Bound the withdraw amount.
         vars.withdrawableAmount = linear.withdrawableAmountOf(vars.streamId);
         params.withdrawAmount = boundUint128(params.withdrawAmount, 0, vars.withdrawableAmount);
+
+        // Check if the stream is depleted or settled. It is possible for the stream to be just settled
+        // and not depleted because the withdraw amount is fuzzed.
+        vars.isDepleted = params.withdrawAmount == vars.createAmounts.deposit;
+        vars.isSettled = linear.refundableAmountOf(vars.streamId) == 0;
 
         // Only run the withdraw tests if the withdraw amount is not zero.
         if (params.withdrawAmount > 0) {
@@ -253,6 +270,17 @@ abstract contract Linear_Fork_Test is Fork_Test {
             // Make the withdrawal.
             changePrank({ msgSender: params.recipient });
             linear.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
+
+            // Assert that the stream's status is correct.
+            vars.actualStatus = linear.statusOf(vars.streamId);
+            if (vars.isDepleted) {
+                vars.expectedStatus = Lockup.Status.DEPLETED;
+            } else if (vars.isSettled) {
+                vars.expectedStatus = Lockup.Status.SETTLED;
+            } else {
+                vars.expectedStatus = Lockup.Status.STREAMING;
+            }
+            assertEq(vars.actualStatus, vars.expectedStatus, "post-withdraw stream status");
 
             // Assert that the withdrawn amount has been updated.
             vars.actualWithdrawnAmount = linear.getWithdrawnAmount(vars.streamId);
@@ -281,8 +309,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
                                           CANCEL
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Only run the cancel tests if the stream is not settled.
-        if (!linear.isSettled(vars.streamId)) {
+        // Only run the cancel tests if the stream is neither depleted nor settled.
+        if (!vars.isDepleted && !vars.isSettled) {
             // Load the pre-cancel asset balances.
             vars.balances =
                 getTokenBalances(address(asset), Solarray.addresses(address(linear), params.sender, params.recipient));
@@ -302,8 +330,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
             changePrank({ msgSender: params.sender });
             linear.cancel(vars.streamId);
 
-            // Assert that the status has been updated.
-            vars.actualStatus = linear.getStatus(vars.streamId);
+            // Assert that the stream's status is correct.
+            vars.actualStatus = linear.statusOf(vars.streamId);
             vars.expectedStatus = vars.recipientAmount > 0 ? Lockup.Status.CANCELED : Lockup.Status.DEPLETED;
             assertEq(vars.actualStatus, vars.expectedStatus, "post-cancel stream status");
 
@@ -326,7 +354,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
             vars.expectedSenderBalance = vars.initialSenderBalance + uint256(vars.senderAmount);
             assertEq(vars.actualSenderBalance, vars.expectedSenderBalance, "post-cancel sender balance");
 
-            // Assert that the recipient's balance has stayed put.
+            // Assert that the recipient's balance has not changed.
             vars.expectedRecipientBalance = vars.initialRecipientBalance;
             assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-cancel recipient balance");
         }

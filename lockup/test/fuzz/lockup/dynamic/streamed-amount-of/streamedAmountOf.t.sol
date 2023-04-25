@@ -16,10 +16,6 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         changePrank({ msgSender: users.sender });
     }
 
-    modifier whenStreamActive() {
-        _;
-    }
-
     modifier whenStartTimeInThePast() {
         _;
     }
@@ -29,12 +25,13 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// - End time in the past
     /// - End time in the present
     /// - End time in the future
+    /// - Status streaming
+    /// - Status settled
     function testFuzz_StreamedAmountOf_OneSegment(
         LockupDynamic.Segment memory segment,
         uint40 timeWarp
     )
         external
-        whenStreamActive
         whenStartTimeInThePast
     {
         vm.assume(segment.amount != 0);
@@ -79,12 +76,13 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// - End time in the present
     /// - End time in the future
     /// - Multiple deposit amounts
+    /// - Status streaming
+    /// - Status settled
     function testFuzz_StreamedAmountOf_Calculation(
         LockupDynamic.Segment[] memory segments,
         uint40 timeWarp
     )
         external
-        whenStreamActive
         whenStartTimeInThePast
         whenMultipleSegments
         whenCurrentMilestoneNot1st
@@ -105,7 +103,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         // Bound the time warp.
         uint40 firstSegmentDuration = segments[1].milestone - segments[0].milestone;
         uint40 totalDuration = segments[segments.length - 1].milestone - DEFAULT_START_TIME;
-        timeWarp = boundUint40(timeWarp, firstSegmentDuration, totalDuration);
+        timeWarp = boundUint40(timeWarp, firstSegmentDuration, totalDuration + 100 seconds);
 
         // Mint enough assets to the sender.
         deal({ token: address(DEFAULT_ASSET), to: users.sender, give: totalAmount });
@@ -134,7 +132,6 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint40 timeWarp1
     )
         external
-        whenStreamActive
         whenStartTimeInThePast
         whenMultipleSegments
         whenCurrentMilestoneNot1st

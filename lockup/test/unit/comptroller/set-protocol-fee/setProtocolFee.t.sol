@@ -30,7 +30,7 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
         // Set the same protocol fee.
         comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
 
-        // Assert that the protocol fee has stayed put.
+        // Assert that the protocol fee has not changed.
         UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
         UD60x18 expectedProtocolFee = ZERO;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");

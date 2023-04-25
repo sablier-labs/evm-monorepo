@@ -31,7 +31,7 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
         // She the same flash fee.
         comptroller.setFlashFee({ newFlashFee: ZERO });
 
-        // Assert that the flash fee has stayed put.
+        // Assert that the flash fee has not changed.
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = ZERO;
         assertEq(actualFlashFee, expectedFlashFee, "flashFee");

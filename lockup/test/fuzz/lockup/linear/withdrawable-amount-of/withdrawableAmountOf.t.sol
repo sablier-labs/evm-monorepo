@@ -10,13 +10,12 @@ import { Linear_Fuzz_Test } from "../Linear.t.sol";
 contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     uint256 internal defaultStreamId;
 
-    modifier whenStreamActive() {
-        // Create the default stream.
+    function setUp() public virtual override {
+        Linear_Fuzz_Test.setUp();
         defaultStreamId = createDefaultStream();
-        _;
     }
 
-    function testFuzz_WithdrawableAmountOf_CliffTimeInTheFuture(uint40 timeWarp) external whenStreamActive {
+    function testFuzz_WithdrawableAmountOf_CliffTimeInTheFuture(uint40 timeWarp) external {
         timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
@@ -37,12 +36,13 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// - End time in the past
     /// - End time in the present
     /// - End time in the future
-    function testFuzz_WithdrawableAmountOf_NoWithdrawals(
+    /// - Status streaming
+    /// - Status settled
+    function testFuzz_WithdrawableAmountOf_NoPreviousWithdrawals(
         uint40 timeWarp,
         uint128 depositAmount
     )
         external
-        whenStreamActive
         whenCliffTimeInThePast
     {
         vm.assume(depositAmount != 0);
@@ -67,6 +67,10 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
+    modifier whenPreviousWithdrawals() {
+        _;
+    }
+
     /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
@@ -74,15 +78,18 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     /// - End time in the future
     /// - Multiple deposit amounts
     /// - Multiple withdraw amounts
+    /// - Status streaming
+    /// - Status settled
+    /// - Status depleted
     /// - Withdraw amount equal to deposited amount and not
-    function testFuzz_WithdrawableAmountOf_WithWithdrawals(
+    function testFuzz_WithdrawableAmountOf(
         uint40 timeWarp,
         uint128 depositAmount,
         uint128 withdrawAmount
     )
         external
-        whenStreamActive
         whenCliffTimeInThePast
+        whenPreviousWithdrawals
     {
         timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
         depositAmount = boundUint128(depositAmount, 10_000, UINT128_MAX);

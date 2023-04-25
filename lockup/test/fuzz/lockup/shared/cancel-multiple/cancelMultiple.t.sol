@@ -12,11 +12,9 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     uint256[] internal defaultStreamIds;
 
     function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
-        // Create the default streams, since most tests need them.
         defaultStreamIds.push(createDefaultStream());
         defaultStreamIds.push(createDefaultStream());
 
-        // Make the recipient the caller in this test suite.
         changePrank({ msgSender: users.recipient });
     }
 
@@ -28,7 +26,11 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier whenOnlyNonNullStreams() {
+    modifier whenNoNull() {
+        _;
+    }
+
+    modifier whenNoStatusSettled() {
         _;
     }
 
@@ -40,10 +42,6 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier whenAllStreamsSettled() {
-        _;
-    }
-
     function testFuzz_CancelMultiple_CallerSender(
         uint256 timeWarp,
         uint40 endTime
@@ -51,10 +49,10 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenArrayCountNotZero
-        whenOnlyNonNullStreams
+        whenNoNull
+        whenNoStatusSettled
         whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
-        whenAllStreamsSettled
     {
         // Make the sender the caller in this test.
         changePrank({ msgSender: users.sender });
@@ -70,10 +68,10 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         external
         whenNoDelegateCall
         whenArrayCountNotZero
-        whenOnlyNonNullStreams
+        whenNoNull
+        whenNoStatusSettled
         whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
-        whenAllStreamsSettled
     {
         // Make the recipient the caller in this test.
         changePrank({ msgSender: users.recipient });
@@ -126,8 +124,8 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Assert that the streams have been marked as canceled.
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
-        assertEq(lockup.getStatus(streamIds[0]), expectedStatus, "status0");
-        assertEq(lockup.getStatus(streamIds[1]), expectedStatus, "status1");
+        assertEq(lockup.statusOf(streamIds[0]), expectedStatus, "status0");
+        assertEq(lockup.statusOf(streamIds[1]), expectedStatus, "status1");
 
         // Assert that the streams are not cancelable anymore.
         assertFalse(lockup.isCancelable(streamIds[0]), "isCancelable0");

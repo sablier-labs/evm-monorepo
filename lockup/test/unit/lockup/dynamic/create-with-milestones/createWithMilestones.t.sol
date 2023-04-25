@@ -118,7 +118,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
     {
         // Change the milestone of the first segment.
         LockupDynamic.Segment[] memory segments = defaultParams.createWithMilestones.segments;
-        segments[0].milestone = DEFAULT_START_TIME - 1;
+        segments[0].milestone = DEFAULT_START_TIME - 1 seconds;
 
         // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
         vm.expectRevert(
@@ -433,7 +433,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         // Create the stream.
         streamId = createDefaultStreamWithAsset(IERC20(asset));
 
-        // Assert that the stream has been created correctly.
+        // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
         LockupDynamic.Stream memory expectedStream = defaultStream;
         expectedStream.asset = IERC20(asset);

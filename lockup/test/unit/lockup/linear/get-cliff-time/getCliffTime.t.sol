@@ -6,17 +6,17 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
 contract GetCliffTime_Linear_Unit_Test is Linear_Unit_Test {
-    function test_RevertWhen_StreamNull() external {
+    function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         linear.getCliffTime(nullStreamId);
     }
 
-    modifier whenStreamNonNull() {
+    modifier whenNotNull() {
         _;
     }
 
-    function test_GetCliffTime() external whenStreamNonNull {
+    function test_GetCliffTime() external whenNotNull {
         uint256 streamId = createDefaultStream();
         uint40 actualCliffTime = linear.getCliffTime(streamId);
         uint40 expectedCliffTime = DEFAULT_CLIFF_TIME;

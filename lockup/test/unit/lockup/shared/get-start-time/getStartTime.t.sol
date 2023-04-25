@@ -9,17 +9,17 @@ import { Unit_Test } from "../../../Unit.t.sol";
 abstract contract GetStartTime_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
-    function test_RevertWhen_StreamNull() external {
+    function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.getStartTime(nullStreamId);
     }
 
-    modifier whenStreamNonNull() {
+    modifier whenNotNull() {
         _;
     }
 
-    function test_GetStartTime() external whenStreamNonNull {
+    function test_GetStartTime() external whenNotNull {
         uint256 streamId = createDefaultStream();
         uint40 actualStartTime = lockup.getStartTime(streamId);
         uint40 expectedStartTime = DEFAULT_START_TIME;

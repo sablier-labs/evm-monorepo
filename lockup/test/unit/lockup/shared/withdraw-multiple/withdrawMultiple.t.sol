@@ -15,7 +15,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256[] internal defaultStreamIds;
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        // Define the default amounts, since most tests need them.
+        // Define the default amounts.
         defaultAmounts.push(DEFAULT_WITHDRAW_AMOUNT);
         defaultAmounts.push(DEFAULT_WITHDRAW_AMOUNT);
         defaultAmounts.push(DEFAULT_DEPOSIT_AMOUNT);
@@ -25,7 +25,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         defaultStreamIds.push(createDefaultStream());
         defaultStreamIds.push(createDefaultStreamWithEndTime(WARP_26_PERCENT));
 
-        // Make the recipient the caller in this test suite.
+        // Make the recipient the caller.
         changePrank({ msgSender: users.recipient });
     }
 
@@ -79,7 +79,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_AllStreamsEitherNullOrDepleted()
+    function test_RevertWhen_OnlyNull()
         external
         whenNoDelegateCall
         whenToNonZeroAddress
@@ -87,7 +87,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenArrayCountsNotZero
     {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.withdrawMultiple({
             streamIds: Solarray.uint256s(nullStreamId),
             to: users.recipient,
@@ -95,7 +95,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         });
     }
 
-    function test_RevertWhen_SomeStreamsEitherNullOrDepleted()
+    function test_RevertWhen_SomeNull()
         external
         whenNoDelegateCall
         whenToNonZeroAddress
@@ -108,14 +108,67 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Warp into the future.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
-        // Expect a {SablierV2Lockup_StreamNull} error.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        // Expect a {Null} error.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
 
         // Withdraw from multiple streams.
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
-    modifier whenAllStreamsNeitherNullNorDepleted() {
+    modifier whenNoNull() {
+        _;
+    }
+
+    function test_RevertWhen_AllStatusesEitherPendingOrDepleted()
+        external
+        whenNoDelegateCall
+        whenToNonZeroAddress
+        whenArrayCountsAreEqual
+        whenArrayCountsNotZero
+        whenNoNull
+    {
+        uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0]);
+
+        // Warp into the future.
+        vm.warp({ timestamp: DEFAULT_END_TIME });
+
+        // Deplete the stream.
+        lockup.withdrawMax({ streamId: defaultStreamIds[0], to: users.recipient });
+
+        // Expect a {StreamDepleted} error.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamIds[0]));
+
+        // Withdraw from multiple streams.
+        lockup.withdrawMultiple({
+            streamIds: streamIds,
+            to: users.recipient,
+            amounts: Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT)
+        });
+    }
+
+    function test_RevertWhen_SomeStatusesEitherPendingOrDepleted()
+        external
+        whenNoDelegateCall
+        whenToNonZeroAddress
+        whenArrayCountsAreEqual
+        whenArrayCountsNotZero
+        whenNoNull
+    {
+        uint256 earlyStreamId = createDefaultStreamWithStartTime(getBlockTimestamp() + 1 seconds);
+        uint256[] memory streamIds = Solarray.uint256s(earlyStreamId, defaultStreamIds[0], defaultStreamIds[1]);
+
+        // Expect a {StreamPending} error.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamPending.selector, earlyStreamId));
+
+        // Withdraw from multiple streams.
+        lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: defaultAmounts });
+    }
+
+    modifier whenNoStatusPendingOrDepleted() {
+        _;
+    }
+
+    modifier whenCallerUnauthorized() {
         _;
     }
 
@@ -125,7 +178,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenAllStreamsNeitherNullNorDepleted
+        whenNoNull
+        whenNoStatusPendingOrDepleted
+        whenCallerUnauthorized
     {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
@@ -143,7 +198,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenAllStreamsNeitherNullNorDepleted
+        whenNoNull
+        whenNoStatusPendingOrDepleted
+        whenCallerUnauthorized
     {
         // Make the sender the caller in this test.
         changePrank({ msgSender: users.sender });
@@ -161,7 +218,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenAllStreamsNeitherNullNorDepleted
+        whenNoNull
+        whenNoStatusPendingOrDepleted
+        whenCallerUnauthorized
     {
         // Transfer all streams to Alice.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -181,7 +240,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenAllStreamsNeitherNullNorDepleted
+        whenNoNull
+        whenNoStatusPendingOrDepleted
+        whenCallerUnauthorized
     {
         // Create a stream with Eve as the recipient.
         uint256 eveStreamId = createDefaultStreamWithRecipient(users.eve);
@@ -206,7 +267,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenAllStreamsNeitherNullNorDepleted
+        whenNoNull
+        whenNoStatusPendingOrDepleted
+        whenCallerUnauthorized
     {
         // Transfer one of the streams to Eve.
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
@@ -231,7 +294,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenAllStreamsNeitherNullNorDepleted
+        whenNoNull
+        whenNoStatusPendingOrDepleted
         whenCallerAuthorizedAllStreams
     {
         // Approve the operator for all streams.
@@ -267,7 +331,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenAllStreamsNeitherNullNorDepleted
+        whenNoNull
+        whenNoStatusPendingOrDepleted
         whenCallerAuthorizedAllStreams
         whenCallerRecipient
     {
@@ -290,7 +355,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenAllStreamsNeitherNullNorDepleted
+        whenNoNull
+        whenNoStatusPendingOrDepleted
         whenCallerAuthorizedAllStreams
         whenCallerRecipient
         whenAllAmountsNotZero
@@ -322,7 +388,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenAllStreamsNeitherNullNorDepleted
+        whenNoNull
+        whenNoStatusPendingOrDepleted
         whenCallerAuthorizedAllStreams
         whenCallerRecipient
         whenAllAmountsNotZero
@@ -351,9 +418,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.alice, amounts: defaultAmounts });
 
         // Assert that the statuses have been updated.
-        assertEq(lockup.getStatus(defaultStreamIds[0]), Lockup.Status.ACTIVE, "status0");
-        assertEq(lockup.getStatus(defaultStreamIds[1]), Lockup.Status.DEPLETED, "status0");
-        assertEq(lockup.getStatus(defaultStreamIds[2]), Lockup.Status.DEPLETED, "status0");
+        assertEq(lockup.statusOf(defaultStreamIds[0]), Lockup.Status.STREAMING, "status0");
+        assertEq(lockup.statusOf(defaultStreamIds[1]), Lockup.Status.DEPLETED, "status0");
+        assertEq(lockup.statusOf(defaultStreamIds[2]), Lockup.Status.DEPLETED, "status0");
 
         // Assert that the withdrawn amounts have been updated.
         assertEq(lockup.getWithdrawnAmount(defaultStreamIds[0]), defaultAmounts[0], "withdrawnAmount0");

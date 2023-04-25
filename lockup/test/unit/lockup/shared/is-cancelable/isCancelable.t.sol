@@ -9,41 +9,25 @@ import { Unit_Test } from "../../../Unit.t.sol";
 abstract contract IsCancelable_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
-    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        // Create the default stream.
-        defaultStreamId = createDefaultStream();
-    }
+    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
-    function test_RevertWhen_StreamNull() external {
+    function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.isCancelable(nullStreamId);
     }
 
-    function test_IsCancelable_StreamDepleted() external {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        bool isCancelable = lockup.isCancelable(defaultStreamId);
-        assertFalse(isCancelable, "isCancelable");
-    }
-
-    function test_IsCancelable_StreamCanceled() external {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
-        lockup.cancel(defaultStreamId);
-        bool isCancelable = lockup.isCancelable(defaultStreamId);
-        assertFalse(isCancelable, "isCancelable");
-    }
-
-    modifier whenStreamActive() {
+    modifier whenNotNull() {
+        defaultStreamId = createDefaultStream();
         _;
     }
 
-    function test_IsCancelable_StreamCancelable() external whenStreamActive {
+    function test_IsCancelable_StreamCancelable() external whenNotNull {
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertTrue(isCancelable, "isCancelable");
     }
 
-    function test_IsCancelable_StreamNotCancelable() external whenStreamActive {
+    function test_IsCancelable_StreamNotCancelable() external whenNotNull {
         uint256 streamId = createDefaultStreamNotCancelable();
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");

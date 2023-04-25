@@ -125,7 +125,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         });
 
         // Create the stream.
-        createDefaultStreamWithDurations({ durations: defaultParams.createWithDurations.durations });
+        createDefaultStreamWithDurations();
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);

@@ -11,7 +11,7 @@ library Errors {
                                       GENERICS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when the caller is not the admin.
+    /// @notice Thrown when `msg.sender` is not the admin.
     error CallerNotAdmin(address admin, address caller);
 
     /// @notice Thrown when trying to delegate call to a function that disallows delegate calls.
@@ -28,11 +28,11 @@ library Errors {
                                SABLIER-V2-FLASH-LOAN
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when trying to flash loan an amount greater than or equal to 2^128.
-    error SablierV2FlashLoan_AmountTooHigh(uint256 amount);
-
     /// @notice Thrown when trying to flash loan an unsupported asset.
     error SablierV2FlashLoan_AssetNotFlashLoanable(IERC20 asset);
+
+    /// @notice Thrown when trying to flash loan an amount greater than or equal to 2^128.
+    error SablierV2FlashLoan_AmountTooHigh(uint256 amount);
 
     /// @notice Thrown when the calculated fee during a flash loan is greater than or equal to 2^128.
     error SablierV2FlashLoan_CalculatedFeeTooHigh(uint256 amount);
@@ -53,6 +53,9 @@ library Errors {
     /// @notice Thrown when trying to create a stream with an end time in the past.
     error SablierV2Lockup_EndTimeInThePast(uint40 currentTime, uint40 endTime);
 
+    /// @notice Thrown when the id references a null stream.
+    error SablierV2Lockup_Null(uint256 streamId);
+
     /// @notice Thrown when the protocol fee exceeds the maximum allowed fee.
     error SablierV2Lockup_ProtocolFeeTooHigh(UD60x18 protocolFee, UD60x18 maxFee);
 
@@ -62,17 +65,16 @@ library Errors {
     /// @notice Thrown when trying to cancel or renounce a stream that is not cancelable.
     error SablierV2Lockup_StreamNotCancelable(uint256 streamId);
 
-    /// @notice Thrown when an action requires the stream to be active.
-    error SablierV2Lockup_StreamNotActive(uint256 streamId);
-
     /// @notice Thrown when trying to burn a stream that is not depleted.
     error SablierV2Lockup_StreamNotDepleted(uint256 streamId);
 
-    /// @notice Thrown when trying to interact with a null stream.
-    error SablierV2Lockup_StreamNull(uint256 streamId);
+    /// @notice Thrown when trying to cancel or renounce a stream that is not warm, i.e. neither pending nor streaming.
+    error SablierV2Lockup_StreamNotWarm(uint256 streamId);
 
-    /// @notice Thrown when trying to cancel a settled streams, i.e. an active stream from which the
-    /// sender cannot recover any more assets.
+    /// @notice Thrown when trying to withdraw from a pending stream.
+    error SablierV2Lockup_StreamPending(uint256 streamId);
+
+    /// @notice Thrown when trying to cancel a settled stream.
     error SablierV2Lockup_StreamSettled(uint256 streamId);
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
@@ -117,7 +119,6 @@ library Errors {
         uint256 index, uint40 previousMilestone, uint40 currentMilestone
     );
 
-    /// segment milestone.
     /// @notice Thrown when trying to create a stream with a start time not strictly less than the first
     /// segment milestone.
     error SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone(

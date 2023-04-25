@@ -119,10 +119,12 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         assertEq(actualStream.asset, defaultStream.asset, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
+        assertEq(actualStream.isCanceled, defaultStream.isCanceled, "isCanceled");
+        assertEq(actualStream.isDepleted, defaultStream.isDepleted, "isDepleted");
+        assertEq(actualStream.isStream, defaultStream.isStream, "isStream");
         assertEq(actualStream.segments, vars.segmentsWithMilestones);
         assertEq(actualStream.sender, defaultStream.sender, "sender");
         assertEq(actualStream.startTime, range.start, "startTime");
-        assertEq(actualStream.status, defaultStream.status);
 
         // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = dynamic.nextStreamId();

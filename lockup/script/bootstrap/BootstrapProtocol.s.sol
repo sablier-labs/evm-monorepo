@@ -55,7 +55,7 @@ contract BootstrapProtocol is BaseScript {
         // Create 7 linear streams with various amounts and durations.
         //
         // - 1st stream: meant to be depleted.
-        // - 2th to 4th streams: active.
+        // - 2th to 4th streams: warm.
         // - 5th stream: meant to be renounced.
         // - 6th stream: meant to canceled.
         // - 7th stream: meant to be transferred to a third party.

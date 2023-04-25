@@ -7,15 +7,15 @@ import { Fuzz_Test } from "../../../Fuzz.t.sol";
 abstract contract RefundableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     uint256 internal defaultStreamId;
 
-    function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) { }
-
-    modifier whenStreamActive() {
-        // Create the default stream.
+    function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
         defaultStreamId = createDefaultStream();
-        _;
     }
 
-    function testFuzz_RefundableAmountOf(uint256 timeWarp) external whenStreamActive {
+    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    ///
+    /// - Status streaming
+    /// - Status settled
+    function testFuzz_RefundableAmountOf(uint256 timeWarp) external {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
         // Warp into the future.

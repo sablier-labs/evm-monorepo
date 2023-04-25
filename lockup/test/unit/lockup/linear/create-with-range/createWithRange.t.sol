@@ -6,7 +6,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
+import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
 

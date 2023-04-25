@@ -55,14 +55,14 @@ abstract contract Dynamic_Shared_Test is Lockup_Shared_Test {
             defaultParams.createWithMilestones.segments.push(DEFAULT_SEGMENTS[i]);
         }
 
-        // Create the default stream to be used across the tests.
+        // Create the default stream to be used across all tests.
         defaultStream.amounts = DEFAULT_LOCKUP_AMOUNTS;
         defaultStream.endTime = DEFAULT_END_TIME;
         defaultStream.isCancelable = defaultParams.createWithMilestones.cancelable;
+        defaultStream.isStream = true;
         defaultStream.segments = defaultParams.createWithMilestones.segments;
         defaultStream.sender = defaultParams.createWithMilestones.sender;
         defaultStream.startTime = DEFAULT_START_TIME;
-        defaultStream.status = Lockup.Status.ACTIVE;
         defaultStream.asset = defaultParams.createWithMilestones.asset;
     }
 

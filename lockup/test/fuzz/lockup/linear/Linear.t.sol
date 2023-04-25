@@ -23,7 +23,7 @@ import { WithdrawMultiple_Fuzz_Test } from "../shared/withdraw-multiple/withdraw
 /// @notice Common testing logic needed across {SablierV2LockupLinear} fuzz tests.
 abstract contract Linear_Fuzz_Test is Fuzz_Test, Linear_Shared_Test {
     function setUp() public virtual override(Fuzz_Test, Linear_Shared_Test) {
-        // Both of these contracts inherit from {Base_Test}, but this is fine because multiple inheritance is
+        // Both of these contracts inherit from {Base_Test}, which is fine because multiple inheritance is
         // allowed in Solidity, and {Base_Test-setUp} will only be called once.
         Fuzz_Test.setUp();
         Linear_Shared_Test.setUp();
