@@ -42,14 +42,12 @@ library Lockup {
     }
 
     /// @notice Enum representing the different statuses of a stream.
-    /// @custom:value NULL Default value, signifies the stream has not been created yet.
     /// @custom:value PENDING Stream created but not started; assets are in a pending state.
     /// @custom:value STREAMING Active stream where assets are currently being streamed.
     /// @custom:value SETTLED All assets have been streamed; recipient is due to withdraw them.
     /// @custom:value CANCELED Stream is canceled; remaining assets await recipient's withdrawal.
     /// @custom:value DEPLETED Stream is depleted; all assets have been withdrawn and/or refunded.
     enum Status {
-        NULL,
         PENDING,
         STREAMING,
         SETTLED,

@@ -49,26 +49,25 @@ abstract contract LockupHandler is BaseHandler {
         vm.stopPrank();
     }
 
-    modifier useFuzzedStreamRecipient(uint256 streamIndexSeed) {
+    modifier useFuzzedStream(uint256 streamIndexSeed) {
         uint256 lastStreamId = store.lastStreamId();
         if (lastStreamId == 0) {
             return;
         }
-
         currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
+        _;
+    }
+
+    modifier useFuzzedStreamRecipient() {
+        uint256 lastStreamId = store.lastStreamId();
         currentRecipient = store.recipients(currentStreamId);
         vm.startPrank(currentRecipient);
         _;
         vm.stopPrank();
     }
 
-    modifier useFuzzedStreamSender(uint256 streamIndexSeed) {
+    modifier useFuzzedStreamSender() {
         uint256 lastStreamId = store.lastStreamId();
-        if (lastStreamId == 0) {
-            return;
-        }
-
-        currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
         currentSender = store.senders(currentStreamId);
         vm.startPrank(currentSender);
         _;
@@ -79,7 +78,12 @@ abstract contract LockupHandler is BaseHandler {
                                  SABLIER-V2-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    function burn(uint256 streamIndexSeed) external instrument("burn") useFuzzedStreamRecipient(streamIndexSeed) {
+    function burn(uint256 streamIndexSeed)
+        external
+        instrument("burn")
+        useFuzzedStream(streamIndexSeed)
+        useFuzzedStreamRecipient
+    {
         // Only depleted streams can be burned.
         if (lockup.statusOf(currentStreamId) != Lockup.Status.DEPLETED) {
             return;
@@ -97,10 +101,15 @@ abstract contract LockupHandler is BaseHandler {
         store.updateRecipient(currentStreamId, address(0));
     }
 
-    function cancel(uint256 streamIndexSeed) external instrument("cancel") useFuzzedStreamSender(streamIndexSeed) {
-        // Null, pending, and depleted streams cannot be withdrawn from.
+    function cancel(uint256 streamIndexSeed)
+        external
+        instrument("cancel")
+        useFuzzedStream(streamIndexSeed)
+        useFuzzedStreamSender
+    {
+        // Cold streams cannot be withdrawn from.
         Lockup.Status status = lockup.statusOf(currentStreamId);
-        if (status == Lockup.Status.NULL || status == Lockup.Status.PENDING || status == Lockup.Status.DEPLETED) {
+        if (status != Lockup.Status.PENDING && status != Lockup.Status.STREAMING) {
             return;
         }
 
@@ -125,7 +134,12 @@ abstract contract LockupHandler is BaseHandler {
         lockup.claimProtocolRevenues(asset);
     }
 
-    function renounce(uint256 streamIndexSeed) external instrument("renounce") useFuzzedStreamSender(streamIndexSeed) {
+    function renounce(uint256 streamIndexSeed)
+        external
+        instrument("renounce")
+        useFuzzedStream(streamIndexSeed)
+        useFuzzedStreamSender
+    {
         // Only warm streams can be canceled.
         Lockup.Status status = lockup.statusOf(currentStreamId);
         if (status != Lockup.Status.PENDING && status != Lockup.Status.STREAMING) {
@@ -149,11 +163,12 @@ abstract contract LockupHandler is BaseHandler {
     )
         external
         instrument("withdraw")
-        useFuzzedStreamRecipient(streamIndexSeed)
+        useFuzzedStream(streamIndexSeed)
+        useFuzzedStreamRecipient
     {
-        // Null, pending, and depleted streams cannot be withdrawn from.
+        // Pending and depleted streams cannot be withdrawn from.
         Lockup.Status status = lockup.statusOf(currentStreamId);
-        if (status == Lockup.Status.NULL || status == Lockup.Status.PENDING || status == Lockup.Status.DEPLETED) {
+        if (status == Lockup.Status.PENDING || status == Lockup.Status.DEPLETED) {
             return;
         }
 
@@ -188,11 +203,12 @@ abstract contract LockupHandler is BaseHandler {
     )
         external
         instrument("withdrawMax")
-        useFuzzedStreamRecipient(streamIndexSeed)
+        useFuzzedStream(streamIndexSeed)
+        useFuzzedStreamRecipient
     {
-        // Null, pending, and depleted streams cannot be withdrawn from.
+        // Pending and depleted streams cannot be withdrawn from.
         Lockup.Status status = lockup.statusOf(currentStreamId);
-        if (status == Lockup.Status.NULL || status == Lockup.Status.PENDING || status == Lockup.Status.DEPLETED) {
+        if (status == Lockup.Status.PENDING || status == Lockup.Status.DEPLETED) {
             return;
         }
 
@@ -228,7 +244,8 @@ abstract contract LockupHandler is BaseHandler {
     )
         external
         instrument("transferNFT")
-        useFuzzedStreamRecipient(streamIndexSeed)
+        useFuzzedStream(streamIndexSeed)
+        useFuzzedStreamRecipient
     {
         // The ERC-721 contract doesn't allow the new recipient to be the zero address.
         if (newRecipient == address(0)) {

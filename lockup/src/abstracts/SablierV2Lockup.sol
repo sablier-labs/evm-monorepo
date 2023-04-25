@@ -47,17 +47,9 @@ abstract contract SablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks that `streamId` references a stream that is not null.
-    modifier isNotNull(uint256 streamId) {
-        if (statusOf(streamId) == Lockup.Status.NULL) {
+    modifier notNull(uint256 streamId) {
+        if (!isStream(streamId)) {
             revert Errors.SablierV2Lockup_Null(streamId);
-        }
-        _;
-    }
-
-    /// @dev Checks that `streamId` references a warm stream, i.e. either pending or streaming.
-    modifier isWarm(uint256 streamId) {
-        if (statusOf(streamId) != Lockup.Status.PENDING && statusOf(streamId) != Lockup.Status.STREAMING) {
-            revert Errors.SablierV2Lockup_StreamNotWarm(streamId);
         }
         _;
     }
@@ -66,6 +58,14 @@ abstract contract SablierV2Lockup is
     modifier onlySenderOrRecipient(uint256 streamId) {
         if (!_isCallerStreamSender(streamId) && msg.sender != _ownerOf(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+        }
+        _;
+    }
+
+    /// @dev Checks that `streamId` references a warm stream, i.e. either pending or streaming.
+    modifier warm(uint256 streamId) {
+        if (statusOf(streamId) != Lockup.Status.PENDING && statusOf(streamId) != Lockup.Status.STREAMING) {
+            revert Errors.SablierV2Lockup_StreamNotWarm(streamId);
         }
         _;
     }
@@ -84,6 +84,9 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
+    function isStream(uint256 streamId) public view virtual override returns (bool result);
+
+    /// @inheritdoc ISablierV2Lockup
     function statusOf(uint256 streamId) public view virtual override returns (Lockup.Status status);
 
     /// @inheritdoc ERC721
@@ -100,7 +103,7 @@ abstract contract SablierV2Lockup is
         public
         view
         override
-        isNotNull(streamId)
+        notNull(streamId)
         returns (uint128 withdrawableAmount)
     {
         withdrawableAmount = _withdrawableAmountOf(streamId);
@@ -111,7 +114,7 @@ abstract contract SablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
-    function burn(uint256 streamId) external override noDelegateCall isNotNull(streamId) {
+    function burn(uint256 streamId) external override noDelegateCall notNull(streamId) {
         // Checks: the stream is depleted.
         if (statusOf(streamId) != Lockup.Status.DEPLETED) {
             revert Errors.SablierV2Lockup_StreamNotDepleted(streamId);
@@ -133,8 +136,8 @@ abstract contract SablierV2Lockup is
         public
         override
         noDelegateCall
-        isNotNull(streamId)
-        isWarm(streamId)
+        notNull(streamId)
+        warm(streamId)
         onlySenderOrRecipient(streamId)
     {
         _cancel(streamId);
@@ -156,7 +159,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall isNotNull(streamId) isWarm(streamId) {
+    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) warm(streamId) {
         // Checks: `msg.sender` is the stream's sender.
         if (!_isCallerStreamSender(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
@@ -181,16 +184,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount
-    )
-        public
-        override
-        noDelegateCall
-        isNotNull(streamId)
-    {
+    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall notNull(streamId) {
         // Checks: the stream is neither pending nor depleted.
         Lockup.Status status = statusOf(streamId);
         if (status == Lockup.Status.PENDING) {
@@ -256,11 +250,14 @@ abstract contract SablierV2Lockup is
         for (uint256 i = 0; i < streamIdsCount;) {
             streamId = streamIds[i];
 
-            // Checks: the stream is not null, not pending, and not depleted.
-            Lockup.Status status = statusOf(streamId);
-            if (status == Lockup.Status.NULL) {
+            // Checks: the stream is not null.
+            if (!isStream(streamId)) {
                 revert Errors.SablierV2Lockup_Null(streamId);
-            } else if (status == Lockup.Status.PENDING) {
+            }
+
+            // Checks: the stream is neither pending nor depleted.
+            Lockup.Status status = statusOf(streamId);
+            if (status == Lockup.Status.PENDING) {
                 revert Errors.SablierV2Lockup_StreamPending(streamId);
             } else if (status == Lockup.Status.DEPLETED) {
                 revert Errors.SablierV2Lockup_StreamDepleted(streamId);

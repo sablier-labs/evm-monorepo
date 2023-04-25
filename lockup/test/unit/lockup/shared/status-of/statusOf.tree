@@ -1,7 +1,7 @@
 statusOf.t.sol
-├── when the stream does not exist
-│  └── it should return NULL
-└── when the stream exists
+├── when the id references a null stream
+│  └── it should revert
+└── when the id does not reference a null stream
    ├── when assets have been fully withdrawn
    │  └── it should return DEPLETED
    └── when assets have not been fully withdrawn

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Shared_Test } from "../../../../shared/lockup/Lockup.t.sol";
@@ -11,19 +12,18 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
-    function test_StatusOf_Null() external {
+    function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
-        Lockup.Status actualStatus = lockup.statusOf(nullStreamId);
-        Lockup.Status expectedStatus = Lockup.Status.NULL;
-        assertEq(actualStatus, expectedStatus);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
+        lockup.statusOf(nullStreamId);
     }
 
-    modifier whenStreamExists() {
+    modifier whenNotNull() {
         defaultStreamId = createDefaultStream();
         _;
     }
 
-    function test_StatusOf_Depleted() external whenStreamExists {
+    function test_StatusOf_AssetsFullyWithdrawn() external whenNotNull {
         vm.warp({ timestamp: DEFAULT_END_TIME });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -35,7 +35,7 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_StatusOf_Canceled() external whenStreamExists whenAssetsNotFullyWithdrawn {
+    function test_StatusOf_StreamCanceled() external whenNotNull whenAssetsNotFullyWithdrawn {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -47,7 +47,12 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_StatusOf_Pending() external whenStreamExists whenAssetsNotFullyWithdrawn whenStreamNotCanceled {
+    function test_StatusOf_StartTimeInTheFuture()
+        external
+        whenNotNull
+        whenAssetsNotFullyWithdrawn
+        whenStreamNotCanceled
+    {
         vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.PENDING;
@@ -58,9 +63,9 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_StatusOf_Settled()
+    function test_StatusOf_RefundableAmountNotZero()
         external
-        whenStreamExists
+        whenNotNull
         whenAssetsNotFullyWithdrawn
         whenStreamNotCanceled
         whenStartTimeInThePast
@@ -75,9 +80,9 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_StatusOf_Streaming()
+    function test_StatusOf()
         external
-        whenStreamExists
+        whenNotNull
         whenAssetsNotFullyWithdrawn
         whenStreamNotCanceled
         whenStartTimeInThePast

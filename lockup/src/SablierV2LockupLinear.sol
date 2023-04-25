@@ -77,12 +77,12 @@ contract SablierV2LockupLinear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
-    function getAsset(uint256 streamId) external view override isNotNull(streamId) returns (IERC20 asset) {
+    function getAsset(uint256 streamId) external view override notNull(streamId) returns (IERC20 asset) {
         asset = _streams[streamId].asset;
     }
 
     /// @inheritdoc ISablierV2LockupLinear
-    function getCliffTime(uint256 streamId) external view override isNotNull(streamId) returns (uint40 cliffTime) {
+    function getCliffTime(uint256 streamId) external view override notNull(streamId) returns (uint40 cliffTime) {
         cliffTime = _streams[streamId].cliffTime;
     }
 
@@ -91,14 +91,14 @@ contract SablierV2LockupLinear is
         external
         view
         override
-        isNotNull(streamId)
+        notNull(streamId)
         returns (uint128 depositedAmount)
     {
         depositedAmount = _streams[streamId].amounts.deposited;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getEndTime(uint256 streamId) external view override isNotNull(streamId) returns (uint40 endTime) {
+    function getEndTime(uint256 streamId) external view override notNull(streamId) returns (uint40 endTime) {
         endTime = _streams[streamId].endTime;
     }
 
@@ -107,7 +107,7 @@ contract SablierV2LockupLinear is
         external
         view
         override
-        isNotNull(streamId)
+        notNull(streamId)
         returns (LockupLinear.Range memory range)
     {
         range = LockupLinear.Range({
@@ -122,19 +122,19 @@ contract SablierV2LockupLinear is
         external
         view
         override
-        isNotNull(streamId)
+        notNull(streamId)
         returns (uint128 refundedAmount)
     {
         refundedAmount = _streams[streamId].amounts.refunded;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getSender(uint256 streamId) external view override isNotNull(streamId) returns (address sender) {
+    function getSender(uint256 streamId) external view override notNull(streamId) returns (address sender) {
         sender = _streams[streamId].sender;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getStartTime(uint256 streamId) external view override isNotNull(streamId) returns (uint40 startTime) {
+    function getStartTime(uint256 streamId) external view override notNull(streamId) returns (uint40 startTime) {
         startTime = _streams[streamId].startTime;
     }
 
@@ -143,7 +143,7 @@ contract SablierV2LockupLinear is
         external
         view
         override
-        isNotNull(streamId)
+        notNull(streamId)
         returns (LockupLinear.Stream memory stream)
     {
         stream = _streams[streamId];
@@ -154,15 +154,20 @@ contract SablierV2LockupLinear is
         external
         view
         override
-        isNotNull(streamId)
+        notNull(streamId)
         returns (uint128 withdrawnAmount)
     {
         withdrawnAmount = _streams[streamId].amounts.withdrawn;
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCancelable(uint256 streamId) external view override isNotNull(streamId) returns (bool result) {
+    function isCancelable(uint256 streamId) external view override notNull(streamId) returns (bool result) {
         result = _streams[streamId].isCancelable;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function isStream(uint256 streamId) public view override(ISablierV2Lockup, SablierV2Lockup) returns (bool result) {
+        result = _streams[streamId].isStream;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -175,7 +180,7 @@ contract SablierV2LockupLinear is
         external
         view
         override
-        isNotNull(streamId)
+        notNull(streamId)
         returns (uint128 refundableAmount)
     {
         // If the stream is neither depleted nor canceled, subtract the streamed amount from the deposited amount.
@@ -191,25 +196,23 @@ contract SablierV2LockupLinear is
         public
         view
         override(ISablierV2Lockup, SablierV2Lockup)
+        notNull(streamId)
         returns (Lockup.Status status)
     {
-        // If the stream entity does not exist, the status is implicitly `NULL`.
-        if (_streams[streamId].isStream) {
-            if (_streams[streamId].isDepleted) {
-                return Lockup.Status.DEPLETED;
-            } else if (_streams[streamId].isCanceled) {
-                return Lockup.Status.CANCELED;
-            }
+        if (_streams[streamId].isDepleted) {
+            return Lockup.Status.DEPLETED;
+        } else if (_streams[streamId].isCanceled) {
+            return Lockup.Status.CANCELED;
+        }
 
-            if (block.timestamp < _streams[streamId].startTime) {
-                return Lockup.Status.PENDING;
-            }
+        if (block.timestamp < _streams[streamId].startTime) {
+            return Lockup.Status.PENDING;
+        }
 
-            if (_calculateStreamedAmount(streamId) < _streams[streamId].amounts.deposited) {
-                status = Lockup.Status.STREAMING;
-            } else {
-                status = Lockup.Status.SETTLED;
-            }
+        if (_calculateStreamedAmount(streamId) < _streams[streamId].amounts.deposited) {
+            status = Lockup.Status.STREAMING;
+        } else {
+            status = Lockup.Status.SETTLED;
         }
     }
 
@@ -218,7 +221,7 @@ contract SablierV2LockupLinear is
         public
         view
         override(ISablierV2Lockup, ISablierV2LockupLinear)
-        isNotNull(streamId)
+        notNull(streamId)
         returns (uint128 streamedAmount)
     {
         streamedAmount = _streamedAmountOf(streamId);

@@ -7,7 +7,7 @@ import { Unit_Test } from "../../../Unit.t.sol";
 abstract contract TokenURI_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
-    function test_RevertWhen_NonExistentNFT() external {
+    function test_RevertWhen_NFTDoesNotExist() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert("ERC721: invalid token ID");
         lockup.tokenURI({ tokenId: nullStreamId });

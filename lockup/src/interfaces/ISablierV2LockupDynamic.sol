@@ -21,7 +21,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @param amounts Struct containing (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
     /// broker fee amount, all denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param cancelable Boolean indicating whether the stream will be cancelable or not.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param range Struct containing (i) the stream's start time and (ii) end time, both as Unix timestamps.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.

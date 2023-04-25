@@ -97,11 +97,16 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
-    /// @notice Retrieves a flag that indicates whether the stream can be canceled. The flag is always `false`
+    /// @notice Retrieves a flag indicating whether the stream can be canceled. The flag is always `false`
     /// when the stream is not warm.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function isCancelable(uint256 streamId) external view returns (bool result);
+
+    /// @notice Retrieves a flag indicating whether the stream exists.
+    /// @dev Does not revert if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isStream(uint256 streamId) external view returns (bool result);
 
     /// @notice Counter for stream ids, used in the create functions.
     function nextStreamId() external view returns (uint256);
