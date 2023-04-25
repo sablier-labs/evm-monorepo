@@ -349,7 +349,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_SomeAmountsGreaterThanWithdrawableAmount()
+    function test_RevertWhen_SomeAmountsOverdraw()
         external
         whenNoDelegateCall
         whenToNonZeroAddress
@@ -369,16 +369,13 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128[] memory amounts = Solarray.uint128s(defaultAmounts[0], defaultAmounts[1], UINT128_MAX);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount.selector,
-                defaultStreamIds[2],
-                UINT128_MAX,
-                withdrawableAmount
+                Errors.SablierV2Lockup_Overdraw.selector, defaultStreamIds[2], UINT128_MAX, withdrawableAmount
             )
         );
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: amounts });
     }
 
-    modifier whenAllAmountsLessThanOrEqualToWithdrawableAmounts() {
+    modifier whenNoAmountOverdraws() {
         _;
     }
 
@@ -393,7 +390,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorizedAllStreams
         whenCallerRecipient
         whenAllAmountsNotZero
-        whenAllAmountsLessThanOrEqualToWithdrawableAmounts
+        whenNoAmountOverdraws
     {
         // Warp into the future.
         vm.warp({ timestamp: WARP_26_PERCENT });

@@ -24,9 +24,9 @@ withdraw.t.sol
                 ├── when the withdraw amount is zero
                 │  └── it should revert
                 └── when the withdraw amount is not zero
-                   ├── when the amount is greater than the withdrawable amount
+                   ├── when the withdraw amount overdraws
                    │  └── it should revert
-                   └── when the amount is not greater than the withdrawable amount
+                   └── when the withdraw amount does not overdraw
                       ├── when the caller is the recipient
                       │  ├── it should make the withdrawal
                       │  └── it should update the withdrawn amount

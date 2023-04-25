@@ -512,9 +512,7 @@ contract SablierV2LockupLinear is
         // Checks: the withdraw amount is not greater than the withdrawable amount.
         uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
         if (amount > withdrawableAmount) {
-            revert Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
-                streamId, amount, withdrawableAmount
-            );
+            revert Errors.SablierV2Lockup_Overdraw(streamId, amount, withdrawableAmount);
         }
 
         // Effects: update the withdrawn amount.

@@ -56,6 +56,9 @@ library Errors {
     /// @notice Thrown when the id references a null stream.
     error SablierV2Lockup_Null(uint256 streamId);
 
+    /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
+    error SablierV2Lockup_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
+
     /// @notice Thrown when the protocol fee exceeds the maximum allowed fee.
     error SablierV2Lockup_ProtocolFeeTooHigh(UD60x18 protocolFee, UD60x18 maxFee);
 
@@ -79,11 +82,6 @@ library Errors {
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierV2Lockup_Unauthorized(uint256 streamId, address caller);
-
-    /// @notice Thrown when trying to withdraw more than the withdrawable amount.
-    error SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount(
-        uint256 streamId, uint128 amount, uint128 withdrawableAmount
-    );
 
     /// @notice Thrown when trying to withdraw zero assets from a stream.
     error SablierV2Lockup_WithdrawAmountZero(uint256 streamId);

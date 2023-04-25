@@ -141,7 +141,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_WithdrawAmountGreaterThanWithdrawableAmount()
+    function test_RevertWhen_Overdraw()
         external
         whenNoDelegateCall
         whenNotNull
@@ -153,16 +153,13 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 withdrawableAmount = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_WithdrawAmountGreaterThanWithdrawableAmount.selector,
-                defaultStreamId,
-                UINT128_MAX,
-                withdrawableAmount
+                Errors.SablierV2Lockup_Overdraw.selector, defaultStreamId, UINT128_MAX, withdrawableAmount
             )
         );
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: UINT128_MAX });
     }
 
-    modifier whenWithdrawAmountNotGreaterThanWithdrawableAmount() {
+    modifier whenNoOverdraw() {
         _;
     }
 
@@ -174,7 +171,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
     {
         // Warp into the future.
         vm.warp({ timestamp: WARP_26_PERCENT });
@@ -204,7 +201,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
     {
         // Approve the operator to handle the stream.
         lockup.approve({ to: users.operator, tokenId: defaultStreamId });
@@ -242,7 +239,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
         whenCallerSender
     {
         // Warp to the end of the stream.
@@ -280,7 +277,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
         whenCallerSender
         whenEndTimeInTheFuture
         whenRecipientContract
@@ -328,7 +325,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
         whenCallerSender
         whenEndTimeInTheFuture
         whenStreamHasNotBeenCanceled
@@ -369,7 +366,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
         whenCallerSender
         whenEndTimeInTheFuture
         whenStreamHasNotBeenCanceled
@@ -413,7 +410,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
         whenCallerSender
         whenEndTimeInTheFuture
         whenStreamHasNotBeenCanceled
@@ -458,7 +455,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
         whenCallerSender
         whenEndTimeInTheFuture
         whenStreamHasNotBeenCanceled
@@ -507,7 +504,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
         whenCallerSender
         whenEndTimeInTheFuture
         whenStreamHasNotBeenCanceled

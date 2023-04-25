@@ -15,7 +15,7 @@ withdrawMultiple.t.sol
             │  └── it should revert
             ├── when the stream ids array references some null streams
             │  └── it should revert
-            └── when the stream ids array references only streams that are not null
+            └── when the stream ids array references only non-null streams
                ├── when all streams's statuses are either "PENDING" or "DEPLETED"
                │  └── it should revert
                ├── when some streams's statuses are either "PENDING" or "DEPLETED"
@@ -41,9 +41,9 @@ withdrawMultiple.t.sol
                         ├── when some amounts are zero
                         │  └── it should revert
                         └── when none of the amounts are zero
-                           ├── when some amounts are greater than the withdrawable amounts
+                           ├── when some amounts overdraw
                            │  └── it should revert
-                           └── when all amounts are less than or equal to the withdrawable amounts
+                           └── when no amount overdraws
                               ├── it should make the withdrawals
                               ├── it should update the statuses
                               ├── it should update the withdrawn amounts
