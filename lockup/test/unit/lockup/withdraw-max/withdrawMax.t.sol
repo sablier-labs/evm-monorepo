@@ -33,7 +33,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 expectedWithdrawnAmount = DEFAULT_DEPOSIT_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the stream's status is depleted.
+        // Assert that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
@@ -69,7 +69,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the max withdrawal.
         lockup.withdrawMax(defaultStreamId, users.recipient);
 
-        // Assert that the stream's status is still streaming.
+        // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);

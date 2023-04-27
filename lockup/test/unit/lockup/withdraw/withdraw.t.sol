@@ -238,7 +238,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
 
-        // Assert that the stream's status is depleted.
+        // Assert that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
@@ -287,7 +287,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
 
-        // Assert that the stream's status is depleted.
+        // Assert that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
@@ -333,7 +333,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
-        // Assert that the stream's status is still streaming.
+        // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
@@ -377,7 +377,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(empty), amount: DEFAULT_WITHDRAW_AMOUNT });
 
-        // Assert that the stream's status is still streaming.
+        // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
@@ -422,7 +422,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(revertingRecipient), amount: DEFAULT_WITHDRAW_AMOUNT });
 
-        // Assert that the stream's status is still streaming.
+        // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
@@ -471,7 +471,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(reentrantRecipient), amount: withdrawAmount });
 
-        // Assert that the stream's status is still streaming.
+        // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
@@ -528,7 +528,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
 
-        // Assert that the stream's status is still streaming.
+        // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);

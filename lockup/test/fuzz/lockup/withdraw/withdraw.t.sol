@@ -70,7 +70,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
 
-        // Assert that the stream's status is still streaming.
+        // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
@@ -131,7 +131,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 refundedAmount = lockup.getRefundedAmount(defaultStreamId);
         bool isDepleted = withdrawAmount == DEFAULT_DEPOSIT_AMOUNT - refundedAmount;
 
-        // Assert that the stream's status has been updated.
+        // Assert that the stream's status is correct.
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = isDepleted ? Lockup.Status.DEPLETED : Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);

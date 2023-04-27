@@ -365,7 +365,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenBrokerFeeNotTooHigh
         whenAssetContract
     {
-        test_createWithMilestones(address(nonCompliantAsset));
+        testCreateWithMilestones(address(nonCompliantAsset));
     }
 
     modifier whenAssetERC20Compliant() {
@@ -390,13 +390,13 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenAssetContract
         whenAssetERC20Compliant
     {
-        test_createWithMilestones(address(DEFAULT_ASSET));
+        testCreateWithMilestones(address(DEFAULT_ASSET));
     }
 
     /// @dev Test logic shared between {test_CreateWithMilestones_AssetMissingReturnValue} and
     /// {test_CreateWithMilestones}.
-    function test_createWithMilestones(address asset) internal {
-        // Make the sender the stream's funder
+    function testCreateWithMilestones(address asset) internal {
+        // Make the sender the stream's funder.
         address funder = users.sender;
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
@@ -438,6 +438,11 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         LockupDynamic.Stream memory expectedStream = defaultStream;
         expectedStream.asset = IERC20(asset);
         assertEq(actualStream, expectedStream);
+
+        // Assert that the stream's status is "STREAMING".
+        Lockup.Status actualStatus = dynamic.statusOf(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = dynamic.nextStreamId();

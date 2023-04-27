@@ -6,7 +6,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Broker, LockupLinear } from "src/types/DataTypes.sol";
+import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
@@ -16,7 +16,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
     function setUp() public virtual override {
         Linear_Unit_Test.setUp();
 
-        // Load the stream id.
         streamId = linear.nextStreamId();
     }
 
@@ -190,7 +189,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenBrokerFeeNotTooHigh
         whenAssetContract
     {
-        test_createWithRange(address(nonCompliantAsset));
+        testCreateWithRange(address(nonCompliantAsset));
     }
 
     modifier whenAssetERC20Compliant() {
@@ -209,12 +208,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenAssetContract
         whenAssetERC20Compliant
     {
-        test_createWithRange(address(DEFAULT_ASSET));
+        testCreateWithRange(address(DEFAULT_ASSET));
     }
 
-    /// @dev Test logic shared between `test_CreateWithRange_AssetMissingReturnValue` and `test_CreateWithRange`.
-    function test_createWithRange(address asset) internal {
-        // Make the sender the stream's funder
+    /// @dev Test logic shared between {test_CreateWithRange_AssetMissingReturnValue} and {test_CreateWithRange}.
+    function testCreateWithRange(address asset) internal {
+        // Make the sender the stream's funder.
         address funder = users.sender;
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
@@ -255,6 +254,11 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         LockupLinear.Stream memory expectedStream = defaultStream;
         expectedStream.asset = IERC20(asset);
         assertEq(actualStream, expectedStream);
+
+        // Assert that the stream's status is "STREAMING".
+        Lockup.Status actualStatus = linear.statusOf(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = linear.nextStreamId();

@@ -3,7 +3,7 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { LockupLinear } from "src/types/DataTypes.sol";
+import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
@@ -13,7 +13,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
     function setUp() public virtual override {
         Linear_Unit_Test.setUp();
 
-        // Load the stream id.
         streamId = linear.nextStreamId();
     }
 
@@ -130,6 +129,11 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         assertEq(actualStream, defaultStream);
+
+        // Assert that the stream's status is "STREAMING".
+        Lockup.Status actualStatus = linear.statusOf(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = linear.nextStreamId();

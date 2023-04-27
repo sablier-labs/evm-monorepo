@@ -14,7 +14,6 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     function setUp() public virtual override {
         Linear_Fuzz_Test.setUp();
 
-        // Load the stream id.
         streamId = linear.nextStreamId();
     }
 
@@ -130,10 +129,12 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint256 actualNextStreamId;
         address actualNFTOwner;
         uint256 actualProtocolRevenues;
+        Lockup.Status actualStatus;
         Lockup.CreateAmounts createAmounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         uint256 expectedProtocolRevenues;
+        Lockup.Status expectedStatus;
         uint128 initialProtocolRevenues;
     }
 
@@ -240,6 +241,11 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assertEq(actualStream.isStream, defaultStream.isStream, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.range.start);
+
+        // Assert that the stream's status is correct.
+        vars.actualStatus = linear.statusOf(streamId);
+        vars.expectedStatus = params.range.start > getBlockTimestamp() ? Lockup.Status.PENDING : Lockup.Status.STREAMING;
+        assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = linear.nextStreamId();

@@ -194,7 +194,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         assertEq(actualStream.startTime, params.startTime, "startTime");
 
         // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
-        // because segment amounts can be zero.
+        // because some segment amounts can be zero.
         vars.isSettled = dynamic.refundableAmountOf(vars.streamId) == 0;
 
         // Assert that the stream's status is correct.

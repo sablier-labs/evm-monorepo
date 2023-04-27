@@ -6,7 +6,7 @@ import { Solarray } from "solarray/Solarray.sol";
 
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { LockupDynamic } from "src/types/DataTypes.sol";
+import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { Dynamic_Unit_Test } from "../Dynamic.t.sol";
 
@@ -16,7 +16,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
     function setUp() public virtual override {
         Dynamic_Unit_Test.setUp();
 
-        // Load the stream id.
         streamId = dynamic.nextStreamId();
     }
 
@@ -165,6 +164,11 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
         assertEq(actualStream, defaultStream);
+
+        // Assert that the stream's status is "STREAMING".
+        Lockup.Status actualStatus = dynamic.statusOf(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = dynamic.nextStreamId();

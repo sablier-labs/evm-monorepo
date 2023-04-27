@@ -100,7 +100,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
     ///
     /// Given enough test runs, all of the following scenarios will be fuzzed:
     ///
-    /// - Multiple values for the the sender, recipient, and broker
+    /// - Multiple values for the sender, recipient, and broker
     /// - Multiple values for the total amount
     /// - Multiple values for the cliff time and the end time
     /// - Multiple values for the broker fee, including zero

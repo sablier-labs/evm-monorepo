@@ -35,7 +35,7 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 expectedWithdrawnAmount = DEFAULT_DEPOSIT_AMOUNT;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
-        // Assert that the stream's status is depleted.
+        // Assert that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);

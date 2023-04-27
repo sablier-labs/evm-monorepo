@@ -152,7 +152,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(defaultStreamId);
 
-        // Assert that the stream's status is depleted.
+        // Assert that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
         assertEq(actualStatus, expectedStatus);
@@ -350,7 +350,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream's status is canceled.
+        // Assert that the stream's status is "CANCELED".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
@@ -422,7 +422,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream's status is canceled.
+        // Assert that the stream's status is "CANCELED".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
@@ -461,7 +461,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream's status is canceled.
+        // Assert that the stream's status is "CANCELED".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
@@ -501,7 +501,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream's status is canceled.
+        // Assert that the stream's status is "CANCELED".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);
@@ -549,7 +549,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the stream.
         lockup.cancel(streamId);
 
-        // Assert that the stream's status is canceled.
+        // Assert that the stream's status is "CANCELED".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
         assertEq(actualStatus, expectedStatus);

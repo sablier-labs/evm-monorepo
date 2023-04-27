@@ -12,7 +12,6 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
     function setUp() public virtual override {
         Linear_Fuzz_Test.setUp();
 
-        // Load the stream id.
         streamId = linear.nextStreamId();
     }
 
@@ -136,6 +135,11 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         expectedStream.endTime = range.end;
         expectedStream.startTime = range.start;
         assertEq(actualStream, expectedStream);
+
+        // Assert that the stream's status is "STREAMING".
+        Lockup.Status actualStatus = linear.statusOf(streamId);
+        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
+        assertEq(actualStatus, expectedStatus);
 
         // Assert that the next stream id has been bumped.
         uint256 actualNextStreamId = linear.nextStreamId();

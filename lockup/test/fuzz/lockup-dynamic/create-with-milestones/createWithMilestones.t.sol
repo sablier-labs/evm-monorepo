@@ -16,7 +16,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     function setUp() public virtual override {
         super.setUp();
 
-        // Load the stream id.
         streamId = dynamic.nextStreamId();
     }
 
@@ -221,10 +220,13 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint256 actualNextStreamId;
         address actualNFTOwner;
         uint256 actualProtocolRevenues;
+        Lockup.Status actualStatus;
         Lockup.CreateAmounts createAmounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
         uint256 expectedProtocolRevenues;
+        Lockup.Status expectedStatus;
+        bool isSettled;
         uint128 totalAmount;
     }
 
@@ -343,6 +345,15 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.segments, params.segments);
         assertEq(actualStream.startTime, range.start, "startTime");
+
+        // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
+        // because some segment amounts can be zero.
+        vars.isSettled = dynamic.refundableAmountOf(streamId) == 0;
+
+        // Assert that the stream's status is correct.
+        vars.actualStatus = dynamic.statusOf(streamId);
+        vars.expectedStatus = vars.isSettled ? Lockup.Status.SETTLED : Lockup.Status.STREAMING;
+        assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the next stream id has been bumped.
         vars.actualNextStreamId = dynamic.nextStreamId();
