@@ -5,9 +5,9 @@ withdrawMultiple.t.sol
    ├── when the provided address is zero
    │  └── it should revert
    └── when the provided address is not zero
-      ├── when the array counts are not equal
+      ├── when the inputs are not equal
       │  └── it should revert
-      └── when the array counts are equal
+      └── when the input array counts are equal
          ├── when the array counts are zero
          │  └── it should do nothing
          └── when the array counts are not zero

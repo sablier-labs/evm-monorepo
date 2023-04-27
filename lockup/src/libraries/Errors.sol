@@ -53,6 +53,9 @@ library Errors {
     /// @notice Thrown when trying to create a stream with an end time in the past.
     error SablierV2Lockup_EndTimeInThePast(uint40 currentTime, uint40 endTime);
 
+    /// @notice Thrown when the stream's sender tries to withdraw to an address other than the recipient's.
+    error SablierV2Lockup_InvalidSenderWithdrawal(uint256 streamId, address sender, address to);
+
     /// @notice Thrown when the id references a null stream.
     error SablierV2Lockup_Null(uint256 streamId);
 
@@ -89,9 +92,6 @@ library Errors {
     /// @notice Thrown when trying to withdraw from multiple streams and the number of stream ids does
     /// not match the number of withdraw amounts.
     error SablierV2Lockup_WithdrawArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
-
-    /// @notice Thrown when the stream's sender tries to withdraw to an address other than the recipient's.
-    error SablierV2Lockup_WithdrawSenderUnauthorized(uint256 streamId, address sender, address to);
 
     /// @notice Thrown when trying to withdraw to the zero address.
     error SablierV2Lockup_WithdrawToZeroAddress();

@@ -282,7 +282,7 @@ abstract contract SablierV2Lockup is
 
         // Checks: if `msg.sender` is the stream's sender, the withdrawal address must be the recipient.
         if (_isCallerStreamSender(streamId) && to != _ownerOf(streamId)) {
-            revert Errors.SablierV2Lockup_WithdrawSenderUnauthorized(streamId, msg.sender, to);
+            revert Errors.SablierV2Lockup_InvalidSenderWithdrawal(streamId, msg.sender, to);
         }
 
         // Checks: the withdraw amount is not zero.
