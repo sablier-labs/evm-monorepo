@@ -100,7 +100,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], defaultStreamIds[1], nullStreamId);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Expect a {Null} error.
@@ -124,7 +124,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     {
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0]);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_END_TIME });
 
         // Deplete the stream.
@@ -226,7 +226,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Run the test.
@@ -251,7 +251,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Run the test.
@@ -288,7 +288,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoStatusPendingOrDepleted
         whenCallerAuthorizedAllStreams
     {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Run the test.
@@ -312,7 +312,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorizedAllStreams
         whenNoAmountZero
     {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Run the test.
@@ -342,7 +342,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoAmountZero
         whenNoAmountOverdraws
     {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: EARLY_STOP_TIME });
 
         // Cancel the second stream.

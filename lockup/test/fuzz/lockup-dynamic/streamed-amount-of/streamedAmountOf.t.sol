@@ -52,7 +52,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = dynamic.createWithMilestones(params);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
@@ -115,7 +115,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = dynamic.createWithMilestones(params);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
@@ -165,13 +165,13 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = dynamic.createWithMilestones(params);
 
-        // Warp into the future for the first time.
+        // Warp to the future for the first time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp0 });
 
         // Calculate the streamed amount at this midpoint in time.
         uint128 streamedAmount0 = dynamic.streamedAmountOf(streamId);
 
-        // Warp into the future for the second time.
+        // Warp to the future for the second time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp1 });
 
         // Assert that this streamed amount is greater than or equal to the previous streamed amount.

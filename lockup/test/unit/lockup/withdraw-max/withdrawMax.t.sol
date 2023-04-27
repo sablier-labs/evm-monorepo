@@ -15,7 +15,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_WithdrawMax_EndTimeInThePast() external {
-        // Warp to the end of the stream.
+        // Warp to the stream's end.
         vm.warp({ timestamp: DEFAULT_END_TIME + 1 seconds });
 
         // Expect the ERC-20 assets to be transferred to the recipient.
@@ -53,7 +53,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_WithdrawMax() external whenEndTimeInTheFuture {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Get the withdraw amount.

@@ -45,7 +45,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = dynamic.createWithMilestones(params);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
@@ -96,7 +96,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = dynamic.createWithMilestones(params);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: currentTime });
 
         // Make the withdrawal.

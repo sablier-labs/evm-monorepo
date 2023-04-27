@@ -25,7 +25,7 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
     }
 
     function test_GetWithdrawnAmount_NoPreviousWithdrawals() external whenNotNull {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Assert that the withdrawn amount has been updated.
@@ -39,7 +39,7 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
     }
 
     function test_GetWithdrawnAmount() external whenNotNull whenPreviousWithdrawals {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Set the withdraw amount to the streamed amount.

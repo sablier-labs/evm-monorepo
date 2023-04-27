@@ -52,7 +52,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StreamedAmount
         whenStatusStreaming
         whenStartTimeInThePast
     {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + 2000 seconds });
 
         // Create an array with one segment.
@@ -84,7 +84,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StreamedAmount
         whenMultipleSegments
         whenStartTimeInThePast
     {
-        // Warp 1 second into the future.
+        // Warp 1 second to the future.
         vm.warp({ timestamp: DEFAULT_START_TIME + 1 seconds });
 
         // Run the test.
@@ -106,7 +106,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StreamedAmount
         whenMultipleSegments
         whenCurrentMilestoneNot1st
     {
-        // Warp into the future. 750 seconds is ~10% of the way in the second segment.
+        // Simulate the passage of time. 750 seconds is ~10% of the way in the second segment.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 750 seconds });
 
         // Run the test.

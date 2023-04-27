@@ -18,7 +18,7 @@ abstract contract RefundableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
     function testFuzz_RefundableAmountOf(uint256 timeWarp) external {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Get the streamed amount.

@@ -44,7 +44,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     {
         timeWarp = bound(timeWarp, 1 seconds, 100 weeks);
 
-        // Warp into the past.
+        // Warp to the past.
         vm.warp({ timestamp: getBlockTimestamp() - timeWarp });
 
         // Cancel the stream.
@@ -111,7 +111,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Bound the withdraw amount.
@@ -196,7 +196,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Bound the withdraw amount.

@@ -147,7 +147,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_Cancel_StatusPending() external {
-        // Warp into the past.
+        // Warp to the past.
         vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
 
         // Cancel the stream.
@@ -166,7 +166,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// @dev In the linear contract, the streaming starts after the cliff time, whereas in the dynamic contract,
     /// the streaming starts after the start time.
     modifier whenStatusStreaming() {
-        // Warp into the future, after the start time but before the end time.
+        // Warp to the future, after the stream's start time but before the stream's end time.
         vm.warp({ timestamp: WARP_26_PERCENT });
         _;
     }

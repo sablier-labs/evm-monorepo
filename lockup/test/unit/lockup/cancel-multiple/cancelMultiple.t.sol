@@ -244,7 +244,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
     {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Expect the assets to be refunded to the sender.

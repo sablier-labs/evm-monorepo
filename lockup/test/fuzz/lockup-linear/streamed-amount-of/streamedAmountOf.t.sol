@@ -64,7 +64,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = linear.createWithRange(params);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
@@ -95,13 +95,13 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         params.totalAmount = depositAmount;
         uint256 streamId = linear.createWithRange(params);
 
-        // Warp into the future for the first time.
+        // Warp to the future for the first time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp0 });
 
         // Calculate the streamed amount at this midpoint in time.
         uint128 streamedAmount0 = linear.streamedAmountOf(streamId);
 
-        // Warp into the future for the second time.
+        // Warp to the future for the second time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp1 });
 
         // Assert that this streamed amount is greater than or equal to the previous streamed amount.

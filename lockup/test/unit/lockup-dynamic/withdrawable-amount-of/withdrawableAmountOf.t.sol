@@ -39,7 +39,7 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, Withdrawab
         whenStatusStreaming
         whenStartTimeInThePast
     {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3750 seconds });
 
         // Run the test.
@@ -61,7 +61,7 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, Withdrawab
         whenStartTimeInThePast
         whenWithWithdrawals
     {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3750 seconds });
 
         // Make the withdrawal.

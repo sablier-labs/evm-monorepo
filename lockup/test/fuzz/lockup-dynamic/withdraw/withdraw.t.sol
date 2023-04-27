@@ -74,7 +74,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         createParams.segments = params.segments;
         vars.streamId = dynamic.createWithMilestones(createParams);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + params.timeWarp });
 
         // Query the withdrawable amount.

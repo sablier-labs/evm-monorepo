@@ -173,7 +173,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenWithdrawAmountNotZero
         whenNoOverdraw
     {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Make Alice the `to` address in this test.
@@ -204,7 +204,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Make the operator the caller in this test.
         changePrank({ msgSender: users.operator });
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Make the withdrawal.
@@ -232,7 +232,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoOverdraw
         whenCallerSender
     {
-        // Warp to the end of the stream.
+        // Warp to the stream's end.
         vm.warp({ timestamp: DEFAULT_END_TIME });
 
         // Make the withdrawal.
@@ -254,7 +254,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     modifier whenEndTimeInTheFuture() {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: WARP_26_PERCENT });
         _;
     }

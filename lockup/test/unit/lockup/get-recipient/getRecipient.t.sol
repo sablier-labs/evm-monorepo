@@ -24,7 +24,7 @@ abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_RevertWhen_NFTBurned() external {
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_END_TIME });
 
         // Make the recipient the caller.

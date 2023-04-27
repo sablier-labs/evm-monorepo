@@ -19,7 +19,7 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
     function testFuzz_GetWithdrawnAmount_NoPreviousWithdrawals(uint256 timeWarp) external whenNotNull {
         timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Assert that the withdrawn amount has been updated.
@@ -42,7 +42,7 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
     {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Bound the withdraw amount.

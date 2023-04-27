@@ -57,7 +57,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = linear.createWithRange(params);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         uint40 currentTime = DEFAULT_START_TIME + timeWarp;
         vm.warp({ timestamp: currentTime });
 
@@ -110,7 +110,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = linear.createWithRange(params);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: currentTime });
 
         // Make the withdrawal.

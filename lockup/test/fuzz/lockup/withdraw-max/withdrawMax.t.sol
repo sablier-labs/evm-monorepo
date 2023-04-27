@@ -17,7 +17,7 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     function testFuzz_WithdrawMax_EndTimeInThePast(uint256 timeWarp) external {
         timeWarp = bound(timeWarp, DEFAULT_TOTAL_DURATION + 1 seconds, DEFAULT_TOTAL_DURATION * 2);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Expect the ERC-20 assets to be transferred to the recipient.
@@ -57,7 +57,7 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     function testFuzz_WithdrawMax(uint256 timeWarp) external whenEndTimeInTheFuture {
         timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Get the withdraw amount.

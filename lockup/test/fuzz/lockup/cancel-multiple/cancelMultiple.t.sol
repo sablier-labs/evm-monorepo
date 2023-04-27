@@ -60,7 +60,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Create a new stream with a different end time.
         uint256 streamId = createDefaultStreamWithEndTime(endTime);
 
-        // Warp into the future.
+        // Simulate the passage of time.
         vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
 
         // Create the stream ids array.

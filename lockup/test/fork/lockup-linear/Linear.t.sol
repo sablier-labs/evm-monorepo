@@ -240,7 +240,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
                                           WITHDRAW
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Warp into the future.
+        // Simulate the passage of time.
         params.warpTimestamp = boundUint40(params.warpTimestamp, params.range.cliff, params.range.end + 100 seconds);
         vm.warp({ timestamp: params.warpTimestamp });
 
