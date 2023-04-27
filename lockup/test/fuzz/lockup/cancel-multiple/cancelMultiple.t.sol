@@ -12,10 +12,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     uint256[] internal defaultStreamIds;
 
     function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
-        defaultStreamIds.push(createDefaultStream());
-        defaultStreamIds.push(createDefaultStream());
-
-        changePrank({ msgSender: users.recipient });
+        createDefaultStreams();
     }
 
     modifier whenNoDelegateCall() {
@@ -36,13 +33,16 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
     modifier whenCallerAuthorizedAllStreams() {
         _;
+        createDefaultStreams();
+        changePrank({ msgSender: users.recipient });
+        _;
     }
 
     modifier whenAllStreamsCancelable() {
         _;
     }
 
-    function testFuzz_CancelMultiple_CallerSender(
+    function testFuzz_CancelMultiple(
         uint256 timeWarp,
         uint40 endTime
     )
@@ -54,35 +54,6 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
     {
-        // Make the sender the caller in this test.
-        changePrank({ msgSender: users.sender });
-
-        // Run the test.
-        testFuzz_CancelMultiple(timeWarp, endTime);
-    }
-
-    function testFuzz_CancelMultiple_CallerRecipient(
-        uint256 timeWarp,
-        uint40 endTime
-    )
-        external
-        whenNoDelegateCall
-        whenArrayCountNotZero
-        whenNoNull
-        whenNoStatusSettled
-        whenCallerAuthorizedAllStreams
-        whenAllStreamsCancelable
-    {
-        // Make the recipient the caller in this test.
-        changePrank({ msgSender: users.recipient });
-
-        // Run the tests.
-        testFuzz_CancelMultiple(timeWarp, endTime);
-    }
-
-    /// @dev Test logic shared between {testFuzz_CancelMultiple_CallerSender} and
-    /// {testFuzz_CancelMultiple_CallerRecipient}.
-    function testFuzz_CancelMultiple(uint256 timeWarp, uint40 endTime) internal {
         timeWarp = bound(timeWarp, 0 seconds, DEFAULT_TOTAL_DURATION - 1);
         endTime = boundUint40(endTime, DEFAULT_END_TIME, DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION);
 
@@ -96,9 +67,9 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], streamId);
 
         // Expect the assets to be refunded to the sender.
-        uint128 senderAmount0 = lockup.withdrawableAmountOf(streamIds[0]);
+        uint128 senderAmount0 = lockup.refundableAmountOf(streamIds[0]);
         expectTransferCall({ to: users.sender, amount: senderAmount0 });
-        uint128 senderAmount1 = lockup.withdrawableAmountOf(streamIds[1]);
+        uint128 senderAmount1 = lockup.refundableAmountOf(streamIds[1]);
         expectTransferCall({ to: users.sender, amount: senderAmount1 });
 
         // Expect multiple events to be emitted.
@@ -122,10 +93,13 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Cancel the streams.
         lockup.cancelMultiple(streamIds);
 
-        // Assert that the streams have been marked as canceled.
-        Lockup.Status expectedStatus = Lockup.Status.CANCELED;
-        assertEq(lockup.statusOf(streamIds[0]), expectedStatus, "status0");
-        assertEq(lockup.statusOf(streamIds[1]), expectedStatus, "status1");
+        // Assert that the streams have been updated.
+        Lockup.Status expectedStatus0 =
+            senderAmount0 == DEFAULT_DEPOSIT_AMOUNT ? Lockup.Status.DEPLETED : Lockup.Status.CANCELED;
+        Lockup.Status expectedStatus1 =
+            senderAmount1 == DEFAULT_DEPOSIT_AMOUNT ? Lockup.Status.DEPLETED : Lockup.Status.CANCELED;
+        assertEq(lockup.statusOf(streamIds[0]), expectedStatus0, "status0");
+        assertEq(lockup.statusOf(streamIds[1]), expectedStatus1, "status1");
 
         // Assert that the streams are not cancelable anymore.
         assertFalse(lockup.isCancelable(streamIds[0]), "isCancelable0");
@@ -141,5 +115,12 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         address expectedNFTOwner = users.recipient;
         assertEq(lockup.getRecipient(streamIds[0]), expectedNFTOwner, "NFT owner0");
         assertEq(lockup.getRecipient(streamIds[1]), expectedNFTOwner, "NFT owner1");
+    }
+
+    /// @dev Creates the default streams used throughout the tests.
+    function createDefaultStreams() internal {
+        defaultStreamIds = new uint256[](2);
+        defaultStreamIds[0] = createDefaultStream();
+        defaultStreamIds[1] = createDefaultStream();
     }
 }

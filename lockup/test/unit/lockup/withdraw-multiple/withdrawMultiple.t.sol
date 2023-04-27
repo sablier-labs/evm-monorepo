@@ -261,7 +261,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: users.recipient, amounts: defaultAmounts });
     }
 
-    /// @dev This modifier runs the test three times:
+    /// @dev This modifier runs the test in three different modes:
     /// - Stream's sender as caller
     /// - Stream's recipient as caller
     /// - Approved NFT operator as caller
@@ -348,7 +348,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Cancel the second stream.
         lockup.cancel(defaultStreamIds[1]);
 
-        // Run the test with the provided caller.
+        // Run the test with the caller provided in the modifier above.
         changePrank({ msgSender: caller });
 
         // Expect the withdrawals to be made.

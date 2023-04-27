@@ -9,6 +9,7 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Linear_Shared_Test } from "../../shared/lockup-linear/Linear.t.sol";
 import { Fuzz_Test } from "../Fuzz.t.sol";
 import { Cancel_Fuzz_Test } from "../lockup/cancel/cancel.t.sol";
+import { CancelMultiple_Fuzz_Test } from "../lockup/cancel-multiple/cancelMultiple.t.sol";
 import { GetWithdrawnAmount_Fuzz_Test } from "../lockup/get-withdrawn-amount/getWithdrawnAmount.t.sol";
 import { RefundableAmountOf_Fuzz_Test } from "../lockup/refundable-amount-of/refundableAmountOf.t.sol";
 import { Withdraw_Fuzz_Test } from "../lockup/withdraw/withdraw.t.sol";
@@ -49,6 +50,13 @@ contract Cancel_Linear_Fuzz_Test is Linear_Fuzz_Test, Cancel_Fuzz_Test {
     function setUp() public virtual override(Linear_Fuzz_Test, Cancel_Fuzz_Test) {
         Linear_Fuzz_Test.setUp();
         Cancel_Fuzz_Test.setUp();
+    }
+}
+
+contract CancelMultiple_Linear_Fuzz_Test is Linear_Fuzz_Test, CancelMultiple_Fuzz_Test {
+    function setUp() public virtual override(Linear_Fuzz_Test, CancelMultiple_Fuzz_Test) {
+        Linear_Fuzz_Test.setUp();
+        CancelMultiple_Fuzz_Test.setUp();
     }
 }
 

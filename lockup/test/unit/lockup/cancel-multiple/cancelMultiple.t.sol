@@ -14,10 +14,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     uint256[] internal defaultStreamIds;
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        defaultStreamIds.push(createDefaultStream());
-        defaultStreamIds.push(createDefaultStream());
-
-        changePrank({ msgSender: users.recipient });
+        createDefaultStreams();
     }
 
     function test_RevertWhen_DelegateCall() external whenNoDelegateCall {
@@ -103,6 +100,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerUnauthorized
     {
         // Approve the operator for all streams.
+        changePrank({ msgSender: users.recipient });
         lockup.setApprovalForAll({ operator: users.operator, _approved: true });
 
         // Make the approved operator the caller in this test.
@@ -124,6 +122,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerUnauthorized
     {
         // Transfer the streams to Alice.
+        changePrank({ msgSender: users.recipient });
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[1] });
 
@@ -164,6 +163,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerUnauthorized
     {
         // Approve the operator to handle the first stream.
+        changePrank({ msgSender: users.recipient });
         lockup.approve({ to: users.operator, tokenId: defaultStreamIds[0] });
 
         // Make the approved operator the caller in this test.
@@ -185,6 +185,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerUnauthorized
     {
         // Transfer the first stream to Eve.
+        changePrank({ msgSender: users.recipient });
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
 
         // Run the test.
@@ -195,6 +196,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     modifier whenCallerAuthorizedAllStreams() {
+        _;
+        createDefaultStreams();
+        changePrank({ msgSender: users.recipient });
         _;
     }
 
@@ -232,20 +236,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_CancelMultiple_CallerSender()
-        external
-        whenNoDelegateCall
-        whenArrayCountNotZero
-        whenNoNull
-        whenAllStreamsWarm
-        whenCallerAuthorizedAllStreams
-        whenAllStreamsCancelable
-    {
-        changePrank({ msgSender: users.sender });
-        test_CancelMultiple();
-    }
-
-    function test_CancelMultiple_CallerRecipient()
+    function test_CancelMultiple()
         external
         whenNoDelegateCall
         whenNoNull
@@ -253,11 +244,6 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
     {
-        test_CancelMultiple();
-    }
-
-    /// @dev Test logic shared between {test_CancelMultiple_CallerSender} and {test_CancelMultiple_CallerRecipient}.
-    function test_CancelMultiple() internal {
         // Warp into the future.
         vm.warp({ timestamp: WARP_26_PERCENT });
 
@@ -305,5 +291,12 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         address expectedNFTOwner = users.recipient;
         assertEq(lockup.getRecipient(defaultStreamIds[0]), expectedNFTOwner, "NFT owner0");
         assertEq(lockup.getRecipient(defaultStreamIds[1]), expectedNFTOwner, "NFT owner1");
+    }
+
+    /// @dev Creates the default streams used throughout the tests.
+    function createDefaultStreams() internal {
+        defaultStreamIds = new uint256[](2);
+        defaultStreamIds[0] = createDefaultStream();
+        defaultStreamIds[1] = createDefaultStream();
     }
 }

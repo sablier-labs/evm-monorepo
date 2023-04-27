@@ -16,7 +16,6 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
         defaultStreamId = createDefaultStream();
-        changePrank({ msgSender: users.recipient });
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -96,6 +95,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerUnauthorized
     {
         // Approve Alice for the stream.
+        changePrank({ msgSender: users.recipient });
         lockup.approve({ to: users.operator, tokenId: defaultStreamId });
 
         // Make Alice the caller in this test.
@@ -116,6 +116,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerUnauthorized
     {
         // Transfer the stream to Alice.
+        changePrank({ msgSender: users.recipient });
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
 
         // Run the test.
@@ -371,6 +372,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     modifier whenCallerRecipient() {
+        changePrank({ msgSender: users.recipient });
         _;
     }
 
