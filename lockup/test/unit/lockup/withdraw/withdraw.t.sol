@@ -54,23 +54,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
-        external
-        whenNoDelegateCall
-        whenNotNull
-        whenStreamNeitherPendingNorDepleted
-        whenCallerUnauthorized
-    {
-        // Make Eve the caller in this test.
-        changePrank({ msgSender: users.eve });
-
-        // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.eve)
-        );
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
-    }
-
     function test_RevertWhen_CallerUnauthorized_Sender()
         external
         whenNoDelegateCall
@@ -88,6 +71,23 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
             )
         );
         lockup.withdraw({ streamId: defaultStreamId, to: users.sender, amount: DEFAULT_WITHDRAW_AMOUNT });
+    }
+
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
+        external
+        whenNoDelegateCall
+        whenNotNull
+        whenStreamNeitherPendingNorDepleted
+        whenCallerUnauthorized
+    {
+        // Make Eve the caller in this test.
+        changePrank({ msgSender: users.eve });
+
+        // Run the test.
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.eve)
+        );
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
     }
 
     function test_RevertWhen_FormerRecipient()
@@ -110,7 +110,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_ZeroAddress()
+    function test_RevertWhen_ToZeroAddress()
         external
         whenNoDelegateCall
         whenNotNull

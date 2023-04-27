@@ -84,11 +84,11 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         _;
     }
 
-    modifier whenAllAmountsNotZero() {
+    modifier whenNoAmountZero() {
         _;
     }
 
-    modifier whenAllAmountsLessThanOrEqualToWithdrawableAmounts() {
+    modifier whenNoAmountOverdraws() {
         _;
     }
 
@@ -105,8 +105,8 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenNoStatusPendingOrDepleted
         whenCallerAuthorizedAllStreams
         whenCallerRecipient
-        whenAllAmountsNotZero
-        whenAllAmountsLessThanOrEqualToWithdrawableAmounts
+        whenNoAmountZero
+        whenNoAmountOverdraws
     {
         vm.assume(to != address(0));
         timeWarp = bound(timeWarp, DEFAULT_TOTAL_DURATION, DEFAULT_TOTAL_DURATION * 2 - 1 seconds);
@@ -130,13 +130,13 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         expectTransferCall({ to: to, amount: ongoingWithdrawAmount });
         expectTransferCall({ to: to, amount: settledWithdrawAmount });
 
-        // Expect the {WithdrawFromLockupStream} events to be emitted.
+        // Expect multiple events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: ongoingStreamId, to: to, amount: ongoingWithdrawAmount });
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: settledStreamId, to: to, amount: settledWithdrawAmount });
 
-        // Run the test.
+        // Make the withdrawals.
         uint256[] memory streamIds = Solarray.uint256s(ongoingStreamId, settledStreamId);
         uint128[] memory amounts = Solarray.uint128s(ongoingWithdrawAmount, settledWithdrawAmount);
         lockup.withdrawMultiple({ streamIds: streamIds, to: to, amounts: amounts });
