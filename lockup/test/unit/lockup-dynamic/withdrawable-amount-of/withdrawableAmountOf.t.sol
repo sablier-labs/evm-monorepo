@@ -22,7 +22,7 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, Withdrawab
         whenStreamHasNotBeenCanceled
         whenStatusStreaming
     {
-        vm.warp({ timestamp: DEFAULT_START_TIME });
+        vm.warp({ timestamp: defaults.START_TIME() });
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
@@ -40,12 +40,12 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, Withdrawab
         whenStartTimeInThePast
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3750 seconds });
+        vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 3750 seconds });
 
         // Run the test.
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
         // The second term is 7,500*0.5^{0.5}
-        uint128 expectedWithdrawableAmount = DEFAULT_SEGMENTS[0].amount + 5303.30085889910643e18;
+        uint128 expectedWithdrawableAmount = defaults.segments()[0].amount + 5303.30085889910643e18;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -62,17 +62,17 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, Withdrawab
         whenWithWithdrawals
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 3750 seconds });
+        vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 3750 seconds });
 
         // Make the withdrawal.
-        dynamic.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+        dynamic.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
 
         // Run the test.
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
 
         // The second term is 7,500*0.5^{0.5}
         uint128 expectedWithdrawableAmount =
-            DEFAULT_SEGMENTS[0].amount + 5303.30085889910643e18 - DEFAULT_WITHDRAW_AMOUNT;
+            defaults.segments()[0].amount + 5303.30085889910643e18 - defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 }

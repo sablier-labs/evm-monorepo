@@ -27,15 +27,19 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
 
         // Deploy the linear contract handlers.
         linearHandler = new LockupLinearHandler({
-            asset_: DEFAULT_ASSET,
+            asset_: usdc,
             linear_: linear,
             store_: lockupHandlerStorage
         });
         linearCreateHandler = new LockupLinearCreateHandler({
-            asset_: DEFAULT_ASSET,
+            asset_: usdc,
             linear_: linear,
             store_: lockupHandlerStorage
         });
+
+        // Label the handler contracts.
+        vm.label({ account: address(linearHandler), newLabel: "LockupLinearHandler" });
+        vm.label({ account: address(linearCreateHandler), newLabel: "LockupLinearCreateHandler" });
 
         // Cast the linear contract as {ISablierV2Lockup} and the linear handler as {LockupHandler}.
         lockup = linear;
@@ -48,10 +52,6 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         // Exclude the linear handlers from being `msg.sender`.
         excludeSender(address(linearHandler));
         excludeSender(address(linearCreateHandler));
-
-        // Label the handler contracts.
-        vm.label({ account: address(linearHandler), newLabel: "LockupLinearHandler" });
-        vm.label({ account: address(linearCreateHandler), newLabel: "LockupLinearCreateHandler" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

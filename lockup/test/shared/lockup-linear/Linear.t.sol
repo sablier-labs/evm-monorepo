@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { console2 } from "forge-std/console2.sol";
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Broker, LockupLinear } from "../../../src/types/DataTypes.sol";
@@ -36,28 +37,28 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         // Initialize the default params to be used for the create functions.
         defaultParams = DefaultParams({
             createWithDurations: LockupLinear.CreateWithDurations({
-                asset: DEFAULT_ASSET,
-                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE }),
+                asset: usdc,
+                broker: Broker({ account: users.broker, fee: defaults.BROKER_FEE() }),
                 cancelable: true,
-                durations: DEFAULT_DURATIONS,
+                durations: defaults.durations(),
                 sender: users.sender,
                 recipient: users.recipient,
-                totalAmount: DEFAULT_TOTAL_AMOUNT
+                totalAmount: defaults.TOTAL_AMOUNT()
             }),
             createWithRange: LockupLinear.CreateWithRange({
-                asset: DEFAULT_ASSET,
-                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE }),
+                asset: usdc,
+                broker: Broker({ account: users.broker, fee: defaults.BROKER_FEE() }),
                 cancelable: true,
                 sender: users.sender,
-                range: DEFAULT_LINEAR_RANGE,
+                range: defaults.linearRange(),
                 recipient: users.recipient,
-                totalAmount: DEFAULT_TOTAL_AMOUNT
+                totalAmount: defaults.TOTAL_AMOUNT()
             })
         });
 
         // Create the default stream to be used across all tests.
         defaultStream = LockupLinear.Stream({
-            amounts: DEFAULT_LOCKUP_AMOUNTS,
+            amounts: defaults.lockupAmounts(),
             asset: defaultParams.createWithRange.asset,
             cliffTime: defaultParams.createWithRange.range.cliff,
             endTime: defaultParams.createWithRange.range.end,
@@ -71,7 +72,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Creates the default stream.

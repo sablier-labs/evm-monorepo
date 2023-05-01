@@ -58,7 +58,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNotNull
         whenStreamHasNotBeenDepleted
     {
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
@@ -69,7 +69,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNotNull
         whenStreamHasNotBeenDepleted
     {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
@@ -80,14 +80,14 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNotNull
         whenStreamHasNotBeenDepleted
     {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(streamId);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
     modifier whenStreamHasBeenDepleted() {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: streamId, to: users.recipient });
         _;
     }

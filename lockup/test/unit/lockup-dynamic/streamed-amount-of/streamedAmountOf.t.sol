@@ -35,7 +35,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StreamedAmount
         whenStreamHasNotBeenCanceled
         whenStatusStreaming
     {
-        vm.warp({ timestamp: DEFAULT_START_TIME });
+        vm.warp({ timestamp: defaults.START_TIME() });
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -53,14 +53,14 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StreamedAmount
         whenStartTimeInThePast
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + 2000 seconds });
+        vm.warp({ timestamp: defaults.START_TIME() + 2000 seconds });
 
         // Create an array with one segment.
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);
         segments[0] = LockupDynamic.Segment({
-            amount: DEFAULT_DEPOSIT_AMOUNT,
-            exponent: DEFAULT_SEGMENTS[1].exponent,
-            milestone: DEFAULT_END_TIME
+            amount: defaults.DEPOSIT_AMOUNT(),
+            exponent: defaults.segments()[1].exponent,
+            milestone: defaults.END_TIME()
         });
 
         // Create the stream.
@@ -85,7 +85,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StreamedAmount
         whenStartTimeInThePast
     {
         // Warp 1 second to the future.
-        vm.warp({ timestamp: DEFAULT_START_TIME + 1 seconds });
+        vm.warp({ timestamp: defaults.START_TIME() + 1 seconds });
 
         // Run the test.
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
@@ -107,11 +107,11 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StreamedAmount
         whenCurrentMilestoneNot1st
     {
         // Simulate the passage of time. 750 seconds is ~10% of the way in the second segment.
-        vm.warp({ timestamp: DEFAULT_START_TIME + DEFAULT_CLIFF_DURATION + 750 seconds });
+        vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 750 seconds });
 
         // Run the test.
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = DEFAULT_SEGMENTS[0].amount + 2371.708245126284505e18; // ~7,500*0.1^{0.5}
+        uint128 expectedStreamedAmount = defaults.segments()[0].amount + 2371.708245126284505e18; // ~7,500*0.1^{0.5}
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 }

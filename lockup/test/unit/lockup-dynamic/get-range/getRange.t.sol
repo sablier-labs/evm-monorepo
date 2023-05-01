@@ -20,7 +20,7 @@ contract GetRange_Dynamic_Unit_Test is Dynamic_Unit_Test {
     function test_GetRange() external whenNotNull {
         uint256 streamId = createDefaultStream();
         LockupDynamic.Range memory actualRange = dynamic.getRange(streamId);
-        LockupDynamic.Range memory expectedRange = DEFAULT_DYNAMIC_RANGE;
+        LockupDynamic.Range memory expectedRange = defaults.dynamicRange();
         assertEq(actualRange, expectedRange);
     }
 }

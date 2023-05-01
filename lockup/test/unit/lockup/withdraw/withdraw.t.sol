@@ -19,8 +19,9 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
+        uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         bytes memory callData =
-            abi.encodeCall(ISablierV2Lockup.withdraw, (defaultStreamId, users.recipient, DEFAULT_WITHDRAW_AMOUNT));
+            abi.encodeCall(ISablierV2Lockup.withdraw, (defaultStreamId, users.recipient, withdrawAmount));
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -31,8 +32,9 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_RevertWhen_Null() external whenNoDelegateCall {
         uint256 nullStreamId = 1729;
+        uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
-        lockup.withdraw({ streamId: nullStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: nullStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
     modifier whenNotNull() {
@@ -40,10 +42,12 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenNotNull {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+
+        uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
     modifier whenStreamNeitherPendingNorDepleted() {
@@ -65,12 +69,13 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.sender });
 
         // Run the test.
+        uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2Lockup_InvalidSenderWithdrawal.selector, defaultStreamId, users.sender, users.sender
             )
         );
-        lockup.withdraw({ streamId: defaultStreamId, to: users.sender, amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.sender, amount: withdrawAmount });
     }
 
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
@@ -84,10 +89,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.eve });
 
         // Run the test.
+        uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.eve)
         );
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
     function test_RevertWhen_FormerRecipient()
@@ -100,10 +106,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.transferFrom(users.recipient, users.alice, defaultStreamId);
 
         // Run the test.
+        uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, defaultStreamId, users.recipient)
         );
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
     modifier whenCallerAuthorized() {
@@ -117,8 +124,9 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenStreamNeitherPendingNorDepleted
         whenCallerAuthorized
     {
+        uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(Errors.SablierV2Lockup_WithdrawToZeroAddress.selector);
-        lockup.withdraw({ streamId: defaultStreamId, to: address(0), amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: address(0), amount: withdrawAmount });
     }
 
     modifier whenToNonZeroAddress() {
@@ -153,10 +161,10 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 withdrawableAmount = 0;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2Lockup_Overdraw.selector, defaultStreamId, UINT128_MAX, withdrawableAmount
+                Errors.SablierV2Lockup_Overdraw.selector, defaultStreamId, MAX_UINT128, withdrawableAmount
             )
         );
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: UINT128_MAX });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: MAX_UINT128 });
     }
 
     modifier whenNoOverdraw() {
@@ -174,17 +182,17 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNoOverdraw
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 
         // Make Alice the `to` address in this test.
         address to = users.alice;
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: to, amount: defaults.WITHDRAW_AMOUNT() });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
-        uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
+        uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
@@ -205,14 +213,14 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.operator });
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
-        uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
+        uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
@@ -233,10 +241,10 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerSender
     {
         // Warp to the stream's end.
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.DEPOSIT_AMOUNT() });
 
         // Assert that the stream's status is "DEPLETED".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -255,7 +263,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     modifier whenEndTimeInTheFuture() {
         // Simulate the passage of time.
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         _;
     }
 
@@ -370,12 +378,12 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
             address(empty),
             abi.encodeCall(
                 ISablierV2LockupRecipient.onStreamWithdrawn,
-                (lockup, streamId, users.sender, address(empty), DEFAULT_WITHDRAW_AMOUNT)
+                (lockup, streamId, users.sender, address(empty), defaults.WITHDRAW_AMOUNT())
             )
         );
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: streamId, to: address(empty), amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: streamId, to: address(empty), amount: defaults.WITHDRAW_AMOUNT() });
 
         // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
@@ -384,7 +392,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
-        uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
+        uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
@@ -415,12 +423,12 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
             address(revertingRecipient),
             abi.encodeCall(
                 ISablierV2LockupRecipient.onStreamWithdrawn,
-                (lockup, streamId, users.sender, address(revertingRecipient), DEFAULT_WITHDRAW_AMOUNT)
+                (lockup, streamId, users.sender, address(revertingRecipient), defaults.WITHDRAW_AMOUNT())
             )
         );
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: streamId, to: address(revertingRecipient), amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: streamId, to: address(revertingRecipient), amount: defaults.WITHDRAW_AMOUNT() });
 
         // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);
@@ -429,7 +437,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
-        uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
+        uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
@@ -457,7 +465,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
 
         // Halve the withdraw amount so that the recipient can re-entry and make another withdrawal.
-        uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT / 2;
+        uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT() / 2;
 
         // Expect a call to the recipient hook.
         vm.expectCall(
@@ -478,7 +486,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(streamId);
-        uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
+        uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 

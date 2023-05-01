@@ -106,13 +106,13 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenRecipientDoesNotRevert
         whenNoRecipientReentrancy
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
 
         // Bound the withdraw amount.
         uint128 streamedAmount = lockup.streamedAmountOf(streamId);
@@ -191,13 +191,13 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenSenderDoesNotRevert
         whenNoSenderReentrancy
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
 
         // Bound the withdraw amount.
         uint128 streamedAmount = lockup.streamedAmountOf(streamId);

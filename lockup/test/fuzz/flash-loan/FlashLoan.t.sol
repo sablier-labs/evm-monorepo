@@ -26,9 +26,9 @@ abstract contract FlashLoan_Fuzz_Test is Fuzz_Test {
         flashLoan = new FlashLoanMock(users.admin, comptroller);
 
         // Set the default flash fee in the comptroller.
-        comptroller.setFlashFee({ newFlashFee: DEFAULT_FLASH_FEE });
+        comptroller.setFlashFee({ newFlashFee: defaults.FLASH_FEE() });
 
         // Make the default asset flash loanable.
-        comptroller.toggleFlashAsset({ asset: DEFAULT_ASSET });
+        comptroller.toggleFlashAsset({ asset: usdc });
     }
 }

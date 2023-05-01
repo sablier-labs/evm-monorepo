@@ -25,7 +25,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
 
         // Approve {SablierV2LockupDynamic} to transfer the holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
-        (bool success,) = address(asset).call(abi.encodeCall(IERC20.approve, (address(dynamic), UINT256_MAX)));
+        (bool success,) = address(asset).call(abi.encodeCall(IERC20.approve, (address(dynamic), MAX_UINT256)));
         success;
     }
 
@@ -115,7 +115,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         vm.assume(params.segments.length != 0);
         params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
         params.protocolFee = bound(params.protocolFee, 0, MAX_FEE);
-        params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
+        params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
 
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(params.segments, params.startTime);

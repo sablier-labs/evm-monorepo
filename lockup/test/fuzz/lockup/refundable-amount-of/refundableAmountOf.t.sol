@@ -16,17 +16,17 @@ abstract contract RefundableAmountOf_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
     /// - Status streaming
     /// - Status settled
     function testFuzz_RefundableAmountOf(uint256 timeWarp) external {
-        timeWarp = bound(timeWarp, 0, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = bound(timeWarp, 0, defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
 
         // Get the streamed amount.
         uint128 streamedAmount = lockup.streamedAmountOf(defaultStreamId);
 
         // Run the test.
         uint256 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
-        uint256 expectedRefundableAmount = DEFAULT_DEPOSIT_AMOUNT - streamedAmount;
+        uint256 expectedRefundableAmount = defaults.DEPOSIT_AMOUNT() - streamedAmount;
         assertEq(actualRefundableAmount, expectedRefundableAmount, "refundableAmount");
     }
 }

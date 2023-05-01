@@ -42,7 +42,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenDepositAmountNotZero
         whenSegmentCountNotZero
     {
-        segmentCount = bound(segmentCount, DEFAULT_MAX_SEGMENT_COUNT + 1, DEFAULT_MAX_SEGMENT_COUNT * 10);
+        segmentCount = bound(segmentCount, defaults.MAX_SEGMENT_COUNT() + 1, defaults.MAX_SEGMENT_COUNT() * 10);
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, segmentCount)
@@ -65,9 +65,9 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
     {
-        amount0 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
-        amount1 = boundUint128(amount0, UINT128_MAX / 2 + 1, UINT128_MAX);
-        LockupDynamic.Segment[] memory segments = DEFAULT_SEGMENTS;
+        amount0 = boundUint128(amount0, MAX_UINT128 / 2 + 1, MAX_UINT128);
+        amount1 = boundUint128(amount0, MAX_UINT128 / 2 + 1, MAX_UINT128);
+        LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].amount = amount0;
         segments[1].amount = amount1;
         vm.expectRevert(stdError.arithmeticError);
@@ -87,17 +87,17 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
     {
-        firstMilestone = boundUint40(firstMilestone, 0, DEFAULT_START_TIME);
+        firstMilestone = boundUint40(firstMilestone, 0, defaults.START_TIME());
 
         // Change the milestone of the first segment.
-        LockupDynamic.Segment[] memory segments = DEFAULT_SEGMENTS;
+        LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].milestone = firstMilestone;
 
         // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
-                DEFAULT_START_TIME,
+                defaults.START_TIME(),
                 segments[0].milestone
             )
         );
@@ -125,23 +125,23 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenSegmentMilestonesOrdered
         whenStartTimeLessThanFirstSegmentMilestone
     {
-        depositDiff = boundUint128(depositDiff, 100, DEFAULT_TOTAL_AMOUNT);
+        depositDiff = boundUint128(depositDiff, 100, defaults.TOTAL_AMOUNT());
 
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
         UD60x18 brokerFee = ZERO;
         changePrank(defaultParams.createWithMilestones.sender);
 
         // Adjust the default deposit amount.
-        uint128 depositAmount = DEFAULT_DEPOSIT_AMOUNT + depositDiff;
+        uint128 depositAmount = defaults.DEPOSIT_AMOUNT() + depositDiff;
 
         // Expect a {DepositAmountNotEqualToSegmentAmountsSum} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum.selector,
                 depositAmount,
-                DEFAULT_DEPOSIT_AMOUNT
+                defaults.DEPOSIT_AMOUNT()
             )
         );
 
@@ -263,7 +263,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         vm.assume(params.segments.length != 0);
         params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
         protocolFee = bound(protocolFee, 0, MAX_FEE);
-        params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
+        params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
 
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(params.segments, params.startTime);
@@ -271,7 +271,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         Vars memory vars;
         (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts({
-            upperBound: UINT128_MAX,
+            upperBound: MAX_UINT128,
             segments: params.segments,
             protocolFee: protocolFee,
             brokerFee: params.broker.fee
@@ -279,16 +279,16 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: protocolFee });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
 
         // Make the fuzzed funder the caller in the rest of this test.
         changePrank(funder);
 
         // Mint enough assets to the fuzzed funder.
-        deal({ token: address(DEFAULT_ASSET), to: funder, give: vars.totalAmount });
+        deal({ token: address(usdc), to: funder, give: vars.totalAmount });
 
         // Approve {SablierV2LockupDynamic} to transfer the assets from the fuzzed funder.
-        DEFAULT_ASSET.approve({ spender: address(dynamic), amount: UINT256_MAX });
+        usdc.approve({ spender: address(dynamic), amount: MAX_UINT256 });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
@@ -312,7 +312,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
             sender: params.sender,
             recipient: params.recipient,
             amounts: vars.createAmounts,
-            asset: DEFAULT_ASSET,
+            asset: usdc,
             cancelable: params.cancelable,
             segments: params.segments,
             range: range,
@@ -322,7 +322,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         // Create the stream.
         dynamic.createWithMilestones(
             LockupDynamic.CreateWithMilestones({
-                asset: DEFAULT_ASSET,
+                asset: usdc,
                 broker: params.broker,
                 cancelable: params.cancelable,
                 recipient: params.recipient,
@@ -361,7 +361,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = dynamic.protocolRevenues(DEFAULT_ASSET);
+        vars.actualProtocolRevenues = dynamic.protocolRevenues(usdc);
         vars.expectedProtocolRevenues = vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 

@@ -16,6 +16,8 @@ import { SablierV2NFTDescriptor } from "src/SablierV2NFTDescriptor.sol";
 
 import { Assertions } from "./utils/Assertions.sol";
 import { Calculations } from "./utils/Calculations.sol";
+import { Constants } from "./utils/Constants.sol";
+import { Defaults } from "./utils/Defaults.sol";
 import { Events } from "./utils/Events.sol";
 import { Fuzzers } from "./utils/Fuzzers.sol";
 import { GoodFlashLoanReceiver } from "./mocks/flash-loan/GoodFlashLoanReceiver.sol";
@@ -24,7 +26,7 @@ import { GoodSender } from "./mocks/hooks/GoodSender.sol";
 
 /// @title Base_Test
 /// @notice Base test contract with common logic needed by all test contracts.
-abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdCheats {
+abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzzers, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                        STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -47,12 +49,6 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    IERC20 internal immutable DEFAULT_ASSET;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -62,29 +58,28 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2LockupDynamic internal dynamic;
-    GoodFlashLoanReceiver internal goodFlashLoanReceiver = new GoodFlashLoanReceiver();
-    GoodRecipient internal goodRecipient = new GoodRecipient();
-    GoodSender internal goodSender = new GoodSender();
     ISablierV2Comptroller internal comptroller;
-    IERC20 internal dai = new ERC20("Dai Stablecoin", "DAI");
+    Defaults internal defaults;
+    ISablierV2LockupDynamic internal dynamic;
+    GoodFlashLoanReceiver internal goodFlashLoanReceiver;
+    GoodRecipient internal goodRecipient;
+    GoodSender internal goodSender;
     ISablierV2LockupLinear internal linear;
-    SablierV2NFTDescriptor internal nftDescriptor = new SablierV2NFTDescriptor();
-    NonCompliantERC20 internal nonCompliantAsset = new NonCompliantERC20("Non-Compliant ERC-20 Asset", "NCT", 18);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    constructor() {
-        DEFAULT_ASSET = dai;
-    }
+    SablierV2NFTDescriptor internal nftDescriptor;
+    NonCompliantERC20 internal nonCompliantAsset;
+    IERC20 internal usdc;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
+        // Deploy the base test contracts.
+        deployBaseTestContracts();
+
+        // Label the base test contracts.
+        labelBaseTestContracts();
+
         // Create users for testing.
         users = Users({
             admin: createUser("Admin"),
@@ -95,14 +90,6 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
             recipient: createUser("Recipient"),
             sender: createUser("Sender")
         });
-
-        // Label the base contracts.
-        vm.label({ account: address(DEFAULT_ASSET), newLabel: "Dai" });
-        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
-        vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
-        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
-        vm.label({ account: address(nftDescriptor), newLabel: "Sablier V2 NFT Descriptor" });
-        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
 
         // Warp to March 1, 2023 at 00:00 GMT to provide a more realistic testing environment.
         vm.warp({ timestamp: MARCH_1_2023 });
@@ -115,39 +102,60 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
     /// @dev Approves all V2 Core contracts to spend assets from the sender, recipient, Alice and Eve.
     function approveProtocol() internal {
         changePrank({ msgSender: users.sender });
-        dai.approve({ spender: address(linear), amount: UINT256_MAX });
-        dai.approve({ spender: address(dynamic), amount: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(dynamic), value: UINT256_MAX });
+        usdc.approve({ spender: address(linear), amount: MAX_UINT256 });
+        usdc.approve({ spender: address(dynamic), amount: MAX_UINT256 });
+        nonCompliantAsset.approve({ spender: address(linear), value: MAX_UINT256 });
+        nonCompliantAsset.approve({ spender: address(dynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.recipient });
-        dai.approve({ spender: address(linear), amount: UINT256_MAX });
-        dai.approve({ spender: address(dynamic), amount: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(dynamic), value: UINT256_MAX });
+        usdc.approve({ spender: address(linear), amount: MAX_UINT256 });
+        usdc.approve({ spender: address(dynamic), amount: MAX_UINT256 });
+        nonCompliantAsset.approve({ spender: address(linear), value: MAX_UINT256 });
+        nonCompliantAsset.approve({ spender: address(dynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.alice });
-        dai.approve({ spender: address(linear), amount: UINT256_MAX });
-        dai.approve({ spender: address(dynamic), amount: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(dynamic), value: UINT256_MAX });
+        usdc.approve({ spender: address(linear), amount: MAX_UINT256 });
+        usdc.approve({ spender: address(dynamic), amount: MAX_UINT256 });
+        nonCompliantAsset.approve({ spender: address(linear), value: MAX_UINT256 });
+        nonCompliantAsset.approve({ spender: address(dynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.eve });
-        dai.approve({ spender: address(linear), amount: UINT256_MAX });
-        dai.approve({ spender: address(dynamic), amount: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(linear), value: UINT256_MAX });
-        nonCompliantAsset.approve({ spender: address(dynamic), value: UINT256_MAX });
+        usdc.approve({ spender: address(linear), amount: MAX_UINT256 });
+        usdc.approve({ spender: address(dynamic), amount: MAX_UINT256 });
+        nonCompliantAsset.approve({ spender: address(linear), value: MAX_UINT256 });
+        nonCompliantAsset.approve({ spender: address(dynamic), value: MAX_UINT256 });
 
         // Finally, change the active prank back to the admin.
         changePrank({ msgSender: users.admin });
     }
 
-    /// @dev Generates an address by hashing the name, labels the address and funds it with test assets.
+    /// @dev Generates a user, labels its address, and funds it with test assets.
     function createUser(string memory name) internal returns (address payable addr) {
         addr = payable(makeAddr(name));
         vm.deal({ account: addr, newBalance: 100 ether });
-        deal({ token: address(dai), to: addr, give: 1_000_000e18 });
+        deal({ token: address(usdc), to: addr, give: 1_000_000e18 });
         deal({ token: address(nonCompliantAsset), to: addr, give: 1_000_000e18 });
+    }
+
+    /// @dev Deploys the base test contracts.
+    function deployBaseTestContracts() internal {
+        usdc = new ERC20("USD Coin", "USDC");
+        defaults = new Defaults();
+        goodFlashLoanReceiver = new GoodFlashLoanReceiver();
+        goodRecipient = new GoodRecipient();
+        goodSender = new GoodSender();
+        nftDescriptor = new SablierV2NFTDescriptor();
+        nonCompliantAsset = new NonCompliantERC20("Non-Compliant Asset", "NCA", 18);
+    }
+
+    /// @dev Labels the most relevant contracts.
+    function labelBaseTestContracts() internal {
+        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
+        vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
+        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
+        vm.label({ account: address(nftDescriptor), newLabel: "Sablier V2 NFT Descriptor" });
+        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant Asset" });
+        vm.label({ account: address(usdc), newLabel: "USDC" });
     }
 
     /// @dev Deploys {SablierV2Comptroller} from a source precompiled with via IR.
@@ -169,7 +177,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         dynamic_ = ISablierV2LockupDynamic(
             deployCode(
                 "optimized-out/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json",
-                abi.encode(initialAdmin, address(comptroller_), address(nftDescriptor_), DEFAULT_MAX_SEGMENT_COUNT)
+                abi.encode(initialAdmin, address(comptroller_), address(nftDescriptor_), defaults.MAX_SEGMENT_COUNT())
             )
         );
     }
@@ -204,7 +212,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
             (comptroller, dynamic, linear) = new DeployProtocol().run({
                 initialAdmin: users.admin,
                 initialNFTDescriptor: nftDescriptor,
-                maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
+                maxSegmentCount: defaults.MAX_SEGMENT_COUNT()
             });
         }
 
@@ -226,7 +234,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
 
     /// @dev Expects a call to {IERC20.transfer}.
     function expectCallToTransfer(address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(DEFAULT_ASSET), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
+        vm.expectCall({ callee: address(usdc), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
     }
 
     /// @dev Expects a call to {IERC20.transfer}.
@@ -236,7 +244,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
 
     /// @dev Expects a call to {IERC20.transferFrom}.
     function expectCallToTransferFrom(address from, address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(DEFAULT_ASSET), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
+        vm.expectCall({ callee: address(usdc), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
     }
 
     /// @dev Expects a call to {IERC20.transferFrom}.

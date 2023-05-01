@@ -57,8 +57,8 @@ abstract contract Dynamic_Unit_Test is Unit_Test, Dynamic_Shared_Test {
         lockup = ISablierV2Lockup(dynamic);
 
         // Set the default protocol fee.
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: DEFAULT_PROTOCOL_FEE });
-        comptroller.setProtocolFee({ asset: IERC20(address(nonCompliantAsset)), newProtocolFee: DEFAULT_PROTOCOL_FEE });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: defaults.PROTOCOL_FEE() });
+        comptroller.setProtocolFee({ asset: IERC20(address(nonCompliantAsset)), newProtocolFee: defaults.PROTOCOL_FEE() });
 
         // Make the sender the default caller in this test suite.
         changePrank({ msgSender: users.sender });

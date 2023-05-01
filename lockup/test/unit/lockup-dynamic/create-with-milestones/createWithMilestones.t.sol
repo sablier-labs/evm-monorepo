@@ -76,7 +76,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenDepositAmountNotZero
         whenSegmentCountNotZero
     {
-        uint256 segmentCount = DEFAULT_MAX_SEGMENT_COUNT + 1;
+        uint256 segmentCount = defaults.MAX_SEGMENT_COUNT() + 1;
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, segmentCount)
@@ -97,7 +97,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenSegmentCountNotTooHigh
     {
         LockupDynamic.Segment[] memory segments = defaultParams.createWithMilestones.segments;
-        segments[0].amount = UINT128_MAX;
+        segments[0].amount = MAX_UINT128;
         segments[1].amount = 1;
         vm.expectRevert(stdError.arithmeticError);
         createDefaultStreamWithSegments(segments);
@@ -118,13 +118,13 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
     {
         // Change the milestone of the first segment.
         LockupDynamic.Segment[] memory segments = defaultParams.createWithMilestones.segments;
-        segments[0].milestone = DEFAULT_START_TIME - 1 seconds;
+        segments[0].milestone = defaults.START_TIME() - 1 seconds;
 
         // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
-                DEFAULT_START_TIME,
+                defaults.START_TIME(),
                 segments[0].milestone
             )
         );
@@ -144,13 +144,13 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
     {
         // Change the milestone of the first segment.
         LockupDynamic.Segment[] memory segments = defaultParams.createWithMilestones.segments;
-        segments[0].milestone = DEFAULT_START_TIME;
+        segments[0].milestone = defaults.START_TIME();
 
         // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
-                DEFAULT_START_TIME,
+                defaults.START_TIME(),
                 segments[0].milestone
             )
         );
@@ -207,10 +207,12 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
     {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, DEFAULT_END_TIME, DEFAULT_END_TIME)
+            abi.encodeWithSelector(
+                Errors.SablierV2Lockup_EndTimeInThePast.selector, defaults.END_TIME(), defaults.END_TIME()
+            )
         );
         createDefaultStream();
     }
@@ -233,19 +235,19 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
     {
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
         UD60x18 brokerFee = ZERO;
         changePrank(defaultParams.createWithMilestones.sender);
 
         // Adjust the default deposit amount.
-        uint128 depositAmount = DEFAULT_DEPOSIT_AMOUNT + 100;
+        uint128 depositAmount = defaults.DEPOSIT_AMOUNT() + 100;
 
         // Expect a {DepositAmountNotEqualToSegmentAmountsSum} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum.selector,
                 depositAmount,
-                DEFAULT_DEPOSIT_AMOUNT
+                defaults.DEPOSIT_AMOUNT()
             )
         );
 
@@ -336,7 +338,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         // Set the default protocol fee so that the test does not revert due to the deposit amount not being
         // equal to the sum of the segment amounts.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee(IERC20(nonContract), DEFAULT_PROTOCOL_FEE);
+        comptroller.setProtocolFee(IERC20(nonContract), defaults.PROTOCOL_FEE());
         changePrank({ msgSender: users.sender });
 
         // Run the test.
@@ -390,11 +392,10 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenAssetContract
         whenAssetERC20Compliant
     {
-        testCreateWithMilestones(address(DEFAULT_ASSET));
+        testCreateWithMilestones(address(usdc));
     }
 
-    /// @dev Test logic shared between {test_CreateWithMilestones_AssetMissingReturnValue} and
-    /// {test_CreateWithMilestones}.
+    /// @dev Shared logic between {test_CreateWithMilestones_AssetMissingReturnValue} and {test_CreateWithMilestones}.
     function testCreateWithMilestones(address asset) internal {
         // Make the sender the stream's funder.
         address funder = users.sender;
@@ -404,7 +405,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
             asset: IERC20(asset),
             from: funder,
             to: address(dynamic),
-            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+            amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
         // Expect the broker fee to be paid to the broker.
@@ -412,7 +413,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
             asset: IERC20(asset),
             from: funder,
             to: users.broker,
-            amount: DEFAULT_BROKER_FEE_AMOUNT
+            amount: defaults.BROKER_FEE_AMOUNT()
         });
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
@@ -422,11 +423,11 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
             funder: funder,
             sender: users.sender,
             recipient: users.recipient,
-            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
-            segments: DEFAULT_SEGMENTS,
+            amounts: defaults.lockupCreateAmounts(),
+            segments: defaults.segments(),
             asset: IERC20(asset),
             cancelable: true,
-            range: DEFAULT_DYNAMIC_RANGE,
+            range: defaults.dynamicRange(),
             broker: users.broker
         });
 

@@ -35,10 +35,10 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
-        startTime = boundUint40(startTime, DEFAULT_CLIFF_TIME + 1 seconds, MAX_UNIX_TIMESTAMP);
+        startTime = boundUint40(startTime, defaults.CLIFF_TIME() + 1 seconds, MAX_UNIX_TIMESTAMP);
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, DEFAULT_CLIFF_TIME
+                Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, defaults.CLIFF_TIME()
             )
         );
         createDefaultStreamWithStartTime(startTime);
@@ -58,15 +58,18 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
     {
-        vm.assume(cliffTime >= endTime);
-        vm.assume(endTime > DEFAULT_START_TIME);
+        uint40 startTime = defaults.START_TIME();
+        endTime = boundUint40(endTime, startTime, startTime + 2 weeks);
+        cliffTime = boundUint40(cliffTime, endTime, MAX_UNIX_TIMESTAMP);
 
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
-        createDefaultStreamWithRange(LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: cliffTime, end: endTime }));
+        createDefaultStreamWithRange(
+            LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime })
+        );
     }
 
     modifier whenCliffTimeLessThanEndTime() {
@@ -85,7 +88,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: protocolFee });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
 
         // Run the test.
         vm.expectRevert(
@@ -165,7 +168,8 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
     {
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.totalAmount != 0);
-        params.range.start = boundUint40(params.range.start, DEFAULT_START_TIME, DEFAULT_START_TIME + 10_000 seconds);
+        params.range.start =
+            boundUint40(params.range.start, defaults.START_TIME(), defaults.START_TIME() + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
         params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
         params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
@@ -179,16 +183,16 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: protocolFee });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
 
         // Make the fuzzed funder the caller in this test.
         changePrank(funder);
 
         // Mint enough assets to the funder.
-        deal({ token: address(DEFAULT_ASSET), to: funder, give: params.totalAmount });
+        deal({ token: address(usdc), to: funder, give: params.totalAmount });
 
         // Approve {SablierV2LockupLinear} to transfer the assets from the fuzzed funder.
-        DEFAULT_ASSET.approve({ spender: address(linear), amount: UINT256_MAX });
+        usdc.approve({ spender: address(linear), amount: MAX_UINT256 });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectCallToTransferFrom({
@@ -210,7 +214,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             sender: params.sender,
             recipient: params.recipient,
             amounts: vars.createAmounts,
-            asset: DEFAULT_ASSET,
+            asset: usdc,
             cancelable: params.cancelable,
             range: params.range,
             broker: params.broker.account
@@ -219,7 +223,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         // Create the stream.
         linear.createWithRange(
             LockupLinear.CreateWithRange({
-                asset: DEFAULT_ASSET,
+                asset: usdc,
                 broker: params.broker,
                 cancelable: params.cancelable,
                 range: params.range,
@@ -253,7 +257,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
+        vars.actualProtocolRevenues = linear.protocolRevenues(usdc);
         vars.expectedProtocolRevenues = vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 

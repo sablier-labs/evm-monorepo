@@ -15,7 +15,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
         _;
     }
@@ -36,23 +36,23 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenStatusStreaming
         whenStartTimeInThePast
     {
-        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.totalAmount = DEFAULT_DEPOSIT_AMOUNT;
+        params.totalAmount = defaults.DEPOSIT_AMOUNT();
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeWarp;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
         uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount =
-            calculateStreamedAmountForMultipleSegments(currentTime, DEFAULT_SEGMENTS, DEFAULT_DEPOSIT_AMOUNT);
+            calculateStreamedAmountForMultipleSegments(currentTime, defaults.segments(), defaults.DEPOSIT_AMOUNT());
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -79,20 +79,20 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenStartTimeInThePast
         whenWithWithdrawals
     {
-        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Define the current time.
-        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeWarp;
 
         // Bound the withdraw amount.
         uint128 streamedAmount =
-            calculateStreamedAmountForMultipleSegments(currentTime, DEFAULT_SEGMENTS, DEFAULT_DEPOSIT_AMOUNT);
+            calculateStreamedAmountForMultipleSegments(currentTime, defaults.segments(), defaults.DEPOSIT_AMOUNT());
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.totalAmount = DEFAULT_DEPOSIT_AMOUNT;
+        params.totalAmount = defaults.DEPOSIT_AMOUNT();
         params.broker = Broker({ account: address(0), fee: ZERO });
         uint256 streamId = dynamic.createWithMilestones(params);
 

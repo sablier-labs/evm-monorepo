@@ -53,17 +53,17 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         vars.funder = users.sender;
 
         // Fuzz the segment milestones.
-        fuzzSegmentMilestones(params.segments, DEFAULT_START_TIME);
+        fuzzSegmentMilestones(params.segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
         (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(params.segments);
 
         // Bound the time warp.
-        vars.totalDuration = params.segments[params.segments.length - 1].milestone - DEFAULT_START_TIME;
+        vars.totalDuration = params.segments[params.segments.length - 1].milestone - defaults.START_TIME();
         params.timeWarp = bound(params.timeWarp, 1, vars.totalDuration + 100 seconds);
 
         // Mint enough assets to the funder.
-        deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
+        deal({ token: address(usdc), to: vars.funder, give: vars.totalAmount });
 
         // Make the sender the caller.
         changePrank({ msgSender: users.sender });
@@ -75,7 +75,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         vars.streamId = dynamic.createWithMilestones(createParams);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + params.timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + params.timeWarp });
 
         // Query the withdrawable amount.
         vars.withdrawableAmount = dynamic.withdrawableAmountOf(vars.streamId);

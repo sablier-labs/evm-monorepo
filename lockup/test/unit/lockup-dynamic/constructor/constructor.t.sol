@@ -18,7 +18,7 @@ contract Constructor_Dynamic_Unit_Test is Dynamic_Unit_Test {
             initialAdmin: users.admin,
             initialComptroller: comptroller,
             initialNFTDescriptor: nftDescriptor,
-            maxSegmentCount: DEFAULT_MAX_SEGMENT_COUNT
+            maxSegmentCount: defaults.MAX_SEGMENT_COUNT()
         });
 
         // {SablierV2Base.constructor}
@@ -37,7 +37,7 @@ contract Constructor_Dynamic_Unit_Test is Dynamic_Unit_Test {
 
         // {SablierV2LockupDynamic.constructor}
         uint256 actualMaxSegmentCount = constructedDynamic.MAX_SEGMENT_COUNT();
-        uint256 expectedMaxSegmentCount = DEFAULT_MAX_SEGMENT_COUNT;
+        uint256 expectedMaxSegmentCount = defaults.MAX_SEGMENT_COUNT();
         assertEq(actualMaxSegmentCount, expectedMaxSegmentCount, "MAX_SEGMENT_COUNT");
     }
 }

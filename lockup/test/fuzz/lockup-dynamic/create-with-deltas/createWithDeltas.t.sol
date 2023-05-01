@@ -70,10 +70,10 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         vars.funder = users.sender;
 
         // Load the initial protocol revenues.
-        vars.initialProtocolRevenues = dynamic.protocolRevenues(DEFAULT_ASSET);
+        vars.initialProtocolRevenues = dynamic.protocolRevenues(usdc);
 
         // Mint enough assets to the fuzzed funder.
-        deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
+        deal({ token: address(usdc), to: vars.funder, give: vars.totalAmount });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
@@ -102,7 +102,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
             sender: defaultParams.createWithDeltas.sender,
             recipient: defaultParams.createWithDeltas.recipient,
             amounts: vars.createAmounts,
-            asset: DEFAULT_ASSET,
+            asset: usdc,
             cancelable: defaultParams.createWithDeltas.cancelable,
             segments: vars.segmentsWithMilestones,
             range: range,
@@ -143,7 +143,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = dynamic.protocolRevenues(DEFAULT_ASSET);
+        vars.actualProtocolRevenues = dynamic.protocolRevenues(usdc);
         vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 

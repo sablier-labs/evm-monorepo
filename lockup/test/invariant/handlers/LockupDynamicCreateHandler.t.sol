@@ -113,7 +113,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         }
 
         params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
-        params.startTime = boundUint40(params.startTime, 0, DEFAULT_START_TIME);
+        params.startTime = boundUint40(params.startTime, 0, getBlockTimestamp());
 
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(params.segments, params.startTime);

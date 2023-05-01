@@ -15,24 +15,28 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     }
 
     function testFuzz_WithdrawMax_EndTimeInThePast(uint256 timeWarp) external {
-        timeWarp = bound(timeWarp, DEFAULT_TOTAL_DURATION + 1 seconds, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = bound(timeWarp, defaults.TOTAL_DURATION() + 1 seconds, defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
 
         // Expect the ERC-20 assets to be transferred to the recipient.
-        expectCallToTransfer({ to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
+        expectCallToTransfer({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT() });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
+        emit WithdrawFromLockupStream({
+            streamId: defaultStreamId,
+            to: users.recipient,
+            amount: defaults.DEPOSIT_AMOUNT()
+        });
 
         // Make the max withdrawal.
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
-        uint128 expectedWithdrawnAmount = DEFAULT_DEPOSIT_AMOUNT;
+        uint128 expectedWithdrawnAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the stream's status is "DEPLETED".
@@ -55,10 +59,10 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
     }
 
     function testFuzz_WithdrawMax(uint256 timeWarp) external whenEndTimeInTheFuture {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);

@@ -9,11 +9,13 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { LockupDynamic } from "../../src/types/DataTypes.sol";
 
-import { Constants } from "./Constants.sol";
+import { Defaults } from "./Defaults.sol";
 
-abstract contract Calculations is Constants {
+abstract contract Calculations {
     using CastingUint128 for uint128;
     using CastingUint40 for uint40;
+
+    Defaults private defaults = new Defaults();
 
     /// @dev Calculates the deposit amount by calculating and subtracting the protocol fee amount and the
     /// broker fee amount from the total amount.
@@ -40,19 +42,18 @@ abstract contract Calculations is Constants {
         view
         returns (uint128 streamedAmount)
     {
-        if (currentTime > DEFAULT_END_TIME) {
+        if (currentTime > defaults.END_TIME()) {
             return depositAmount;
         }
         unchecked {
-            UD60x18 elapsedTime = ud(currentTime - DEFAULT_START_TIME);
-            UD60x18 totalTime = ud(DEFAULT_TOTAL_DURATION);
+            UD60x18 elapsedTime = ud(currentTime - defaults.START_TIME());
+            UD60x18 totalTime = ud(defaults.TOTAL_DURATION());
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             streamedAmount = elapsedTimePercentage.mul(ud(depositAmount)).intoUint128();
         }
     }
 
-    /// @dev Helper function that replicates the logic of
-    /// {SablierV2LockupDynamic-_calculateStreamedAmountForMultipleSegments}.
+    /// @dev Replicates the logic of {SablierV2LockupDynamic._calculateStreamedAmountForMultipleSegments}.
     function calculateStreamedAmountForMultipleSegments(
         uint40 currentTime,
         LockupDynamic.Segment[] memory segments,
@@ -84,7 +85,7 @@ abstract contract Calculations is Constants {
             if (index > 0) {
                 previousMilestone = segments[index - 1].milestone;
             } else {
-                previousMilestone = DEFAULT_START_TIME;
+                previousMilestone = defaults.START_TIME();
             }
 
             SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
@@ -97,8 +98,7 @@ abstract contract Calculations is Constants {
         }
     }
 
-    /// @dev Helper function that replicates the logic of
-    /// {SablierV2LockupDynamic-_calculateStreamedAmountForOneSegment}.
+    /// @dev Replicates the logic of {SablierV2LockupDynamic._calculateStreamedAmountForOneSegment}.
     function calculateStreamedAmountForOneSegment(
         uint40 currentTime,
         LockupDynamic.Segment memory segment
@@ -111,8 +111,8 @@ abstract contract Calculations is Constants {
             return segment.amount;
         }
         unchecked {
-            SD59x18 elapsedTime = (currentTime - DEFAULT_START_TIME).intoSD59x18();
-            SD59x18 totalTime = (segment.milestone - DEFAULT_START_TIME).intoSD59x18();
+            SD59x18 elapsedTime = (currentTime - defaults.START_TIME()).intoSD59x18();
+            SD59x18 totalTime = (segment.milestone - defaults.START_TIME()).intoSD59x18();
 
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             SD59x18 multiplier = elapsedTimePercentage.pow(segment.exponent.intoSD59x18());

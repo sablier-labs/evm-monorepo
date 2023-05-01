@@ -55,8 +55,9 @@ contract LockupLinearCreateHandler is BaseHandler {
 
         // Bound the stream parameters.
         params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
-        params.durations.cliff = boundUint40(params.durations.cliff, 1, DEFAULT_CLIFF_DURATION);
-        params.durations.total = boundUint40(params.durations.total, params.durations.cliff + 1, MAX_UNIX_TIMESTAMP);
+        params.durations.cliff = boundUint40(params.durations.cliff, 1 seconds, 2500 seconds);
+        params.durations.total =
+            boundUint40(params.durations.total, params.durations.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // Mint enough assets to the sender.
@@ -94,7 +95,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         // a requirement of the protocol).
         params.range.end = boundUint40(
             params.range.end,
-            (params.range.cliff <= currentTime ? currentTime : params.range.cliff) + 1,
+            (params.range.cliff <= currentTime ? currentTime : params.range.cliff) + 1 seconds,
             MAX_UNIX_TIMESTAMP
         );
 

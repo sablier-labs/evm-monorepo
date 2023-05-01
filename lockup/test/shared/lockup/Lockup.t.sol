@@ -10,20 +10,19 @@ import { Broker } from "../../../src/types/DataTypes.sol";
 import { Base_Test } from "test/Base.t.sol";
 
 /// @title Lockup_Shared_Test
-/// @dev There is a lot of common logic between {SablierV2LockupLinear} and {SablierV2LockupDynamic}, specifically
-/// that they both inherit from the {SablierV2Base} and the {SablierV2Lockup} abstract contracts. We wrote this
-/// contract to avoid duplicating tests.
+/// @dev This contracts avoids duplicating test logic for {SablierV2LockupLinear} and {SablierV2LockupDynamic};
+/// both of these contracts inherit from {SablierV2Base} and {SablierV2Lockup}.
 abstract contract Lockup_Shared_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev A test contract that is meant to be overridden by the child contract.
-    /// This will be either the {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
+    /// @dev A test contract that is meant to be overridden by the implementing contract.
+    /// This will be either {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
     ISablierV2Base internal base;
 
-    /// @dev A test contract that is meant to be overridden by the child contract.
-    /// This will be either the {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
+    /// @dev A test contract that is meant to be overridden by the implementing contract.
+    /// This will be either {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
     ISablierV2Lockup internal lockup;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -33,7 +32,7 @@ abstract contract Lockup_Shared_Test is Base_Test {
     function setUp() public virtual override { }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Creates the default stream.

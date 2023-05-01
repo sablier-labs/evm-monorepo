@@ -8,10 +8,13 @@ import { arange } from "solidity-generators/Generators.sol";
 import { Lockup, LockupDynamic } from "../../src/types/DataTypes.sol";
 
 import { Constants } from "./Constants.sol";
+import { Defaults } from "./Defaults.sol";
 import { Utils } from "./Utils.sol";
 
 abstract contract Fuzzers is Constants, Utils {
     using CastingUint128 for uint128;
+
+    Defaults private defaults = new Defaults();
 
     /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
     function fuzzDynamicStreamAmounts(LockupDynamic.Segment[] memory segments)
@@ -20,10 +23,10 @@ abstract contract Fuzzers is Constants, Utils {
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
         (totalAmount, createAmounts) = fuzzDynamicStreamAmounts({
-            upperBound: UINT128_MAX,
+            upperBound: MAX_UINT128,
             segments: segments,
-            protocolFee: DEFAULT_PROTOCOL_FEE,
-            brokerFee: DEFAULT_BROKER_FEE
+            protocolFee: defaults.PROTOCOL_FEE(),
+            brokerFee: defaults.BROKER_FEE()
         });
     }
 
@@ -35,10 +38,10 @@ abstract contract Fuzzers is Constants, Utils {
     {
         LockupDynamic.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
         (totalAmount, createAmounts) = fuzzDynamicStreamAmounts({
-            upperBound: UINT128_MAX,
+            upperBound: MAX_UINT128,
             segments: segmentsWithMilestones,
-            protocolFee: DEFAULT_PROTOCOL_FEE,
-            brokerFee: DEFAULT_BROKER_FEE
+            protocolFee: defaults.PROTOCOL_FEE(),
+            brokerFee: defaults.BROKER_FEE()
         });
         for (uint256 i = 0; i < segmentsWithMilestones.length; ++i) {
             segments[i].amount = segmentsWithMilestones[i].amount;

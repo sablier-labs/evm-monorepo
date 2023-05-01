@@ -14,19 +14,19 @@ contract ProtocolFees_Unit_Test is Comptroller_Unit_Test {
     }
 
     function test_ProtocolFees_ProtocolFeeNotSet() external {
-        UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
+        UD60x18 actualProtocolFee = comptroller.protocolFees(usdc);
         UD60x18 expectedProtocolFee = ZERO;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFees");
     }
 
     modifier whenProtocolFeeSet() {
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: DEFAULT_PROTOCOL_FEE });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: defaults.PROTOCOL_FEE() });
         _;
     }
 
     function test_ProtocolFees() external whenProtocolFeeSet {
-        UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
-        UD60x18 expectedProtocolFee = DEFAULT_PROTOCOL_FEE;
+        UD60x18 actualProtocolFee = comptroller.protocolFees(usdc);
+        UD60x18 expectedProtocolFee = defaults.PROTOCOL_FEE();
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFees");
     }
 }

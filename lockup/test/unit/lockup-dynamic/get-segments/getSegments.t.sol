@@ -20,7 +20,7 @@ contract GetSegments_Dynamic_Unit_Test is Dynamic_Unit_Test {
     function test_GetSegments() external whenNotNull {
         uint256 streamId = createDefaultStream();
         LockupDynamic.Segment[] memory actualSegments = dynamic.getSegments(streamId);
-        LockupDynamic.Segment[] memory expectedSegments = DEFAULT_SEGMENTS;
+        LockupDynamic.Segment[] memory expectedSegments = defaults.segments();
         assertEq(actualSegments, expectedSegments, "segments");
     }
 }

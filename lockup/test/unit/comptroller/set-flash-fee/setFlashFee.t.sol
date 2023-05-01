@@ -42,7 +42,7 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     function test_SetFlashFee() external {
-        UD60x18 newFlashFee = DEFAULT_FLASH_FEE;
+        UD60x18 newFlashFee = defaults.FLASH_FEE();
 
         // Expect a {SetFlashFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });

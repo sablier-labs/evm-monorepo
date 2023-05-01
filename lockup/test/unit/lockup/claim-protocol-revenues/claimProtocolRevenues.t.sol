@@ -15,7 +15,7 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
-        base.claimProtocolRevenues(DEFAULT_ASSET);
+        base.claimProtocolRevenues(usdc);
     }
 
     modifier whenCallerAdmin() {
@@ -25,8 +25,8 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
     }
 
     function test_RevertWhen_ProtocolRevenuesZero() external whenCallerAdmin {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Base_NoProtocolRevenues.selector, DEFAULT_ASSET));
-        base.claimProtocolRevenues(DEFAULT_ASSET);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Base_NoProtocolRevenues.selector, usdc));
+        base.claimProtocolRevenues(usdc);
     }
 
     modifier whenProtocolRevenuesNotZero() {
@@ -39,18 +39,18 @@ abstract contract ClaimProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Te
 
     function test_ClaimProtocolRevenues() external whenCallerAdmin whenProtocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
-        uint128 protocolRevenues = DEFAULT_PROTOCOL_FEE_AMOUNT;
+        uint128 protocolRevenues = defaults.PROTOCOL_FEE_AMOUNT();
         expectCallToTransfer({ to: users.admin, amount: protocolRevenues });
 
         // Expect a {ClaimProtocolRevenues} event to be emitted.
         vm.expectEmit({ emitter: address(base) });
-        emit ClaimProtocolRevenues(users.admin, DEFAULT_ASSET, protocolRevenues);
+        emit ClaimProtocolRevenues(users.admin, usdc, protocolRevenues);
 
         // Claim the protocol revenues.
-        base.claimProtocolRevenues(DEFAULT_ASSET);
+        base.claimProtocolRevenues(usdc);
 
         // Assert that the protocol revenues have been set to zero.
-        uint128 actualProtocolRevenues = base.protocolRevenues(DEFAULT_ASSET);
+        uint128 actualProtocolRevenues = base.protocolRevenues(usdc);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }

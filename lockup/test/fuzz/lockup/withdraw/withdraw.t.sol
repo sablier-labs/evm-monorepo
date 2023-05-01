@@ -65,10 +65,10 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.operator });
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: defaultStreamId, to: to, amount: DEFAULT_WITHDRAW_AMOUNT });
+        lockup.withdraw({ streamId: defaultStreamId, to: to, amount: defaults.WITHDRAW_AMOUNT() });
 
         // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -77,7 +77,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
-        uint128 expectedWithdrawnAmount = DEFAULT_WITHDRAW_AMOUNT;
+        uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
@@ -104,11 +104,11 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
         whenCallerRecipient
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
+        timeWarp = bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
         vm.assume(to != address(0));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
 
         // Cancel the stream.
         lockup.cancel({ streamId: defaultStreamId });
@@ -129,7 +129,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Check if the stream has been depleted.
         uint128 refundedAmount = lockup.getRefundedAmount(defaultStreamId);
-        bool isDepleted = withdrawAmount == DEFAULT_DEPOSIT_AMOUNT - refundedAmount;
+        bool isDepleted = withdrawAmount == defaults.DEPOSIT_AMOUNT() - refundedAmount;
 
         // Assert that the stream's status is correct.
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -173,11 +173,11 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         whenCallerRecipient
         whenStreamHasNotBeenCanceled
     {
-        timeWarp = bound(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
         vm.assume(to != address(0));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
@@ -195,7 +195,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Check if the stream is depleted or settled. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
-        bool isDepleted = withdrawAmount == DEFAULT_DEPOSIT_AMOUNT;
+        bool isDepleted = withdrawAmount == defaults.DEPOSIT_AMOUNT();
         bool isSettled = lockup.refundableAmountOf(defaultStreamId) == 0;
 
         // Assert that the stream's status is correct.

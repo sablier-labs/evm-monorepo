@@ -29,7 +29,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
 
     function test_RevertWhen_CliffDurationCalculationOverflows() external whenNoDelegateCall {
         uint40 startTime = getBlockTimestamp();
-        uint40 cliffDuration = UINT40_MAX - startTime + 1;
+        uint40 cliffDuration = MAX_UINT40 - startTime + 1;
 
         // Calculate the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -62,7 +62,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
     {
         uint40 startTime = getBlockTimestamp();
         LockupLinear.Durations memory durations =
-            LockupLinear.Durations({ cliff: 0, total: UINT40_MAX - startTime + 1 });
+            LockupLinear.Durations({ cliff: 0, total: MAX_UINT40 - startTime + 1 });
 
         // Calculate the cliff time and the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -97,17 +97,17 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         address funder = users.sender;
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
+        uint128 initialProtocolRevenues = linear.protocolRevenues(usdc);
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectCallToTransferFrom({
             from: funder,
             to: address(linear),
-            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+            amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
         // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
+        expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
         vm.expectEmit({ emitter: address(linear) });
@@ -116,10 +116,10 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
             funder: funder,
             sender: users.sender,
             recipient: users.recipient,
-            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
-            asset: DEFAULT_ASSET,
+            amounts: defaults.lockupCreateAmounts(),
+            asset: usdc,
             cancelable: true,
-            range: DEFAULT_LINEAR_RANGE,
+            range: defaults.linearRange(),
             broker: users.broker
         });
 
@@ -141,8 +141,8 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
-        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
+        uint128 actualProtocolRevenues = linear.protocolRevenues(usdc);
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + defaults.PROTOCOL_FEE_AMOUNT();
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.

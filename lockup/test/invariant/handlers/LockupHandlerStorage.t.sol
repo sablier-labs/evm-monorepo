@@ -14,7 +14,7 @@ contract LockupHandlerStorage {
     uint256[] public streamIds;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
     function pushStreamId(uint256 streamId, address sender, address recipient) external {

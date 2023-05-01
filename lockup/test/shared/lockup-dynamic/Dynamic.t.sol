@@ -36,38 +36,40 @@ abstract contract Dynamic_Shared_Test is Lockup_Shared_Test {
         // Initialize the default params to be used for the create functions.
         defaultParams.createWithDeltas.sender = users.sender;
         defaultParams.createWithDeltas.recipient = users.recipient;
-        defaultParams.createWithDeltas.totalAmount = DEFAULT_TOTAL_AMOUNT;
-        defaultParams.createWithDeltas.asset = DEFAULT_ASSET;
+        defaultParams.createWithDeltas.totalAmount = defaults.TOTAL_AMOUNT();
+        defaultParams.createWithDeltas.asset = usdc;
         defaultParams.createWithDeltas.cancelable = true;
-        defaultParams.createWithDeltas.broker = Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE });
+        defaultParams.createWithDeltas.broker = Broker({ account: users.broker, fee: defaults.BROKER_FEE() });
 
         defaultParams.createWithMilestones.sender = users.sender;
         defaultParams.createWithMilestones.recipient = users.recipient;
-        defaultParams.createWithMilestones.totalAmount = DEFAULT_TOTAL_AMOUNT;
-        defaultParams.createWithMilestones.asset = DEFAULT_ASSET;
+        defaultParams.createWithMilestones.totalAmount = defaults.TOTAL_AMOUNT();
+        defaultParams.createWithMilestones.asset = usdc;
         defaultParams.createWithMilestones.cancelable = true;
-        defaultParams.createWithMilestones.startTime = DEFAULT_START_TIME;
-        defaultParams.createWithMilestones.broker = Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE });
+        defaultParams.createWithMilestones.startTime = defaults.START_TIME();
+        defaultParams.createWithMilestones.broker = Broker({ account: users.broker, fee: defaults.BROKER_FEE() });
 
         // See https://github.com/ethereum/solidity/issues/12783
-        for (uint256 i = 0; i < DEFAULT_SEGMENTS.length; ++i) {
-            defaultParams.createWithDeltas.segments.push(DEFAULT_SEGMENTS_WITH_DELTAS[i]);
-            defaultParams.createWithMilestones.segments.push(DEFAULT_SEGMENTS[i]);
+        LockupDynamic.SegmentWithDelta[] memory segmentsWithDeltas = defaults.segmentsWithDeltas();
+        LockupDynamic.Segment[] memory segments = defaults.segments();
+        for (uint256 i = 0; i < defaults.SEGMENT_COUNT(); ++i) {
+            defaultParams.createWithDeltas.segments.push(segmentsWithDeltas[i]);
+            defaultParams.createWithMilestones.segments.push(segments[i]);
         }
 
         // Create the default stream to be used across all tests.
-        defaultStream.amounts = DEFAULT_LOCKUP_AMOUNTS;
-        defaultStream.endTime = DEFAULT_END_TIME;
+        defaultStream.amounts = defaults.lockupAmounts();
+        defaultStream.endTime = defaults.END_TIME();
         defaultStream.isCancelable = defaultParams.createWithMilestones.cancelable;
         defaultStream.isStream = true;
         defaultStream.segments = defaultParams.createWithMilestones.segments;
         defaultStream.sender = defaultParams.createWithMilestones.sender;
-        defaultStream.startTime = DEFAULT_START_TIME;
+        defaultStream.startTime = defaults.START_TIME();
         defaultStream.asset = defaultParams.createWithMilestones.asset;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Creates the default stream.

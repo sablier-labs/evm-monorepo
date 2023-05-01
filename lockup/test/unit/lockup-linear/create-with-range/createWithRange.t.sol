@@ -56,14 +56,17 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
-        uint40 startTime = DEFAULT_CLIFF_TIME;
-        uint40 cliffTime = DEFAULT_START_TIME;
+        uint40 startTime = defaults.CLIFF_TIME();
+        uint40 cliffTime = defaults.START_TIME();
+        uint40 endTime = defaults.END_TIME();
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime
             )
         );
-        createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: DEFAULT_END_TIME }));
+        createDefaultStreamWithRange(
+            LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime })
+        );
     }
 
     modifier whenStartTimeNotGreaterThanCliffTime() {
@@ -77,14 +80,17 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
     {
-        uint40 cliffTime = DEFAULT_END_TIME;
-        uint40 endTime = DEFAULT_CLIFF_TIME;
+        uint40 startTime = defaults.START_TIME();
+        uint40 cliffTime = defaults.END_TIME();
+        uint40 endTime = defaults.CLIFF_TIME();
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
-        createDefaultStreamWithRange(LockupLinear.Range({ start: DEFAULT_START_TIME, cliff: cliffTime, end: endTime }));
+        createDefaultStreamWithRange(
+            LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime })
+        );
     }
 
     modifier whenCliffTimeLessThanEndTime() {
@@ -100,10 +106,12 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
     {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, DEFAULT_END_TIME, DEFAULT_END_TIME)
+            abi.encodeWithSelector(
+                Errors.SablierV2Lockup_EndTimeInThePast.selector, defaults.END_TIME(), defaults.END_TIME()
+            )
         );
         createDefaultStream();
     }
@@ -125,7 +133,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: protocolFee });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
 
         // Run the test.
         vm.expectRevert(
@@ -208,10 +216,10 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenAssetContract
         whenAssetERC20Compliant
     {
-        testCreateWithRange(address(DEFAULT_ASSET));
+        testCreateWithRange(address(usdc));
     }
 
-    /// @dev Test logic shared between {test_CreateWithRange_AssetMissingReturnValue} and {test_CreateWithRange}.
+    /// @dev Shared logic between {test_CreateWithRange_AssetMissingReturnValue} and {test_CreateWithRange}.
     function testCreateWithRange(address asset) internal {
         // Make the sender the stream's funder.
         address funder = users.sender;
@@ -221,7 +229,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             asset: IERC20(asset),
             from: funder,
             to: address(linear),
-            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+            amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
         // Expect the broker fee to be paid to the broker.
@@ -229,7 +237,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             asset: IERC20(asset),
             from: funder,
             to: users.broker,
-            amount: DEFAULT_BROKER_FEE_AMOUNT
+            amount: defaults.BROKER_FEE_AMOUNT()
         });
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
@@ -239,10 +247,10 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
             funder: funder,
             sender: users.sender,
             recipient: users.recipient,
-            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
+            amounts: defaults.lockupCreateAmounts(),
             asset: IERC20(asset),
             cancelable: true,
-            range: DEFAULT_LINEAR_RANGE,
+            range: defaults.linearRange(),
             broker: users.broker
         });
 

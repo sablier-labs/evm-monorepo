@@ -17,7 +17,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
     }
 
@@ -26,8 +26,8 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
     }
 
     function testFuzz_StreamedAmountOf_CliffTimeInTheFuture(uint40 timeWarp) external {
-        timeWarp = boundUint40(timeWarp, 0, DEFAULT_CLIFF_DURATION - 1);
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp });
+        timeWarp = boundUint40(timeWarp, 0, defaults.CLIFF_DURATION() - 1);
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -53,10 +53,10 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         whenCliffTimeInThePast
     {
         vm.assume(depositAmount != 0);
-        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
+        timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Mint enough assets to the sender.
-        deal({ token: address(DEFAULT_ASSET), to: users.sender, give: depositAmount });
+        deal({ token: address(usdc), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
         LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
@@ -65,7 +65,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint256 streamId = linear.createWithRange(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeWarp;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
@@ -84,11 +84,11 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         whenCliffTimeInThePast
     {
         vm.assume(depositAmount != 0);
-        timeWarp0 = boundUint40(timeWarp0, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION - 1);
-        timeWarp1 = boundUint40(timeWarp1, timeWarp0, DEFAULT_TOTAL_DURATION);
+        timeWarp0 = boundUint40(timeWarp0, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
+        timeWarp1 = boundUint40(timeWarp1, timeWarp0, defaults.TOTAL_DURATION());
 
         // Mint enough assets to the sender.
-        deal({ token: address(DEFAULT_ASSET), to: users.sender, give: depositAmount });
+        deal({ token: address(usdc), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
         LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
@@ -96,13 +96,13 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint256 streamId = linear.createWithRange(params);
 
         // Warp to the future for the first time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp0 });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp0 });
 
         // Calculate the streamed amount at this midpoint in time.
         uint128 streamedAmount0 = linear.streamedAmountOf(streamId);
 
         // Warp to the future for the second time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp1 });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp1 });
 
         // Assert that this streamed amount is greater than or equal to the previous streamed amount.
         uint128 streamedAmount1 = linear.streamedAmountOf(streamId);

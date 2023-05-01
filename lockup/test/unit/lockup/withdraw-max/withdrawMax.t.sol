@@ -16,21 +16,25 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_WithdrawMax_EndTimeInThePast() external {
         // Warp to the stream's end.
-        vm.warp({ timestamp: DEFAULT_END_TIME + 1 seconds });
+        vm.warp({ timestamp: defaults.END_TIME() + 1 seconds });
 
         // Expect the ERC-20 assets to be transferred to the recipient.
-        expectCallToTransfer({ to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
+        expectCallToTransfer({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT() });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
+        emit WithdrawFromLockupStream({
+            streamId: defaultStreamId,
+            to: users.recipient,
+            amount: defaults.DEPOSIT_AMOUNT()
+        });
 
         // Make the max withdrawal.
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
-        uint128 expectedWithdrawnAmount = DEFAULT_DEPOSIT_AMOUNT;
+        uint128 expectedWithdrawnAmount = defaults.DEPOSIT_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
 
         // Assert that the stream's status is "DEPLETED".
@@ -54,7 +58,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_WithdrawMax() external whenEndTimeInTheFuture {
         // Simulate the passage of time.
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);

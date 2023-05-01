@@ -27,16 +27,20 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
 
         // Deploy the dynamic contract handlers.
         dynamicHandler = new LockupDynamicHandler({
-            asset_: DEFAULT_ASSET,
+            asset_: usdc,
             dynamic_: dynamic,
             store_: lockupHandlerStorage
         });
         dynamicCreateHandler = new LockupDynamicCreateHandler({
-            asset_: DEFAULT_ASSET,
+            asset_: usdc,
             comptroller_: comptroller,
             dynamic_: dynamic,
             store_: lockupHandlerStorage
         });
+
+        // Label the contracts.
+        vm.label({ account: address(dynamicHandler), newLabel: "LockupDynamicHandler" });
+        vm.label({ account: address(dynamicCreateHandler), newLabel: "LockupDynamicCreateHandler" });
 
         // Cast the dynamic contract as {ISablierV2Lockup} and the dynamic handler as {LockupHandler}.
         lockup = dynamic;
@@ -49,10 +53,6 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         // Exclude the dynamic handlers from being `msg.sender`.
         excludeSender(address(dynamicHandler));
         excludeSender(address(dynamicCreateHandler));
-
-        // Label the handler contracts.
-        vm.label({ account: address(dynamicHandler), newLabel: "LockupDynamicHandler" });
-        vm.label({ account: address(dynamicCreateHandler), newLabel: "LockupDynamicCreateHandler" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

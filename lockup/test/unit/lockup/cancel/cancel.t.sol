@@ -43,20 +43,20 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_RevertWhen_StreamCold_StatusSettled() external whenNoDelegateCall whenNotNull whenStreamCold {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
 
     function test_RevertWhen_StreamCold_StatusCanceled() external whenNoDelegateCall whenNotNull whenStreamCold {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
 
     function test_RevertWhen_StreamCold_StatusDepleted() external whenNoDelegateCall whenNotNull whenStreamCold {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
@@ -167,7 +167,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
     /// the streaming starts after the start time.
     modifier whenStatusStreaming() {
         // Warp to the future, after the stream's start time but before the stream's end time.
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         _;
     }
 
@@ -361,9 +361,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertFalse(isCancelable, "isCancelable");
 
         // Assert that the refunded amount has been updated.
-        uint128 actualReturnedAmount = lockup.getRefundedAmount(streamId);
-        uint128 expectedReturnedAmount = senderAmount;
-        assertEq(actualReturnedAmount, expectedReturnedAmount, "refundedAmount");
+        uint128 actualRefundedAmount = lockup.getRefundedAmount(streamId);
+        uint128 expectedRefundedAmount = senderAmount;
+        assertEq(actualRefundedAmount, expectedRefundedAmount, "refundedAmount");
 
         // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
@@ -561,9 +561,9 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertFalse(isCancelable, "isCancelable");
 
         // Assert that the refunded amount has been updated.
-        uint128 actualReturnedAmount = lockup.getRefundedAmount(streamId);
-        uint128 expectedReturnedAmount = senderAmount;
-        assertEq(actualReturnedAmount, expectedReturnedAmount, "refundedAmount");
+        uint128 actualRefundedAmount = lockup.getRefundedAmount(streamId);
+        uint128 expectedRefundedAmount = senderAmount;
+        assertEq(actualRefundedAmount, expectedRefundedAmount, "refundedAmount");
 
         // Assert that the NFT has not been burned.
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });

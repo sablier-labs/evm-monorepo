@@ -40,20 +40,20 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_RevertWhen_StreamCold_StatusCanceled() external whenNoDelegateCall whenStreamCold {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, defaultStreamId));
         lockup.renounce(defaultStreamId);
     }
 
     function test_RevertWhen_StreamCold_StatusSettled() external whenNoDelegateCall whenStreamCold {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, defaultStreamId));
         lockup.renounce(defaultStreamId);
     }
 
     function test_RevertWhen_StreamCold_StatusDepleted() external whenNoDelegateCall whenStreamCold {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, defaultStreamId));
         lockup.renounce(defaultStreamId);
@@ -63,7 +63,7 @@ abstract contract Renounce_Unit_Test is Unit_Test, Lockup_Shared_Test {
     modifier whenStreamWarm() {
         vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
         _;
-        vm.warp({ timestamp: DEFAULT_START_TIME });
+        vm.warp({ timestamp: defaults.START_TIME() });
         defaultStreamId = createDefaultStream();
         _;
     }

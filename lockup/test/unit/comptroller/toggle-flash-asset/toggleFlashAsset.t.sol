@@ -14,7 +14,7 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
-        comptroller.toggleFlashAsset(DEFAULT_ASSET);
+        comptroller.toggleFlashAsset(usdc);
     }
 
     /// @dev The admin is the default caller in the comptroller tests.
@@ -25,31 +25,31 @@ contract ToggleFlashAsset_Unit_Test is Comptroller_Unit_Test {
     function test_ToggleFlashAsset_FlagNotEnabled() external whenCallerAdmin {
         // Expect a {ToggleFlashAsset} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: true });
+        emit ToggleFlashAsset({ admin: users.admin, asset: usdc, newFlag: true });
 
         // Toggle the flash asset.
-        comptroller.toggleFlashAsset(DEFAULT_ASSET);
+        comptroller.toggleFlashAsset(usdc);
 
         // Assert that the flash asset has been toggled.
-        bool isFlashAsset = comptroller.isFlashAsset(DEFAULT_ASSET);
+        bool isFlashAsset = comptroller.isFlashAsset(usdc);
         assertTrue(isFlashAsset, "isFlashAsset");
     }
 
     modifier whenFlagEnabled() {
-        comptroller.toggleFlashAsset(DEFAULT_ASSET);
+        comptroller.toggleFlashAsset(usdc);
         _;
     }
 
     function test_ToggleFlashAsset() external whenCallerAdmin whenFlagEnabled {
         // Expect a {ToggleFlashAsset} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit ToggleFlashAsset({ admin: users.admin, asset: DEFAULT_ASSET, newFlag: false });
+        emit ToggleFlashAsset({ admin: users.admin, asset: usdc, newFlag: false });
 
         // Toggle the flash asset.
-        comptroller.toggleFlashAsset(DEFAULT_ASSET);
+        comptroller.toggleFlashAsset(usdc);
 
         // Assert that the flash asset has been toggled.
-        bool isFlashAsset = comptroller.isFlashAsset(DEFAULT_ASSET);
+        bool isFlashAsset = comptroller.isFlashAsset(usdc);
         assertFalse(isFlashAsset, "isFlashAsset");
     }
 }

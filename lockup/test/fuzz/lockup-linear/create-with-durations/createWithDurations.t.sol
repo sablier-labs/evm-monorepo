@@ -21,7 +21,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
     function testFuzz_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration) external whenNoDelegateCall {
         uint40 startTime = getBlockTimestamp();
-        cliffDuration = boundUint40(cliffDuration, UINT40_MAX - startTime + 1, UINT40_MAX);
+        cliffDuration = boundUint40(cliffDuration, MAX_UINT40 - startTime + 1, MAX_UINT40);
 
         // Calculate the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -53,8 +53,8 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         whenCliffDurationCalculationDoesNotOverflow
     {
         uint40 startTime = getBlockTimestamp();
-        durations.cliff = boundUint40(durations.cliff, 0, UINT40_MAX - startTime);
-        durations.total = boundUint40(durations.total, UINT40_MAX - startTime + 1, UINT40_MAX);
+        durations.cliff = boundUint40(durations.cliff, 0, MAX_UINT40 - startTime);
+        durations.total = boundUint40(durations.total, MAX_UINT40 - startTime + 1, MAX_UINT40);
 
         // Calculate the cliff time and the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -92,17 +92,17 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         address funder = users.sender;
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
+        uint128 initialProtocolRevenues = linear.protocolRevenues(usdc);
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectCallToTransferFrom({
             from: funder,
             to: address(linear),
-            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+            amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
         // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
+        expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
 
         // Create the range struct by calculating the start time, cliff time and the end time.
         LockupLinear.Range memory range = LockupLinear.Range({
@@ -118,8 +118,8 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
             funder: funder,
             sender: defaultParams.createWithDurations.sender,
             recipient: defaultParams.createWithDurations.recipient,
-            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
-            asset: DEFAULT_ASSET,
+            amounts: defaults.lockupCreateAmounts(),
+            asset: usdc,
             cancelable: defaultParams.createWithDurations.cancelable,
             range: range,
             broker: defaultParams.createWithDurations.broker.account
@@ -147,8 +147,8 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = linear.protocolRevenues(DEFAULT_ASSET);
-        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
+        uint128 actualProtocolRevenues = linear.protocolRevenues(usdc);
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + defaults.PROTOCOL_FEE_AMOUNT();
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.

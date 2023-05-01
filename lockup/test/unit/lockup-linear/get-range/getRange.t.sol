@@ -20,7 +20,7 @@ contract GetRange_Linear_Unit_Test is Linear_Unit_Test {
     function test_GetRange() external whenNotNull {
         uint256 streamId = createDefaultStream();
         LockupLinear.Range memory actualRange = linear.getRange(streamId);
-        LockupLinear.Range memory expectedRange = DEFAULT_LINEAR_RANGE;
+        LockupLinear.Range memory expectedRange = defaults.linearRange();
         assertEq(actualRange, expectedRange);
     }
 }

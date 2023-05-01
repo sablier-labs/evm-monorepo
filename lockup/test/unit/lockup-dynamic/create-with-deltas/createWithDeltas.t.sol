@@ -70,7 +70,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         unchecked {
             uint40 startTime = getBlockTimestamp();
             LockupDynamic.SegmentWithDelta[] memory segments = defaultParams.createWithDeltas.segments;
-            segments[0].delta = UINT40_MAX;
+            segments[0].delta = MAX_UINT40;
             vm.expectRevert(
                 abi.encodeWithSelector(
                     Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
@@ -94,11 +94,8 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
             // Create new segments that overflow when the milestones are eventually calculated.
             LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](2);
             segments[0] = LockupDynamic.SegmentWithDelta({ amount: 0, exponent: ud2x18(1e18), delta: startTime + 1 });
-            segments[1] = LockupDynamic.SegmentWithDelta({
-                amount: DEFAULT_SEGMENTS_WITH_DELTAS[0].amount,
-                exponent: DEFAULT_SEGMENTS_WITH_DELTAS[0].exponent,
-                delta: UINT40_MAX
-            });
+            segments[1] = defaults.segmentsWithDeltas()[0];
+            segments[1].delta = MAX_UINT40;
 
             // Expect a {SegmentMilestonesNotOrdered} error.
             uint256 index = 1;
@@ -131,17 +128,17 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         address funder = users.sender;
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = dynamic.protocolRevenues(DEFAULT_ASSET);
+        uint128 initialProtocolRevenues = dynamic.protocolRevenues(usdc);
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
             from: funder,
             to: address(dynamic),
-            amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
+            amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
         // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
+        expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
         vm.expectEmit({ emitter: address(dynamic) });
@@ -150,11 +147,11 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
             funder: funder,
             sender: users.sender,
             recipient: users.recipient,
-            amounts: DEFAULT_LOCKUP_CREATE_AMOUNTS,
-            asset: DEFAULT_ASSET,
+            amounts: defaults.lockupCreateAmounts(),
+            asset: usdc,
             cancelable: true,
-            segments: DEFAULT_SEGMENTS,
-            range: DEFAULT_DYNAMIC_RANGE,
+            segments: defaults.segments(),
+            range: defaults.dynamicRange(),
             broker: users.broker
         });
 
@@ -176,8 +173,8 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = dynamic.protocolRevenues(DEFAULT_ASSET);
-        uint128 expectedProtocolRevenues = initialProtocolRevenues + DEFAULT_PROTOCOL_FEE_AMOUNT;
+        uint128 actualProtocolRevenues = dynamic.protocolRevenues(usdc);
+        uint128 expectedProtocolRevenues = initialProtocolRevenues + defaults.PROTOCOL_FEE_AMOUNT();
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.

@@ -19,7 +19,7 @@ contract GetCliffTime_Linear_Unit_Test is Linear_Unit_Test {
     function test_GetCliffTime() external whenNotNull {
         uint256 streamId = createDefaultStream();
         uint40 actualCliffTime = linear.getCliffTime(streamId);
-        uint40 expectedCliffTime = DEFAULT_CLIFF_TIME;
+        uint40 expectedCliffTime = defaults.CLIFF_TIME();
         assertEq(actualCliffTime, expectedCliffTime, "cliffTime");
     }
 }

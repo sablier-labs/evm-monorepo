@@ -31,10 +31,10 @@ abstract contract GetRefundedAmount_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNotNull
         whenStreamHasBeenCanceled
     {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         uint128 actualRefundedAmount = lockup.getRefundedAmount(defaultStreamId);
-        uint128 expectedRefundedAmount = DEFAULT_REFUND_AMOUNT;
+        uint128 expectedRefundedAmount = defaults.REFUND_AMOUNT();
         assertEq(actualRefundedAmount, expectedRefundedAmount, "refundedAmount");
     }
 
@@ -43,11 +43,11 @@ abstract contract GetRefundedAmount_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNotNull
         whenStreamHasBeenCanceled
     {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint128 actualRefundedAmount = lockup.getRefundedAmount(defaultStreamId);
-        uint128 expectedRefundedAmount = DEFAULT_REFUND_AMOUNT;
+        uint128 expectedRefundedAmount = defaults.REFUND_AMOUNT();
         assertEq(actualRefundedAmount, expectedRefundedAmount, "refundedAmount");
     }
 
@@ -63,21 +63,21 @@ abstract contract GetRefundedAmount_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_GetRefundedAmount_StatusStreaming() external whenNotNull whenStreamHasNotBeenCanceled {
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         uint128 actualRefundedAmount = lockup.getRefundedAmount(defaultStreamId);
         uint128 expectedRefundedAmount = 0;
         assertEq(actualRefundedAmount, expectedRefundedAmount, "refundedAmount");
     }
 
     function test_GetRefundedAmount_StatusSettled() external whenNotNull whenStreamHasNotBeenCanceled {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         uint128 actualRefundedAmount = lockup.getRefundedAmount(defaultStreamId);
         uint128 expectedRefundedAmount = 0;
         assertEq(actualRefundedAmount, expectedRefundedAmount, "refundedAmount");
     }
 
     function test_GetRefundedAmount_StatusDepleted() external whenNotNull whenStreamHasNotBeenCanceled {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         uint128 actualRefundedAmount = lockup.getRefundedAmount(defaultStreamId);
         uint128 expectedRefundedAmount = 0;

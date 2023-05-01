@@ -24,7 +24,7 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_StatusOf_AssetsFullyWithdrawn() external whenNotNull {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.DEPLETED;
@@ -36,7 +36,7 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_StatusOf_StreamCanceled() external whenNotNull whenAssetsNotFullyWithdrawn {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.CANCELED;
@@ -70,7 +70,7 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenStreamNotCanceled
         whenStartTimeInThePast
     {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.SETTLED;
         assertEq(actualStatus, expectedStatus);
@@ -88,7 +88,7 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenStartTimeInThePast
         whenRefundableAmountNotZero
     {
-        vm.warp({ timestamp: DEFAULT_START_TIME + 1 seconds });
+        vm.warp({ timestamp: defaults.START_TIME() + 1 seconds });
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);

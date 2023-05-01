@@ -25,7 +25,7 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
         // Approve {SablierV2LockupLinear} to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
-        (bool success,) = address(asset).call(abi.encodeCall(IERC20.approve, (address(linear), UINT256_MAX)));
+        (bool success,) = address(asset).call(abi.encodeCall(IERC20.approve, (address(linear), MAX_UINT256)));
         success;
     }
 

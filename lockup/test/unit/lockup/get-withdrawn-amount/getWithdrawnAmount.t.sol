@@ -26,7 +26,7 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
 
     function test_GetWithdrawnAmount_NoPreviousWithdrawals() external whenNotNull {
         // Simulate the passage of time.
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
@@ -40,7 +40,7 @@ abstract contract GetWithdrawnAmount_Unit_Test is Unit_Test, Lockup_Shared_Test 
 
     function test_GetWithdrawnAmount() external whenNotNull whenPreviousWithdrawals {
         // Simulate the passage of time.
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 
         // Set the withdraw amount to the streamed amount.
         uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamId);

@@ -22,7 +22,7 @@ abstract contract GetStartTime_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_GetStartTime() external whenNotNull {
         uint256 streamId = createDefaultStream();
         uint40 actualStartTime = lockup.getStartTime(streamId);
-        uint40 expectedStartTime = DEFAULT_START_TIME;
+        uint40 expectedStartTime = defaults.START_TIME();
         assertEq(actualStartTime, expectedStartTime, "startTime");
     }
 }

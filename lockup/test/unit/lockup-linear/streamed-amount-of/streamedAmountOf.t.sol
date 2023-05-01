@@ -38,7 +38,7 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test, StreamedAmountOf
         whenStatusStreaming
         whenCliffTimeInThePast
     {
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 2600e18;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");

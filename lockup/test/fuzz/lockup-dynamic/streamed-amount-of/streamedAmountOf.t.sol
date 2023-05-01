@@ -12,7 +12,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
     }
 
@@ -35,15 +35,15 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         whenStartTimeInThePast
     {
         vm.assume(segment.amount != 0);
-        segment.milestone = boundUint40(segment.milestone, DEFAULT_CLIFF_TIME, DEFAULT_END_TIME);
-        timeWarp = boundUint40(timeWarp, DEFAULT_CLIFF_DURATION, DEFAULT_TOTAL_DURATION * 2);
+        segment.milestone = boundUint40(segment.milestone, defaults.CLIFF_TIME(), defaults.END_TIME());
+        timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Create the single-segment array.
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);
         segments[0] = segment;
 
         // Mint enough assets to the sender.
-        deal({ token: address(DEFAULT_ASSET), to: users.sender, give: segment.amount });
+        deal({ token: address(usdc), to: users.sender, give: segment.amount });
 
         // Create the stream with the fuzzed segment.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
@@ -53,7 +53,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeWarp;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
@@ -90,11 +90,11 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         vm.assume(segments.length > 1);
 
         // Fuzz the segment milestones.
-        fuzzSegmentMilestones(segments, DEFAULT_START_TIME);
+        fuzzSegmentMilestones(segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
         (uint128 totalAmount,) = fuzzDynamicStreamAmounts({
-            upperBound: UINT128_MAX,
+            upperBound: MAX_UINT128,
             segments: segments,
             protocolFee: ZERO,
             brokerFee: ZERO
@@ -102,11 +102,11 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Bound the time warp.
         uint40 firstSegmentDuration = segments[1].milestone - segments[0].milestone;
-        uint40 totalDuration = segments[segments.length - 1].milestone - DEFAULT_START_TIME;
+        uint40 totalDuration = segments[segments.length - 1].milestone - defaults.START_TIME();
         timeWarp = boundUint40(timeWarp, firstSegmentDuration, totalDuration + 100 seconds);
 
         // Mint enough assets to the sender.
-        deal({ token: address(DEFAULT_ASSET), to: users.sender, give: totalAmount });
+        deal({ token: address(usdc), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
@@ -116,7 +116,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = DEFAULT_START_TIME + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeWarp;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
@@ -139,11 +139,11 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         vm.assume(segments.length > 1);
 
         // Fuzz the segment milestones.
-        fuzzSegmentMilestones(segments, DEFAULT_START_TIME);
+        fuzzSegmentMilestones(segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
         (uint128 totalAmount,) = fuzzDynamicStreamAmounts({
-            upperBound: UINT128_MAX,
+            upperBound: MAX_UINT128,
             segments: segments,
             protocolFee: ZERO,
             brokerFee: ZERO
@@ -151,12 +151,12 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Bound the time warps.
         uint40 firstSegmentDuration = segments[1].milestone - segments[0].milestone;
-        uint40 totalDuration = segments[segments.length - 1].milestone - DEFAULT_START_TIME;
+        uint40 totalDuration = segments[segments.length - 1].milestone - defaults.START_TIME();
         timeWarp0 = boundUint40(timeWarp0, firstSegmentDuration, totalDuration - 1);
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, totalDuration);
 
         // Mint enough assets to the sender.
-        deal({ token: address(DEFAULT_ASSET), to: users.sender, give: totalAmount });
+        deal({ token: address(usdc), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
@@ -166,13 +166,13 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Warp to the future for the first time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp0 });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp0 });
 
         // Calculate the streamed amount at this midpoint in time.
         uint128 streamedAmount0 = dynamic.streamedAmountOf(streamId);
 
         // Warp to the future for the second time.
-        vm.warp({ timestamp: DEFAULT_START_TIME + timeWarp1 });
+        vm.warp({ timestamp: defaults.START_TIME() + timeWarp1 });
 
         // Assert that this streamed amount is greater than or equal to the previous streamed amount.
         uint128 streamedAmount1 = dynamic.streamedAmountOf(streamId);

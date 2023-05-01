@@ -29,26 +29,26 @@ abstract contract IsCold_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_IsCold_StatusStreaming() external whenNotNull {
-        vm.warp({ timestamp: WARP_26_PERCENT });
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         bool isCold = lockup.isCold(defaultStreamId);
         assertFalse(isCold, "isCold");
     }
 
     function test_IsCold_StatusSettled() external whenNotNull {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         bool isCold = lockup.isCold(defaultStreamId);
         assertTrue(isCold, "isCold");
     }
 
     function test_IsCold_StatusCanceled() external whenNotNull {
-        vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
+        vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         bool isCold = lockup.isCold(defaultStreamId);
         assertTrue(isCold, "isCold");
     }
 
     function test_IsCold_StatusDepleted() external whenNotNull {
-        vm.warp({ timestamp: DEFAULT_END_TIME });
+        vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         bool isCold = lockup.isCold(defaultStreamId);
         assertTrue(isCold, "isCold");
