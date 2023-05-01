@@ -236,8 +236,10 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
+    /// @dev TODO: mark this test as `external` once Foundry reverts this breaking change:
+    /// https://github.com/foundry-rs/foundry/pull/4845#issuecomment-1529125648
     function test_CancelMultiple()
-        external
+        private
         whenNoDelegateCall
         whenNoNull
         whenAllStreamsWarm
