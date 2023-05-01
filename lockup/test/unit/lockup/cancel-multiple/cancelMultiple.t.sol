@@ -268,7 +268,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
             sender: users.sender,
             recipient: users.recipient,
             senderAmount: senderAmount1,
-            recipientAmount: DEFAULT_DEPOSIT_AMOUNT - senderAmount0
+            recipientAmount: DEFAULT_DEPOSIT_AMOUNT - senderAmount1
         });
 
         // Cancel the streams.
@@ -297,6 +297,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function createDefaultStreams() internal {
         defaultStreamIds = new uint256[](2);
         defaultStreamIds[0] = createDefaultStream();
-        defaultStreamIds[1] = createDefaultStream();
+        // Create a stream with an end time double that of the default stream so that the refund amounts are different.
+        defaultStreamIds[1] = createDefaultStreamWithEndTime(DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION);
     }
 }

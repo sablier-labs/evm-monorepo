@@ -226,21 +226,21 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
 
     /// @dev Expects a call to {IERC20.transfer}.
     function expectCallToTransfer(address to, uint256 amount) internal {
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, amount)));
+        vm.expectCall({ callee: address(DEFAULT_ASSET), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
     }
 
     /// @dev Expects a call to {IERC20.transfer}.
     function expectCallToTransfer(IERC20 asset, address to, uint256 amount) internal {
-        vm.expectCall(address(asset), abi.encodeCall(IERC20.transfer, (to, amount)));
+        vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
     }
 
     /// @dev Expects a call to {IERC20.transferFrom}.
     function expectCallToTransferFrom(address from, address to, uint256 amount) internal {
-        vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
+        vm.expectCall({ callee: address(DEFAULT_ASSET), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
     }
 
     /// @dev Expects a call to {IERC20.transferFrom}.
     function expectCallToTransferFrom(IERC20 asset, address from, address to, uint256 amount) internal {
-        vm.expectCall(address(asset), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
+        vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
     }
 }

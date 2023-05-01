@@ -345,8 +345,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Simulate the passage of time.
         vm.warp({ timestamp: EARLY_STOP_TIME });
 
-        // Cancel the second stream.
-        lockup.cancel(defaultStreamIds[1]);
+        // Cancel the 3rd stream.
+        lockup.cancel(defaultStreamIds[2]);
 
         // Run the test with the caller provided in the modifier above.
         changePrank({ msgSender: caller });
@@ -369,8 +369,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Assert that the statuses have been updated.
         assertEq(lockup.statusOf(defaultStreamIds[0]), Lockup.Status.STREAMING, "status0");
-        assertEq(lockup.statusOf(defaultStreamIds[1]), Lockup.Status.CANCELED, "status1");
-        assertEq(lockup.statusOf(defaultStreamIds[2]), Lockup.Status.DEPLETED, "status2");
+        assertEq(lockup.statusOf(defaultStreamIds[1]), Lockup.Status.DEPLETED, "status1");
+        assertEq(lockup.statusOf(defaultStreamIds[2]), Lockup.Status.CANCELED, "status2");
 
         // Assert that the withdrawn amounts have been updated.
         assertEq(lockup.getWithdrawnAmount(defaultStreamIds[0]), defaultAmounts[0], "withdrawnAmount0");
@@ -391,16 +391,16 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Define the default amounts.
         defaultAmounts = new uint128[](3);
         defaultAmounts[0] = DEFAULT_WITHDRAW_AMOUNT;
-        defaultAmounts[1] = DEFAULT_WITHDRAW_AMOUNT / 2;
-        defaultAmounts[2] = DEFAULT_DEPOSIT_AMOUNT;
+        defaultAmounts[1] = DEFAULT_DEPOSIT_AMOUNT;
+        defaultAmounts[2] = DEFAULT_WITHDRAW_AMOUNT / 2;
 
         // Create three streams:
         // 1. A default stream
-        // 2. A stream meant to be canceled before the withdrawal is made
-        // 3. A stream with an early end time
+        // 2. A stream with an early end time
+        // 3. A stream meant to be canceled before the withdrawal is made
         defaultStreamIds = new uint256[](3);
         defaultStreamIds[0] = createDefaultStream();
-        defaultStreamIds[1] = createDefaultStream();
-        defaultStreamIds[2] = createDefaultStreamWithEndTime(EARLY_STOP_TIME);
+        defaultStreamIds[1] = createDefaultStreamWithEndTime(EARLY_STOP_TIME);
+        defaultStreamIds[2] = createDefaultStream();
     }
 }

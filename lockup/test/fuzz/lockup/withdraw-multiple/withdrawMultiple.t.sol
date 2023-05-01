@@ -113,7 +113,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
             to = users.recipient;
         }
 
-        // Create a new stream with an end time nearly double that of the default stream.
+        // Create a new stream with an end time double that of the default stream.
         changePrank({ msgSender: users.sender });
         uint40 ongoingEndTime = DEFAULT_END_TIME + DEFAULT_TOTAL_DURATION;
         uint256 ongoingStreamId = createDefaultStreamWithEndTime(ongoingEndTime);

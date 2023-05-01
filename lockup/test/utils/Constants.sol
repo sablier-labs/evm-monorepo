@@ -13,8 +13,8 @@ abstract contract Constants {
 
     UD60x18 internal constant DEFAULT_BROKER_FEE = UD60x18.wrap(0.003e18); // 0.3%
     uint128 internal constant DEFAULT_BROKER_FEE_AMOUNT = 30.120481927710843373e18; // 0.3% of total amount
-    uint40 internal immutable DEFAULT_CLIFF_TIME;
     uint40 internal constant DEFAULT_CLIFF_DURATION = 2500 seconds;
+    uint40 internal immutable DEFAULT_CLIFF_TIME;
     uint128 internal constant DEFAULT_DEPOSIT_AMOUNT = 10_000e18;
     uint40 internal immutable DEFAULT_END_TIME;
     UD60x18 internal constant DEFAULT_FLASH_FEE = UD60x18.wrap(0.0005e18); // 0.05%
