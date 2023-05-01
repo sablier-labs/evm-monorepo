@@ -141,11 +141,11 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         deal({ token: address(DEFAULT_ASSET), to: address(goodFlashLoanReceiver), give: fee });
 
         // Expect `amount` of assets to be transferred from {SablierV2FlashLoan} to the receiver.
-        expectTransferCall({ to: address(goodFlashLoanReceiver), amount: LIQUIDITY_AMOUNT });
+        expectCallToTransfer({ to: address(goodFlashLoanReceiver), amount: LIQUIDITY_AMOUNT });
 
         // Expect `amount+fee` of assets to be transferred back from the receiver.
         uint256 returnAmount = LIQUIDITY_AMOUNT + fee;
-        expectTransferFromCall({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
+        expectCallToTransferFrom({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
 
         // Expect a {FlashLoan} event to be emitted.
         vm.expectEmit({ emitter: address(flashLoan) });

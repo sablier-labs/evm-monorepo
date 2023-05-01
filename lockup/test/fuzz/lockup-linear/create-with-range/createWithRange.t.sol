@@ -191,7 +191,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         DEFAULT_ASSET.approve({ spender: address(linear), amount: UINT256_MAX });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
-        expectTransferFromCall({
+        expectCallToTransferFrom({
             from: funder,
             to: address(linear),
             amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
@@ -199,7 +199,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.createAmounts.brokerFee > 0) {
-            expectTransferFromCall({ from: funder, to: params.broker.account, amount: vars.createAmounts.brokerFee });
+            expectCallToTransferFrom({ from: funder, to: params.broker.account, amount: vars.createAmounts.brokerFee });
         }
 
         // Expect a {CreateLockupLinearStream} event to be emitted.

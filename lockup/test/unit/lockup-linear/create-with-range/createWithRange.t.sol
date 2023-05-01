@@ -217,7 +217,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         address funder = users.sender;
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
-        expectTransferFromCall({
+        expectCallToTransferFrom({
             asset: IERC20(asset),
             from: funder,
             to: address(linear),
@@ -225,7 +225,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         });
 
         // Expect the broker fee to be paid to the broker.
-        expectTransferFromCall({
+        expectCallToTransferFrom({
             asset: IERC20(asset),
             from: funder,
             to: users.broker,

@@ -76,7 +76,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         deal({ token: address(DEFAULT_ASSET), to: vars.funder, give: vars.totalAmount });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
-        expectTransferFromCall({
+        expectCallToTransferFrom({
             from: vars.funder,
             to: address(dynamic),
             amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
@@ -84,7 +84,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.createAmounts.brokerFee > 0) {
-            expectTransferFromCall({ from: vars.funder, to: users.broker, amount: vars.createAmounts.brokerFee });
+            expectCallToTransferFrom({ from: vars.funder, to: users.broker, amount: vars.createAmounts.brokerFee });
         }
 
         // Create the range struct.

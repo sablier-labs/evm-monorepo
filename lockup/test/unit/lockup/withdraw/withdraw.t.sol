@@ -324,7 +324,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamId);
 
         // Expect the assets to be transferred to the recipient.
-        expectTransferCall({ to: users.recipient, amount: withdrawAmount });
+        expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
@@ -510,7 +510,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 withdrawAmount = lockup.streamedAmountOf(streamId);
 
         // Expect the assets to be transferred to the recipient.
-        expectTransferCall({ to: address(goodRecipient), amount: withdrawAmount });
+        expectCallToTransfer({ to: address(goodRecipient), amount: withdrawAmount });
 
         // Expect a call to the recipient hook.
         vm.expectCall(

@@ -224,23 +224,23 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
                                     CALL EXPECTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Expects a call to the `transfer` function of the default ERC-20 contract.
-    function expectTransferCall(address to, uint256 amount) internal {
+    /// @dev Expects a call to {IERC20.transfer}.
+    function expectCallToTransfer(address to, uint256 amount) internal {
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transfer, (to, amount)));
     }
 
-    /// @dev Expects a call to the `transfer` function of the provided ERC-20 contract.
-    function expectTransferCall(IERC20 asset, address to, uint256 amount) internal {
+    /// @dev Expects a call to {IERC20.transfer}.
+    function expectCallToTransfer(IERC20 asset, address to, uint256 amount) internal {
         vm.expectCall(address(asset), abi.encodeCall(IERC20.transfer, (to, amount)));
     }
 
-    /// @dev Expects a call to the `transferFrom` function of the default ERC-20 contract.
-    function expectTransferFromCall(address from, address to, uint256 amount) internal {
+    /// @dev Expects a call to {IERC20.transferFrom}.
+    function expectCallToTransferFrom(address from, address to, uint256 amount) internal {
         vm.expectCall(address(DEFAULT_ASSET), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
     }
 
-    /// @dev Expects a call to the `transferFrom` function of the provided ERC-20 contract.
-    function expectTransferFromCall(IERC20 asset, address from, address to, uint256 amount) internal {
+    /// @dev Expects a call to {IERC20.transferFrom}.
+    function expectCallToTransferFrom(IERC20 asset, address from, address to, uint256 amount) internal {
         vm.expectCall(address(asset), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
     }
 }

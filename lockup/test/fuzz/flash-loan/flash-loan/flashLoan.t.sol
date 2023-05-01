@@ -99,11 +99,11 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
         deal({ token: address(DEFAULT_ASSET), to: address(goodFlashLoanReceiver), give: fee });
 
         // Expect `amount` of assets to be transferred from {SablierV2FlashLoan} to the receiver.
-        expectTransferCall({ to: address(goodFlashLoanReceiver), amount: amount });
+        expectCallToTransfer({ to: address(goodFlashLoanReceiver), amount: amount });
 
         // Expect `amount+fee` of assets to be transferred back from the receiver.
         uint256 returnAmount = amount + fee;
-        expectTransferFromCall({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
+        expectCallToTransferFrom({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
 
         // Expect a {FlashLoan} event to be emitted.
         vm.expectEmit({ emitter: address(flashLoan) });

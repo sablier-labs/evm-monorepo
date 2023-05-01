@@ -134,14 +134,14 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         uint128 initialProtocolRevenues = dynamic.protocolRevenues(DEFAULT_ASSET);
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
-        expectTransferFromCall({
+        expectCallToTransferFrom({
             from: funder,
             to: address(dynamic),
             amount: DEFAULT_DEPOSIT_AMOUNT + DEFAULT_PROTOCOL_FEE_AMOUNT
         });
 
         // Expect the broker fee to be paid to the broker.
-        expectTransferFromCall({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
+        expectCallToTransferFrom({ from: funder, to: users.broker, amount: DEFAULT_BROKER_FEE_AMOUNT });
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
         vm.expectEmit({ emitter: address(dynamic) });

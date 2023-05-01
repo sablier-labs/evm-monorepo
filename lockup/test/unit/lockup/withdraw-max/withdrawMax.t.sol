@@ -19,7 +19,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_END_TIME + 1 seconds });
 
         // Expect the ERC-20 assets to be transferred to the recipient.
-        expectTransferCall({ to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
+        expectCallToTransfer({ to: users.recipient, amount: DEFAULT_DEPOSIT_AMOUNT });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
@@ -60,7 +60,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         // Expect the assets to be transferred to the recipient.
-        expectTransferCall({ to: users.recipient, amount: withdrawAmount });
+        expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

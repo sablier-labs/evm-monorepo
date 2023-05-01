@@ -118,7 +118,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the assets to be transferred to the fuzzed `to` address.
-        expectTransferCall({ to: to, amount: withdrawAmount });
+        expectCallToTransfer({ to: to, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
@@ -184,7 +184,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the assets to be transferred to the fuzzed `to` address.
-        expectTransferCall({ to: to, amount: withdrawAmount });
+        expectCallToTransfer({ to: to, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

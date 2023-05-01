@@ -291,7 +291,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         DEFAULT_ASSET.approve({ spender: address(dynamic), amount: UINT256_MAX });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
-        expectTransferFromCall({
+        expectCallToTransferFrom({
             from: funder,
             to: address(dynamic),
             amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
@@ -299,7 +299,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.createAmounts.brokerFee > 0) {
-            expectTransferFromCall({ from: funder, to: params.broker.account, amount: vars.createAmounts.brokerFee });
+            expectCallToTransferFrom({ from: funder, to: params.broker.account, amount: vars.createAmounts.brokerFee });
         }
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.

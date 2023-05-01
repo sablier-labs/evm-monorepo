@@ -68,9 +68,9 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Expect the assets to be refunded to the sender.
         uint128 senderAmount0 = lockup.refundableAmountOf(streamIds[0]);
-        expectTransferCall({ to: users.sender, amount: senderAmount0 });
+        expectCallToTransfer({ to: users.sender, amount: senderAmount0 });
         uint128 senderAmount1 = lockup.refundableAmountOf(streamIds[1]);
-        expectTransferCall({ to: users.sender, amount: senderAmount1 });
+        expectCallToTransfer({ to: users.sender, amount: senderAmount1 });
 
         // Expect multiple events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

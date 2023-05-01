@@ -332,7 +332,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect the assets to be refunded to the sender.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
-        expectTransferCall({ to: users.sender, amount: senderAmount });
+        expectCallToTransfer({ to: users.sender, amount: senderAmount });
 
         // Expect a call to the recipient hook.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
@@ -532,7 +532,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Expect the assets to be refunded to the sender.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
-        expectTransferCall({ to: address(goodSender), amount: senderAmount });
+        expectCallToTransfer({ to: address(goodSender), amount: senderAmount });
 
         // Expect a call to the sender hook.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);

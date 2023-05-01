@@ -352,9 +352,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: caller });
 
         // Expect the withdrawals to be made.
-        expectTransferCall({ to: users.recipient, amount: defaultAmounts[0] });
-        expectTransferCall({ to: users.recipient, amount: defaultAmounts[1] });
-        expectTransferCall({ to: users.recipient, amount: defaultAmounts[2] });
+        expectCallToTransfer({ to: users.recipient, amount: defaultAmounts[0] });
+        expectCallToTransfer({ to: users.recipient, amount: defaultAmounts[1] });
+        expectCallToTransfer({ to: users.recipient, amount: defaultAmounts[2] });
 
         // Expect multiple events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

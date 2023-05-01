@@ -65,8 +65,8 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
 
         // Expect the withdrawals to be made.
         uint128 withdrawAmount = DEFAULT_WITHDRAW_AMOUNT;
-        expectTransferCall({ to: to, amount: withdrawAmount });
-        expectTransferCall({ to: to, amount: withdrawAmount });
+        expectCallToTransfer({ to: to, amount: withdrawAmount });
+        expectCallToTransfer({ to: to, amount: withdrawAmount });
 
         // Make the withdrawals.
         lockup.withdrawMultiple({ streamIds: defaultStreamIds, to: to, amounts: defaultAmounts });
@@ -133,8 +133,8 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         ongoingWithdrawAmount = boundUint128(ongoingWithdrawAmount, 1, ongoingWithdrawableAmount);
 
         // Expect the withdrawals to be made.
-        expectTransferCall({ to: to, amount: ongoingWithdrawAmount });
-        expectTransferCall({ to: to, amount: settledWithdrawAmount });
+        expectCallToTransfer({ to: to, amount: ongoingWithdrawAmount });
+        expectCallToTransfer({ to: to, amount: settledWithdrawAmount });
 
         // Expect multiple events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

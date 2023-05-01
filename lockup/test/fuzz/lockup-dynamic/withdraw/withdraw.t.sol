@@ -89,7 +89,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
         // Expect the assets to be transferred to the fuzzed `to` address.
-        expectTransferCall({ to: params.to, amount: vars.withdrawAmount });
+        expectCallToTransfer({ to: params.to, amount: vars.withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
         vm.expectEmit({ emitter: address(dynamic) });
