@@ -78,13 +78,6 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
 
     constructor() {
         DEFAULT_ASSET = dai;
-
-        vm.label({ account: address(DEFAULT_ASSET), newLabel: "Dai" });
-        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
-        vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
-        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
-        vm.label({ account: address(nftDescriptor), newLabel: "Sablier V2 NFT Descriptor" });
-        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -103,16 +96,23 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
             sender: createUser("Sender")
         });
 
+        // Label the base contracts.
+        vm.label({ account: address(DEFAULT_ASSET), newLabel: "Dai" });
+        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
+        vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
+        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
+        vm.label({ account: address(nftDescriptor), newLabel: "Sablier V2 NFT Descriptor" });
+        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
+
         // Warp to March 1, 2023 at 00:00 GMT to provide a more realistic testing environment.
         vm.warp({ timestamp: DEFAULT_START_TIME });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Approves all Sablier contracts to spend assets from the sender, recipient, Alice and Eve,
-    /// and then change the active prank back to the admin.
+    /// @dev Approves all V2 Core contracts to spend assets from the sender, recipient, Alice and Eve.
     function approveProtocol() internal {
         changePrank({ msgSender: users.sender });
         dai.approve({ spender: address(linear), amount: UINT256_MAX });
@@ -142,8 +142,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         changePrank({ msgSender: users.admin });
     }
 
-    /// @dev Generates an address by hashing the name, labels the address and funds it with 100 ETH, 1 million DAI,
-    /// and 1 million non-compliant assets.
+    /// @dev Generates an address by hashing the name, labels the address and funds it with test assets.
     function createUser(string memory name) internal returns (address payable addr) {
         addr = payable(makeAddr(name));
         vm.deal({ account: addr, newBalance: 100 ether });
@@ -151,14 +150,14 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         deal({ token: address(nonCompliantAsset), to: addr, give: 1_000_000e18 });
     }
 
-    /// @dev Deploys {SablierV2Comptroller} from precompiled source.
+    /// @dev Deploys {SablierV2Comptroller} from a source precompiled with via IR.
     function deployPrecompiledComptroller(address initialAdmin) internal returns (ISablierV2Comptroller comptroller_) {
         comptroller_ = ISablierV2Comptroller(
             deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json", abi.encode(initialAdmin))
         );
     }
 
-    /// @dev Deploys {SablierV2LockupDynamic} from precompiled source.
+    /// @dev Deploys {SablierV2LockupDynamic} from a source precompiled with via IR.
     function deployPrecompiledDynamic(
         address initialAdmin,
         ISablierV2Comptroller comptroller_,
@@ -175,7 +174,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         );
     }
 
-    /// @dev Deploys {SablierV2LockupLinear} from precompiled source.
+    /// @dev Deploys {SablierV2LockupLinear} from a source precompiled with via IR.
     function deployPrecompiledLinear(
         address initialAdmin,
         ISablierV2Comptroller comptroller_,
@@ -200,7 +199,7 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
             dynamic = deployPrecompiledDynamic(users.admin, comptroller, nftDescriptor);
             linear = deployPrecompiledLinear(users.admin, comptroller, nftDescriptor);
         }
-        // We deploy normally in all other cases.
+        // We deploy normally for all other profiles.
         else {
             (comptroller, dynamic, linear) = new DeployProtocol().run({
                 initialAdmin: users.admin,
@@ -214,6 +213,16 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
         vm.label({ account: address(dynamic), newLabel: "LockupDynamic" });
         vm.label({ account: address(linear), newLabel: "LockupLinear" });
     }
+
+    /// @dev Checks if the Foundry profile is "test-optimized".
+    function isTestOptimizedProfile() internal returns (bool result) {
+        string memory profile = vm.envOr("FOUNDRY_PROFILE", string(""));
+        result = eqString(profile, "test-optimized");
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CALL EXPECTS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Expects a call to the `transfer` function of the default ERC-20 contract.
     function expectTransferCall(address to, uint256 amount) internal {
@@ -233,11 +242,5 @@ abstract contract Base_Test is Assertions, Calculations, Events, Fuzzers, StdChe
     /// @dev Expects a call to the `transferFrom` function of the provided ERC-20 contract.
     function expectTransferFromCall(IERC20 asset, address from, address to, uint256 amount) internal {
         vm.expectCall(address(asset), abi.encodeCall(IERC20.transferFrom, (from, to, amount)));
-    }
-
-    /// @dev Checks if the Foundry profile is "test-optimized".
-    function isTestOptimizedProfile() internal returns (bool result) {
-        string memory profile = vm.envOr("FOUNDRY_PROFILE", string(""));
-        result = eqString(profile, "test-optimized");
     }
 }

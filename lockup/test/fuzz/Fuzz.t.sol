@@ -13,13 +13,13 @@ abstract contract Fuzz_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Deploy the entire protocol.
+        // Deploy V2 Core.
         deployProtocolConditionally();
 
         // Make the admin the default caller in this test suite.
         vm.startPrank({ msgSender: users.admin });
 
-        // Approve all protocol contracts to spend assets from the users.
+        // Approve V2 Core to spend assets from the users.
         approveProtocol();
     }
 }

@@ -166,13 +166,13 @@ abstract contract Linear_Fork_Test is Fork_Test {
         // Create the stream.
         linear.createWithRange(
             LockupLinear.CreateWithRange({
-                sender: params.sender,
-                recipient: params.recipient,
-                totalAmount: params.totalAmount,
                 asset: asset,
+                broker: params.broker,
                 cancelable: true,
                 range: params.range,
-                broker: params.broker
+                recipient: params.recipient,
+                sender: params.sender,
+                totalAmount: params.totalAmount
             })
         );
 

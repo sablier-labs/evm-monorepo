@@ -24,8 +24,8 @@ import { GetStatus_Unit_Test } from "../shared/get-status/getStatus.t.sol";
 import { GetWithdrawnAmount_Unit_Test } from "../shared/get-withdrawn-amount/getWithdrawnAmount.t.sol";
 import { IsCancelable_Unit_Test } from "../shared/is-cancelable/isCancelable.t.sol";
 import { IsSettled_Unit_Test } from "../shared/is-settled/isSettled.t.sol";
-import { Renounce_Unit_Test } from "../shared/renounce/renounce.t.sol";
 import { RefundableAmountOf_Unit_Test } from "../shared/refundable-amount-of/refundableAmountOf.t.sol";
+import { Renounce_Unit_Test } from "../shared/renounce/renounce.t.sol";
 import { SetComptroller_Unit_Test } from "../shared/set-comptroller/setComptroller.t.sol";
 import { SetNFTDescriptor_Unit_Test } from "../shared/set-nft-descriptor/setNFTDescriptor.t.sol";
 import { TokenURI_Unit_Test } from "../shared/token-uri/tokenURI.t.sol";
@@ -62,10 +62,6 @@ abstract contract Dynamic_Unit_Test is Unit_Test, Dynamic_Shared_Test {
         changePrank({ msgSender: users.sender });
     }
 }
-
-/*//////////////////////////////////////////////////////////////////////////
-                                SHARED TESTS
-//////////////////////////////////////////////////////////////////////////*/
 
 /*//////////////////////////////////////////////////////////////////////////
                                 SHARED TESTS

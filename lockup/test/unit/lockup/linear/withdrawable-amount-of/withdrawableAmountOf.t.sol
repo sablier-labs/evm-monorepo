@@ -33,7 +33,7 @@ contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
         uint256 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
-        uint256 expectedWithdrawableAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_RETURNED_AMOUNT;
+        uint256 expectedWithdrawableAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_REFUND_AMOUNT;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -51,7 +51,7 @@ contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test {
 
     modifier whenCliffTimeInThePast() {
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
         _;
     }
 

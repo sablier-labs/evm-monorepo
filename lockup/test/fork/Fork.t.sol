@@ -12,7 +12,7 @@ import { USDCLike } from "../mocks/erc20/USDCLike.sol";
 import { USDTLike } from "../mocks/erc20/USDTLike.sol";
 
 /// @title Fork_Test
-/// @notice Collections of tests that run against a fork of Ethereum Mainnet.
+/// @notice Tests that run against an Ethereum Mainnet fork.
 abstract contract Fork_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
@@ -46,11 +46,11 @@ abstract contract Fork_Test is Base_Test {
         // Fork Ethereum Mainnet.
         vm.createSelectFork({ urlOrAlias: "mainnet", blockNumber: 16_126_000 });
 
-        // Deploy the entire protocol.
+        // Deploy V2 Core.
         deployProtocolConditionally();
 
         // Make the asset holder the caller in this test suite.
-        vm.startPrank(holder);
+        vm.startPrank({ msgSender: holder });
 
         // Query the initial balance of the asset holder.
         initialHolderBalance = asset.balanceOf(holder);

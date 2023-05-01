@@ -46,7 +46,7 @@ abstract contract RefundableAmountOf_Unit_Test is Unit_Test, Lockup_Shared_Test 
 
     function test_RefundableAmountOf() external whenStreamActive {
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Get the streamed amount.
         uint128 streamedAmount = lockup.streamedAmountOf(defaultStreamId);

@@ -34,7 +34,7 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
         uint256 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
-        uint256 expectedStreamedAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_RETURNED_AMOUNT;
+        uint256 expectedStreamedAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_REFUND_AMOUNT;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -54,7 +54,7 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test {
 
     function test_StreamedAmountOf() external whenStreamActive whenCliffTimeInThePast {
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Run the test.
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);

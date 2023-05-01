@@ -23,7 +23,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         // Create three streams: a default stream, a stream meant to be canceled, and a stream with an early end time.
         defaultStreamIds.push(createDefaultStream());
         defaultStreamIds.push(createDefaultStream());
-        defaultStreamIds.push(createDefaultStreamWithEndTime(WARP_TIME_26));
+        defaultStreamIds.push(createDefaultStreamWithEndTime(WARP_26_PERCENT));
 
         // Make the recipient the caller in this test suite.
         changePrank({ msgSender: users.recipient });
@@ -106,7 +106,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint256[] memory streamIds = Solarray.uint256s(defaultStreamIds[0], defaultStreamIds[1], nullStreamId);
 
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Expect a {SablierV2Lockup_StreamNull} error.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNull.selector, nullStreamId));
@@ -190,7 +190,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.eve });
 
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Run the test.
         uint256[] memory streamIds = Solarray.uint256s(eveStreamId, defaultStreamIds[0], defaultStreamIds[1]);
@@ -212,7 +212,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: defaultStreamIds[0] });
 
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Run the test.
         vm.expectRevert(
@@ -241,7 +241,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.operator });
 
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Expect the withdrawals to be made.
         expectTransferCall({ to: users.recipient, amount: defaultAmounts[0] });
@@ -272,7 +272,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenCallerRecipient
     {
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Run the test.
         uint128[] memory amounts = Solarray.uint128s(DEFAULT_WITHDRAW_AMOUNT, 0, 0);
@@ -296,7 +296,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenAllAmountsNotZero
     {
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Run the test.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamIds[2]);
@@ -329,7 +329,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenAllAmountsLessThanOrEqualToWithdrawableAmounts
     {
         // Warp into the future.
-        vm.warp({ timestamp: WARP_TIME_26 });
+        vm.warp({ timestamp: WARP_26_PERCENT });
 
         // Cancel the second stream.
         lockup.cancel(defaultStreamIds[1]);

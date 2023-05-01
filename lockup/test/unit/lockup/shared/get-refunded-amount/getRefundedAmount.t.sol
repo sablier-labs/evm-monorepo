@@ -42,7 +42,7 @@ abstract contract GetRefundedAmount_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(streamId);
         uint128 actualReturnedAmount = lockup.getRefundedAmount(streamId);
-        uint128 expectedReturnedAmount = DEFAULT_RETURNED_AMOUNT;
+        uint128 expectedReturnedAmount = DEFAULT_REFUND_AMOUNT;
         assertEq(actualReturnedAmount, expectedReturnedAmount, "refundedAmount");
     }
 }

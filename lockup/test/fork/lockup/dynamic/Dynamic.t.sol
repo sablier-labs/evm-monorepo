@@ -166,14 +166,14 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         // Create the stream.
         dynamic.createWithMilestones(
             LockupDynamic.CreateWithMilestones({
-                sender: params.sender,
-                recipient: params.recipient,
-                totalAmount: vars.totalAmount,
                 asset: asset,
+                broker: params.broker,
                 cancelable: true,
+                recipient: params.recipient,
                 segments: params.segments,
+                sender: params.sender,
                 startTime: params.startTime,
-                broker: params.broker
+                totalAmount: vars.totalAmount
             })
         );
 

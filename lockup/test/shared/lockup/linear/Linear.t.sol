@@ -36,35 +36,35 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         // Initialize the default params to be used for the create functions.
         defaultParams = DefaultParams({
             createWithDurations: LockupLinear.CreateWithDurations({
-                sender: users.sender,
-                recipient: users.recipient,
-                totalAmount: DEFAULT_TOTAL_AMOUNT,
                 asset: DEFAULT_ASSET,
+                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE }),
                 cancelable: true,
                 durations: DEFAULT_DURATIONS,
-                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
-            }),
-            createWithRange: LockupLinear.CreateWithRange({
                 sender: users.sender,
                 recipient: users.recipient,
-                totalAmount: DEFAULT_TOTAL_AMOUNT,
+                totalAmount: DEFAULT_TOTAL_AMOUNT
+            }),
+            createWithRange: LockupLinear.CreateWithRange({
                 asset: DEFAULT_ASSET,
+                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE }),
                 cancelable: true,
+                sender: users.sender,
                 range: DEFAULT_LINEAR_RANGE,
-                broker: Broker({ account: users.broker, fee: DEFAULT_BROKER_FEE })
+                recipient: users.recipient,
+                totalAmount: DEFAULT_TOTAL_AMOUNT
             })
         });
 
         // Create the default stream to be used across the tests.
         defaultStream = LockupLinear.Stream({
             amounts: DEFAULT_LOCKUP_AMOUNTS,
+            asset: defaultParams.createWithRange.asset,
             cliffTime: defaultParams.createWithRange.range.cliff,
             endTime: defaultParams.createWithRange.range.end,
             isCancelable: defaultParams.createWithRange.cancelable,
             sender: defaultParams.createWithRange.sender,
             startTime: defaultParams.createWithRange.range.start,
-            status: Lockup.Status.ACTIVE,
-            asset: defaultParams.createWithRange.asset
+            status: Lockup.Status.ACTIVE
         });
     }
 

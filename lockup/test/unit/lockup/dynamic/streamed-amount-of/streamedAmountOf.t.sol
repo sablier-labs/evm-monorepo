@@ -39,7 +39,7 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test {
         vm.warp({ timestamp: DEFAULT_CLIFF_TIME });
         lockup.cancel(defaultStreamId);
         uint256 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
-        uint256 expectedStreamedAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_RETURNED_AMOUNT;
+        uint256 expectedStreamedAmount = DEFAULT_DEPOSIT_AMOUNT - DEFAULT_REFUND_AMOUNT;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 

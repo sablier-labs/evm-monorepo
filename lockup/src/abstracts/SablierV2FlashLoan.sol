@@ -14,7 +14,7 @@ import { SablierV2Base } from "./SablierV2Base.sol";
 /// @notice This contract implements the ERC-3156 standard to enable flash loans.
 /// @dev See https://eips.ethereum.org/EIPS/eip-3156.
 abstract contract SablierV2FlashLoan is
-    IERC3156FlashLender, // no inherited components
+    IERC3156FlashLender, // 0 inherited components
     SablierV2Base // 4 inherited components
 {
     using SafeERC20 for IERC20;

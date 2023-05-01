@@ -218,13 +218,13 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         // Create the stream.
         linear.createWithRange(
             LockupLinear.CreateWithRange({
-                sender: params.sender,
-                recipient: params.recipient,
-                totalAmount: params.totalAmount,
                 asset: DEFAULT_ASSET,
+                broker: params.broker,
                 cancelable: params.cancelable,
                 range: params.range,
-                broker: params.broker
+                recipient: params.recipient,
+                sender: params.sender,
+                totalAmount: params.totalAmount
             })
         );
 

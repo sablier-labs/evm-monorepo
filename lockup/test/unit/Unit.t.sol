@@ -13,7 +13,7 @@ import { RevertingRecipient } from "../mocks/hooks/RevertingRecipient.sol";
 import { RevertingSender } from "../mocks/hooks/RevertingSender.sol";
 
 /// @title Unit_Test
-/// @notice Base unit test contract with common logic needed by all unit test contracts.
+/// @notice Common logic needed by all unit test contracts.
 abstract contract Unit_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
@@ -34,31 +34,25 @@ abstract contract Unit_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Deploy the entire protocol.
+        // Deploy V2 Core.
         deployProtocolConditionally();
 
         // Make the admin the default caller in this test suite.
         vm.startPrank({ msgSender: users.admin });
 
-        // Approve all protocol contracts to spend assets from the users.
+        // Approve V2 Core to spend assets from the users.
         approveProtocol();
 
         // Label the test contracts.
-        labelTestContracts();
+        labelContracts();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Expects a delegate call error.
-    function expectRevertDueToDelegateCall(bool success, bytes memory returnData) internal {
-        assertFalse(success, "delegatecall success");
-        assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
-    }
-
-    /// @dev Label the test contracts.
-    function labelTestContracts() internal {
+    /// @dev Labels the unit test contracts.
+    function labelContracts() private {
         vm.label({ account: address(empty), newLabel: "Empty" });
         vm.label({ account: address(faultyFlashLoanReceiver), newLabel: "Faulty Flash Loan Receiver" });
         vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
@@ -67,5 +61,15 @@ abstract contract Unit_Test is Base_Test {
         vm.label({ account: address(reentrantSender), newLabel: "Reentrant Lockup Sender" });
         vm.label({ account: address(revertingRecipient), newLabel: "Reverting Lockup Recipient" });
         vm.label({ account: address(revertingSender), newLabel: "Reverting Lockup Sender" });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    EXPECT CALLS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Expects a delegate call error.
+    function expectRevertDueToDelegateCall(bool success, bytes memory returnData) internal {
+        assertFalse(success, "delegatecall success");
+        assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
     }
 }
