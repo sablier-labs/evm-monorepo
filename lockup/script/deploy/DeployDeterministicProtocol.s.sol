@@ -12,18 +12,17 @@ import { DeployDeterministicComptroller } from "./DeployDeterministicComptroller
 import { DeployDeterministicLockupDynamic } from "./DeployDeterministicLockupDynamic.s.sol";
 import { DeployDeterministicLockupLinear } from "./DeployDeterministicLockupLinear.s.sol";
 
-/// @dev Deploys the entire protocol at deterministic addresses across all chains. Reverts if any contract
-/// has already been deployed.
+/// @notice Deploys V2 Core at deterministic addresses across chains. The contracts are deployed in the following order:
 ///
-/// The contracts are deployed in the following order:
+/// 1. {SablierV2Comptroller}
+/// 2. {SablierV2LockupDynamic}
+/// 3. {SablierV2LockupLinear}
 ///
-/// 1. SablierV2Comptroller
-/// 2. SablierV2LockupLinear
-/// 3. SablierV2LockupDynamic
+/// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicProtocol is
     DeployDeterministicComptroller,
-    DeployDeterministicLockupLinear,
-    DeployDeterministicLockupDynamic
+    DeployDeterministicLockupDynamic,
+    DeployDeterministicLockupLinear
 {
     /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.
     /// https://github.com/Arachnid/deterministic-deployment-proxy
@@ -34,15 +33,10 @@ contract DeployDeterministicProtocol is
     )
         public
         virtual
-        returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupDynamic dynamic)
+        returns (SablierV2Comptroller comptroller, SablierV2LockupDynamic dynamic, SablierV2LockupLinear linear)
     {
-        // Deploy the SablierV2Comptroller contract.
         comptroller = DeployDeterministicComptroller.run(initialAdmin);
-
-        // Deploy the SablierV2LockupLinear contract.
-        linear = DeployDeterministicLockupLinear.run(initialAdmin, comptroller, initialNFTDescriptor);
-
-        // Deploy the SablierV2LockupDynamic contract.
         dynamic = DeployDeterministicLockupDynamic.run(initialAdmin, comptroller, initialNFTDescriptor, maxSegmentCount);
+        linear = DeployDeterministicLockupLinear.run(initialAdmin, comptroller, initialNFTDescriptor);
     }
 }

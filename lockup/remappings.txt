@@ -4,5 +4,6 @@
 @prb/test/=lib/prb-test/src/
 erc3156/=lib/ERC3156/contracts/
 forge-std/=lib/forge-std/src/
+solady/=lib/solady/src/
 solarray/=lib/solarray/src/
 solidity-generators/=lib/solidity-generators/src/

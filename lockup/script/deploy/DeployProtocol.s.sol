@@ -12,12 +12,12 @@ import { DeployComptroller } from "./DeployComptroller.s.sol";
 import { DeployLockupDynamic } from "./DeployLockupDynamic.s.sol";
 import { DeployLockupLinear } from "./DeployLockupLinear.s.sol";
 
-/// @notice Deploys the entire protocol. The contracts are deployed in the following order:
+/// @notice Deploys V2 Core in the following order:
 ///
-/// 1. SablierV2Comptroller
-/// 2. SablierV2LockupLinear
-/// 3. SablierV2LockupDynamic
-contract DeployProtocol is DeployComptroller, DeployLockupLinear, DeployLockupDynamic {
+/// 1. {SablierV2Comptroller}
+/// 2. {SablierV2LockupDynamic}
+/// 3. {SablierV2LockupLinear}
+contract DeployProtocol is DeployComptroller, DeployLockupDynamic, DeployLockupLinear {
     function run(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor,
@@ -25,10 +25,10 @@ contract DeployProtocol is DeployComptroller, DeployLockupLinear, DeployLockupDy
     )
         public
         virtual
-        returns (SablierV2Comptroller comptroller, SablierV2LockupLinear linear, SablierV2LockupDynamic dynamic)
+        returns (SablierV2Comptroller comptroller, SablierV2LockupDynamic dynamic, SablierV2LockupLinear linear)
     {
         comptroller = DeployComptroller.run(initialAdmin);
-        linear = DeployLockupLinear.run(initialAdmin, comptroller, initialNFTDescriptor);
         dynamic = DeployLockupDynamic.run(initialAdmin, comptroller, initialNFTDescriptor, maxSegmentCount);
+        linear = DeployLockupLinear.run(initialAdmin, comptroller, initialNFTDescriptor);
     }
 }

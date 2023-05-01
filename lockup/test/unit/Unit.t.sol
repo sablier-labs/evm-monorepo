@@ -4,13 +4,13 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Base_Test } from "../Base.t.sol";
-import { Empty } from "../shared/mockups/hooks/Empty.t.sol";
-import { FaultyFlashLoanReceiver } from "../shared/mockups/flash-loan/FaultyFlashLoanReceiver.t.sol";
-import { ReentrantFlashLoanReceiver } from "../shared/mockups/flash-loan/ReentrantFlashLoanReceiver.t.sol";
-import { ReentrantRecipient } from "../shared/mockups/hooks/ReentrantRecipient.t.sol";
-import { ReentrantSender } from "../shared/mockups/hooks/ReentrantSender.t.sol";
-import { RevertingRecipient } from "../shared/mockups/hooks/RevertingRecipient.t.sol";
-import { RevertingSender } from "../shared/mockups/hooks/RevertingSender.t.sol";
+import { Empty } from "../mocks/hooks/Empty.sol";
+import { FaultyFlashLoanReceiver } from "../mocks/flash-loan/FaultyFlashLoanReceiver.sol";
+import { ReentrantFlashLoanReceiver } from "../mocks/flash-loan/ReentrantFlashLoanReceiver.sol";
+import { ReentrantRecipient } from "../mocks/hooks/ReentrantRecipient.sol";
+import { ReentrantSender } from "../mocks/hooks/ReentrantSender.sol";
+import { RevertingRecipient } from "../mocks/hooks/RevertingRecipient.sol";
+import { RevertingSender } from "../mocks/hooks/RevertingSender.sol";
 
 /// @title Unit_Test
 /// @notice Base unit test contract with common logic needed by all unit test contracts.
@@ -35,7 +35,7 @@ abstract contract Unit_Test is Base_Test {
         Base_Test.setUp();
 
         // Deploy the entire protocol.
-        deployProtocol();
+        deployProtocolConditionally();
 
         // Make the admin the default caller in this test suite.
         vm.startPrank({ msgSender: users.admin });

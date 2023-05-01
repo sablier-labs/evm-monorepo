@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity >=0.8.19;
 
-import { ISablierV2Lockup } from "../../../../src/interfaces/ISablierV2Lockup.sol";
-import { ISablierV2LockupRecipient } from "../../../../src/interfaces/hooks/ISablierV2LockupRecipient.sol";
+import { ISablierV2Lockup } from "../../../src/interfaces/ISablierV2Lockup.sol";
+import { ISablierV2LockupRecipient } from "../../../src/interfaces/hooks/ISablierV2LockupRecipient.sol";
 
-contract RevertingRecipient is ISablierV2LockupRecipient {
+contract GoodRecipient is ISablierV2LockupRecipient {
     function onStreamCanceled(
         ISablierV2Lockup lockup,
         uint256 streamId,
@@ -20,13 +20,11 @@ contract RevertingRecipient is ISablierV2LockupRecipient {
         sender;
         senderAmount;
         recipientAmount;
-        revert("You shall not pass");
     }
 
     function onStreamRenounced(ISablierV2Lockup lockup, uint256 streamId) external pure {
         lockup;
         streamId;
-        revert("You shall not pass");
     }
 
     function onStreamWithdrawn(
@@ -44,6 +42,5 @@ contract RevertingRecipient is ISablierV2LockupRecipient {
         caller;
         to;
         amount;
-        revert("You shall not pass");
     }
 }

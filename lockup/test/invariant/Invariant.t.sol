@@ -25,7 +25,7 @@ abstract contract Invariant_Test is Base_Test, StdInvariant {
         Base_Test.setUp();
 
         // Deploy the entire protocol.
-        deployProtocol();
+        deployProtocolConditionally();
 
         // Deploy the comptroller handler.
         comptrollerHandler = new ComptrollerHandler({ asset_: DEFAULT_ASSET, comptroller_: comptroller });
