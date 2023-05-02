@@ -99,12 +99,12 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
 
     /// @dev Compares two {Lockup.Status} enum values.
     function assertEq(Lockup.Status a, Lockup.Status b) internal {
-        assertEq(uint8(a), uint8(b), "status");
+        assertEq(uint256(a), uint256(b), "status");
     }
 
     /// @dev Compares two {Lockup.Status} enum values.
     function assertEq(Lockup.Status a, Lockup.Status b, string memory err) internal {
-        assertEq(uint8(a), uint8(b), err);
+        assertEq(uint256(a), uint256(b), err);
     }
 
     /// @dev Compares two `uint128` numbers.
@@ -141,5 +141,15 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
             emit LogNamedString("Error", err);
             assertEqUint40(a, b);
         }
+    }
+
+    /// @dev Compares two {Lockup.Status} enum values.
+    function assertNotEq(Lockup.Status a, Lockup.Status b) internal {
+        assertNotEq(uint256(a), uint256(b), "status");
+    }
+
+    /// @dev Compares two {Lockup.Status} enum values.
+    function assertNotEq(Lockup.Status a, Lockup.Status b, string memory err) internal {
+        assertNotEq(uint256(a), uint256(b), err);
     }
 }

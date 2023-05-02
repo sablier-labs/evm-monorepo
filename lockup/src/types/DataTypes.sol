@@ -13,7 +13,7 @@ struct Broker {
     UD60x18 fee;
 }
 
-/// @notice Quasi-namespace for the structs used in both {SablierV2LockupLinear} and {SablierV2LockupDynamic}.
+/// @notice Namespace for the structs used in both {SablierV2LockupLinear} and {SablierV2LockupDynamic}.
 library Lockup {
     /// @notice Struct encapsulating the deposit, withdrawn, and refunded amounts, all denoted in units
     /// of the asset's decimals.
@@ -56,7 +56,7 @@ library Lockup {
     }
 }
 
-/// @notice Quasi-namespace for the structs used in {SablierV2LockupDynamic}.
+/// @notice Namespace for the structs used in {SablierV2LockupDynamic}.
 library LockupDynamic {
     /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithDeltas} function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
@@ -139,9 +139,9 @@ library LockupDynamic {
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param endTime The Unix timestamp indicating the stream's end.
     /// @param isCancelable Boolean indicating if the stream is cancelable.
-    /// @param isCanceled Boolean indicating if the stream has been canceled.
+    /// @param isCanceled Boolean indicating if the stream is canceled.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param isDepleted Boolean indicating if the stream has been depleted.
+    /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
     /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.
@@ -164,7 +164,7 @@ library LockupDynamic {
     }
 }
 
-/// @notice Quasi-namespace for the structs used in {SablierV2LockupLinear}.
+/// @notice Namespace for the structs used in {SablierV2LockupLinear}.
 library LockupLinear {
     /// @notice Struct encapsulating the parameters for the {SablierV2LockupLinear.createWithDurations} function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
@@ -233,10 +233,10 @@ library LockupLinear {
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param cliffTime The Unix timestamp indicating the cliff period's end.
     /// @param isCancelable Boolean indicating if the stream is cancelable.
-    /// @param isCanceled Boolean indicating if the stream has been canceled.
+    /// @param isCanceled Boolean indicating if the stream is canceled.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param endTime The Unix timestamp indicating the stream's end.
-    /// @param isDepleted Boolean indicating if the stream has been depleted.
+    /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
     /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.

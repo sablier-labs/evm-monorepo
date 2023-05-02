@@ -166,7 +166,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCold(uint256 streamId) public view override notNull(streamId) returns (bool result) {
+    function isCold(uint256 streamId) external view override notNull(streamId) returns (bool result) {
         Lockup.Status status = statusOf(streamId);
         result = status == Lockup.Status.SETTLED || status == Lockup.Status.CANCELED || status == Lockup.Status.DEPLETED;
     }
@@ -177,7 +177,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isWarm(uint256 streamId) public view override notNull(streamId) returns (bool result) {
+    function isWarm(uint256 streamId) external view override notNull(streamId) returns (bool result) {
         Lockup.Status status = statusOf(streamId);
         result = status == Lockup.Status.PENDING || status == Lockup.Status.STREAMING;
     }
@@ -391,7 +391,7 @@ contract SablierV2LockupLinear is
         // Effects: set the refunded amount.
         _streams[streamId].amounts.refunded = senderAmount;
 
-        // Load the sender and the recipient in memory.
+        // Retrieve the sender and the recipient from storage.
         address sender = _streams[streamId].sender;
         address recipient = _ownerOf(streamId);
 
@@ -533,7 +533,7 @@ contract SablierV2LockupLinear is
         // Effects: update the withdrawn amount.
         _streams[streamId].amounts.withdrawn = _streams[streamId].amounts.withdrawn + amount;
 
-        // Load the amounts in memory.
+        // Retrieve the amounts from storage.
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
 
         // Using ">=" instead of "==" for additional safety reasons. In the event of an unforeseen increase in the
@@ -552,7 +552,7 @@ contract SablierV2LockupLinear is
         // Interactions: perform the ERC-20 transfer.
         _streams[streamId].asset.safeTransfer({ to: to, value: amount });
 
-        // Load the recipient in memory.
+        // Retrieve the recipient from storage.
         address recipient = _ownerOf(streamId);
 
         // Interactions: if `msg.sender` is not the recipient and the recipient is a contract, try to invoke the

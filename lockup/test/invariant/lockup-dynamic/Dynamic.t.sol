@@ -50,7 +50,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         targetContract(address(dynamicHandler));
         targetContract(address(dynamicCreateHandler));
 
-        // Exclude the dynamic handlers from being `msg.sender`.
+        // Prevent these contracts from being fuzzed as `msg.sender`.
         excludeSender(address(dynamicHandler));
         excludeSender(address(dynamicCreateHandler));
     }

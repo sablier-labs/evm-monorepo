@@ -36,12 +36,10 @@ abstract contract Invariant_Test is Base_Test, StdInvariant {
         // Target only the comptroller handler for invariant testing (to avoid getting reverts).
         targetContract(address(comptrollerHandler));
 
-        // Exclude the comptroller, linear and dynamic from being `msg.sender`.
+        // Prevent these contracts from being fuzzed as `msg.sender`.
         excludeSender(address(comptroller));
         excludeSender(address(linear));
         excludeSender(address(dynamic));
-
-        // Exclude the comptroller handler from being `msg.sender`.
         excludeSender(address(comptrollerHandler));
     }
 }
