@@ -30,9 +30,7 @@ abstract contract Lockup_Shared_Test is Base_Test {
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public virtual override {
-        Base_Test.setUp();
-    }
+    function setUp() public virtual override { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   HELPER FUNCTIONS
