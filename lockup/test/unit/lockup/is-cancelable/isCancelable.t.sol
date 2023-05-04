@@ -22,12 +22,26 @@ abstract contract IsCancelable_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_IsCancelable_StreamCancelable() external whenNotNull {
+    function test_IsCancelable_Cold() external whenNotNull {
+        vm.warp({ timestamp: defaults.END_TIME() }); // settled status
+        bool isCancelable = lockup.isCancelable(defaultStreamId);
+        assertFalse(isCancelable, "isCancelable");
+    }
+
+    modifier whenNotCold() {
+        _;
+    }
+
+    function test_IsCancelable_StreamCancelable() external whenNotNull whenNotCold {
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertTrue(isCancelable, "isCancelable");
     }
 
-    function test_IsCancelable_StreamNotCancelable() external whenNotNull {
+    modifier whenStreamNotCancelable() {
+        _;
+    }
+
+    function test_IsCancelable() external whenNotNull whenNotCold whenStreamNotCancelable {
         uint256 streamId = createDefaultStreamNotCancelable();
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");

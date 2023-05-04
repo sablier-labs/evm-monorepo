@@ -162,11 +162,13 @@ contract SablierV2LockupLinear is
 
     /// @inheritdoc ISablierV2Lockup
     function isCancelable(uint256 streamId) external view override notNull(streamId) returns (bool result) {
-        result = _streams[streamId].isCancelable;
+        if (!isCold(streamId)) {
+            result = _streams[streamId].isCancelable;
+        }
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCold(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+    function isCold(uint256 streamId) public view override notNull(streamId) returns (bool result) {
         Lockup.Status status = statusOf(streamId);
         result = status == Lockup.Status.SETTLED || status == Lockup.Status.CANCELED || status == Lockup.Status.DEPLETED;
     }

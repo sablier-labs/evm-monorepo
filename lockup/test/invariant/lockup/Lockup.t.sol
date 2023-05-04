@@ -210,7 +210,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
                     0,
                     "Invariant violation: settled stream with a non-zero refunded amount"
                 );
-                assertFalse(lockup.isCancelable(streamId), "Invariant violation: depleted stream is cancelable");
+                assertFalse(lockup.isCancelable(streamId), "Invariant violation: settled stream is cancelable");
                 assertEq(
                     lockup.refundableAmountOf(streamId),
                     0,
