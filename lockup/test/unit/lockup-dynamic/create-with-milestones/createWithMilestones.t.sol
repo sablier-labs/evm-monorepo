@@ -235,7 +235,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
     {
-        UD60x18 protocolFee = MAX_FEE.add(ud(1));
+        UD60x18 protocolFee = MAX_FEE + ud(1);
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
@@ -263,7 +263,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
     {
-        UD60x18 brokerFee = MAX_FEE.add(ud(1));
+        UD60x18 brokerFee = MAX_FEE + ud(1);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, MAX_FEE));
         createDefaultStreamWithBroker(Broker({ account: users.broker, fee: brokerFee }));
     }

@@ -134,7 +134,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
     {
-        protocolFee = bound(protocolFee, MAX_FEE.add(ud(1)), MAX_UD60x18);
+        protocolFee = bound(protocolFee, MAX_FEE + ud(1), MAX_UD60x18);
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
@@ -161,7 +161,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
-        broker.fee = bound(broker.fee, MAX_FEE.add(ud(1)), MAX_UD60x18);
+        broker.fee = bound(broker.fee, MAX_FEE + ud(1), MAX_UD60x18);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_FEE));
         createDefaultStreamWithBroker(broker);
     }
