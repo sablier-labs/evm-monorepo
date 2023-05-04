@@ -139,6 +139,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
+        changePrank({ msgSender: users.sender });
 
         // Run the test.
         vm.expectRevert(

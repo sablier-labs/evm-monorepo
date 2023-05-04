@@ -20,6 +20,7 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
     Params private _params;
 
     function setUp() public virtual override {
+        Lockup_Shared_Test.setUp();
         _params.createWithDurations = defaults.createWithDurations();
         _params.createWithRange = defaults.createWithRange();
     }

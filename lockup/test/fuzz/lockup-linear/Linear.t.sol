@@ -32,13 +32,6 @@ abstract contract Linear_Fuzz_Test is Fuzz_Test, Linear_Shared_Test {
         // Cast the linear contract as {ISablierV2Base} and {ISablierV2Lockup}.
         base = ISablierV2Base(linear);
         lockup = ISablierV2Lockup(linear);
-
-        // Set the default protocol fee.
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: defaults.PROTOCOL_FEE() });
-        comptroller.setProtocolFee({ asset: IERC20(address(nonCompliantAsset)), newProtocolFee: defaults.PROTOCOL_FEE() });
-
-        // Make the sender the default caller in this test suite.
-        changePrank({ msgSender: users.sender });
     }
 }
 

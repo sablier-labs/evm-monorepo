@@ -17,19 +17,26 @@ abstract contract Lockup_Shared_Test is Base_Test {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev A test contract that is meant to be overridden by the implementing contract.
-    /// This will be either {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
+    /// @dev A test contract that is meant to be overridden by the implementing contract, which will be
+    /// either {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
     ISablierV2Base internal base;
 
-    /// @dev A test contract that is meant to be overridden by the implementing contract.
-    /// This will be either {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
+    /// @dev A test contract that is meant to be overridden by the implementing contract, which will be
+    /// either {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
     ISablierV2Lockup internal lockup;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public virtual override { }
+    function setUp() public virtual override {
+        // Set the default protocol fee.
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: defaults.PROTOCOL_FEE() });
+        comptroller.setProtocolFee({ asset: IERC20(address(nonCompliantAsset)), newProtocolFee: defaults.PROTOCOL_FEE() });
+
+        // Make the sender the default caller in this test suite.
+        changePrank({ msgSender: users.sender });
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS

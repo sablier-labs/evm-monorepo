@@ -104,6 +104,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
+        changePrank({ msgSender: users.sender });
 
         // Run the test.
         vm.expectRevert(
