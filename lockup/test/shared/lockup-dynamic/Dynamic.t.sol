@@ -31,8 +31,6 @@ abstract contract Dynamic_Shared_Test is Lockup_Shared_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        Lockup_Shared_Test.setUp();
-
         // Initialize the default params to be used for the create functions.
         defaultParams.createWithDeltas.sender = users.sender;
         defaultParams.createWithDeltas.recipient = users.recipient;

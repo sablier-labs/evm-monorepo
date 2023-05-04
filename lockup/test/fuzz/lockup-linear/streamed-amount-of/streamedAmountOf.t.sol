@@ -5,14 +5,13 @@ import { ZERO } from "@prb/math/UD60x18.sol";
 
 import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
+import { StreamedAmountOf_Shared_Test } from "../../../shared/lockup/streamed-amount-of/streamedAmountOf.t.sol";
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
 
-contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override {
+contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf_Shared_Test {
+    function setUp() public virtual override(Linear_Fuzz_Test, StreamedAmountOf_Shared_Test) {
         Linear_Fuzz_Test.setUp();
-
+        StreamedAmountOf_Shared_Test.setUp();
         defaultStreamId = createDefaultStream();
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
@@ -21,11 +20,11 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         changePrank({ msgSender: users.sender });
     }
 
-    modifier whenStatusStreaming() {
-        _;
-    }
-
-    function testFuzz_StreamedAmountOf_CliffTimeInTheFuture(uint40 timeWarp) external {
+    function testFuzz_StreamedAmountOf_CliffTimeInTheFuture(uint40 timeWarp)
+        external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+    {
         timeWarp = boundUint40(timeWarp, 0, defaults.CLIFF_DURATION() - 1);
         vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
@@ -50,6 +49,8 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint128 depositAmount
     )
         external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
         whenCliffTimeInThePast
     {
         vm.assume(depositAmount != 0);
@@ -60,8 +61,8 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Create the stream with the fuzzed deposit amount.
         LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
-        params.totalAmount = depositAmount;
         params.broker = Broker({ account: address(0), fee: ZERO });
+        params.totalAmount = depositAmount;
         uint256 streamId = linear.createWithRange(params);
 
         // Simulate the passage of time.
@@ -81,6 +82,8 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint128 depositAmount
     )
         external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
         whenCliffTimeInThePast
     {
         vm.assume(depositAmount != 0);

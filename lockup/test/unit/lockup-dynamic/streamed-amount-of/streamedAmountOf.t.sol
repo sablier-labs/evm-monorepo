@@ -13,10 +13,6 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StreamedAmount
         StreamedAmountOf_Unit_Test.setUp();
     }
 
-    modifier whenStatusStreaming() {
-        _;
-    }
-
     function test_StreamedAmountOf_StartTimeInTheFuture()
         external
         whenNotNull
@@ -39,10 +35,6 @@ contract StreamedAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, StreamedAmount
         uint128 actualStreamedAmount = dynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
-    }
-
-    modifier whenStartTimeInThePast() {
-        _;
     }
 
     function test_StreamedAmountOf_OneSegment()

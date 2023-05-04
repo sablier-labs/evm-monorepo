@@ -4,20 +4,18 @@ pragma solidity >=0.8.19 <0.9.0;
 import { ZERO } from "@prb/math/UD60x18.sol";
 import { Broker, LockupDynamic } from "src/types/DataTypes.sol";
 
+import { StreamedAmountOf_Shared_Test } from "../../../shared/lockup/streamed-amount-of/streamedAmountOf.t.sol";
 import { Dynamic_Fuzz_Test } from "../Dynamic.t.sol";
 
-contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
-    function setUp() public virtual override {
+contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmountOf_Shared_Test {
+    function setUp() public virtual override(Dynamic_Fuzz_Test, StreamedAmountOf_Shared_Test) {
         Dynamic_Fuzz_Test.setUp();
+        StreamedAmountOf_Shared_Test.setUp();
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
-    }
-
-    modifier whenStartTimeInThePast() {
-        _;
     }
 
     /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
@@ -32,6 +30,8 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint40 timeWarp
     )
         external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
         whenStartTimeInThePast
     {
         vm.assume(segment.amount != 0);
@@ -47,9 +47,9 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Create the stream with the fuzzed segment.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.totalAmount = segment.amount;
-        params.segments = segments;
         params.broker = Broker({ account: address(0), fee: ZERO });
+        params.segments = segments;
+        params.totalAmount = segment.amount;
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
@@ -83,6 +83,8 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint40 timeWarp
     )
         external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
         whenStartTimeInThePast
         whenMultipleSegments
         whenCurrentMilestoneNot1st
@@ -110,9 +112,9 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Create the stream with the fuzzed segments.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.totalAmount = totalAmount;
-        params.segments = segments;
         params.broker = Broker({ account: address(0), fee: ZERO });
+        params.segments = segments;
+        params.totalAmount = totalAmount;
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
@@ -132,6 +134,8 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint40 timeWarp1
     )
         external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
         whenStartTimeInThePast
         whenMultipleSegments
         whenCurrentMilestoneNot1st
@@ -160,9 +164,9 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Create the stream with the fuzzed segments.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.totalAmount = totalAmount;
-        params.segments = segments;
         params.broker = Broker({ account: address(0), fee: ZERO });
+        params.segments = segments;
+        params.totalAmount = totalAmount;
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Warp to the future for the first time.

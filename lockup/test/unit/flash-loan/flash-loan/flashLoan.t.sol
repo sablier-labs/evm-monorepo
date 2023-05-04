@@ -6,10 +6,13 @@ import { IERC3156FlashLender } from "erc3156/interfaces/IERC3156FlashLender.sol"
 
 import { Errors } from "src/libraries/Errors.sol";
 
+import { FlashLoanFunction_Shared_Test } from "../../../shared/flash-loan/flash-loan/flashLoan.t.sol";
 import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
-contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
-    uint128 internal constant LIQUIDITY_AMOUNT = 8_755_001e18;
+contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test, FlashLoanFunction_Shared_Test {
+    function setUp() public virtual override(FlashLoan_Unit_Test, FlashLoanFunction_Shared_Test) {
+        FlashLoan_Unit_Test.setUp();
+    }
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
@@ -18,28 +21,15 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
     function test_RevertWhen_AmountTooHigh() external whenNoDelegateCall {
         uint256 amount = uint256(MAX_UINT128) + 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
         flashLoan.flashLoan({ receiver: goodFlashLoanReceiver, asset: address(usdc), amount: amount, data: bytes("") });
     }
 
-    modifier whenAmountNotTooHigh() {
-        _;
-    }
-
     function test_RevertWhen_AssetNotFlashLoanable() external whenNoDelegateCall whenAmountNotTooHigh {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, usdc));
         flashLoan.flashLoan({ receiver: goodFlashLoanReceiver, asset: address(usdc), amount: 0, data: bytes("") });
-    }
-
-    modifier whenAssetFlashLoanable() {
-        comptroller.toggleFlashAsset(usdc);
-        _;
     }
 
     function test_RevertWhen_CalculatedFeeTooHigh()
@@ -61,10 +51,6 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
         });
     }
 
-    modifier whenCalculatedFeeNotTooHigh() {
-        _;
-    }
-
     function test_RevertWhen_BorrowFailed()
         external
         whenNoDelegateCall
@@ -80,10 +66,6 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
             amount: LIQUIDITY_AMOUNT,
             data: bytes("")
         });
-    }
-
-    modifier whenBorrowDoesNotFail() {
-        _;
     }
 
     function test_RevertWhen_Reentrancy()
@@ -103,10 +85,6 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test {
             amount: LIQUIDITY_AMOUNT / 4,
             data: bytes("")
         });
-    }
-
-    modifier whenNoReentrancy() {
-        _;
     }
 
     function test_FlashLoan()

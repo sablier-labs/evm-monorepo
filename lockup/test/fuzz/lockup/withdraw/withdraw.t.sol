@@ -4,43 +4,12 @@ pragma solidity >=0.8.19 <0.9.0;
 import { ISablierV2LockupRecipient } from "src/interfaces/hooks/ISablierV2LockupRecipient.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { Lockup_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
+import { Withdraw_Shared_Test } from "../../../shared/lockup/withdraw/withdraw.t.sol";
 import { Fuzz_Test } from "../../Fuzz.t.sol";
 
-abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
-        defaultStreamId = createDefaultStream();
-        changePrank({ msgSender: users.recipient });
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
-    modifier whenNotNull() {
-        _;
-    }
-
-    modifier whenStreamNeitherPendingNorDepleted() {
-        _;
-    }
-
-    modifier whenCallerAuthorized() {
-        _;
-    }
-
-    modifier whenToNonZeroAddress() {
-        _;
-    }
-
-    modifier whenWithdrawAmountNotZero() {
-        _;
-    }
-
-    modifier whenWithdrawAmountNotGreaterThanWithdrawableAmount() {
-        _;
+abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Withdraw_Shared_Test {
+    function setUp() public virtual override(Fuzz_Test, Withdraw_Shared_Test) {
+        Withdraw_Shared_Test.setUp();
     }
 
     /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
@@ -79,10 +48,6 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
-    }
-
-    modifier whenCallerRecipient() {
-        _;
     }
 
     /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
@@ -145,10 +110,6 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
-    }
-
-    modifier whenStreamHasNotBeenCanceled() {
-        _;
     }
 
     /// @dev Given enough test runs, all of the following scenarios will be fuzzed:

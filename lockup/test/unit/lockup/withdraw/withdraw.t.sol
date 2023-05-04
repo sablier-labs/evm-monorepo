@@ -7,15 +7,12 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { Lockup_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
+import { Withdraw_Shared_Test } from "../../../shared/lockup/withdraw/withdraw.t.sol";
 import { Unit_Test } from "../../Unit.t.sol";
 
-abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        defaultStreamId = createDefaultStream();
-        changePrank({ msgSender: users.recipient });
+abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
+    function setUp() public virtual override(Unit_Test, Withdraw_Shared_Test) {
+        Withdraw_Shared_Test.setUp();
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -26,19 +23,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
     function test_RevertWhen_Null() external whenNoDelegateCall {
         uint256 nullStreamId = 1729;
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.withdraw({ streamId: nullStreamId, to: users.recipient, amount: withdrawAmount });
-    }
-
-    modifier whenNotNull() {
-        _;
     }
 
     function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenNotNull {
@@ -48,10 +37,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
-    }
-
-    modifier whenStreamNeitherPendingNorDepleted() {
-        _;
     }
 
     modifier whenCallerUnauthorized() {
@@ -113,10 +98,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
-    modifier whenCallerAuthorized() {
-        _;
-    }
-
     function test_RevertWhen_ToZeroAddress()
         external
         whenNoDelegateCall
@@ -129,10 +110,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: address(0), amount: withdrawAmount });
     }
 
-    modifier whenToNonZeroAddress() {
-        _;
-    }
-
     function test_RevertWhen_WithdrawAmountZero()
         external
         whenNoDelegateCall
@@ -143,10 +120,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_WithdrawAmountZero.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
-    }
-
-    modifier whenWithdrawAmountNotZero() {
-        _;
     }
 
     function test_RevertWhen_Overdraw()
@@ -309,10 +282,6 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Lockup_Shared_Test {
         address actualNFTowner = lockup.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = address(goodRecipient);
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
-    }
-
-    modifier whenStreamHasNotBeenCanceled() {
-        _;
     }
 
     function test_Withdraw_RecipientNotContract()

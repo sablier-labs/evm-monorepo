@@ -10,9 +10,9 @@ contract LockupHandlerStorage {
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
+    mapping(uint256 streamId => bool recorded) public isPreviousStatusRecorded;
     uint256 public lastStreamId;
     mapping(uint256 streamId => Lockup.Status status) public previousStatusOf;
-    mapping(uint256 streamId => bool recorded) public isPreviousStatusRecorded;
     mapping(uint256 streamId => address recipient) public recipients;
     mapping(uint256 streamId => address sender) public senders;
     uint256[] public streamIds;

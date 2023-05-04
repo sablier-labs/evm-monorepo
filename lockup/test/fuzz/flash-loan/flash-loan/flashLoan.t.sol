@@ -6,11 +6,12 @@ import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.
 
 import { Errors } from "src/libraries/Errors.sol";
 
+import { FlashLoanFunction_Shared_Test } from "../../../shared/flash-loan/flash-loan/flashLoan.t.sol";
 import { FlashLoan_Fuzz_Test } from "../FlashLoan.t.sol";
 
-contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
-    modifier whenNoDelegateCall() {
-        _;
+contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_Shared_Test {
+    function setUp() public virtual override(FlashLoan_Fuzz_Test, FlashLoanFunction_Shared_Test) {
+        FlashLoan_Fuzz_Test.setUp();
     }
 
     function testFuzz_RevertWhen_AmountTooHigh(uint256 amount) external whenNoDelegateCall {
@@ -22,14 +23,6 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
             amount: amount,
             data: bytes("")
         });
-    }
-
-    modifier whenAmountNotTooHigh() {
-        _;
-    }
-
-    modifier whenAssetFlashLoanable() {
-        _;
     }
 
     function testFuzz_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee)
@@ -51,18 +44,6 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test {
             amount: MAX_UINT128,
             data: bytes("")
         });
-    }
-
-    modifier whenCalculatedFeeNotTooHigh() {
-        _;
-    }
-
-    modifier whenBorrowDoesNotFail() {
-        _;
-    }
-
-    modifier whenNoReentrancy() {
-        _;
     }
 
     /// @dev Given enough test runs, all of the following scenarios will be fuzzed:

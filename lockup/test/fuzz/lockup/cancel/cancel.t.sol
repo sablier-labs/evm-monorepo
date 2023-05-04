@@ -3,35 +3,12 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { Lockup_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
+import { Cancel_Shared_Test } from "../../../shared/lockup/cancel/cancel.t.sol";
 import { Fuzz_Test } from "../../Fuzz.t.sol";
 
-abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
-        defaultStreamId = createDefaultStream();
-        changePrank({ msgSender: users.recipient });
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
-    modifier whenNotNull() {
-        _;
-    }
-
-    modifier whenStreamWarm() {
-        _;
-    }
-
-    modifier whenCallerAuthorized() {
-        _;
-    }
-
-    modifier whenStreamCancelable() {
-        _;
+abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
+    function setUp() public virtual override(Fuzz_Test, Cancel_Shared_Test) {
+        Cancel_Shared_Test.setUp();
     }
 
     function testFuzz_Cancel_StatusPending(uint256 timeWarp)
@@ -58,31 +35,6 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         // Assert that the stream is not cancelable anymore.
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertFalse(isCancelable, "isCancelable");
-    }
-
-    modifier whenStatusStreaming() {
-        _;
-    }
-
-    modifier whenCallerSender() {
-        changePrank({ msgSender: users.sender });
-        _;
-    }
-
-    modifier whenRecipientContract() {
-        _;
-    }
-
-    modifier whenRecipientImplementsHook() {
-        _;
-    }
-
-    modifier whenRecipientDoesNotRevert() {
-        _;
-    }
-
-    modifier whenNoRecipientReentrancy() {
-        _;
     }
 
     /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
@@ -148,26 +100,6 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         address actualNFTOwner = lockup.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = address(goodRecipient);
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
-    }
-
-    modifier whenCallerRecipient() {
-        _;
-    }
-
-    modifier whenSenderContract() {
-        _;
-    }
-
-    modifier whenSenderImplementsHook() {
-        _;
-    }
-
-    modifier whenSenderDoesNotRevert() {
-        _;
-    }
-
-    modifier whenNoSenderReentrancy() {
-        _;
     }
 
     /// @dev Given enough test runs, all of the following scenarios will be fuzzed:

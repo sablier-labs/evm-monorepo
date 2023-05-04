@@ -1,19 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { Lockup_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
+import { GetWithdrawnAmount_Shared_Test } from "../../../shared/lockup/get-withdrawn-amount/getWithdrawnAmount.t.sol";
 import { Fuzz_Test } from "../../Fuzz.t.sol";
 
-abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
-        changePrank({ msgSender: users.recipient });
-    }
-
-    modifier whenNotNull() {
-        defaultStreamId = createDefaultStream();
-        _;
+abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, GetWithdrawnAmount_Shared_Test {
+    function setUp() public virtual override(Fuzz_Test, GetWithdrawnAmount_Shared_Test) {
+        GetWithdrawnAmount_Shared_Test.setUp();
     }
 
     function testFuzz_GetWithdrawnAmount_NoPreviousWithdrawals(uint256 timeWarp) external whenNotNull {
@@ -26,10 +19,6 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test 
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
         uint128 expectedWithdrawnAmount = 0;
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
-    }
-
-    modifier whenPreviousWithdrawals() {
-        _;
     }
 
     function testFuzz_GetWithdrawnAmount(

@@ -7,18 +7,12 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { Lockup_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
+import { WithdrawMultiple_Shared_Test } from "../../../shared/lockup/withdraw-multiple/withdrawMultiple.t.sol";
 import { Unit_Test } from "../../Unit.t.sol";
 
-abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
-    uint40 internal EARLY_STOP_TIME;
-    address internal caller;
-    uint128[] internal testAmounts;
-    uint256[] internal testStreamIds;
-
-    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        EARLY_STOP_TIME = defaults.WARP_26_PERCENT();
-        createTestStreams();
+abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shared_Test {
+    function setUp() public virtual override(Unit_Test, WithdrawMultiple_Shared_Test) {
+        WithdrawMultiple_Shared_Test.setUp();
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -28,17 +22,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
     function test_RevertWhen_ToZeroAddress() external whenNoDelegateCall {
         vm.expectRevert(Errors.SablierV2Lockup_WithdrawToZeroAddress.selector);
         lockup.withdrawMultiple({ streamIds: testStreamIds, to: address(0), amounts: testAmounts });
-    }
-
-    modifier whenToNonZeroAddress() {
-        _;
     }
 
     function test_RevertWhen_ArrayCountsNotEqual() external whenNoDelegateCall whenToNonZeroAddress {
@@ -108,10 +94,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: testAmounts });
     }
 
-    modifier whenNoNull() {
-        _;
-    }
-
     function test_RevertWhen_AllStatusesEitherPendingOrDepleted()
         external
         whenNoDelegateCall
@@ -133,11 +115,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, testStreamIds[0]));
 
         // Withdraw from multiple streams.
-        lockup.withdrawMultiple({
-            streamIds: streamIds,
-            to: users.recipient,
-            amounts: amounts
-        });
+        lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
     }
 
     function test_RevertWhen_SomeStatusesEitherPendingOrDepleted()
@@ -156,14 +134,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
         // Withdraw from multiple streams.
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: testAmounts });
-    }
-
-    modifier whenNoStatusPendingOrDepleted() {
-        _;
-    }
-
-    modifier whenCallerUnauthorized() {
-        _;
     }
 
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
@@ -260,23 +230,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.withdrawMultiple({ streamIds: testStreamIds, to: users.recipient, amounts: testAmounts });
     }
 
-    /// @dev This modifier runs the test in three different modes:
-    /// - Stream's sender as caller
-    /// - Stream's recipient as caller
-    /// - Approved NFT operator as caller
-    modifier whenCallerAuthorizedAllStreams() {
-        caller = users.sender;
-        _;
-        createTestStreams();
-        caller = users.recipient;
-        _;
-        createTestStreams();
-        changePrank({ msgSender: users.recipient });
-        lockup.setApprovalForAll({ operator: users.operator, _approved: true });
-        caller = users.operator;
-        _;
-    }
-
     function test_RevertWhen_SomeAmountsZero()
         external
         whenNoDelegateCall
@@ -294,10 +247,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         uint128[] memory amounts = Solarray.uint128s(defaults.WITHDRAW_AMOUNT(), 0, 0);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_WithdrawAmountZero.selector, testStreamIds[1]));
         lockup.withdrawMultiple({ streamIds: testStreamIds, to: users.recipient, amounts: amounts });
-    }
-
-    modifier whenNoAmountZero() {
-        _;
     }
 
     function test_RevertWhen_SomeAmountsOverdraw()
@@ -323,10 +272,6 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
             )
         );
         lockup.withdrawMultiple({ streamIds: testStreamIds, to: users.recipient, amounts: amounts });
-    }
-
-    modifier whenNoAmountOverdraws() {
-        _;
     }
 
     /// @dev TODO: mark this test as `external` once Foundry reverts this breaking change:
@@ -382,26 +327,5 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(lockup.getRecipient(testStreamIds[0]), users.recipient, "NFT owner0");
         assertEq(lockup.getRecipient(testStreamIds[1]), users.recipient, "NFT owner1");
         assertEq(lockup.getRecipient(testStreamIds[2]), users.recipient, "NFT owner2");
-    }
-
-    /// @dev Creates the default streams used throughout the tests.
-    function createTestStreams() internal {
-        // Warp back to the original timestamp.
-        vm.warp({ timestamp: MARCH_1_2023 });
-
-        // Define the default amounts.
-        testAmounts = new uint128[](3);
-        testAmounts[0] = defaults.WITHDRAW_AMOUNT();
-        testAmounts[1] = defaults.DEPOSIT_AMOUNT();
-        testAmounts[2] = defaults.WITHDRAW_AMOUNT() / 2;
-
-        // Create three streams:
-        // 1. A default stream
-        // 2. A stream with an early end time
-        // 3. A stream meant to be canceled before the withdrawal is made
-        testStreamIds = new uint256[](3);
-        testStreamIds[0] = createDefaultStream();
-        testStreamIds[1] = createDefaultStreamWithEndTime(EARLY_STOP_TIME);
-        testStreamIds[2] = createDefaultStream();
     }
 }

@@ -6,18 +6,18 @@ import { ZERO } from "@prb/math/UD60x18.sol";
 import { Broker, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { Dynamic_Fuzz_Test } from "../Dynamic.t.sol";
+import { WithdrawableAmountOf_Shared_Test } from
+    "../../../shared/lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 
-contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
-    uint256 internal defaultStreamId;
-
-    modifier whenStatusStreaming() {
-        defaultStreamId = createDefaultStream();
+contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, WithdrawableAmountOf_Shared_Test {
+    function setUp() public virtual override(Dynamic_Fuzz_Test, WithdrawableAmountOf_Shared_Test) {
+        Dynamic_Fuzz_Test.setUp();
+        WithdrawableAmountOf_Shared_Test.setUp();
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
-        _;
     }
 
     modifier whenStartTimeInThePast() {
@@ -31,18 +31,14 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
     /// - End time in the future
     /// - Status streaming
     /// - Status settled
-    function testFuzz_WithdrawableAmountOf_NoPreviousWithdrawals(uint40 timeWarp)
-        external
-        whenStatusStreaming
-        whenStartTimeInThePast
-    {
+    function testFuzz_WithdrawableAmountOf_NoPreviousWithdrawals(uint40 timeWarp) external whenStartTimeInThePast {
         timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.totalAmount = defaults.DEPOSIT_AMOUNT();
         params.broker = Broker({ account: address(0), fee: ZERO });
+        params.totalAmount = defaults.DEPOSIT_AMOUNT();
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
@@ -75,7 +71,6 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         uint128 withdrawAmount
     )
         external
-        whenStatusStreaming
         whenStartTimeInThePast
         whenWithWithdrawals
     {
@@ -92,8 +87,8 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.totalAmount = defaults.DEPOSIT_AMOUNT();
         params.broker = Broker({ account: address(0), fee: ZERO });
+        params.totalAmount = defaults.DEPOSIT_AMOUNT();
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Simulate the passage of time.

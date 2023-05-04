@@ -4,19 +4,14 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
+import { CreateWithDurations_Linear_Shared_Test } from
+    "../../../shared/lockup-linear/create-with-durations/createWithDurations.t.sol";
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
 
-contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
+contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithDurations_Linear_Shared_Test {
+    function setUp() public virtual override(Linear_Fuzz_Test, CreateWithDurations_Linear_Shared_Test) {
         Linear_Fuzz_Test.setUp();
-
-        streamId = linear.nextStreamId();
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
+        CreateWithDurations_Linear_Shared_Test.setUp();
     }
 
     function testFuzz_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration) external whenNoDelegateCall {
@@ -41,10 +36,6 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Create the stream.
         createDefaultStreamWithDurations(LockupLinear.Durations({ cliff: cliffDuration, total: totalDuration }));
-    }
-
-    modifier whenCliffDurationCalculationDoesNotOverflow() {
-        _;
     }
 
     function testFuzz_RevertWhen_TotalDurationCalculationOverflows(LockupLinear.Durations memory durations)
@@ -73,10 +64,6 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Create the stream.
         createDefaultStreamWithDurations(durations);
-    }
-
-    modifier whenTotalDurationCalculationDoesNotOverflow() {
-        _;
     }
 
     function testFuzz_CreateWithDurations(LockupLinear.Durations memory durations)

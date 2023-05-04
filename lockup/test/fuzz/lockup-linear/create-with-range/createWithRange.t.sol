@@ -6,27 +6,14 @@ import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
+import { CreateWithRange_Linear_Shared_Test } from
+    "../../../shared/lockup-linear/create-with-range/createWithRange.t.sol";
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
 
-contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
+contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_Linear_Shared_Test {
+    function setUp() public virtual override(Linear_Fuzz_Test, CreateWithRange_Linear_Shared_Test) {
         Linear_Fuzz_Test.setUp();
-
-        streamId = linear.nextStreamId();
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
-    modifier whenRecipientNonZeroAddress() {
-        _;
-    }
-
-    modifier whenDepositAmountNotZero() {
-        _;
+        CreateWithRange_Linear_Shared_Test.setUp();
     }
 
     function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(uint40 startTime)
@@ -42,10 +29,6 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
             )
         );
         createDefaultStreamWithStartTime(startTime);
-    }
-
-    modifier whenStartTimeNotGreaterThanCliffTime() {
-        _;
     }
 
     function testFuzz_RevertWhen_CliffTimeNotLessThanEndTime(
@@ -67,13 +50,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
-        createDefaultStreamWithRange(
-            LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime })
-        );
-    }
-
-    modifier whenCliffTimeLessThanEndTime() {
-        _;
+        createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime }));
     }
 
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
@@ -97,10 +74,6 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         createDefaultStream();
     }
 
-    modifier whenProtocolFeeNotTooHigh() {
-        _;
-    }
-
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNoDelegateCall
@@ -114,18 +87,6 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test {
         broker.fee = bound(broker.fee, MAX_FEE.add(ud(1)), MAX_UD60x18);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_FEE));
         createDefaultStreamWithBroker(broker);
-    }
-
-    modifier whenBrokerFeeNotTooHigh() {
-        _;
-    }
-
-    modifier whenAssetContract() {
-        _;
-    }
-
-    modifier whenAssetERC20Compliant() {
-        _;
     }
 
     struct Vars {

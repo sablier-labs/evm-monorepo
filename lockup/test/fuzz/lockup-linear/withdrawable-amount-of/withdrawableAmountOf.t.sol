@@ -6,16 +6,20 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Linear_Fuzz_Test } from "../Linear.t.sol";
+import { WithdrawableAmountOf_Shared_Test } from
+    "../../../shared/lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 
-contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override {
+contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, WithdrawableAmountOf_Shared_Test {
+    function setUp() public virtual override(Linear_Fuzz_Test, WithdrawableAmountOf_Shared_Test) {
         Linear_Fuzz_Test.setUp();
-        defaultStreamId = createDefaultStream();
+        WithdrawableAmountOf_Shared_Test.setUp();
     }
 
-    function testFuzz_WithdrawableAmountOf_CliffTimeInTheFuture(uint40 timeWarp) external {
+    function testFuzz_WithdrawableAmountOf_CliffTimeInTheFuture(uint40 timeWarp)
+        external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+    {
         timeWarp = boundUint40(timeWarp, 0, defaults.CLIFF_DURATION() - 1);
         vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
@@ -43,6 +47,8 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint128 depositAmount
     )
         external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
         whenCliffTimeInThePast
     {
         vm.assume(depositAmount != 0);
@@ -53,8 +59,8 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
-        params.totalAmount = depositAmount;
         params.broker = Broker({ account: address(0), fee: ZERO });
+        params.totalAmount = depositAmount;
         uint256 streamId = linear.createWithRange(params);
 
         // Simulate the passage of time.
@@ -88,6 +94,8 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
         uint128 withdrawAmount
     )
         external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
         whenCliffTimeInThePast
         whenPreviousWithdrawals
     {
@@ -106,8 +114,8 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test {
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
-        params.totalAmount = depositAmount;
         params.broker = Broker({ account: address(0), fee: ZERO });
+        params.totalAmount = depositAmount;
         uint256 streamId = linear.createWithRange(params);
 
         // Simulate the passage of time.

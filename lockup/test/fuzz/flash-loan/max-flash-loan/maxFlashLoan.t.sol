@@ -8,7 +8,11 @@ import { Errors } from "src/libraries/Errors.sol";
 import { FlashLoan_Fuzz_Test } from "../FlashLoan.t.sol";
 
 contract MaxFlashLoan_Fuzz_Test is FlashLoan_Fuzz_Test {
-    function testFuzz_MaxFlashLoan(uint256 dealAmount) external {
+    modifier whenAssetFlashLoanable() {
+        _;
+    }
+
+    function testFuzz_MaxFlashLoan(uint256 dealAmount) external whenAssetFlashLoanable {
         deal({ token: address(usdc), to: address(flashLoan), give: dealAmount });
         uint256 actualAmount = flashLoan.maxFlashLoan(address(usdc));
         uint256 expectedAmount = dealAmount;

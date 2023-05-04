@@ -8,14 +8,14 @@ import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
+import { CreateWithDeltas_Dynamic_Shared_Test } from
+    "../../../shared/lockup-dynamic/create-with-deltas/createWithDeltas.t.sol";
 import { Dynamic_Unit_Test } from "../Dynamic.t.sol";
 
-contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
+contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDeltas_Dynamic_Shared_Test {
+    function setUp() public virtual override(Dynamic_Unit_Test, CreateWithDeltas_Dynamic_Shared_Test) {
         Dynamic_Unit_Test.setUp();
-
+        CreateWithDeltas_Dynamic_Shared_Test.setUp();
         streamId = dynamic.nextStreamId();
     }
 
@@ -26,19 +26,11 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
     /// @dev it should revert.
     function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external whenNoDelegateCall {
         LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](250_000);
         vm.expectRevert(bytes(""));
         createDefaultStreamWithDeltas(segments);
-    }
-
-    modifier whenLoopCalculationsDoNotOverflowBlockGasLimit() {
-        _;
     }
 
     function test_RevertWhen_DeltasZero() external whenNoDelegateCall whenLoopCalculationsDoNotOverflowBlockGasLimit {
@@ -55,10 +47,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
             )
         );
         createDefaultStreamWithDeltas(segments);
-    }
-
-    modifier whenDeltasNotZero() {
-        _;
     }
 
     function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeNotLessThanFirstSegmentMilestone()
@@ -111,10 +99,6 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test {
             // Create the stream.
             createDefaultStreamWithDeltas(segments);
         }
-    }
-
-    modifier whenMilestonesCalculationsDoNotOverflow() {
-        _;
     }
 
     function test_CreateWithDeltas()

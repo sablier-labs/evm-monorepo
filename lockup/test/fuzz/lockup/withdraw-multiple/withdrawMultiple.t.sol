@@ -1,66 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { console2 } from "forge-std/console2.sol";
 import { Solarray } from "solarray/Solarray.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { Lockup_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
+import { WithdrawMultiple_Shared_Test } from "../../../shared/lockup/withdraw-multiple/withdrawMultiple.t.sol";
 import { Fuzz_Test } from "../../Fuzz.t.sol";
 
-abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
-    uint40 internal EARLY_STOP_TIME;
-    address internal caller;
-
-    function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
-        EARLY_STOP_TIME = defaults.WARP_26_PERCENT();
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
-    modifier whenToNonZeroAddress() {
-        _;
-    }
-
-    modifier whenArraysEqual() {
-        _;
-    }
-
-    modifier whenNoNull() {
-        _;
-    }
-
-    modifier whenNoStatusPendingOrDepleted() {
-        _;
-    }
-
-    /// @dev This modifier runs the test in three different modes:
-    /// - Stream's sender as caller
-    /// - Stream's recipient as caller
-    /// - Approved NFT operator as caller
-    modifier whenCallerAuthorizedAllStreams() {
-        caller = users.sender;
-        _;
-        caller = users.recipient;
-        vm.warp({ timestamp: MARCH_1_2023 });
-        _;
-        caller = users.operator;
-        vm.warp({ timestamp: MARCH_1_2023 });
-        changePrank({ msgSender: users.recipient });
-        lockup.setApprovalForAll({ operator: users.operator, _approved: true });
-        _;
-    }
-
-    modifier whenNoAmountZero() {
-        _;
-    }
-
-    modifier whenNoAmountOverdraws() {
-        _;
+abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, WithdrawMultiple_Shared_Test {
+    function setUp() public virtual override(Fuzz_Test, WithdrawMultiple_Shared_Test) {
+        WithdrawMultiple_Shared_Test.setUp();
     }
 
     /// @dev TODO: mark this test as `external` once Foundry reverts this breaking change:

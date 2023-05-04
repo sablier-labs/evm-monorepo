@@ -5,15 +5,14 @@ import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.so
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
+import { CreateWithDurations_Linear_Shared_Test } from
+    "../../../shared/lockup-linear/create-with-durations/createWithDurations.t.sol";
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
-contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
+contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test, CreateWithDurations_Linear_Shared_Test {
+    function setUp() public virtual override(Linear_Unit_Test, CreateWithDurations_Linear_Shared_Test) {
         Linear_Unit_Test.setUp();
-
-        streamId = linear.nextStreamId();
+        CreateWithDurations_Linear_Shared_Test.setUp();
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -21,10 +20,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
             abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaultParams.createWithDurations);
         (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
     }
 
     function test_RevertWhen_CliffDurationCalculationOverflows() external whenNoDelegateCall {
@@ -49,10 +44,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
 
         // Create the stream.
         createDefaultStreamWithDurations(LockupLinear.Durations({ cliff: cliffDuration, total: totalDuration }));
-    }
-
-    modifier whenCliffDurationCalculationDoesNotOverflow() {
-        _;
     }
 
     function test_RevertWhen_TotalDurationCalculationOverflows()
@@ -81,10 +72,6 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test {
 
         // Create the stream.
         createDefaultStreamWithDurations(durations);
-    }
-
-    modifier whenTotalDurationCalculationDoesNotOverflow() {
-        _;
     }
 
     function test_CreateWithDurations()

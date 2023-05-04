@@ -139,13 +139,13 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
 
     /// @dev Deploys the base test contracts.
     function deployBaseTestContracts() internal {
-        usdc = new ERC20("USD Coin", "USDC");
         defaults = new Defaults();
         goodFlashLoanReceiver = new GoodFlashLoanReceiver();
         goodRecipient = new GoodRecipient();
         goodSender = new GoodSender();
         nftDescriptor = new SablierV2NFTDescriptor();
         nonCompliantAsset = new NonCompliantERC20("Non-Compliant Asset", "NCA", 18);
+        usdc = new ERC20("USD Coin", "USDC");
     }
 
     /// @dev Labels the most relevant contracts.
@@ -158,14 +158,14 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
         vm.label({ account: address(usdc), newLabel: "USDC" });
     }
 
-    /// @dev Deploys {SablierV2Comptroller} from a source precompiled with via IR.
+    /// @dev Deploys {SablierV2Comptroller} from a source precompiled with `--via-ir`.
     function deployPrecompiledComptroller(address initialAdmin) internal returns (ISablierV2Comptroller comptroller_) {
         comptroller_ = ISablierV2Comptroller(
             deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json", abi.encode(initialAdmin))
         );
     }
 
-    /// @dev Deploys {SablierV2LockupDynamic} from a source precompiled with via IR.
+    /// @dev Deploys {SablierV2LockupDynamic} from a source precompiled with `--via-ir`.
     function deployPrecompiledDynamic(
         address initialAdmin,
         ISablierV2Comptroller comptroller_,

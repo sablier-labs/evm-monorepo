@@ -8,31 +8,14 @@ import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
+import { CreateWithMilestones_Dynamic_Shared_Test } from
+    "../../../shared/lockup-dynamic/create-with-milestones/createWithMilestones.t.sol";
 import { Dynamic_Fuzz_Test } from "../Dynamic.t.sol";
 
-contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
-        super.setUp();
-
-        streamId = dynamic.nextStreamId();
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
-    modifier whenRecipientNonZeroAddress() {
-        _;
-    }
-
-    modifier whenDepositAmountNotZero() {
-        _;
-    }
-
-    modifier whenSegmentCountNotZero() {
-        _;
+contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithMilestones_Dynamic_Shared_Test {
+    function setUp() public virtual override(Dynamic_Fuzz_Test, CreateWithMilestones_Dynamic_Shared_Test) {
+        Dynamic_Fuzz_Test.setUp();
+        CreateWithMilestones_Dynamic_Shared_Test.setUp();
     }
 
     function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
@@ -48,10 +31,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
             abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, segmentCount)
         );
         createDefaultStreamWithSegments(segments);
-    }
-
-    modifier whenSegmentCountNotTooHigh() {
-        _;
     }
 
     function testFuzz_RevertWhen_SegmentAmountsSumOverflows(
@@ -72,10 +51,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         segments[1].amount = amount1;
         vm.expectRevert(stdError.arithmeticError);
         createDefaultStreamWithSegments(segments);
-    }
-
-    modifier whenSegmentAmountsSumDoesNotOverflow() {
-        _;
     }
 
     function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone(uint40 firstMilestone)
@@ -104,14 +79,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Create the stream.
         createDefaultStreamWithSegments(segments);
-    }
-
-    modifier whenStartTimeLessThanFirstSegmentMilestone() {
-        _;
-    }
-
-    modifier whenSegmentMilestonesOrdered() {
-        _;
     }
 
     function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositDiff)
@@ -147,13 +114,9 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Create the stream.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.totalAmount = depositAmount;
         params.broker = Broker({ account: address(0), fee: brokerFee });
+        params.totalAmount = depositAmount;
         dynamic.createWithMilestones(params);
-    }
-
-    modifier whenDepositAmountEqualToSegmentAmountsSum() {
-        _;
     }
 
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
@@ -181,10 +144,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         createDefaultStream();
     }
 
-    modifier whenProtocolFeeNotTooHigh() {
-        _;
-    }
-
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNoDelegateCall
@@ -202,18 +161,6 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
         broker.fee = bound(broker.fee, MAX_FEE.add(ud(1)), MAX_UD60x18);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_FEE));
         createDefaultStreamWithBroker(broker);
-    }
-
-    modifier whenBrokerFeeNotTooHigh() {
-        _;
-    }
-
-    modifier whenAssetContract() {
-        _;
-    }
-
-    modifier whenAssetERC20Compliant() {
-        _;
     }
 
     struct Vars {

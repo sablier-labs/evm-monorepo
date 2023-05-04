@@ -11,14 +11,14 @@ import { Errors } from "src/libraries/Errors.sol";
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
+import { CreateWithMilestones_Dynamic_Shared_Test } from
+    "../../../shared/lockup-dynamic/create-with-milestones/createWithMilestones.t.sol";
 import { Dynamic_Unit_Test } from "../Dynamic.t.sol";
 
-contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
-        super.setUp();
-        streamId = dynamic.nextStreamId();
+contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithMilestones_Dynamic_Shared_Test {
+    function setUp() public virtual override(Dynamic_Unit_Test, CreateWithMilestones_Dynamic_Shared_Test) {
+        Dynamic_Unit_Test.setUp();
+        CreateWithMilestones_Dynamic_Shared_Test.setUp();
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -28,18 +28,10 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
     function test_RevertWhen_RecipientZeroAddress() external whenNoDelegateCall {
         vm.expectRevert("ERC721: mint to the zero address");
         address recipient = address(0);
         createDefaultStreamWithRecipient(recipient);
-    }
-
-    modifier whenRecipientNonZeroAddress() {
-        _;
     }
 
     function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall whenRecipientNonZeroAddress {
@@ -48,10 +40,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
         uint128 totalAmount = 0;
         createDefaultStreamWithTotalAmount(totalAmount);
-    }
-
-    modifier whenDepositAmountNotZero() {
-        _;
     }
 
     function test_RevertWhen_SegmentCountZero()
@@ -63,10 +51,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         LockupDynamic.Segment[] memory segments;
         vm.expectRevert(Errors.SablierV2LockupDynamic_SegmentCountZero.selector);
         createDefaultStreamWithSegments(segments);
-    }
-
-    modifier whenSegmentCountNotZero() {
-        _;
     }
 
     function test_RevertWhen_SegmentCountTooHigh()
@@ -84,10 +68,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier whenSegmentCountNotTooHigh() {
-        _;
-    }
-
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
         whenNoDelegateCall
@@ -101,10 +81,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         segments[1].amount = 1;
         vm.expectRevert(stdError.arithmeticError);
         createDefaultStreamWithSegments(segments);
-    }
-
-    modifier whenSegmentAmountsSumDoesNotOverflow() {
-        _;
     }
 
     function test_RevertWhen_StartTimeGreaterThanFirstSegmentMilestone()
@@ -159,10 +135,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier whenStartTimeLessThanFirstSegmentMilestone() {
-        _;
-    }
-
     function test_RevertWhen_SegmentMilestonesNotOrdered()
         external
         whenNoDelegateCall
@@ -192,10 +164,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         createDefaultStreamWithSegments(segments);
     }
 
-    modifier whenSegmentMilestonesOrdered() {
-        _;
-    }
-
     function test_RevertWhen_EndTimeInThePast()
         external
         whenNoDelegateCall
@@ -215,10 +183,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
             )
         );
         createDefaultStream();
-    }
-
-    modifier whenEndTimeInTheFuture() {
-        _;
     }
 
     function test_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum()
@@ -253,13 +217,9 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
 
         // Create the stream.
         LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.totalAmount = depositAmount;
         params.broker = Broker({ account: address(0), fee: brokerFee });
+        params.totalAmount = depositAmount;
         dynamic.createWithMilestones(params);
-    }
-
-    modifier whenDepositAmountEqualToSegmentAmountsSum() {
-        _;
     }
 
     function test_RevertWhen_ProtocolFeeTooHigh()
@@ -289,10 +249,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         createDefaultStream();
     }
 
-    modifier whenProtocolFeeNotTooHigh() {
-        _;
-    }
-
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         whenNoDelegateCall
@@ -311,10 +267,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         UD60x18 brokerFee = MAX_FEE.add(ud(1));
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, MAX_FEE));
         createDefaultStreamWithBroker(Broker({ account: users.broker, fee: brokerFee }));
-    }
-
-    modifier whenBrokerFeeNotTooHigh() {
-        _;
     }
 
     function test_RevertWhen_AssetNotContract()
@@ -346,10 +298,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         createDefaultStreamWithAsset(IERC20(nonContract));
     }
 
-    modifier whenAssetContract() {
-        _;
-    }
-
     function test_CreateWithMilestones_AssetMissingReturnValue()
         external
         whenNoDelegateCall
@@ -368,10 +316,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test {
         whenAssetContract
     {
         testCreateWithMilestones(address(nonCompliantAsset));
-    }
-
-    modifier whenAssetERC20Compliant() {
-        _;
     }
 
     function test_CreateWithMilestones()

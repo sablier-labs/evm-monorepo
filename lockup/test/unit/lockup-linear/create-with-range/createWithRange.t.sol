@@ -8,15 +8,14 @@ import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.so
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
+import { CreateWithRange_Linear_Shared_Test } from
+    "../../../shared/lockup-linear/create-with-range/createWithRange.t.sol";
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
-contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
+contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_Linear_Shared_Test {
+    function setUp() public virtual override(Linear_Unit_Test, CreateWithRange_Linear_Shared_Test) {
         Linear_Unit_Test.setUp();
-
-        streamId = linear.nextStreamId();
+        CreateWithRange_Linear_Shared_Test.setUp();
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -25,29 +24,16 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
     function test_RevertWhen_RecipientZeroAddress() external whenNoDelegateCall {
         vm.expectRevert("ERC721: mint to the zero address");
         createDefaultStreamWithRecipient({ recipient: address(0) });
     }
 
-    modifier whenRecipientNonZeroAddress() {
-        _;
-    }
-
-    ///
     /// It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
     /// `MAX_FEE` is hard coded to 10%.
     function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall whenRecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
         createDefaultStreamWithTotalAmount(0);
-    }
-
-    modifier whenDepositAmountNotZero() {
-        _;
     }
 
     function test_RevertWhen_StartTimeGreaterThanCliffTime()
@@ -64,13 +50,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
                 Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime
             )
         );
-        createDefaultStreamWithRange(
-            LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime })
-        );
-    }
-
-    modifier whenStartTimeNotGreaterThanCliffTime() {
-        _;
+        createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime }));
     }
 
     function test_RevertWhen_CliffTimeNotLessThanEndTime()
@@ -88,13 +68,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
-        createDefaultStreamWithRange(
-            LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime })
-        );
-    }
-
-    modifier whenCliffTimeLessThanEndTime() {
-        _;
+        createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime }));
     }
 
     function test_RevertWhen_EndTimeInThePast()
@@ -142,10 +116,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStream();
     }
 
-    modifier whenProtocolFeeNotTooHigh() {
-        _;
-    }
-
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         whenNoDelegateCall
@@ -159,10 +129,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         UD60x18 brokerFee = MAX_FEE.add(ud(1));
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, MAX_FEE));
         createDefaultStreamWithBroker(Broker({ account: users.broker, fee: brokerFee }));
-    }
-
-    modifier whenBrokerFeeNotTooHigh() {
-        _;
     }
 
     function test_RevertWhen_AssetNotContract()
@@ -181,10 +147,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         createDefaultStreamWithAsset(IERC20(nonContract));
     }
 
-    modifier whenAssetContract() {
-        _;
-    }
-
     function test_CreateWithRange_AssetMissingReturnValue()
         external
         whenNoDelegateCall
@@ -198,10 +160,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test {
         whenAssetContract
     {
         testCreateWithRange(address(nonCompliantAsset));
-    }
-
-    modifier whenAssetERC20Compliant() {
-        _;
     }
 
     function test_CreateWithRange()

@@ -3,15 +3,12 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { Lockup_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
+import { WithdrawMax_Shared_Test } from "../../../shared/lockup/withdraw-max/withdrawMax.t.sol";
 import { Unit_Test } from "../../Unit.t.sol";
 
-abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
-    uint256 internal defaultStreamId;
-
-    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        defaultStreamId = createDefaultStream();
-        changePrank({ msgSender: users.recipient });
+abstract contract WithdrawMax_Unit_Test is Unit_Test, WithdrawMax_Shared_Test {
+    function setUp() public virtual override(Unit_Test, WithdrawMax_Shared_Test) {
+        WithdrawMax_Shared_Test.setUp();
     }
 
     function test_WithdrawMax_EndTimeInThePast() external {
@@ -50,10 +47,6 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, Lockup_Shared_Test {
         address actualNFTowner = lockup.ownerOf({ tokenId: defaultStreamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
-    }
-
-    modifier whenEndTimeInTheFuture() {
-        _;
     }
 
     function test_WithdrawMax() external whenEndTimeInTheFuture {

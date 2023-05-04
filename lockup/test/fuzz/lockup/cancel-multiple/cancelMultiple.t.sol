@@ -6,56 +6,16 @@ import { Solarray } from "solarray/Solarray.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Fuzz_Test } from "../../Fuzz.t.sol";
-import { Lockup_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
+import { CancelMultiple_Shared_Test } from "../../../shared/lockup/cancel-multiple/cancelMultiple.t.sol";
 
-abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
-    uint256[] internal testStreamIds;
-
-    function setUp() public virtual override(Fuzz_Test, Lockup_Shared_Test) {
-        createTestStreams();
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
-    modifier whenArrayCountNotZero() {
-        _;
-    }
-
-    modifier whenNoNull() {
-        _;
-    }
-
-    modifier whenNoStatusSettled() {
-        _;
-    }
-
-    modifier whenCallerAuthorizedAllStreams() {
-        _;
-        createTestStreams();
-        changePrank({ msgSender: users.recipient });
-        _;
-    }
-
-    modifier whenAllStreamsCancelable() {
-        _;
+abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, CancelMultiple_Shared_Test {
+    function setUp() public virtual override(Fuzz_Test, CancelMultiple_Shared_Test) {
+        CancelMultiple_Shared_Test.setUp();
     }
 
     /// @dev TODO: mark this test as `external` once Foundry reverts this breaking change:
     /// https://github.com/foundry-rs/foundry/pull/4845#issuecomment-1529125648
-    function testFuzz_CancelMultiple(
-        uint256 timeWarp,
-        uint40 endTime
-    )
-        private
-        whenNoDelegateCall
-        whenArrayCountNotZero
-        whenNoNull
-        whenNoStatusSettled
-        whenCallerAuthorizedAllStreams
-        whenAllStreamsCancelable
-    {
+    function testFuzz_CancelMultiple(uint256 timeWarp, uint40 endTime) private {
         timeWarp = bound(timeWarp, 0 seconds, defaults.TOTAL_DURATION() - 1);
         endTime = boundUint40(endTime, defaults.END_TIME(), defaults.END_TIME() + defaults.TOTAL_DURATION());
 
@@ -117,12 +77,5 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, Lockup_Shared_Test {
         address expectedNFTOwner = users.recipient;
         assertEq(lockup.getRecipient(streamIds[0]), expectedNFTOwner, "NFT owner0");
         assertEq(lockup.getRecipient(streamIds[1]), expectedNFTOwner, "NFT owner1");
-    }
-
-    /// @dev Creates the default streams used throughout the tests.
-    function createTestStreams() internal {
-        testStreamIds = new uint256[](2);
-        testStreamIds[0] = createDefaultStream();
-        testStreamIds[1] = createDefaultStream();
     }
 }

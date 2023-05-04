@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { console2 } from "forge-std/console2.sol";
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { Broker, LockupLinear } from "../../../src/types/DataTypes.sol";
@@ -32,8 +31,6 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        Lockup_Shared_Test.setUp();
-
         // Initialize the default params to be used for the create functions.
         defaultParams = DefaultParams({
             createWithDurations: LockupLinear.CreateWithDurations({

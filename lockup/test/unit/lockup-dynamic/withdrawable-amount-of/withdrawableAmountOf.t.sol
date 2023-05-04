@@ -12,10 +12,6 @@ contract WithdrawableAmountOf_Dynamic_Unit_Test is Dynamic_Unit_Test, Withdrawab
         WithdrawableAmountOf_Unit_Test.setUp();
     }
 
-    modifier whenStatusStreaming() {
-        _;
-    }
-
     function test_WithdrawableAmountOf_StartTimeInThePresent()
         external
         whenNotNull

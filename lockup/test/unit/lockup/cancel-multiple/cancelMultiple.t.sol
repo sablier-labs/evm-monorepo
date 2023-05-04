@@ -8,13 +8,11 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Unit_Test } from "../../Unit.t.sol";
-import { Lockup_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
+import { CancelMultiple_Shared_Test } from "../../../shared/lockup/cancel-multiple/cancelMultiple.t.sol";
 
-abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
-    uint256[] internal testStreamIds;
-
-    function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        createTestStreams();
+abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_Test {
+    function setUp() public virtual override(Unit_Test, CancelMultiple_Shared_Test) {
+        CancelMultiple_Shared_Test.setUp();
     }
 
     function test_RevertWhen_DelegateCall() external whenNoDelegateCall {
@@ -23,17 +21,9 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
     function test_CancelMultiple_ArrayCountZero() external whenNoDelegateCall {
         uint256[] memory streamIds = new uint256[](0);
         lockup.cancelMultiple(streamIds);
-    }
-
-    modifier whenArrayCountNotZero() {
-        _;
     }
 
     function test_RevertWhen_OnlyNull() external whenNoDelegateCall whenArrayCountNotZero {
@@ -48,10 +38,6 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(testStreamIds[0], nullStreamId) });
     }
 
-    modifier whenNoNull() {
-        _;
-    }
-
     function test_RevertWhen_AllStreamsCold() external whenNoDelegateCall whenArrayCountNotZero whenNoNull {
         vm.warp({ timestamp: defaults.END_TIME() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, testStreamIds[0]));
@@ -63,14 +49,6 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         vm.warp({ timestamp: defaults.CLIFF_TIME() + 1 seconds });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, earlyStreamId));
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(testStreamIds[0], earlyStreamId) });
-    }
-
-    modifier whenAllStreamsWarm() {
-        _;
-    }
-
-    modifier whenCallerUnauthorized() {
-        _;
     }
 
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
@@ -195,13 +173,6 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         lockup.cancelMultiple(testStreamIds);
     }
 
-    modifier whenCallerAuthorizedAllStreams() {
-        _;
-        createTestStreams();
-        changePrank({ msgSender: users.recipient });
-        _;
-    }
-
     function test_RevertWhen_AllStreamsNotCancelable()
         external
         whenNoDelegateCall
@@ -230,10 +201,6 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
             abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotCancelable.selector, notCancelableStreamId)
         );
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(testStreamIds[0], notCancelableStreamId) });
-    }
-
-    modifier whenAllStreamsCancelable() {
-        _;
     }
 
     /// @dev TODO: mark this test as `external` once Foundry reverts this breaking change:
@@ -293,13 +260,5 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, Lockup_Shared_Test {
         address expectedNFTOwner = users.recipient;
         assertEq(lockup.getRecipient(testStreamIds[0]), expectedNFTOwner, "NFT owner0");
         assertEq(lockup.getRecipient(testStreamIds[1]), expectedNFTOwner, "NFT owner1");
-    }
-
-    /// @dev Creates the default streams used throughout the tests.
-    function createTestStreams() internal {
-        testStreamIds = new uint256[](2);
-        testStreamIds[0] = createDefaultStream();
-        // Create a stream with an end time double that of the default stream so that the refund amounts are different.
-        testStreamIds[1] = createDefaultStreamWithEndTime(defaults.END_TIME() + defaults.TOTAL_DURATION());
     }
 }

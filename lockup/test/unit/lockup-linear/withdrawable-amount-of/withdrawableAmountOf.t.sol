@@ -12,10 +12,6 @@ contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test, Withdrawable
         WithdrawableAmountOf_Unit_Test.setUp();
     }
 
-    modifier whenStatusStreaming() {
-        _;
-    }
-
     function test_WithdrawableAmountOf_CliffTimeInTheFuture()
         external
         whenNotNull

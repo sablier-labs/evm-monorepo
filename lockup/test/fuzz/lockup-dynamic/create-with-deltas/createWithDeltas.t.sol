@@ -6,31 +6,14 @@ import { Solarray } from "solarray/Solarray.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
+import { CreateWithDeltas_Dynamic_Shared_Test } from
+    "../../../shared/lockup-dynamic/create-with-deltas/createWithDeltas.t.sol";
 import { Dynamic_Fuzz_Test } from "../Dynamic.t.sol";
 
-contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
-    uint256 internal streamId;
-
-    function setUp() public virtual override {
+contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDeltas_Dynamic_Shared_Test {
+    function setUp() public virtual override(Dynamic_Fuzz_Test, CreateWithDeltas_Dynamic_Shared_Test) {
         Dynamic_Fuzz_Test.setUp();
-
-        streamId = dynamic.nextStreamId();
-    }
-
-    modifier whenNoDelegateCall() {
-        _;
-    }
-
-    modifier whenLoopCalculationsDoNotOverflowBlockGasLimit() {
-        _;
-    }
-
-    modifier whenDeltasNotZero() {
-        _;
-    }
-
-    modifier whenMilestonesCalculationsDoNotOverflow() {
-        _;
+        CreateWithDeltas_Dynamic_Shared_Test.setUp();
     }
 
     struct Vars {
@@ -111,8 +94,8 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test {
 
         // Create the stream.
         LockupDynamic.CreateWithDeltas memory params = defaultParams.createWithDeltas;
-        params.totalAmount = vars.totalAmount;
         params.segments = segments;
+        params.totalAmount = vars.totalAmount;
         dynamic.createWithDeltas(params);
 
         // Assert that the stream has been created.

@@ -12,10 +12,6 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test, StreamedAmountOf
         StreamedAmountOf_Unit_Test.setUp();
     }
 
-    modifier whenStatusStreaming() {
-        _;
-    }
-
     function test_StreamedAmountOf_CliffTimeInTheFuture()
         external
         whenNotNull
