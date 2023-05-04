@@ -58,7 +58,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         deal({ token: address(usdc), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        LockupLinear.CreateWithRange memory params = defaults.createWithRange();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = depositAmount;
         uint256 streamId = linear.createWithRange(params);
@@ -113,7 +113,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         deal({ token: address(usdc), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        LockupLinear.CreateWithRange memory params = defaults.createWithRange();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = depositAmount;
         uint256 streamId = linear.createWithRange(params);

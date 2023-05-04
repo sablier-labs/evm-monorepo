@@ -19,7 +19,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(ISablierV2LockupLinear.createWithRange, defaultParams.createWithRange);
+        bytes memory callData = abi.encodeCall(ISablierV2LockupLinear.createWithRange, defaults.createWithRange());
         (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -29,7 +29,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
         createDefaultStreamWithRecipient({ recipient: address(0) });
     }
 
-    /// It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
+    /// @dev It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
     /// `MAX_FEE` is hard coded to 10%.
     function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall whenRecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
@@ -80,13 +80,9 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
     {
+        uint40 endTime = defaults.END_TIME();
         vm.warp({ timestamp: defaults.END_TIME() });
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2Lockup_EndTimeInThePast.selector, defaults.END_TIME(), defaults.END_TIME()
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, endTime, endTime));
         createDefaultStream();
     }
 
@@ -217,7 +213,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-        LockupLinear.Stream memory expectedStream = defaultStream;
+        LockupLinear.Stream memory expectedStream = defaults.linearStream();
         expectedStream.asset = IERC20(asset);
         assertEq(actualStream, expectedStream);
 
@@ -233,7 +229,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = defaultParams.createWithRange.recipient;
+        address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

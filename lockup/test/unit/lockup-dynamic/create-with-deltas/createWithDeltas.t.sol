@@ -21,7 +21,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
 
     /// @dev it should revert.
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(ISablierV2LockupDynamic.createWithDeltas, defaultParams.createWithDeltas);
+        bytes memory callData = abi.encodeCall(ISablierV2LockupDynamic.createWithDeltas, defaults.createWithDeltas());
         (bool success, bytes memory returnData) = address(dynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -35,7 +35,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
 
     function test_RevertWhen_DeltasZero() external whenNoDelegateCall whenLoopCalculationsDoNotOverflowBlockGasLimit {
         uint40 startTime = getBlockTimestamp();
-        LockupDynamic.SegmentWithDelta[] memory segments = defaultParams.createWithDeltas.segments;
+        LockupDynamic.SegmentWithDelta[] memory segments = defaults.createWithDeltas().segments;
         segments[1].delta = 0;
         uint256 index = 1;
         vm.expectRevert(
@@ -57,7 +57,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
     {
         unchecked {
             uint40 startTime = getBlockTimestamp();
-            LockupDynamic.SegmentWithDelta[] memory segments = defaultParams.createWithDeltas.segments;
+            LockupDynamic.SegmentWithDelta[] memory segments = defaults.createWithDeltas().segments;
             segments[0].delta = MAX_UINT40;
             vm.expectRevert(
                 abi.encodeWithSelector(
@@ -144,7 +144,8 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
 
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
-        assertEq(actualStream, defaultStream);
+        LockupDynamic.Stream memory expectedStream = defaults.dynamicStream();
+        assertEq(actualStream, expectedStream);
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = dynamic.statusOf(streamId);
@@ -163,7 +164,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = dynamic.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = defaultParams.createWithDeltas.recipient;
+        address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

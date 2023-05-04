@@ -17,7 +17,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test, CreateWithDur
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaultParams.createWithDurations);
+            abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaults.createWithDurations());
         (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -115,7 +115,8 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test, CreateWithDur
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-        assertEq(actualStream, defaultStream);
+        LockupLinear.Stream memory expectedStream = defaults.linearStream();
+        assertEq(actualStream, expectedStream);
 
         // Assert that the stream's status is "STREAMING".
         Lockup.Status actualStatus = linear.statusOf(streamId);
@@ -134,7 +135,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test, CreateWithDur
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = defaultParams.createWithDurations.recipient;
+        address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

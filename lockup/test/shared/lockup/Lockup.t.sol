@@ -58,4 +58,7 @@ abstract contract Lockup_Shared_Test is Base_Test {
 
     /// @dev Creates the default stream with the provided start time.
     function createDefaultStreamWithStartTime(uint40 startTime) internal virtual returns (uint256 streamId);
+
+    /// @dev Creates the default stream with the provided total amount.
+    function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal virtual returns (uint256 streamId);
 }

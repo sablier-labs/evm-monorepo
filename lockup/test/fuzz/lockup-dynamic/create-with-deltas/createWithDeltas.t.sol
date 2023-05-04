@@ -82,18 +82,18 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
         emit CreateLockupDynamicStream({
             streamId: streamId,
             funder: vars.funder,
-            sender: defaultParams.createWithDeltas.sender,
-            recipient: defaultParams.createWithDeltas.recipient,
+            sender: users.sender,
+            recipient: users.recipient,
             amounts: vars.createAmounts,
             asset: usdc,
-            cancelable: defaultParams.createWithDeltas.cancelable,
+            cancelable: true,
             segments: vars.segmentsWithMilestones,
             range: range,
-            broker: defaultParams.createWithDeltas.broker.account
+            broker: users.broker
         });
 
         // Create the stream.
-        LockupDynamic.CreateWithDeltas memory params = defaultParams.createWithDeltas;
+        LockupDynamic.CreateWithDeltas memory params = defaults.createWithDeltas();
         params.segments = segments;
         params.totalAmount = vars.totalAmount;
         dynamic.createWithDeltas(params);
@@ -101,14 +101,14 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
-        assertEq(actualStream.asset, defaultStream.asset, "asset");
+        assertEq(actualStream.asset, usdc, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
-        assertEq(actualStream.isCancelable, defaultStream.isCancelable, "isCancelable");
-        assertEq(actualStream.isCanceled, defaultStream.isCanceled, "isCanceled");
-        assertEq(actualStream.isDepleted, defaultStream.isDepleted, "isDepleted");
-        assertEq(actualStream.isStream, defaultStream.isStream, "isStream");
+        assertEq(actualStream.isCancelable, true, "isCancelable");
+        assertEq(actualStream.isCanceled, false, "isCanceled");
+        assertEq(actualStream.isDepleted, false, "isDepleted");
+        assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.segments, vars.segmentsWithMilestones);
-        assertEq(actualStream.sender, defaultStream.sender, "sender");
+        assertEq(actualStream.sender, users.sender, "sender");
         assertEq(actualStream.startTime, range.start, "startTime");
 
         // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
@@ -132,7 +132,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
 
         // Assert that the NFT has been minted.
         vars.actualNFTOwner = dynamic.ownerOf({ tokenId: streamId });
-        vars.expectedNFTOwner = defaultParams.createWithDeltas.recipient;
+        vars.expectedNFTOwner = users.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
     }
 }

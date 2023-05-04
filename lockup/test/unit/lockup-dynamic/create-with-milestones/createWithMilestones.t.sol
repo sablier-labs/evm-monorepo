@@ -23,7 +23,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2LockupDynamic.createWithMilestones, defaultParams.createWithMilestones);
+            abi.encodeCall(ISablierV2LockupDynamic.createWithMilestones, defaults.createWithMilestones());
         (bool success, bytes memory returnData) = address(dynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -76,7 +76,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
     {
-        LockupDynamic.Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].amount = MAX_UINT128;
         segments[1].amount = 1;
         vm.expectRevert(stdError.arithmeticError);
@@ -93,7 +93,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenSegmentAmountsSumDoesNotOverflow
     {
         // Change the milestone of the first segment.
-        LockupDynamic.Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].milestone = defaults.START_TIME() - 1 seconds;
 
         // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
@@ -119,7 +119,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenSegmentAmountsSumDoesNotOverflow
     {
         // Change the milestone of the first segment.
-        LockupDynamic.Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].milestone = defaults.START_TIME();
 
         // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
@@ -146,7 +146,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenStartTimeLessThanFirstSegmentMilestone
     {
         // Swap the segment milestones.
-        LockupDynamic.Segment[] memory segments = defaultParams.createWithMilestones.segments;
+        LockupDynamic.Segment[] memory segments = defaults.segments();
         (segments[0].milestone, segments[1].milestone) = (segments[1].milestone, segments[0].milestone);
 
         // Expect a {SegmentMilestonesNotOrdered} error.
@@ -175,13 +175,9 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
     {
-        vm.warp({ timestamp: defaults.END_TIME() });
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2Lockup_EndTimeInThePast.selector, defaults.END_TIME(), defaults.END_TIME()
-            )
-        );
+        uint40 endTime = defaults.END_TIME();
+        vm.warp({ timestamp: endTime });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, endTime, endTime));
         createDefaultStream();
     }
 
@@ -201,24 +197,27 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
         UD60x18 brokerFee = ZERO;
-        changePrank(defaultParams.createWithMilestones.sender);
+        changePrank({ msgSender: users.sender });
 
         // Adjust the default deposit amount.
-        uint128 depositAmount = defaults.DEPOSIT_AMOUNT() + 100;
+        uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();
+        uint128 depositAmount = defaultDepositAmount + 100;
+
+        // Prepare the params.
+        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
+        params.broker = Broker({ account: address(0), fee: brokerFee });
+        params.totalAmount = depositAmount;
 
         // Expect a {DepositAmountNotEqualToSegmentAmountsSum} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum.selector,
                 depositAmount,
-                defaults.DEPOSIT_AMOUNT()
+                defaultDepositAmount
             )
         );
 
         // Create the stream.
-        LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.broker = Broker({ account: address(0), fee: brokerFee });
-        params.totalAmount = depositAmount;
         dynamic.createWithMilestones(params);
     }
 
@@ -240,7 +239,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee(defaultStream.asset, protocolFee);
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
 
         // Run the test.
         vm.expectRevert(
@@ -380,7 +379,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
-        LockupDynamic.Stream memory expectedStream = defaultStream;
+        LockupDynamic.Stream memory expectedStream = defaults.dynamicStream();
         expectedStream.asset = IERC20(asset);
         assertEq(actualStream, expectedStream);
 
@@ -396,7 +395,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = dynamic.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = defaultParams.createWithMilestones.recipient;
+        address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

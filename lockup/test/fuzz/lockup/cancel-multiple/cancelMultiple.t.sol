@@ -15,7 +15,17 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, CancelMultiple_Shared_T
 
     /// @dev TODO: mark this test as `external` once Foundry reverts this breaking change:
     /// https://github.com/foundry-rs/foundry/pull/4845#issuecomment-1529125648
-    function testFuzz_CancelMultiple(uint256 timeWarp, uint40 endTime) private {
+    function testFuzz_CancelMultiple(
+        uint256 timeWarp,
+        uint40 endTime
+    )
+        private
+        whenNoDelegateCall
+        whenNoNull
+        whenAllStreamsWarm
+        whenCallerAuthorizedAllStreams
+        whenAllStreamsCancelable
+    {
         timeWarp = bound(timeWarp, 0 seconds, defaults.TOTAL_DURATION() - 1);
         endTime = boundUint40(endTime, defaults.END_TIME(), defaults.END_TIME() + defaults.TOTAL_DURATION());
 

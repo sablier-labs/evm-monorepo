@@ -69,7 +69,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         changePrank({ msgSender: users.sender });
 
         // Create the stream with the fuzzed segments.
-        LockupDynamic.CreateWithMilestones memory createParams = defaultParams.createWithMilestones;
+        LockupDynamic.CreateWithMilestones memory createParams = defaults.createWithMilestones();
         createParams.totalAmount = vars.totalAmount;
         createParams.segments = params.segments;
         vars.streamId = dynamic.createWithMilestones(createParams);

@@ -1,17 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD2x18, ud2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
-import { Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";
+import { Broker, Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";
 
 import { Constants } from "./Constants.sol";
+import { Users } from "./Types.sol";
 
 /// @notice Contract with default values used throughout the tests.
 contract Defaults is Constants {
     /*//////////////////////////////////////////////////////////////////////////
-                                  SIMPLE CONSTANTS
+                                     CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     UD60x18 public constant BROKER_FEE = UD60x18.wrap(0.003e18); // 0.3%
@@ -34,6 +36,13 @@ contract Defaults is Constants {
     uint40 public immutable WARP_26_PERCENT; // 26% of the way through the stream
 
     /*//////////////////////////////////////////////////////////////////////////
+                                     VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
+    IERC20 private asset;
+    Users private users;
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -47,22 +56,68 @@ contract Defaults is Constants {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                      HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function setAsset(IERC20 asset_) external {
+        asset = asset_;
+    }
+
+    function setUsers(Users memory users_) external {
+        users = users_;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function durations() external pure returns (LockupLinear.Durations memory durations_) {
+    function broker() public view returns (Broker memory broker_) {
+        broker_ = Broker({ account: users.broker, fee: BROKER_FEE });
+    }
+
+    function durations() public pure returns (LockupLinear.Durations memory durations_) {
         durations_ = LockupLinear.Durations({ cliff: CLIFF_DURATION, total: TOTAL_DURATION });
     }
 
-    function dynamicRange() external view returns (LockupDynamic.Range memory dynamicRange_) {
+    function dynamicRange() public view returns (LockupDynamic.Range memory dynamicRange_) {
         dynamicRange_ = LockupDynamic.Range({ start: START_TIME, end: END_TIME });
     }
 
-    function linearRange() external view returns (LockupLinear.Range memory linearRange_) {
+    function dynamicStream() external view returns (LockupDynamic.Stream memory dynamicStream_) {
+        dynamicStream_ = LockupDynamic.Stream({
+            amounts: lockupAmounts(),
+            asset: asset,
+            endTime: END_TIME,
+            isCancelable: true,
+            isCanceled: false,
+            isDepleted: false,
+            isStream: true,
+            segments: segments(),
+            sender: users.sender,
+            startTime: START_TIME
+        });
+    }
+
+    function linearRange() public view returns (LockupLinear.Range memory linearRange_) {
         linearRange_ = LockupLinear.Range({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
     }
 
-    function lockupAmounts() external pure returns (Lockup.Amounts memory lockupAmounts_) {
+    function linearStream() external view returns (LockupLinear.Stream memory linearStream_) {
+        linearStream_ = LockupLinear.Stream({
+            amounts: lockupAmounts(),
+            asset: asset,
+            cliffTime: CLIFF_TIME,
+            endTime: END_TIME,
+            isCancelable: true,
+            isCanceled: false,
+            isDepleted: false,
+            isStream: true,
+            sender: users.sender,
+            startTime: START_TIME
+        });
+    }
+
+    function lockupAmounts() public pure returns (Lockup.Amounts memory lockupAmounts_) {
         lockupAmounts_ = Lockup.Amounts({ deposited: DEPOSIT_AMOUNT, refunded: 0, withdrawn: 0 });
     }
 
@@ -101,7 +156,7 @@ contract Defaults is Constants {
         );
     }
 
-    function segmentsWithDeltas() external view returns (LockupDynamic.SegmentWithDelta[] memory segmentsWithDeltas_) {
+    function segmentsWithDeltas() public view returns (LockupDynamic.SegmentWithDelta[] memory segmentsWithDeltas_) {
         LockupDynamic.Segment[] memory segments_ = segments();
         segmentsWithDeltas_ = new LockupDynamic.SegmentWithDelta[](2);
         segmentsWithDeltas_[0] = (
@@ -118,5 +173,58 @@ contract Defaults is Constants {
                 delta: 7500 seconds
             })
         );
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                       PARAMS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function createWithDeltas() external view returns (LockupDynamic.CreateWithDeltas memory params_) {
+        params_ = LockupDynamic.CreateWithDeltas({
+            asset: asset,
+            broker: broker(),
+            cancelable: true,
+            recipient: users.recipient,
+            segments: segmentsWithDeltas(),
+            sender: users.sender,
+            totalAmount: TOTAL_AMOUNT
+        });
+    }
+
+    function createWithDurations() public view returns (LockupLinear.CreateWithDurations memory params_) {
+        params_ = LockupLinear.CreateWithDurations({
+            asset: asset,
+            broker: broker(),
+            cancelable: true,
+            durations: durations(),
+            recipient: users.recipient,
+            sender: users.sender,
+            totalAmount: TOTAL_AMOUNT
+        });
+    }
+
+    function createWithMilestones() external view returns (LockupDynamic.CreateWithMilestones memory params_) {
+        params_ = LockupDynamic.CreateWithMilestones({
+            asset: asset,
+            broker: broker(),
+            cancelable: true,
+            recipient: users.recipient,
+            segments: segments(),
+            sender: users.sender,
+            startTime: START_TIME,
+            totalAmount: TOTAL_AMOUNT
+        });
+    }
+
+    function createWithRange() public view returns (LockupLinear.CreateWithRange memory params_) {
+        params_ = LockupLinear.CreateWithRange({
+            asset: asset,
+            broker: broker(),
+            cancelable: true,
+            range: linearRange(),
+            recipient: users.recipient,
+            sender: users.sender,
+            totalAmount: TOTAL_AMOUNT
+        });
     }
 }

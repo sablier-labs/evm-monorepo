@@ -20,6 +20,7 @@ import { Constants } from "./utils/Constants.sol";
 import { Defaults } from "./utils/Defaults.sol";
 import { Events } from "./utils/Events.sol";
 import { Fuzzers } from "./utils/Fuzzers.sol";
+import { Users } from "./utils/Types.sol";
 import { GoodFlashLoanReceiver } from "./mocks/flash-loan/GoodFlashLoanReceiver.sol";
 import { GoodRecipient } from "./mocks/hooks/GoodRecipient.sol";
 import { GoodSender } from "./mocks/hooks/GoodSender.sol";
@@ -27,27 +28,6 @@ import { GoodSender } from "./mocks/hooks/GoodSender.sol";
 /// @title Base_Test
 /// @notice Base test contract with common logic needed by all test contracts.
 abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzzers, StdCheats {
-    /*//////////////////////////////////////////////////////////////////////////
-                                       STRUCTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    struct Users {
-        // Default admin for all Sablier V2 contracts.
-        address payable admin;
-        // Neutral user.
-        address payable alice;
-        // Default stream broker.
-        address payable broker;
-        // Malicious user.
-        address payable eve;
-        // Default NFT operator.
-        address payable operator;
-        // Default stream recipient.
-        address payable recipient;
-        // Default stream sender.
-        address payable sender;
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -75,10 +55,20 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
 
     function setUp() public virtual {
         // Deploy the base test contracts.
-        deployBaseTestContracts();
+        goodFlashLoanReceiver = new GoodFlashLoanReceiver();
+        goodRecipient = new GoodRecipient();
+        goodSender = new GoodSender();
+        nftDescriptor = new SablierV2NFTDescriptor();
+        nonCompliantAsset = new NonCompliantERC20("Non-Compliant Asset", "NCA", 18);
+        usdc = new ERC20("USD Coin", "USDC");
 
         // Label the base test contracts.
-        labelBaseTestContracts();
+        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
+        vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
+        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
+        vm.label({ account: address(nftDescriptor), newLabel: "NFT Descriptor" });
+        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant Asset" });
+        vm.label({ account: address(usdc), newLabel: "USDC" });
 
         // Create users for testing.
         users = Users({
@@ -90,6 +80,11 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
             recipient: createUser("Recipient"),
             sender: createUser("Sender")
         });
+
+        // Deploy the defaults contract.
+        defaults = new Defaults();
+        defaults.setAsset(usdc);
+        defaults.setUsers(users);
 
         // Warp to March 1, 2023 at 00:00 GMT to provide a more realistic testing environment.
         vm.warp({ timestamp: MARCH_1_2023 });
@@ -135,27 +130,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
         vm.deal({ account: addr, newBalance: 100 ether });
         deal({ token: address(usdc), to: addr, give: 1_000_000e18 });
         deal({ token: address(nonCompliantAsset), to: addr, give: 1_000_000e18 });
-    }
-
-    /// @dev Deploys the base test contracts.
-    function deployBaseTestContracts() internal {
-        defaults = new Defaults();
-        goodFlashLoanReceiver = new GoodFlashLoanReceiver();
-        goodRecipient = new GoodRecipient();
-        goodSender = new GoodSender();
-        nftDescriptor = new SablierV2NFTDescriptor();
-        nonCompliantAsset = new NonCompliantERC20("Non-Compliant Asset", "NCA", 18);
-        usdc = new ERC20("USD Coin", "USDC");
-    }
-
-    /// @dev Labels the most relevant contracts.
-    function labelBaseTestContracts() internal {
-        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
-        vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
-        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
-        vm.label({ account: address(nftDescriptor), newLabel: "Sablier V2 NFT Descriptor" });
-        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant Asset" });
-        vm.label({ account: address(usdc), newLabel: "USDC" });
     }
 
     /// @dev Deploys {SablierV2Comptroller} from a source precompiled with `--via-ir`.

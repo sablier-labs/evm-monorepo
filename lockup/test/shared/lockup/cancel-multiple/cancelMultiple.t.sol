@@ -10,6 +10,15 @@ abstract contract CancelMultiple_Shared_Test is Lockup_Shared_Test {
         createTestStreams();
     }
 
+    /// @dev Creates the default streams used throughout the tests.
+    function createTestStreams() internal {
+        testStreamIds = new uint256[](2);
+        testStreamIds[0] = createDefaultStream();
+
+        // Create a stream with an end time double that of the default stream so that the refund amounts are different.
+        testStreamIds[1] = createDefaultStreamWithEndTime(defaults.END_TIME() + defaults.TOTAL_DURATION());
+    }
+
     modifier whenNoDelegateCall() {
         _;
     }
@@ -39,13 +48,5 @@ abstract contract CancelMultiple_Shared_Test is Lockup_Shared_Test {
 
     modifier whenAllStreamsCancelable() {
         _;
-    }
-
-    /// @dev Creates the default streams used throughout the tests.
-    function createTestStreams() internal {
-        testStreamIds = new uint256[](2);
-        testStreamIds[0] = createDefaultStream();
-        // Create a stream with an end time double that of the default stream so that the refund amounts are different.
-        testStreamIds[1] = createDefaultStreamWithEndTime(defaults.END_TIME() + defaults.TOTAL_DURATION());
     }
 }

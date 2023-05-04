@@ -60,7 +60,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
         deal({ token: address(usdc), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        LockupLinear.CreateWithRange memory params = defaults.createWithRange();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = depositAmount;
         uint256 streamId = linear.createWithRange(params);
@@ -94,7 +94,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
         deal({ token: address(usdc), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        LockupLinear.CreateWithRange memory params = defaults.createWithRange();
         params.totalAmount = depositAmount;
         uint256 streamId = linear.createWithRange(params);
 

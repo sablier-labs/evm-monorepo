@@ -46,7 +46,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
         deal({ token: address(usdc), to: users.sender, give: segment.amount });
 
         // Create the stream with the fuzzed segment.
-        LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.segments = segments;
         params.totalAmount = segment.amount;
@@ -111,7 +111,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
         deal({ token: address(usdc), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
-        LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.segments = segments;
         params.totalAmount = totalAmount;
@@ -163,7 +163,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
         deal({ token: address(usdc), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
-        LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.segments = segments;
         params.totalAmount = totalAmount;

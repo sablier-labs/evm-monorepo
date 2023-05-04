@@ -10,90 +10,42 @@ import { Lockup_Shared_Test } from "../lockup/Lockup.t.sol";
 /// @title Linear_Shared_Test
 /// @notice Common testing logic needed across {SablierV2LockupLinear} unit and fuzz tests.
 abstract contract Linear_Shared_Test is Lockup_Shared_Test {
-    /*//////////////////////////////////////////////////////////////////////////
-                                      STRUCTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    struct DefaultParams {
+    struct Params {
         LockupLinear.CreateWithDurations createWithDurations;
         LockupLinear.CreateWithRange createWithRange;
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                     VARIABLES
-    //////////////////////////////////////////////////////////////////////////*/
-
-    LockupLinear.Stream internal defaultStream;
-    DefaultParams internal defaultParams;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  SET-UP FUNCTION
-    //////////////////////////////////////////////////////////////////////////*/
+    /// @dev These have to be pre-declared so that `vm.expectRevert` does not expect a revert in `defaults`.
+    /// See https://github.com/foundry-rs/foundry/issues/4762.
+    Params private _params;
 
     function setUp() public virtual override {
-        // Initialize the default params to be used for the create functions.
-        defaultParams = DefaultParams({
-            createWithDurations: LockupLinear.CreateWithDurations({
-                asset: usdc,
-                broker: Broker({ account: users.broker, fee: defaults.BROKER_FEE() }),
-                cancelable: true,
-                durations: defaults.durations(),
-                sender: users.sender,
-                recipient: users.recipient,
-                totalAmount: defaults.TOTAL_AMOUNT()
-            }),
-            createWithRange: LockupLinear.CreateWithRange({
-                asset: usdc,
-                broker: Broker({ account: users.broker, fee: defaults.BROKER_FEE() }),
-                cancelable: true,
-                sender: users.sender,
-                range: defaults.linearRange(),
-                recipient: users.recipient,
-                totalAmount: defaults.TOTAL_AMOUNT()
-            })
-        });
-
-        // Create the default stream to be used across all tests.
-        defaultStream = LockupLinear.Stream({
-            amounts: defaults.lockupAmounts(),
-            asset: defaultParams.createWithRange.asset,
-            cliffTime: defaultParams.createWithRange.range.cliff,
-            endTime: defaultParams.createWithRange.range.end,
-            isCancelable: defaultParams.createWithRange.cancelable,
-            isCanceled: false,
-            isDepleted: false,
-            isStream: true,
-            sender: defaultParams.createWithRange.sender,
-            startTime: defaultParams.createWithRange.range.start
-        });
+        _params.createWithDurations = defaults.createWithDurations();
+        _params.createWithRange = defaults.createWithRange();
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
-        streamId = linear.createWithRange(defaultParams.createWithRange);
+        streamId = linear.createWithRange(_params.createWithRange);
     }
 
     /// @dev Creates the default stream with the provided address.
     function createDefaultStreamWithAsset(IERC20 asset) internal override returns (uint256 streamId) {
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.asset = asset;
         streamId = linear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided broker.
     function createDefaultStreamWithBroker(Broker memory broker) internal override returns (uint256 streamId) {
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.broker = broker;
         streamId = linear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with durations.
     function createDefaultStreamWithDurations() internal returns (uint256 streamId) {
-        streamId = linear.createWithDurations(defaultParams.createWithDurations);
+        streamId = linear.createWithDurations(_params.createWithDurations);
     }
 
     /// @dev Creates the default stream with the provided durations.
@@ -101,64 +53,59 @@ abstract contract Linear_Shared_Test is Lockup_Shared_Test {
         internal
         returns (uint256 streamId)
     {
-        LockupLinear.CreateWithDurations memory params = defaultParams.createWithDurations;
+        LockupLinear.CreateWithDurations memory params = _params.createWithDurations;
         params.durations = durations;
         streamId = linear.createWithDurations(params);
     }
 
     /// @dev Creates the default stream that is not cancelable.
     function createDefaultStreamNotCancelable() internal override returns (uint256 streamId) {
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.cancelable = false;
         streamId = linear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided end time.
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
-        params.range = LockupLinear.Range({
-            start: defaultParams.createWithRange.range.start,
-            cliff: defaultParams.createWithRange.range.cliff,
-            end: endTime
-        });
+        LockupLinear.CreateWithRange memory params = _params.createWithRange;
+        params.range.end = endTime;
         streamId = linear.createWithRange(params);
     }
 
-    /// @dev Creates the default stream with the provided range.
-    function createDefaultStreamWithRange(LockupLinear.Range memory range) internal returns (uint256 streamId) {
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
-        params.range = range;
+    /// @dev Creates the default stream with the provided createWithRange.
+    function createDefaultStreamWithRange(LockupLinear.Range memory createWithRange)
+        internal
+        returns (uint256 streamId)
+    {
+        LockupLinear.CreateWithRange memory params = _params.createWithRange;
+        params.range = createWithRange;
         streamId = linear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.recipient = recipient;
         streamId = linear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided sender.
     function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+        LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.sender = sender;
         streamId = linear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided start time.
     function createDefaultStreamWithStartTime(uint40 startTime) internal override returns (uint256 streamId) {
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
-        params.range = LockupLinear.Range({
-            start: startTime,
-            cliff: defaultParams.createWithRange.range.cliff,
-            end: defaultParams.createWithRange.range.end
-        });
+        LockupLinear.CreateWithRange memory params = _params.createWithRange;
+        params.range.start = startTime;
         streamId = linear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided total amount.
-    function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal returns (uint256 streamId) {
-        LockupLinear.CreateWithRange memory params = defaultParams.createWithRange;
+    function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal override returns (uint256 streamId) {
+        LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.totalAmount = totalAmount;
         streamId = linear.createWithRange(params);
     }

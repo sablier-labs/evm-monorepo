@@ -98,24 +98,27 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
         UD60x18 brokerFee = ZERO;
-        changePrank(defaultParams.createWithMilestones.sender);
+        changePrank({ msgSender: users.sender });
 
         // Adjust the default deposit amount.
-        uint128 depositAmount = defaults.DEPOSIT_AMOUNT() + depositDiff;
+        uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();
+        uint128 depositAmount = defaultDepositAmount + depositDiff;
+
+        // Prepare the params.
+        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
+        params.broker = Broker({ account: address(0), fee: brokerFee });
+        params.totalAmount = depositAmount;
 
         // Expect a {DepositAmountNotEqualToSegmentAmountsSum} error.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum.selector,
                 depositAmount,
-                defaults.DEPOSIT_AMOUNT()
+                defaultDepositAmount
             )
         );
 
         // Create the stream.
-        LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
-        params.broker = Broker({ account: address(0), fee: brokerFee });
-        params.totalAmount = depositAmount;
         dynamic.createWithMilestones(params);
     }
 
@@ -135,7 +138,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee(defaultStream.asset, protocolFee);
+        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
 
         // Run the test.
         vm.expectRevert(
@@ -283,12 +286,12 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
-        assertEq(actualStream.asset, defaultStream.asset, "asset");
+        assertEq(actualStream.asset, usdc, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
-        assertEq(actualStream.isCanceled, defaultStream.isCanceled, "isCanceled");
-        assertEq(actualStream.isDepleted, defaultStream.isDepleted, "isStream");
-        assertEq(actualStream.isStream, defaultStream.isStream, "isStream");
+        assertEq(actualStream.isCanceled, false, "isCanceled");
+        assertEq(actualStream.isDepleted, false, "isStream");
+        assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.segments, params.segments);
         assertEq(actualStream.startTime, range.start, "startTime");

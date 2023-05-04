@@ -103,13 +103,13 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithDur
         emit CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,
-            sender: defaultParams.createWithDurations.sender,
-            recipient: defaultParams.createWithDurations.recipient,
+            sender: users.sender,
+            recipient: users.recipient,
             amounts: defaults.lockupCreateAmounts(),
             asset: usdc,
-            cancelable: defaultParams.createWithDurations.cancelable,
+            cancelable: true,
             range: range,
-            broker: defaultParams.createWithDurations.broker.account
+            broker: users.broker
         });
 
         // Create the stream.
@@ -117,7 +117,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithDur
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-        LockupLinear.Stream memory expectedStream = defaultStream;
+        LockupLinear.Stream memory expectedStream = defaults.linearStream();
         expectedStream.cliffTime = range.cliff;
         expectedStream.endTime = range.end;
         expectedStream.startTime = range.start;
@@ -140,7 +140,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithDur
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
-        address expectedNFTOwner = defaultParams.createWithDurations.recipient;
+        address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

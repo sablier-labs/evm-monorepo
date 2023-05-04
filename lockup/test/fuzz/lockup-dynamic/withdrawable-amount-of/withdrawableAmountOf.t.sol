@@ -36,7 +36,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdrawab
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
-        LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = defaults.DEPOSIT_AMOUNT();
         uint256 streamId = dynamic.createWithMilestones(params);
@@ -86,7 +86,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdrawab
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
-        LockupDynamic.CreateWithMilestones memory params = defaultParams.createWithMilestones;
+        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = defaults.DEPOSIT_AMOUNT();
         uint256 streamId = dynamic.createWithMilestones(params);

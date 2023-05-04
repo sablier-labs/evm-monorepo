@@ -20,7 +20,7 @@ contract GetStream_Linear_Unit_Test is Linear_Unit_Test {
     function test_GetStream() external whenNotNull {
         uint256 streamId = createDefaultStream();
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-        LockupLinear.Stream memory expectedStream = defaultStream;
+        LockupLinear.Stream memory expectedStream = defaults.linearStream();
         assertEq(actualStream, expectedStream);
     }
 }

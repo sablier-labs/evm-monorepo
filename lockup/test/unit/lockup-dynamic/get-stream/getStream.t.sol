@@ -20,7 +20,7 @@ contract GetStream_Dynamic_Unit_Test is Dynamic_Unit_Test {
     function test_GetStream() external whenNotNull {
         uint256 streamId = createDefaultStream();
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
-        LockupDynamic.Stream memory expectedStream = defaultStream;
+        LockupDynamic.Stream memory expectedStream = defaults.dynamicStream();
         assertEq(actualStream, expectedStream);
     }
 }

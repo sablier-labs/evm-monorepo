@@ -14,6 +14,27 @@ abstract contract WithdrawMultiple_Shared_Test is Lockup_Shared_Test {
         createTestStreams();
     }
 
+    /// @dev Creates the default streams used throughout the tests.
+    function createTestStreams() internal {
+        // Warp back to the original timestamp.
+        vm.warp({ timestamp: MARCH_1_2023 });
+
+        // Define the default amounts.
+        testAmounts = new uint128[](3);
+        testAmounts[0] = defaults.WITHDRAW_AMOUNT();
+        testAmounts[1] = defaults.DEPOSIT_AMOUNT();
+        testAmounts[2] = defaults.WITHDRAW_AMOUNT() / 2;
+
+        // Create three streams:
+        // 1. A default stream
+        // 2. A stream with an early end time
+        // 3. A stream meant to be canceled before the withdrawal is made
+        testStreamIds = new uint256[](3);
+        testStreamIds[0] = createDefaultStream();
+        testStreamIds[1] = createDefaultStreamWithEndTime(EARLY_STOP_TIME);
+        testStreamIds[2] = createDefaultStream();
+    }
+
     modifier whenNoDelegateCall() {
         _;
     }
@@ -61,26 +82,5 @@ abstract contract WithdrawMultiple_Shared_Test is Lockup_Shared_Test {
 
     modifier whenNoAmountOverdraws() {
         _;
-    }
-
-    /// @dev Creates the default streams used throughout the tests.
-    function createTestStreams() internal {
-        // Warp back to the original timestamp.
-        vm.warp({ timestamp: MARCH_1_2023 });
-
-        // Define the default amounts.
-        testAmounts = new uint128[](3);
-        testAmounts[0] = defaults.WITHDRAW_AMOUNT();
-        testAmounts[1] = defaults.DEPOSIT_AMOUNT();
-        testAmounts[2] = defaults.WITHDRAW_AMOUNT() / 2;
-
-        // Create three streams:
-        // 1. A default stream
-        // 2. A stream with an early end time
-        // 3. A stream meant to be canceled before the withdrawal is made
-        testStreamIds = new uint256[](3);
-        testStreamIds[0] = createDefaultStream();
-        testStreamIds[1] = createDefaultStreamWithEndTime(EARLY_STOP_TIME);
-        testStreamIds[2] = createDefaultStream();
     }
 }
