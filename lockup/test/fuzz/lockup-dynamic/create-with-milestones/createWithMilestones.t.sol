@@ -208,7 +208,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
-        whenAssetERC20Compliant
+        whenAssetERC20
     {
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.segments.length != 0);

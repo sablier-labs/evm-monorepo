@@ -6,10 +6,6 @@
   branch = "release-v4.8"
   path = "lib/openzeppelin-contracts"
   url = "https://github.com/OpenZeppelin/openzeppelin-contracts"
-[submodule "lib/prb-contracts"]
-  branch = "v5"
-  path = "lib/prb-contracts"
-  url = "https://github.com/PaulRBerg/prb-contracts"
 [submodule "lib/prb-math"]
   branch = "v4"
   path = "lib/prb-math"

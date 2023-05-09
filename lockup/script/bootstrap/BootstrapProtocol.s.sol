@@ -2,7 +2,6 @@
 pragma solidity >=0.8.19 <=0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
-import { ERC20GodMode } from "@prb/contracts/token/erc20/ERC20GodMode.sol";
 
 import { Script } from "forge-std/Script.sol";
 import { Solarray } from "solarray/Solarray.sol";
@@ -14,6 +13,10 @@ import { Broker, LockupLinear, LockupDynamic } from "../../src/types/DataTypes.s
 import { ud2x18, ud60x18 } from "../../src/types/Math.sol";
 
 import { BaseScript } from "../shared/Base.s.sol";
+
+interface IERC20Mint {
+    function mint(address beneficiary, uint256 amount) external;
+}
 
 /// @notice Bootstraps the protocol by setting up the comptroller and creating some streams.
 contract BootstrapProtocol is BaseScript {
@@ -46,11 +49,11 @@ contract BootstrapProtocol is BaseScript {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Mint enough assets to the sender.
-        ERC20GodMode(address(asset)).mint({ beneficiary: sender, amount: 131_601.1e18 + 10_000e18 });
+        IERC20Mint(address(asset)).mint({ beneficiary: sender, amount: 131_601.1e18 + 10_000e18 });
 
         // Approve the Sablier contracts to transfer the ERC-20 assets from the sender.
-        asset.approve(address(linear), type(uint256).max);
-        asset.approve(address(dynamic), type(uint256).max);
+        asset.approve({ spender: address(linear), amount: type(uint256).max });
+        asset.approve({ spender: address(dynamic), amount: type(uint256).max });
 
         // Create 7 linear streams with various amounts and durations.
         //

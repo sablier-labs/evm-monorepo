@@ -126,7 +126,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
-        whenAssetERC20Compliant
+        whenAssetERC20
     {
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.totalAmount != 0);

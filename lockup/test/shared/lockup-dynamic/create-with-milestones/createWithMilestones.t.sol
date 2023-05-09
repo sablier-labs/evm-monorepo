@@ -62,7 +62,7 @@ contract CreateWithMilestones_Dynamic_Shared_Test is Dynamic_Shared_Test {
         _;
     }
 
-    modifier whenAssetERC20Compliant() {
+    modifier whenAssetERC20() {
         _;
     }
 }
