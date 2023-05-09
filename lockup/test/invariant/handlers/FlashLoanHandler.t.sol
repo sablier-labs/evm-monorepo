@@ -3,9 +3,9 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { Math } from "@openzeppelin/utils/math/Math.sol";
-import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
 
 import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
+import { IERC3156FlashBorrower } from "src/interfaces/erc3156/IERC3156FlashBorrower.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 
 import { BaseHandler } from "./BaseHandler.t.sol";

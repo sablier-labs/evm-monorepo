@@ -4,9 +4,9 @@ pragma solidity >=0.8.19;
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import { ud } from "@prb/math/UD60x18.sol";
-import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
-import { IERC3156FlashLender } from "erc3156/interfaces/IERC3156FlashLender.sol";
 
+import { IERC3156FlashBorrower } from "../interfaces/erc3156/IERC3156FlashBorrower.sol";
+import { IERC3156FlashLender } from "../interfaces/erc3156/IERC3156FlashLender.sol";
 import { Errors } from "../libraries/Errors.sol";
 import { SablierV2Base } from "./SablierV2Base.sol";
 
@@ -136,7 +136,7 @@ abstract contract SablierV2FlashLoan is
 
         // Interactions: perform the borrower callback.
         bytes32 response =
-            receiver.onFlashLoan({ initiator: msg.sender, token: asset, amount: amount, fee: fee, data: data });
+            receiver.onFlashLoan({ initiator: msg.sender, asset: asset, amount: amount, fee: fee, data: data });
 
         // Checks: the response matches the expected callback success hash.
         if (response != CALLBACK_SUCCESS) {

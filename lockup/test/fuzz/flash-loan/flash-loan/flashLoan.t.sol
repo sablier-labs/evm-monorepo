@@ -2,8 +2,8 @@
 pragma solidity >=0.8.19;
 
 import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
 
+import { IERC3156FlashBorrower } from "src/interfaces/erc3156/IERC3156FlashBorrower.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { FlashLoanFunction_Shared_Test } from "../../../shared/flash-loan/flash-loan/flashLoan.t.sol";
