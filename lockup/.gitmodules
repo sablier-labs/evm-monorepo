@@ -30,7 +30,3 @@
   branch = "main"
   path = "lib/solarray"
   url = "https://github.com/PaulRBerg/solarray"
-[submodule "lib/solidity-generators"]
-  branch = "main"
-  path = "lib/solidity-generators"
-  url = "https://github.com/mds1/solidity-generators"

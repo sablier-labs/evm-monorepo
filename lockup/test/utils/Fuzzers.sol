@@ -3,7 +3,6 @@ pragma solidity >=0.8.19;
 
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
 import { UD60x18, ud, uUNIT } from "@prb/math/UD60x18.sol";
-import { arange } from "solidity-generators/Generators.sol";
 
 import { Lockup, LockupDynamic } from "../../src/types/DataTypes.sol";
 
@@ -145,14 +144,15 @@ abstract contract Fuzzers is Constants, Utils {
         // add 1 because the first milestone must be greater than the start time.
         segments[0].milestone = startTime + 1;
 
-        // Generate `segmentCount` milestones linearly spaced between the first milestone and `MAX_UNIX_TIMESTAMP`.
+        // Fuzz the milestones while preserving their order in the array. For each milestone, set its initial guess
+        // as the sum of the starting milestone and the step size multiplied by the current index. This ensures that
+        // the initial guesses are evenly spaced. Next, we bound the milestone within a range of half the step size
+        // around the initial guess.
+        uint256 start = segments[0].milestone;
         uint40 step = (MAX_UNIX_TIMESTAMP - segments[0].milestone) / (segmentCount - 1);
         uint40 halfStep = step / 2;
-        uint256[] memory milestones = arange(segments[0].milestone, MAX_UNIX_TIMESTAMP, step);
-
-        // Fuzz the milestones in a way that preserves their order in the array.
         for (uint256 i = 1; i < segmentCount; ++i) {
-            uint256 milestone = milestones[i];
+            uint256 milestone = start + i * step;
             milestone = _bound(milestone, milestone - halfStep, milestone + halfStep);
             segments[i].milestone = uint40(milestone);
         }
