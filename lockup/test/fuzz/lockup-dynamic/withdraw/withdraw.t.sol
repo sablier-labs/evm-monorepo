@@ -60,7 +60,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
 
         // Bound the time warp.
         vars.totalDuration = params.segments[params.segments.length - 1].milestone - defaults.START_TIME();
-        params.timeWarp = bound(params.timeWarp, 1, vars.totalDuration + 100 seconds);
+        params.timeWarp = _bound(params.timeWarp, 1 seconds, vars.totalDuration + 100 seconds);
 
         // Mint enough assets to the funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });

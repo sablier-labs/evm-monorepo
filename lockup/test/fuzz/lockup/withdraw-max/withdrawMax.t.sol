@@ -12,7 +12,7 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, WithdrawMax_Shared_Test {
     }
 
     function testFuzz_WithdrawMax_EndTimeInThePast(uint256 timeWarp) external {
-        timeWarp = bound(timeWarp, defaults.TOTAL_DURATION() + 1 seconds, defaults.TOTAL_DURATION() * 2);
+        timeWarp = _bound(timeWarp, defaults.TOTAL_DURATION() + 1 seconds, defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
@@ -52,7 +52,7 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, WithdrawMax_Shared_Test {
     }
 
     function testFuzz_WithdrawMax(uint256 timeWarp) external whenEndTimeInTheFuture {
-        timeWarp = bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
+        timeWarp = _bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
 
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.START_TIME() + timeWarp });

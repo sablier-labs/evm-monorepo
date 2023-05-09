@@ -54,7 +54,8 @@ abstract contract LockupHandler is BaseHandler {
         if (lastStreamId == 0) {
             return;
         }
-        currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
+        uint256 fuzzedStreamId = _bound(streamIndexSeed, 0, lastStreamId - 1);
+        currentStreamId = store.streamIds(fuzzedStreamId);
         _;
     }
 

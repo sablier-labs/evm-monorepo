@@ -77,7 +77,7 @@ abstract contract Fuzzers is Constants, Utils {
         UD60x18 brokerFee
     )
         internal
-        view
+        pure
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
         uint256 segmentCount = segments.length;
@@ -117,10 +117,10 @@ abstract contract Fuzzers is Constants, Utils {
     }
 
     /// @dev Fuzzes the deltas.
-    function fuzzSegmentDeltas(LockupDynamic.SegmentWithDelta[] memory segments) internal view {
+    function fuzzSegmentDeltas(LockupDynamic.SegmentWithDelta[] memory segments) internal pure {
         unchecked {
             // Precompute the first segment delta.
-            segments[0].delta = uint40(bound(segments[0].delta, 1, 100));
+            segments[0].delta = uint40(_bound(segments[0].delta, 1, 100));
 
             // Bound the deltas so that none is zero and the calculations don't overflow.
             uint256 deltaCount = segments.length;
@@ -153,7 +153,7 @@ abstract contract Fuzzers is Constants, Utils {
         // Fuzz the milestones in a way that preserves their order in the array.
         for (uint256 i = 1; i < segmentCount; ++i) {
             uint256 milestone = milestones[i];
-            milestone = bound(milestone, milestone - halfStep, milestone + halfStep);
+            milestone = _bound(milestone, milestone - halfStep, milestone + halfStep);
             segments[i].milestone = uint40(milestone);
         }
     }
