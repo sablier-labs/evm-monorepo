@@ -1,5 +1,13 @@
 lockfileVersion: '6.0'
 
+dependencies:
+  '@openzeppelin/contracts':
+    specifier: 4.8.3
+    version: 4.8.3
+  '@prb/math':
+    specifier: 4.0.0
+    version: 4.0.0
+
 devDependencies:
   prettier:
     specifier: ^2.8.7
@@ -30,6 +38,14 @@ packages:
       chalk: 2.4.2
       js-tokens: 4.0.0
     dev: true
+
+  /@openzeppelin/contracts@4.8.3:
+    resolution: {integrity: sha512-bQHV8R9Me8IaJoJ2vPG4rXcL7seB7YVuskr4f+f5RyOStSZetwzkWtoqDMl5erkBJy0lDRUnIR2WIkPiC0GJlg==}
+    dev: false
+
+  /@prb/math@4.0.0:
+    resolution: {integrity: sha512-zGOMIn3EMSxh2yo64uKly4xtwVvbUvsKAand4JFzDRFAPEzqBWJe1/Qf23o992ZR7xeA502L17rSTcOscfRO2Q==}
+    dev: false
 
   /@solidity-parser/parser@0.16.0:
     resolution: {integrity: sha512-ESipEcHyRHg4Np4SqBCfcXwyxxna1DgFVz69bgpLV8vzl/NP1DtcKsJ4dJZXWQhY/Z4J2LeKBiOkOVZn9ct33Q==}
