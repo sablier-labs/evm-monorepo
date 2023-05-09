@@ -14,6 +14,9 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Maximum number of streams that can be created during an invariant campaign.
+    uint256 internal constant MAX_STREAM_COUNT = 100;
+
     /// @dev The virtual address of the Foundry VM.
     address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
 

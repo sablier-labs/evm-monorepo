@@ -15,12 +15,6 @@ import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 /// the lockup contracts.
 contract LockupLinearCreateHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    uint256 internal constant MAX_STREAM_COUNT = 100;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -48,7 +42,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         instrument("createWithDurations")
         useNewSender(params.sender)
     {
-        // We don't want to fuzz more than a certain number of streams.
+        // We don't want to create more than a certain number of streams.
         if (store.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
@@ -80,7 +74,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         instrument("createWithRange")
         useNewSender(params.sender)
     {
-        // We don't want to fuzz more than a certain number of streams.
+        // We don't want to create more than a certain number of streams.
         if (store.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }

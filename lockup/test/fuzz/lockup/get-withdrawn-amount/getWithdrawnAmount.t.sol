@@ -10,7 +10,7 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, GetWithdrawnAmount_
     }
 
     function testFuzz_GetWithdrawnAmount_NoPreviousWithdrawals(uint256 timeWarp) external whenNotNull {
-        timeWarp = _bound(timeWarp, 0, defaults.TOTAL_DURATION() * 2);
+        timeWarp = _bound(timeWarp, 0 seconds, defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.START_TIME() + timeWarp });

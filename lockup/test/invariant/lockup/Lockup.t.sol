@@ -26,8 +26,9 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
     function setUp() public virtual override {
         Invariant_Test.setUp();
 
-        // Deploy the handler storage contract.
+        // Deploy and label the handler storage contract.
         lockupHandlerStorage = new LockupHandlerStorage();
+        vm.label({ account: address(lockupHandlerStorage), newLabel: "LockupHandlerStorage" });
 
         // Exclude the lockup handler store from being fuzzed as `msg.sender`.
         excludeSender(address(lockupHandlerStorage));
