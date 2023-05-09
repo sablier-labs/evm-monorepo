@@ -220,7 +220,7 @@ interface ISablierV2Lockup is
     /// @param newNFTDescriptor The address of the new NFT descriptor contract.
     function setNFTDescriptor(ISablierV2NFTDescriptor newNFTDescriptor) external;
 
-    /// @notice Withdraws the provided amount of assets from the stream to the specified address `to`.
+    /// @notice Withdraws the provided amount of assets from the stream to the `to` address.
     ///
     /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
     ///
@@ -241,7 +241,7 @@ interface ISablierV2Lockup is
     /// @param amount The amount to withdraw, denoted in units of the asset's decimals.
     function withdraw(uint256 streamId, address to, uint128 amount) external;
 
-    /// @notice Withdraws the maximum withdrawable amount from the stream to the specified address `to`.
+    /// @notice Withdraws the maximum withdrawable amount from the stream to the `to` address.
     ///
     /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
     ///

@@ -13,7 +13,6 @@ interface ISablierV2LockupRecipient {
     /// @dev Notes:
     /// - This function may revert, but the Sablier contract will ignore the revert.
     ///
-    /// @param lockup The lockup streaming contract in which the stream was canceled.
     /// @param streamId The id of the canceled stream.
     /// @param sender The stream's sender, who canceled the stream.
     /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
@@ -21,7 +20,6 @@ interface ISablierV2LockupRecipient {
     /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of
     /// the asset's decimals.
     function onStreamCanceled(
-        ISablierV2Lockup lockup,
         uint256 streamId,
         address sender,
         uint128 senderAmount,
@@ -34,26 +32,17 @@ interface ISablierV2LockupRecipient {
     /// @dev Notes:
     /// - This function may revert, but the Sablier contract will ignore the revert.
     ///
-    /// @param lockup The lockup streaming contract in which the stream was renounced.
     /// @param streamId The id of the renounced stream.
-    function onStreamRenounced(ISablierV2Lockup lockup, uint256 streamId) external;
+    function onStreamRenounced(uint256 streamId) external;
 
     /// @notice Responds to withdrawals triggered by either the stream's sender or an approved third party.
     ///
     /// @dev Notes:
     /// - This function may revert, but the Sablier contract will ignore the revert.
     ///
-    /// @param lockup The lockup streaming contract in which the stream was withdrawn from.
     /// @param streamId The id of the stream being withdrawn from.
     /// @param caller The original `msg.sender` address that triggered the withdrawal.
     /// @param to The address receiving the withdrawn assets.
     /// @param amount The amount of assets withdrawn, denoted in units of the asset's decimals.
-    function onStreamWithdrawn(
-        ISablierV2Lockup lockup,
-        uint256 streamId,
-        address caller,
-        address to,
-        uint128 amount
-    )
-        external;
+    function onStreamWithdrawn(uint256 streamId, address caller, address to, uint128 amount) external;
 }
