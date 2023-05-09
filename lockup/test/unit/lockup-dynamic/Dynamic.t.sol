@@ -42,10 +42,6 @@ import { WithdrawMultiple_Unit_Test } from "../lockup/withdraw-multiple/withdraw
 /// @title Dynamic_Unit_Test
 /// @notice Common testing logic needed across {SablierV2LockupDynamic} unit tests.
 abstract contract Dynamic_Unit_Test is Unit_Test, Dynamic_Shared_Test {
-    /*//////////////////////////////////////////////////////////////////////////
-                                  SET-UP FUNCTION
-    //////////////////////////////////////////////////////////////////////////*/
-
     function setUp() public virtual override(Unit_Test, Dynamic_Shared_Test) {
         // Both of these contracts inherit from {Base_Test}, which is fine because multiple inheritance is
         // allowed in Solidity, and {Base_Test-setUp} will only be called once.
