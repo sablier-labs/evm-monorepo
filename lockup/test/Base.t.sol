@@ -39,6 +39,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     //////////////////////////////////////////////////////////////////////////*/
 
     ISablierV2Comptroller internal comptroller;
+    IERC20 internal dai;
     Defaults internal defaults;
     ISablierV2LockupDynamic internal dynamic;
     GoodFlashLoanReceiver internal goodFlashLoanReceiver;
@@ -47,7 +48,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     ISablierV2LockupLinear internal linear;
     SablierV2NFTDescriptor internal nftDescriptor;
     NonCompliantERC20 internal nonCompliantAsset;
-    IERC20 internal usdc;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -55,20 +55,20 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
 
     function setUp() public virtual {
         // Deploy the base test contracts.
+        dai = new ERC20("Dai Stablecoin", "DAI");
         goodFlashLoanReceiver = new GoodFlashLoanReceiver();
         goodRecipient = new GoodRecipient();
         goodSender = new GoodSender();
         nftDescriptor = new SablierV2NFTDescriptor();
         nonCompliantAsset = new NonCompliantERC20("Non-Compliant Asset", "NCA", 18);
-        usdc = new ERC20("USD Coin", "USDC");
 
         // Label the base test contracts.
+        vm.label({ account: address(dai), newLabel: "DAI" });
         vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
         vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
         vm.label({ account: address(goodSender), newLabel: "Good Sender" });
         vm.label({ account: address(nftDescriptor), newLabel: "NFT Descriptor" });
         vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant Asset" });
-        vm.label({ account: address(usdc), newLabel: "USDC" });
 
         // Create users for testing.
         users = Users({
@@ -83,7 +83,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
 
         // Deploy the defaults contract.
         defaults = new Defaults();
-        defaults.setAsset(usdc);
+        defaults.setAsset(dai);
         defaults.setUsers(users);
 
         // Warp to March 1, 2023 at 00:00 GMT to provide a more realistic testing environment.
@@ -97,26 +97,26 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     /// @dev Approves all V2 Core contracts to spend assets from the sender, recipient, Alice and Eve.
     function approveProtocol() internal {
         changePrank({ msgSender: users.sender });
-        usdc.approve({ spender: address(linear), amount: MAX_UINT256 });
-        usdc.approve({ spender: address(dynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(linear), amount: MAX_UINT256 });
+        dai.approve({ spender: address(dynamic), amount: MAX_UINT256 });
         nonCompliantAsset.approve({ spender: address(linear), value: MAX_UINT256 });
         nonCompliantAsset.approve({ spender: address(dynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.recipient });
-        usdc.approve({ spender: address(linear), amount: MAX_UINT256 });
-        usdc.approve({ spender: address(dynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(linear), amount: MAX_UINT256 });
+        dai.approve({ spender: address(dynamic), amount: MAX_UINT256 });
         nonCompliantAsset.approve({ spender: address(linear), value: MAX_UINT256 });
         nonCompliantAsset.approve({ spender: address(dynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.alice });
-        usdc.approve({ spender: address(linear), amount: MAX_UINT256 });
-        usdc.approve({ spender: address(dynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(linear), amount: MAX_UINT256 });
+        dai.approve({ spender: address(dynamic), amount: MAX_UINT256 });
         nonCompliantAsset.approve({ spender: address(linear), value: MAX_UINT256 });
         nonCompliantAsset.approve({ spender: address(dynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.eve });
-        usdc.approve({ spender: address(linear), amount: MAX_UINT256 });
-        usdc.approve({ spender: address(dynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(linear), amount: MAX_UINT256 });
+        dai.approve({ spender: address(dynamic), amount: MAX_UINT256 });
         nonCompliantAsset.approve({ spender: address(linear), value: MAX_UINT256 });
         nonCompliantAsset.approve({ spender: address(dynamic), value: MAX_UINT256 });
 
@@ -128,7 +128,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     function createUser(string memory name) internal returns (address payable addr) {
         addr = payable(makeAddr(name));
         vm.deal({ account: addr, newBalance: 100 ether });
-        deal({ token: address(usdc), to: addr, give: 1_000_000e18 });
+        deal({ token: address(dai), to: addr, give: 1_000_000e18 });
         deal({ token: address(nonCompliantAsset), to: addr, give: 1_000_000e18 });
     }
 
@@ -208,7 +208,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
 
     /// @dev Expects a call to {IERC20.transfer}.
     function expectCallToTransfer(address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(usdc), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
+        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
     }
 
     /// @dev Expects a call to {IERC20.transfer}.
@@ -218,7 +218,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
 
     /// @dev Expects a call to {IERC20.transferFrom}.
     function expectCallToTransferFrom(address from, address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(usdc), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
+        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
     }
 
     /// @dev Expects a call to {IERC20.transferFrom}.

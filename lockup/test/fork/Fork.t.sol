@@ -77,8 +77,8 @@ abstract contract Fork_Test is Base_Test {
 
         // Avoid blacklisted users in USDC and USDT.
         if (address(asset) == 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48) {
-            USDCLike usdc = USDCLike(address(asset));
-            vm.assume(!usdc.isBlacklisted(sender) && !usdc.isBlacklisted(recipient) && !usdc.isBlacklisted(broker));
+            USDCLike dai = USDCLike(address(asset));
+            vm.assume(!dai.isBlacklisted(sender) && !dai.isBlacklisted(recipient) && !dai.isBlacklisted(broker));
         } else if (address(asset) == 0xdAC17F958D2ee523a2206206994597C13D831ec7) {
             USDTLike usdt = USDTLike(address(asset));
             vm.assume(!usdt.isBlackListed(sender) && !usdt.isBlackListed(recipient) && !usdt.isBlackListed(broker));

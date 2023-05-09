@@ -16,7 +16,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdrawab
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
     }
 

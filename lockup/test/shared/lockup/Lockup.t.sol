@@ -31,7 +31,7 @@ abstract contract Lockup_Shared_Test is Base_Test {
 
     function setUp() public virtual override {
         // Set the default protocol fee.
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: defaults.PROTOCOL_FEE() });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: defaults.PROTOCOL_FEE() });
         comptroller.setProtocolFee({ asset: IERC20(address(nonCompliantAsset)), newProtocolFee: defaults.PROTOCOL_FEE() });
 
         // Make the sender the default caller in this test suite.

@@ -195,7 +195,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
     {
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         UD60x18 brokerFee = ZERO;
         changePrank({ msgSender: users.sender });
 
@@ -239,7 +239,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: protocolFee });
         changePrank({ msgSender: users.sender });
 
         // Run the test.
@@ -336,7 +336,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenAssetContract
         whenAssetERC20Compliant
     {
-        testCreateWithMilestones(address(usdc));
+        testCreateWithMilestones(address(dai));
     }
 
     /// @dev Shared logic between {test_CreateWithMilestones_AssetMissingReturnValue} and {test_CreateWithMilestones}.

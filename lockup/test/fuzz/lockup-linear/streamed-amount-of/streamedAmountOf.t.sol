@@ -16,7 +16,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
     }
 
@@ -57,7 +57,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
         timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Mint enough assets to the sender.
-        deal({ token: address(usdc), to: users.sender, give: depositAmount });
+        deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
         LockupLinear.CreateWithRange memory params = defaults.createWithRange();
@@ -91,7 +91,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, defaults.TOTAL_DURATION());
 
         // Mint enough assets to the sender.
-        deal({ token: address(usdc), to: users.sender, give: depositAmount });
+        deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
         LockupLinear.CreateWithRange memory params = defaults.createWithRange();

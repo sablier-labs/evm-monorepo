@@ -28,7 +28,7 @@ abstract contract Invariant_Test is Base_Test, StdInvariant {
         deployProtocolConditionally();
 
         // Deploy the comptroller handler.
-        comptrollerHandler = new ComptrollerHandler({ asset_: usdc, comptroller_: comptroller });
+        comptrollerHandler = new ComptrollerHandler({ asset_: dai, comptroller_: comptroller });
         vm.prank({ msgSender: users.admin });
         comptroller.transferAdmin(address(comptrollerHandler));
         vm.label({ account: address(comptrollerHandler), newLabel: "ComptrollerHandler" });

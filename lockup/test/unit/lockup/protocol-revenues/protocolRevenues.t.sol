@@ -8,7 +8,7 @@ abstract contract ProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) { }
 
     function test_ProtocolRevenues_ProtocolRevenuesZero() external {
-        uint128 actualProtocolRevenues = base.protocolRevenues(usdc);
+        uint128 actualProtocolRevenues = base.protocolRevenues(dai);
         uint128 expectedProtocolRevenues = 0;
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }
@@ -22,7 +22,7 @@ abstract contract ProtocolRevenues_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_ProtocolRevenues() external whenProtocolRevenuesNotZero {
-        uint128 actualProtocolRevenues = base.protocolRevenues(usdc);
+        uint128 actualProtocolRevenues = base.protocolRevenues(dai);
         uint128 expectedProtocolRevenues = defaults.PROTOCOL_FEE_AMOUNT();
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }

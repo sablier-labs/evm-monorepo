@@ -53,10 +53,10 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
         vars.funder = users.sender;
 
         // Load the initial protocol revenues.
-        vars.initialProtocolRevenues = dynamic.protocolRevenues(usdc);
+        vars.initialProtocolRevenues = dynamic.protocolRevenues(dai);
 
         // Mint enough assets to the fuzzed funder.
-        deal({ token: address(usdc), to: vars.funder, give: vars.totalAmount });
+        deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
@@ -85,7 +85,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
             sender: users.sender,
             recipient: users.recipient,
             amounts: vars.createAmounts,
-            asset: usdc,
+            asset: dai,
             cancelable: true,
             segments: vars.segmentsWithMilestones,
             range: range,
@@ -101,7 +101,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
-        assertEq(actualStream.asset, usdc, "asset");
+        assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
         assertEq(actualStream.isCanceled, false, "isCanceled");
@@ -126,7 +126,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = dynamic.protocolRevenues(usdc);
+        vars.actualProtocolRevenues = dynamic.protocolRevenues(dai);
         vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 

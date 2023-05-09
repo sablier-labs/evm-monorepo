@@ -112,7 +112,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
         address funder = users.sender;
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = dynamic.protocolRevenues(usdc);
+        uint128 initialProtocolRevenues = dynamic.protocolRevenues(dai);
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
@@ -132,7 +132,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
             sender: users.sender,
             recipient: users.recipient,
             amounts: defaults.lockupCreateAmounts(),
-            asset: usdc,
+            asset: dai,
             cancelable: true,
             segments: defaults.segments(),
             range: defaults.dynamicRange(),
@@ -158,7 +158,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = dynamic.protocolRevenues(usdc);
+        uint128 actualProtocolRevenues = dynamic.protocolRevenues(dai);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + defaults.PROTOCOL_FEE_AMOUNT();
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 

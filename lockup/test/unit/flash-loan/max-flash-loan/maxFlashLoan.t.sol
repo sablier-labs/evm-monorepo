@@ -9,20 +9,20 @@ import { FlashLoan_Unit_Test } from "../FlashLoan.t.sol";
 
 contract MaxFlashLoan_Unit_Test is FlashLoan_Unit_Test {
     function test_MaxFlashLoan_AssetNotFlashLoanable() external {
-        uint256 actualAmount = flashLoan.maxFlashLoan(address(usdc));
+        uint256 actualAmount = flashLoan.maxFlashLoan(address(dai));
         uint256 expectedAmount = 0;
         assertEq(actualAmount, expectedAmount, "maxFlashLoan amount");
     }
 
     modifier whenAssetFlashLoanable() {
-        comptroller.toggleFlashAsset(usdc);
+        comptroller.toggleFlashAsset(dai);
         _;
     }
 
     function test_MaxFlashLoan() external whenAssetFlashLoanable {
         uint256 dealAmount = 14_607_904e18;
-        deal({ token: address(usdc), to: address(flashLoan), give: dealAmount });
-        uint256 actualAmount = flashLoan.maxFlashLoan(address(usdc));
+        deal({ token: address(dai), to: address(flashLoan), give: dealAmount });
+        uint256 actualAmount = flashLoan.maxFlashLoan(address(dai));
         uint256 expectedAmount = dealAmount;
         assertEq(actualAmount, expectedAmount, "maxFlashLoan amount");
     }

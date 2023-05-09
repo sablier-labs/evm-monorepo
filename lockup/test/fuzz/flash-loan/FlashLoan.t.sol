@@ -29,6 +29,6 @@ abstract contract FlashLoan_Fuzz_Test is Fuzz_Test {
         comptroller.setFlashFee({ newFlashFee: defaults.FLASH_FEE() });
 
         // Make the default asset flash loanable.
-        comptroller.toggleFlashAsset({ asset: usdc });
+        comptroller.toggleFlashAsset({ asset: dai });
     }
 }

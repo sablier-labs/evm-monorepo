@@ -79,7 +79,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithDur
         address funder = users.sender;
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = linear.protocolRevenues(usdc);
+        uint128 initialProtocolRevenues = linear.protocolRevenues(dai);
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectCallToTransferFrom({
@@ -106,7 +106,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithDur
             sender: users.sender,
             recipient: users.recipient,
             amounts: defaults.lockupCreateAmounts(),
-            asset: usdc,
+            asset: dai,
             cancelable: true,
             range: range,
             broker: users.broker
@@ -134,7 +134,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithDur
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = linear.protocolRevenues(usdc);
+        uint128 actualProtocolRevenues = linear.protocolRevenues(dai);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + defaults.PROTOCOL_FEE_AMOUNT();
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 

@@ -27,12 +27,12 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
 
         // Deploy the linear contract handlers.
         linearHandler = new LockupLinearHandler({
-            asset_: usdc,
+            asset_: dai,
             linear_: linear,
             store_: lockupHandlerStorage
         });
         linearCreateHandler = new LockupLinearCreateHandler({
-            asset_: usdc,
+            asset_: dai,
             linear_: linear,
             store_: lockupHandlerStorage
         });

@@ -19,7 +19,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
         flashLoan.flashLoan({
             receiver: IERC3156FlashBorrower(address(0)),
-            asset: address(usdc),
+            asset: address(dai),
             amount: amount,
             data: bytes("")
         });
@@ -36,11 +36,11 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
         comptroller.setFlashFee(flashFee);
 
         // Run the test.
-        uint256 fee = flashLoan.flashFee({ asset: address(usdc), amount: MAX_UINT128 });
+        uint256 fee = flashLoan.flashFee({ asset: address(dai), amount: MAX_UINT128 });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_CalculatedFeeTooHigh.selector, fee));
         flashLoan.flashLoan({
             receiver: IERC3156FlashBorrower(address(0)),
-            asset: address(usdc),
+            asset: address(dai),
             amount: MAX_UINT128,
             data: bytes("")
         });
@@ -68,16 +68,16 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
         comptroller.setFlashFee(comptrollerFlashFee);
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = flashLoan.protocolRevenues(usdc);
+        uint128 initialProtocolRevenues = flashLoan.protocolRevenues(dai);
 
         // Load the flash fee.
-        uint256 fee = flashLoan.flashFee({ asset: address(usdc), amount: amount });
+        uint256 fee = flashLoan.flashFee({ asset: address(dai), amount: amount });
 
         // Mint the flash loan amount to the contract.
-        deal({ token: address(usdc), to: address(flashLoan), give: amount });
+        deal({ token: address(dai), to: address(flashLoan), give: amount });
 
         // Mint the flash fee to the receiver so that they can repay the flash loan.
-        deal({ token: address(usdc), to: address(goodFlashLoanReceiver), give: fee });
+        deal({ token: address(dai), to: address(goodFlashLoanReceiver), give: fee });
 
         // Expect `amount` of assets to be transferred from {SablierV2FlashLoan} to the receiver.
         expectCallToTransfer({ to: address(goodFlashLoanReceiver), amount: amount });
@@ -91,7 +91,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
         emit FlashLoan({
             initiator: users.admin,
             receiver: goodFlashLoanReceiver,
-            asset: usdc,
+            asset: dai,
             amount: amount,
             feeAmount: fee,
             data: data
@@ -99,13 +99,13 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
 
         // Execute the flash loan.
         bool response =
-            flashLoan.flashLoan({ receiver: goodFlashLoanReceiver, asset: address(usdc), amount: amount, data: data });
+            flashLoan.flashLoan({ receiver: goodFlashLoanReceiver, asset: address(dai), amount: amount, data: data });
 
         // Assert that the returned response is `true`.
         assertTrue(response, "flashLoan response");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = flashLoan.protocolRevenues(usdc);
+        uint128 actualProtocolRevenues = flashLoan.protocolRevenues(dai);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + uint128(fee);
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }

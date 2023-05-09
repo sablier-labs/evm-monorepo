@@ -103,7 +103,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: protocolFee });
         changePrank({ msgSender: users.sender });
 
         // Run the test.
@@ -171,7 +171,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
         whenAssetContract
         whenAssetERC20Compliant
     {
-        testCreateWithRange(address(usdc));
+        testCreateWithRange(address(dai));
     }
 
     /// @dev Shared logic between {test_CreateWithRange_AssetMissingReturnValue} and {test_CreateWithRange}.

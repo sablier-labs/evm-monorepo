@@ -13,8 +13,8 @@ contract MaxFlashLoan_Fuzz_Test is FlashLoan_Fuzz_Test {
     }
 
     function testFuzz_MaxFlashLoan(uint256 dealAmount) external whenAssetFlashLoanable {
-        deal({ token: address(usdc), to: address(flashLoan), give: dealAmount });
-        uint256 actualAmount = flashLoan.maxFlashLoan(address(usdc));
+        deal({ token: address(dai), to: address(flashLoan), give: dealAmount });
+        uint256 actualAmount = flashLoan.maxFlashLoan(address(dai));
         uint256 expectedAmount = dealAmount;
         assertEq(actualAmount, expectedAmount, "maxFlashLoan amount");
     }

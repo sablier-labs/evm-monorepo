@@ -14,7 +14,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
     }
 
@@ -43,7 +43,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
         segments[0] = segment;
 
         // Mint enough assets to the sender.
-        deal({ token: address(usdc), to: users.sender, give: segment.amount });
+        deal({ token: address(dai), to: users.sender, give: segment.amount });
 
         // Create the stream with the fuzzed segment.
         LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
@@ -108,7 +108,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
         timeWarp = boundUint40(timeWarp, firstSegmentDuration, totalDuration + 100 seconds);
 
         // Mint enough assets to the sender.
-        deal({ token: address(usdc), to: users.sender, give: totalAmount });
+        deal({ token: address(dai), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
         LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
@@ -160,7 +160,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, totalDuration);
 
         // Mint enough assets to the sender.
-        deal({ token: address(usdc), to: users.sender, give: totalAmount });
+        deal({ token: address(dai), to: users.sender, give: totalAmount });
 
         // Create the stream with the fuzzed segments.
         LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();

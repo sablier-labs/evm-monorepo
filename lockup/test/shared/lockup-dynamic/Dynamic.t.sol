@@ -25,14 +25,14 @@ abstract contract Dynamic_Shared_Test is Lockup_Shared_Test {
         _params.createWithDeltas.sender = users.sender;
         _params.createWithDeltas.recipient = users.recipient;
         _params.createWithDeltas.totalAmount = defaults.TOTAL_AMOUNT();
-        _params.createWithDeltas.asset = usdc;
+        _params.createWithDeltas.asset = dai;
         _params.createWithDeltas.cancelable = true;
         _params.createWithDeltas.broker = defaults.broker();
 
         _params.createWithMilestones.sender = users.sender;
         _params.createWithMilestones.recipient = users.recipient;
         _params.createWithMilestones.totalAmount = defaults.TOTAL_AMOUNT();
-        _params.createWithMilestones.asset = usdc;
+        _params.createWithMilestones.asset = dai;
         _params.createWithMilestones.cancelable = true;
         _params.createWithMilestones.startTime = defaults.START_TIME();
         _params.createWithMilestones.broker = defaults.broker();

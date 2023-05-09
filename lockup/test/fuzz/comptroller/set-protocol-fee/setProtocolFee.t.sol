@@ -15,13 +15,13 @@ contract SetProtocolFee_Fuzz_Test is Comptroller_Fuzz_Test {
 
         // Expect a {SetProtocolFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit SetProtocolFee({ admin: users.admin, asset: usdc, oldProtocolFee: ZERO, newProtocolFee: newProtocolFee });
+        emit SetProtocolFee({ admin: users.admin, asset: dai, oldProtocolFee: ZERO, newProtocolFee: newProtocolFee });
 
         // Set the new protocol fee.
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: newProtocolFee });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: newProtocolFee });
 
         // Assert that the protocol fee has been updated.
-        UD60x18 actualProtocolFee = comptroller.protocolFees(usdc);
+        UD60x18 actualProtocolFee = comptroller.protocolFees(dai);
         UD60x18 expectedProtocolFee = newProtocolFee;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }

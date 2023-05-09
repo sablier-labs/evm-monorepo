@@ -30,7 +30,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
     modifier whenCliffTimeInThePast() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
         _;
     }
@@ -55,7 +55,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Mint enough assets to the sender.
-        deal({ token: address(usdc), to: users.sender, give: depositAmount });
+        deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         LockupLinear.CreateWithRange memory params = defaults.createWithRange();
@@ -110,7 +110,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Mint enough assets to the sender.
-        deal({ token: address(usdc), to: users.sender, give: depositAmount });
+        deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream. The broker fee is disabled so that it doesn't interfere with the calculations.
         LockupLinear.CreateWithRange memory params = defaults.createWithRange();

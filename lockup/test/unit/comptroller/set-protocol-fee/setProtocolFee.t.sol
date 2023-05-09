@@ -15,7 +15,7 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: MAX_FEE });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: MAX_FEE });
     }
 
     /// @dev The admin is the default caller in the comptroller tests.
@@ -26,13 +26,13 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     function test_SetProtocolFee_SameFee() external whenCallerAdmin {
         // Expect a {SetProtocolFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit SetProtocolFee({ admin: users.admin, asset: usdc, oldProtocolFee: ZERO, newProtocolFee: ZERO });
+        emit SetProtocolFee({ admin: users.admin, asset: dai, oldProtocolFee: ZERO, newProtocolFee: ZERO });
 
         // Set the same protocol fee.
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
 
         // Assert that the protocol fee has not changed.
-        UD60x18 actualProtocolFee = comptroller.protocolFees(usdc);
+        UD60x18 actualProtocolFee = comptroller.protocolFees(dai);
         UD60x18 expectedProtocolFee = ZERO;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }
@@ -46,13 +46,13 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
 
         // Expect a {SetProtocolFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit SetProtocolFee({ admin: users.admin, asset: usdc, oldProtocolFee: ZERO, newProtocolFee: newProtocolFee });
+        emit SetProtocolFee({ admin: users.admin, asset: dai, oldProtocolFee: ZERO, newProtocolFee: newProtocolFee });
 
         // Set the new protocol fee.
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: newProtocolFee });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: newProtocolFee });
 
         // Assert that the protocol fee has been updated.
-        UD60x18 actualProtocolFee = comptroller.protocolFees(usdc);
+        UD60x18 actualProtocolFee = comptroller.protocolFees(dai);
         UD60x18 expectedProtocolFee = newProtocolFee;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }

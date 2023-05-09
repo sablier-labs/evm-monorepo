@@ -96,7 +96,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
 
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         UD60x18 brokerFee = ZERO;
         changePrank({ msgSender: users.sender });
 
@@ -138,7 +138,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: protocolFee });
         changePrank({ msgSender: users.sender });
 
         // Run the test.
@@ -230,16 +230,16 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: usdc, newProtocolFee: protocolFee });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: protocolFee });
 
         // Make the fuzzed funder the caller in the rest of this test.
         changePrank(funder);
 
         // Mint enough assets to the fuzzed funder.
-        deal({ token: address(usdc), to: funder, give: vars.totalAmount });
+        deal({ token: address(dai), to: funder, give: vars.totalAmount });
 
         // Approve {SablierV2LockupDynamic} to transfer the assets from the fuzzed funder.
-        usdc.approve({ spender: address(dynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(dynamic), amount: MAX_UINT256 });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
@@ -263,7 +263,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
             sender: params.sender,
             recipient: params.recipient,
             amounts: vars.createAmounts,
-            asset: usdc,
+            asset: dai,
             cancelable: params.cancelable,
             segments: params.segments,
             range: range,
@@ -273,7 +273,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         // Create the stream.
         dynamic.createWithMilestones(
             LockupDynamic.CreateWithMilestones({
-                asset: usdc,
+                asset: dai,
                 broker: params.broker,
                 cancelable: params.cancelable,
                 recipient: params.recipient,
@@ -287,7 +287,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
-        assertEq(actualStream.asset, usdc, "asset");
+        assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.isCanceled, false, "isCanceled");
@@ -312,7 +312,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = dynamic.protocolRevenues(usdc);
+        vars.actualProtocolRevenues = dynamic.protocolRevenues(dai);
         vars.expectedProtocolRevenues = vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 

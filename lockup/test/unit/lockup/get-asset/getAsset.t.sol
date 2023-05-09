@@ -24,7 +24,7 @@ abstract contract GetAsset_Unit_Test is Unit_Test, Lockup_Shared_Test {
     function test_GetAsset() external whenNotNull {
         uint256 streamId = createDefaultStream();
         IERC20 actualAsset = lockup.getAsset(streamId);
-        IERC20 expectedAsset = usdc;
+        IERC20 expectedAsset = dai;
         assertEq(actualAsset, expectedAsset, "asset");
     }
 }

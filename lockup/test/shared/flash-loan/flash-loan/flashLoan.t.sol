@@ -17,8 +17,8 @@ contract FlashLoanFunction_Shared_Test is Base_Test {
     }
 
     modifier whenAssetFlashLoanable() {
-        if (!comptroller.isFlashAsset(usdc)) {
-            comptroller.toggleFlashAsset(usdc);
+        if (!comptroller.isFlashAsset(dai)) {
+            comptroller.toggleFlashAsset(dai);
         }
         _;
     }
