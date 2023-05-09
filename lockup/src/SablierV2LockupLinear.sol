@@ -38,7 +38,7 @@ import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 /// @title SablierV2LockupLinear
 /// @notice See the documentation in {ISablierV2LockupLinear}.
 contract SablierV2LockupLinear is
-    ISablierV2LockupLinear, // 1 inherited component
+    ISablierV2LockupLinear, // 5 inherited components
     SablierV2Lockup // 14 inherited components
 {
     using SafeERC20 for IERC20;

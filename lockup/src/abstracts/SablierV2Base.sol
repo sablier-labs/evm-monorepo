@@ -15,8 +15,8 @@ import { NoDelegateCall } from "./NoDelegateCall.sol";
 /// @title SablierV2Base
 /// @notice See the documentation in {ISablierV2Base}.
 abstract contract SablierV2Base is
-    ISablierV2Base, // 0 inherited components
     NoDelegateCall, // 0 inherited components
+    ISablierV2Base, // 1 inherited component
     Adminable // 1 inherited component
 {
     using SafeERC20 for IERC20;
