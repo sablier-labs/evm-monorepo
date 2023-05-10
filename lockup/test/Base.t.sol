@@ -6,12 +6,12 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { eqString } from "@prb/test/Helpers.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 
-import { DeployProtocol } from "script/deploy/DeployProtocol.s.sol";
-import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
-import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2NFTDescriptor } from "src/interfaces/ISablierV2NFTDescriptor.sol";
-import { SablierV2NFTDescriptor } from "src/SablierV2NFTDescriptor.sol";
+import { DeployProtocol } from "../script/deploy/DeployProtocol.s.sol";
+import { ISablierV2Comptroller } from "../src/interfaces/ISablierV2Comptroller.sol";
+import { ISablierV2LockupDynamic } from "../src/interfaces/ISablierV2LockupDynamic.sol";
+import { ISablierV2LockupLinear } from "../src/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierV2NFTDescriptor } from "../src/interfaces/ISablierV2NFTDescriptor.sol";
+import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
 
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { GoodFlashLoanReceiver } from "./mocks/flash-loan/GoodFlashLoanReceiver.sol";
