@@ -86,8 +86,8 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
         defaults.setAsset(dai);
         defaults.setUsers(users);
 
-        // Warp to March 1, 2023 at 00:00 GMT to provide a more realistic testing environment.
-        vm.warp({ timestamp: MARCH_1_2023 });
+        // Warp to May 1, 2023 at 00:00 GMT to provide a more realistic testing environment.
+        vm.warp({ timestamp: MAY_1_2023 });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
