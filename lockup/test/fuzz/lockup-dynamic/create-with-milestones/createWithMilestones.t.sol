@@ -294,7 +294,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         assertEq(actualStream.isDepleted, false, "isStream");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
-        assertEq(actualStream.segments, params.segments);
+        assertEq(actualStream.segments, params.segments, "segments");
         assertEq(actualStream.startTime, range.start, "startTime");
 
         // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation

@@ -48,11 +48,11 @@ library Lockup {
     /// @custom:value CANCELED Stream is canceled; remaining assets await recipient's withdrawal.
     /// @custom:value DEPLETED Stream is depleted; all assets have been withdrawn and/or refunded.
     enum Status {
-        PENDING,
-        STREAMING,
-        SETTLED,
-        CANCELED,
-        DEPLETED
+        PENDING, // value 0
+        STREAMING, // value 1
+        SETTLED, // value 2
+        CANCELED, // value 3
+        DEPLETED // value 4
     }
 }
 

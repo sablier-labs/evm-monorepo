@@ -1,4 +1,4 @@
-isWarm.t.sol
+isCold.t.sol
 ├── when the id references a null stream
 │  └── it should revert
 └── when the id does not reference a null stream

@@ -168,7 +168,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCold(uint256 streamId) public view override notNull(streamId) returns (bool result) {
+    function isCold(uint256 streamId) public view override returns (bool result) {
         Lockup.Status status = statusOf(streamId);
         result = status == Lockup.Status.SETTLED || status == Lockup.Status.CANCELED || status == Lockup.Status.DEPLETED;
     }
@@ -179,7 +179,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isWarm(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+    function isWarm(uint256 streamId) external view override returns (bool result) {
         Lockup.Status status = statusOf(streamId);
         result = status == Lockup.Status.PENDING || status == Lockup.Status.STREAMING;
     }
@@ -296,7 +296,7 @@ contract SablierV2LockupLinear is
     function _calculateStreamedAmount(uint256 streamId) internal view returns (uint128 streamedAmount) {
         // If the cliff time is in the future, return zero.
         uint256 cliffTime = uint256(_streams[streamId].cliffTime);
-        uint256 currentTime = uint256(block.timestamp);
+        uint256 currentTime = block.timestamp;
         if (cliffTime > currentTime) {
             return 0;
         }

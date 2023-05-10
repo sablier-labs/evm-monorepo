@@ -185,7 +185,7 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCold(uint256 streamId) public view override notNull(streamId) returns (bool result) {
+    function isCold(uint256 streamId) public view override returns (bool result) {
         Lockup.Status status = statusOf(streamId);
         result = status == Lockup.Status.SETTLED || status == Lockup.Status.CANCELED || status == Lockup.Status.DEPLETED;
     }
@@ -196,7 +196,7 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isWarm(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+    function isWarm(uint256 streamId) external view override returns (bool result) {
         Lockup.Status status = statusOf(streamId);
         result = status == Lockup.Status.PENDING || status == Lockup.Status.STREAMING;
     }

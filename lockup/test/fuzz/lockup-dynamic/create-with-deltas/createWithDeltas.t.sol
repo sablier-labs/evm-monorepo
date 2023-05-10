@@ -107,7 +107,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
         assertEq(actualStream.isCanceled, false, "isCanceled");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
-        assertEq(actualStream.segments, vars.segmentsWithMilestones);
+        assertEq(actualStream.segments, vars.segmentsWithMilestones, "segments");
         assertEq(actualStream.sender, users.sender, "sender");
         assertEq(actualStream.startTime, range.start, "startTime");
 

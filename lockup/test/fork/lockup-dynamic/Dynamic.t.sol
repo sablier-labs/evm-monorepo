@@ -189,7 +189,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         assertEq(actualStream.isCanceled, false, "isCanceled");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
-        assertEq(actualStream.segments, params.segments);
+        assertEq(actualStream.segments, params.segments, "segments");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.startTime, "startTime");
 
