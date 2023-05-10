@@ -59,11 +59,25 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
+      - name: "Install Pnpm"
+        uses: "pnpm/action-setup@v2"
+        with:
+          version: "8"
+
+      - name: "Install Node.js"
+        uses: "actions/setup-node@v3"
+        with:
+          cache: "pnpm"
+          node-version: "lts/*"
+
+      - name: "Install the Node.js dependencies"
+        run: "pnpm install"
+
       - name: "Show the Foundry config"
         run: "forge config"
 
-      - name: "Produce an optimized build with --via-ir"
-        run: "FOUNDRY_PROFILE=optimized forge build"
+      - name: "Generate and prepare the contract artifacts"
+        run: "./shell/prepare-artifacts.sh"
 
       - name: "Cache the build so that it can be re-used by the other jobs"
         uses: "actions/cache/save@v3"
@@ -71,25 +85,11 @@ jobs:
           path: "optimized-out"
           key: "foundry-build-${{ github.sha }}"
 
-      - name: "Store contract ABIs as artifacts"
+      - name: "Store the contract artifacts in CI"
         uses: "actions/upload-artifact@v3"
         with:
-          name: contract-abis
-          path: |
-            optimized-out/ERC20/ERC20/IERC20.sol/IERC20.json
-            optimized-out/Errors.sol/Errors.json
-            optimized-out/IERC721.sol/IERC721.json
-            optimized-out/IERC721Metadata.sol/IERC721Metadata.json
-            optimized-out/ISablierV2Base.sol/ISablierV2Base.json
-            optimized-out/ISablierV2Comptroller.sol/ISablierV2Comptroller.json
-            optimized-out/ISablierV2Lockup.sol/ISablierV2Lockup.json
-            optimized-out/ISablierV2LockupDynamic.sol/ISablierV2LockupDynamic.json
-            optimized-out/ISablierV2LockupLinear.sol/ISablierV2LockupLinear.json
-            optimized-out/ISablierV2LockupRecipient.sol/ISablierV2LockupRecipient.json
-            optimized-out/ISablierV2LockupSender.sol/ISablierV2LockupSender.json
-            optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json
-            optimized-out/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json
-            optimized-out/SablierV2LockupLinear.sol/SablierV2LockupLinear.json
+          name: "contract-artifacts"
+          path: "artifacts"
 
       - name: "Add build summary"
         run: |
