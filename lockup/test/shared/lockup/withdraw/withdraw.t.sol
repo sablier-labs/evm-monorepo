@@ -20,6 +20,7 @@ abstract contract Withdraw_Shared_Test is Lockup_Shared_Test {
     }
 
     modifier whenStreamNotDepleted() {
+        vm.warp({ timestamp: defaults.START_TIME() });
         _;
     }
 

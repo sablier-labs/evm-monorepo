@@ -13,7 +13,7 @@ import { RevertingRecipient } from "../mocks/hooks/RevertingRecipient.sol";
 import { RevertingSender } from "../mocks/hooks/RevertingSender.sol";
 
 /// @title Unit_Test
-/// @notice Common logic needed by all unit test contracts.
+/// @notice Common logic needed by all unit tests.
 abstract contract Unit_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS

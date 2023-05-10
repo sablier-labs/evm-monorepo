@@ -13,7 +13,7 @@ import { USDCLike } from "../mocks/erc20/USDCLike.sol";
 import { USDTLike } from "../mocks/erc20/USDTLike.sol";
 
 /// @title Fork_Test
-/// @notice Tests that run against an Ethereum Mainnet fork.
+/// @notice Common logic needed by all fork tests.
 abstract contract Fork_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS

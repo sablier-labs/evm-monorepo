@@ -113,6 +113,17 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = dynamic.protocolRevenues(dai);
 
+        // Declare the range.
+        uint40 currentTime = getBlockTimestamp();
+        LockupDynamic.Range memory range =
+            LockupDynamic.Range({ start: currentTime, end: currentTime + defaults.TOTAL_DURATION() });
+
+        // Adjust the segments.
+        LockupDynamic.SegmentWithDelta[] memory segmentsWithDeltas = defaults.segmentsWithDeltas();
+        LockupDynamic.Segment[] memory segments = defaults.segments();
+        segments[0].milestone = range.start + segmentsWithDeltas[0].delta;
+        segments[1].milestone = segments[0].milestone + segmentsWithDeltas[1].delta;
+
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
             from: funder,
@@ -133,8 +144,8 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
             amounts: defaults.lockupCreateAmounts(),
             asset: dai,
             cancelable: true,
-            segments: defaults.segments(),
-            range: defaults.dynamicRange(),
+            segments: segments,
+            range: range,
             broker: users.broker
         });
 
@@ -144,6 +155,9 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
         LockupDynamic.Stream memory expectedStream = defaults.dynamicStream();
+        expectedStream.endTime = range.end;
+        expectedStream.segments = segments;
+        expectedStream.startTime = range.start;
         assertEq(actualStream, expectedStream);
 
         // Assert that the stream's status is "STREAMING".

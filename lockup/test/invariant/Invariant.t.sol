@@ -9,7 +9,7 @@ import { Base_Test } from "../Base.t.sol";
 import { ComptrollerHandler } from "./handlers/ComptrollerHandler.t.sol";
 
 /// @title Invariant_Test
-/// @notice Base test contract with common logic needed by all invariant test contracts.
+/// @notice Common logic needed by all invariant tests.
 abstract contract Invariant_Test is Base_Test, StdInvariant {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
@@ -38,8 +38,8 @@ abstract contract Invariant_Test is Base_Test, StdInvariant {
 
         // Prevent these contracts from being fuzzed as `msg.sender`.
         excludeSender(address(comptroller));
-        excludeSender(address(linear));
-        excludeSender(address(dynamic));
         excludeSender(address(comptrollerHandler));
+        excludeSender(address(dynamic));
+        excludeSender(address(linear));
     }
 }

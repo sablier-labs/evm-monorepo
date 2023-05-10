@@ -72,6 +72,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         LockupDynamic.CreateWithMilestones memory createParams = defaults.createWithMilestones();
         createParams.totalAmount = vars.totalAmount;
         createParams.segments = params.segments;
+
         vars.streamId = dynamic.createWithMilestones(createParams);
 
         // Simulate the passage of time.

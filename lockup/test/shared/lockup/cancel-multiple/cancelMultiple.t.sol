@@ -20,7 +20,6 @@ abstract contract CancelMultiple_Shared_Test is Lockup_Shared_Test {
         // Create the test streams.
         testStreamIds = new uint256[](2);
         testStreamIds[0] = createDefaultStream();
-
         // Create a stream with an end time double that of the default stream so that the refund amounts are different.
         testStreamIds[1] = createDefaultStreamWithEndTime(defaults.END_TIME() + defaults.TOTAL_DURATION());
     }
@@ -47,6 +46,7 @@ abstract contract CancelMultiple_Shared_Test is Lockup_Shared_Test {
 
     modifier whenCallerAuthorizedAllStreams() {
         _;
+        vm.warp({ timestamp: originalTime });
         createTestStreams();
         changePrank({ msgSender: users.recipient });
         _;

@@ -26,7 +26,7 @@ import { Fuzzers } from "./utils/Fuzzers.sol";
 import { Users } from "./utils/Types.sol";
 
 /// @title Base_Test
-/// @notice Base test contract with common logic needed by all test contracts.
+/// @notice Base test contract with common logic needed by all tests.
 abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzzers, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
