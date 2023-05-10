@@ -19,9 +19,9 @@
     "solhint": "^3.4.1"
   },
   "files": [
-    "/src",
-    "LICENSE-GPL.md",
-    "CHANGELOG.md"
+    "artifacts",
+    "src",
+    "LICENSE-GPL.md"
   ],
   "homepage": "https://github.com/sablierhq/v2-core#readme",
   "keywords": [
