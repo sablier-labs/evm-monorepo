@@ -76,10 +76,8 @@ jobs:
         with:
           name: contract-abis
           path: |
-            optimized-out/Adminable.sol/Adminable.json
+            optimized-out/ERC20/ERC20/IERC20.sol/IERC20.json
             optimized-out/Errors.sol/Errors.json
-            optimized-out/IAdminable.sol/IAdminable.json
-            optimized-out/IERC20.sol/IERC20.json
             optimized-out/IERC721.sol/IERC721.json
             optimized-out/IERC721Metadata.sol/IERC721Metadata.json
             optimized-out/ISablierV2Base.sol/ISablierV2Base.json
@@ -87,11 +85,9 @@ jobs:
             optimized-out/ISablierV2Lockup.sol/ISablierV2Lockup.json
             optimized-out/ISablierV2LockupDynamic.sol/ISablierV2LockupDynamic.json
             optimized-out/ISablierV2LockupLinear.sol/ISablierV2LockupLinear.json
-            optimized-out/ISablierV2Recipient.sol/ISablierV2Recipient.json
-            optimized-out/ISablierV2Sender.sol/ISablierV2Sender.json
-            optimized-out/SablierV2Base.sol/ISablierV2Base.json
+            optimized-out/ISablierV2LockupRecipient.sol/ISablierV2LockupRecipient.json
+            optimized-out/ISablierV2LockupSender.sol/ISablierV2LockupSender.json
             optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json
-            optimized-out/SablierV2Lockup.sol/SablierV2Lockup.json
             optimized-out/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json
             optimized-out/SablierV2LockupLinear.sol/SablierV2LockupLinear.json
 
