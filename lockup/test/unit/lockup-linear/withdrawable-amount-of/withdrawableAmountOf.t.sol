@@ -23,7 +23,7 @@ contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test, Withdrawable
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier whenCliffTimeInThePast() {
+    modifier whenCliffTimeNotInTheFuture() {
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         _;
     }
@@ -33,7 +33,7 @@ contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test, Withdrawable
         whenNotNull
         whenStreamHasNotBeenCanceled
         whenStatusStreaming
-        whenCliffTimeInThePast
+        whenCliffTimeNotInTheFuture
     {
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = defaults.WITHDRAW_AMOUNT();
@@ -50,7 +50,7 @@ contract WithdrawableAmountOf_Linear_Unit_Test is Linear_Unit_Test, Withdrawable
         whenNotNull
         whenStreamHasNotBeenCanceled
         whenStatusStreaming
-        whenCliffTimeInThePast
+        whenCliffTimeNotInTheFuture
         whenPreviousWithdrawals
     {
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);

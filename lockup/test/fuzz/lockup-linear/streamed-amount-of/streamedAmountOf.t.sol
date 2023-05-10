@@ -32,7 +32,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier whenCliffTimeInThePast() {
+    modifier whenCliffTimeNotInTheFuture() {
         _;
     }
 
@@ -51,7 +51,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
         external
         whenNotNull
         whenStreamHasNotBeenCanceled
-        whenCliffTimeInThePast
+        whenCliffTimeNotInTheFuture
     {
         vm.assume(depositAmount != 0);
         timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
@@ -84,7 +84,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
         external
         whenNotNull
         whenStreamHasNotBeenCanceled
-        whenCliffTimeInThePast
+        whenCliffTimeNotInTheFuture
     {
         vm.assume(depositAmount != 0);
         timeWarp0 = boundUint40(timeWarp0, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);

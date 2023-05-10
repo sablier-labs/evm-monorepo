@@ -1,5 +1,5 @@
 withdrawMax.t.sol
-├── when the end time is in the past
+├── when the end time is not in the future
 │  ├── it should make the max withdrawal
 │  ├── it should update the withdrawn amount
 │  ├── it should mark the stream as depleted

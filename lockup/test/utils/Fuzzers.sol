@@ -135,7 +135,7 @@ abstract contract Fuzzers is Constants, Utils {
         // Return here if there's only one segment to not run into division by zero.
         uint40 segmentCount = uint40(segments.length);
         if (segmentCount == 1) {
-            // The end time must not be in the past.
+            // The end time must be in the future.
             segments[0].milestone = getBlockTimestamp() + 2 days;
             return;
         }

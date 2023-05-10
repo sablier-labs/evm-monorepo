@@ -118,7 +118,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - `params.segments` must have at least one segment, but not more than `MAX_SEGMENT_COUNT`.
     /// - `params.startTime` must be less than the first segment's milestone.
     /// - The segment milestones must be arranged in ascending order.
-    /// - The last segment milestone (i.e. the stream's end time) must not be in the past.
+    /// - The last segment milestone (i.e. the stream's end time) must be in the future.
     /// - The sum of the segment amounts must equal the deposit amount.
     /// - `params.recipient` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.

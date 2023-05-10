@@ -104,7 +104,9 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
     ///
     /// - Multiple values for the funder, recipient, sender, and broker
     /// - Multiple values for the total amount
-    /// - Start time in the past, present and future
+    /// - Start time in the past
+    /// - Start time in the present
+    /// - Start time in the future
     /// - Start time equal and not equal to the first segment milestone
     /// - Multiple values for the broker fee, including zero
     /// - Multiple values for the protocol fee, including zero

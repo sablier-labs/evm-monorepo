@@ -18,6 +18,7 @@ contract Defaults is Constants {
 
     UD60x18 public constant BROKER_FEE = UD60x18.wrap(0.003e18); // 0.3%
     uint128 public constant BROKER_FEE_AMOUNT = 30.120481927710843373e18; // 0.3% of total amount
+    uint128 public constant CLIFF_AMOUNT = 2500e18;
     uint40 public immutable CLIFF_TIME;
     uint40 public constant CLIFF_DURATION = 2500 seconds;
     uint128 public constant DEPOSIT_AMOUNT = 10_000e18;
@@ -27,7 +28,7 @@ contract Defaults is Constants {
     uint40 public immutable MAX_SEGMENT_DURATION;
     UD60x18 public constant PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%
     uint128 public constant PROTOCOL_FEE_AMOUNT = 10.040160642570281124e18; // 0.1% of total amount
-    uint128 public constant REFUND_AMOUNT = 7500e18; // deposit - cliff amount
+    uint128 public constant REFUND_AMOUNT = DEPOSIT_AMOUNT - CLIFF_AMOUNT;
     uint256 public SEGMENT_COUNT;
     uint40 public immutable START_TIME;
     uint128 public constant TOTAL_AMOUNT = 10_040.160642570281124497e18; // deposit / (1 - fee)

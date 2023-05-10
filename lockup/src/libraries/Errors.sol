@@ -50,8 +50,8 @@ library Errors {
     /// @notice Thrown when trying to create a stream with a zero deposit amount.
     error SablierV2Lockup_DepositAmountZero();
 
-    /// @notice Thrown when trying to create a stream with an end time in the past.
-    error SablierV2Lockup_EndTimeInThePast(uint40 currentTime, uint40 endTime);
+    /// @notice Thrown when trying to create a stream with an end time not in the future.
+    error SablierV2Lockup_EndTimeNotInTheFuture(uint40 currentTime, uint40 endTime);
 
     /// @notice Thrown when the stream's sender tries to withdraw to an address other than the recipient's.
     error SablierV2Lockup_InvalidSenderWithdrawal(uint256 streamId, address sender, address to);

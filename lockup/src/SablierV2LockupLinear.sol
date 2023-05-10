@@ -323,7 +323,7 @@ contract SablierV2LockupLinear is
             return 0;
         }
 
-        // If the end time is in the past, return the deposited amount.
+        // If the end time is not in the future, return the deposited amount.
         uint256 endTime = uint256(_streams[streamId].endTime);
         if (currentTime >= endTime) {
             return _streams[streamId].amounts.deposited;

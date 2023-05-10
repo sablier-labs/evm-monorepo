@@ -104,7 +104,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
     ///
     /// Notes:
-    /// - As long as the times are ordered, it is not an error to set a range that is in the past.
+    /// - As long as the times are ordered, it is not an error for the start or the cliff time to be in the past.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
@@ -112,7 +112,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
     /// - `params.range.start` must be less than or equal to `params.range.cliff`.
     /// - `params.range.cliff` must be less than `params.range.end`.
-    /// - `params.range.end` must not be in the past.
+    /// - `params.range.end` must be in the future.
     /// - `params.recipient` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
     ///

@@ -26,7 +26,7 @@ abstract contract WithdrawableAmountOf_Unit_Test is Unit_Test, WithdrawableAmoun
         vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         uint128 actualWithdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
-        uint256 expectedWithdrawableAmount = defaults.DEPOSIT_AMOUNT() - defaults.REFUND_AMOUNT();
+        uint256 expectedWithdrawableAmount = defaults.CLIFF_AMOUNT();
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 

@@ -106,7 +106,9 @@ abstract contract Linear_Fork_Test is Fork_Test {
     /// - Multiple values for the broker fee, including zero
     /// - Multiple values for the protocol fee, including zero
     /// - Multiple values for the withdraw amount, including zero
-    /// - Start time in the past, present and future
+    /// - Start time in the past
+    /// - Start time in the present
+    /// - Start time in the future
     /// - Start time lower than and equal to cliff time
     /// - The whole gamut of stream statuses
     function testForkFuzz_Linear_CreateWithdrawCancel(Params memory params) external {
