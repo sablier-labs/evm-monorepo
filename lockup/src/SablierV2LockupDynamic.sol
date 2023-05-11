@@ -435,6 +435,11 @@ contract SablierV2LockupDynamic is
         result = _streams[streamId].isDepleted;
     }
 
+    /// @inheritdoc SablierV2Lockup
+    function _wasCanceled(uint256 streamId) internal view override returns (bool result) {
+        result = _streams[streamId].wasCanceled;
+    }
+
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
@@ -459,20 +464,30 @@ contract SablierV2LockupDynamic is
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _cancel(uint256 streamId) internal override {
+        // Calculate the streamed amount.
+        uint128 streamedAmount = _calculateStreamedAmount(streamId);
+
+        // Retrieve the amounts from storage.
+        Lockup.Amounts memory amounts = _streams[streamId].amounts;
+
+        // Checks: the stream is not settled.
+        if (streamedAmount >= amounts.deposited) {
+            revert Errors.SablierV2Lockup_StreamSettled(streamId);
+        }
+
         // Checks: the stream is cancelable.
         if (!_streams[streamId].isCancelable) {
             revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
         }
 
         // Calculate the sender's and the recipient's amount.
-        uint128 streamedAmount = _calculateStreamedAmount(streamId);
-        uint128 senderAmount = _streams[streamId].amounts.deposited - streamedAmount;
-        uint128 recipientAmount = streamedAmount - _streams[streamId].amounts.withdrawn;
+        uint128 senderAmount = amounts.deposited - streamedAmount;
+        uint128 recipientAmount = streamedAmount - amounts.withdrawn;
 
         // Effects: mark the stream as canceled.
         _streams[streamId].wasCanceled = true;
 
-        // Effects: make the stream not cancelable, because a stream can only be canceled once.
+        // Effects: make the stream not cancelable anymore, because a stream can only be canceled once.
         _streams[streamId].isCancelable = false;
 
         // Effects: If there are no assets left for the recipient to withdraw, mark the stream as depleted.
@@ -608,7 +623,7 @@ contract SablierV2LockupDynamic is
             revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
         }
 
-        // Effects: make the stream not cancelable.
+        // Effects: renounce the stream by making it not cancelable.
         _streams[streamId].isCancelable = false;
 
         // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without

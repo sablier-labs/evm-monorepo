@@ -46,15 +46,6 @@ abstract contract SablierV2Lockup is
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks that `streamId` does not reference a cold stream.
-    modifier notCold(uint256 streamId) {
-        Lockup.Status status = statusOf(streamId);
-        if (status == Lockup.Status.SETTLED || status == Lockup.Status.CANCELED || status == Lockup.Status.DEPLETED) {
-            revert Errors.SablierV2Lockup_StreamCold(streamId);
-        }
-        _;
-    }
-
     /// @dev Checks that `streamId` does not reference a null stream.
     modifier notNull(uint256 streamId) {
         if (!isStream(streamId)) {
@@ -138,9 +129,16 @@ abstract contract SablierV2Lockup is
         override
         noDelegateCall
         notNull(streamId)
-        notCold(streamId)
         onlySenderOrRecipient(streamId)
     {
+        // Checks: the stream is neither depleted nor canceled.
+        if (_isDepleted(streamId)) {
+            revert Errors.SablierV2Lockup_StreamDepleted(streamId);
+        } else if (_wasCanceled(streamId)) {
+            revert Errors.SablierV2Lockup_StreamCanceled(streamId);
+        }
+
+        // Checks, Effects, and Interactions: cancel the stream.
         _cancel(streamId);
     }
 
@@ -160,7 +158,17 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) notCold(streamId) {
+    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) {
+        // Checks: the stream is not cold.
+        Lockup.Status status = statusOf(streamId);
+        if (status == Lockup.Status.DEPLETED) {
+            revert Errors.SablierV2Lockup_StreamDepleted(streamId);
+        } else if (status == Lockup.Status.CANCELED) {
+            revert Errors.SablierV2Lockup_StreamCanceled(streamId);
+        } else if (status == Lockup.Status.SETTLED) {
+            revert Errors.SablierV2Lockup_StreamSettled(streamId);
+        }
+
         // Checks: `msg.sender` is the stream's sender.
         if (!_isCallerStreamSender(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
@@ -267,9 +275,13 @@ abstract contract SablierV2Lockup is
     /// @param streamId The stream id for the query.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
 
-    /// @notice Retrieves the `isDepleted` flag from storage.
+    /// @notice Retrieves the `isDepleted` flag from storage without performing a null check.
     /// @param streamId The stream id for the query.
     function _isDepleted(uint256 streamId) internal view virtual returns (bool result);
+
+    /// @notice Retrieves the `wasCanceled` flag from storage without performing a null check.
+    /// @param streamId The stream id for the query.
+    function _wasCanceled(uint256 streamId) internal view virtual returns (bool result);
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdrawableAmountOf(uint256 streamId) internal view virtual returns (uint128 withdrawableAmount);

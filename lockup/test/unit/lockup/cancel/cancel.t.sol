@@ -28,23 +28,23 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
         lockup.cancel(nullStreamId);
     }
 
-    function test_RevertWhen_StreamCold_StatusSettled() external whenNoDelegateCall whenNotNull whenStreamCold {
+    function test_RevertWhen_StreamCold_StatusDepleted() external whenNoDelegateCall whenNotNull whenStreamCold {
         vm.warp({ timestamp: defaults.END_TIME() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, defaultStreamId));
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
 
     function test_RevertWhen_StreamCold_StatusCanceled() external whenNoDelegateCall whenNotNull whenStreamCold {
         vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, defaultStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCanceled.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
 
-    function test_RevertWhen_StreamCold_StatusDepleted() external whenNoDelegateCall whenNotNull whenStreamCold {
+    function test_RevertWhen_StreamCold_StatusSettled() external whenNoDelegateCall whenNotNull whenStreamCold {
         vm.warp({ timestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCold.selector, defaultStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
 
