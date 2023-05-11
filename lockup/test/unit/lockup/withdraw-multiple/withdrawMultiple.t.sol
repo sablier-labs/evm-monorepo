@@ -22,12 +22,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_ToZeroAddress() external whenNoDelegateCall {
-        vm.expectRevert(Errors.SablierV2Lockup_WithdrawToZeroAddress.selector);
-        lockup.withdrawMultiple({ streamIds: testStreamIds, to: address(0), amounts: testAmounts });
-    }
-
-    function test_RevertWhen_ArrayCountsNotEqual() external whenNoDelegateCall whenToNonZeroAddress {
+    function test_RevertWhen_ArrayCountsNotEqual() external whenNoDelegateCall {
         uint256[] memory streamIds = new uint256[](2);
         uint128[] memory amounts = new uint128[](1);
         vm.expectRevert(
@@ -42,12 +37,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         _;
     }
 
-    function test_WithdrawMultiple_ArrayCountsZero()
-        external
-        whenNoDelegateCall
-        whenToNonZeroAddress
-        whenArrayCountsAreEqual
-    {
+    function test_WithdrawMultiple_ArrayCountsZero() external whenNoDelegateCall whenArrayCountsAreEqual {
         uint256[] memory streamIds = new uint256[](0);
         uint128[] memory amounts = new uint128[](0);
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
@@ -57,13 +47,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         _;
     }
 
-    function test_RevertWhen_OnlyNull()
-        external
-        whenNoDelegateCall
-        whenToNonZeroAddress
-        whenArrayCountsAreEqual
-        whenArrayCountsNotZero
-    {
+    function test_RevertWhen_OnlyNull() external whenNoDelegateCall whenArrayCountsAreEqual whenArrayCountsNotZero {
         uint256 nullStreamId = 1729;
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
@@ -74,13 +58,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         });
     }
 
-    function test_RevertWhen_SomeNull()
-        external
-        whenNoDelegateCall
-        whenToNonZeroAddress
-        whenArrayCountsAreEqual
-        whenArrayCountsNotZero
-    {
+    function test_RevertWhen_SomeNull() external whenNoDelegateCall whenArrayCountsAreEqual whenArrayCountsNotZero {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(testStreamIds[0], testStreamIds[1], nullStreamId);
 
@@ -94,10 +72,9 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: testAmounts });
     }
 
-    function test_RevertWhen_AllStatusesEitherPendingOrDepleted()
+    function test_RevertWhen_AllStatusesDepleted()
         external
         whenNoDelegateCall
-        whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
@@ -108,7 +85,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.END_TIME() });
 
-        // Deplete the stream.
+        // Deplete the first test stream.
         lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient });
 
         // Expect a {StreamDepleted} error.
@@ -118,32 +95,33 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
     }
 
-    function test_RevertWhen_SomeStatusesEitherPendingOrDepleted()
+    function test_RevertWhen_SomeStatusesDepleted()
         external
         whenNoDelegateCall
-        whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
     {
-        uint256 earlyStreamId = createDefaultStreamWithStartTime(getBlockTimestamp() + 1 seconds);
-        uint256[] memory streamIds = Solarray.uint256s(earlyStreamId, testStreamIds[0], testStreamIds[1]);
+        // Simulate the passage of time.
+        vm.warp({ timestamp: defaults.END_TIME() });
 
-        // Expect a {StreamPending} error.
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamPending.selector, earlyStreamId));
+        // Deplete the first test stream.
+        lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient });
+
+        // Expect a {StreamDepleted} error.
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, testStreamIds[0]));
 
         // Withdraw from multiple streams.
-        lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: testAmounts });
+        lockup.withdrawMultiple({ streamIds: testStreamIds, to: users.recipient, amounts: testAmounts });
     }
 
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
         external
         whenNoDelegateCall
-        whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
-        whenNoStatusPendingOrDepleted
+        whenNoDepletedStream
         whenCallerUnauthorized
     {
         // Make Eve the caller in this test.
@@ -159,11 +137,10 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
     function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
         whenNoDelegateCall
-        whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
-        whenNoStatusPendingOrDepleted
+        whenNoDepletedStream
         whenCallerUnauthorized
     {
         // Transfer all streams to Alice.
@@ -182,11 +159,10 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
     function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
         external
         whenNoDelegateCall
-        whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
-        whenNoStatusPendingOrDepleted
+        whenNoDepletedStream
         whenCallerUnauthorized
     {
         // Create a stream with Eve as the recipient.
@@ -209,11 +185,10 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
     function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
         whenNoDelegateCall
-        whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
-        whenNoStatusPendingOrDepleted
+        whenNoDepletedStream
         whenCallerUnauthorized
     {
         // Transfer one of the streams to Eve.
@@ -230,15 +205,31 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         lockup.withdrawMultiple({ streamIds: testStreamIds, to: users.recipient, amounts: testAmounts });
     }
 
-    function test_RevertWhen_SomeAmountsZero()
+    function test_RevertWhen_ToZeroAddress()
         external
         whenNoDelegateCall
-        whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
-        whenNoStatusPendingOrDepleted
+        whenNoDepletedStream
         whenCallerAuthorizedAllStreams
+    {
+        if (caller == users.sender) {
+            return;
+        }
+        vm.expectRevert(Errors.SablierV2Lockup_WithdrawToZeroAddress.selector);
+        lockup.withdrawMultiple({ streamIds: testStreamIds, to: address(0), amounts: testAmounts });
+    }
+
+    function test_RevertWhen_SomeAmountsZero()
+        external
+        whenNoDelegateCall
+        whenArrayCountsAreEqual
+        whenArrayCountsNotZero
+        whenNoNull
+        whenNoDepletedStream
+        whenCallerAuthorizedAllStreams
+        whenToNonZeroAddress
     {
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
@@ -252,12 +243,12 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
     function test_RevertWhen_SomeAmountsOverdraw()
         external
         whenNoDelegateCall
-        whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
-        whenNoStatusPendingOrDepleted
+        whenNoDepletedStream
         whenCallerAuthorizedAllStreams
+        whenToNonZeroAddress
         whenNoAmountZero
     {
         // Simulate the passage of time.
@@ -279,23 +270,20 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
     function test_WithdrawMultiple()
         private
         whenNoDelegateCall
-        whenToNonZeroAddress
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
-        whenNoStatusPendingOrDepleted
+        whenNoDepletedStream
         whenCallerAuthorizedAllStreams
+        whenToNonZeroAddress
         whenNoAmountZero
         whenNoAmountOverdraws
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: EARLY_STOP_TIME });
+        vm.warp({ timestamp: earlyStopTime });
 
         // Cancel the 3rd stream.
         lockup.cancel(testStreamIds[2]);
-
-        // Run the test with the caller provided in the modifier above.
-        changePrank({ msgSender: caller });
 
         // Expect the withdrawals to be made.
         expectCallToTransfer({ to: users.recipient, amount: testAmounts[0] });

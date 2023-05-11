@@ -2,36 +2,36 @@ withdrawMultiple.t.sol
 ├── when the call is a delegate call
 │  └── it should revert
 └── when the call is not a delegate call
-   ├── when the provided address is zero
+   ├── when the inputs are not equal
    │  └── it should revert
-   └── when the provided address is not zero
-      ├── when the inputs are not equal
-      │  └── it should revert
-      └── when the input array counts are equal
-         ├── when the array counts are zero
-         │  └── it should do nothing
-         └── when the array counts are not zero
-            ├── when the stream ids array references only null streams
+   └── when the input array counts are equal
+      ├── when the array counts are zero
+      │  └── it should do nothing
+      └── when the array counts are not zero
+         ├── when the stream ids array references only null streams
+         │  └── it should revert
+         ├── when the stream ids array references some null streams
+         │  └── it should revert
+         └── when the stream ids array references only non-null streams
+            ├── when all streams' statuses are "DEPLETED"
             │  └── it should revert
-            ├── when the stream ids array references some null streams
+            ├── when some streams' statuses are "DEPLETED"
             │  └── it should revert
-            └── when the stream ids array references only non-null streams
-               ├── when all streams's statuses are either "PENDING" or "DEPLETED"
-               │  └── it should revert
-               ├── when some streams's statuses are either "PENDING" or "DEPLETED"
-               │  └── it should revert
-               └── when no stream's status is either "PENDING" or "DEPLETED"
-                  ├── when the caller is unauthorized for all streams
-                  │  ├── when the caller is a malicious third party
-                  │  │  └── it should revert
-                  │  └── when the caller is a former recipient
-                  │     └── it should revert
-                  ├── when the caller is unauthorized for some streams
-                  │  ├── when the caller is a malicious third party
-                  │  │  └── it should revert
-                  │  └── when the caller is a former recipient
-                  │     └── it should revert
-                  └── when the caller is authorized for all streams
+            └── when no stream's status is "DEPLETED"
+               ├── when the caller is unauthorized for all streams
+               │  ├── when the caller is a malicious third party
+               │  │  └── it should revert
+               │  └── when the caller is a former recipient
+               │     └── it should revert
+               ├── when the caller is unauthorized for some streams
+               │  ├── when the caller is a malicious third party
+               │  │  └── it should revert
+               │  └── when the caller is a former recipient
+               │     └── it should revert
+               └── when the caller is authorized for all streams
+                  ├── when the provided address is zero
+                  │  └── it should revert
+                  └── when the provided address is not zero
                      ├── when some amounts are zero
                      │  └── it should revert
                      └── when none of the amounts are zero

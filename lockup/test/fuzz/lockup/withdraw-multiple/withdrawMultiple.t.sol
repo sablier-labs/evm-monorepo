@@ -23,11 +23,11 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, WithdrawMultiple_Shar
     )
         private
         whenNoDelegateCall
-        whenToNonZeroAddress
         whenArraysEqual
         whenNoNull
-        whenNoStatusPendingOrDepleted
+        whenNoDepletedStream
         whenCallerAuthorizedAllStreams
+        whenToNonZeroAddress
         whenNoAmountZero
         whenNoAmountOverdraws
     {
@@ -48,7 +48,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, WithdrawMultiple_Shar
         uint256 settledStreamId = createDefaultStream();
         uint128 settledWithdrawAmount = defaults.DEPOSIT_AMOUNT();
 
-        // Run the test with the caller provided in the modifier above.
+        // Run the test with the caller provided in {whenCallerAuthorizedAllStreams}.
         changePrank({ msgSender: caller });
 
         // Simulate the passage of time.

@@ -77,9 +77,6 @@ library Errors {
     /// @notice Thrown when trying to burn a stream that is not depleted.
     error SablierV2Lockup_StreamNotDepleted(uint256 streamId);
 
-    /// @notice Thrown when trying to withdraw from a pending stream.
-    error SablierV2Lockup_StreamPending(uint256 streamId);
-
     /// @notice Thrown when trying to cancel a settled stream.
     error SablierV2Lockup_StreamSettled(uint256 streamId);
 

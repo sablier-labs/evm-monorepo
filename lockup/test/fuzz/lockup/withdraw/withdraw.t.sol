@@ -19,7 +19,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero

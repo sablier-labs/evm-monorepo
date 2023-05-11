@@ -430,6 +430,11 @@ contract SablierV2LockupDynamic is
         result = msg.sender == _streams[streamId].sender;
     }
 
+    /// @inheritdoc SablierV2Lockup
+    function _isDepleted(uint256 streamId) internal view override returns (bool result) {
+        result = _streams[streamId].isDepleted;
+    }
+
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
         Lockup.Amounts memory amounts = _streams[streamId].amounts;

@@ -39,15 +39,11 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
-    modifier whenCallerUnauthorized() {
-        _;
-    }
-
     function test_RevertWhen_CallerUnauthorized_Sender()
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerUnauthorized
     {
         // Make the sender the caller in this test.
@@ -67,7 +63,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerUnauthorized
     {
         // Make Eve the caller in this test.
@@ -81,12 +77,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
-    function test_RevertWhen_FormerRecipient()
-        external
-        whenNoDelegateCall
-        whenNotNull
-        whenStreamNeitherPendingNorDepleted
-    {
+    function test_RevertWhen_FormerRecipient() external whenNoDelegateCall whenNotNull whenStreamNotDepleted {
         // Transfer the stream to Alice.
         lockup.transferFrom(users.recipient, users.alice, defaultStreamId);
 
@@ -102,7 +93,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
     {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
@@ -114,7 +105,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
     {
@@ -126,7 +117,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -148,7 +139,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -173,7 +164,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -206,7 +197,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -244,7 +235,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -288,7 +279,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -329,7 +320,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -373,7 +364,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -418,7 +409,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -467,7 +458,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         external
         whenNoDelegateCall
         whenNotNull
-        whenStreamNeitherPendingNorDepleted
+        whenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero

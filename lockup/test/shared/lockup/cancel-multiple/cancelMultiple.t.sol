@@ -4,14 +4,20 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Lockup_Shared_Test } from "../Lockup.t.sol";
 
 abstract contract CancelMultiple_Shared_Test is Lockup_Shared_Test {
+    uint40 internal originalTime;
     uint256[] internal testStreamIds;
 
     function setUp() public virtual override {
+        originalTime = getBlockTimestamp();
         createTestStreams();
     }
 
     /// @dev Creates the default streams used throughout the tests.
     function createTestStreams() internal {
+        // Warp back to the original timestamp.
+        vm.warp({ timestamp: originalTime });
+
+        // Create the test streams.
         testStreamIds = new uint256[](2);
         testStreamIds[0] = createDefaultStream();
 

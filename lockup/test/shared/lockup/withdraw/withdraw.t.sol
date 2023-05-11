@@ -19,7 +19,11 @@ abstract contract Withdraw_Shared_Test is Lockup_Shared_Test {
         _;
     }
 
-    modifier whenStreamNeitherPendingNorDepleted() {
+    modifier whenStreamNotDepleted() {
+        _;
+    }
+
+    modifier whenCallerUnauthorized() {
         _;
     }
 

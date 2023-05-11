@@ -115,9 +115,9 @@ abstract contract SablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
-    function burn(uint256 streamId) external override noDelegateCall {
+    function burn(uint256 streamId) external override noDelegateCall notNull(streamId) {
         // Checks: only depleted streams can be burned.
-        if (statusOf(streamId) != Lockup.Status.DEPLETED) {
+        if (!_isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamNotDepleted(streamId);
         }
 
@@ -185,14 +185,34 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall {
+    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall notNull(streamId) {
+        // Checks: the stream is not depleted.
+        if (_isDepleted(streamId)) {
+            revert Errors.SablierV2Lockup_StreamDepleted(streamId);
+        }
+
+        // Checks: `msg.sender` is the stream's sender, the stream's recipient, or an approved third party.
+        if (!_isCallerStreamSender(streamId) && !_isCallerStreamRecipientOrApproved(streamId)) {
+            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+        }
+
+        // Checks: if `msg.sender` is the stream's sender, the withdrawal address must be the recipient.
+        if (_isCallerStreamSender(streamId) && to != _ownerOf(streamId)) {
+            revert Errors.SablierV2Lockup_InvalidSenderWithdrawal(streamId, msg.sender, to);
+        }
+
         // Checks: the withdrawal address is not zero.
         if (to == address(0)) {
             revert Errors.SablierV2Lockup_WithdrawToZeroAddress();
         }
 
-        // Checks, Effects, and Interactions: check the parameters and make the withdrawal.
-        _checkParamsAndWithdraw(streamId, to, amount);
+        // Checks: the withdraw amount is not zero.
+        if (amount == 0) {
+            revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
+        }
+
+        // Checks, Effects and Interactions: make the withdrawal.
+        _withdraw(streamId, to, amount);
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -210,11 +230,6 @@ abstract contract SablierV2Lockup is
         override
         noDelegateCall
     {
-        // Checks: the withdrawal address is not zero.
-        if (to == address(0)) {
-            revert Errors.SablierV2Lockup_WithdrawToZeroAddress();
-        }
-
         // Checks: there is an equal number of `streamIds` and `amounts`.
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
@@ -225,7 +240,7 @@ abstract contract SablierV2Lockup is
         // Iterate over the provided array of stream ids and withdraw from each stream.
         for (uint256 i = 0; i < streamIdsCount;) {
             // Checks, Effects, and Interactions: check the parameters and make the withdrawal.
-            _checkParamsAndWithdraw(streamIds[i], to, amounts[i]);
+            withdraw(streamIds[i], to, amounts[i]);
 
             // Increment the loop iterator.
             unchecked {
@@ -252,6 +267,10 @@ abstract contract SablierV2Lockup is
     /// @param streamId The stream id for the query.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
 
+    /// @notice Retrieves the `isDepleted` flag from storage.
+    /// @param streamId The stream id for the query.
+    function _isDepleted(uint256 streamId) internal view virtual returns (bool result);
+
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdrawableAmountOf(uint256 streamId) internal view virtual returns (uint128 withdrawableAmount);
 
@@ -261,35 +280,6 @@ abstract contract SablierV2Lockup is
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _cancel(uint256 tokenId) internal virtual;
-
-    /// @dev Common logic between {withdraw} and {withdrawMultiple}.
-    function _checkParamsAndWithdraw(uint256 streamId, address to, uint128 amount) internal notNull(streamId) {
-        // Checks: the stream is neither pending nor depleted.
-        Lockup.Status status = statusOf(streamId);
-        if (status == Lockup.Status.PENDING) {
-            revert Errors.SablierV2Lockup_StreamPending(streamId);
-        } else if (status == Lockup.Status.DEPLETED) {
-            revert Errors.SablierV2Lockup_StreamDepleted(streamId);
-        }
-
-        // Checks: `msg.sender` is the stream's sender, the stream's recipient, or an approved third party.
-        if (!_isCallerStreamSender(streamId) && !_isCallerStreamRecipientOrApproved(streamId)) {
-            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-        }
-
-        // Checks: if `msg.sender` is the stream's sender, the withdrawal address must be the recipient.
-        if (_isCallerStreamSender(streamId) && to != _ownerOf(streamId)) {
-            revert Errors.SablierV2Lockup_InvalidSenderWithdrawal(streamId, msg.sender, to);
-        }
-
-        // Checks: the withdraw amount is not zero.
-        if (amount == 0) {
-            revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
-        }
-
-        // Checks, Effects and Interactions: make the withdrawal.
-        _withdraw(streamId, to, amount);
-    }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _renounce(uint256 streamId) internal virtual;

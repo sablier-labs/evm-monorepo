@@ -5,11 +5,9 @@ withdraw.t.sol
     ├── when the id references a null stream
     │  └── it should revert
     └── when the id does not reference a null stream
-       ├── when the stream's status is "PENDING"
-       │  └── it should revert
        ├── when the stream's status is "DEPLETED"
        │  └── it should revert
-       └── when the stream's status is neither "PENDING" nor "DEPLETED"
+       └── when the stream's status is not "DEPLETED"
           ├── when the caller is unauthorized
           │  ├── when the caller is the sender
           │  │  └── it should revert
