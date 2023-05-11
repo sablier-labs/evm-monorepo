@@ -78,7 +78,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - $\Sigma(esa)$ is the sum of all elapsed segments' amounts.
     ///
     /// Upon cancellation of the stream, the amount streamed is calculated as the difference between the deposited
-    /// amount and the refunded amount. Ultimately, when the stream is depleted, the streamed amount becomes equivalent
+    /// amount and the refunded amount. Ultimately, when the stream becomes depleted, the streamed amount is equivalent
     /// to the total amount withdrawn.
     ///
     /// @dev Reverts if `streamId` references a null stream.

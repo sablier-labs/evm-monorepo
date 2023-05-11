@@ -89,12 +89,12 @@ contract Defaults is Constants {
             asset: asset,
             endTime: END_TIME,
             isCancelable: true,
-            isCanceled: false,
             isDepleted: false,
             isStream: true,
             segments: segments(),
             sender: users.sender,
-            startTime: START_TIME
+            startTime: START_TIME,
+            wasCanceled: false
         });
     }
 
@@ -109,11 +109,11 @@ contract Defaults is Constants {
             cliffTime: CLIFF_TIME,
             endTime: END_TIME,
             isCancelable: true,
-            isCanceled: false,
             isDepleted: false,
             isStream: true,
             sender: users.sender,
-            startTime: START_TIME
+            startTime: START_TIME,
+            wasCanceled: false
         });
     }
 

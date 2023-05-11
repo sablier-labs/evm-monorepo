@@ -104,12 +104,12 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
-        assertEq(actualStream.isCanceled, false, "isCanceled");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.segments, vars.segmentsWithMilestones, "segments");
         assertEq(actualStream.sender, users.sender, "sender");
         assertEq(actualStream.startTime, range.start, "startTime");
+        assertEq(actualStream.wasCanceled, false, "wasCanceled");
 
         // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
         // because some segment amounts can be zero.

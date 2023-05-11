@@ -199,7 +199,7 @@ contract SablierV2LockupLinear is
     {
         // If the stream is neither depleted nor canceled, subtract the streamed amount from the deposited amount.
         // Both of these checks are needed because {_calculateStreamedAmount} does not look up the stream's status.
-        if (!_streams[streamId].isDepleted && !_streams[streamId].isCanceled) {
+        if (!_streams[streamId].isDepleted && !_streams[streamId].wasCanceled) {
             refundableAmount = _streams[streamId].amounts.deposited - _calculateStreamedAmount(streamId);
         }
         // Otherwise, if the stream is either depleted or canceled, the result is implicitly zero.
@@ -215,7 +215,7 @@ contract SablierV2LockupLinear is
     {
         if (_streams[streamId].isDepleted) {
             return Lockup.Status.DEPLETED;
-        } else if (_streams[streamId].isCanceled) {
+        } else if (_streams[streamId].wasCanceled) {
             return Lockup.Status.CANCELED;
         }
 
@@ -345,16 +345,12 @@ contract SablierV2LockupLinear is
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
 
-        // If the stream is depleted, return the withdrawn amount.
         if (_streams[streamId].isDepleted) {
             return amounts.withdrawn;
-        }
-        // If the stream is canceled, return the deposited amount minus the refunded amount.
-        else if (_streams[streamId].isCanceled) {
+        } else if (_streams[streamId].wasCanceled) {
             return amounts.deposited - amounts.refunded;
         }
 
-        // For all other statuses, calculate the streamed amount.
         streamedAmount = _calculateStreamedAmount(streamId);
     }
 
@@ -379,14 +375,14 @@ contract SablierV2LockupLinear is
         uint128 senderAmount = _streams[streamId].amounts.deposited - streamedAmount;
         uint128 recipientAmount = streamedAmount - _streams[streamId].amounts.withdrawn;
 
-        // Effects: make the stream not cancelable, because a stream can only be canceled once.
+        // Effects: mark the stream as canceled.
+        _streams[streamId].wasCanceled = true;
+
+        // Effects: make the stream not cancelable anymore, because a stream can only be canceled once.
         _streams[streamId].isCancelable = false;
 
-        // Effects: If there are any assets left for the recipient to withdraw, mark the stream as canceled.
-        // Otherwise, mark it as depleted.
-        if (recipientAmount > 0) {
-            _streams[streamId].isCanceled = true;
-        } else {
+        // Effects: If there are no assets left for the recipient to withdraw, mark the stream as depleted.
+        if (recipientAmount == 0) {
             _streams[streamId].isDepleted = true;
         }
 
@@ -456,11 +452,11 @@ contract SablierV2LockupLinear is
             cliffTime: params.range.cliff,
             endTime: params.range.end,
             isCancelable: params.cancelable,
-            isCanceled: false,
             isDepleted: false,
             isStream: true,
             sender: params.sender,
-            startTime: params.range.start
+            startTime: params.range.start,
+            wasCanceled: false
         });
 
         // Effects: bump the next stream id and record the protocol fee.
@@ -544,11 +540,8 @@ contract SablierV2LockupLinear is
             // Effects: mark the stream as depleted.
             _streams[streamId].isDepleted = true;
 
-            // Effects: make the stream not cancelable, because a depleted stream cannot be canceled anymore.
+            // Effects: make the stream not cancelable anymore, because a depleted stream cannot be canceled.
             _streams[streamId].isCancelable = false;
-
-            // Effects: mark the stream as not canceled, because a stream cannot be both canceled and depleted.
-            _streams[streamId].isCanceled = false;
         }
 
         // Interactions: perform the ERC-20 transfer.

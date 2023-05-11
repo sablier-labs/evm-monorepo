@@ -42,28 +42,28 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two {LockupLinear.Stream} struct entities.
     function assertEq(LockupLinear.Stream memory a, LockupLinear.Stream memory b) internal {
         assertEq(a.amounts, b.amounts);
+        assertEq(a.asset, b.asset, "asset");
         assertEq(a.cliffTime, b.cliffTime, "cliffTime");
         assertEq(a.endTime, b.endTime, "endTime");
         assertEq(a.isCancelable, b.isCancelable, "isCancelable");
-        assertEq(a.isCanceled, b.isCanceled, "isCanceled");
         assertEq(a.isDepleted, b.isDepleted, "isDepleted");
         assertEq(a.isStream, b.isStream, "isStream");
         assertEq(a.sender, b.sender, "sender");
         assertEq(a.startTime, b.startTime, "startTime");
-        assertEq(a.asset, b.asset, "asset");
+        assertEq(a.wasCanceled, b.wasCanceled, "wasCanceled");
     }
 
     /// @dev Compares two {LockupDynamic.Stream} struct entities.
     function assertEq(LockupDynamic.Stream memory a, LockupDynamic.Stream memory b) internal {
+        assertEq(a.asset, b.asset, "asset");
         assertEq(a.endTime, b.endTime, "endTime");
         assertEq(a.isCancelable, b.isCancelable, "isCancelable");
-        assertEq(a.isCanceled, b.isCanceled, "isCanceled");
         assertEq(a.isDepleted, b.isDepleted, "isDepleted");
         assertEq(a.isStream, b.isStream, "isStream");
         assertEq(a.segments, b.segments, "segments");
         assertEq(a.sender, b.sender, "sender");
         assertEq(a.startTime, b.startTime, "startTime");
-        assertEq(a.asset, b.asset, "asset");
+        assertEq(a.wasCanceled, b.wasCanceled, "wasCanceled");
     }
 
     /// @dev Compares two {LockupLinear.Range} struct entities.

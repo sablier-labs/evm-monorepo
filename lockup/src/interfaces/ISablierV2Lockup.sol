@@ -77,7 +77,7 @@ interface ISablierV2Lockup is
     function getRecipient(uint256 streamId) external view returns (address recipient);
 
     /// @notice Retrieves the amount refunded to the sender after a cancellation, denoted in units of the asset's
-    /// decimals. This amount is always zero unless the stream is canceled.
+    /// decimals. This amount is always zero unless the stream was canceled.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function getRefundedAmount(uint256 streamId) external view returns (uint128 refundedAmount);

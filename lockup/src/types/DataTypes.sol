@@ -21,7 +21,7 @@ library Lockup {
     /// the same slot saves gas.
     /// @param deposited The initial amount deposited in the stream, net of fees.
     /// @param withdrawn The cumulative amount withdrawn from the stream.
-    /// @param refunded The amount refunded to the sender. Unless the stream is canceled, this is always zero.
+    /// @param refunded The amount refunded to the sender. Unless the stream was canceled, this is always zero.
     struct Amounts {
         // slot 0
         uint128 deposited;
@@ -45,8 +45,8 @@ library Lockup {
     /// @custom:value PENDING Stream created but not started; assets are in a pending state.
     /// @custom:value STREAMING Active stream where assets are currently being streamed.
     /// @custom:value SETTLED All assets have been streamed; recipient is due to withdraw them.
-    /// @custom:value CANCELED Stream is canceled; remaining assets await recipient's withdrawal.
-    /// @custom:value DEPLETED Stream is depleted; all assets have been withdrawn and/or refunded.
+    /// @custom:value CANCELED Canceled stream; remaining assets await recipient's withdrawal.
+    /// @custom:value DEPLETED Depleted stream; all assets have been withdrawn and/or refunded.
     enum Status {
         PENDING, // value 0
         STREAMING, // value 1
@@ -139,7 +139,7 @@ library LockupDynamic {
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param endTime The Unix timestamp indicating the stream's end.
     /// @param isCancelable Boolean indicating if the stream is cancelable.
-    /// @param isCanceled Boolean indicating if the stream is canceled.
+    /// @param wasCanceled Boolean indicating if the stream was canceled.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
@@ -152,7 +152,7 @@ library LockupDynamic {
         uint40 startTime;
         uint40 endTime;
         bool isCancelable;
-        bool isCanceled;
+        bool wasCanceled;
         // slot 1
         IERC20 asset;
         bool isDepleted;
@@ -233,7 +233,7 @@ library LockupLinear {
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param cliffTime The Unix timestamp indicating the cliff period's end.
     /// @param isCancelable Boolean indicating if the stream is cancelable.
-    /// @param isCanceled Boolean indicating if the stream is canceled.
+    /// @param wasCanceled Boolean indicating if the stream was canceled.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param endTime The Unix timestamp indicating the stream's end.
     /// @param isDepleted Boolean indicating if the stream is depleted.
@@ -246,7 +246,7 @@ library LockupLinear {
         uint40 startTime;
         uint40 cliffTime;
         bool isCancelable;
-        bool isCanceled;
+        bool wasCanceled;
         // slot 1
         IERC20 asset;
         uint40 endTime;

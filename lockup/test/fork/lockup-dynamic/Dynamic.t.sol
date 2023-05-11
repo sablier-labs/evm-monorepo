@@ -186,12 +186,12 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         assertEq(actualStream.asset, asset, "asset");
         assertEq(actualStream.endTime, vars.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
-        assertEq(actualStream.isCanceled, false, "isCanceled");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.segments, params.segments, "segments");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.startTime, "startTime");
+        assertEq(actualStream.wasCanceled, false, "wasCanceled");
 
         // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
         // because some segment amounts can be zero.

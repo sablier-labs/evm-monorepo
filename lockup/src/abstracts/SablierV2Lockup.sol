@@ -116,7 +116,7 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function burn(uint256 streamId) external override noDelegateCall {
-        // Checks: the stream is depleted.
+        // Checks: only depleted streams can be burned.
         if (statusOf(streamId) != Lockup.Status.DEPLETED) {
             revert Errors.SablierV2Lockup_StreamNotDepleted(streamId);
         }

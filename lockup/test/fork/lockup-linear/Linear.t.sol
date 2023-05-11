@@ -188,11 +188,11 @@ abstract contract Linear_Fork_Test is Fork_Test {
         assertEq(actualStream.cliffTime, params.range.cliff, "cliffTime");
         assertEq(actualStream.endTime, params.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
-        assertEq(actualStream.isCanceled, false, "isCanceled");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.range.start, "startTime");
+        assertEq(actualStream.wasCanceled, false, "wasCanceled");
 
         // Assert that the stream's status is correct.
         vars.actualStatus = linear.statusOf(vars.streamId);
