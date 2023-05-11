@@ -191,6 +191,11 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
+    function isDepleted(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].isDepleted;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
     function isStream(uint256 streamId) public view override(ISablierV2Lockup, SablierV2Lockup) returns (bool result) {
         result = _streams[streamId].isStream;
     }
@@ -256,6 +261,11 @@ contract SablierV2LockupDynamic is
         returns (uint128 streamedAmount)
     {
         streamedAmount = _streamedAmountOf(streamId);
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function wasCanceled(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].wasCanceled;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

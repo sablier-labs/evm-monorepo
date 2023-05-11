@@ -97,8 +97,8 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
-    /// @notice Retrieves a flag indicating whether the stream can be canceled. The flag is always `false`
-    /// when the stream is cold regardless of the value of the `isCancelable` struct field.
+    /// @notice Retrieves a flag indicating whether the stream can be canceled. When the stream is cold, this
+    /// flag is always `false` regardless of the value of the struct field `isCancelable`.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function isCancelable(uint256 streamId) external view returns (bool result);
@@ -107,6 +107,11 @@ interface ISablierV2Lockup is
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function isCold(uint256 streamId) external view returns (bool result);
+
+    /// @notice Retrieves a flag indicating whether the stream is depleted.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isDepleted(uint256 streamId) external view returns (bool result);
 
     /// @notice Retrieves a flag indicating whether the stream exists.
     /// @dev Does not revert if `streamId` references a null stream.
@@ -135,6 +140,11 @@ interface ISablierV2Lockup is
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
+
+    /// @notice Retrieves a flag indicating whether the stream was canceled.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function wasCanceled(uint256 streamId) external view returns (bool result);
 
     /// @notice Calculates the amount that the recipient can withdraw from the stream, denoted in units of the asset's
     /// decimals.

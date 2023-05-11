@@ -24,6 +24,7 @@ import { GetStartTime_Unit_Test } from "../lockup/get-start-time/getStartTime.t.
 import { GetWithdrawnAmount_Unit_Test } from "../lockup/get-withdrawn-amount/getWithdrawnAmount.t.sol";
 import { IsCancelable_Unit_Test } from "../lockup/is-cancelable/isCancelable.t.sol";
 import { IsCold_Unit_Test } from "../lockup/is-cold/isCold.t.sol";
+import { IsDepleted_Unit_Test } from "../lockup/is-depleted/isDepleted.t.sol";
 import { IsStream_Unit_Test } from "../lockup/is-stream/isStream.t.sol";
 import { IsWarm_Unit_Test } from "../lockup/is-warm/isWarm.t.sol";
 import { RefundableAmountOf_Unit_Test } from "../lockup/refundable-amount-of/refundableAmountOf.t.sol";
@@ -32,6 +33,7 @@ import { SetComptroller_Unit_Test } from "../lockup/set-comptroller/setComptroll
 import { SetNFTDescriptor_Unit_Test } from "../lockup/set-nft-descriptor/setNFTDescriptor.t.sol";
 import { StatusOf_Unit_Test } from "../lockup/status-of/statusOf.t.sol";
 import { TokenURI_Unit_Test } from "../lockup/token-uri/tokenURI.t.sol";
+import { WasCanceled_Unit_Test } from "../lockup/was-canceled/wasCanceled.t.sol";
 import { Withdraw_Unit_Test } from "../lockup/withdraw/withdraw.t.sol";
 import { WithdrawMax_Unit_Test } from "../lockup/withdraw-max/withdrawMax.t.sol";
 import { WithdrawMultiple_Unit_Test } from "../lockup/withdraw-multiple/withdrawMultiple.t.sol";
@@ -157,6 +159,13 @@ contract IsCold_Linear_Unit_Test is Linear_Unit_Test, IsCold_Unit_Test {
     }
 }
 
+contract IsDepleted_Linear_Unit_Test is Linear_Unit_Test, IsDepleted_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, IsDepleted_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        IsDepleted_Unit_Test.setUp();
+    }
+}
+
 contract IsStream_Linear_Unit_Test is Linear_Unit_Test, IsStream_Unit_Test {
     function setUp() public virtual override(Linear_Unit_Test, IsStream_Unit_Test) {
         Linear_Unit_Test.setUp();
@@ -217,6 +226,13 @@ contract TokenURI_Linear_Unit_Test is Linear_Unit_Test, TokenURI_Unit_Test {
     function setUp() public virtual override(Linear_Unit_Test, TokenURI_Unit_Test) {
         Linear_Unit_Test.setUp();
         TokenURI_Unit_Test.setUp();
+    }
+}
+
+contract WasCanceled_Linear_Unit_Test is Linear_Unit_Test, WasCanceled_Unit_Test {
+    function setUp() public virtual override(Linear_Unit_Test, WasCanceled_Unit_Test) {
+        Linear_Unit_Test.setUp();
+        WasCanceled_Unit_Test.setUp();
     }
 }
 
