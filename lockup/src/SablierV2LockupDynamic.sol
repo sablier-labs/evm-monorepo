@@ -191,7 +191,13 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isDepleted(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+    function isDepleted(uint256 streamId)
+        public
+        view
+        override(ISablierV2Lockup, SablierV2Lockup)
+        notNull(streamId)
+        returns (bool result)
+    {
         result = _streams[streamId].isDepleted;
     }
 
@@ -264,7 +270,13 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function wasCanceled(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+    function wasCanceled(uint256 streamId)
+        public
+        view
+        override(ISablierV2Lockup, SablierV2Lockup)
+        notNull(streamId)
+        returns (bool result)
+    {
         result = _streams[streamId].wasCanceled;
     }
 
@@ -438,16 +450,6 @@ contract SablierV2LockupDynamic is
     /// @inheritdoc SablierV2Lockup
     function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
         result = msg.sender == _streams[streamId].sender;
-    }
-
-    /// @inheritdoc SablierV2Lockup
-    function _isDepleted(uint256 streamId) internal view override returns (bool result) {
-        result = _streams[streamId].isDepleted;
-    }
-
-    /// @inheritdoc SablierV2Lockup
-    function _wasCanceled(uint256 streamId) internal view override returns (bool result) {
-        result = _streams[streamId].wasCanceled;
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.

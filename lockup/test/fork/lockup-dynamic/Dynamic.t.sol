@@ -57,8 +57,8 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         Lockup.Status expectedStatus;
         uint256 initialDynamicContractBalance;
         uint256 initialRecipientBalance;
-        bool isSettled;
         bool isDepleted;
+        bool isSettled;
         LockupDynamic.Range range;
         uint256 streamId;
         // Create vars
@@ -259,7 +259,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         vars.withdrawableAmount = dynamic.withdrawableAmountOf(vars.streamId);
         params.withdrawAmount = boundUint128(params.withdrawAmount, 0, vars.withdrawableAmount);
 
-        // Check if the stream is depleted or settled. It is possible for the stream to be just settled
+        // Check if the stream has settled or will get depleted. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
         vars.isDepleted = params.withdrawAmount == vars.createAmounts.deposit;
         vars.isSettled = dynamic.refundableAmountOf(vars.streamId) == 0;

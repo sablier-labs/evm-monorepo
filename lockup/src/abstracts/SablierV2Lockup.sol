@@ -54,14 +54,6 @@ abstract contract SablierV2Lockup is
         _;
     }
 
-    /// @notice Checks that `msg.sender` is either the stream's sender or the stream's recipient (i.e. the NFT owner).
-    modifier onlySenderOrRecipient(uint256 streamId) {
-        if (!_isCallerStreamSender(streamId) && msg.sender != _ownerOf(streamId)) {
-            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-        }
-        _;
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -74,6 +66,9 @@ abstract contract SablierV2Lockup is
         // The NFT owner is the stream's recipient.
         recipient = _ownerOf(streamId);
     }
+
+    /// @inheritdoc ISablierV2Lockup
+    function isDepleted(uint256 streamId) public view virtual override returns (bool result);
 
     /// @inheritdoc ISablierV2Lockup
     function isStream(uint256 streamId) public view virtual override returns (bool result);
@@ -91,6 +86,9 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
+    function wasCanceled(uint256 streamId) public view virtual override returns (bool result);
+
+    /// @inheritdoc ISablierV2Lockup
     function withdrawableAmountOf(uint256 streamId)
         public
         view
@@ -106,9 +104,9 @@ abstract contract SablierV2Lockup is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup
-    function burn(uint256 streamId) external override noDelegateCall notNull(streamId) {
+    function burn(uint256 streamId) external override noDelegateCall {
         // Checks: only depleted streams can be burned.
-        if (!_isDepleted(streamId)) {
+        if (!isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamNotDepleted(streamId);
         }
 
@@ -124,18 +122,17 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId)
-        public
-        override
-        noDelegateCall
-        notNull(streamId)
-        onlySenderOrRecipient(streamId)
-    {
+    function cancel(uint256 streamId) public override noDelegateCall {
         // Checks: the stream is neither depleted nor canceled.
-        if (_isDepleted(streamId)) {
+        if (isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
-        } else if (_wasCanceled(streamId)) {
+        } else if (wasCanceled(streamId)) {
             revert Errors.SablierV2Lockup_StreamCanceled(streamId);
+        }
+
+        // Checks: `msg.sender` is either the stream's sender or the stream's recipient (i.e. the NFT owner).
+        if (!_isCallerStreamSender(streamId) && msg.sender != _ownerOf(streamId)) {
+            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
         // Checks, Effects, and Interactions: cancel the stream.
@@ -158,7 +155,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) {
+    function renounce(uint256 streamId) external override noDelegateCall {
         // Checks: the stream is not cold.
         Lockup.Status status = statusOf(streamId);
         if (status == Lockup.Status.DEPLETED) {
@@ -193,9 +190,9 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall notNull(streamId) {
+    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall {
         // Checks: the stream is not depleted.
-        if (_isDepleted(streamId)) {
+        if (isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
         }
 
@@ -274,14 +271,6 @@ abstract contract SablierV2Lockup is
     /// @notice Checks whether `msg.sender` is the stream's sender.
     /// @param streamId The stream id for the query.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
-
-    /// @notice Retrieves the `isDepleted` flag from storage without performing a null check.
-    /// @param streamId The stream id for the query.
-    function _isDepleted(uint256 streamId) internal view virtual returns (bool result);
-
-    /// @notice Retrieves the `wasCanceled` flag from storage without performing a null check.
-    /// @param streamId The stream id for the query.
-    function _wasCanceled(uint256 streamId) internal view virtual returns (bool result);
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdrawableAmountOf(uint256 streamId) internal view virtual returns (uint128 withdrawableAmount);

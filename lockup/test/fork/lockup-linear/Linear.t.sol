@@ -59,8 +59,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
         Lockup.Status expectedStatus;
         uint256 initialLinearContractBalance;
         uint256 initialRecipientBalance;
-        bool isSettled;
         bool isDepleted;
+        bool isSettled;
         uint256 streamId;
         // Create vars
         uint256 actualBrokerBalance;
@@ -248,10 +248,10 @@ abstract contract Linear_Fork_Test is Fork_Test {
         vars.withdrawableAmount = linear.withdrawableAmountOf(vars.streamId);
         params.withdrawAmount = boundUint128(params.withdrawAmount, 0, vars.withdrawableAmount);
 
-        // Check if the stream is depleted or settled. It is possible for the stream to be just settled
+        // Check if the stream has settled or will get depleted. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
-        vars.isDepleted = params.withdrawAmount == vars.createAmounts.deposit;
         vars.isSettled = linear.refundableAmountOf(vars.streamId) == 0;
+        vars.isDepleted = params.withdrawAmount == vars.createAmounts.deposit;
 
         // Only run the withdraw tests if the withdraw amount is not zero.
         if (params.withdrawAmount > 0) {
