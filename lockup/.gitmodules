@@ -19,6 +19,6 @@
   path = "lib/solady"
   url = "https://github.com/Vectorized/solady"
 [submodule "lib/solarray"]
-  branch = "main"
+  branch = "master"
   path = "lib/solarray"
-  url = "https://github.com/PaulRBerg/solarray"
+  url = "https://github.com/evmcheb/solarray"
