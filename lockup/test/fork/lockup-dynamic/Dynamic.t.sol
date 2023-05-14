@@ -113,8 +113,8 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
     function testForkFuzz_Dynamic_CreateWithdrawCancel(Params memory params) external {
         checkUsers(params.sender, params.recipient, params.broker.account, address(dynamic));
         vm.assume(params.segments.length != 0);
-        params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
-        params.protocolFee = bound(params.protocolFee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
+        params.protocolFee = _bound(params.protocolFee, 0, MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
 
         // Fuzz the segment milestones.

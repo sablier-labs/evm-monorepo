@@ -11,7 +11,7 @@ contract SetFlashFee_Fuzz_Test is Comptroller_Fuzz_Test {
     }
 
     function testFuzz_SetFlashFee(UD60x18 newFlashFee) external whenCallerAdmin {
-        newFlashFee = bound(newFlashFee, 0, MAX_FEE);
+        newFlashFee = _bound(newFlashFee, 0, MAX_FEE);
 
         // Expect a {SetFlashFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });

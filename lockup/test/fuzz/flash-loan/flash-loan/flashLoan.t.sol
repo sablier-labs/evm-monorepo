@@ -32,7 +32,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
         whenAssetFlashLoanable
     {
         // Bound the flash fee so that the calculated fee ends up being greater than 2^128.
-        flashFee = bound(flashFee, ud(1.1e18), ud(10e18));
+        flashFee = _bound(flashFee, ud(1.1e18), ud(10e18));
         comptroller.setFlashFee(flashFee);
 
         // Run the test.
@@ -64,7 +64,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
         whenBorrowDoesNotFail
         whenNoReentrancy
     {
-        comptrollerFlashFee = bound(comptrollerFlashFee, 0, MAX_FEE);
+        comptrollerFlashFee = _bound(comptrollerFlashFee, 0, MAX_FEE);
         comptroller.setFlashFee(comptrollerFlashFee);
 
         // Load the initial protocol revenues.

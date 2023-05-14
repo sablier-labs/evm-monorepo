@@ -114,8 +114,8 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
         // Bound the parameters.
         uint40 currentTime = getBlockTimestamp();
-        params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
-        params.protocolFee = bound(params.protocolFee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
+        params.protocolFee = _bound(params.protocolFee, 0, MAX_FEE);
         params.range.start = boundUint40(params.range.start, currentTime - 1000 seconds, currentTime + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
