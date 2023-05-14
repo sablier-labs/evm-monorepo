@@ -135,7 +135,7 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
-        // Checks, Effects, and Interactions: cancel the stream.
+        // Checks, Effects and Interactions: cancel the stream.
         _cancel(streamId);
     }
 
@@ -244,7 +244,7 @@ abstract contract SablierV2Lockup is
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
         for (uint256 i = 0; i < streamIdsCount;) {
-            // Checks, Effects, and Interactions: check the parameters and make the withdrawal.
+            // Checks, Effects and Interactions: check the parameters and make the withdrawal.
             withdraw(streamIds[i], to, amounts[i]);
 
             // Increment the loop iterator.

@@ -203,10 +203,8 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(testStreamIds[0], notCancelableStreamId) });
     }
 
-    /// @dev TODO: mark this test as `external` once Foundry reverts this breaking change:
-    /// https://github.com/foundry-rs/foundry/pull/4845#issuecomment-1529125648
     function test_CancelMultiple()
-        private
+        external
         whenNoDelegateCall
         whenNoNull
         whenAllStreamsWarm

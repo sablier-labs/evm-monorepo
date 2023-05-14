@@ -14,14 +14,12 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, WithdrawMultiple_Shar
         WithdrawMultiple_Shared_Test.setUp();
     }
 
-    /// @dev TODO: mark this test as `external` once Foundry reverts this breaking change:
-    /// https://github.com/foundry-rs/foundry/pull/4845#issuecomment-1529125648
     function testFuzz_WithdrawMultiple(
         uint256 timeWarp,
         address to,
         uint128 ongoingWithdrawAmount
     )
-        private
+        external
         whenNoDelegateCall
         whenArraysEqual
         whenNoNull

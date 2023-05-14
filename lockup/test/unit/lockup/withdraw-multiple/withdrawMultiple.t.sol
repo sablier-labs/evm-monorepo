@@ -265,10 +265,8 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         lockup.withdrawMultiple({ streamIds: testStreamIds, to: users.recipient, amounts: amounts });
     }
 
-    /// @dev TODO: mark this test as `external` once Foundry reverts this breaking change:
-    /// https://github.com/foundry-rs/foundry/pull/4845#issuecomment-1529125648
     function test_WithdrawMultiple()
-        private
+        external
         whenNoDelegateCall
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
@@ -283,7 +281,11 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         vm.warp({ timestamp: earlyStopTime });
 
         // Cancel the 3rd stream.
+        changePrank({ msgSender: users.recipient });
         lockup.cancel(testStreamIds[2]);
+
+        // Run the test with the caller provided in {whenCallerAuthorizedAllStreams}.
+        changePrank({ msgSender: caller });
 
         // Expect the withdrawals to be made.
         expectCallToTransfer({ to: users.recipient, amount: testAmounts[0] });
