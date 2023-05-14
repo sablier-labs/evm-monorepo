@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
@@ -14,7 +15,7 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: MAX_FEE });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: MAX_FEE });
     }
 
     /// @dev The admin is the default caller in the comptroller tests.
@@ -25,13 +26,13 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     function test_SetProtocolFee_SameFee() external whenCallerAdmin {
         // Expect a {SetProtocolFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit SetProtocolFee({ admin: users.admin, asset: DEFAULT_ASSET, oldProtocolFee: ZERO, newProtocolFee: ZERO });
+        emit SetProtocolFee({ admin: users.admin, asset: dai, oldProtocolFee: ZERO, newProtocolFee: ZERO });
 
         // Set the same protocol fee.
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: ZERO });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
 
-        // Assert that the protocol fee has stayed put.
-        UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
+        // Assert that the protocol fee has not changed.
+        UD60x18 actualProtocolFee = comptroller.protocolFees(dai);
         UD60x18 expectedProtocolFee = ZERO;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }
@@ -41,22 +42,17 @@ contract SetProtocolFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     function test_SetProtocolFee() external whenCallerAdmin whenNewFee {
-        UD60x18 newProtocolFee = DEFAULT_FLASH_FEE;
+        UD60x18 newProtocolFee = defaults.FLASH_FEE();
 
         // Expect a {SetProtocolFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
-        emit SetProtocolFee({
-            admin: users.admin,
-            asset: DEFAULT_ASSET,
-            oldProtocolFee: ZERO,
-            newProtocolFee: newProtocolFee
-        });
+        emit SetProtocolFee({ admin: users.admin, asset: dai, oldProtocolFee: ZERO, newProtocolFee: newProtocolFee });
 
         // Set the new protocol fee.
-        comptroller.setProtocolFee({ asset: DEFAULT_ASSET, newProtocolFee: newProtocolFee });
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: newProtocolFee });
 
         // Assert that the protocol fee has been updated.
-        UD60x18 actualProtocolFee = comptroller.protocolFees(DEFAULT_ASSET);
+        UD60x18 actualProtocolFee = comptroller.protocolFees(dai);
         UD60x18 expectedProtocolFee = newProtocolFee;
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFee");
     }

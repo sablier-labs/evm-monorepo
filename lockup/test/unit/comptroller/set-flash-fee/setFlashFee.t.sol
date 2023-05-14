@@ -31,7 +31,7 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
         // She the same flash fee.
         comptroller.setFlashFee({ newFlashFee: ZERO });
 
-        // Assert that the flash fee has stayed put.
+        // Assert that the flash fee has not changed.
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = ZERO;
         assertEq(actualFlashFee, expectedFlashFee, "flashFee");
@@ -42,7 +42,7 @@ contract SetFlashFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     function test_SetFlashFee() external {
-        UD60x18 newFlashFee = DEFAULT_FLASH_FEE;
+        UD60x18 newFlashFee = defaults.FLASH_FEE();
 
         // Expect a {SetFlashFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });

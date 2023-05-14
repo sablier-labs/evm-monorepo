@@ -6,25 +6,13 @@ import { Errors } from "../libraries/Errors.sol";
 /// @title NoDelegateCall
 /// @notice This contract implements logic to prevent delegate calls.
 abstract contract NoDelegateCall {
-    /*//////////////////////////////////////////////////////////////////////////
-                                  INTERNAL STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @dev The address of the original contract that was deployed.
     address private immutable _original;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sets the original contract address.
     constructor() {
         _original = address(this);
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Prevents delegate calls.
     modifier noDelegateCall() {
@@ -32,11 +20,7 @@ abstract contract NoDelegateCall {
         _;
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev This function checks whether a delegate call is being made.
+    /// @dev This function checks whether the current call is a delegate call, and reverts if it is.
     ///
     /// - A private function is used instead of inlining this logic in a modifier because Solidity copies modifiers into
     /// every function that uses them. The `_original` address would get copied in every place the modifier is used,

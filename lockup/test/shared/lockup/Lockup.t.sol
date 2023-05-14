@@ -10,30 +10,36 @@ import { Broker } from "../../../src/types/DataTypes.sol";
 import { Base_Test } from "test/Base.t.sol";
 
 /// @title Lockup_Shared_Test
-/// @dev There is a lot of common logic between {SablierV2LockupLinear} and {SablierV2LockupDynamic}, specifically
-/// that they both inherit from the {SablierV2Base} and the {SablierV2Lockup} abstract contracts. We wrote this
-/// contract to avoid duplicating tests.
+/// @dev This contracts avoids duplicating test logic for {SablierV2LockupLinear} and {SablierV2LockupDynamic};
+/// both of these contracts inherit from {SablierV2Base} and {SablierV2Lockup}.
 abstract contract Lockup_Shared_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev A test contract that is meant to be overridden by the child contract.
-    /// This will be either the {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
+    /// @dev A test contract that is meant to be overridden by the implementing contract, which will be
+    /// either {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
     ISablierV2Base internal base;
 
-    /// @dev A test contract that is meant to be overridden by the child contract.
-    /// This will be either the {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
+    /// @dev A test contract that is meant to be overridden by the implementing contract, which will be
+    /// either {SablierV2LockupLinear} or {SablierV2LockupDynamic}.
     ISablierV2Lockup internal lockup;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public virtual override { }
+    function setUp() public virtual override {
+        // Set the default protocol fee.
+        comptroller.setProtocolFee({ asset: dai, newProtocolFee: defaults.PROTOCOL_FEE() });
+        comptroller.setProtocolFee({ asset: IERC20(address(nonCompliantAsset)), newProtocolFee: defaults.PROTOCOL_FEE() });
+
+        // Make the sender the default caller in this test suite.
+        changePrank({ msgSender: users.sender });
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Creates the default stream.
@@ -59,4 +65,7 @@ abstract contract Lockup_Shared_Test is Base_Test {
 
     /// @dev Creates the default stream with the provided start time.
     function createDefaultStreamWithStartTime(uint40 startTime) internal virtual returns (uint256 streamId);
+
+    /// @dev Creates the default stream with the provided total amount.
+    function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal virtual returns (uint256 streamId);
 }

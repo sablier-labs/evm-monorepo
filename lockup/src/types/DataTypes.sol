@@ -13,15 +13,15 @@ struct Broker {
     UD60x18 fee;
 }
 
-/// @notice Quasi-namespace for the structs used in both {SablierV2LockupLinear} and {SablierV2LockupDynamic}.
+/// @notice Namespace for the structs used in both {SablierV2LockupLinear} and {SablierV2LockupDynamic}.
 library Lockup {
     /// @notice Struct encapsulating the deposit, withdrawn, and refunded amounts, all denoted in units
     /// of the asset's decimals.
     /// @dev Because the deposited and the withdrawn amount are often read together, declaring them in
     /// the same slot saves gas.
-    /// @param deposit The initial amount deposited in the stream, net of fees.
+    /// @param deposited The initial amount deposited in the stream, net of fees.
     /// @param withdrawn The cumulative amount withdrawn from the stream.
-    /// @param refunded The amount refunded to the sender. Unless the stream is canceled, this is always zero.
+    /// @param refunded The amount refunded to the sender. Unless the stream was canceled, this is always zero.
     struct Amounts {
         // slot 0
         uint128 deposited;
@@ -42,20 +42,21 @@ library Lockup {
     }
 
     /// @notice Enum representing the different statuses of a stream.
-    /// @custom:value NULL Default value, indicating the stream has not been created.
-    /// @custom:value ACTIVE Indicates the stream is active, with assets either being streamed or awaiting withdrawal
-    /// by the recipient.
-    /// @custom:value CANCELED Represents a canceled stream, with some assets pending withdrawal by the recipient.
-    /// @custom:value DEPLETED Signifies the stream has been depleted, with all streamed assets withdrawn.
+    /// @custom:value PENDING Stream created but not started; assets are in a pending state.
+    /// @custom:value STREAMING Active stream where assets are currently being streamed.
+    /// @custom:value SETTLED All assets have been streamed; recipient is due to withdraw them.
+    /// @custom:value CANCELED Canceled stream; remaining assets await recipient's withdrawal.
+    /// @custom:value DEPLETED Depleted stream; all assets have been withdrawn and/or refunded.
     enum Status {
-        NULL,
-        ACTIVE,
-        CANCELED,
-        DEPLETED
+        PENDING, // value 0
+        STREAMING, // value 1
+        SETTLED, // value 2
+        CANCELED, // value 3
+        DEPLETED // value 4
     }
 }
 
-/// @notice Quasi-namespace for the structs used in {SablierV2LockupDynamic}.
+/// @notice Namespace for the structs used in {SablierV2LockupDynamic}.
 library LockupDynamic {
     /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithDeltas} function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
@@ -138,8 +139,10 @@ library LockupDynamic {
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param endTime The Unix timestamp indicating the stream's end.
     /// @param isCancelable Boolean indicating if the stream is cancelable.
-    /// @param status An enum representing the stream's status.
+    /// @param wasCanceled Boolean indicating if the stream was canceled.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param isDepleted Boolean indicating if the stream is depleted.
+    /// @param isStream Boolean indicating if the struct entity exists.
     /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.
     /// @param segments Segments used to compose the custom streaming curve.
@@ -149,9 +152,11 @@ library LockupDynamic {
         uint40 startTime;
         uint40 endTime;
         bool isCancelable;
-        Lockup.Status status;
+        bool wasCanceled;
         // slot 1
         IERC20 asset;
+        bool isDepleted;
+        bool isStream;
         // slot 2 and 3
         Lockup.Amounts amounts;
         // slots [4..n]
@@ -159,7 +164,7 @@ library LockupDynamic {
     }
 }
 
-/// @notice Quasi-namespace for the structs used in {SablierV2LockupLinear}.
+/// @notice Namespace for the structs used in {SablierV2LockupLinear}.
 library LockupLinear {
     /// @notice Struct encapsulating the parameters for the {SablierV2LockupLinear.createWithDurations} function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
@@ -228,9 +233,11 @@ library LockupLinear {
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param cliffTime The Unix timestamp indicating the cliff period's end.
     /// @param isCancelable Boolean indicating if the stream is cancelable.
+    /// @param wasCanceled Boolean indicating if the stream was canceled.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param startTime The Unix timestamp indicating the stream's end.
-    /// @param status An enum representing the stream's status.
+    /// @param endTime The Unix timestamp indicating the stream's end.
+    /// @param isDepleted Boolean indicating if the stream is depleted.
+    /// @param isStream Boolean indicating if the struct entity exists.
     /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.
     struct Stream {
@@ -239,10 +246,12 @@ library LockupLinear {
         uint40 startTime;
         uint40 cliffTime;
         bool isCancelable;
+        bool wasCanceled;
         // slot 1
         IERC20 asset;
         uint40 endTime;
-        Lockup.Status status;
+        bool isDepleted;
+        bool isStream;
         // slot 2 and 3
         Lockup.Amounts amounts;
     }

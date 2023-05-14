@@ -28,22 +28,18 @@ abstract contract Invariant_Test is Base_Test, StdInvariant {
         deployProtocolConditionally();
 
         // Deploy the comptroller handler.
-        comptrollerHandler = new ComptrollerHandler({ asset_: DEFAULT_ASSET, comptroller_: comptroller });
+        comptrollerHandler = new ComptrollerHandler({ asset_: dai, comptroller_: comptroller });
         vm.prank({ msgSender: users.admin });
         comptroller.transferAdmin(address(comptrollerHandler));
+        vm.label({ account: address(comptrollerHandler), newLabel: "ComptrollerHandler" });
 
         // Target only the comptroller handler for invariant testing (to avoid getting reverts).
         targetContract(address(comptrollerHandler));
 
-        // Exclude the comptroller, linear and dynamic from being `msg.sender`.
+        // Prevent these contracts from being fuzzed as `msg.sender`.
         excludeSender(address(comptroller));
         excludeSender(address(linear));
         excludeSender(address(dynamic));
-
-        // Exclude the comptroller handler from being `msg.sender`.
         excludeSender(address(comptrollerHandler));
-
-        // Label the comptroller handler.
-        vm.label({ account: address(comptrollerHandler), newLabel: "ComptrollerHandler" });
     }
 }

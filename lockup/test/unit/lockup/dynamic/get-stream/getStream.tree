@@ -1,5 +1,0 @@
-getStream.t.sol
-├── when the stream is null
-│  └── it should revert
-└── when the stream is not null
-   └── it should return the stream

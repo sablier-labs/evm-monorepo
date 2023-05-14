@@ -1,0 +1,14 @@
+isCold.t.sol
+├── when the id references a null stream
+│  └── it should revert
+└── when the id does not reference a null stream
+   ├── when the stream's status is pending
+   │  └── it should return false
+   ├── when the stream's status is streaming
+   │  └── it should return false
+   ├── when the stream's status is settled
+   │  └── it should return true
+   ├── when the stream's status is canceled
+   │  └── it should return true
+   └── when the stream's status is depleted
+      └── it should return true

@@ -8,7 +8,7 @@ import { IAdminable } from "./IAdminable.sol";
 import { ISablierV2Comptroller } from "./ISablierV2Comptroller.sol";
 
 /// @title ISablierV2Base
-/// @notice Common base between all Sablier V2 streaming contracts.
+/// @notice Base logic for all Sablier V2 streaming contracts.
 interface ISablierV2Base is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS

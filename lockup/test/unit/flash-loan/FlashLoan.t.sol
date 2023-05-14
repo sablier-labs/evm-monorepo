@@ -26,6 +26,6 @@ abstract contract FlashLoan_Unit_Test is Unit_Test {
         flashLoan = new FlashLoanMock(users.admin, comptroller);
 
         // Set the default flash fee in the comptroller.
-        comptroller.setFlashFee({ newFlashFee: DEFAULT_FLASH_FEE });
+        comptroller.setFlashFee({ newFlashFee: defaults.FLASH_FEE() });
     }
 }

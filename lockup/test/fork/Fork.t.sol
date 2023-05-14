@@ -2,6 +2,7 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
+import { IERC20Metadata } from "@openzeppelin/token/ERC20/extensions/IERC20Metadata.sol";
 
 import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
 import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
@@ -41,13 +42,17 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        Base_Test.setUp();
-
-        // Fork Ethereum Mainnet.
+        // Fork Ethereum Mainnet at a block mined on Dec 6, 2022.
         vm.createSelectFork({ urlOrAlias: "mainnet", blockNumber: 16_126_000 });
+
+        // The base is set up after the fork is selected so that the base test contracts are deployed on the fork.
+        Base_Test.setUp();
 
         // Deploy V2 Core.
         deployProtocolConditionally();
+
+        // Label the contracts.
+        labelContracts();
 
         // Make the asset holder the caller in this test suite.
         vm.startPrank({ msgSender: holder });
@@ -57,7 +62,7 @@ abstract contract Fork_Test is Base_Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  HELPER FUNCTIONS
+                                      HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Checks the user assumptions.
@@ -72,11 +77,17 @@ abstract contract Fork_Test is Base_Test {
 
         // Avoid blacklisted users in USDC and USDT.
         if (address(asset) == 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48) {
-            USDCLike usdc = USDCLike(address(asset));
-            vm.assume(!usdc.isBlacklisted(sender) && !usdc.isBlacklisted(recipient) && !usdc.isBlacklisted(broker));
+            USDCLike dai = USDCLike(address(asset));
+            vm.assume(!dai.isBlacklisted(sender) && !dai.isBlacklisted(recipient) && !dai.isBlacklisted(broker));
         } else if (address(asset) == 0xdAC17F958D2ee523a2206206994597C13D831ec7) {
             USDTLike usdt = USDTLike(address(asset));
             vm.assume(!usdt.isBlackListed(sender) && !usdt.isBlackListed(recipient) && !usdt.isBlackListed(broker));
         }
+    }
+
+    /// @dev Labels the most relevant contracts.
+    function labelContracts() internal {
+        vm.label({ account: address(asset), newLabel: IERC20Metadata(address(asset)).symbol() });
+        vm.label({ account: holder, newLabel: "Holder" });
     }
 }

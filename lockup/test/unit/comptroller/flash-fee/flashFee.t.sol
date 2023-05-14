@@ -17,9 +17,9 @@ contract FlashFee_Unit_Test is Comptroller_Unit_Test {
     }
 
     function test_FlashFee() external {
-        comptroller.setFlashFee(DEFAULT_FLASH_FEE);
+        comptroller.setFlashFee(defaults.FLASH_FEE());
         UD60x18 actualFlashFee = comptroller.flashFee();
-        UD60x18 expectedFlashFee = DEFAULT_FLASH_FEE;
+        UD60x18 expectedFlashFee = defaults.FLASH_FEE();
         assertEq(actualFlashFee, expectedFlashFee, "flashFee");
     }
 }

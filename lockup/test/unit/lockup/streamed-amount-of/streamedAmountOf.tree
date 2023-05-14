@@ -1,0 +1,16 @@
+streamedAmountOf.t.sol
+├── when the id references a null stream
+│  └── it should revert
+└── when the id does not reference a null stream
+   ├── when the stream has been canceled
+   │  ├── when the stream's status is "CANCELED"
+   │  │  └── it should return the correct streamed amount
+   │  └── when the stream's status is "DEPLETED"
+   │     └── it should return the correct streamed amount
+   └── when the stream has not been canceled
+      ├── when the stream's status is "PENDING"
+      │  └── it should return zero
+      ├── when the stream's status is "SETTLED"
+      │  └── it should return the deposited amount
+      └── when the stream's status is "DEPLETED"
+         └── it should return the correct streamed amount

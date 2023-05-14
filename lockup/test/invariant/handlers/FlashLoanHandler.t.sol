@@ -44,9 +44,9 @@ contract FlashLoanHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     function flashLoan(uint128 amount) external instrument("flashLoan") {
-        // Only up to `UINT128_MAX` assets can be flash loaned.
+        // Only up to `MAX_UINT128` assets can be flash loaned.
         uint256 balance = asset.balanceOf(address(this));
-        uint128 upperBound = uint128(Math.min(balance, UINT128_MAX));
+        uint128 upperBound = uint128(Math.min(balance, MAX_UINT128));
         amount = boundUint128(amount, 0, upperBound);
 
         // Only supported assets can be flash loaned.
@@ -55,7 +55,7 @@ contract FlashLoanHandler is BaseHandler {
             return;
         }
 
-        // The flash fee must be less than or equal to `UINT128_MAX`.
+        // The flash fee must be less than or equal to `MAX_UINT128`.
         uint256 fee = flashLoanContract.flashFee(address(asset), amount);
         if (fee > type(uint128).max) {
             return;

@@ -37,25 +37,25 @@ abstract contract Unit_Test is Base_Test {
         // Deploy V2 Core.
         deployProtocolConditionally();
 
+        // Label the contracts.
+        labelContracts();
+
         // Make the admin the default caller in this test suite.
         vm.startPrank({ msgSender: users.admin });
 
         // Approve V2 Core to spend assets from the users.
         approveProtocol();
-
-        // Label the test contracts.
-        labelContracts();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Labels the unit test contracts.
-    function labelContracts() private {
+    /// @dev Labels the most relevant contracts.
+    function labelContracts() internal {
         vm.label({ account: address(empty), newLabel: "Empty" });
         vm.label({ account: address(faultyFlashLoanReceiver), newLabel: "Faulty Flash Loan Receiver" });
-        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant ERC-20 Asset" });
+        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant Asset" });
         vm.label({ account: address(reentrantFlashLoanReceiver), newLabel: "Reentrant Flash Loan Receiver" });
         vm.label({ account: address(reentrantRecipient), newLabel: "Reentrant Lockup Recipient" });
         vm.label({ account: address(reentrantSender), newLabel: "Reentrant Lockup Sender" });

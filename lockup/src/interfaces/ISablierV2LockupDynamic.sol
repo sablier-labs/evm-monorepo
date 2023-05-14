@@ -21,7 +21,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @param amounts Struct containing (i) the deposit amount, (ii) the protocol fee amount, and (iii) the
     /// broker fee amount, all denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param cancelable Boolean that indicates whether the stream will be cancelable or not.
+    /// @param cancelable Boolean indicating whether the stream will be cancelable or not.
     /// @param segments The segments the protocol uses to compose the custom streaming curve.
     /// @param range Struct containing (i) the stream's start time and (ii) end time, both as Unix timestamps.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
@@ -64,7 +64,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
 
     /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
     ///
-    /// When the stream is active, the streaming function is:
+    /// When the stream is warm, the streaming function is:
     ///
     /// $$
     /// f(x) = x^{exp} * csa + \Sigma(esa)
@@ -78,8 +78,8 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - $\Sigma(esa)$ is the sum of all elapsed segments' amounts.
     ///
     /// Upon cancellation of the stream, the amount streamed is calculated as the difference between the deposited
-    /// amount and the refunded amount. Ultimately, when the stream is fully depleted, the streamed amount becomes
-    /// equivalent to the total amount withdrawn.
+    /// amount and the refunded amount. Ultimately, when the stream becomes depleted, the streamed amount is equivalent
+    /// to the total amount withdrawn.
     ///
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The dynamic stream id for the query.

@@ -9,7 +9,7 @@ import { ISablierV2Base } from "./ISablierV2Base.sol";
 import { ISablierV2NFTDescriptor } from "./ISablierV2NFTDescriptor.sol";
 
 /// @title ISablierV2Lockup
-/// @notice The common interface between all Sablier V2 lockup streaming contracts.
+/// @notice Common logic between all Sablier V2 lockup streaming contracts.
 interface ISablierV2Lockup is
     ISablierV2Base, // 1 inherited component
     IERC721Metadata // 2 inherited components
@@ -77,7 +77,7 @@ interface ISablierV2Lockup is
     function getRecipient(uint256 streamId) external view returns (address recipient);
 
     /// @notice Retrieves the amount refunded to the sender after a cancellation, denoted in units of the asset's
-    /// decimals. This amount is always zero unless the stream is canceled.
+    /// decimals. This amount is always zero unless the stream was canceled.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function getRefundedAmount(uint256 streamId) external view returns (uint128 refundedAmount);
@@ -92,27 +92,36 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function getStartTime(uint256 streamId) external view returns (uint40 startTime);
 
-    /// @notice Retrieves the stream's status.
-    /// @param streamId The stream id for the query.
-    function getStatus(uint256 streamId) external view returns (Lockup.Status status);
-
     /// @notice Retrieves the amount withdrawn from the stream, denoted in units of the asset's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function getWithdrawnAmount(uint256 streamId) external view returns (uint128 withdrawnAmount);
 
-    /// @notice Retrieves a flag that indicates whether the stream can be canceled. The flag is always `false`
-    /// when the stream is not active.
+    /// @notice Retrieves a flag indicating whether the stream can be canceled. When the stream is cold, this
+    /// flag is always `false` regardless of the value of the struct field `isCancelable`.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function isCancelable(uint256 streamId) external view returns (bool result);
 
-    /// @notice Retrieves a flag that indicates whether the stream is settled. A stream is considered settled when the
-    /// refundable amount for the sender upon cancellation is zero. Consequently, both canceled and depleted streams
-    /// are inherently settled, as they can no longer be canceled.
+    /// @notice Retrieves a flag indicating whether the stream is cold, i.e. settled, canceled, or depleted.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
-    function isSettled(uint256 streamId) external view returns (bool result);
+    function isCold(uint256 streamId) external view returns (bool result);
+
+    /// @notice Retrieves a flag indicating whether the stream is depleted.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isDepleted(uint256 streamId) external view returns (bool result);
+
+    /// @notice Retrieves a flag indicating whether the stream exists.
+    /// @dev Does not revert if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isStream(uint256 streamId) external view returns (bool result);
+
+    /// @notice Retrieves a flag indicating whether the stream is warm, i.e. either pending or streaming.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isWarm(uint256 streamId) external view returns (bool result);
 
     /// @notice Counter for stream ids, used in the create functions.
     function nextStreamId() external view returns (uint256);
@@ -123,10 +132,19 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
 
+    /// @notice Retrieves the stream's status.
+    /// @param streamId The stream id for the query.
+    function statusOf(uint256 streamId) external view returns (Lockup.Status status);
+
     /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
+
+    /// @notice Retrieves a flag indicating whether the stream was canceled.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function wasCanceled(uint256 streamId) external view returns (bool result);
 
     /// @notice Calculates the amount that the recipient can withdraw from the stream, denoted in units of the asset's
     /// decimals.
@@ -163,7 +181,7 @@ interface ISablierV2Lockup is
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - The stream must be active, cancelable, and not settled.
+    /// - The stream must be warm and cancelable.
     /// - `msg.sender` must be either the stream's sender or the stream's recipient (i.e. the NFT owner).
     ///
     /// @param streamId The id of the stream to cancel.
@@ -192,7 +210,7 @@ interface ISablierV2Lockup is
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - `streamId` must reference an active stream.
+    /// - `streamId` must reference a warm stream.
     /// - `msg.sender` must be the stream's sender.
     /// - The stream must be cancelable.
     ///
@@ -218,11 +236,11 @@ interface ISablierV2Lockup is
     ///
     /// Notes:
     /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract
-    /// and the caller is either the sender or an approved operator.
+    /// and `msg.sender` is either the sender or an approved operator.
     ///
     /// Requirements:
     /// - The call must not be a delegate call.
-    /// - `streamId` must reference a stream that is either active or canceled.
+    /// - `streamId` must not reference a null, pending, or depleted stream.
     /// - `msg.sender` must be the stream's sender, the stream's recipient or an approved third party.
     /// - `to` must be the recipient if `msg.sender` is the stream's sender.
     /// - `to` must not be the zero address.
@@ -252,7 +270,7 @@ interface ISablierV2Lockup is
     /// @dev Emits multiple {WithdrawFromLockupStream} and {Transfer} events.
     ///
     /// Notes:
-    /// - This function attempts to call a hook on the recipient of each stream, unless the caller is the recipient.
+    /// - This function attempts to call a hook on the recipient of each stream, unless `msg.sender` is the recipient.
     ///
     /// Requirements:
     /// - All requirements from {withdraw} must be met for each stream.
