@@ -14,8 +14,8 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev The address of the HEVM contract.
-    address internal constant HEVM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
+    /// @dev The virtual address of the Foundry VM.
+    address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
 
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
@@ -31,8 +31,8 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev An instance of the HEVM.
-    Vm internal constant vm = Vm(HEVM_ADDRESS);
+    /// @dev An instance of the Foundry VM, which contains cheatcodes for testing.
+    Vm internal constant vm = Vm(VM_ADDRESS);
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
