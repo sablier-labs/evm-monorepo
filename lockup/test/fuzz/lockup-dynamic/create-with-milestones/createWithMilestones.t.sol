@@ -25,7 +25,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenDepositAmountNotZero
         whenSegmentCountNotZero
     {
-        segmentCount = bound(segmentCount, defaults.MAX_SEGMENT_COUNT() + 1, defaults.MAX_SEGMENT_COUNT() * 10);
+        segmentCount = _bound(segmentCount, defaults.MAX_SEGMENT_COUNT() + 1 seconds, defaults.MAX_SEGMENT_COUNT() * 10);
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, segmentCount)

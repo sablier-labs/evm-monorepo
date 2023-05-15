@@ -19,7 +19,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
     {
-        timeWarp = bound(timeWarp, 1 seconds, 100 weeks);
+        timeWarp = _bound(timeWarp, 1 seconds, 100 weeks);
 
         // Warp to the past.
         vm.warp({ timestamp: getBlockTimestamp() - timeWarp });
@@ -58,7 +58,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
         whenRecipientDoesNotRevert
         whenNoRecipientReentrancy
     {
-        timeWarp = bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
+        timeWarp = _bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
@@ -123,7 +123,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
         whenSenderDoesNotRevert
         whenNoSenderReentrancy
     {
-        timeWarp = bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
+        timeWarp = _bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));

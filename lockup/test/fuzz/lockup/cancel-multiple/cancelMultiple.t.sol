@@ -24,7 +24,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, CancelMultiple_Shared_T
         whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
     {
-        timeWarp = bound(timeWarp, 0 seconds, defaults.TOTAL_DURATION() - 1);
+        timeWarp = _bound(timeWarp, 0 seconds, defaults.TOTAL_DURATION() - 1 seconds);
         endTime = boundUint40(endTime, defaults.END_TIME(), defaults.END_TIME() + defaults.TOTAL_DURATION());
 
         // Create a new stream with a different end time.

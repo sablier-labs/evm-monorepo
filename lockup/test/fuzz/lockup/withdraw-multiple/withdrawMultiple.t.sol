@@ -30,7 +30,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, WithdrawMultiple_Shar
         whenNoAmountOverdraws
     {
         vm.assume(to != address(0));
-        timeWarp = bound(timeWarp, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2 - 1 seconds);
+        timeWarp = _bound(timeWarp, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2 - 1 seconds);
 
         // Hard code the withdrawal address if the caller is the stream's sender.
         if (caller == users.sender) {

@@ -18,12 +18,6 @@ import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 /// the lockup contracts.
 contract LockupDynamicCreateHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    uint256 internal constant MAX_STREAM_COUNT = 100;
-
-    /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -58,7 +52,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         instrument("createWithDeltas")
         useNewSender(params.sender)
     {
-        // We don't want to fuzz more than a certain number of streams.
+        // We don't want to create more than a certain number of streams.
         if (store.lastStreamId() > MAX_STREAM_COUNT) {
             return;
         }
@@ -102,7 +96,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         instrument("createWithMilestones")
         useNewSender(params.sender)
     {
-        // We don't want to fuzz more than a certain number of streams.
+        // We don't want to create more than a certain number of streams.
         if (store.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }

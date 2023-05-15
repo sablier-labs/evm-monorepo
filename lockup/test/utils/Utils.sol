@@ -13,13 +13,13 @@ abstract contract Utils is StdUtils, PRBMathUtils {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Bounds a `uint128` number.
-    function boundUint128(uint128 x, uint128 min, uint128 max) internal view returns (uint128 result) {
-        result = uint128(bound(uint256(x), uint256(min), uint256(max)));
+    function boundUint128(uint128 x, uint128 min, uint128 max) internal pure returns (uint128 result) {
+        result = uint128(_bound(uint256(x), uint256(min), uint256(max)));
     }
 
     /// @dev Bounds a `uint40` number.
-    function boundUint40(uint40 x, uint40 min, uint40 max) internal view returns (uint40 result) {
-        result = uint40(bound(uint256(x), uint256(min), uint256(max)));
+    function boundUint40(uint40 x, uint40 min, uint40 max) internal pure returns (uint40 result) {
+        result = uint40(_bound(uint256(x), uint256(min), uint256(max)));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

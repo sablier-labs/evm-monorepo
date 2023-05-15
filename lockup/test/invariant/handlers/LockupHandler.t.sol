@@ -54,7 +54,8 @@ abstract contract LockupHandler is BaseHandler {
         if (lastStreamId == 0) {
             return;
         }
-        currentStreamId = store.streamIds(bound(streamIndexSeed, 0, lastStreamId - 1));
+        uint256 fuzzedStreamId = _bound(streamIndexSeed, 0, lastStreamId - 1);
+        currentStreamId = store.streamIds(fuzzedStreamId);
         _;
     }
 
@@ -245,7 +246,7 @@ abstract contract LockupHandler is BaseHandler {
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
     {
-        // The ERC-721 contract doesn't allow the new recipient to be the zero address.
+        // OpenZeppelin's ERC-721 implementation doesn't allow the new recipient to be the zero address.
         if (newRecipient == address(0)) {
             return;
         }
@@ -260,5 +261,19 @@ abstract contract LockupHandler is BaseHandler {
 
         // Update the recipient associated with this stream id.
         store.updateRecipient(currentStreamId, newRecipient);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                      HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Simulating the passage of time is a pre-requisite for making withdrawals. The time warp is upper bounded so
+    /// that streams don't settle too quickly.
+    function warp(uint256 timeWarp) external instrument("warp") {
+        uint256 lowerBound = 24 hours;
+        uint256 currentTime = getBlockTimestamp();
+        uint256 upperBound = (MAX_UNIX_TIMESTAMP - currentTime) / MAX_STREAM_COUNT;
+        timeWarp = _bound(timeWarp, lowerBound, upperBound);
+        vm.warp({ timestamp: currentTime + timeWarp });
     }
 }
