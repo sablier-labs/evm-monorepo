@@ -11,8 +11,8 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, WithdrawMax_Shared_Test {
         WithdrawMax_Shared_Test.setUp();
     }
 
-    function testFuzz_WithdrawMax_EndTimeInThePast(uint256 timeWarp) external {
-        timeWarp = _bound(timeWarp, defaults.TOTAL_DURATION() + 1 seconds, defaults.TOTAL_DURATION() * 2);
+    function testFuzz_WithdrawMax_EndTimeNotInTheFuture(uint256 timeWarp) external {
+        timeWarp = _bound(timeWarp, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.START_TIME() + timeWarp });

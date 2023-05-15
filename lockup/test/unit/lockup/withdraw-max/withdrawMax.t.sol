@@ -11,7 +11,7 @@ abstract contract WithdrawMax_Unit_Test is Unit_Test, WithdrawMax_Shared_Test {
         WithdrawMax_Shared_Test.setUp();
     }
 
-    function test_WithdrawMax_EndTimeInThePast() external {
+    function test_WithdrawMax_EndTimeNotInTheFuture() external {
         // Warp to the stream's end.
         vm.warp({ timestamp: defaults.END_TIME() + 1 seconds });
 

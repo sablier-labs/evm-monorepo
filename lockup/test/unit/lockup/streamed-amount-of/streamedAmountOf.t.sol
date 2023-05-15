@@ -25,7 +25,7 @@ abstract contract StreamedAmountOf_Unit_Test is Unit_Test, StreamedAmountOf_Shar
         vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
-        uint256 expectedStreamedAmount = defaults.DEPOSIT_AMOUNT() - defaults.REFUND_AMOUNT();
+        uint256 expectedStreamedAmount = defaults.CLIFF_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
@@ -40,7 +40,7 @@ abstract contract StreamedAmountOf_Unit_Test is Unit_Test, StreamedAmountOf_Shar
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.warp({ timestamp: defaults.CLIFF_TIME() + 10 seconds });
         uint128 actualStreamedAmount = lockup.streamedAmountOf(defaultStreamId);
-        uint128 expectedStreamedAmount = defaults.DEPOSIT_AMOUNT() - defaults.REFUND_AMOUNT();
+        uint128 expectedStreamedAmount = defaults.CLIFF_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 

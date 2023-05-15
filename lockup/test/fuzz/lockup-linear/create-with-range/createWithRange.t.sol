@@ -108,7 +108,9 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
     /// - All possible permutations for the funder, sender, recipient, and broker
     /// - Multiple values for the total amount
     /// - Cancelable and not cancelable
-    /// - Start time in the past, present and future
+    /// - Start time in the past
+    /// - Start time in the present
+    /// - Start time in the future
     /// - Start time lower than and equal to cliff time
     /// - Multiple values for the cliff time and the end time
     /// - Multiple values for the broker fee, including zero
@@ -134,6 +136,9 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
             boundUint40(params.range.start, defaults.START_TIME(), defaults.START_TIME() + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
         params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
+        protocolFee = _bound(protocolFee, 0, MAX_FEE);
+        params.range.end = boundUint40(params.range.end, params.range.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
         protocolFee = _bound(protocolFee, 0, MAX_FEE);
 

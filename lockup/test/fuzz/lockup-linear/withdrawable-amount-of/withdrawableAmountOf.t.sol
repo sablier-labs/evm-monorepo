@@ -27,7 +27,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier whenCliffTimeInThePast() {
+    modifier whenCliffTimeNotInTheFuture() {
         // Disable the protocol fee so that it doesn't interfere with the calculations.
         changePrank({ msgSender: users.admin });
         comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
@@ -49,7 +49,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         external
         whenNotNull
         whenStreamHasNotBeenCanceled
-        whenCliffTimeInThePast
+        whenCliffTimeNotInTheFuture
     {
         vm.assume(depositAmount != 0);
         timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
@@ -96,7 +96,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         external
         whenNotNull
         whenStreamHasNotBeenCanceled
-        whenCliffTimeInThePast
+        whenCliffTimeNotInTheFuture
         whenPreviousWithdrawals
     {
         timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);

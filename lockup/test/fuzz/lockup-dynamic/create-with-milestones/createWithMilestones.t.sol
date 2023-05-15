@@ -186,7 +186,9 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
     /// - All possible permutations for the funder, sender, recipient, and broker
     /// - Multiple values for the segment amounts, exponents, and milestones
     /// - Cancelable and not cancelable
-    /// - Start time in the past, present and future
+    /// - Start time in the past
+    /// - Start time in the present
+    /// - Start time in the future
     /// - Start time equal and not equal to the first segment milestone
     /// - Multiple values for the broker fee, including zero
     /// - Multiple values for the protocol fee, including zero

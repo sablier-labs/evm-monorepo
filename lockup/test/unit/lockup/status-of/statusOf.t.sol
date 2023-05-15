@@ -59,7 +59,7 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier whenStartTimeInThePast() {
+    modifier whenStartTimeNotInTheFuture() {
         _;
     }
 
@@ -68,7 +68,7 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNotNull
         whenAssetsNotFullyWithdrawn
         whenStreamNotCanceled
-        whenStartTimeInThePast
+        whenStartTimeNotInTheFuture
     {
         vm.warp({ timestamp: defaults.END_TIME() });
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -85,7 +85,7 @@ abstract contract StatusOf_Unit_Test is Unit_Test, Lockup_Shared_Test {
         whenNotNull
         whenAssetsNotFullyWithdrawn
         whenStreamNotCanceled
-        whenStartTimeInThePast
+        whenStartTimeNotInTheFuture
         whenRefundableAmountNotZero
     {
         vm.warp({ timestamp: defaults.START_TIME() + 1 seconds });

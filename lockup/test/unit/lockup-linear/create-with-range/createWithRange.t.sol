@@ -71,7 +71,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
         createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime }));
     }
 
-    function test_RevertWhen_EndTimeInThePast()
+    function test_RevertWhen_EndTimeNotInTheFuture()
         external
         whenNoDelegateCall
         whenRecipientNonZeroAddress
@@ -82,7 +82,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
     {
         uint40 endTime = defaults.END_TIME();
         vm.warp({ timestamp: defaults.END_TIME() });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, endTime, endTime));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeNotInTheFuture.selector, endTime, endTime));
         createDefaultStream();
     }
 

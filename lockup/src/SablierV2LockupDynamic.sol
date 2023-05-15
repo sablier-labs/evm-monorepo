@@ -332,7 +332,7 @@ contract SablierV2LockupDynamic is
             return 0;
         }
 
-        // If the end time is in the past, return the deposited amount.
+        // If the end time is not in the future, return the deposited amount.
         uint40 endTime = _streams[streamId].endTime;
         if (endTime <= currentTime) {
             return _streams[streamId].amounts.deposited;

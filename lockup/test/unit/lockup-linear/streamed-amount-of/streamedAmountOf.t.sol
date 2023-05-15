@@ -12,7 +12,7 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test, StreamedAmountOf
         StreamedAmountOf_Unit_Test.setUp();
     }
 
-    function test_StreamedAmountOf_CliffTimeInTheFuture()
+    function test_StreamedAmountOf_CliffTimeInThePast()
         external
         whenNotNull
         whenStreamHasNotBeenCanceled
@@ -23,16 +23,23 @@ contract StreamedAmountOf_Linear_Unit_Test is Linear_Unit_Test, StreamedAmountOf
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier whenCliffTimeInThePast() {
-        _;
-    }
-
-    function test_StreamedAmountOf()
+    function test_StreamedAmountOf_CliffTimeInThePresent()
         external
         whenNotNull
         whenStreamHasNotBeenCanceled
         whenStatusStreaming
-        whenCliffTimeInThePast
+    {
+        vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
+        uint128 expectedStreamedAmount = defaults.CLIFF_AMOUNT();
+        assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
+    }
+
+    function test_StreamedAmountOf_CliffTimeInTheFuture()
+        external
+        whenNotNull
+        whenStreamHasNotBeenCanceled
+        whenStatusStreaming
     {
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);

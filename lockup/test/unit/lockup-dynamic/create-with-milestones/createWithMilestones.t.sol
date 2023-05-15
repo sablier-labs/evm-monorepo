@@ -164,7 +164,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_EndTimeInThePast()
+    function test_RevertWhen_EndTimeNotInTheFuture()
         external
         whenNoDelegateCall
         whenRecipientNonZeroAddress
@@ -177,7 +177,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
     {
         uint40 endTime = defaults.END_TIME();
         vm.warp({ timestamp: endTime });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeInThePast.selector, endTime, endTime));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeNotInTheFuture.selector, endTime, endTime));
         createDefaultStream();
     }
 
