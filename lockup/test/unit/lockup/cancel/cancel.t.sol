@@ -169,8 +169,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
         vm.expectCall(
             address(empty),
             abi.encodeCall(
-                ISablierV2LockupRecipient.onStreamCanceled,
-                (lockup, streamId, users.sender, senderAmount, recipientAmount)
+                ISablierV2LockupRecipient.onStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
             )
         );
 
@@ -204,8 +203,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
         vm.expectCall(
             address(revertingRecipient),
             abi.encodeCall(
-                ISablierV2LockupRecipient.onStreamCanceled,
-                (lockup, streamId, users.sender, senderAmount, recipientAmount)
+                ISablierV2LockupRecipient.onStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
             )
         );
 
@@ -240,8 +238,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
         vm.expectCall(
             address(reentrantRecipient),
             abi.encodeCall(
-                ISablierV2LockupRecipient.onStreamCanceled,
-                (lockup, streamId, users.sender, senderAmount, recipientAmount)
+                ISablierV2LockupRecipient.onStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
             )
         );
 
@@ -280,8 +277,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
         vm.expectCall(
             address(goodRecipient),
             abi.encodeCall(
-                ISablierV2LockupRecipient.onStreamCanceled,
-                (lockup, streamId, users.sender, senderAmount, recipientAmount)
+                ISablierV2LockupRecipient.onStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
             )
         );
 
@@ -348,8 +344,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
         vm.expectCall(
             address(empty),
             abi.encodeCall(
-                ISablierV2LockupSender.onStreamCanceled,
-                (lockup, streamId, users.recipient, senderAmount, recipientAmount)
+                ISablierV2LockupSender.onStreamCanceled, (streamId, users.recipient, senderAmount, recipientAmount)
             )
         );
 
@@ -383,8 +378,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
         vm.expectCall(
             address(revertingSender),
             abi.encodeCall(
-                ISablierV2LockupSender.onStreamCanceled,
-                (lockup, streamId, users.recipient, senderAmount, recipientAmount)
+                ISablierV2LockupSender.onStreamCanceled, (streamId, users.recipient, senderAmount, recipientAmount)
             )
         );
 
@@ -419,8 +413,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
         vm.expectCall(
             address(reentrantSender),
             abi.encodeCall(
-                ISablierV2LockupSender.onStreamCanceled,
-                (lockup, streamId, users.recipient, senderAmount, recipientAmount)
+                ISablierV2LockupSender.onStreamCanceled, (streamId, users.recipient, senderAmount, recipientAmount)
             )
         );
 
@@ -459,8 +452,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
         vm.expectCall(
             address(goodSender),
             abi.encodeCall(
-                ISablierV2LockupSender.onStreamCanceled,
-                (lockup, streamId, users.recipient, senderAmount, recipientAmount)
+                ISablierV2LockupSender.onStreamCanceled, (streamId, users.recipient, senderAmount, recipientAmount)
             )
         );
 

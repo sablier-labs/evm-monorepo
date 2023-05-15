@@ -6,7 +6,6 @@ import { ISablierV2LockupRecipient } from "../../../src/interfaces/hooks/ISablie
 
 contract ReentrantRecipient is ISablierV2LockupRecipient {
     function onStreamCanceled(
-        ISablierV2Lockup lockup,
         uint256 streamId,
         address sender,
         uint128 senderAmount,
@@ -18,27 +17,18 @@ contract ReentrantRecipient is ISablierV2LockupRecipient {
         senderAmount;
         sender;
         recipientAmount;
-        lockup.cancel(streamId);
+        ISablierV2Lockup(msg.sender).cancel(streamId);
     }
 
-    function onStreamRenounced(ISablierV2Lockup lockup, uint256 streamId) external {
-        streamId;
-        lockup.renounce(streamId);
+    function onStreamRenounced(uint256 streamId) external {
+        ISablierV2Lockup(msg.sender).renounce(streamId);
     }
 
-    function onStreamWithdrawn(
-        ISablierV2Lockup lockup,
-        uint256 streamId,
-        address caller,
-        address to,
-        uint128 amount
-    )
-        external
-    {
+    function onStreamWithdrawn(uint256 streamId, address caller, address to, uint128 amount) external {
         streamId;
         caller;
         to;
         amount;
-        lockup.withdraw(streamId, address(this), amount);
+        ISablierV2Lockup(msg.sender).withdraw(streamId, address(this), amount);
     }
 }

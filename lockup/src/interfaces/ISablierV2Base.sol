@@ -14,7 +14,7 @@ interface ISablierV2Base is IAdminable {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the admin claims all protocol revenues accrued for an ERC-20 asset.
+    /// @notice Emitted when the admin claims all protocol revenues accrued for a particular ERC-20 asset.
     /// @param admin The address of the contract admin.
     /// @param asset The contract address of the ERC-20 asset the protocol revenues have been claimed for.
     /// @param protocolRevenues The amount of protocol revenues claimed, denoted in units of the asset's decimals.
@@ -41,7 +41,7 @@ interface ISablierV2Base is IAdminable {
     /// configuration.
     function comptroller() external view returns (ISablierV2Comptroller);
 
-    /// @notice Retrieves the protocol revenues accrued for the specified ERC-20 asset, in units of the asset's
+    /// @notice Retrieves the protocol revenues accrued for the provided ERC-20 asset, in units of the asset's
     /// decimals.
     /// @param asset The contract address of the ERC-20 asset to query.
     function protocolRevenues(IERC20 asset) external view returns (uint128 revenues);
