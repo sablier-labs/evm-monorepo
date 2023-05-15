@@ -125,6 +125,8 @@ jobs:
 
   test-fuzz:
     needs: ["lint", "build"]
+    env:
+      FOUNDRY_FUZZ_RUNS: "5000"
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
@@ -179,6 +181,8 @@ jobs:
 
   test-fork:
     needs: ["lint", "build"]
+    env:
+      FOUNDRY_FUZZ_RUNS: "500"
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
@@ -221,7 +225,7 @@ jobs:
         uses: "foundry-rs/foundry-toolchain@v1"
 
       - name: "Generate the coverage report"
-        run: "forge coverage --report lcov"
+        run: "forge coverage --no-match-path \"test/fork/**/*.sol\" --report lcov"
 
       - name: "Upload coverage report to Codecov"
         uses: "codecov/codecov-action@v3"
