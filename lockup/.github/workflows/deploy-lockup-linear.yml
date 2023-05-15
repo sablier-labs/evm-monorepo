@@ -40,11 +40,11 @@ jobs:
         run: >-
           forge script script/deploy/DeployLockupLinear.s.sol
           --broadcast
-          --rpc-url ${{ github.event.inputs.chain }}
+          --rpc-url ${{ inputs.chain }}
           --sig "run(address,address,address)"
-          "${{ github.event.inputs.admin }}"
-          "${{ github.event.inputs.comptroller }}"
-          "${{ github.event.inputs.nft-descriptor }}"
+          "${{ inputs.admin }}"
+          "${{ inputs.comptroller }}"
+          "${{ inputs.nft-descriptor }}"
           -vvvv
 
       - name: "Add summary"

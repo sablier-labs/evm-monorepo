@@ -47,12 +47,12 @@ jobs:
         run: >-
           forge script script/deploy/DeployLockupDynamic.s.sol
           --broadcast
-          --rpc-url "${{ github.event.inputs.chain }}"
+          --rpc-url "${{ inputs.chain }}"
           --sig "run(address,address,address,uint256)"
-          "${{ github.event.inputs.admin }}"
-          "${{ github.event.inputs.comptroller }}"
-          "${{ github.event.inputs.nft-descriptor }}"
-          "${{ github.event.inputs.max-segment-count }}"
+          "${{ inputs.admin }}"
+          "${{ inputs.comptroller }}"
+          "${{ inputs.nft-descriptor }}"
+          "${{ inputs.max-segment-count }}"
           -vvvv
 
       - name: "Add summary"
