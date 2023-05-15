@@ -61,7 +61,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
     {
-        protocolFee = bound(protocolFee, MAX_FEE + ud(1), MAX_UD60x18);
+        protocolFee = _bound(protocolFee, MAX_FEE + ud(1), MAX_UD60x18);
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
@@ -85,7 +85,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
         whenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
-        broker.fee = bound(broker.fee, MAX_FEE + ud(1), MAX_UD60x18);
+        broker.fee = _bound(broker.fee, MAX_FEE + ud(1), MAX_UD60x18);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_FEE));
         createDefaultStreamWithBroker(broker);
     }
@@ -126,7 +126,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
-        whenAssetERC20Compliant
+        whenAssetERC20
     {
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.totalAmount != 0);
@@ -134,8 +134,8 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
             boundUint40(params.range.start, defaults.START_TIME(), defaults.START_TIME() + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
         params.range.end = boundUint40(params.range.end, params.range.cliff + 1, MAX_UNIX_TIMESTAMP);
-        params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
-        protocolFee = bound(protocolFee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
+        protocolFee = _bound(protocolFee, 0, MAX_FEE);
 
         // Calculate the fee amounts and the deposit amount.
         Vars memory vars;

@@ -42,7 +42,7 @@ abstract contract CreateWithRange_Linear_Shared_Test is Linear_Shared_Test {
         _;
     }
 
-    modifier whenAssetERC20Compliant() {
+    modifier whenAssetERC20() {
         _;
     }
 }

@@ -11,7 +11,7 @@ contract SetProtocolFee_Fuzz_Test is Comptroller_Fuzz_Test {
     }
 
     function testFuzz_SetProtocolFee(UD60x18 newProtocolFee) external whenCallerAdmin {
-        newProtocolFee = bound(newProtocolFee, 1, MAX_FEE);
+        newProtocolFee = _bound(newProtocolFee, 1, MAX_FEE);
 
         // Expect a {SetProtocolFee} event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });

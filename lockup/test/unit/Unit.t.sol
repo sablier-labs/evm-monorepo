@@ -55,7 +55,6 @@ abstract contract Unit_Test is Base_Test {
     function labelContracts() internal {
         vm.label({ account: address(empty), newLabel: "Empty" });
         vm.label({ account: address(faultyFlashLoanReceiver), newLabel: "Faulty Flash Loan Receiver" });
-        vm.label({ account: address(nonCompliantAsset), newLabel: "Non-Compliant Asset" });
         vm.label({ account: address(reentrantFlashLoanReceiver), newLabel: "Reentrant Flash Loan Receiver" });
         vm.label({ account: address(reentrantRecipient), newLabel: "Reentrant Lockup Recipient" });
         vm.label({ account: address(reentrantSender), newLabel: "Reentrant Lockup Sender" });

@@ -3,7 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
-import { Solarray } from "solarray/Solarray.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
@@ -63,7 +62,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         }
 
         // Bound the broker fee.
-        params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
 
         // Fuzz the deltas.
         fuzzSegmentDeltas(params.segments);
@@ -106,7 +105,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
             return;
         }
 
-        params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, getBlockTimestamp());
 
         // Fuzz the segment milestones.

@@ -33,12 +33,12 @@ contract ComptrollerHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setFlashFee(UD60x18 newFlashFee) external instrument("setFlashFee") {
-        newFlashFee = bound(newFlashFee, 0, UNIT);
+        newFlashFee = _bound(newFlashFee, 0, UNIT);
         comptroller.setFlashFee(newFlashFee);
     }
 
     function setProtocolFee(UD60x18 newProtocolFee) external instrument("setProtocolFee") {
-        newProtocolFee = bound(newProtocolFee, 0, MAX_FEE);
+        newProtocolFee = _bound(newProtocolFee, 0, MAX_FEE);
         comptroller.setProtocolFee(asset, newProtocolFee);
     }
 

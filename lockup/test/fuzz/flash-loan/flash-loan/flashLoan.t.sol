@@ -2,8 +2,8 @@
 pragma solidity >=0.8.19;
 
 import { MAX_UD60x18, UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { IERC3156FlashBorrower } from "erc3156/interfaces/IERC3156FlashBorrower.sol";
 
+import { IERC3156FlashBorrower } from "src/interfaces/erc3156/IERC3156FlashBorrower.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { FlashLoanFunction_Shared_Test } from "../../../shared/flash-loan/flash-loan/flashLoan.t.sol";
@@ -32,7 +32,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
         whenAssetFlashLoanable
     {
         // Bound the flash fee so that the calculated fee ends up being greater than 2^128.
-        flashFee = bound(flashFee, ud(1.1e18), ud(10e18));
+        flashFee = _bound(flashFee, ud(1.1e18), ud(10e18));
         comptroller.setFlashFee(flashFee);
 
         // Run the test.
@@ -64,7 +64,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
         whenBorrowDoesNotFail
         whenNoReentrancy
     {
-        comptrollerFlashFee = bound(comptrollerFlashFee, 0, MAX_FEE);
+        comptrollerFlashFee = _bound(comptrollerFlashFee, 0, MAX_FEE);
         comptroller.setFlashFee(comptrollerFlashFee);
 
         // Load the initial protocol revenues.

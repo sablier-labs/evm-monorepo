@@ -26,14 +26,14 @@ createWithRange.t.sol
                         ├── when the asset is not a contract
                         │  └── it should revert
                         └── when the asset is a contract
-                           ├── when the asset misses the return value
+                           ├── when the asset misses the ERc-20 return value
                            │  ├── it should create the stream
                            │  ├── it should bump the next stream id
                            │  ├── it should record the protocol fee
                            │  ├── it should mint the NFT
                            │  ├── it should perform the ERC-20 transfers
                            │  └── it should emit a {CreateLockupLinearStream} event
-                           └── when the asset is ERC-20 compliant
+                           └── when the asset does not miss the ERC-20 return value
                               ├── it should create the stream
                               ├── it should bump the next stream id
                               ├── it should record the protocol fee

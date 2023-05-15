@@ -134,7 +134,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
     {
-        protocolFee = bound(protocolFee, MAX_FEE + ud(1), MAX_UD60x18);
+        protocolFee = _bound(protocolFee, MAX_FEE + ud(1), MAX_UD60x18);
 
         // Set the protocol fee.
         changePrank({ msgSender: users.admin });
@@ -162,7 +162,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
-        broker.fee = bound(broker.fee, MAX_FEE + ud(1), MAX_UD60x18);
+        broker.fee = _bound(broker.fee, MAX_FEE + ud(1), MAX_UD60x18);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_FEE));
         createDefaultStreamWithBroker(broker);
     }
@@ -208,12 +208,12 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
-        whenAssetERC20Compliant
+        whenAssetERC20
     {
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.segments.length != 0);
-        params.broker.fee = bound(params.broker.fee, 0, MAX_FEE);
-        protocolFee = bound(protocolFee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
+        protocolFee = _bound(protocolFee, 0, MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
 
         // Fuzz the segment milestones.

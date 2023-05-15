@@ -315,7 +315,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenBrokerFeeNotTooHigh
         whenAssetContract
     {
-        testCreateWithMilestones(address(nonCompliantAsset));
+        testCreateWithMilestones(address(usdt));
     }
 
     function test_CreateWithMilestones()
@@ -334,7 +334,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
-        whenAssetERC20Compliant
+        whenAssetERC20
     {
         testCreateWithMilestones(address(dai));
     }

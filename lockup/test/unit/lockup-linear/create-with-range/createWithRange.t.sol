@@ -156,7 +156,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
         whenBrokerFeeNotTooHigh
         whenAssetContract
     {
-        testCreateWithRange(address(nonCompliantAsset));
+        testCreateWithRange(address(usdt));
     }
 
     function test_CreateWithRange()
@@ -169,7 +169,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
-        whenAssetERC20Compliant
+        whenAssetERC20
     {
         testCreateWithRange(address(dai));
     }
