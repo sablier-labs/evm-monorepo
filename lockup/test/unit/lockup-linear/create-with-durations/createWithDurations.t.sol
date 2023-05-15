@@ -86,6 +86,14 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test, CreateWithDur
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = linear.protocolRevenues(dai);
 
+        // Declare the range.
+        uint40 currentTime = getBlockTimestamp();
+        LockupLinear.Range memory range = LockupLinear.Range({
+            start: currentTime,
+            cliff: currentTime + defaults.CLIFF_DURATION(),
+            end: currentTime + defaults.TOTAL_DURATION()
+        });
+
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectCallToTransferFrom({
             from: funder,
@@ -106,7 +114,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test, CreateWithDur
             amounts: defaults.lockupCreateAmounts(),
             asset: dai,
             cancelable: true,
-            range: defaults.linearRange(),
+            range: range,
             broker: users.broker
         });
 
@@ -116,6 +124,9 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test, CreateWithDur
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = linear.getStream(streamId);
         LockupLinear.Stream memory expectedStream = defaults.linearStream();
+        expectedStream.startTime = range.start;
+        expectedStream.cliffTime = range.cliff;
+        expectedStream.endTime = range.end;
         assertEq(actualStream, expectedStream);
 
         // Assert that the stream's status is "STREAMING".

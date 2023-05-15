@@ -4,7 +4,7 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Base_Test } from "../Base.t.sol";
 
 /// @title Fuzz_Test
-/// @notice Base test contract with common logic needed by all fuzz test contracts.
+/// @notice Common logic needed by all fuzz tests.
 abstract contract Fuzz_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION

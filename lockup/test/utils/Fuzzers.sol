@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.19;
 
+import { Math } from "@openzeppelin/utils/math/Math.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
 import { UD60x18, ud, uUNIT } from "@prb/math/UD60x18.sol";
 
@@ -136,7 +137,8 @@ abstract contract Fuzzers is Constants, Utils {
         uint40 segmentCount = uint40(segments.length);
         if (segmentCount == 1) {
             // The end time must be in the future.
-            segments[0].milestone = getBlockTimestamp() + 2 days;
+            uint40 currentTime = getBlockTimestamp();
+            segments[0].milestone = (startTime < currentTime ? currentTime : startTime) + 2 days;
             return;
         }
 

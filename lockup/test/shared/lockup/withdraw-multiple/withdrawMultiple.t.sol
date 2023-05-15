@@ -54,6 +54,7 @@ abstract contract WithdrawMultiple_Shared_Test is Lockup_Shared_Test {
     }
 
     modifier whenNoDepletedStream() {
+        vm.warp({ timestamp: defaults.START_TIME() });
         _;
     }
 
@@ -66,13 +67,14 @@ abstract contract WithdrawMultiple_Shared_Test is Lockup_Shared_Test {
     /// - Stream's recipient as caller
     /// - Approved NFT operator as caller
     modifier whenCallerAuthorizedAllStreams() {
-        // caller = users.sender;
-        // _;
-        // createTestStreams();
-        // caller = users.recipient;
-        // changePrank({ msgSender: users.recipient });
-        // _;
+        caller = users.sender;
+        _;
         createTestStreams();
+        caller = users.recipient;
+        changePrank({ msgSender: users.recipient });
+        _;
+        createTestStreams();
+        caller = users.operator;
         changePrank({ msgSender: users.recipient });
         lockup.setApprovalForAll({ operator: users.operator, _approved: true });
         caller = users.operator;

@@ -218,9 +218,9 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
         expectedStream.asset = IERC20(asset);
         assertEq(actualStream, expectedStream);
 
-        // Assert that the stream's status is "STREAMING".
+        // Assert that the stream's status is "PENDING".
         Lockup.Status actualStatus = linear.statusOf(streamId);
-        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
+        Lockup.Status expectedStatus = Lockup.Status.PENDING;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the next stream id has been bumped.
