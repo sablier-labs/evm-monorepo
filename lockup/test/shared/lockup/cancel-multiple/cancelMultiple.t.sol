@@ -24,7 +24,7 @@ abstract contract CancelMultiple_Shared_Test is Lockup_Shared_Test {
         testStreamIds[1] = createDefaultStreamWithEndTime(defaults.END_TIME() + defaults.TOTAL_DURATION());
     }
 
-    modifier whenNoDelegateCall() {
+    modifier whenNotDelegateCalled() {
         _;
     }
 

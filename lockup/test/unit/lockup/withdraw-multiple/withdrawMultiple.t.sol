@@ -15,14 +15,14 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         WithdrawMultiple_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCall() external {
+    function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2Lockup.withdrawMultiple, (testStreamIds, users.recipient, testAmounts));
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_ArrayCountsNotEqual() external whenNoDelegateCall {
+    function test_RevertWhen_ArrayCountsNotEqual() external whenNotDelegateCalled {
         uint256[] memory streamIds = new uint256[](2);
         uint128[] memory amounts = new uint128[](1);
         vm.expectRevert(
@@ -37,7 +37,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         _;
     }
 
-    function test_WithdrawMultiple_ArrayCountsZero() external whenNoDelegateCall whenArrayCountsAreEqual {
+    function test_WithdrawMultiple_ArrayCountsZero() external whenNotDelegateCalled whenArrayCountsAreEqual {
         uint256[] memory streamIds = new uint256[](0);
         uint128[] memory amounts = new uint128[](0);
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
@@ -47,7 +47,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         _;
     }
 
-    function test_RevertWhen_OnlyNull() external whenNoDelegateCall whenArrayCountsAreEqual whenArrayCountsNotZero {
+    function test_RevertWhen_OnlyNull() external whenNotDelegateCalled whenArrayCountsAreEqual whenArrayCountsNotZero {
         uint256 nullStreamId = 1729;
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
@@ -58,7 +58,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
         });
     }
 
-    function test_RevertWhen_SomeNull() external whenNoDelegateCall whenArrayCountsAreEqual whenArrayCountsNotZero {
+    function test_RevertWhen_SomeNull() external whenNotDelegateCalled whenArrayCountsAreEqual whenArrayCountsNotZero {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(testStreamIds[0], testStreamIds[1], nullStreamId);
 
@@ -74,7 +74,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
 
     function test_RevertWhen_AllStatusesDepleted()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
@@ -97,7 +97,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
 
     function test_RevertWhen_SomeStatusesDepleted()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
@@ -117,7 +117,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
 
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
@@ -136,7 +136,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
 
     function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
@@ -158,7 +158,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
 
     function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
@@ -184,7 +184,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
 
     function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
@@ -207,7 +207,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
 
     function test_RevertWhen_ToZeroAddress()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
@@ -223,7 +223,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
 
     function test_RevertWhen_SomeAmountsZero()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
@@ -242,7 +242,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
 
     function test_RevertWhen_SomeAmountsOverdraw()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull
@@ -267,7 +267,7 @@ abstract contract WithdrawMultiple_Unit_Test is Unit_Test, WithdrawMultiple_Shar
 
     function test_WithdrawMultiple()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
         whenNoNull

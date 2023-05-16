@@ -93,7 +93,7 @@ abstract contract SablierV2FlashLoan is
     /// @dev Emits a {FlashLoan} event.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
+    /// - Must not be delegate called.
     /// - Refer to the requirements in {flashFee}.
     /// - `amount` must be less than 2^128.
     /// - `fee` must be less than 2^128.

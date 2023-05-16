@@ -14,7 +14,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
         FlashLoan_Fuzz_Test.setUp();
     }
 
-    function testFuzz_RevertWhen_AmountTooHigh(uint256 amount) external whenNoDelegateCall {
+    function testFuzz_RevertWhen_AmountTooHigh(uint256 amount) external whenNotDelegateCalled {
         amount = _bound(amount, uint256(MAX_UINT128) + 1, MAX_UINT256);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
         flashLoan.flashLoan({
@@ -27,7 +27,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
 
     function testFuzz_RevertWhen_CalculatedFeeTooHigh(UD60x18 flashFee)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenAmountNotTooHigh
         whenAssetFlashLoanable
     {
@@ -57,7 +57,7 @@ contract FlashLoanFunction_Fuzz_Test is FlashLoan_Fuzz_Test, FlashLoanFunction_S
         bytes calldata data
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenAmountNotTooHigh
         whenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh

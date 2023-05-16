@@ -21,20 +21,20 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         CreateWithMilestones_Dynamic_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCall() external {
+    function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2LockupDynamic.createWithMilestones, defaults.createWithMilestones());
         (bool success, bytes memory returnData) = address(dynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_RecipientZeroAddress() external whenNoDelegateCall {
+    function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled {
         vm.expectRevert("ERC721: mint to the zero address");
         address recipient = address(0);
         createDefaultStreamWithRecipient(recipient);
     }
 
-    function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall whenRecipientNonZeroAddress {
+    function test_RevertWhen_DepositAmountZero() external whenNotDelegateCalled whenRecipientNonZeroAddress {
         // It is not possible to obtain a zero deposit amount from a non-zero total amount, because the `MAX_FEE`
         // is hard coded to 10%.
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
@@ -44,7 +44,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_SegmentCountZero()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
@@ -55,7 +55,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_SegmentCountTooHigh()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -70,7 +70,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_SegmentAmountsSumOverflows()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -85,7 +85,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_StartTimeGreaterThanFirstSegmentMilestone()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -111,7 +111,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_StartTimeEqualToFirstSegmentMilestone()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -137,7 +137,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_SegmentMilestonesNotOrdered()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -166,7 +166,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_EndTimeNotInTheFuture()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -183,7 +183,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -223,7 +223,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -251,7 +251,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_BrokerFeeTooHigh()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -271,7 +271,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_RevertWhen_AssetNotContract()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -300,7 +300,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_CreateWithMilestones_AssetMissingReturnValue()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -320,7 +320,7 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
 
     function test_CreateWithMilestones()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero

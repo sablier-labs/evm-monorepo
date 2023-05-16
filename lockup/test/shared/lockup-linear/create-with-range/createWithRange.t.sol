@@ -10,7 +10,7 @@ abstract contract CreateWithRange_Linear_Shared_Test is Linear_Shared_Test {
         streamId = linear.nextStreamId();
     }
 
-    modifier whenNoDelegateCall() {
+    modifier whenNotDelegateCalled() {
         _;
     }
 

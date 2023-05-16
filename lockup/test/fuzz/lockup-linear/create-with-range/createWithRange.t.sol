@@ -18,7 +18,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
 
     function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(uint40 startTime)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
@@ -36,7 +36,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
         uint40 endTime
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -55,7 +55,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
 
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -77,7 +77,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
 
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -121,7 +121,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
         UD60x18 protocolFee
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime

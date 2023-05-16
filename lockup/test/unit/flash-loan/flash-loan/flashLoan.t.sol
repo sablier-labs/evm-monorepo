@@ -14,27 +14,27 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test, FlashLoanFunction_S
         FlashLoan_Unit_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCall() external {
+    function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
             abi.encodeCall(IERC3156FlashLender.flashLoan, (goodFlashLoanReceiver, address(dai), 0, bytes("")));
         (bool success, bytes memory returnData) = address(flashLoan).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_AmountTooHigh() external whenNoDelegateCall {
+    function test_RevertWhen_AmountTooHigh() external whenNotDelegateCalled {
         uint256 amount = uint256(MAX_UINT128) + 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AmountTooHigh.selector, amount));
         flashLoan.flashLoan({ receiver: goodFlashLoanReceiver, asset: address(dai), amount: amount, data: bytes("") });
     }
 
-    function test_RevertWhen_AssetNotFlashLoanable() external whenNoDelegateCall whenAmountNotTooHigh {
+    function test_RevertWhen_AssetNotFlashLoanable() external whenNotDelegateCalled whenAmountNotTooHigh {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, dai));
         flashLoan.flashLoan({ receiver: goodFlashLoanReceiver, asset: address(dai), amount: 0, data: bytes("") });
     }
 
     function test_RevertWhen_CalculatedFeeTooHigh()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenAmountNotTooHigh
         whenAssetFlashLoanable
     {
@@ -53,7 +53,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test, FlashLoanFunction_S
 
     function test_RevertWhen_BorrowFailed()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenAmountNotTooHigh
         whenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh
@@ -70,7 +70,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test, FlashLoanFunction_S
 
     function test_RevertWhen_Reentrancy()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenAmountNotTooHigh
         whenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh
@@ -89,7 +89,7 @@ contract FlashLoanFunction_Unit_Test is FlashLoan_Unit_Test, FlashLoanFunction_S
 
     function test_FlashLoan()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenAmountNotTooHigh
         whenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh

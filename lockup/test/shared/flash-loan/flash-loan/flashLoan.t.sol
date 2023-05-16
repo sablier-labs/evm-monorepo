@@ -8,7 +8,7 @@ contract FlashLoanFunction_Shared_Test is Base_Test {
 
     function setUp() public virtual override { }
 
-    modifier whenNoDelegateCall() {
+    modifier whenNotDelegateCalled() {
         _;
     }
 

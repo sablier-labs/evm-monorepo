@@ -18,27 +18,27 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
         CreateWithRange_Linear_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCall() external {
+    function test_RevertWhen_DelegateCalled() external {
         bytes memory callData = abi.encodeCall(ISablierV2LockupLinear.createWithRange, defaults.createWithRange());
         (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_RecipientZeroAddress() external whenNoDelegateCall {
+    function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled {
         vm.expectRevert("ERC721: mint to the zero address");
         createDefaultStreamWithRecipient({ recipient: address(0) });
     }
 
     /// @dev It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
     /// `MAX_FEE` is hard coded to 10%.
-    function test_RevertWhen_DepositAmountZero() external whenNoDelegateCall whenRecipientNonZeroAddress {
+    function test_RevertWhen_DepositAmountZero() external whenNotDelegateCalled whenRecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
         createDefaultStreamWithTotalAmount(0);
     }
 
     function test_RevertWhen_StartTimeGreaterThanCliffTime()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
     {
@@ -55,7 +55,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
 
     function test_RevertWhen_CliffTimeNotLessThanEndTime()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -73,7 +73,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
 
     function test_RevertWhen_EndTimeNotInTheFuture()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -92,7 +92,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
 
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -115,7 +115,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
 
     function test_RevertWhen_BrokerFeeTooHigh()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -130,7 +130,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
 
     function test_RevertWhen_AssetNotContract()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -146,7 +146,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
 
     function test_CreateWithRange_AssetMissingReturnValue()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
@@ -161,7 +161,7 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
 
     function test_CreateWithRange()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime

@@ -17,17 +17,17 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
-    function test_RevertWhen_DelegateCall() external {
+    function test_RevertWhen_DelegateCalled() external {
         bytes memory callData = abi.encodeCall(ISablierV2Lockup.burn, streamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    modifier whenNoDelegateCall() {
+    modifier whenNotDelegateCalled() {
         _;
     }
 
-    function test_RevertWhen_Null() external whenNoDelegateCall {
+    function test_RevertWhen_Null() external whenNotDelegateCalled {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.burn(nullStreamId);
@@ -43,7 +43,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_RevertWhen_StreamHasNotBeenDepleted_StatusPending()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamHasNotBeenDepleted
     {
@@ -54,7 +54,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_RevertWhen_StreamHasNotBeenDepleted_StatusStreaming()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamHasNotBeenDepleted
     {
@@ -65,7 +65,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_RevertWhen_StreamHasNotBeenDepleted_StatusSettled()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamHasNotBeenDepleted
     {
@@ -76,7 +76,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_RevertWhen_StreamHasNotBeenDepleted_StatusCanceled()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamHasNotBeenDepleted
     {
@@ -92,7 +92,12 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
         _;
     }
 
-    function test_RevertWhen_CallerUnauthorized() external whenNoDelegateCall whenNotNull whenStreamHasBeenDepleted {
+    function test_RevertWhen_CallerUnauthorized()
+        external
+        whenNotDelegateCalled
+        whenNotNull
+        whenStreamHasBeenDepleted
+    {
         // Make Eve the caller in the rest of this test.
         changePrank({ msgSender: users.eve });
 
@@ -107,7 +112,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_RevertWhen_NFTDoesNotExist()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamHasBeenDepleted
         whenCallerAuthorized
@@ -126,7 +131,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_Burn_CallerApprovedOperator()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamHasBeenDepleted
         whenCallerAuthorized
@@ -148,7 +153,7 @@ abstract contract Burn_Unit_Test is Unit_Test, Lockup_Shared_Test {
 
     function test_Burn_CallerNFTOwner()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamHasBeenDepleted
         whenCallerAuthorized

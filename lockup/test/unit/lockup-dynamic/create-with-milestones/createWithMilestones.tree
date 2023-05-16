@@ -1,7 +1,7 @@
 createWithMilestones.t.sol
-├── when the call is a delegate call
+├── when delegate called
 │  └── it should revert
-└── when the call is not a delegate call
+└── when not delegate called
    ├── when the recipient is the zero address
    │  └── it should revert
    └── when the recipient is not the zero address

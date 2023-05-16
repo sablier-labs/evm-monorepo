@@ -33,7 +33,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
 
     function testFuzz_CreateWithDeltas(LockupDynamic.SegmentWithDelta[] memory segments)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit
         whenDeltasNotZero
         whenMilestonesCalculationsDoNotOverflow

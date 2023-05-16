@@ -15,36 +15,36 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
         CancelMultiple_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCall() external whenNoDelegateCall {
+    function test_RevertWhen_DelegateCalled() external whenNotDelegateCalled {
         bytes memory callData = abi.encodeCall(ISablierV2Lockup.cancelMultiple, (testStreamIds));
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_CancelMultiple_ArrayCountZero() external whenNoDelegateCall {
+    function test_CancelMultiple_ArrayCountZero() external whenNotDelegateCalled {
         uint256[] memory streamIds = new uint256[](0);
         lockup.cancelMultiple(streamIds);
     }
 
-    function test_RevertWhen_OnlyNull() external whenNoDelegateCall whenArrayCountNotZero {
+    function test_RevertWhen_OnlyNull() external whenNotDelegateCalled whenArrayCountNotZero {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(nullStreamId) });
     }
 
-    function test_RevertWhen_SomeNull() external whenNoDelegateCall whenArrayCountNotZero {
+    function test_RevertWhen_SomeNull() external whenNotDelegateCalled whenArrayCountNotZero {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.cancelMultiple({ streamIds: Solarray.uint256s(testStreamIds[0], nullStreamId) });
     }
 
-    function test_RevertWhen_AllStreamsCold() external whenNoDelegateCall whenArrayCountNotZero whenNoNull {
+    function test_RevertWhen_AllStreamsCold() external whenNotDelegateCalled whenArrayCountNotZero whenNoNull {
         vm.warp({ timestamp: defaults.END_TIME() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, testStreamIds[0]));
         lockup.cancelMultiple({ streamIds: testStreamIds });
     }
 
-    function test_RevertWhen_SomeStreamsCold() external whenNoDelegateCall whenArrayCountNotZero whenNoNull {
+    function test_RevertWhen_SomeStreamsCold() external whenNotDelegateCalled whenArrayCountNotZero whenNoNull {
         uint256 earlyStreamId = createDefaultStreamWithEndTime({ endTime: defaults.CLIFF_TIME() + 1 seconds });
         vm.warp({ timestamp: defaults.CLIFF_TIME() + 1 seconds });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, earlyStreamId));
@@ -53,7 +53,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
 
     function test_RevertWhen_CallerUnauthorizedAllStreams_MaliciousThirdParty()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountNotZero
         whenNoNull
         whenAllStreamsWarm
@@ -71,7 +71,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
 
     function test_RevertWhen_CallerUnauthorizedAllStreams_ApprovedOperator()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountNotZero
         whenNoNull
         whenAllStreamsWarm
@@ -93,7 +93,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
 
     function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountNotZero
         whenNoNull
         whenAllStreamsWarm
@@ -113,7 +113,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
 
     function test_RevertWhen_CallerUnauthorizedSomeStreams_MaliciousThirdParty()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountNotZero
         whenNoNull
         whenAllStreamsWarm
@@ -134,7 +134,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
 
     function test_RevertWhen_CallerUnauthorizedSomeStreams_ApprovedOperator()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountNotZero
         whenNoNull
         whenAllStreamsWarm
@@ -156,7 +156,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
 
     function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountNotZero
         whenNoNull
         whenAllStreamsWarm
@@ -175,7 +175,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
 
     function test_RevertWhen_AllStreamsNotCancelable()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountNotZero
         whenNoNull
         whenAllStreamsWarm
@@ -190,7 +190,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
 
     function test_RevertWhen_SomeStreamsNotCancelable()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArrayCountNotZero
         whenNoNull
         whenAllStreamsWarm
@@ -205,7 +205,7 @@ abstract contract CancelMultiple_Unit_Test is Unit_Test, CancelMultiple_Shared_T
 
     function test_CancelMultiple()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNoNull
         whenAllStreamsWarm
         whenCallerAuthorizedAllStreams

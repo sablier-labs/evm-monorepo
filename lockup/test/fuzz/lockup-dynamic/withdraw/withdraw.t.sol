@@ -38,7 +38,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
 
     function testFuzz_Withdraw_SegmentFuzing(Params memory params)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenCallerAuthorized
         whenToNonZeroAddress

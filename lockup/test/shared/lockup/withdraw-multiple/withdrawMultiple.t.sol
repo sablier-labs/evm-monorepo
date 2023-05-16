@@ -37,7 +37,7 @@ abstract contract WithdrawMultiple_Shared_Test is Lockup_Shared_Test {
         testStreamIds[2] = createDefaultStream();
     }
 
-    modifier whenNoDelegateCall() {
+    modifier whenNotDelegateCalled() {
         _;
     }
 

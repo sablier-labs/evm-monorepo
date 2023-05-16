@@ -10,7 +10,7 @@ contract CreateWithMilestones_Dynamic_Shared_Test is Dynamic_Shared_Test {
         streamId = dynamic.nextStreamId();
     }
 
-    modifier whenNoDelegateCall() {
+    modifier whenNotDelegateCalled() {
         _;
     }
 

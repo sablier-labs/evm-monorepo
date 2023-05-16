@@ -20,7 +20,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, WithdrawMultiple_Shar
         uint128 ongoingWithdrawAmount
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenArraysEqual
         whenNoNull
         whenNoDepletedStream

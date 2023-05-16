@@ -112,7 +112,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// of them to be in the past.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
+    /// - Must not be delegate called.
     /// - `params.totalAmount` must be greater than zero.
     /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
     /// - `params.segments` must have at least one segment, but not more than `MAX_SEGMENT_COUNT`.
