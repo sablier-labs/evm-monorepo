@@ -17,7 +17,6 @@ abstract contract LockupHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public asset;
     ISablierV2Lockup public lockup;
     LockupStore public lockupStore;
 
@@ -34,15 +33,14 @@ abstract contract LockupHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor(
+        IERC20 asset_,
         TimestampStore timestampStore_,
         LockupStore lockupStore_,
-        IERC20 asset_,
         ISablierV2Lockup lockup_
     )
-        BaseHandler(timestampStore_)
+        BaseHandler(asset_, timestampStore_)
     {
         lockupStore = lockupStore_;
-        asset = asset_;
         lockup = lockup_;
     }
 

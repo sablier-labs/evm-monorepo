@@ -27,15 +27,15 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
 
         // Deploy the dynamic contract handlers.
         dynamicHandler = new LockupDynamicHandler({
+            asset_: dai,
             timestampStore_: timestampStore,
             lockupStore_: lockupStore,
-            asset_: dai,
             dynamic_: dynamic
         });
         dynamicCreateHandler = new LockupDynamicCreateHandler({
+            asset_: dai,
             timestampStore_: timestampStore,
             lockupStore_: lockupStore,
-            asset_: dai,
             comptroller_: comptroller,
             dynamic_: dynamic
         });

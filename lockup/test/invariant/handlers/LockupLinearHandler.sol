@@ -14,11 +14,11 @@ import { LockupHandler } from "./LockupHandler.sol";
 /// to bound and restrict the inputs that get passed to the real-world contract to avoid getting reverts.
 contract LockupLinearHandler is LockupHandler {
     constructor(
+        IERC20 asset_,
         TimestampStore timestampStore_,
         LockupStore lockupStore_,
-        IERC20 asset_,
         ISablierV2LockupLinear linear_
     )
-        LockupHandler(timestampStore_, lockupStore_, asset_, linear_)
+        LockupHandler(asset_, timestampStore_, lockupStore_, linear_)
     { }
 }

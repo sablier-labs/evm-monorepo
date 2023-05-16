@@ -21,7 +21,6 @@ contract LockupDynamicCreateHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public asset;
     ISablierV2Comptroller public comptroller;
     ISablierV2LockupDynamic public dynamic;
     LockupStore public lockupStore;
@@ -31,16 +30,15 @@ contract LockupDynamicCreateHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor(
+        IERC20 asset_,
         TimestampStore timestampStore_,
         LockupStore lockupStore_,
-        IERC20 asset_,
         ISablierV2Comptroller comptroller_,
         ISablierV2LockupDynamic dynamic_
     )
-        BaseHandler(timestampStore_)
+        BaseHandler(asset_, timestampStore_)
     {
         lockupStore = lockupStore_;
-        asset = asset_;
         comptroller = comptroller_;
         dynamic = dynamic_;
     }

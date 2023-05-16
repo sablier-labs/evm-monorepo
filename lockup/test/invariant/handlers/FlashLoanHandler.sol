@@ -19,7 +19,6 @@ contract FlashLoanHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public asset;
     ISablierV2Comptroller public comptroller;
     SablierV2FlashLoan public flashLoanContract;
     IERC3156FlashBorrower internal receiver;
@@ -29,15 +28,14 @@ contract FlashLoanHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor(
-        TimestampStore timestampStore_,
         IERC20 asset_,
+        TimestampStore timestampStore_,
         ISablierV2Comptroller comptroller_,
         SablierV2FlashLoan flashLoanContract_,
         IERC3156FlashBorrower receiver_
     )
-        BaseHandler(timestampStore_)
+        BaseHandler(asset_, timestampStore_)
     {
-        asset = asset_;
         comptroller = comptroller_;
         flashLoanContract = flashLoanContract_;
         receiver = receiver_;

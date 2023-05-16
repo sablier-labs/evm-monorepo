@@ -17,7 +17,6 @@ contract ComptrollerHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public asset;
     ISablierV2Comptroller public comptroller;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -25,13 +24,12 @@ contract ComptrollerHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor(
-        TimestampStore timestampStore_,
         IERC20 asset_,
+        TimestampStore timestampStore_,
         ISablierV2Comptroller comptroller_
     )
-        BaseHandler(timestampStore_)
+        BaseHandler(asset_, timestampStore_)
     {
-        asset = asset_;
         comptroller = comptroller_;
     }
 

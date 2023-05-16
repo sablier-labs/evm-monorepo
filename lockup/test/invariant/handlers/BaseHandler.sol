@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { Vm } from "@prb/test/PRBTest.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 
@@ -28,15 +29,18 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
     /// @dev Maps function names to the number of times they have been called.
     mapping(string func => uint256 calls) public calls;
 
-    /// @dev Reference to the timestamp store, which is needed for simulating the passage of time.
-    TimestampStore public timestampStore;
-
     /// @dev The total number of calls made to this contract.
     uint256 public totalCalls;
 
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Default ERC-20 asset used for testing.
+    IERC20 public asset;
+
+    /// @dev Reference to the timestamp store, which is needed for simulating the passage of time.
+    TimestampStore public timestampStore;
 
     /// @dev An instance of the Foundry VM, which contains cheatcodes for testing.
     Vm internal constant vm = Vm(VM_ADDRESS);
@@ -45,7 +49,8 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(TimestampStore timestampStore_) {
+    constructor(IERC20 asset_, TimestampStore timestampStore_) {
+        asset = asset_;
         timestampStore = timestampStore_;
     }
 

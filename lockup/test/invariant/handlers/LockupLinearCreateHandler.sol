@@ -19,7 +19,6 @@ contract LockupLinearCreateHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public asset;
     ISablierV2LockupLinear public linear;
     LockupStore public lockupStore;
 
@@ -28,15 +27,14 @@ contract LockupLinearCreateHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor(
+        IERC20 asset_,
         TimestampStore timestampStore_,
         LockupStore lockupStore_,
-        IERC20 asset_,
         ISablierV2LockupLinear linear_
     )
-        BaseHandler(timestampStore_)
+        BaseHandler(asset_, timestampStore_)
     {
         lockupStore = lockupStore_;
-        asset = asset_;
         linear = linear_;
     }
 
