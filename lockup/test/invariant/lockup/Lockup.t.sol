@@ -146,7 +146,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
-            if (lockup.statusOf(streamId) == Lockup.Status.DEPLETED) {
+            if (lockup.isDepleted(streamId)) {
                 assertEq(
                     lockup.getDepositedAmount(streamId) - lockup.getRefundedAmount(streamId),
                     lockup.getWithdrawnAmount(streamId),
