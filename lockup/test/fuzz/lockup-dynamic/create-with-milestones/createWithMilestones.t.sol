@@ -20,7 +20,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
 
     function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -38,7 +38,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         uint128 amount1
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -55,7 +55,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
 
     function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone(uint40 firstMilestone)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -83,7 +83,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
 
     function testFuzz_RevertWhen_DepositAmountNotEqualToSegmentAmountsSum(uint128 depositDiff)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -124,7 +124,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
 
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -150,7 +150,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
 
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero
@@ -198,7 +198,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         UD60x18 protocolFee
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
         whenSegmentCountNotZero

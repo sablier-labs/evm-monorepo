@@ -15,14 +15,14 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test, CreateWithDur
         CreateWithDurations_Linear_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCall() external {
+    function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaults.createWithDurations());
         (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_CliffDurationCalculationOverflows() external whenNoDelegateCall {
+    function test_RevertWhen_CliffDurationCalculationOverflows() external whenNotDelegateCalled {
         uint40 startTime = getBlockTimestamp();
         uint40 cliffDuration = MAX_UINT40 - startTime + 1;
 
@@ -48,7 +48,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test, CreateWithDur
 
     function test_RevertWhen_TotalDurationCalculationOverflows()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenCliffDurationCalculationDoesNotOverflow
     {
         uint40 startTime = getBlockTimestamp();
@@ -76,7 +76,7 @@ contract CreateWithDurations_Linear_Unit_Test is Linear_Unit_Test, CreateWithDur
 
     function test_CreateWithDurations()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenCliffDurationCalculationDoesNotOverflow
         whenTotalDurationCalculationDoesNotOverflow
     {

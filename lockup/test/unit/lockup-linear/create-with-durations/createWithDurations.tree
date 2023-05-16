@@ -1,7 +1,7 @@
 createWithDurations.t.sol
-├── when the call is a delegate call
+├── when delegate called
 │  └── it should revert
-└── when the call is not a delegate call
+└── when not delegate called
    ├── when the cliff duration calculation overflows uint256
    │  └── it should revert due to the start time being greater than the cliff time
    └── when the cliff duration calculation does not overflow uint256

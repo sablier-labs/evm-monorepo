@@ -1,7 +1,7 @@
 createWithDeltas.t.sol
-├── when the call is a delegate call
+├── when delegate called
 │  └── it should revert
-└── when the call is not a delegate call
+└── when not delegate called
    ├── when the loop calculations overflow the block gas limit
    │  └── it should revert
    └── when the loop calculations do not overflow the block gas limit

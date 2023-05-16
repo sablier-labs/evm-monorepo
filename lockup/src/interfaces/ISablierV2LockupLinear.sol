@@ -107,7 +107,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - As long as the times are ordered, it is not an error for the start or the cliff time to be in the past.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
+    /// - Must not be delegate called.
     /// - `params.totalAmount` must be greater than zero.
     /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
     /// - `params.range.start` must be less than or equal to `params.range.cliff`.

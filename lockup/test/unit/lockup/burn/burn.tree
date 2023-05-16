@@ -1,7 +1,7 @@
 burn.t.sol
-├── when the call is a delegate call
+├── when delegate called
 │  └── it should revert
-└── when the call is not a delegate call
+└── when not delegate called
    ├── when the id references a null stream
    │  └── it should revert
    └── when the id does not reference a null stream

@@ -18,7 +18,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, CancelMultiple_Shared_T
         uint40 endTime
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNoNull
         whenAllStreamsWarm
         whenCallerAuthorizedAllStreams

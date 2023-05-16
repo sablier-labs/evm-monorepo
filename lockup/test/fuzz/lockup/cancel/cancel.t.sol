@@ -13,7 +13,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
 
     function testFuzz_Cancel_StatusPending(uint256 timeWarp)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -46,7 +46,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
         uint128 withdrawAmount
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -111,7 +111,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
         uint128 withdrawAmount
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized

@@ -15,7 +15,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         Withdraw_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCall() external {
+    function test_RevertWhen_DelegateCalled() external {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         bytes memory callData =
             abi.encodeCall(ISablierV2Lockup.withdraw, (defaultStreamId, users.recipient, withdrawAmount));
@@ -23,14 +23,14 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_Null() external whenNoDelegateCall {
+    function test_RevertWhen_Null() external whenNotDelegateCalled {
         uint256 nullStreamId = 1729;
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.withdraw({ streamId: nullStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
-    function test_RevertWhen_StreamDepleted() external whenNoDelegateCall whenNotNull {
+    function test_RevertWhen_StreamDepleted() external whenNotDelegateCalled whenNotNull {
         vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
@@ -41,7 +41,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_RevertWhen_CallerUnauthorized_Sender()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerUnauthorized
@@ -61,7 +61,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerUnauthorized
@@ -77,7 +77,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
     }
 
-    function test_RevertWhen_FormerRecipient() external whenNoDelegateCall whenNotNull whenStreamNotDepleted {
+    function test_RevertWhen_FormerRecipient() external whenNotDelegateCalled whenNotNull whenStreamNotDepleted {
         // Transfer the stream to Alice.
         lockup.transferFrom(users.recipient, users.alice, defaultStreamId);
 
@@ -91,7 +91,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_RevertWhen_ToZeroAddress()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -103,7 +103,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_RevertWhen_WithdrawAmountZero()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -115,7 +115,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_RevertWhen_Overdraw()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -137,7 +137,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_Withdraw_CallerRecipient()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -162,7 +162,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_Withdraw_CallerApprovedOperator()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -195,7 +195,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_Withdraw_EndTimeNotInTheFuture()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -233,7 +233,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_Withdraw_StreamHasBeenCanceled()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -277,7 +277,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_Withdraw_RecipientNotContract()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -318,7 +318,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_Withdraw_RecipientDoesNotImplementHook()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -362,7 +362,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_Withdraw_RecipientReverts()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -407,7 +407,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_Withdraw_RecipientReentrancy()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -456,7 +456,7 @@ abstract contract Withdraw_Unit_Test is Unit_Test, Withdraw_Shared_Test {
 
     function test_Withdraw()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized

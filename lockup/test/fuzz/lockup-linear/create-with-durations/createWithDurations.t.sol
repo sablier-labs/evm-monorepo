@@ -14,7 +14,10 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithDur
         CreateWithDurations_Linear_Shared_Test.setUp();
     }
 
-    function testFuzz_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration) external whenNoDelegateCall {
+    function testFuzz_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration)
+        external
+        whenNotDelegateCalled
+    {
         uint40 startTime = getBlockTimestamp();
         cliffDuration = boundUint40(cliffDuration, MAX_UINT40 - startTime + 1, MAX_UINT40);
 
@@ -40,7 +43,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithDur
 
     function testFuzz_RevertWhen_TotalDurationCalculationOverflows(LockupLinear.Durations memory durations)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenCliffDurationCalculationDoesNotOverflow
     {
         uint40 startTime = getBlockTimestamp();
@@ -68,7 +71,7 @@ contract CreateWithDurations_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithDur
 
     function testFuzz_CreateWithDurations(LockupLinear.Durations memory durations)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenCliffDurationCalculationDoesNotOverflow
         whenTotalDurationCalculationDoesNotOverflow
     {

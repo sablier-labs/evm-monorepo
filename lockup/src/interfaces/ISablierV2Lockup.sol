@@ -161,7 +161,7 @@ interface ISablierV2Lockup is
     /// @dev Emits a {Transfer} event.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
+    /// - Must not be delegate called.
     /// - `streamId` must reference a depleted stream.
     /// - The NFT must exist.
     /// - `msg.sender` must be either the NFT owner or an approved third party.
@@ -180,7 +180,7 @@ interface ISablierV2Lockup is
     /// is, and if the resolved address is a contract.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
+    /// - Must not be delegate called.
     /// - The stream must be warm and cancelable.
     /// - `msg.sender` must be either the stream's sender or the stream's recipient (i.e. the NFT owner).
     ///
@@ -209,7 +209,7 @@ interface ISablierV2Lockup is
     /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
+    /// - Must not be delegate called.
     /// - `streamId` must reference a warm stream.
     /// - `msg.sender` must be the stream's sender.
     /// - The stream must be cancelable.
@@ -239,7 +239,7 @@ interface ISablierV2Lockup is
     /// and `msg.sender` is either the sender or an approved operator.
     ///
     /// Requirements:
-    /// - The call must not be a delegate call.
+    /// - Must not be delegate called.
     /// - `streamId` must not reference a null, pending, or depleted stream.
     /// - `msg.sender` must be the stream's sender, the stream's recipient or an approved third party.
     /// - `to` must be the recipient if `msg.sender` is the stream's sender.

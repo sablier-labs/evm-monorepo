@@ -11,7 +11,7 @@ abstract contract Cancel_Shared_Test is Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
     }
 
-    modifier whenNoDelegateCall() {
+    modifier whenNotDelegateCalled() {
         _;
     }
 

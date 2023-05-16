@@ -16,33 +16,33 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
         Cancel_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCall() external {
+    function test_RevertWhen_DelegateCalled() external {
         bytes memory callData = abi.encodeCall(ISablierV2Lockup.cancel, defaultStreamId);
         (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_Null() external whenNoDelegateCall {
+    function test_RevertWhen_Null() external whenNotDelegateCalled {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.cancel(nullStreamId);
     }
 
-    function test_RevertWhen_StreamCold_StatusDepleted() external whenNoDelegateCall whenNotNull whenStreamCold {
+    function test_RevertWhen_StreamCold_StatusDepleted() external whenNotDelegateCalled whenNotNull whenStreamCold {
         vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
 
-    function test_RevertWhen_StreamCold_StatusCanceled() external whenNoDelegateCall whenNotNull whenStreamCold {
+    function test_RevertWhen_StreamCold_StatusCanceled() external whenNotDelegateCalled whenNotNull whenStreamCold {
         vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCanceled.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
     }
 
-    function test_RevertWhen_StreamCold_StatusSettled() external whenNoDelegateCall whenNotNull whenStreamCold {
+    function test_RevertWhen_StreamCold_StatusSettled() external whenNotDelegateCalled whenNotNull whenStreamCold {
         vm.warp({ timestamp: defaults.END_TIME() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamId));
         lockup.cancel(defaultStreamId);
@@ -50,7 +50,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerUnauthorized
@@ -67,7 +67,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_RevertWhen_CallerUnauthorized_ApprovedOperator()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerUnauthorized
@@ -88,7 +88,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_RevertWhen_CallerUnauthorized_FormerRecipient()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerUnauthorized
@@ -106,7 +106,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_RevertWhen_StreamNotCancelable()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -135,7 +135,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_Cancel_CallerSender_RecipientNotContract()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -151,7 +151,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_Cancel_CallerSender_RecipientDoesNotImplementHook()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -184,7 +184,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_Cancel_CallerSender_RecipientReverts()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -218,7 +218,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_Cancel_CallerSender_RecipientReentrancy()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -253,7 +253,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_Cancel_CallerSender()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -310,7 +310,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_Cancel_CallerRecipient_SenderNotContract()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -326,7 +326,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_Cancel_CallerRecipient_SenderDoesNotImplementHook()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -359,7 +359,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_Cancel_CallerRecipient_SenderReverts()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -393,7 +393,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_Cancel_CallerRecipient_SenderReentrancy()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized
@@ -428,7 +428,7 @@ abstract contract Cancel_Unit_Test is Unit_Test, Cancel_Shared_Test {
 
     function test_Cancel_CallerRecipient()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamWarm
         whenCallerAuthorized

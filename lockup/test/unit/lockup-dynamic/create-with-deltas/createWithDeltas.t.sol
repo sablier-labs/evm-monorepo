@@ -19,20 +19,24 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_DelegateCall() external {
+    function test_RevertWhen_DelegateCalled() external {
         bytes memory callData = abi.encodeCall(ISablierV2LockupDynamic.createWithDeltas, defaults.createWithDeltas());
         (bool success, bytes memory returnData) = address(dynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
     /// @dev it should revert.
-    function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external whenNoDelegateCall {
+    function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external whenNotDelegateCalled {
         LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](250_000);
         vm.expectRevert(bytes(""));
         createDefaultStreamWithDeltas(segments);
     }
 
-    function test_RevertWhen_DeltasZero() external whenNoDelegateCall whenLoopCalculationsDoNotOverflowBlockGasLimit {
+    function test_RevertWhen_DeltasZero()
+        external
+        whenNotDelegateCalled
+        whenLoopCalculationsDoNotOverflowBlockGasLimit
+    {
         uint40 startTime = getBlockTimestamp();
         LockupDynamic.SegmentWithDelta[] memory segments = defaults.createWithDeltas().segments;
         segments[1].delta = 0;
@@ -50,7 +54,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
 
     function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeNotLessThanFirstSegmentMilestone()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit
         whenDeltasNotZero
     {
@@ -71,7 +75,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
 
     function test_RevertWhen_MilestonesCalculationsOverflows_SegmentMilestonesNotOrdered()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit
         whenDeltasNotZero
     {
@@ -102,7 +106,7 @@ contract CreateWithDeltas_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWithDelt
 
     function test_CreateWithDeltas()
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit
         whenDeltasNotZero
         whenMilestonesCalculationsDoNotOverflow

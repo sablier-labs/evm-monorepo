@@ -17,7 +17,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Withdraw_Shared_Test {
     /// - Multiple values for the withdrawal address.
     function testFuzz_Withdraw_CallerApprovedOperator(address to)
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenStreamNotDepleted
         whenCallerAuthorized
@@ -61,7 +61,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Withdraw_Shared_Test {
         uint128 withdrawAmount
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenCallerAuthorized
         whenToNonZeroAddress
@@ -125,7 +125,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Withdraw_Shared_Test {
         uint128 withdrawAmount
     )
         external
-        whenNoDelegateCall
+        whenNotDelegateCalled
         whenNotNull
         whenCallerAuthorized
         whenToNonZeroAddress
