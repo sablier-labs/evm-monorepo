@@ -5,8 +5,8 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Invariant_Test } from "../Invariant.t.sol";
-import { LockupHandler } from "../handlers/LockupHandler.t.sol";
-import { LockupStore } from "../stores/LockupStore.t.sol";
+import { LockupHandler } from "../handlers/LockupHandler.sol";
+import { LockupStore } from "../stores/LockupStore.sol";
 
 /// @title Lockup_Invariant_Test
 /// @notice Common invariant test logic needed across contracts that inherit from {SablierV2Lockup}.

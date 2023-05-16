@@ -5,8 +5,8 @@ import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Lockup_Invariant_Test } from "../lockup/Lockup.t.sol";
-import { LockupLinearHandler } from "../handlers/LockupLinearHandler.t.sol";
-import { LockupLinearCreateHandler } from "../handlers/LockupLinearCreateHandler.t.sol";
+import { LockupLinearHandler } from "../handlers/LockupLinearHandler.sol";
+import { LockupLinearCreateHandler } from "../handlers/LockupLinearCreateHandler.sol";
 
 /// @title Linear_Invariant_Test
 /// @dev Invariant tests for {SablierV2LockupLinear}.

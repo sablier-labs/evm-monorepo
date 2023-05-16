@@ -6,9 +6,9 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
-import { TimestampStore } from "../stores/TimestampStore.t.sol";
-import { BaseHandler } from "./BaseHandler.t.sol";
-import { LockupStore } from "../stores/LockupStore.t.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { LockupStore } from "../stores/LockupStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @title LockupLinearCreateHandler
 /// @dev This contract is a complement of {LockupLinearHandler}. The goal is to bias the invariant calls

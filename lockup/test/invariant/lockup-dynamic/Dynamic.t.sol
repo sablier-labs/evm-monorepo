@@ -5,8 +5,8 @@ import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { Lockup_Invariant_Test } from "../lockup/Lockup.t.sol";
-import { LockupDynamicCreateHandler } from "../handlers/LockupDynamicCreateHandler.t.sol";
-import { LockupDynamicHandler } from "../handlers/LockupDynamicHandler.t.sol";
+import { LockupDynamicCreateHandler } from "../handlers/LockupDynamicCreateHandler.sol";
+import { LockupDynamicHandler } from "../handlers/LockupDynamicHandler.sol";
 
 /// @title Dynamic_Invariant_Test
 /// @dev Invariant tests for for {SablierV2LockupDynamic}.

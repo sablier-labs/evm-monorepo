@@ -6,9 +6,9 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { LockupStore } from "../stores/LockupStore.t.sol";
-import { TimestampStore } from "../stores/TimestampStore.t.sol";
-import { BaseHandler } from "./BaseHandler.t.sol";
+import { LockupStore } from "../stores/LockupStore.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @title LockupHandler
 /// @dev Common handler logic between {LockupLinearHandler} and {LockupDynamicHandler}.

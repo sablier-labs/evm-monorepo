@@ -8,8 +8,8 @@ import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 import { IERC3156FlashBorrower } from "src/interfaces/erc3156/IERC3156FlashBorrower.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 
-import { TimestampStore } from "../stores/TimestampStore.t.sol";
-import { BaseHandler } from "./BaseHandler.t.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @title FlashLoanHandler
 /// @dev This contract and not {SablierV2FlashLoan} is exposed to Foundry for invariant testing. The point is

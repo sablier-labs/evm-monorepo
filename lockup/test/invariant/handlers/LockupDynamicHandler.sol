@@ -5,9 +5,9 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 
-import { LockupStore } from "../stores/LockupStore.t.sol";
-import { TimestampStore } from "../stores/TimestampStore.t.sol";
-import { LockupHandler } from "./LockupHandler.t.sol";
+import { LockupStore } from "../stores/LockupStore.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { LockupHandler } from "./LockupHandler.sol";
 
 /// @title LockupDynamicHandler
 /// @dev This contract and not {SablierV2LockupDynamic} is exposed to Foundry for invariant testing. The point is

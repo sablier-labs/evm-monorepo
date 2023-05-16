@@ -8,9 +8,9 @@ import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol"
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { LockupStore } from "../stores/LockupStore.t.sol";
-import { TimestampStore } from "../stores/TimestampStore.t.sol";
-import { BaseHandler } from "./BaseHandler.t.sol";
+import { LockupStore } from "../stores/LockupStore.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @title LockupDynamicCreateHandler
 /// @dev This contract is a complement of {LockupDynamicHandler}. The goal is to bias the invariant calls

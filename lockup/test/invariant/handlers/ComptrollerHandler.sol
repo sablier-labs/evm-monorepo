@@ -6,8 +6,8 @@ import { UD60x18, UNIT } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 
-import { TimestampStore } from "../stores/TimestampStore.t.sol";
-import { BaseHandler } from "./BaseHandler.t.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @title ComptrollerHandler
 /// @dev This contract and not {SablierV2Comptroller} is exposed to Foundry for invariant testing. The point is

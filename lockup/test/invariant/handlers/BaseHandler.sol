@@ -6,7 +6,7 @@ import { StdCheats } from "forge-std/StdCheats.sol";
 
 import { Constants } from "../../utils/Constants.sol";
 import { Fuzzers } from "../../utils/Fuzzers.sol";
-import { TimestampStore } from "../stores/TimestampStore.t.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
 
 /// @title BaseHandler
 /// @notice Base contract with common logic needed by all handler contracts.
