@@ -5,9 +5,9 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 
+import { LockupStore } from "../stores/LockupStore.t.sol";
 import { TimestampStore } from "../stores/TimestampStore.t.sol";
 import { LockupHandler } from "./LockupHandler.t.sol";
-import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
 /// @title LockupLinearHandler
 /// @dev This contract and not {SablierV2LockupLinear} is exposed to Foundry for invariant testing. The point is
@@ -15,10 +15,10 @@ import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 contract LockupLinearHandler is LockupHandler {
     constructor(
         TimestampStore timestampStore_,
+        LockupStore lockupStore_,
         IERC20 asset_,
-        ISablierV2LockupLinear linear_,
-        LockupHandlerStorage lockupStore_
+        ISablierV2LockupLinear linear_
     )
-        LockupHandler(timestampStore_, asset_, linear_, lockupStore_)
+        LockupHandler(timestampStore_, lockupStore_, asset_, linear_)
     { }
 }

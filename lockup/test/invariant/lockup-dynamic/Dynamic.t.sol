@@ -28,16 +28,16 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         // Deploy the dynamic contract handlers.
         dynamicHandler = new LockupDynamicHandler({
             timestampStore_: timestampStore,
+            lockupStore_: lockupStore,
             asset_: dai,
-            dynamic_: dynamic,
-            lockupStore_: lockupHandlerStorage
+            dynamic_: dynamic
         });
         dynamicCreateHandler = new LockupDynamicCreateHandler({
             timestampStore_: timestampStore,
+            lockupStore_: lockupStore,
             asset_: dai,
             comptroller_: comptroller,
-            dynamic_: dynamic,
-            lockupStore_: lockupHandlerStorage
+            dynamic_: dynamic
         });
 
         // Label the contracts.
@@ -63,9 +63,9 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
 
     /// @dev The deposited amount must not be zero.
     function invariant_DepositedAmountNotZero() external useCurrentTimestamp {
-        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            uint256 streamId = lockupStore.streamIds(i);
             LockupDynamic.Stream memory stream = dynamic.getStream(streamId);
             assertNotEq(stream.amounts.deposited, 0, "Invariant violated: stream non-null, deposited amount zero");
         }
@@ -73,9 +73,9 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
 
     /// @dev The end time cannot be zero because it must be greater than the start time (which can be zero).
     function invariant_EndTimeNotZero() external useCurrentTimestamp {
-        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            uint256 streamId = lockupStore.streamIds(i);
             LockupDynamic.Stream memory stream = dynamic.getStream(streamId);
             assertNotEq(stream.endTime, 0, "Invariant violated: end time zero");
         }
@@ -83,9 +83,9 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
 
     /// @dev Unordered segment milestones are not allowed.
     function invariant_SegmentMilestonesOrdered() external useCurrentTimestamp {
-        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            uint256 streamId = lockupStore.streamIds(i);
             LockupDynamic.Segment[] memory segments = dynamic.getSegments(streamId);
             uint40 previousMilestone = segments[0].milestone;
             for (uint256 j = 1; j < segments.length; ++j) {

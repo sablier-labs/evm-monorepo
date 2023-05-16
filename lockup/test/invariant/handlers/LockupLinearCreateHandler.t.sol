@@ -8,7 +8,7 @@ import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
 import { TimestampStore } from "../stores/TimestampStore.t.sol";
 import { BaseHandler } from "./BaseHandler.t.sol";
-import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
+import { LockupStore } from "../stores/LockupStore.t.sol";
 
 /// @title LockupLinearCreateHandler
 /// @dev This contract is a complement of {LockupLinearHandler}. The goal is to bias the invariant calls
@@ -21,7 +21,7 @@ contract LockupLinearCreateHandler is BaseHandler {
 
     IERC20 public asset;
     ISablierV2LockupLinear public linear;
-    LockupHandlerStorage public lockupStore;
+    LockupStore public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -29,15 +29,15 @@ contract LockupLinearCreateHandler is BaseHandler {
 
     constructor(
         TimestampStore timestampStore_,
+        LockupStore lockupStore_,
         IERC20 asset_,
-        ISablierV2LockupLinear linear_,
-        LockupHandlerStorage lockupStore_
+        ISablierV2LockupLinear linear_
     )
         BaseHandler(timestampStore_)
     {
+        lockupStore = lockupStore_;
         asset = asset_;
         linear = linear_;
-        lockupStore = lockupStore_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

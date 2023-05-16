@@ -5,7 +5,7 @@ import { Lockup } from "src/types/DataTypes.sol";
 
 /// @title TimestampStore
 /// @dev Because Foundry does not commit the state changes between invariant runs, we need to
-/// save the current timestamp in a handler with persistent storage.
+/// save the current timestamp in a contract with persistent storage.
 contract TimestampStore {
     uint256 public currentTimestamp;
 

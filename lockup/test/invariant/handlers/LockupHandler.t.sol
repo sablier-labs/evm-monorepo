@@ -6,9 +6,9 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
+import { LockupStore } from "../stores/LockupStore.t.sol";
 import { TimestampStore } from "../stores/TimestampStore.t.sol";
 import { BaseHandler } from "./BaseHandler.t.sol";
-import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
 /// @title LockupHandler
 /// @dev Common handler logic between {LockupLinearHandler} and {LockupDynamicHandler}.
@@ -19,7 +19,7 @@ abstract contract LockupHandler is BaseHandler {
 
     IERC20 public asset;
     ISablierV2Lockup public lockup;
-    LockupHandlerStorage public lockupStore;
+    LockupStore public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
@@ -35,15 +35,15 @@ abstract contract LockupHandler is BaseHandler {
 
     constructor(
         TimestampStore timestampStore_,
+        LockupStore lockupStore_,
         IERC20 asset_,
-        ISablierV2Lockup lockup_,
-        LockupHandlerStorage lockupStore_
+        ISablierV2Lockup lockup_
     )
         BaseHandler(timestampStore_)
     {
+        lockupStore = lockupStore_;
         asset = asset_;
         lockup = lockup_;
-        lockupStore = lockupStore_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

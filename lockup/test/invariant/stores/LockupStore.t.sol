@@ -3,9 +3,9 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { Lockup } from "src/types/DataTypes.sol";
 
-/// @title LockupHandlerStorage
-/// @dev Storage variables shared by the lockup handlers.
-contract LockupHandlerStorage {
+/// @title LockupStore
+/// @dev Storage variables needed by all lockup handlers.
+contract LockupStore {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/

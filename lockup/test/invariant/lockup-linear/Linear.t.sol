@@ -28,15 +28,15 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         // Deploy the linear contract handlers.
         linearHandler = new LockupLinearHandler({
             timestampStore_: timestampStore,
+            lockupStore_: lockupStore,
             asset_: dai,
-            linear_: linear,
-            lockupStore_: lockupHandlerStorage
+            linear_: linear
         });
         linearCreateHandler = new LockupLinearCreateHandler({
             timestampStore_: timestampStore,
+            lockupStore_: lockupStore,
             asset_: dai,
-            linear_: linear,
-            lockupStore_: lockupHandlerStorage
+            linear_: linear
         });
 
         // Label the handler contracts.
@@ -62,9 +62,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
 
     /// @dev The cliff time must not be less than the start time.
     function invariant_CliffTimeGteStartTime() external useCurrentTimestamp {
-        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            uint256 streamId = lockupStore.streamIds(i);
             assertGte(
                 linear.getCliffTime(streamId),
                 linear.getStartTime(streamId),
@@ -75,9 +75,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
 
     /// @dev The deposited amount must not be zero.
     function invariant_DepositedAmountNotZero() external useCurrentTimestamp {
-        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            uint256 streamId = lockupStore.streamIds(i);
             LockupLinear.Stream memory stream = linear.getStream(streamId);
             assertNotEq(stream.amounts.deposited, 0, "Invariant violated: stream non-null, deposited amount zero");
         }
@@ -85,9 +85,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
 
     /// @dev The end time must not be less than or equal to the cliff time.
     function invariant_EndTimeGtCliffTime() external useCurrentTimestamp {
-        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            uint256 streamId = lockupStore.streamIds(i);
             assertGt(
                 linear.getEndTime(streamId), linear.getCliffTime(streamId), "Invariant violated: end time <= cliff time"
             );
@@ -96,9 +96,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
 
     /// @dev The end time must not be zero because it must be greater than the start time (which can be zero).
     function invariant_EndTimeNotZero() external useCurrentTimestamp {
-        uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
+        uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupHandlerStorage.streamIds(i);
+            uint256 streamId = lockupStore.streamIds(i);
             LockupLinear.Stream memory stream = linear.getStream(streamId);
             assertNotEq(stream.endTime, 0, "Invariant violated: stream non-null, end time zero");
         }
