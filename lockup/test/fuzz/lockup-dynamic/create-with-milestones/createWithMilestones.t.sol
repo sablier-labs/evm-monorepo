@@ -305,7 +305,13 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
 
         // Assert that the stream's status is correct.
         vars.actualStatus = dynamic.statusOf(streamId);
-        vars.expectedStatus = vars.isSettled ? Lockup.Status.SETTLED : Lockup.Status.STREAMING;
+        if (params.startTime > getBlockTimestamp()) {
+            vars.expectedStatus = Lockup.Status.PENDING;
+        } else if (vars.isSettled) {
+            vars.expectedStatus = Lockup.Status.SETTLED;
+        } else {
+            vars.expectedStatus = Lockup.Status.STREAMING;
+        }
         assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the next stream id has been bumped.
