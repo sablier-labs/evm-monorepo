@@ -6,6 +6,7 @@ import { UD60x18, UNIT } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 
+import { TimestampStore } from "../stores/TimestampStore.t.sol";
 import { BaseHandler } from "./BaseHandler.t.sol";
 
 /// @title ComptrollerHandler
@@ -23,7 +24,13 @@ contract ComptrollerHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, ISablierV2Comptroller comptroller_) {
+    constructor(
+        TimestampStore timestampStore_,
+        IERC20 asset_,
+        ISablierV2Comptroller comptroller_
+    )
+        BaseHandler(timestampStore_)
+    {
         asset = asset_;
         comptroller = comptroller_;
     }

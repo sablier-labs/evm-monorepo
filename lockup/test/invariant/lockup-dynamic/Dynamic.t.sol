@@ -27,15 +27,17 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
 
         // Deploy the dynamic contract handlers.
         dynamicHandler = new LockupDynamicHandler({
+            timestampStore_: timestampStore,
             asset_: dai,
             dynamic_: dynamic,
-            store_: lockupHandlerStorage
+            lockupStore_: lockupHandlerStorage
         });
         dynamicCreateHandler = new LockupDynamicCreateHandler({
+            timestampStore_: timestampStore,
             asset_: dai,
             comptroller_: comptroller,
             dynamic_: dynamic,
-            store_: lockupHandlerStorage
+            lockupStore_: lockupHandlerStorage
         });
 
         // Label the contracts.
@@ -60,7 +62,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev The deposited amount must not be zero.
-    function invariant_DepositedAmountNotZero() external {
+    function invariant_DepositedAmountNotZero() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -70,7 +72,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
     }
 
     /// @dev The end time cannot be zero because it must be greater than the start time (which can be zero).
-    function invariant_EndTimeNotZero() external {
+    function invariant_EndTimeNotZero() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -80,7 +82,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
     }
 
     /// @dev Unordered segment milestones are not allowed.
-    function invariant_SegmentMilestonesOrdered() external {
+    function invariant_SegmentMilestonesOrdered() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);

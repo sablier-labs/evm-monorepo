@@ -6,6 +6,7 @@ import { StdCheats } from "forge-std/StdCheats.sol";
 
 import { Constants } from "../../utils/Constants.sol";
 import { Fuzzers } from "../../utils/Fuzzers.sol";
+import { TimestampStore } from "../stores/TimestampStore.t.sol";
 
 /// @title BaseHandler
 /// @notice Base contract with common logic needed by all handler contracts.
@@ -27,6 +28,9 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
     /// @dev Maps function names to the number of times they have been called.
     mapping(string func => uint256 calls) public calls;
 
+    /// @dev Reference to the timestamp store, which is needed for simulating the passage of time.
+    TimestampStore public timestampStore;
+
     /// @dev The total number of calls made to this contract.
     uint256 public totalCalls;
 
@@ -36,6 +40,14 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
 
     /// @dev An instance of the Foundry VM, which contains cheatcodes for testing.
     Vm internal constant vm = Vm(VM_ADDRESS);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    constructor(TimestampStore timestampStore_) {
+        timestampStore = timestampStore_;
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -62,10 +74,26 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
         _;
     }
 
+    modifier useCurrentTimestamp() {
+        vm.warp(timestampStore.currentTimestamp());
+        _;
+    }
+
     /// @dev Makes the provided sender the caller.
     modifier useNewSender(address sender) {
         vm.startPrank(sender);
         _;
         vm.stopPrank();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                      HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Helper for simulating the passage of time, which is a pre-requisite for making withdrawals. Each time warp
+    /// is upper bounded so that streams don't settle too quickly.
+    function increaseCurrentTimestamp(uint256 timeWarp) external instrument("increaseCurrentTimestamp") {
+        timeWarp = _bound(timeWarp, 2 hours, 7 days);
+        timestampStore.increaseCurrentTimestamp(timeWarp);
     }
 }

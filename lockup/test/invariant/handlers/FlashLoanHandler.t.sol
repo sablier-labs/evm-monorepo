@@ -8,6 +8,7 @@ import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 import { IERC3156FlashBorrower } from "src/interfaces/erc3156/IERC3156FlashBorrower.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 
+import { TimestampStore } from "../stores/TimestampStore.t.sol";
 import { BaseHandler } from "./BaseHandler.t.sol";
 
 /// @title FlashLoanHandler
@@ -28,11 +29,14 @@ contract FlashLoanHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor(
+        TimestampStore timestampStore_,
         IERC20 asset_,
         ISablierV2Comptroller comptroller_,
         SablierV2FlashLoan flashLoanContract_,
         IERC3156FlashBorrower receiver_
-    ) {
+    )
+        BaseHandler(timestampStore_)
+    {
         asset = asset_;
         comptroller = comptroller_;
         flashLoanContract = flashLoanContract_;

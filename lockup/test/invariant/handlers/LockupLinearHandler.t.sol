@@ -5,6 +5,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 
+import { TimestampStore } from "../stores/TimestampStore.t.sol";
 import { LockupHandler } from "./LockupHandler.t.sol";
 import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
@@ -13,10 +14,11 @@ import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 /// to bound and restrict the inputs that get passed to the real-world contract to avoid getting reverts.
 contract LockupLinearHandler is LockupHandler {
     constructor(
+        TimestampStore timestampStore_,
         IERC20 asset_,
         ISablierV2LockupLinear linear_,
-        LockupHandlerStorage store_
+        LockupHandlerStorage lockupStore_
     )
-        LockupHandler(asset_, linear_, store_)
+        LockupHandler(timestampStore_, asset_, linear_, lockupStore_)
     { }
 }

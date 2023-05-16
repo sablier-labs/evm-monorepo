@@ -39,7 +39,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     // solhint-disable max-line-length
-    function invariant_ContractBalance() external {
+    function invariant_ContractBalance() external useCurrentTimestamp {
         uint256 contractBalance = dai.balanceOf(address(lockup));
         uint256 protocolRevenues = lockup.protocolRevenues(dai);
 
@@ -61,7 +61,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         );
     }
 
-    function invariant_DepositedAmountGteStreamedAmount() external {
+    function invariant_DepositedAmountGteStreamedAmount() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -73,7 +73,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_DepositedAmountGteWithdrawableAmount() external {
+    function invariant_DepositedAmountGteWithdrawableAmount() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -85,7 +85,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_DepositedAmountGteWithdrawnAmount() external {
+    function invariant_DepositedAmountGteWithdrawnAmount() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -97,7 +97,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_EndTimeGtStartTime() external {
+    function invariant_EndTimeGtStartTime() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -109,7 +109,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_NextStreamId() external {
+    function invariant_NextStreamId() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 nextStreamId = lockup.nextStreamId();
@@ -117,7 +117,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StatusCanceled() external {
+    function invariant_StatusCanceled() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -142,7 +142,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StatusDepleted() external {
+    function invariant_StatusDepleted() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -167,7 +167,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StatusPending() external {
+    function invariant_StatusPending() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -201,7 +201,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StatusSettled() external {
+    function invariant_StatusSettled() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -226,7 +226,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StatusStreaming() external {
+    function invariant_StatusStreaming() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -246,7 +246,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
     }
 
     /// @dev See diagram at https://ipfs.io/ipfs/bafkreihdoin3zn3yjkhxsx2cnqpr235shepgis36dqwqiepnhhtokowq7a.
-    function invariant_StatusTransitions() external {
+    function invariant_StatusTransitions() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         if (lastStreamId == 0) {
             return;
@@ -295,7 +295,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StreamedAmountGteWithdrawableAmount() external {
+    function invariant_StreamedAmountGteWithdrawableAmount() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);
@@ -307,7 +307,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StreamedAmountGteWithdrawnAmount() external {
+    function invariant_StreamedAmountGteWithdrawnAmount() external useCurrentTimestamp {
         uint256 lastStreamId = lockupHandlerStorage.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupHandlerStorage.streamIds(i);

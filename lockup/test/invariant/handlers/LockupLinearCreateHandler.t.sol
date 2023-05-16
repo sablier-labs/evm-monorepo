@@ -6,6 +6,7 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
+import { TimestampStore } from "../stores/TimestampStore.t.sol";
 import { BaseHandler } from "./BaseHandler.t.sol";
 import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
 
@@ -20,16 +21,23 @@ contract LockupLinearCreateHandler is BaseHandler {
 
     IERC20 public asset;
     ISablierV2LockupLinear public linear;
-    LockupHandlerStorage public store;
+    LockupHandlerStorage public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, ISablierV2LockupLinear linear_, LockupHandlerStorage store_) {
+    constructor(
+        TimestampStore timestampStore_,
+        IERC20 asset_,
+        ISablierV2LockupLinear linear_,
+        LockupHandlerStorage lockupStore_
+    )
+        BaseHandler(timestampStore_)
+    {
         asset = asset_;
         linear = linear_;
-        store = store_;
+        lockupStore = lockupStore_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -38,12 +46,13 @@ contract LockupLinearCreateHandler is BaseHandler {
 
     function createWithDurations(LockupLinear.CreateWithDurations memory params)
         public
-        checkUsers(params.sender, params.recipient, params.broker.account)
         instrument("createWithDurations")
+        useCurrentTimestamp
+        checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (lockupStore.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -65,17 +74,18 @@ contract LockupLinearCreateHandler is BaseHandler {
         uint256 streamId = linear.createWithDurations(params);
 
         // Store the stream id.
-        store.pushStreamId(streamId, params.sender, params.recipient);
+        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     function createWithRange(LockupLinear.CreateWithRange memory params)
         public
-        checkUsers(params.sender, params.recipient, params.broker.account)
         instrument("createWithRange")
+        useCurrentTimestamp
+        checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (lockupStore.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -104,6 +114,6 @@ contract LockupLinearCreateHandler is BaseHandler {
         uint256 streamId = linear.createWithRange(params);
 
         // Store the stream id.
-        store.pushStreamId(streamId, params.sender, params.recipient);
+        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 }
