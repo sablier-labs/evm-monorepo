@@ -77,7 +77,7 @@ library LockupDynamic {
         uint128 totalAmount;
         IERC20 asset;
         Broker broker;
-        LockupDynamic.SegmentWithDelta[] segments;
+        SegmentWithDelta[] segments;
     }
 
     /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithMilestones}
@@ -101,7 +101,7 @@ library LockupDynamic {
         uint128 totalAmount;
         IERC20 asset;
         Broker broker;
-        LockupDynamic.Segment[] segments;
+        Segment[] segments;
     }
 
     /// @notice Struct encapsulating the time range of a lockup dynamic stream.
@@ -183,7 +183,7 @@ library LockupLinear {
         uint128 totalAmount;
         IERC20 asset;
         bool cancelable;
-        LockupLinear.Durations durations;
+        Durations durations;
         Broker broker;
     }
 
