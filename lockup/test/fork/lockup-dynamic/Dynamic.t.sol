@@ -57,6 +57,7 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
         Lockup.Status expectedStatus;
         uint256 initialDynamicContractBalance;
         uint256 initialRecipientBalance;
+        bool isCancelable;
         bool isDepleted;
         bool isSettled;
         LockupDynamic.Range range;
@@ -182,22 +183,23 @@ abstract contract Dynamic_Fork_Test is Fork_Test {
             })
         );
 
+        // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
+        // because some segment amounts can be zero.
+        vars.isSettled = dynamic.refundableAmountOf(vars.streamId) == 0;
+        vars.isCancelable = vars.isSettled ? false : true;
+
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, asset, "asset");
         assertEq(actualStream.endTime, vars.range.end, "endTime");
-        assertEq(actualStream.isCancelable, true, "isCancelable");
+        assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.segments, params.segments, "segments");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.startTime, "startTime");
         assertEq(actualStream.wasCanceled, false, "wasCanceled");
-
-        // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
-        // because some segment amounts can be zero.
-        vars.isSettled = dynamic.refundableAmountOf(vars.streamId) == 0;
 
         // Assert that the stream's status is correct.
         vars.actualStatus = dynamic.statusOf(vars.streamId);

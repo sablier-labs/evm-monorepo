@@ -2,4 +2,7 @@ getStream.t.sol
 ├── when the id references a null stream
 │  └── it should revert
 └── when the id does not reference a null stream
-   └── it should return the stream
+   ├── when the stream is settled
+   │  └── it should adjust and return the stream
+   └── when the id does not reference a null stream
+      └── it should return the stream

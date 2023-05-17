@@ -164,6 +164,11 @@ contract SablierV2LockupDynamic is
         returns (LockupDynamic.Stream memory stream)
     {
         stream = _streams[streamId];
+
+        // Settled streams cannot be canceled.
+        if (_statusOf(streamId) == Lockup.Status.SETTLED) {
+            stream.isCancelable = false;
+        }
     }
 
     /// @inheritdoc ISablierV2Lockup

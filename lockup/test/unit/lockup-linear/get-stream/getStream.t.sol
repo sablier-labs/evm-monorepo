@@ -7,6 +7,13 @@ import { LockupLinear } from "src/types/DataTypes.sol";
 import { Linear_Unit_Test } from "../Linear.t.sol";
 
 contract GetStream_Linear_Unit_Test is Linear_Unit_Test {
+    uint256 internal defaultStreamId;
+
+    function setUp() public virtual override {
+        Linear_Unit_Test.setUp();
+        defaultStreamId = createDefaultStream();
+    }
+
     function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
@@ -17,9 +24,20 @@ contract GetStream_Linear_Unit_Test is Linear_Unit_Test {
         _;
     }
 
-    function test_GetStream() external whenNotNull {
-        uint256 streamId = createDefaultStream();
-        LockupLinear.Stream memory actualStream = linear.getStream(streamId);
+    function test_GetStream_StatusSettled() external whenNotNull {
+        vm.warp({ timestamp: defaults.END_TIME() });
+        LockupLinear.Stream memory actualStream = linear.getStream(defaultStreamId);
+        LockupLinear.Stream memory expectedStream = defaults.linearStream();
+        expectedStream.isCancelable = false;
+        assertEq(actualStream, expectedStream);
+    }
+
+    modifier whenStatusNotSettled() {
+        _;
+    }
+
+    function test_GetStream() external whenNotNull whenStatusNotSettled {
+        LockupLinear.Stream memory actualStream = linear.getStream(defaultStreamId);
         LockupLinear.Stream memory expectedStream = defaults.linearStream();
         assertEq(actualStream, expectedStream);
     }

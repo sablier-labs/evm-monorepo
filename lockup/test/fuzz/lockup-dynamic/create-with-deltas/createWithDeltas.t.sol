@@ -26,6 +26,7 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
         Lockup.Status expectedStatus;
         address funder;
         uint128 initialProtocolRevenues;
+        bool isCancelable;
         bool isSettled;
         LockupDynamic.Segment[] segmentsWithMilestones;
         uint128 totalAmount;
@@ -96,22 +97,23 @@ contract CreateWithDeltas_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWithDelt
         params.totalAmount = vars.totalAmount;
         dynamic.createWithDeltas(params);
 
+        // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
+        // because some segment amounts can be zero.
+        vars.isSettled = dynamic.refundableAmountOf(streamId) == 0;
+        vars.isCancelable = vars.isSettled ? false : true;
+
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
-        assertEq(actualStream.isCancelable, true, "isCancelable");
+        assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.segments, vars.segmentsWithMilestones, "segments");
         assertEq(actualStream.sender, users.sender, "sender");
         assertEq(actualStream.startTime, range.start, "startTime");
         assertEq(actualStream.wasCanceled, false, "wasCanceled");
-
-        // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
-        // because some segment amounts can be zero.
-        vars.isSettled = dynamic.refundableAmountOf(streamId) == 0;
 
         // Assert that the stream's status is correct.
         vars.actualStatus = dynamic.statusOf(streamId);
