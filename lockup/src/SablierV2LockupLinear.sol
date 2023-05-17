@@ -168,8 +168,8 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCold(uint256 streamId) public view override returns (bool result) {
-        Lockup.Status status = statusOf(streamId);
+    function isCold(uint256 streamId) public view override notNull(streamId) returns (bool result) {
+        Lockup.Status status = _statusOf(streamId);
         result = status == Lockup.Status.SETTLED || status == Lockup.Status.CANCELED || status == Lockup.Status.DEPLETED;
     }
 
@@ -190,8 +190,8 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isWarm(uint256 streamId) external view override returns (bool result) {
-        Lockup.Status status = statusOf(streamId);
+    function isWarm(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        Lockup.Status status = _statusOf(streamId);
         result = status == Lockup.Status.PENDING || status == Lockup.Status.STREAMING;
     }
 
@@ -224,21 +224,7 @@ contract SablierV2LockupLinear is
         notNull(streamId)
         returns (Lockup.Status status)
     {
-        if (_streams[streamId].isDepleted) {
-            return Lockup.Status.DEPLETED;
-        } else if (_streams[streamId].wasCanceled) {
-            return Lockup.Status.CANCELED;
-        }
-
-        if (block.timestamp < _streams[streamId].startTime) {
-            return Lockup.Status.PENDING;
-        }
-
-        if (_calculateStreamedAmount(streamId) < _streams[streamId].amounts.deposited) {
-            status = Lockup.Status.STREAMING;
-        } else {
-            status = Lockup.Status.SETTLED;
-        }
+        status = _statusOf(streamId);
     }
 
     /// @inheritdoc ISablierV2LockupLinear
@@ -361,6 +347,25 @@ contract SablierV2LockupLinear is
     /// @inheritdoc SablierV2Lockup
     function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
         result = msg.sender == _streams[streamId].sender;
+    }
+
+    /// @dev See the documentation for the user-facing functions that call this internal function.
+    function _statusOf(uint256 streamId) public view returns (Lockup.Status status) {
+        if (_streams[streamId].isDepleted) {
+            return Lockup.Status.DEPLETED;
+        } else if (_streams[streamId].wasCanceled) {
+            return Lockup.Status.CANCELED;
+        }
+
+        if (block.timestamp < _streams[streamId].startTime) {
+            return Lockup.Status.PENDING;
+        }
+
+        if (_calculateStreamedAmount(streamId) < _streams[streamId].amounts.deposited) {
+            status = Lockup.Status.STREAMING;
+        } else {
+            status = Lockup.Status.SETTLED;
+        }
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
