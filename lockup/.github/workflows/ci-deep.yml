@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       forkRuns:
-        default: "100000"
+        default: "1000"
         description: 'Number of fork test runs. Defaults to 1000'
         required: false
       fuzzRuns:
