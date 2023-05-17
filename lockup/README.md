@@ -73,6 +73,14 @@ contract MyContract {
 }
 ```
 
+## Deployments
+
+You can see the full list of deployments addresses [here](https://docs.sablier.com).
+
+It is worth noting that not every file in this repository is included in each deployment. For instance, the
+`SablierV2FlashLoan` abstract is not inherited by any contract on the `main` branch. However, we have decided to keep it
+in version control because we may decide to use it in the future.
+
 ## Security
 
 Please refer to the [SECURITY](./SECURITY.md) policy for any security-related concerns. This repository is subject to a
