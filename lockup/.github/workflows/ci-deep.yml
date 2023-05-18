@@ -87,7 +87,7 @@ jobs:
           echo "## Build result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
-  test-fuzz:
+  test-integration:
     env:
       FOUNDRY_FUZZ_RUNS: ${{ inputs.fuzzRuns || "100000" }}
     needs: ["lint", "build"]
@@ -108,12 +108,12 @@ jobs:
           key: "foundry-build-${{ github.sha }}"
           path: "optimized-out"
 
-      - name: "Run the fuzz tests against the optimized build"
-        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/fuzz/**/*.sol\""
+      - name: "Run the integration tests against the optimized build"
+        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/integration/**/*.sol\""
 
       - name: "Add test summary"
         run: |
-          echo "## Fuzz tests result" >> $GITHUB_STEP_SUMMARY
+          echo "## Integration tests result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
   test-invariant:
