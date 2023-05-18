@@ -35,10 +35,6 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
         assertEq(actualAdmin, expectedAdmin, "admin");
     }
 
-    modifier whenNotZeroAddress() {
-        _;
-    }
-
     function test_TransferAdmin_ZeroAddress() external whenCallerAdmin {
         // Expect a {TransferAdmin} event to be emitted.
         vm.expectEmit({ emitter: address(adminable) });
@@ -51,6 +47,10 @@ contract TransferAdmin_Unit_Test is Adminable_Unit_Test {
         address actualAdmin = adminable.admin();
         address expectedAdmin = address(0);
         assertEq(actualAdmin, expectedAdmin, "admin");
+    }
+
+    modifier whenNotZeroAddress() {
+        _;
     }
 
     function test_TransferAdmin_NewAdmin() external whenCallerAdmin whenNotZeroAddress {

@@ -232,7 +232,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
-        whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
     {
         UD60x18 protocolFee = MAX_FEE + ud(1);
@@ -260,7 +259,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
-        whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
     {
@@ -280,7 +278,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
-        whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
@@ -309,7 +306,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
-        whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
@@ -329,7 +325,6 @@ contract CreateWithMilestones_Dynamic_Unit_Test is Dynamic_Unit_Test, CreateWith
         whenStartTimeLessThanFirstSegmentMilestone
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
-        whenStartTimeLessThanFirstSegmentMilestone
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh

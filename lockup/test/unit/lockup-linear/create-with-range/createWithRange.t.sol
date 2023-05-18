@@ -86,10 +86,6 @@ contract CreateWithRange_Linear_Unit_Test is Linear_Unit_Test, CreateWithRange_L
         createDefaultStream();
     }
 
-    modifier whenEndTimeInTheFuture() {
-        _;
-    }
-
     function test_RevertWhen_ProtocolFeeTooHigh()
         external
         whenNotDelegateCalled

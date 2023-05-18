@@ -30,6 +30,10 @@ abstract contract CreateWithRange_Linear_Shared_Test is Linear_Shared_Test {
         _;
     }
 
+    modifier whenEndTimeInTheFuture() {
+        _;
+    }
+
     modifier whenProtocolFeeNotTooHigh() {
         _;
     }

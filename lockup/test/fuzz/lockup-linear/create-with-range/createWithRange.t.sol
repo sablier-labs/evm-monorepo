@@ -60,6 +60,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
+        whenEndTimeInTheFuture
     {
         protocolFee = _bound(protocolFee, MAX_FEE + ud(1), MAX_UD60x18);
 
@@ -82,6 +83,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
+        whenEndTimeInTheFuture
         whenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
@@ -125,6 +127,7 @@ contract CreateWithRange_Linear_Fuzz_Test is Linear_Fuzz_Test, CreateWithRange_L
         whenDepositAmountNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
+        whenEndTimeInTheFuture
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract

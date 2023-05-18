@@ -89,8 +89,9 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenSegmentMilestonesOrdered
         whenStartTimeLessThanFirstSegmentMilestone
+        whenSegmentMilestonesOrdered
+        whenEndTimeInTheFuture
     {
         depositDiff = boundUint128(depositDiff, 100, defaults.TOTAL_AMOUNT());
 
@@ -130,8 +131,9 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenSegmentMilestonesOrdered
         whenStartTimeLessThanFirstSegmentMilestone
+        whenSegmentMilestonesOrdered
+        whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
     {
         protocolFee = _bound(protocolFee, MAX_FEE + ud(1), MAX_UD60x18);
@@ -156,8 +158,9 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenSegmentMilestonesOrdered
         whenStartTimeLessThanFirstSegmentMilestone
+        whenSegmentMilestonesOrdered
+        whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
     {
@@ -205,8 +208,9 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenSegmentMilestonesOrdered
         whenStartTimeLessThanFirstSegmentMilestone
+        whenSegmentMilestonesOrdered
+        whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         whenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
