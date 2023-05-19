@@ -3,6 +3,6 @@ getStream.t.sol
 │  └── it should revert
 └── when the id does not reference a null stream
    ├── when the stream is settled
-   │  └── it should adjust and return the stream
+   │  └── it should adjust the `isCancelable` flag and return the stream
    └── when the id does not reference a null stream
       └── it should return the stream

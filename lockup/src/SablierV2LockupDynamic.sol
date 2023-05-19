@@ -239,13 +239,7 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function statusOf(uint256 streamId)
-        public
-        view
-        override(ISablierV2Lockup, SablierV2Lockup)
-        notNull(streamId)
-        returns (Lockup.Status status)
-    {
+    function statusOf(uint256 streamId) external view override notNull(streamId) returns (Lockup.Status status) {
         status = _statusOf(streamId);
     }
 
@@ -443,8 +437,8 @@ contract SablierV2LockupDynamic is
         result = msg.sender == _streams[streamId].sender;
     }
 
-    /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _statusOf(uint256 streamId) public view returns (Lockup.Status status) {
+    /// @inheritdoc SablierV2Lockup
+    function _statusOf(uint256 streamId) internal view override returns (Lockup.Status status) {
         if (_streams[streamId].isDepleted) {
             return Lockup.Status.DEPLETED;
         } else if (_streams[streamId].wasCanceled) {
