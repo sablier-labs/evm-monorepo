@@ -167,13 +167,13 @@ contract SablierV2LockupLinear is
 
     /// @inheritdoc ISablierV2Lockup
     function isCancelable(uint256 streamId) external view override notNull(streamId) returns (bool result) {
-        if (!isCold(streamId)) {
+        if (_statusOf(streamId) != Lockup.Status.SETTLED) {
             result = _streams[streamId].isCancelable;
         }
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isCold(uint256 streamId) public view override notNull(streamId) returns (bool result) {
+    function isCold(uint256 streamId) external view override notNull(streamId) returns (bool result) {
         Lockup.Status status = _statusOf(streamId);
         result = status == Lockup.Status.SETTLED || status == Lockup.Status.CANCELED || status == Lockup.Status.DEPLETED;
     }
@@ -222,13 +222,7 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function statusOf(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        returns (Lockup.Status status)
-    {
+    function statusOf(uint256 streamId) external view override notNull(streamId) returns (Lockup.Status status) {
         status = _statusOf(streamId);
     }
 
