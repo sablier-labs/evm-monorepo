@@ -40,7 +40,7 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Deploy the entire Sablier V2 protocol"
+      - name: "Deploy the Sablier V2 Core protocol"
         run: >-
           forge script script/deploy/DeployProtocol.s.sol
           --broadcast
