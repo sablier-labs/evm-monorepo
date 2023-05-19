@@ -125,6 +125,34 @@ jobs:
           echo "## Integration tests result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
+
+  test-utils:
+    needs: ["lint", "build"]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
+      - name: "Restore the cached build"
+        uses: "actions/cache/restore@v3"
+        with:
+          fail-on-cache-miss: true
+          key: "foundry-build-${{ github.sha }}"
+          path: "optimized-out"
+
+      - name: "Run the utils tests against the optimized build"
+        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/utils/**/*.sol\""
+
+      - name: "Add test summary"
+        run: |
+          echo "## Integration tests result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
   test-invariant:
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
