@@ -14,7 +14,7 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, CancelMultiple_Shared_T
     }
 
     function testFuzz_CancelMultiple(
-        uint256 timeWarp,
+        uint256 timeJump,
         uint40 endTime
     )
         external
@@ -24,14 +24,14 @@ abstract contract CancelMultiple_Fuzz_Test is Fuzz_Test, CancelMultiple_Shared_T
         whenCallerAuthorizedAllStreams
         whenAllStreamsCancelable
     {
-        timeWarp = _bound(timeWarp, 0 seconds, defaults.TOTAL_DURATION() - 1 seconds);
+        timeJump = _bound(timeJump, 0 seconds, defaults.TOTAL_DURATION() - 1 seconds);
         endTime = boundUint40(endTime, defaults.END_TIME(), defaults.END_TIME() + defaults.TOTAL_DURATION());
 
         // Create a new stream with a different end time.
         uint256 streamId = createDefaultStreamWithEndTime(endTime);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(testStreamIds[0], streamId);

@@ -27,7 +27,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
     /// - Status settled
     function testFuzz_StreamedAmountOf_OneSegment(
         LockupDynamic.Segment memory segment,
-        uint40 timeWarp
+        uint40 timeJump
     )
         external
         whenNotNull
@@ -36,7 +36,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
     {
         vm.assume(segment.amount != 0);
         segment.milestone = boundUint40(segment.milestone, defaults.CLIFF_TIME(), defaults.END_TIME());
-        timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Create the single-segment array.
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);
@@ -53,7 +53,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = defaults.START_TIME() + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeJump;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
@@ -80,7 +80,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
     /// - Status settled
     function testFuzz_StreamedAmountOf_Calculation(
         LockupDynamic.Segment[] memory segments,
-        uint40 timeWarp
+        uint40 timeJump
     )
         external
         whenNotNull
@@ -102,10 +102,10 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
             brokerFee: ZERO
         });
 
-        // Bound the time warp.
+        // Bound the time jump.
         uint40 firstSegmentDuration = segments[1].milestone - segments[0].milestone;
         uint40 totalDuration = segments[segments.length - 1].milestone - defaults.START_TIME();
-        timeWarp = boundUint40(timeWarp, firstSegmentDuration, totalDuration + 100 seconds);
+        timeJump = boundUint40(timeJump, firstSegmentDuration, totalDuration + 100 seconds);
 
         // Mint enough assets to the sender.
         deal({ token: address(dai), to: users.sender, give: totalAmount });
@@ -118,7 +118,7 @@ contract StreamedAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, StreamedAmount
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = defaults.START_TIME() + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeJump;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.

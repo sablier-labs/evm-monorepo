@@ -9,11 +9,11 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, GetWithdrawnAmount_
         GetWithdrawnAmount_Shared_Test.setUp();
     }
 
-    function testFuzz_GetWithdrawnAmount_NoPreviousWithdrawals(uint256 timeWarp) external whenNotNull {
-        timeWarp = _bound(timeWarp, 0 seconds, defaults.TOTAL_DURATION() * 2);
+    function testFuzz_GetWithdrawnAmount_NoPreviousWithdrawals(uint256 timeJump) external whenNotNull {
+        timeJump = _bound(timeJump, 0 seconds, defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
@@ -22,17 +22,17 @@ abstract contract GetWithdrawnAmount_Fuzz_Test is Fuzz_Test, GetWithdrawnAmount_
     }
 
     function testFuzz_GetWithdrawnAmount(
-        uint256 timeWarp,
+        uint256 timeJump,
         uint128 withdrawAmount
     )
         external
         whenNotNull
         whenPreviousWithdrawals
     {
-        timeWarp = _bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
+        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
         uint128 streamedAmount = lockup.streamedAmountOf(defaultStreamId);

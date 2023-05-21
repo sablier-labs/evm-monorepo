@@ -56,7 +56,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Withdraw_Shared_Test {
     /// - Multiple values for the withdrawal address.
     /// - Multiple withdraw amounts.
     function testFuzz_Withdraw_StreamHasBeenCanceled(
-        uint256 timeWarp,
+        uint256 timeJump,
         address to,
         uint128 withdrawAmount
     )
@@ -69,11 +69,11 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Withdraw_Shared_Test {
         whenWithdrawAmountNotGreaterThanWithdrawableAmount
         whenCallerRecipient
     {
-        timeWarp = _bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
+        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
         vm.assume(to != address(0));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Cancel the stream.
         lockup.cancel({ streamId: defaultStreamId });
@@ -120,7 +120,7 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Withdraw_Shared_Test {
     /// - Multiple values for the withdrawal address
     /// - Multiple withdraw amounts
     function testFuzz_Withdraw(
-        uint256 timeWarp,
+        uint256 timeJump,
         address to,
         uint128 withdrawAmount
     )
@@ -134,11 +134,11 @@ abstract contract Withdraw_Fuzz_Test is Fuzz_Test, Withdraw_Shared_Test {
         whenCallerRecipient
         whenStreamHasNotBeenCanceled
     {
-        timeWarp = _bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
         vm.assume(to != address(0));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);

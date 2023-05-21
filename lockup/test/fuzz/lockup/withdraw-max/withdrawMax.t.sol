@@ -11,11 +11,11 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, WithdrawMax_Shared_Test {
         WithdrawMax_Shared_Test.setUp();
     }
 
-    function testFuzz_WithdrawMax_EndTimeNotInTheFuture(uint256 timeWarp) external {
-        timeWarp = _bound(timeWarp, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2);
+    function testFuzz_WithdrawMax_EndTimeNotInTheFuture(uint256 timeJump) external {
+        timeJump = _bound(timeJump, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Expect the ERC-20 assets to be transferred to the recipient.
         expectCallToTransfer({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT() });
@@ -51,11 +51,11 @@ abstract contract WithdrawMax_Fuzz_Test is Fuzz_Test, WithdrawMax_Shared_Test {
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    function testFuzz_WithdrawMax(uint256 timeWarp) external whenEndTimeInTheFuture {
-        timeWarp = _bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
+    function testFuzz_WithdrawMax(uint256 timeJump) external whenEndTimeInTheFuture {
+        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
