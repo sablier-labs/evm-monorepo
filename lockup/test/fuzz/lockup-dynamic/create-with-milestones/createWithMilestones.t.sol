@@ -177,6 +177,7 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
         address expectedNFTOwner;
         uint256 expectedProtocolRevenues;
         Lockup.Status expectedStatus;
+        bool isCancelable;
         bool isSettled;
         uint128 totalAmount;
     }
@@ -286,22 +287,23 @@ contract CreateWithMilestones_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, CreateWith
             })
         );
 
+        // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
+        // because some segment amounts can be zero.
+        vars.isSettled = dynamic.refundableAmountOf(streamId) == 0;
+        vars.isCancelable = vars.isSettled ? false : params.cancelable;
+
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
-        assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
+        assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isStream");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.segments, params.segments, "segments");
         assertEq(actualStream.startTime, range.start, "startTime");
         assertEq(actualStream.wasCanceled, false, "wasCanceled");
-
-        // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
-        // because some segment amounts can be zero.
-        vars.isSettled = dynamic.refundableAmountOf(streamId) == 0;
 
         // Assert that the stream's status is correct.
         vars.actualStatus = dynamic.statusOf(streamId);

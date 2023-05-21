@@ -7,10 +7,10 @@ import { Lockup_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
 import { Unit_Test } from "../../Unit.t.sol";
 
 abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
-    uint256 internal streamId;
+    uint256 internal defaultStreamId;
 
     function setUp() public virtual override(Unit_Test, Lockup_Shared_Test) {
-        streamId = createDefaultStream();
+        defaultStreamId = createDefaultStream();
     }
 
     function test_RevertWhen_Null() external {
@@ -31,14 +31,14 @@ abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
         changePrank({ msgSender: users.recipient });
 
         // Deplete the stream.
-        lockup.withdrawMax({ streamId: streamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         // Burn the NFT.
-        lockup.burn(streamId);
+        lockup.burn(defaultStreamId);
 
         // Expect an error when accessing the recipient.
         vm.expectRevert("ERC721: invalid token ID");
-        lockup.getRecipient(streamId);
+        lockup.getRecipient(defaultStreamId);
     }
 
     modifier whenNFTNotBurned() {
@@ -46,7 +46,7 @@ abstract contract GetRecipient_Unit_Test is Unit_Test, Lockup_Shared_Test {
     }
 
     function test_GetRecipient() external whenNotNull whenNFTNotBurned {
-        address actualRecipient = lockup.getRecipient(streamId);
+        address actualRecipient = lockup.getRecipient(defaultStreamId);
         address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient, "recipient");
     }

@@ -73,9 +73,6 @@ abstract contract SablierV2Lockup is
     /// @inheritdoc ISablierV2Lockup
     function isStream(uint256 streamId) public view virtual override returns (bool result);
 
-    /// @inheritdoc ISablierV2Lockup
-    function statusOf(uint256 streamId) public view virtual override returns (Lockup.Status status);
-
     /// @inheritdoc ERC721
     function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
         // Checks: the stream NFT exists.
@@ -90,7 +87,7 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function withdrawableAmountOf(uint256 streamId)
-        public
+        external
         view
         override
         notNull(streamId)
@@ -155,9 +152,9 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall {
+    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) {
         // Checks: the stream is not cold.
-        Lockup.Status status = statusOf(streamId);
+        Lockup.Status status = _statusOf(streamId);
         if (status == Lockup.Status.DEPLETED) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
         } else if (status == Lockup.Status.CANCELED) {
@@ -271,6 +268,9 @@ abstract contract SablierV2Lockup is
     /// @notice Checks whether `msg.sender` is the stream's sender.
     /// @param streamId The stream id for the query.
     function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
+
+    /// @dev Retrieves the stream's status without performing a null check.
+    function _statusOf(uint256 streamId) internal view virtual returns (Lockup.Status status);
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdrawableAmountOf(uint256 streamId) internal view virtual returns (uint128 withdrawableAmount);

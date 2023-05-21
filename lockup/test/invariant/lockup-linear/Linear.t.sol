@@ -103,4 +103,18 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
             assertNotEq(stream.endTime, 0, "Invariant violated: stream non-null, end time zero");
         }
     }
+
+    /// @dev Settled streams must not appear as cancelable in {SablierV2LockupLinear.getStream}.
+    function invariant_StatusSettled_GetStream() external {
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupStore.streamIds(i);
+            if (linear.statusOf(streamId) == Lockup.Status.SETTLED) {
+                assertFalse(
+                    linear.getStream(streamId).isCancelable,
+                    "Invariant violation: stream returned by getStream() is cancelable"
+                );
+            }
+        }
+    }
 }
