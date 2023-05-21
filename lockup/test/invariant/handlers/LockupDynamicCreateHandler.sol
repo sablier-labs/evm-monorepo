@@ -8,8 +8,9 @@ import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol"
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { BaseHandler } from "./BaseHandler.t.sol";
-import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
+import { LockupStore } from "../stores/LockupStore.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @title LockupDynamicCreateHandler
 /// @dev This contract is a complement of {LockupDynamicHandler}. The goal is to bias the invariant calls
@@ -20,10 +21,9 @@ contract LockupDynamicCreateHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public asset;
     ISablierV2Comptroller public comptroller;
     ISablierV2LockupDynamic public dynamic;
-    LockupHandlerStorage public store;
+    LockupStore public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -31,28 +31,34 @@ contract LockupDynamicCreateHandler is BaseHandler {
 
     constructor(
         IERC20 asset_,
+        TimestampStore timestampStore_,
+        LockupStore lockupStore_,
         ISablierV2Comptroller comptroller_,
-        ISablierV2LockupDynamic dynamic_,
-        LockupHandlerStorage store_
-    ) {
-        asset = asset_;
+        ISablierV2LockupDynamic dynamic_
+    )
+        BaseHandler(asset_, timestampStore_)
+    {
+        lockupStore = lockupStore_;
         comptroller = comptroller_;
         dynamic = dynamic_;
-        store = store_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDeltas(LockupDynamic.CreateWithDeltas memory params)
+    function createWithDeltas(
+        uint256 timeJumpSeed,
+        LockupDynamic.CreateWithDeltas memory params
+    )
         public
-        checkUsers(params.sender, params.recipient, params.broker.account)
         instrument("createWithDeltas")
+        adjustTimestamp(timeJumpSeed)
+        checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        if (store.lastStreamId() > MAX_STREAM_COUNT) {
+        if (lockupStore.lastStreamId() > MAX_STREAM_COUNT) {
             return;
         }
 
@@ -86,17 +92,21 @@ contract LockupDynamicCreateHandler is BaseHandler {
         uint256 streamId = dynamic.createWithDeltas(params);
 
         // Store the stream id.
-        store.pushStreamId(streamId, params.sender, params.recipient);
+        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    function createWithMilestones(LockupDynamic.CreateWithMilestones memory params)
+    function createWithMilestones(
+        uint256 timeJumpSeed,
+        LockupDynamic.CreateWithMilestones memory params
+    )
         public
-        checkUsers(params.sender, params.recipient, params.broker.account)
         instrument("createWithMilestones")
+        adjustTimestamp(timeJumpSeed)
+        checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (lockupStore.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -130,6 +140,6 @@ contract LockupDynamicCreateHandler is BaseHandler {
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Store the stream id.
-        store.pushStreamId(streamId, params.sender, params.recipient);
+        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 }

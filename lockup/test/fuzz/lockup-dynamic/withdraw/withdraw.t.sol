@@ -16,7 +16,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
 
     struct Params {
         LockupDynamic.Segment[] segments;
-        uint256 timeWarp;
+        uint256 timeJump;
         address to;
     }
 
@@ -58,9 +58,9 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         // Fuzz the segment amounts.
         (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(params.segments);
 
-        // Bound the time warp.
+        // Bound the time jump.
         vars.totalDuration = params.segments[params.segments.length - 1].milestone - defaults.START_TIME();
-        params.timeWarp = _bound(params.timeWarp, 1 seconds, vars.totalDuration + 100 seconds);
+        params.timeJump = _bound(params.timeJump, 1 seconds, vars.totalDuration + 100 seconds);
 
         // Mint enough assets to the funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
@@ -76,7 +76,7 @@ contract Withdraw_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdraw_Fuzz_Test {
         vars.streamId = dynamic.createWithMilestones(createParams);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + params.timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + params.timeJump });
 
         // Query the withdrawable amount.
         vars.withdrawableAmount = dynamic.withdrawableAmountOf(vars.streamId);

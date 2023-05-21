@@ -11,7 +11,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
         Cancel_Shared_Test.setUp();
     }
 
-    function testFuzz_Cancel_StatusPending(uint256 timeWarp)
+    function testFuzz_Cancel_StatusPending(uint256 timeJump)
         external
         whenNotDelegateCalled
         whenNotNull
@@ -19,10 +19,10 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
         whenCallerAuthorized
         whenStreamCancelable
     {
-        timeWarp = _bound(timeWarp, 1 seconds, 100 weeks);
+        timeJump = _bound(timeJump, 1 seconds, 100 weeks);
 
         // Warp to the past.
-        vm.warp({ timestamp: getBlockTimestamp() - timeWarp });
+        vm.warp({ timestamp: getBlockTimestamp() - timeJump });
 
         // Cancel the stream.
         lockup.cancel(defaultStreamId);
@@ -42,7 +42,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
     /// - Multiple values for the current time
     /// - With and without withdrawals
     function testFuzz_Cancel_CallerSender(
-        uint256 timeWarp,
+        uint256 timeJump,
         uint128 withdrawAmount
     )
         external
@@ -58,13 +58,13 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
         whenRecipientDoesNotRevert
         whenNoRecipientReentrancy
     {
-        timeWarp = _bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
+        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
         uint128 streamedAmount = lockup.streamedAmountOf(streamId);
@@ -107,7 +107,7 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
     /// - Multiple values for the current time
     /// - With and without withdrawals
     function testFuzz_Cancel_CallerRecipient(
-        uint256 timeWarp,
+        uint256 timeJump,
         uint128 withdrawAmount
     )
         external
@@ -123,13 +123,13 @@ abstract contract Cancel_Fuzz_Test is Fuzz_Test, Cancel_Shared_Test {
         whenSenderDoesNotRevert
         whenNoSenderReentrancy
     {
-        timeWarp = _bound(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
+        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
 
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
         uint128 streamedAmount = lockup.streamedAmountOf(streamId);

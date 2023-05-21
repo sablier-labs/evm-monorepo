@@ -8,7 +8,8 @@ import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 import { IERC3156FlashBorrower } from "src/interfaces/erc3156/IERC3156FlashBorrower.sol";
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 
-import { BaseHandler } from "./BaseHandler.t.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @title FlashLoanHandler
 /// @dev This contract and not {SablierV2FlashLoan} is exposed to Foundry for invariant testing. The point is
@@ -18,7 +19,6 @@ contract FlashLoanHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public asset;
     ISablierV2Comptroller public comptroller;
     SablierV2FlashLoan public flashLoanContract;
     IERC3156FlashBorrower internal receiver;
@@ -29,11 +29,13 @@ contract FlashLoanHandler is BaseHandler {
 
     constructor(
         IERC20 asset_,
+        TimestampStore timestampStore_,
         ISablierV2Comptroller comptroller_,
         SablierV2FlashLoan flashLoanContract_,
         IERC3156FlashBorrower receiver_
-    ) {
-        asset = asset_;
+    )
+        BaseHandler(asset_, timestampStore_)
+    {
         comptroller = comptroller_;
         flashLoanContract = flashLoanContract_;
         receiver = receiver_;
@@ -43,7 +45,14 @@ contract FlashLoanHandler is BaseHandler {
                                SABLIER-V2-FLASH-LOAN
     //////////////////////////////////////////////////////////////////////////*/
 
-    function flashLoan(uint128 amount) external instrument("flashLoan") {
+    function flashLoan(
+        uint256 timeJumpSeed,
+        uint128 amount
+    )
+        external
+        instrument("flashLoan")
+        adjustTimestamp(timeJumpSeed)
+    {
         // Only up to `MAX_UINT128` assets can be flash loaned.
         uint256 balance = asset.balanceOf(address(this));
         uint128 upperBound = uint128(Math.min(balance, MAX_UINT128));

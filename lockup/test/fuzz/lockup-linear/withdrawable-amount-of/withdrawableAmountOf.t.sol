@@ -15,13 +15,13 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         WithdrawableAmountOf_Shared_Test.setUp();
     }
 
-    function testFuzz_WithdrawableAmountOf_CliffTimeInTheFuture(uint40 timeWarp)
+    function testFuzz_WithdrawableAmountOf_CliffTimeInTheFuture(uint40 timeJump)
         external
         whenNotNull
         whenStreamHasNotBeenCanceled
     {
-        timeWarp = boundUint40(timeWarp, 0, defaults.CLIFF_DURATION() - 1);
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        timeJump = boundUint40(timeJump, 0, defaults.CLIFF_DURATION() - 1);
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
         uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
@@ -43,7 +43,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
     /// - Status streaming
     /// - Status settled
     function testFuzz_WithdrawableAmountOf_NoPreviousWithdrawals(
-        uint40 timeWarp,
+        uint40 timeJump,
         uint128 depositAmount
     )
         external
@@ -52,7 +52,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         whenCliffTimeNotInTheFuture
     {
         vm.assume(depositAmount != 0);
-        timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Mint enough assets to the sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
@@ -64,7 +64,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         uint256 streamId = linear.createWithRange(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = defaults.START_TIME() + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeJump;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
@@ -89,7 +89,7 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
     /// - Status depleted
     /// - Withdraw amount equal to deposited amount and not
     function testFuzz_WithdrawableAmountOf(
-        uint40 timeWarp,
+        uint40 timeJump,
         uint128 depositAmount,
         uint128 withdrawAmount
     )
@@ -99,11 +99,11 @@ contract WithdrawableAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, Withdrawable
         whenCliffTimeNotInTheFuture
         whenPreviousWithdrawals
     {
-        timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
         depositAmount = boundUint128(depositAmount, 10_000, MAX_UINT128);
 
         // Define the current time.
-        uint40 currentTime = defaults.START_TIME() + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeJump;
 
         // Bound the withdraw amount.
         uint128 streamedAmount = calculateStreamedAmount(currentTime, depositAmount);

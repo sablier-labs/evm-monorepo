@@ -20,13 +20,13 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
         changePrank({ msgSender: users.sender });
     }
 
-    function testFuzz_StreamedAmountOf_CliffTimeInTheFuture(uint40 timeWarp)
+    function testFuzz_StreamedAmountOf_CliffTimeInTheFuture(uint40 timeJump)
         external
         whenNotNull
         whenStreamHasNotBeenCanceled
     {
-        timeWarp = boundUint40(timeWarp, 0, defaults.CLIFF_DURATION() - 1);
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        timeJump = boundUint40(timeJump, 0, defaults.CLIFF_DURATION() - 1);
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
         uint128 actualStreamedAmount = linear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -45,7 +45,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
     /// - Status streaming
     /// - Status settled
     function testFuzz_StreamedAmountOf_Calculation(
-        uint40 timeWarp,
+        uint40 timeJump,
         uint128 depositAmount
     )
         external
@@ -54,7 +54,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
         whenCliffTimeNotInTheFuture
     {
         vm.assume(depositAmount != 0);
-        timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Mint enough assets to the sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
@@ -66,7 +66,7 @@ contract StreamedAmountOf_Linear_Fuzz_Test is Linear_Fuzz_Test, StreamedAmountOf
         uint256 streamId = linear.createWithRange(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = defaults.START_TIME() + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeJump;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.

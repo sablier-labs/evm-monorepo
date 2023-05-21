@@ -6,8 +6,9 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
-import { BaseHandler } from "./BaseHandler.t.sol";
-import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { LockupStore } from "../stores/LockupStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @title LockupLinearCreateHandler
 /// @dev This contract is a complement of {LockupLinearHandler}. The goal is to bias the invariant calls
@@ -18,32 +19,41 @@ contract LockupLinearCreateHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public asset;
     ISablierV2LockupLinear public linear;
-    LockupHandlerStorage public store;
+    LockupStore public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, ISablierV2LockupLinear linear_, LockupHandlerStorage store_) {
-        asset = asset_;
+    constructor(
+        IERC20 asset_,
+        TimestampStore timestampStore_,
+        LockupStore lockupStore_,
+        ISablierV2LockupLinear linear_
+    )
+        BaseHandler(asset_, timestampStore_)
+    {
+        lockupStore = lockupStore_;
         linear = linear_;
-        store = store_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDurations(LockupLinear.CreateWithDurations memory params)
+    function createWithDurations(
+        uint256 timeJumpSeed,
+        LockupLinear.CreateWithDurations memory params
+    )
         public
-        checkUsers(params.sender, params.recipient, params.broker.account)
         instrument("createWithDurations")
+        adjustTimestamp(timeJumpSeed)
+        checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (lockupStore.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -65,17 +75,21 @@ contract LockupLinearCreateHandler is BaseHandler {
         uint256 streamId = linear.createWithDurations(params);
 
         // Store the stream id.
-        store.pushStreamId(streamId, params.sender, params.recipient);
+        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    function createWithRange(LockupLinear.CreateWithRange memory params)
+    function createWithRange(
+        uint256 timeJumpSeed,
+        LockupLinear.CreateWithRange memory params
+    )
         public
-        checkUsers(params.sender, params.recipient, params.broker.account)
         instrument("createWithRange")
+        adjustTimestamp(timeJumpSeed)
+        checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        if (store.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (lockupStore.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -104,6 +118,6 @@ contract LockupLinearCreateHandler is BaseHandler {
         uint256 streamId = linear.createWithRange(params);
 
         // Store the stream id.
-        store.pushStreamId(streamId, params.sender, params.recipient);
+        lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 }

@@ -31,8 +31,8 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdrawab
     /// - End time in the future
     /// - Status streaming
     /// - Status settled
-    function testFuzz_WithdrawableAmountOf_NoPreviousWithdrawals(uint40 timeWarp) external whenStartTimeInThePast {
-        timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+    function testFuzz_WithdrawableAmountOf_NoPreviousWithdrawals(uint40 timeJump) external whenStartTimeInThePast {
+        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
         // the calculations.
@@ -42,7 +42,7 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdrawab
         uint256 streamId = dynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = defaults.START_TIME() + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeJump;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
@@ -67,17 +67,17 @@ contract WithdrawableAmountOf_Dynamic_Fuzz_Test is Dynamic_Fuzz_Test, Withdrawab
     /// - Status depleted
     /// - Withdraw amount equal to deposited amount and not
     function testFuzz_WithdrawableAmountOf(
-        uint40 timeWarp,
+        uint40 timeJump,
         uint128 withdrawAmount
     )
         external
         whenStartTimeInThePast
         whenWithWithdrawals
     {
-        timeWarp = boundUint40(timeWarp, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
+        timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Define the current time.
-        uint40 currentTime = defaults.START_TIME() + timeWarp;
+        uint40 currentTime = defaults.START_TIME() + timeJump;
 
         // Bound the withdraw amount.
         uint128 streamedAmount =

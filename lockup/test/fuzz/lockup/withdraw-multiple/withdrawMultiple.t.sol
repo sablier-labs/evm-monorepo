@@ -15,7 +15,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, WithdrawMultiple_Shar
     }
 
     function testFuzz_WithdrawMultiple(
-        uint256 timeWarp,
+        uint256 timeJump,
         address to,
         uint128 ongoingWithdrawAmount
     )
@@ -30,7 +30,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, WithdrawMultiple_Shar
         whenNoAmountOverdraws
     {
         vm.assume(to != address(0));
-        timeWarp = _bound(timeWarp, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2 - 1 seconds);
+        timeJump = _bound(timeJump, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2 - 1 seconds);
 
         // Hard code the withdrawal address if the caller is the stream's sender.
         if (caller == users.sender) {
@@ -50,7 +50,7 @@ abstract contract WithdrawMultiple_Fuzz_Test is Fuzz_Test, WithdrawMultiple_Shar
         changePrank({ msgSender: caller });
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Bound the ongoing withdraw amount.
         uint128 ongoingWithdrawableAmount = lockup.withdrawableAmountOf(ongoingStreamId);

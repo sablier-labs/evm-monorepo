@@ -6,8 +6,9 @@ import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { BaseHandler } from "./BaseHandler.t.sol";
-import { LockupHandlerStorage } from "./LockupHandlerStorage.t.sol";
+import { LockupStore } from "../stores/LockupStore.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @title LockupHandler
 /// @dev Common handler logic between {LockupLinearHandler} and {LockupDynamicHandler}.
@@ -16,9 +17,8 @@ abstract contract LockupHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public asset;
     ISablierV2Lockup public lockup;
-    LockupHandlerStorage public store;
+    LockupStore public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
@@ -32,10 +32,16 @@ abstract contract LockupHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, ISablierV2Lockup lockup_, LockupHandlerStorage store_) {
-        asset = asset_;
+    constructor(
+        IERC20 asset_,
+        TimestampStore timestampStore_,
+        LockupStore lockupStore_,
+        ISablierV2Lockup lockup_
+    )
+        BaseHandler(asset_, timestampStore_)
+    {
+        lockupStore = lockupStore_;
         lockup = lockup_;
-        store = store_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -49,27 +55,29 @@ abstract contract LockupHandler is BaseHandler {
         vm.stopPrank();
     }
 
+    /// @dev Picks a random stream from the store.
+    /// @param streamIndexSeed A fuzzed value needed for picking the random stream.
     modifier useFuzzedStream(uint256 streamIndexSeed) {
-        uint256 lastStreamId = store.lastStreamId();
+        uint256 lastStreamId = lockupStore.lastStreamId();
         if (lastStreamId == 0) {
             return;
         }
         uint256 fuzzedStreamId = _bound(streamIndexSeed, 0, lastStreamId - 1);
-        currentStreamId = store.streamIds(fuzzedStreamId);
+        currentStreamId = lockupStore.streamIds(fuzzedStreamId);
         _;
     }
 
     modifier useFuzzedStreamRecipient() {
-        uint256 lastStreamId = store.lastStreamId();
-        currentRecipient = store.recipients(currentStreamId);
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        currentRecipient = lockupStore.recipients(currentStreamId);
         vm.startPrank(currentRecipient);
         _;
         vm.stopPrank();
     }
 
     modifier useFuzzedStreamSender() {
-        uint256 lastStreamId = store.lastStreamId();
-        currentSender = store.senders(currentStreamId);
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        currentSender = lockupStore.senders(currentStreamId);
         vm.startPrank(currentSender);
         _;
         vm.stopPrank();
@@ -79,9 +87,13 @@ abstract contract LockupHandler is BaseHandler {
                                  SABLIER-V2-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    function burn(uint256 streamIndexSeed)
+    function burn(
+        uint256 timeJumpSeed,
+        uint256 streamIndexSeed
+    )
         external
         instrument("burn")
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
     {
@@ -99,12 +111,16 @@ abstract contract LockupHandler is BaseHandler {
         lockup.burn(currentStreamId);
 
         // Set the recipient associated with this stream to the zero address.
-        store.updateRecipient(currentStreamId, address(0));
+        lockupStore.updateRecipient(currentStreamId, address(0));
     }
 
-    function cancel(uint256 streamIndexSeed)
+    function cancel(
+        uint256 timeJumpSeed,
+        uint256 streamIndexSeed
+    )
         external
         instrument("cancel")
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
@@ -123,7 +139,12 @@ abstract contract LockupHandler is BaseHandler {
         lockup.cancel(currentStreamId);
     }
 
-    function claimProtocolRevenues() external instrument("claimProtocolRevenues") useAdmin {
+    function claimProtocolRevenues(uint256 timeJumpSeed)
+        external
+        instrument("claimProtocolRevenues")
+        adjustTimestamp(timeJumpSeed)
+        useAdmin
+    {
         // Can claim revenues only if the protocol has revenues.
         uint128 protocolRevenues = lockup.protocolRevenues(asset);
         if (protocolRevenues == 0) {
@@ -134,9 +155,13 @@ abstract contract LockupHandler is BaseHandler {
         lockup.claimProtocolRevenues(asset);
     }
 
-    function renounce(uint256 streamIndexSeed)
+    function renounce(
+        uint256 timeJumpSeed,
+        uint256 streamIndexSeed
+    )
         external
         instrument("renounce")
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
@@ -156,12 +181,14 @@ abstract contract LockupHandler is BaseHandler {
     }
 
     function withdraw(
+        uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address to,
         uint128 withdrawAmount
     )
         external
         instrument("withdraw")
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
     {
@@ -187,7 +214,7 @@ abstract contract LockupHandler is BaseHandler {
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.
-        address sender = store.senders(currentStreamId);
+        address sender = lockupStore.senders(currentStreamId);
         if (sender == currentRecipient && to != currentRecipient) {
             to = currentRecipient;
         }
@@ -197,11 +224,13 @@ abstract contract LockupHandler is BaseHandler {
     }
 
     function withdrawMax(
+        uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address to
     )
         external
         instrument("withdrawMax")
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
     {
@@ -224,7 +253,7 @@ abstract contract LockupHandler is BaseHandler {
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.
-        address sender = store.senders(currentStreamId);
+        address sender = lockupStore.senders(currentStreamId);
         if (sender == currentRecipient && to != currentRecipient) {
             to = currentRecipient;
         }
@@ -238,11 +267,13 @@ abstract contract LockupHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     function transferNFT(
+        uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address newRecipient
     )
         external
         instrument("transferNFT")
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
     {
@@ -260,20 +291,6 @@ abstract contract LockupHandler is BaseHandler {
         lockup.transferFrom({ from: currentRecipient, to: newRecipient, tokenId: currentStreamId });
 
         // Update the recipient associated with this stream id.
-        store.updateRecipient(currentStreamId, newRecipient);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Simulating the passage of time is a pre-requisite for making withdrawals. The time warp is upper bounded so
-    /// that streams don't settle too quickly.
-    function warp(uint256 timeWarp) external instrument("warp") {
-        uint256 lowerBound = 24 hours;
-        uint256 currentTime = getBlockTimestamp();
-        uint256 upperBound = (MAX_UNIX_TIMESTAMP - currentTime) / MAX_STREAM_COUNT;
-        timeWarp = _bound(timeWarp, lowerBound, upperBound);
-        vm.warp({ timestamp: currentTime + timeWarp });
+        lockupStore.updateRecipient(currentStreamId, newRecipient);
     }
 }

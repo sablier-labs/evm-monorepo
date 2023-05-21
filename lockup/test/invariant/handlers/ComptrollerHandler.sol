@@ -6,7 +6,8 @@ import { UD60x18, UNIT } from "@prb/math/UD60x18.sol";
 
 import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 
-import { BaseHandler } from "./BaseHandler.t.sol";
+import { TimestampStore } from "../stores/TimestampStore.sol";
+import { BaseHandler } from "./BaseHandler.sol";
 
 /// @title ComptrollerHandler
 /// @dev This contract and not {SablierV2Comptroller} is exposed to Foundry for invariant testing. The point is
@@ -16,15 +17,19 @@ contract ComptrollerHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    IERC20 public asset;
     ISablierV2Comptroller public comptroller;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, ISablierV2Comptroller comptroller_) {
-        asset = asset_;
+    constructor(
+        IERC20 asset_,
+        TimestampStore timestampStore_,
+        ISablierV2Comptroller comptroller_
+    )
+        BaseHandler(asset_, timestampStore_)
+    {
         comptroller = comptroller_;
     }
 
@@ -32,17 +37,35 @@ contract ComptrollerHandler is BaseHandler {
                                SABLIER-V2-COMPTROLLER
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setFlashFee(UD60x18 newFlashFee) external instrument("setFlashFee") {
+    function setFlashFee(
+        uint256 timeJumpSeed,
+        UD60x18 newFlashFee
+    )
+        external
+        instrument("setFlashFee")
+        adjustTimestamp(timeJumpSeed)
+    {
         newFlashFee = _bound(newFlashFee, 0, UNIT);
         comptroller.setFlashFee(newFlashFee);
     }
 
-    function setProtocolFee(UD60x18 newProtocolFee) external instrument("setProtocolFee") {
+    function setProtocolFee(
+        uint256 timeJumpSeed,
+        UD60x18 newProtocolFee
+    )
+        external
+        instrument("setProtocolFee")
+        adjustTimestamp(timeJumpSeed)
+    {
         newProtocolFee = _bound(newProtocolFee, 0, MAX_FEE);
         comptroller.setProtocolFee(asset, newProtocolFee);
     }
 
-    function toggleFlashAsset() external instrument("toggleFlashAsset") {
+    function toggleFlashAsset(uint256 timeJumpSeed)
+        external
+        instrument("toggleFlashAsset")
+        adjustTimestamp(timeJumpSeed)
+    {
         comptroller.toggleFlashAsset(asset);
     }
 }
