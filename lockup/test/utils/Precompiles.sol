@@ -16,7 +16,7 @@ import { SablierV2NFTDescriptor } from "../../src/SablierV2NFTDescriptor.sol";
 contract Precompiles {
     error SablierV2_Precompiles_DeploymentError();
 
-    uint256 internal constant MAX_SEGMENT_COUNT = 1000;
+    uint256 internal constant MAX_SEGMENT_COUNT = 300;
 
     /// @notice Deploys {SablierV2Comptroller} from precompiled bytecode.
     function deployComptroller(address initialAdmin) public returns (ISablierV2Comptroller comptroller) {

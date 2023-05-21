@@ -24,7 +24,7 @@ contract Defaults is Constants {
     uint128 public constant DEPOSIT_AMOUNT = 10_000e18;
     uint40 public immutable END_TIME;
     UD60x18 public constant FLASH_FEE = UD60x18.wrap(0.0005e18); // 0.05%
-    uint256 public constant MAX_SEGMENT_COUNT = 1000;
+    uint256 public constant MAX_SEGMENT_COUNT = 300;
     uint40 public immutable MAX_SEGMENT_DURATION;
     UD60x18 public constant PROTOCOL_FEE = UD60x18.wrap(0.001e18); // 0.1%
     uint128 public constant PROTOCOL_FEE_AMOUNT = 10.040160642570281124e18; // 0.1% of total amount
