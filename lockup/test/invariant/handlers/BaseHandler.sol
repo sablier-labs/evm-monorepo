@@ -58,6 +58,17 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Simulates the passage of time. The time jump is upper bounded so that streams don't settle too quickly.
+    /// See https://github.com/foundry-rs/foundry/issues/4994.
+    /// @param timeJumpSeed A fuzzed value needed for generating random time warps.
+    modifier adjustTimestamp(uint256 timeJumpSeed) {
+        uint256 timeJump = _bound(timeJumpSeed, 2 minutes, 40 days);
+        timestampStore.increaseCurrentTimestamp(timeJump);
+        vm.warp(timestampStore.currentTimestamp());
+        _;
+    }
+
+    /// @dev Checks user assumptions.
     modifier checkUsers(address sender, address recipient, address broker) {
         // The protocol doesn't allow the sender, recipient or broker to be the zero address.
         if (sender == address(0) || recipient == address(0) || broker == address(0)) {
@@ -79,26 +90,10 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
         _;
     }
 
-    modifier useCurrentTimestamp() {
-        vm.warp(timestampStore.currentTimestamp());
-        _;
-    }
-
     /// @dev Makes the provided sender the caller.
     modifier useNewSender(address sender) {
         vm.startPrank(sender);
         _;
         vm.stopPrank();
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                      HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Helper for simulating the passage of time, which is a pre-requisite for making withdrawals. Each time warp
-    /// is upper bounded so that streams don't settle too quickly.
-    function increaseCurrentTimestamp(uint256 timeWarp) external instrument("increaseCurrentTimestamp") {
-        timeWarp = _bound(timeWarp, 2 hours, 7 days);
-        timestampStore.increaseCurrentTimestamp(timeWarp);
     }
 }

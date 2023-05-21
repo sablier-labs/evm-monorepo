@@ -13,7 +13,7 @@ contract TimestampStore {
         currentTimestamp = block.timestamp;
     }
 
-    function increaseCurrentTimestamp(uint256 timeWarp) external {
-        currentTimestamp += timeWarp;
+    function increaseCurrentTimestamp(uint256 timeJump) external {
+        currentTimestamp += timeJump;
     }
 }

@@ -47,10 +47,13 @@ contract LockupDynamicCreateHandler is BaseHandler {
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDeltas(LockupDynamic.CreateWithDeltas memory params)
+    function createWithDeltas(
+        uint256 timeJumpSeed,
+        LockupDynamic.CreateWithDeltas memory params
+    )
         public
         instrument("createWithDeltas")
-        useCurrentTimestamp
+        adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
     {
@@ -92,10 +95,13 @@ contract LockupDynamicCreateHandler is BaseHandler {
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    function createWithMilestones(LockupDynamic.CreateWithMilestones memory params)
+    function createWithMilestones(
+        uint256 timeJumpSeed,
+        LockupDynamic.CreateWithMilestones memory params
+    )
         public
         instrument("createWithMilestones")
-        useCurrentTimestamp
+        adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
     {

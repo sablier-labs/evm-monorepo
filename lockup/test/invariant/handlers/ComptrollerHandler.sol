@@ -37,17 +37,35 @@ contract ComptrollerHandler is BaseHandler {
                                SABLIER-V2-COMPTROLLER
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setFlashFee(UD60x18 newFlashFee) external instrument("setFlashFee") {
+    function setFlashFee(
+        uint256 timeJumpSeed,
+        UD60x18 newFlashFee
+    )
+        external
+        instrument("setFlashFee")
+        adjustTimestamp(timeJumpSeed)
+    {
         newFlashFee = _bound(newFlashFee, 0, UNIT);
         comptroller.setFlashFee(newFlashFee);
     }
 
-    function setProtocolFee(UD60x18 newProtocolFee) external instrument("setProtocolFee") {
+    function setProtocolFee(
+        uint256 timeJumpSeed,
+        UD60x18 newProtocolFee
+    )
+        external
+        instrument("setProtocolFee")
+        adjustTimestamp(timeJumpSeed)
+    {
         newProtocolFee = _bound(newProtocolFee, 0, MAX_FEE);
         comptroller.setProtocolFee(asset, newProtocolFee);
     }
 
-    function toggleFlashAsset() external instrument("toggleFlashAsset") {
+    function toggleFlashAsset(uint256 timeJumpSeed)
+        external
+        instrument("toggleFlashAsset")
+        adjustTimestamp(timeJumpSeed)
+    {
         comptroller.toggleFlashAsset(asset);
     }
 }

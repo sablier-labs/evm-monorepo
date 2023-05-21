@@ -45,7 +45,14 @@ contract FlashLoanHandler is BaseHandler {
                                SABLIER-V2-FLASH-LOAN
     //////////////////////////////////////////////////////////////////////////*/
 
-    function flashLoan(uint128 amount) external instrument("flashLoan") {
+    function flashLoan(
+        uint256 timeJumpSeed,
+        uint128 amount
+    )
+        external
+        instrument("flashLoan")
+        adjustTimestamp(timeJumpSeed)
+    {
         // Only up to `MAX_UINT128` assets can be flash loaned.
         uint256 balance = asset.balanceOf(address(this));
         uint128 upperBound = uint128(Math.min(balance, MAX_UINT128));

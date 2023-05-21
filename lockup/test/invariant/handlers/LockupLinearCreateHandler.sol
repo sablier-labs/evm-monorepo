@@ -42,10 +42,13 @@ contract LockupLinearCreateHandler is BaseHandler {
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDurations(LockupLinear.CreateWithDurations memory params)
+    function createWithDurations(
+        uint256 timeJumpSeed,
+        LockupLinear.CreateWithDurations memory params
+    )
         public
         instrument("createWithDurations")
-        useCurrentTimestamp
+        adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
     {
@@ -75,10 +78,13 @@ contract LockupLinearCreateHandler is BaseHandler {
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    function createWithRange(LockupLinear.CreateWithRange memory params)
+    function createWithRange(
+        uint256 timeJumpSeed,
+        LockupLinear.CreateWithRange memory params
+    )
         public
         instrument("createWithRange")
-        useCurrentTimestamp
+        adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
     {

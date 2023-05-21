@@ -55,6 +55,8 @@ abstract contract LockupHandler is BaseHandler {
         vm.stopPrank();
     }
 
+    /// @dev Picks a random stream from the store.
+    /// @param streamIndexSeed A fuzzed value needed for picking the random stream.
     modifier useFuzzedStream(uint256 streamIndexSeed) {
         uint256 lastStreamId = lockupStore.lastStreamId();
         if (lastStreamId == 0) {
@@ -85,10 +87,13 @@ abstract contract LockupHandler is BaseHandler {
                                  SABLIER-V2-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    function burn(uint256 streamIndexSeed)
+    function burn(
+        uint256 timeJumpSeed,
+        uint256 streamIndexSeed
+    )
         external
         instrument("burn")
-        useCurrentTimestamp
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
     {
@@ -109,10 +114,13 @@ abstract contract LockupHandler is BaseHandler {
         lockupStore.updateRecipient(currentStreamId, address(0));
     }
 
-    function cancel(uint256 streamIndexSeed)
+    function cancel(
+        uint256 timeJumpSeed,
+        uint256 streamIndexSeed
+    )
         external
         instrument("cancel")
-        useCurrentTimestamp
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
@@ -131,7 +139,12 @@ abstract contract LockupHandler is BaseHandler {
         lockup.cancel(currentStreamId);
     }
 
-    function claimProtocolRevenues() external instrument("claimProtocolRevenues") useCurrentTimestamp useAdmin {
+    function claimProtocolRevenues(uint256 timeJumpSeed)
+        external
+        instrument("claimProtocolRevenues")
+        adjustTimestamp(timeJumpSeed)
+        useAdmin
+    {
         // Can claim revenues only if the protocol has revenues.
         uint128 protocolRevenues = lockup.protocolRevenues(asset);
         if (protocolRevenues == 0) {
@@ -142,10 +155,13 @@ abstract contract LockupHandler is BaseHandler {
         lockup.claimProtocolRevenues(asset);
     }
 
-    function renounce(uint256 streamIndexSeed)
+    function renounce(
+        uint256 timeJumpSeed,
+        uint256 streamIndexSeed
+    )
         external
         instrument("renounce")
-        useCurrentTimestamp
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
@@ -165,13 +181,14 @@ abstract contract LockupHandler is BaseHandler {
     }
 
     function withdraw(
+        uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address to,
         uint128 withdrawAmount
     )
         external
         instrument("withdraw")
-        useCurrentTimestamp
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
     {
@@ -207,12 +224,13 @@ abstract contract LockupHandler is BaseHandler {
     }
 
     function withdrawMax(
+        uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address to
     )
         external
         instrument("withdrawMax")
-        useCurrentTimestamp
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
     {
@@ -249,12 +267,13 @@ abstract contract LockupHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     function transferNFT(
+        uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address newRecipient
     )
         external
         instrument("transferNFT")
-        useCurrentTimestamp
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
     {
