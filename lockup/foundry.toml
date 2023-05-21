@@ -72,7 +72,7 @@
 [doc]
   ignore = ["**/*.t.sol"]
   out = "docs"
-  repository = "https://github.com/sablierhq/v2-core"
+  repository = "https://github.com/sablier-labs/v2-core"
 
 [etherscan]
   arbitrum_one = { key = "${API_KEY_ARBISCAN}" }

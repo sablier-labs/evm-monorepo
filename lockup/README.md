@@ -1,14 +1,14 @@
 # Sablier V2 Core [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry]
 
-[gha]: https://github.com/sablierhq/v2-core/actions
-[gha-badge]: https://github.com/sablierhq/v2-core/actions/workflows/ci.yml/badge.svg
-[codecov]: https://codecov.io/gh/sablierhq/v2-core
-[codecov-badge]: https://codecov.io/gh/sablierhq/v2-core/branch/main/graph/badge.svg?token=ND1LZOUF2G
+[gha]: https://github.com/sablier-labs/v2-core/actions
+[gha-badge]: https://github.com/sablier-labs/v2-core/actions/workflows/ci.yml/badge.svg
+[codecov]: https://codecov.io/gh/sablier-labs/v2-core
+[codecov-badge]: https://codecov.io/gh/sablier-labs/v2-core/branch/main/graph/badge.svg?token=ND1LZOUF2G
 [foundry]: https://getfoundry.sh/
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
 This repository contains the core smart contracts of the Sablier V2 Protocol. For higher-level logic, see the
-[sablierhq/v2-periphery](https://github.com/sablierhq/v2-periphery) repository.
+[sablier-labs/v2-periphery](https://github.com/sablier-labs/v2-periphery) repository.
 
 In-depth documentation is available at [docs.sablier.com](https://docs.sablier.com).
 
@@ -29,7 +29,7 @@ end times, as well as the total amount of assets locked up.
 First, run the install step:
 
 ```shell
-forge install sablierhq/v2-core
+forge install sablier-labs/v2-core
 ```
 
 Your `.gitmodules` file should now contain the following entry:
@@ -38,7 +38,7 @@ Your `.gitmodules` file should now contain the following entry:
 [submodule "lib/v2-core"]
   branch = "main"
   path = "lib/v2-core"
-  url = "https://github.com/sablierhq/v2-core"
+  url = "https://github.com/sablier-labs/v2-core"
 ```
 
 Finally, add this to your `remappings.txt` file:

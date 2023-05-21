@@ -9,8 +9,8 @@ and report it to us.
 
 ### Overview
 
-Starting on July 1, 2023, the [sablierhq/v2-core](https://github.com/sablierhq/v2-core) repository is subject to the
-Sablier V2 Bug Bounty (the "Program") to incentivize responsible bug disclosure.
+Starting on July 1, 2023, the [sablier-labs/v2-core](https://github.com/sablier-labs/v2-core) repository is subject to
+the Sablier V2 Bug Bounty (the "Program") to incentivize responsible bug disclosure.
 
 We are limiting the scope of the Program to critical and high severity bugs, and are offering a reward of up to $50,000.
 Happy hunting!
