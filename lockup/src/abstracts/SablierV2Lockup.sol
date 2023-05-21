@@ -87,7 +87,7 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function withdrawableAmountOf(uint256 streamId)
-        public
+        external
         view
         override
         notNull(streamId)
