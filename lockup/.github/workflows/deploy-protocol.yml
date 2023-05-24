@@ -21,11 +21,11 @@ on:
         description: "The address of the contract that generates the NFT descriptor"
         required: true
       max-segment-count:
-        default: "1000"
+        default: "300"
         description: |
           The maximum number of segments permitted in a stream.
 
-          Defaults to 1,000
+          Defaults to 300
         required: false
 
 jobs:
