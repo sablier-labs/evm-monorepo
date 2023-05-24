@@ -10,13 +10,13 @@ on:
     - cron: "0 3 * * 1" # at 3:00am UTC every Monday
   workflow_dispatch:
     inputs:
-      forkRuns:
+      forkFuzzRuns:
         default: "1000"
-        description: 'Number of fork test runs. Defaults to 1000'
+        description: 'Number of fuzz runs in the fork tests. Defaults to 1000'
         required: false
-      fuzzRuns:
+      integrationFuzzRuns:
         default: "100000"
-        description: 'Number of fuzz test runs. Defaults to 100,000'
+        description: 'Number of fuzz runs in the integration tests. Defaults to 100,000'
         required: false
       invariantDepth:
         default: "100"
@@ -87,9 +87,9 @@ jobs:
           echo "## Build result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
-  test-fuzz:
+  test-integration:
     env:
-      FOUNDRY_FUZZ_RUNS: ${{ inputs.fuzzRuns || "100000" }}
+      FOUNDRY_FUZZ_RUNS: ${{ inputs.integrationFuzzRuns || "100000" }}
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
@@ -108,12 +108,12 @@ jobs:
           key: "foundry-build-${{ github.sha }}"
           path: "optimized-out"
 
-      - name: "Run the fuzz tests against the optimized build"
-        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/fuzz/**/*.sol\""
+      - name: "Run the integration tests against the optimized build"
+        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/integration/**/*.sol\""
 
       - name: "Add test summary"
         run: |
-          echo "## Fuzz tests result" >> $GITHUB_STEP_SUMMARY
+          echo "## Integration tests result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
   test-invariant:
@@ -148,7 +148,7 @@ jobs:
 
   test-fork:
     env:
-      FOUNDRY_FUZZ_RUNS: ${{ inputs.forkRuns || "1000" }}
+      FOUNDRY_FUZZ_RUNS: ${{ inputs.forkFuzzRuns || "1000" }}
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
