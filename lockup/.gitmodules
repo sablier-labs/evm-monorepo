@@ -15,7 +15,6 @@
   path = "lib/prb-test"
   url = "https://github.com/PaulRBerg/prb-test"
 [submodule "lib/solady"]
-  branch = "main"
   path = "lib/solady"
   url = "https://github.com/Vectorized/solady"
 [submodule "lib/solarray"]
