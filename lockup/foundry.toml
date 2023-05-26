@@ -2,6 +2,7 @@
   auto_detect_solc = false
   bytecode_hash = "none"
   cbor_metadata = false
+  emv_version = "paris"
   fs_permissions = [{ access = "read", path = "optimized-out" }]
   libs = ["lib"]
   gas_reports = [
