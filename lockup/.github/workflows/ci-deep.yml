@@ -7,7 +7,7 @@ env:
 
 on:
   schedule:
-    - cron: "0 3 * * 1" # at 3:00am UTC every Monday
+    - cron: "0 3 * * 0" # at 3:00am UTC every Sunday
   workflow_dispatch:
     inputs:
       forkFuzzRuns:
@@ -89,7 +89,7 @@ jobs:
 
   test-integration:
     env:
-      FOUNDRY_FUZZ_RUNS: ${{ inputs.integrationFuzzRuns || "100000" }}
+      FOUNDRY_FUZZ_RUNS: ${{ inputs.integrationFuzzRuns || '100000' }}
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
@@ -118,8 +118,8 @@ jobs:
 
   test-invariant:
     env:
-      FOUNDRY_INVARIANT_DEPTH: ${{ inputs.invariantDepth || "100" }}
-      FOUNDRY_INVARIANT_RUNS: ${{ inputs.invariantRuns || "100" }}
+      FOUNDRY_INVARIANT_DEPTH: ${{ inputs.invariantDepth || '100' }}
+      FOUNDRY_INVARIANT_RUNS: ${{ inputs.invariantRuns || '100' }}
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
@@ -148,7 +148,7 @@ jobs:
 
   test-fork:
     env:
-      FOUNDRY_FUZZ_RUNS: ${{ inputs.forkFuzzRuns || "1000" }}
+      FOUNDRY_FUZZ_RUNS: ${{ inputs.forkFuzzRuns || '1000' }}
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
     steps:
