@@ -9,8 +9,6 @@ import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 
 import { Base_Test } from "../Base.t.sol";
-import { USDCLike } from "../mocks/erc20/USDCLike.sol";
-import { USDTLike } from "../mocks/erc20/USDTLike.sol";
 
 /// @title Fork_Test
 /// @notice Common logic needed by all fork tests.
@@ -75,14 +73,10 @@ abstract contract Fork_Test is Base_Test {
         vm.assume(sender != holder && recipient != holder && broker != holder);
         vm.assume(sender != sablierContract && recipient != sablierContract && broker != sablierContract);
 
-        // Avoid blacklisted users in USDC and USDT.
-        if (address(asset) == 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48) {
-            USDCLike usdc = USDCLike(address(asset));
-            vm.assume(!usdc.isBlacklisted(sender) && !usdc.isBlacklisted(recipient) && !usdc.isBlacklisted(broker));
-        } else if (address(asset) == 0xdAC17F958D2ee523a2206206994597C13D831ec7) {
-            USDTLike usdt = USDTLike(address(asset));
-            vm.assume(!usdt.isBlackListed(sender) && !usdt.isBlackListed(recipient) && !usdt.isBlackListed(broker));
-        }
+        // Avoid users blacklisted by USDC or USDT.
+        assumeNoBlacklisted(address(asset), sender);
+        assumeNoBlacklisted(address(asset), recipient);
+        assumeNoBlacklisted(address(asset), broker);
     }
 
     /// @dev Labels the most relevant contracts.
