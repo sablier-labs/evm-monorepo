@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.8.3",
-    "@prb/math": "4.0.0"
+    "@prb/math": "4.0.1"
   },
   "devDependencies": {
     "prettier": "^2.8.7",
@@ -41,7 +41,7 @@
   ],
   "peerDependencies": {
     "@openzeppelin/contracts": "4.8.3",
-    "@prb/math": "4.0.0"
+    "@prb/math": "4.0.1"
   },
   "publishConfig": {
     "access": "public"

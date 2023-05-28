@@ -5,8 +5,8 @@ dependencies:
     specifier: 4.8.3
     version: 4.8.3
   '@prb/math':
-    specifier: 4.0.0
-    version: 4.0.0
+    specifier: 4.0.1
+    version: 4.0.1
 
 devDependencies:
   prettier:
@@ -43,8 +43,8 @@ packages:
     resolution: {integrity: sha512-bQHV8R9Me8IaJoJ2vPG4rXcL7seB7YVuskr4f+f5RyOStSZetwzkWtoqDMl5erkBJy0lDRUnIR2WIkPiC0GJlg==}
     dev: false
 
-  /@prb/math@4.0.0:
-    resolution: {integrity: sha512-zGOMIn3EMSxh2yo64uKly4xtwVvbUvsKAand4JFzDRFAPEzqBWJe1/Qf23o992ZR7xeA502L17rSTcOscfRO2Q==}
+  /@prb/math@4.0.1:
+    resolution: {integrity: sha512-ANTz2KMV+dMdZ57mWgDTR6jZo5uQzUczQEHCxd7CvJZZ9yafnfPhUUILHvvigIOZ85fZbTPVkC8YoRG1z5Qf7g==}
     dev: false
 
   /@solidity-parser/parser@0.16.0:
