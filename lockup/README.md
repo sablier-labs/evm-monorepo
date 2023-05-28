@@ -14,8 +14,8 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 ## Background
 
-Sablier is a smart contract protocol that enables trustless streaming of ERC-20 assets. In the context of Sablier,
-streaming means the ability to make payments by the second.
+Sablier is a smart contract protocol that enables trustless streaming of ERC-20 assets. In this context, streaming means
+the ability to make payments by the second.
 
 The protocol features a type of stream called a lockup stream, in which the sender locks up a specified amount of ERC-20
 assets in a contract. Subsequently, the contract progressively allocates these assets to the designated recipient, who
@@ -45,10 +45,9 @@ Finally, add this to your `remappings.txt` file:
 
 ```text
 @sablier/v2-core/=lib/v2-core/src/
-src/=src/
 ```
 
-### Hardhat
+### Node.js
 
 Sablier V2 Core is available as a Node.js package:
 
