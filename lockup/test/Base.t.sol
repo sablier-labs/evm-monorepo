@@ -135,7 +135,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     /// @dev Deploys {SablierV2Comptroller} from a source precompiled with `--via-ir`.
     function deployPrecompiledComptroller(address initialAdmin) internal returns (ISablierV2Comptroller comptroller_) {
         comptroller_ = ISablierV2Comptroller(
-            deployCode("optimized-out/SablierV2Comptroller.sol/SablierV2Comptroller.json", abi.encode(initialAdmin))
+            deployCode("out-optimized/SablierV2Comptroller.sol/SablierV2Comptroller.json", abi.encode(initialAdmin))
         );
     }
 
@@ -150,7 +150,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     {
         dynamic_ = ISablierV2LockupDynamic(
             deployCode(
-                "optimized-out/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json",
+                "out-optimized/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json",
                 abi.encode(initialAdmin, address(comptroller_), address(nftDescriptor_), defaults.MAX_SEGMENT_COUNT())
             )
         );
@@ -167,7 +167,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     {
         linear_ = ISablierV2LockupLinear(
             deployCode(
-                "optimized-out/SablierV2LockupLinear.sol/SablierV2LockupLinear.json",
+                "out-optimized/SablierV2LockupLinear.sol/SablierV2LockupLinear.json",
                 abi.encode(initialAdmin, address(comptroller_), address(nftDescriptor_))
             )
         );

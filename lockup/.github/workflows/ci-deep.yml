@@ -79,7 +79,7 @@ jobs:
       - name: "Cache the build so that it can be re-used by the other jobs"
         uses: "actions/cache/save@v3"
         with:
-          path: "optimized-out"
+          path: "out-optimized"
           key: "foundry-build-${{ github.sha }}"
 
       - name: "Add build summary"
@@ -106,7 +106,7 @@ jobs:
         with:
           fail-on-cache-miss: true
           key: "foundry-build-${{ github.sha }}"
-          path: "optimized-out"
+          path: "out-optimized"
 
       - name: "Run the integration tests against the optimized build"
         run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/integration/**/*.sol\""
@@ -136,7 +136,7 @@ jobs:
         with:
           fail-on-cache-miss: true
           key: "foundry-build-${{ github.sha }}"
-          path: "optimized-out"
+          path: "out-optimized"
 
       - name: "Run the invariant tests against the optimized build"
         run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/invariant/**/*.sol\""
@@ -165,7 +165,7 @@ jobs:
         with:
           fail-on-cache-miss: true
           key: "foundry-build-${{ github.sha }}"
-          path: "optimized-out"
+          path: "out-optimized"
 
       - name: "Run the fork tests against the optimized build"
         run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/fork/**/*.sol\""

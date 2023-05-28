@@ -3,7 +3,7 @@
   bytecode_hash = "none"
   cbor_metadata = false
   emv_version = "paris"
-  fs_permissions = [{ access = "read", path = "optimized-out" }]
+  fs_permissions = [{ access = "read", path = "out-optimized" }]
   libs = ["lib"]
   gas_reports = [
     "SablierV2Comptroller",
@@ -34,7 +34,7 @@
 
 # Compile only the production code with IR
 [profile.optimized]
-  out = "optimized-out"
+  out = "out-optimized"
   test = "src"
   via_ir = true
 
@@ -43,7 +43,7 @@
   ignored_error_codes = [
     7737, # Disable inline assembly warnings
   ]
-  out = "optimized-out"
+  out = "out-optimized"
   script = "src"
   test = "src"
   via_ir = true
