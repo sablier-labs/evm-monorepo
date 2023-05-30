@@ -10,7 +10,15 @@ import { BaseScript } from "./Base.s.sol";
 contract DeployDeterministicComptroller is BaseScript {
     /// @dev The presence of the salt instructs Forge to deploy contracts via this deterministic CREATE2 factory:
     /// https://github.com/Arachnid/deterministic-deployment-proxy
-    function run(address initialAdmin) public virtual broadcaster returns (SablierV2Comptroller comptroller) {
-        comptroller = new SablierV2Comptroller{ salt: ZERO_SALT }(initialAdmin);
+    function run(
+        uint256 create2Salt,
+        address initialAdmin
+    )
+        public
+        virtual
+        broadcaster
+        returns (SablierV2Comptroller comptroller)
+    {
+        comptroller = new SablierV2Comptroller{ salt: bytes32(create2Salt) }(initialAdmin);
     }
 }

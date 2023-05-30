@@ -15,6 +15,7 @@ contract DeployDeterministicLockupDynamic is BaseScript {
     /// @dev The presence of the salt instructs Forge to deploy contracts via this deterministic CREATE2 factory:
     /// https://github.com/Arachnid/deterministic-deployment-proxy
     function run(
+        uint256 create2Salt,
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNFTDescriptor,
@@ -25,7 +26,7 @@ contract DeployDeterministicLockupDynamic is BaseScript {
         broadcaster
         returns (SablierV2LockupDynamic dynamic)
     {
-        dynamic = new SablierV2LockupDynamic{ salt: ZERO_SALT }(
+        dynamic = new SablierV2LockupDynamic{ salt: bytes32(create2Salt) }(
             initialAdmin,
             initialComptroller,
             initialNFTDescriptor,
