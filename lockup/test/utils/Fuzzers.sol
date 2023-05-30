@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.19;
 
-import { Math } from "@openzeppelin/utils/math/Math.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
 import { UD60x18, ud, uUNIT } from "@prb/math/UD60x18.sol";
 

@@ -2,8 +2,8 @@
 // solhint-disable max-line-length,quotes
 pragma solidity >=0.8.19;
 
-import { Math } from "@openzeppelin/utils/math/Math.sol";
-import { Strings } from "@openzeppelin/utils/Strings.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 library SVGElements {
     using Strings for string;

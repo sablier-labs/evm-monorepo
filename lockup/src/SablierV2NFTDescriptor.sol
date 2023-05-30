@@ -2,10 +2,10 @@
 // solhint-disable max-line-length,quotes
 pragma solidity >=0.8.19;
 
-import { IERC20Metadata } from "@openzeppelin/token/ERC20/extensions/IERC20Metadata.sol";
-import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
-import { Base64 } from "@openzeppelin/utils/Base64.sol";
-import { Strings } from "@openzeppelin/utils/Strings.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 import { ISablierV2Lockup } from "./interfaces/ISablierV2Lockup.sol";
 import { ISablierV2NFTDescriptor } from "./interfaces/ISablierV2NFTDescriptor.sol";
