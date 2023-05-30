@@ -38,7 +38,7 @@ abstract contract Integration_Test is Base_Test {
         // Label the contracts.
         labelContracts();
 
-        // Make the admin the default caller in this test suite.
+        // Make the Admin the default caller in this test suite.
         vm.startPrank({ msgSender: users.admin });
 
         // Approve V2 Core to spend assets from the users.

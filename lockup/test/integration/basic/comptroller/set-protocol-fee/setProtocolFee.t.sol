@@ -18,7 +18,7 @@ contract SetProtocolFee_Integration_Basic_Test is Integration_Test {
         comptroller.setProtocolFee({ asset: dai, newProtocolFee: MAX_FEE });
     }
 
-    /// @dev The admin is the default caller in the comptroller tests.
+    /// @dev The Admin is the default caller in the comptroller tests.
     modifier whenCallerAdmin() {
         _;
     }

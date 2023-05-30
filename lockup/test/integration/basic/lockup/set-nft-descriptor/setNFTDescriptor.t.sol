@@ -25,7 +25,7 @@ abstract contract SetNFTDescriptor_Integration_Basic_Test is Integration_Test, L
     }
 
     modifier whenCallerAdmin() {
-        // Make the admin the caller in the rest of this test suite.
+        // Make the Admin the caller in the rest of this test suite.
         changePrank({ msgSender: users.admin });
         _;
     }

@@ -27,7 +27,7 @@ contract TransferAdmin_Unit_Basic_Test is Adminable_Unit_Shared_Test {
         // Transfer the admin.
         adminableMock.transferAdmin(users.admin);
 
-        // Assert that the admin remained the same.
+        // Assert that the admin has remained the same.
         address actualAdmin = adminableMock.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");

@@ -9,7 +9,7 @@ contract ProtocolFees_Integration_Basic_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
-        // Make the admin the caller in this test suite.
+        // Make the Admin the caller in this test suite.
         changePrank({ msgSender: users.admin });
     }
 

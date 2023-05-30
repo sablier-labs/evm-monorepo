@@ -124,7 +124,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
         usdt.approve({ spender: address(linear), value: MAX_UINT256 });
         usdt.approve({ spender: address(dynamic), value: MAX_UINT256 });
 
-        // Finally, change the active prank back to the admin.
+        // Finally, change the active prank back to the Admin.
         changePrank({ msgSender: users.admin });
     }
 
