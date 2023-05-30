@@ -24,14 +24,14 @@ contract DeployCore {
         virtual
         returns (
             SablierV2Comptroller comptroller,
-            SablierV2LockupDynamic dynamic,
-            SablierV2LockupLinear linear,
+            SablierV2LockupDynamic lockupDynamic,
+            SablierV2LockupLinear lockupLinear,
             SablierV2NFTDescriptor nftDescriptor
         )
     {
         comptroller = new SablierV2Comptroller(initialAdmin);
         nftDescriptor = new SablierV2NFTDescriptor();
-        dynamic = new SablierV2LockupDynamic(initialAdmin, comptroller, nftDescriptor, maxSegmentCount);
-        linear = new SablierV2LockupLinear(initialAdmin, comptroller, nftDescriptor);
+        lockupDynamic = new SablierV2LockupDynamic(initialAdmin, comptroller, nftDescriptor, maxSegmentCount);
+        lockupLinear = new SablierV2LockupLinear(initialAdmin, comptroller, nftDescriptor);
     }
 }

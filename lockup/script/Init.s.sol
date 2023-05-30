@@ -21,8 +21,8 @@ interface IERC20Mint {
 contract Init is BaseScript {
     function run(
         ISablierV2Comptroller comptroller,
-        ISablierV2LockupLinear linear,
-        ISablierV2LockupDynamic dynamic,
+        ISablierV2LockupLinear lockupLinear,
+        ISablierV2LockupDynamic lockupDynamic,
         IERC20 asset
     )
         public
@@ -51,10 +51,10 @@ contract Init is BaseScript {
         IERC20Mint(address(asset)).mint({ beneficiary: sender, amount: 131_601.1e18 + 10_000e18 });
 
         // Approve the Sablier contracts to transfer the ERC-20 assets from the sender.
-        asset.approve({ spender: address(linear), amount: type(uint256).max });
-        asset.approve({ spender: address(dynamic), amount: type(uint256).max });
+        asset.approve({ spender: address(lockupLinear), amount: type(uint256).max });
+        asset.approve({ spender: address(lockupDynamic), amount: type(uint256).max });
 
-        // Create 7 linear streams with various amounts and durations.
+        // Create 7 Lockup Linear streams with various amounts and durations.
         //
         // - 1st stream: meant to be depleted.
         // - 2th to 4th streams: pending or streaming.
@@ -66,7 +66,7 @@ contract Init is BaseScript {
         uint40[] memory totalDurations =
             Solarray.uint40s(1 seconds, 1 hours, 24 hours, 1 weeks, 4 weeks, 12 weeks, 48 weeks);
         for (uint256 i = 0; i < totalDurations.length; ++i) {
-            linear.createWithDurations(
+            lockupLinear.createWithDurations(
                 LockupLinear.CreateWithDurations({
                     sender: sender,
                     recipient: recipient,
@@ -80,20 +80,20 @@ contract Init is BaseScript {
         }
 
         // Renounce the 5th stream.
-        linear.renounce({ streamId: 5 });
+        lockupLinear.renounce({ streamId: 5 });
 
         // Cancel the 6th stream.
-        linear.cancel({ streamId: 6 });
+        lockupLinear.cancel({ streamId: 6 });
 
         /*//////////////////////////////////////////////////////////////////////////
                                        LOCKUP-DYNAMIC
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Create the default dynamic stream.
+        // Create the default lockupDynamic stream.
         LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](2);
         segments[0] = LockupDynamic.SegmentWithDelta({ amount: 2500e18, exponent: ud2x18(3.14e18), delta: 1 hours });
         segments[1] = LockupDynamic.SegmentWithDelta({ amount: 7500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
-        dynamic.createWithDeltas(
+        lockupDynamic.createWithDeltas(
             LockupDynamic.CreateWithDeltas({
                 asset: asset,
                 broker: Broker(address(0), ud60x18(0)),

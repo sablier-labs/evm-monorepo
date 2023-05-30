@@ -36,20 +36,21 @@ contract DeployDeterministicCore is
         virtual
         returns (
             SablierV2Comptroller comptroller,
-            SablierV2LockupDynamic dynamic,
-            SablierV2LockupLinear linear,
+            SablierV2LockupDynamic lockupDynamic,
+            SablierV2LockupLinear lockupLinear,
             SablierV2NFTDescriptor nftDescriptor
         )
     {
         comptroller = new SablierV2Comptroller{ salt: bytes32(create2Salt)}(initialAdmin);
         nftDescriptor = new SablierV2NFTDescriptor{ salt: bytes32(create2Salt)}();
         // forgefmt: disable-next-line
-        dynamic = new SablierV2LockupDynamic{ salt: bytes32(create2Salt)}(
+        lockupDynamic = new SablierV2LockupDynamic{ salt: bytes32(create2Salt)}(
             initialAdmin,
             comptroller,
             initialNFTDescriptor,
             maxSegmentCount
         );
-        linear = new SablierV2LockupLinear{ salt: bytes32(create2Salt)}(initialAdmin, comptroller, initialNFTDescriptor);
+        lockupLinear =
+            new SablierV2LockupLinear{ salt: bytes32(create2Salt)}(initialAdmin, comptroller, initialNFTDescriptor);
     }
 }
