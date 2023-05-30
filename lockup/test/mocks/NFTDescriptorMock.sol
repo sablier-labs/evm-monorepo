@@ -81,6 +81,10 @@ contract NFTDescriptorMock is SablierV2NFTDescriptor {
         return NFTSVG.generateSVG(params);
     }
 
+    function hourglass_(string memory status) external pure returns (string memory) {
+        return SVGElements.hourglass(status);
+    }
+
     function mapSymbol_(IERC721Metadata nft) external view returns (string memory) {
         return mapSymbol(nft);
     }

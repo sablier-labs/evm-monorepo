@@ -191,7 +191,8 @@ library SVGElements {
             '<g id="Hourglass">',
             HOURGLASS_BACKGROUND_CIRCLE,
             HOURGLASS_FILL,
-            status.equal("Depleted") ? "" : HOURGLASS_UPPER_BULB, // empty or filled with sand
+            status.equal("Settled") || status.equal("Depleted") ? "" : HOURGLASS_UPPER_BULB, // empty or filled with
+                // sand
             HOURGLASS_LOWER_BULB,
             HOURGLASS_STROKE, // needs to be declared last so that the stroke is painted on top of the sand
             "</g>"

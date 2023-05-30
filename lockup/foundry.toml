@@ -34,7 +34,7 @@
 [profile.lite]
   optimizer = false
 
-# Compile only the production code with IR
+# Compile only the production code and the test mocks with via IR
 [profile.optimized]
   out = "out-optimized"
   test = "test/mocks"
