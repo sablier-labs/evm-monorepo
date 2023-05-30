@@ -26,22 +26,15 @@ abstract contract Calculations {
     )
         internal
         pure
-        returns (uint128 depositAmount)
+        returns (uint128)
     {
         uint128 protocolFeeAmount = ud(totalAmount).mul(protocolFee).intoUint128();
         uint128 brokerFeeAmount = ud(totalAmount).mul(brokerFee).intoUint128();
-        depositAmount = totalAmount - protocolFeeAmount - brokerFeeAmount;
+        return totalAmount - protocolFeeAmount - brokerFeeAmount;
     }
 
     /// @dev Helper function that replicates the logic of {SablierV2LockupLinear.streamedAmountOf}.
-    function calculateStreamedAmount(
-        uint40 currentTime,
-        uint128 depositAmount
-    )
-        internal
-        view
-        returns (uint128 streamedAmount)
-    {
+    function calculateStreamedAmount(uint40 currentTime, uint128 depositAmount) internal view returns (uint128) {
         if (currentTime > defaults.END_TIME()) {
             return depositAmount;
         }
@@ -49,7 +42,7 @@ abstract contract Calculations {
             UD60x18 elapsedTime = ud(currentTime - defaults.START_TIME());
             UD60x18 totalTime = ud(defaults.TOTAL_DURATION());
             UD60x18 elapsedTimePercentage = elapsedTime.div(totalTime);
-            streamedAmount = elapsedTimePercentage.mul(ud(depositAmount)).intoUint128();
+            return elapsedTimePercentage.mul(ud(depositAmount)).intoUint128();
         }
     }
 
@@ -61,7 +54,7 @@ abstract contract Calculations {
     )
         internal
         view
-        returns (uint128 streamedAmount)
+        returns (uint128)
     {
         if (currentTime >= segments[segments.length - 1].milestone) {
             return depositAmount;
@@ -94,7 +87,7 @@ abstract contract Calculations {
             SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
             SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
             SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
-            streamedAmount = previousSegmentAmounts + uint128(segmentStreamedAmount.intoUint256());
+            return previousSegmentAmounts + uint128(segmentStreamedAmount.intoUint256());
         }
     }
 
@@ -105,7 +98,7 @@ abstract contract Calculations {
     )
         internal
         view
-        returns (uint128 streamedAmount)
+        returns (uint128)
     {
         if (currentTime >= segment.milestone) {
             return segment.amount;
@@ -117,7 +110,7 @@ abstract contract Calculations {
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             SD59x18 multiplier = elapsedTimePercentage.pow(segment.exponent.intoSD59x18());
             SD59x18 streamedAmountSd = multiplier.mul(segment.amount.intoSD59x18());
-            streamedAmount = uint128(streamedAmountSd.intoUint256());
+            return uint128(streamedAmountSd.intoUint256());
         }
     }
 }

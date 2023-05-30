@@ -11,21 +11,21 @@ on:
     inputs:
       admin:
         default: "0x0E109f35926575FC64Ec73735101966d434Ed591"
-        description: 'Contract admin. Defaults to 0x0E10...d591'
+        description: "Initial contract admin."
         required: false
       chain:
         default: "goerli"
-        description: 'Chain name. Defaults to "goerli" if unspecified'
+        description: "Chain name as defined in the Foundry config."
         required: false
       comptroller:
-        description: "The address of the previously SablierV2Comptroller contract"
+        description: "Address of an already deployed comptroller."
         required: true
       nft-descriptor:
-        description: "The address of the contract that generates the NFT descriptor"
+        description: "Address of an NFT descriptor contract."
         required: true
 
 jobs:
-  deploy-linear:
+  deploy-lockup-linear:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
@@ -38,7 +38,7 @@ jobs:
 
       - name: "Deploy the SablierV2LockupLinear contract"
         run: >-
-          forge script script/deploy/DeployLockupLinear.s.sol
+          forge script script/DeployLockupLinear.s.sol
           --broadcast
           --rpc-url ${{ inputs.chain }}
           --sig "run(address,address,address)"
@@ -47,7 +47,7 @@ jobs:
           "${{ inputs.nft-descriptor }}"
           -vvvv
 
-      - name: "Add summary"
+      - name: "Add workflow summary"
         run: |
-          echo "## Deployment result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "## Result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Done" >> $GITHUB_STEP_SUMMARY

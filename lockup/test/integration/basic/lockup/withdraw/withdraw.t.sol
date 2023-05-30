@@ -330,20 +330,20 @@ abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_
         whenStreamHasNotBeenCanceled
         whenRecipientContract
     {
-        // Create the stream with an empty contract as the recipient.
-        uint256 streamId = createDefaultStreamWithRecipient(address(empty));
+        // Create the stream with a no-op contract as the recipient.
+        uint256 streamId = createDefaultStreamWithRecipient(address(noop));
 
         // Expect a call to the recipient hook.
         vm.expectCall(
-            address(empty),
+            address(noop),
             abi.encodeCall(
                 ISablierV2LockupRecipient.onStreamWithdrawn,
-                (streamId, users.sender, address(empty), defaults.WITHDRAW_AMOUNT())
+                (streamId, users.sender, address(noop), defaults.WITHDRAW_AMOUNT())
             )
         );
 
         // Make the withdrawal.
-        lockup.withdraw({ streamId: streamId, to: address(empty), amount: defaults.WITHDRAW_AMOUNT() });
+        lockup.withdraw({ streamId: streamId, to: address(noop), amount: defaults.WITHDRAW_AMOUNT() });
 
         // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(streamId);

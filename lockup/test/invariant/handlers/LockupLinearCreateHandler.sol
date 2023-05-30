@@ -10,7 +10,6 @@ import { TimestampStore } from "../stores/TimestampStore.sol";
 import { LockupStore } from "../stores/LockupStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
-/// @title LockupLinearCreateHandler
 /// @dev This contract is a complement of {LockupLinearHandler}. The goal is to bias the invariant calls
 /// toward the lockup functions (especially the create stream functions) by creating multiple handlers for
 /// the lockup contracts.

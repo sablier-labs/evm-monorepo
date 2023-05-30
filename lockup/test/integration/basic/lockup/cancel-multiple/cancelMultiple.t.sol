@@ -79,7 +79,7 @@ abstract contract CancelMultiple_Integration_Basic_Test is Integration_Test, Can
     {
         // Approve the operator for all streams.
         changePrank({ msgSender: users.recipient });
-        lockup.setApprovalForAll({ operator: users.operator, _approved: true });
+        lockup.setApprovalForAll({ operator: users.operator, approved: true });
 
         // Make the approved operator the caller in this test.
         changePrank({ msgSender: users.operator });

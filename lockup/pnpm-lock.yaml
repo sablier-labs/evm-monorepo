@@ -1,9 +1,13 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
 
 dependencies:
   '@openzeppelin/contracts':
-    specifier: 4.8.3
-    version: 4.8.3
+    specifier: 4.9.0
+    version: 4.9.0
   '@prb/math':
     specifier: 4.0.1
     version: 4.0.1
@@ -39,8 +43,8 @@ packages:
       js-tokens: 4.0.0
     dev: true
 
-  /@openzeppelin/contracts@4.8.3:
-    resolution: {integrity: sha512-bQHV8R9Me8IaJoJ2vPG4rXcL7seB7YVuskr4f+f5RyOStSZetwzkWtoqDMl5erkBJy0lDRUnIR2WIkPiC0GJlg==}
+  /@openzeppelin/contracts@4.9.0:
+    resolution: {integrity: sha512-DUP74AFGKlic2sQb/CmgrN2aUPMFGxRrmCTUxLHsiU2RzwWqVuMPZBxiAyvlff6Pea77uylAX6B5x9W6evEbhA==}
     dev: false
 
   /@prb/math@4.0.1:

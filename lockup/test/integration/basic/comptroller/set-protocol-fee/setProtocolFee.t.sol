@@ -6,9 +6,9 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Comptroller_Integration_Basic_Test } from "../Comptroller.t.sol";
+import { Integration_Test } from "../../../Integration.t.sol";
 
-contract SetProtocolFee_Integration_Basic_Test is Comptroller_Integration_Basic_Test {
+contract SetProtocolFee_Integration_Basic_Test is Integration_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });

@@ -20,7 +20,6 @@ import { WithdrawMultiple_Integration_Fuzz_Test } from "../lockup/withdraw-multi
                             NON-SHARED ABSTRACT TEST
 //////////////////////////////////////////////////////////////////////////*/
 
-/// @title Linear_Integration_Fuzz_Test
 /// @notice Common testing logic needed across {SablierV2LockupLinear} integration fuzz tests.
 abstract contract Linear_Integration_Fuzz_Test is Integration_Test, Linear_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, Linear_Integration_Shared_Test) {

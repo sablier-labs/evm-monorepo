@@ -9,7 +9,6 @@ import { Base_Test } from "../Base.t.sol";
 import { ComptrollerHandler } from "./handlers/ComptrollerHandler.sol";
 import { TimestampStore } from "./stores/TimestampStore.sol";
 
-/// @title Invariant_Test
 /// @notice Common logic needed by all invariant tests.
 abstract contract Invariant_Test is Base_Test, StdInvariant {
     /*//////////////////////////////////////////////////////////////////////////
@@ -36,7 +35,7 @@ abstract contract Invariant_Test is Base_Test, StdInvariant {
         Base_Test.setUp();
 
         // Deploy V2 Core.
-        deployProtocolConditionally();
+        deployCoreConditionally();
 
         // Deploy the handlers.
         timestampStore = new TimestampStore();

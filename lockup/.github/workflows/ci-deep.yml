@@ -10,21 +10,25 @@ on:
     - cron: "0 3 * * 0" # at 3:00am UTC every Sunday
   workflow_dispatch:
     inputs:
-      forkFuzzRuns:
-        default: "1000"
-        description: 'Number of fuzz runs in the fork tests. Defaults to 1000'
+      unitFuzzRuns:
+        default: "100000"
+        description: "Unit: number of fuzz runs."
         required: false
       integrationFuzzRuns:
         default: "100000"
-        description: 'Number of fuzz runs in the integration tests. Defaults to 100,000'
-        required: false
-      invariantDepth:
-        default: "100"
-        description: 'Number of function calls made in a given run. Defaults to 100'
+        description: "Integration: number of fuzz runs."
         required: false
       invariantRuns:
         default: "100"
-        description: 'Number of sequences of function calls generated and run. Defaults to 100'
+        description: "Invariant runs: number of sequences of function calls generated and run."
+        required: false
+      invariantDepth:
+        default: "100"
+        description: "Invariant depth: number of function calls made in a given run."
+        required: false
+      forkFuzzRuns:
+        default: "1000"
+        description: "Fork: number of fuzz runs."
         required: false
 
 jobs:
@@ -85,6 +89,35 @@ jobs:
       - name: "Add build summary"
         run: |
           echo "## Build result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+  test-unit:
+    env:
+      FOUNDRY_FUZZ_RUNS: ${{ inputs.unitFuzzRuns || '100000' }}
+    needs: ["lint", "build"]
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
+      - name: "Restore the cached build"
+        uses: "actions/cache/restore@v3"
+        with:
+          fail-on-cache-miss: true
+          key: "foundry-build-${{ github.sha }}"
+          path: "out-optimized"
+
+      - name: "Run the unit tests against the optimized build"
+        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/unit\""
+
+      - name: "Add test summary"
+        run: |
+          echo "## Unit tests result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
   test-integration:

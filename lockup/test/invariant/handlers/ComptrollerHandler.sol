@@ -9,7 +9,6 @@ import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol"
 import { TimestampStore } from "../stores/TimestampStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
-/// @title ComptrollerHandler
 /// @dev This contract and not {SablierV2Comptroller} is exposed to Foundry for invariant testing. The point is
 /// to bound and restrict the inputs that get passed to the real-world contract to avoid getting reverts.
 contract ComptrollerHandler is BaseHandler {

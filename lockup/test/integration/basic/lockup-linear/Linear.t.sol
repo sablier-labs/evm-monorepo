@@ -33,7 +33,6 @@ import { Renounce_Integration_Basic_Test } from "../lockup/renounce/renounce.t.s
 import { SetComptroller_Integration_Basic_Test } from "../lockup/set-comptroller/setComptroller.t.sol";
 import { SetNFTDescriptor_Integration_Basic_Test } from "../lockup/set-nft-descriptor/setNFTDescriptor.t.sol";
 import { StatusOf_Integration_Basic_Test } from "../lockup/status-of/statusOf.t.sol";
-import { TokenURI_Integration_Basic_Test } from "../lockup/token-uri/tokenURI.t.sol";
 import { WasCanceled_Integration_Basic_Test } from "../lockup/was-canceled/wasCanceled.t.sol";
 import { Withdraw_Integration_Basic_Test } from "../lockup/withdraw/withdraw.t.sol";
 import { WithdrawMax_Integration_Basic_Test } from "../lockup/withdraw-max/withdrawMax.t.sol";
@@ -43,7 +42,6 @@ import { WithdrawMultiple_Integration_Basic_Test } from "../lockup/withdraw-mult
                             NON-SHARED ABSTRACT TEST
 //////////////////////////////////////////////////////////////////////////*/
 
-/// @title Linear_Integration_Basic_Test
 /// @notice Common testing logic needed across {SablierV2LockupLinear} integration basic tests.
 abstract contract Linear_Integration_Basic_Test is Integration_Test, Linear_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, Linear_Integration_Shared_Test) {
@@ -278,13 +276,6 @@ contract StatusOf_Linear_Integration_Basic_Test is Linear_Integration_Basic_Test
     function setUp() public virtual override(Linear_Integration_Basic_Test, StatusOf_Integration_Basic_Test) {
         Linear_Integration_Basic_Test.setUp();
         StatusOf_Integration_Basic_Test.setUp();
-    }
-}
-
-contract TokenURI_Linear_Integration_Basic_Test is Linear_Integration_Basic_Test, TokenURI_Integration_Basic_Test {
-    function setUp() public virtual override(Linear_Integration_Basic_Test, TokenURI_Integration_Basic_Test) {
-        Linear_Integration_Basic_Test.setUp();
-        TokenURI_Integration_Basic_Test.setUp();
     }
 }
 

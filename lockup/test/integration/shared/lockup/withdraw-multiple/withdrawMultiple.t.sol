@@ -76,7 +76,7 @@ abstract contract WithdrawMultiple_Integration_Shared_Test is Lockup_Integration
         createTestStreams();
         caller = users.operator;
         changePrank({ msgSender: users.recipient });
-        lockup.setApprovalForAll({ operator: users.operator, _approved: true });
+        lockup.setApprovalForAll({ operator: users.operator, approved: true });
         caller = users.operator;
         changePrank({ msgSender: users.operator });
         _;

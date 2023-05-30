@@ -10,5 +10,6 @@
   },
   "editor.formatOnSave": true,
   "npm.exclude": "**/lib/**",
+  "prettier.documentSelectors": ["**/*.svg"],
   "solidity.formatter": "forge"
 }

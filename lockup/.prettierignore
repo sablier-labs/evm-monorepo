@@ -6,15 +6,14 @@ coverage
 docs
 lib
 node_modules
-out-optimized
 out
-script
-src
-test
+out-optimized
+out-svg
 
 # files
 *.env
 *.log
+*.sol
 .DS_Store
 .pnp.*
 lcov.info

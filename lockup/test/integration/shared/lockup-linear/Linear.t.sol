@@ -7,8 +7,7 @@ import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
 import { Lockup_Integration_Shared_Test } from "../lockup/Lockup.t.sol";
 
-/// @title Linear_Integration_Shared_Test
-/// @notice Common testing logic needed across {SablierV2LockupLinear} integration tests.
+/// @notice Common testing logic needed by all {SablierV2LockupLinear} integration tests.
 abstract contract Linear_Integration_Shared_Test is Lockup_Integration_Shared_Test {
     struct Params {
         LockupLinear.CreateWithDurations createWithDurations;

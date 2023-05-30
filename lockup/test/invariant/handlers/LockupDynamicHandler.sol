@@ -9,7 +9,6 @@ import { LockupStore } from "../stores/LockupStore.sol";
 import { TimestampStore } from "../stores/TimestampStore.sol";
 import { LockupHandler } from "./LockupHandler.sol";
 
-/// @title LockupDynamicHandler
 /// @dev This contract and not {SablierV2LockupDynamic} is exposed to Foundry for invariant testing. The point is
 /// to bound and restrict the inputs that get passed to the real-world contract to avoid getting reverts.
 contract LockupDynamicHandler is LockupHandler {

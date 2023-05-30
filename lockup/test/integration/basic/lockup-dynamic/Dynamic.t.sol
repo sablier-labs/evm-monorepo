@@ -32,7 +32,6 @@ import { Renounce_Integration_Basic_Test } from "../lockup/renounce/renounce.t.s
 import { SetComptroller_Integration_Basic_Test } from "../lockup/set-comptroller/setComptroller.t.sol";
 import { SetNFTDescriptor_Integration_Basic_Test } from "../lockup/set-nft-descriptor/setNFTDescriptor.t.sol";
 import { StatusOf_Integration_Basic_Test } from "../lockup/status-of/statusOf.t.sol";
-import { TokenURI_Integration_Basic_Test } from "../lockup/token-uri/tokenURI.t.sol";
 import { Withdraw_Integration_Basic_Test } from "../lockup/withdraw/withdraw.t.sol";
 import { WasCanceled_Integration_Basic_Test } from "../lockup/was-canceled/wasCanceled.t.sol";
 import { WithdrawMax_Integration_Basic_Test } from "../lockup/withdraw-max/withdrawMax.t.sol";
@@ -42,7 +41,6 @@ import { WithdrawMultiple_Integration_Basic_Test } from "../lockup/withdraw-mult
                             NON-SHARED ABSTRACT TEST
 //////////////////////////////////////////////////////////////////////////*/
 
-/// @title Dynamic_Integration_Basic_Test
 /// @notice Common testing logic needed across {SablierV2LockupDynamic} integration basic tests.
 abstract contract Dynamic_Integration_Basic_Test is Integration_Test, Dynamic_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, Dynamic_Integration_Shared_Test) {
@@ -51,7 +49,7 @@ abstract contract Dynamic_Integration_Basic_Test is Integration_Test, Dynamic_In
         Integration_Test.setUp();
         Dynamic_Integration_Shared_Test.setUp();
 
-        // Cast the linear contract as {ISablierV2Base} and {ISablierV2Lockup}.
+        // Cast the dynamic contract as {ISablierV2Base} and {ISablierV2Lockup}.
         base = ISablierV2Lockup(dynamic);
         lockup = ISablierV2Lockup(dynamic);
     }
@@ -284,13 +282,6 @@ contract StatusOf_Dynamic_Integration_Basic_Test is Dynamic_Integration_Basic_Te
     function setUp() public virtual override(Dynamic_Integration_Basic_Test, StatusOf_Integration_Basic_Test) {
         Dynamic_Integration_Basic_Test.setUp();
         StatusOf_Integration_Basic_Test.setUp();
-    }
-}
-
-contract TokenURI_Dynamic_Integration_Basic_Test is Dynamic_Integration_Basic_Test, TokenURI_Integration_Basic_Test {
-    function setUp() public virtual override(Dynamic_Integration_Basic_Test, TokenURI_Integration_Basic_Test) {
-        Dynamic_Integration_Basic_Test.setUp();
-        TokenURI_Integration_Basic_Test.setUp();
     }
 }
 

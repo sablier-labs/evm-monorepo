@@ -16,7 +16,7 @@ If you want to deploy to a local development chain, you can spin up an instance 
 ### Deploy `SablierV2Comptroller`
 
 ```shell
-forge script script/deploy/DeployComptroller.s.sol \
+forge script script/DeployComptroller.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address)" \
@@ -28,7 +28,7 @@ forge script script/deploy/DeployComptroller.s.sol \
 You should replace the placeholders with the actual arguments you want to pass.
 
 ```shell
-forge script script/deploy/DeployLockupDynamic.s.sol \
+forge script script/DeployLockupDynamic.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address,address,address,uint256)" \
@@ -43,7 +43,7 @@ forge script script/deploy/DeployLockupDynamic.s.sol \
 You should replace the placeholders with the actual arguments you want to pass.
 
 ```shell
-forge script script/deploy/DeployLockupLinear.s.sol \
+forge script script/DeployLockupLinear.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address,address,address)" \
@@ -52,10 +52,10 @@ forge script script/deploy/DeployLockupLinear.s.sol \
   NFT_DESCRIPTOR_ADDRESS
 ```
 
-### Deploy Protocol
+### Deploy All Contracts
 
 ```shell
-forge script script/deploy/DeployProtocol.s.sol \
+forge script script/DeployCore.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address,address,uint256)" \

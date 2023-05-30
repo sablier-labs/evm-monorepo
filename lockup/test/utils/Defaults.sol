@@ -72,20 +72,20 @@ contract Defaults is Constants {
                                       STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function broker() public view returns (Broker memory broker_) {
-        broker_ = Broker({ account: users.broker, fee: BROKER_FEE });
+    function broker() public view returns (Broker memory) {
+        return Broker({ account: users.broker, fee: BROKER_FEE });
     }
 
-    function durations() public pure returns (LockupLinear.Durations memory durations_) {
-        durations_ = LockupLinear.Durations({ cliff: CLIFF_DURATION, total: TOTAL_DURATION });
+    function durations() public pure returns (LockupLinear.Durations memory) {
+        return LockupLinear.Durations({ cliff: CLIFF_DURATION, total: TOTAL_DURATION });
     }
 
-    function dynamicRange() public view returns (LockupDynamic.Range memory dynamicRange_) {
-        dynamicRange_ = LockupDynamic.Range({ start: START_TIME, end: END_TIME });
+    function dynamicRange() public view returns (LockupDynamic.Range memory) {
+        return LockupDynamic.Range({ start: START_TIME, end: END_TIME });
     }
 
-    function dynamicStream() external view returns (LockupDynamic.Stream memory dynamicStream_) {
-        dynamicStream_ = LockupDynamic.Stream({
+    function dynamicStream() external view returns (LockupDynamic.Stream memory) {
+        return LockupDynamic.Stream({
             amounts: lockupAmounts(),
             asset: asset,
             endTime: END_TIME,
@@ -99,12 +99,12 @@ contract Defaults is Constants {
         });
     }
 
-    function linearRange() public view returns (LockupLinear.Range memory linearRange_) {
-        linearRange_ = LockupLinear.Range({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
+    function linearRange() public view returns (LockupLinear.Range memory) {
+        return LockupLinear.Range({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
     }
 
-    function linearStream() external view returns (LockupLinear.Stream memory linearStream_) {
-        linearStream_ = LockupLinear.Stream({
+    function linearStream() external view returns (LockupLinear.Stream memory) {
+        return LockupLinear.Stream({
             amounts: lockupAmounts(),
             asset: asset,
             cliffTime: CLIFF_TIME,
@@ -118,12 +118,12 @@ contract Defaults is Constants {
         });
     }
 
-    function lockupAmounts() public pure returns (Lockup.Amounts memory lockupAmounts_) {
-        lockupAmounts_ = Lockup.Amounts({ deposited: DEPOSIT_AMOUNT, refunded: 0, withdrawn: 0 });
+    function lockupAmounts() public pure returns (Lockup.Amounts memory) {
+        return Lockup.Amounts({ deposited: DEPOSIT_AMOUNT, refunded: 0, withdrawn: 0 });
     }
 
-    function lockupCreateAmounts() external pure returns (Lockup.CreateAmounts memory lockupCreateAmounts_) {
-        lockupCreateAmounts_ = Lockup.CreateAmounts({
+    function lockupCreateAmounts() external pure returns (Lockup.CreateAmounts memory) {
+        return Lockup.CreateAmounts({
             deposit: DEPOSIT_AMOUNT,
             protocolFee: PROTOCOL_FEE_AMOUNT,
             brokerFee: BROKER_FEE_AMOUNT
@@ -180,8 +180,8 @@ contract Defaults is Constants {
                                        PARAMS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDeltas() external view returns (LockupDynamic.CreateWithDeltas memory params_) {
-        params_ = LockupDynamic.CreateWithDeltas({
+    function createWithDeltas() external view returns (LockupDynamic.CreateWithDeltas memory) {
+        return LockupDynamic.CreateWithDeltas({
             asset: asset,
             broker: broker(),
             cancelable: true,
@@ -192,8 +192,8 @@ contract Defaults is Constants {
         });
     }
 
-    function createWithDurations() public view returns (LockupLinear.CreateWithDurations memory params_) {
-        params_ = LockupLinear.CreateWithDurations({
+    function createWithDurations() public view returns (LockupLinear.CreateWithDurations memory) {
+        return LockupLinear.CreateWithDurations({
             asset: asset,
             broker: broker(),
             cancelable: true,
@@ -204,8 +204,8 @@ contract Defaults is Constants {
         });
     }
 
-    function createWithMilestones() external view returns (LockupDynamic.CreateWithMilestones memory params_) {
-        params_ = LockupDynamic.CreateWithMilestones({
+    function createWithMilestones() external view returns (LockupDynamic.CreateWithMilestones memory) {
+        return LockupDynamic.CreateWithMilestones({
             asset: asset,
             broker: broker(),
             cancelable: true,
@@ -217,8 +217,8 @@ contract Defaults is Constants {
         });
     }
 
-    function createWithRange() public view returns (LockupLinear.CreateWithRange memory params_) {
-        params_ = LockupLinear.CreateWithRange({
+    function createWithRange() public view returns (LockupLinear.CreateWithRange memory) {
+        return LockupLinear.CreateWithRange({
             asset: asset,
             broker: broker(),
             cancelable: true,

@@ -6,8 +6,7 @@ import { SablierV2FlashLoan } from "src/abstracts/SablierV2FlashLoan.sol";
 import { FlashLoanMock } from "../../../mocks/flash-loan/FlashLoanMock.sol";
 import { Integration_Test } from "../../Integration.t.sol";
 
-/// @title FlashLoan_Integration_Shared_Test
-/// @notice Common testing logic needed across {SablierV2FlashLoan} integration tests.
+/// @notice Common testing logic needed by all {SablierV2FlashLoan} integration tests.
 abstract contract FlashLoan_Integration_Shared_Test is Integration_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS

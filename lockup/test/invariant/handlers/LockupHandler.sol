@@ -10,7 +10,6 @@ import { LockupStore } from "../stores/LockupStore.sol";
 import { TimestampStore } from "../stores/TimestampStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
-/// @title LockupHandler
 /// @dev Common handler logic between {LockupLinearHandler} and {LockupDynamicHandler}.
 abstract contract LockupHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
@@ -282,7 +281,7 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
 
-        // Only NFTs that still exist can be transferred.
+        // Skip burned NFTs.
         if (currentRecipient == address(0)) {
             return;
         }

@@ -1,0 +1,5 @@
+mapSymbol.t.sol
+├── when the NFT contract is unknown
+│  └── it should revert
+└── when the NFT contract is known
+   └── it should map the ERC-721 symbol to a streaming model

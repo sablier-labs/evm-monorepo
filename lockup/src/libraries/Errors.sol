@@ -2,6 +2,7 @@
 pragma solidity >=0.8.19;
 
 import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
+import { IERC721Metadata } from "@openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 /// @title Errors
@@ -97,19 +98,19 @@ library Errors {
                              SABLIER-V2-LOCKUP-DYNAMIC
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when trying to create a dynamic stream with a deposit amount not equal to the sum of the
+    /// @notice Thrown when trying to create a stream with a deposit amount not equal to the sum of the
     /// segment amounts.
     error SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum(
         uint128 depositAmount, uint128 segmentAmountsSum
     );
 
-    /// @notice Thrown when trying to create a dynamic stream with more segments than the maximum allowed.
+    /// @notice Thrown when trying to create a stream with more segments than the maximum allowed.
     error SablierV2LockupDynamic_SegmentCountTooHigh(uint256 count);
 
-    /// @notice Thrown when trying to create a dynamic stream with no segments.
+    /// @notice Thrown when trying to create a stream with no segments.
     error SablierV2LockupDynamic_SegmentCountZero();
 
-    /// @notice Thrown when trying to create a dynamic stream with unordered segment milestones.
+    /// @notice Thrown when trying to create a stream with unordered segment milestones.
     error SablierV2LockupDynamic_SegmentMilestonesNotOrdered(
         uint256 index, uint40 previousMilestone, uint40 currentMilestone
     );
@@ -124,9 +125,16 @@ library Errors {
                               SABLIER-V2-LOCKUP-LINEAR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when trying to create a linear stream with a cliff time not strictly less than the end time.
+    /// @notice Thrown when trying to create a stream with a cliff time not strictly less than the end time.
     error SablierV2LockupLinear_CliffTimeNotLessThanEndTime(uint40 cliffTime, uint40 endTime);
 
-    /// @notice Thrown when trying to create a linear stream with a start time greater than the cliff time.
+    /// @notice Thrown when trying to create a stream with a start time greater than the cliff time.
     error SablierV2LockupLinear_StartTimeGreaterThanCliffTime(uint40 startTime, uint40 cliffTime);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                             SABLIER-V2-NFT-DESCRIPTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to generate the token URI for an unknown ERC-721 NFT contract.
+    error SablierV2NFTDescriptor_UnknownNFT(IERC721Metadata nft, string symbol);
 }

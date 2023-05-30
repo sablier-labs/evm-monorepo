@@ -9,11 +9,13 @@
     "SablierV2Comptroller",
     "SablierV2LockupDynamic",
     "SablierV2LockupLinear",
+    "SablierV2NFTDescriptor",
   ]
   optimizer = true
   optimizer_runs = 5_000
   out = "out"
   script = "script"
+  sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
   solc = "0.8.19"
   src = "src"
   test = "test"
@@ -35,7 +37,7 @@
 # Compile only the production code with IR
 [profile.optimized]
   out = "out-optimized"
-  test = "src"
+  test = "test/mocks"
   via_ir = true
 
 # See "SMTChecker and Formal Verification" in the Solidity docs

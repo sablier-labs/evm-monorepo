@@ -96,6 +96,35 @@ jobs:
           echo "## Build result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
+  test-unit:
+    needs: ["lint", "build"]
+    env:
+      FOUNDRY_FUZZ_RUNS: "5000"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          submodules: "recursive"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
+      - name: "Restore the cached build"
+        uses: "actions/cache/restore@v3"
+        with:
+          fail-on-cache-miss: true
+          key: "foundry-build-${{ github.sha }}"
+          path: "out-optimized"
+
+      - name: "Run the unit tests against the optimized build"
+        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/unit\""
+
+      - name: "Add test summary"
+        run: |
+          echo "## Unit tests result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
   test-integration:
     needs: ["lint", "build"]
     env:
@@ -125,7 +154,6 @@ jobs:
           echo "## Integration tests result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
-
   test-utils:
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
@@ -143,14 +171,14 @@ jobs:
         with:
           fail-on-cache-miss: true
           key: "foundry-build-${{ github.sha }}"
-          path: "optimized-out"
+          path: "out-optimized"
 
       - name: "Run the utils tests against the optimized build"
         run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/utils/**/*.sol\""
 
       - name: "Add test summary"
         run: |
-          echo "## Integration tests result" >> $GITHUB_STEP_SUMMARY
+          echo "## Utils tests result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
   test-invariant:
@@ -225,8 +253,8 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Run the integration tests and generate the coverage report"
-        run: "forge coverage --match-path \"test/integration/**/*.sol\" --report lcov"
+      - name: "Generate the coverage report using the unit and the integration tests"
+        run: "forge coverage --match-path \"test/{unit,integration}/**/*.sol\" --report lcov"
 
       - name: "Upload coverage report to Codecov"
         uses: "codecov/codecov-action@v3"

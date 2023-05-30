@@ -160,14 +160,14 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
         whenCallerSender
         whenRecipientContract
     {
-        // Create the stream with an empty contract as the recipient.
-        uint256 streamId = createDefaultStreamWithRecipient(address(empty));
+        // Create the stream with a no-op contract as the recipient.
+        uint256 streamId = createDefaultStreamWithRecipient(address(noop));
 
         // Expect a call to the recipient hook.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
-            address(empty),
+            address(noop),
             abi.encodeCall(
                 ISablierV2LockupRecipient.onStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
             )
@@ -335,14 +335,14 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
         whenCallerRecipient
         whenSenderContract
     {
-        // Create a stream with an empty contract as the sender.
-        uint256 streamId = createDefaultStreamWithSender(address(empty));
+        // Create a stream with a no-op contract as the sender.
+        uint256 streamId = createDefaultStreamWithSender(address(noop));
 
         // Expect a call to the sender hook.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
-            address(empty),
+            address(noop),
             abi.encodeCall(
                 ISablierV2LockupSender.onStreamCanceled, (streamId, users.recipient, senderAmount, recipientAmount)
             )

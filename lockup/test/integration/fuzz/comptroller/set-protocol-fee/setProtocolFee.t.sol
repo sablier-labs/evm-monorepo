@@ -3,9 +3,9 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
-import { Comptroller_Integration_Fuzz_Test } from "../Comptroller.t.sol";
+import { Integration_Test } from "../../../Integration.t.sol";
 
-contract SetProtocolFee_Integration_Fuzz_Test is Comptroller_Integration_Fuzz_Test {
+contract SetProtocolFee_Integration_Fuzz_Test is Integration_Test {
     modifier whenCallerAdmin() {
         _;
     }

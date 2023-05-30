@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Notes:
-# - The script must be run from the repo's root directory
-
 # Pre-requisites:
 # - foundry (https://getfoundry.sh)
 # - pnpm (https://pnpm.io)

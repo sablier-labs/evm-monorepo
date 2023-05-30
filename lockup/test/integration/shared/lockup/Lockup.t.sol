@@ -9,7 +9,6 @@ import { Broker } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "test/Base.t.sol";
 
-/// @title Lockup_Integration_Shared_Test
 /// @dev This contracts avoids duplicating test logic for {SablierV2LockupLinear} and {SablierV2LockupDynamic};
 /// both of these contracts inherit from {SablierV2Base} and {SablierV2Lockup}.
 abstract contract Lockup_Integration_Shared_Test is Base_Test {

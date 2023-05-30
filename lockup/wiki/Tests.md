@@ -2,10 +2,10 @@
 
 Tests are organized into three categories:
 
-1. Integration: tests that check the behavior of individual functions against a local EVM. The inputs used for testing
-   are fuzzed.
-2. Invariant: conditional expressions that must always hold true.
-3. Fork: complex tests that run against an Ethereum Mainnet fork, which ensure that the protocol works with deployed
+1. Unit: simple tests that check the behavior of individual functions against a local EVM.
+2. Integration: similar to the unit tests but with more complex scenarios that involve multiple contracts.
+3. Invariant: conditional expressions that must always hold true.
+4. Fork: complex tests that run against an Ethereum Mainnet fork, which ensure that the protocol works with deployed
    ERC-20 assets.
 
 ## Running
@@ -41,9 +41,9 @@ forge test --match-contract CreateWithRange
 
 ## State Trees
 
-You may notice that every integration test contract is accompanied by a corresponding `.tree` file. The goal with this
-is to structure the tests within a tree in which the parent nodes represent specific state conditions that govern the
-smart contract's behavior, while the leaves signify the conditions being tested.
+You may notice that some test files are accompanied by a corresponding `.tree` file. The goal with this is to structure
+the tests within a tree in which the parent nodes represent specific state conditions that govern the smart contract's
+behavior, while the leaves signify the conditions being tested.
 
 To replicate the tree in Solidity, we use modifiers following the naming pattern `when<Condition>`.
 

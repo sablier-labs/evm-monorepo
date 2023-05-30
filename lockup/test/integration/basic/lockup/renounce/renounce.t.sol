@@ -122,11 +122,11 @@ abstract contract Renounce_Integration_Basic_Test is Integration_Test, Lockup_In
         whenStreamCancelable
         whenRecipientContract
     {
-        // Create the stream with an empty contract as the recipient.
-        uint256 streamId = createDefaultStreamWithRecipient(address(empty));
+        // Create the stream with a no-op contract as the recipient.
+        uint256 streamId = createDefaultStreamWithRecipient(address(noop));
 
         // Expect a call to the recipient hook.
-        vm.expectCall(address(empty), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
+        vm.expectCall(address(noop), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
 
         // Renounce the stream.
         lockup.renounce(streamId);

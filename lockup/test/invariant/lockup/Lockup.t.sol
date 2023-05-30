@@ -8,7 +8,6 @@ import { Invariant_Test } from "../Invariant.t.sol";
 import { LockupHandler } from "../handlers/LockupHandler.sol";
 import { LockupStore } from "../stores/LockupStore.sol";
 
-/// @title Lockup_Invariant_Test
 /// @notice Common invariant test logic needed across contracts that inherit from {SablierV2Lockup}.
 abstract contract Lockup_Invariant_Test is Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////

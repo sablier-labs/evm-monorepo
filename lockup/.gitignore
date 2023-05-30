@@ -5,8 +5,9 @@ cache
 coverage
 docs
 node_modules
-out-optimized
 out
+out-optimized
+out-svg
 
 # files
 *.env

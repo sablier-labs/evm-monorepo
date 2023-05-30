@@ -11,7 +11,7 @@ on:
     inputs:
       chain:
         default: "goerli"
-        description: 'Chain name. Defaults to "goerli" if unspecified'
+        description: "Chain name as defined in the Foundry config."
         required: false
 
 jobs:
@@ -26,14 +26,14 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Deploy the dummy NFT Descriptor"
+      - name: "Deploy the NFT Descriptor"
         run: >-
-          forge script script/deploy/DeployNFTDescriptor.s.sol
+          forge script script/DeployNFTDescriptor.s.sol
           --broadcast
           --rpc-url "${{ inputs.chain }}"
           -vvvv
 
-      - name: "Add summary"
+      - name: "Add workflow summary"
         run: |
-          echo "## Deployment result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "## Result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Done" >> $GITHUB_STEP_SUMMARY
