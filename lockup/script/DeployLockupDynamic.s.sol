@@ -19,9 +19,9 @@ contract DeployLockupDynamic is BaseScript {
         public
         virtual
         broadcaster
-        returns (SablierV2LockupDynamic dynamic)
+        returns (SablierV2LockupDynamic lockupDynamic)
     {
-        dynamic = new SablierV2LockupDynamic(
+        lockupDynamic = new SablierV2LockupDynamic(
             initialAdmin,
             initialComptroller,
             initialNFTDescriptor,

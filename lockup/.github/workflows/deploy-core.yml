@@ -23,7 +23,7 @@ on:
         required: false
 
 jobs:
-  deploy-protocol:
+  deploy-core:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Check out the repo"
