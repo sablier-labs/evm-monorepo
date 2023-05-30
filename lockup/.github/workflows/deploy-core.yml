@@ -39,7 +39,7 @@ jobs:
           forge script script/DeployCore.s.sol
           --broadcast
           --rpc-url "${{ inputs.chain }}"
-          --sig "run(address,address,uint256)"
+          --sig "run(address,uint256)"
           "${{ inputs.admin }}"
           "${{ inputs.max-segment-count }}"
           -vvvv
