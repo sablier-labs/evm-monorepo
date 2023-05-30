@@ -1,4 +1,4 @@
-@openzeppelin/=lib/openzeppelin-contracts/contracts/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @prb/math/=lib/prb-math/src/
 @prb/test/=lib/prb-test/src/
 forge-std/=lib/forge-std/src/

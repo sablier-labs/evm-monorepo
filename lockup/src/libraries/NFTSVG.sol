@@ -2,7 +2,7 @@
 // solhint-disable quotes
 pragma solidity >=0.8.19;
 
-import { Strings } from "@openzeppelin/utils/Strings.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 import { SVGElements } from "./SVGElements.sol";
 
