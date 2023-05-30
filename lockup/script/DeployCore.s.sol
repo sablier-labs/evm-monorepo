@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.19 <=0.9.0;
 
-import { UD60x18 } from "@prb/math/UD60x18.sol";
-
-import { ISablierV2NFTDescriptor } from "../src/interfaces/ISablierV2NFTDescriptor.sol";
 import { SablierV2Comptroller } from "../src/SablierV2Comptroller.sol";
 import { SablierV2LockupDynamic } from "../src/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "../src/SablierV2LockupLinear.sol";
 import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
+import { BaseScript } from "./Base.s.sol";
 
 /// @notice Deploys all V2 Core contract in the following order:
 ///
@@ -15,13 +13,14 @@ import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
 /// 2. {SablierV2NFTDescriptor}
 /// 3. {SablierV2LockupDynamic}
 /// 4. {SablierV2LockupLinear}
-contract DeployCore {
+contract DeployCore is BaseScript {
     function run(
         address initialAdmin,
         uint256 maxSegmentCount
     )
         public
         virtual
+        broadcaster
         returns (
             SablierV2Comptroller comptroller,
             SablierV2LockupDynamic lockupDynamic,
