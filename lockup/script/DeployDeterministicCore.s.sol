@@ -27,6 +27,7 @@ contract DeployDeterministicCore is
     /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.
     /// https://github.com/Arachnid/deterministic-deployment-proxy
     function run(
+        uint256 create2Salt,
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor,
         uint256 maxSegmentCount
@@ -40,10 +41,15 @@ contract DeployDeterministicCore is
             SablierV2NFTDescriptor nftDescriptor
         )
     {
-        comptroller = new SablierV2Comptroller{ salt: ZERO_SALT}(initialAdmin);
-        nftDescriptor = new SablierV2NFTDescriptor{ salt: ZERO_SALT}();
-        dynamic =
-        new SablierV2LockupDynamic{ salt: ZERO_SALT}(initialAdmin, comptroller, initialNFTDescriptor, maxSegmentCount);
-        linear = new SablierV2LockupLinear{ salt: ZERO_SALT}(initialAdmin, comptroller, initialNFTDescriptor);
+        comptroller = new SablierV2Comptroller{ salt: bytes32(create2Salt)}(initialAdmin);
+        nftDescriptor = new SablierV2NFTDescriptor{ salt: bytes32(create2Salt)}();
+        // forgefmt: disable-next-line
+        dynamic = new SablierV2LockupDynamic{ salt: bytes32(create2Salt)}(
+            initialAdmin,
+            comptroller,
+            initialNFTDescriptor,
+            maxSegmentCount
+        );
+        linear = new SablierV2LockupLinear{ salt: bytes32(create2Salt)}(initialAdmin, comptroller, initialNFTDescriptor);
     }
 }
