@@ -60,7 +60,7 @@ contract StreamedAmountOf_Linear_Integration_Fuzz_Test is
         vm.assume(depositAmount != 0);
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
-        // Mint enough assets to the sender.
+        // Mint enough assets to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
@@ -94,7 +94,7 @@ contract StreamedAmountOf_Linear_Integration_Fuzz_Test is
         timeWarp0 = boundUint40(timeWarp0, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1);
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, defaults.TOTAL_DURATION());
 
-        // Mint enough assets to the sender.
+        // Mint enough assets to the Sender.
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.

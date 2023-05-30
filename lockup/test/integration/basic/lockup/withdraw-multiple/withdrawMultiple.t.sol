@@ -169,7 +169,7 @@ abstract contract WithdrawMultiple_Integration_Basic_Test is
         whenNoDepletedStream
         whenCallerUnauthorized
     {
-        // Create a stream with Eve as the recipient.
+        // Create a stream with Eve as the stream's recipient.
         uint256 eveStreamId = createDefaultStreamWithRecipient(users.eve);
 
         // Make Eve the caller in this test.

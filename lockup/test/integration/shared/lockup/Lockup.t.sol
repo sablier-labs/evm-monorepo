@@ -33,7 +33,7 @@ abstract contract Lockup_Integration_Shared_Test is Base_Test {
         comptroller.setProtocolFee({ asset: dai, newProtocolFee: defaults.PROTOCOL_FEE() });
         comptroller.setProtocolFee({ asset: IERC20(address(usdt)), newProtocolFee: defaults.PROTOCOL_FEE() });
 
-        // Make the sender the default caller in this test suite.
+        // Make the Sender the default caller in this test suite.
         changePrank({ msgSender: users.sender });
     }
 

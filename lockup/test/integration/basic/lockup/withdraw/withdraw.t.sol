@@ -46,7 +46,7 @@ abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_
         whenStreamNotDepleted
         whenCallerUnauthorized
     {
-        // Make the sender the caller in this test.
+        // Make the Sender the caller in this test.
         changePrank({ msgSender: users.sender });
 
         // Run the test.
@@ -247,7 +247,7 @@ abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_
         whenRecipientDoesNotRevert
         whenNoRecipientReentrancy
     {
-        // Create the stream with a contract as the recipient.
+        // Create the stream with a contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Cancel the stream.
@@ -291,7 +291,7 @@ abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_
         // Set the withdraw amount to the streamed amount.
         uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamId);
 
-        // Expect the assets to be transferred to the recipient.
+        // Expect the assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
@@ -330,10 +330,10 @@ abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_
         whenStreamHasNotBeenCanceled
         whenRecipientContract
     {
-        // Create the stream with a no-op contract as the recipient.
+        // Create the stream with a no-op contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(noop));
 
-        // Expect a call to the recipient hook.
+        // Expect a call to the hook.
         vm.expectCall(
             address(noop),
             abi.encodeCall(
@@ -375,10 +375,10 @@ abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_
         whenRecipientContract
         whenRecipientImplementsHook
     {
-        // Create the stream with a reverting contract as the recipient.
+        // Create the stream with a reverting contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
 
-        // Expect a call to the recipient hook.
+        // Expect a call to the hook.
         vm.expectCall(
             address(revertingRecipient),
             abi.encodeCall(
@@ -421,13 +421,13 @@ abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_
         whenRecipientImplementsHook
         whenRecipientDoesNotRevert
     {
-        // Create the stream with a reentrant contract as the recipient.
+        // Create the stream with a reentrant contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
 
         // Halve the withdraw amount so that the recipient can re-entry and make another withdrawal.
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT() / 2;
 
-        // Expect a call to the recipient hook.
+        // Expect a call to the hook.
         vm.expectCall(
             address(reentrantRecipient),
             abi.encodeCall(
@@ -471,16 +471,16 @@ abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_
         whenRecipientDoesNotRevert
         whenNoRecipientReentrancy
     {
-        // Create the stream with a contract as the recipient.
+        // Create the stream with a contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Set the withdraw amount to the streamed amount.
         uint128 withdrawAmount = lockup.streamedAmountOf(streamId);
 
-        // Expect the assets to be transferred to the recipient.
+        // Expect the assets to be transferred to the recipient contract.
         expectCallToTransfer({ to: address(goodRecipient), amount: withdrawAmount });
 
-        // Expect a call to the recipient hook.
+        // Expect a call to the hook.
         vm.expectCall(
             address(goodRecipient),
             abi.encodeCall(

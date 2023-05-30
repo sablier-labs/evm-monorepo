@@ -122,10 +122,10 @@ abstract contract Renounce_Integration_Basic_Test is Integration_Test, Lockup_In
         whenStreamCancelable
         whenRecipientContract
     {
-        // Create the stream with a no-op contract as the recipient.
+        // Create the stream with a no-op contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(noop));
 
-        // Expect a call to the recipient hook.
+        // Expect a call to hook.
         vm.expectCall(address(noop), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
 
         // Renounce the stream.
@@ -149,10 +149,10 @@ abstract contract Renounce_Integration_Basic_Test is Integration_Test, Lockup_In
         whenRecipientContract
         whenRecipientImplementsHook
     {
-        // Create the stream with a reverting contract as the recipient.
+        // Create the stream with a reverting contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
 
-        // Expect a call to the recipient hook.
+        // Expect a call to hook.
         vm.expectCall(
             address(revertingRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
         );
@@ -179,10 +179,10 @@ abstract contract Renounce_Integration_Basic_Test is Integration_Test, Lockup_In
         whenRecipientImplementsHook
         whenRecipientDoesNotRevert
     {
-        // Create the stream with a reentrant contract as the recipient.
+        // Create the stream with a reentrant contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
 
-        // Expect a call to the recipient hook.
+        // Expect a call to hook.
         vm.expectCall(
             address(reentrantRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
         );
@@ -210,10 +210,10 @@ abstract contract Renounce_Integration_Basic_Test is Integration_Test, Lockup_In
         whenRecipientDoesNotRevert
         whenNoRecipientReentrancy
     {
-        // Create the stream with a contract as the recipient.
+        // Create the stream with a contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Expect a call to the recipient hook.
+        // Expect a call to hook.
         vm.expectCall(address(goodRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
 
         // Expect a {RenounceLockupStream} event to be emitted.

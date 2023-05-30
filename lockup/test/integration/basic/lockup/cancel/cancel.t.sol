@@ -163,7 +163,7 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
         // Create the stream with a no-op contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(noop));
 
-        // Expect a call to the recipient hook.
+        // Expect a call to the hook.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
@@ -194,10 +194,10 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
         whenRecipientContract
         whenRecipientImplementsHook
     {
-        // Create the stream with a reverting contract as the recipient.
+        // Create the stream with a reverting contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
 
-        // Expect a call to the recipient hook.
+        // Expect a call to the hook.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
@@ -232,7 +232,7 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
         // Create the stream with a reentrant contract as the recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
 
-        // Expect a call to the recipient hook.
+        // Expect a call to the hook.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
@@ -268,11 +268,11 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
         // Create the stream.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Expect the assets to be refunded to the sender.
+        // Expect the assets to be refunded to the Sender.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         expectCallToTransfer({ to: users.sender, amount: senderAmount });
 
-        // Expect a call to the recipient hook.
+        // Expect a call to the hook.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(goodRecipient),
@@ -335,10 +335,10 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
         whenCallerRecipient
         whenSenderContract
     {
-        // Create a stream with a no-op contract as the sender.
+        // Create a stream with a no-op contract as the stream's sender.
         uint256 streamId = createDefaultStreamWithSender(address(noop));
 
-        // Expect a call to the sender hook.
+        // Expect a call to the hook.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
@@ -369,10 +369,10 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
         whenSenderContract
         whenSenderImplementsHook
     {
-        // Create a stream with a reverting contract as the sender.
+        // Create a stream with a reverting contract as the stream's sender.
         uint256 streamId = createDefaultStreamWithSender(address(revertingSender));
 
-        // Expect a call to the sender hook.
+        // Expect a call to the hook.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
@@ -404,10 +404,10 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
         whenSenderImplementsHook
         whenSenderDoesNotRevert
     {
-        // Create a stream with a reentrant contract as the sender.
+        // Create a stream with a reentrant contract as the stream's sender.
         uint256 streamId = createDefaultStreamWithSender(address(reentrantSender));
 
-        // Expect a call to the sender hook.
+        // Expect a call to the hook.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
@@ -443,11 +443,11 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
         // Create the stream.
         uint256 streamId = createDefaultStreamWithSender(address(goodSender));
 
-        // Expect the assets to be refunded to the sender.
+        // Expect the assets to be refunded to the sender contract.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         expectCallToTransfer({ to: address(goodSender), amount: senderAmount });
 
-        // Expect a call to the sender hook.
+        // Expect a call to the hook.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectCall(
             address(goodSender),

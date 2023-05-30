@@ -343,7 +343,7 @@ contract CreateWithMilestones_Dynamic_Integration_Basic_Test is
 
     /// @dev Shared logic between {test_CreateWithMilestones_AssetMissingReturnValue} and {test_CreateWithMilestones}.
     function testCreateWithMilestones(address asset) internal {
-        // Make the sender the stream's funder.
+        // Make the Sender the stream's funder.
         address funder = users.sender;
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.

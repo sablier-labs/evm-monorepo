@@ -121,7 +121,7 @@ abstract contract CancelMultiple_Integration_Basic_Test is Integration_Test, Can
     {
         changePrank({ msgSender: users.eve });
 
-        // Create a stream with Eve as the sender.
+        // Create a stream with Eve as the stream's sender.
         uint256 eveStreamId = createDefaultStreamWithSender(users.eve);
 
         // Run the test.
@@ -214,7 +214,7 @@ abstract contract CancelMultiple_Integration_Basic_Test is Integration_Test, Can
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 
-        // Expect the assets to be refunded to the sender.
+        // Expect the assets to be refunded to the stream's sender.
         uint128 senderAmount0 = lockup.refundableAmountOf(testStreamIds[0]);
         expectCallToTransfer({ to: users.sender, amount: senderAmount0 });
         uint128 senderAmount1 = lockup.refundableAmountOf(testStreamIds[1]);

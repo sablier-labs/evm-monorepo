@@ -36,7 +36,7 @@ abstract contract CancelMultiple_Integration_Fuzz_Test is Integration_Test, Canc
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(testStreamIds[0], streamId);
 
-        // Expect the assets to be refunded to the sender.
+        // Expect the assets to be refunded to the Sender.
         uint128 senderAmount0 = lockup.refundableAmountOf(streamIds[0]);
         expectCallToTransfer({ to: users.sender, amount: senderAmount0 });
         uint128 senderAmount1 = lockup.refundableAmountOf(streamIds[1]);

@@ -15,7 +15,7 @@ abstract contract WithdrawMax_Integration_Basic_Test is Integration_Test, Withdr
         // Warp to the stream's end.
         vm.warp({ timestamp: defaults.END_TIME() + 1 seconds });
 
-        // Expect the ERC-20 assets to be transferred to the recipient.
+        // Expect the ERC-20 assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT() });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
@@ -56,7 +56,7 @@ abstract contract WithdrawMax_Integration_Basic_Test is Integration_Test, Withdr
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
-        // Expect the assets to be transferred to the recipient.
+        // Expect the assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.

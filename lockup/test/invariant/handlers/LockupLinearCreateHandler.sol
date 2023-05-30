@@ -63,7 +63,7 @@ contract LockupLinearCreateHandler is BaseHandler {
             boundUint40(params.durations.total, params.durations.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
-        // Mint enough assets to the sender.
+        // Mint enough assets to the Sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupLinear} to spend the assets.
@@ -106,7 +106,7 @@ contract LockupLinearCreateHandler is BaseHandler {
             MAX_UNIX_TIMESTAMP
         );
 
-        // Mint enough assets to the sender.
+        // Mint enough assets to the Sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupLinear} to spend the assets.

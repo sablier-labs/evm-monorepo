@@ -232,11 +232,11 @@ abstract contract Linear_Fork_Test is Fork_Test {
 
         // Assert that the holder's balance has been updated.
         vars.expectedHolderBalance = initialHolderBalance - params.totalAmount;
-        assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "post-create holder balance");
+        assertEq(vars.actualHolderBalance, vars.expectedHolderBalance, "post-create Holder balance");
 
         // Assert that the broker's balance has been updated.
         vars.expectedBrokerBalance = vars.initialBrokerBalance + vars.createAmounts.brokerFee;
-        assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "post-create broker balance");
+        assertEq(vars.actualBrokerBalance, vars.expectedBrokerBalance, "post-create Broker balance");
 
         /*//////////////////////////////////////////////////////////////////////////
                                           WITHDRAW
@@ -302,9 +302,9 @@ abstract contract Linear_Fork_Test is Fork_Test {
                 "post-withdraw linear contract balance"
             );
 
-            // Assert that the recipient's balance has been updated.
+            // Assert that the Recipient's balance has been updated.
             vars.expectedRecipientBalance = vars.initialRecipientBalance + uint256(params.withdrawAmount);
-            assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-withdraw recipient balance");
+            assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-withdraw Recipient balance");
         }
 
         /*//////////////////////////////////////////////////////////////////////////
@@ -352,13 +352,13 @@ abstract contract Linear_Fork_Test is Fork_Test {
                 "post-cancel linear contract balance"
             );
 
-            // Assert that the sender's balance has been updated.
+            // Assert that the Sender's balance has been updated.
             vars.expectedSenderBalance = vars.initialSenderBalance + uint256(vars.senderAmount);
-            assertEq(vars.actualSenderBalance, vars.expectedSenderBalance, "post-cancel sender balance");
+            assertEq(vars.actualSenderBalance, vars.expectedSenderBalance, "post-cancel Sender balance");
 
-            // Assert that the recipient's balance has not changed.
+            // Assert that the Recipient's balance has not changed.
             vars.expectedRecipientBalance = vars.initialRecipientBalance;
-            assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-cancel recipient balance");
+            assertEq(vars.actualRecipientBalance, vars.expectedRecipientBalance, "post-cancel Recipient balance");
         }
 
         // Assert that the NFT has not been burned.

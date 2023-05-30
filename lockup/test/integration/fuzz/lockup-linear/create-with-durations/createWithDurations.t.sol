@@ -85,7 +85,7 @@ contract CreateWithDurations_Linear_Integration_Fuzz_Test is
         durations.total = boundUint40(durations.total, 0, MAX_UNIX_TIMESTAMP);
         vm.assume(durations.cliff < durations.total);
 
-        // Make the sender the stream's funder (recall that the sender is the default caller).
+        // Make the Sender the stream's funder (recall that the Sender is the default caller).
         address funder = users.sender;
 
         // Load the initial protocol revenues.

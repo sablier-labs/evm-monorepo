@@ -80,7 +80,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
             brokerFee: params.broker.fee
         });
 
-        // Mint enough assets to the sender.
+        // Mint enough assets to the Sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupDynamic} to spend the assets.
@@ -128,7 +128,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
             brokerFee: params.broker.fee
         });
 
-        // Mint enough assets to the sender.
+        // Mint enough assets to the Sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupDynamic} to spend the assets.

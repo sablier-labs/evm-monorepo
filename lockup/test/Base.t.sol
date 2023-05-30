@@ -98,7 +98,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Approves all V2 Core contracts to spend assets from the sender, recipient, Alice and Eve.
+    /// @dev Approves all V2 Core contracts to spend assets from the Sender, Recipient, Alice and Eve.
     function approveProtocol() internal {
         changePrank({ msgSender: users.sender });
         dai.approve({ spender: address(linear), amount: MAX_UINT256 });
@@ -141,7 +141,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     /// We cannot use the {DeployCore} script because some tests rely on hard coded addresses for the
     /// deployed contracts. Since the script itself would have to be deployed, using it would bump the
     /// deployer's nonce, which would in turn lead to different addresses (recall that the addresses
-    /// for contracts deployed via `CREATE` are based on the sender-and-nonce-hash).
+    /// for contracts deployed via `CREATE` are based on the caller-and-nonce-hash).
     function deployCoreConditionally() internal {
         if (!isTestOptimizedProfile()) {
             comptroller = new SablierV2Comptroller(users.admin);

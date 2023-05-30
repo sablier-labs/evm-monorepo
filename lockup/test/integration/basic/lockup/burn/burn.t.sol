@@ -13,7 +13,7 @@ abstract contract Burn_Integration_Basic_Test is Integration_Test, Lockup_Integr
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) {
         streamId = createDefaultStream();
 
-        // Make the recipient (owner of the NFT) the caller in this test suite.
+        // Make the Recipient (owner of the NFT) the caller in this test suite.
         changePrank({ msgSender: users.recipient });
     }
 

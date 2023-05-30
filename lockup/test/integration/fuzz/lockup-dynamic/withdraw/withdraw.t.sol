@@ -49,7 +49,7 @@ contract Withdraw_Dynamic_Integration_Fuzz_Test is Dynamic_Integration_Fuzz_Test
         vm.assume(params.segments.length != 0);
         vm.assume(params.to != address(0));
 
-        // Make the sender the stream's funder (recall that the sender is the default caller).
+        // Make the Sender the stream's funder (recall that the Sender is the default caller).
         Vars memory vars;
         vars.funder = users.sender;
 
@@ -66,7 +66,7 @@ contract Withdraw_Dynamic_Integration_Fuzz_Test is Dynamic_Integration_Fuzz_Test
         // Mint enough assets to the funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
 
-        // Make the sender the caller.
+        // Make the Sender the caller.
         changePrank({ msgSender: users.sender });
 
         // Create the stream with the fuzzed segments.
@@ -97,7 +97,7 @@ contract Withdraw_Dynamic_Integration_Fuzz_Test is Dynamic_Integration_Fuzz_Test
         vm.expectEmit({ emitter: address(dynamic) });
         emit WithdrawFromLockupStream({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
 
-        // Make the recipient the caller.
+        // Make the Recipient the caller.
         changePrank({ msgSender: users.recipient });
 
         // Make the withdrawal.

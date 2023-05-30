@@ -175,7 +175,7 @@ contract CreateWithRange_Linear_Integration_Basic_Test is
 
     /// @dev Shared logic between {test_CreateWithRange_AssetMissingReturnValue} and {test_CreateWithRange}.
     function testCreateWithRange(address asset) internal {
-        // Make the sender the stream's funder.
+        // Make the Sender the stream's funder.
         address funder = users.sender;
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.

@@ -87,7 +87,7 @@ contract CreateWithDurations_Linear_Integration_Basic_Test is
         whenCliffDurationCalculationDoesNotOverflow
         whenTotalDurationCalculationDoesNotOverflow
     {
-        // Make the sender the stream's funder
+        // Make the Sender the stream's funder
         address funder = users.sender;
 
         // Load the initial protocol revenues.

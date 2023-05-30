@@ -27,7 +27,7 @@ abstract contract GetRecipient_Integration_Basic_Test is Integration_Test, Locku
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.END_TIME() });
 
-        // Make the recipient the caller.
+        // Make the Recipient the caller.
         changePrank({ msgSender: users.recipient });
 
         // Deplete the stream.
@@ -36,7 +36,7 @@ abstract contract GetRecipient_Integration_Basic_Test is Integration_Test, Locku
         // Burn the NFT.
         lockup.burn(defaultStreamId);
 
-        // Expect an error when accessing the recipient.
+        // Expect an error when retrieving the recipient.
         vm.expectRevert("ERC721: invalid token ID");
         lockup.getRecipient(defaultStreamId);
     }
