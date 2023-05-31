@@ -11,6 +11,21 @@ section in [`foundry.toml`](../foundry.toml).
 If you want to deploy to a local development chain, you can spin up an instance of
 [Anvil](https://book.getfoundry.sh/anvil).
 
+## Via IR
+
+The contracts are deployed to production with
+[`--via-ir`](https://docs.soliditylang.org/en/v0.8.19/ir-breaking-changes.html) enabled.
+
+Using the Via IR compilation pipeline enables a host of powerful optimizations, albeit at the expense of significantly
+slower compilation times, which can hinder local development efficiency. However, it is crucial to test our contracts
+against this optimized version, as this is what end users will ultimately interact with.
+
+In order to strike a balance, we have come up with a setup that allows for efficient development and testing on local
+machines, while still ensuring compatibility with the IR-enabled version. Our approach involves building and testing the
+contracts normally on local machines, while leveraging the CI environment to build and test the IR-enabled contracts.
+This ensures rapid development and testing while providing confidence that the contracts function as intended when
+deployed (with tests passing both with and without IR enabled).
+
 ## Scripts
 
 ### Deploy `SablierV2Comptroller`
@@ -63,18 +78,3 @@ forge script script/DeployCore.s.sol \
   NFT_DESCRIPTOR_ADDRESS \
   MAX_SEGMENT_COUNT
 ```
-
-## Via IR
-
-The contracts have been deployed to the production chains with the
-[`--via-ir`](https://docs.soliditylang.org/en/v0.8.19/ir-breaking-changes.html) flag enabled.
-
-Using the Via IR compilation pipeline enables a host of powerful optimizations, albeit at the expense of significantly
-slower compilation times, which can hinder local development efficiency. However, it is crucial to test our contracts
-against this optimized version, as this is what end users will ultimately interact with.
-
-In order to strike a balance, we have come up with a setup that allows for efficient development and testing on local
-machines, while still ensuring compatibility with the IR-enabled version. Our approach involves building and testing the
-contracts normally on local machines, while leveraging the CI environment to build and test the IR-enabled contracts.
-This ensures rapid development and testing while providing confidence that the contracts function as intended when
-deployed (with tests passing both with and without IR enabled).
