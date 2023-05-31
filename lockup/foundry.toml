@@ -67,6 +67,7 @@
 [profile.smt.model_checker.contracts]
   "src/SablierV2LockupDynamic.sol" = ["SablierV2LockupDynamic"]
   "src/SablierV2LockupLinear.sol" = ["SablierV2LockupLinear"]
+  "src/SablierV2NFTDescriptor.sol" = ["SablierV2NFTDescriptor"]
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
