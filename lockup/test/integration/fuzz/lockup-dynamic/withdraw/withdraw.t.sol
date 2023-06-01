@@ -4,14 +4,17 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { Withdraw_Integration_Fuzz_Test } from "../../lockup/withdraw/withdraw.t.sol";
-import { Dynamic_Integration_Fuzz_Test } from "../Dynamic.t.sol";
+import { LockupDynamic_Integration_Fuzz_Test } from "../LockupDynamic.t.sol";
 
 /// @dev This contract complements the tests in {Withdraw_Integration_Fuzz_Test} by testing the withdraw function
 /// against
 /// streams created with fuzzed segments.
-contract Withdraw_Dynamic_Integration_Fuzz_Test is Dynamic_Integration_Fuzz_Test, Withdraw_Integration_Fuzz_Test {
-    function setUp() public virtual override(Dynamic_Integration_Fuzz_Test, Withdraw_Integration_Fuzz_Test) {
-        Dynamic_Integration_Fuzz_Test.setUp();
+contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
+    LockupDynamic_Integration_Fuzz_Test,
+    Withdraw_Integration_Fuzz_Test
+{
+    function setUp() public virtual override(LockupDynamic_Integration_Fuzz_Test, Withdraw_Integration_Fuzz_Test) {
+        LockupDynamic_Integration_Fuzz_Test.setUp();
         Withdraw_Integration_Fuzz_Test.setUp();
     }
 
@@ -74,13 +77,13 @@ contract Withdraw_Dynamic_Integration_Fuzz_Test is Dynamic_Integration_Fuzz_Test
         createParams.totalAmount = vars.totalAmount;
         createParams.segments = params.segments;
 
-        vars.streamId = dynamic.createWithMilestones(createParams);
+        vars.streamId = lockupDynamic.createWithMilestones(createParams);
 
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.START_TIME() + params.timeJump });
 
         // Query the withdrawable amount.
-        vars.withdrawableAmount = dynamic.withdrawableAmountOf(vars.streamId);
+        vars.withdrawableAmount = lockupDynamic.withdrawableAmountOf(vars.streamId);
 
         // Halt the test if the withdraw amount is zero.
         if (vars.withdrawableAmount == 0) {
@@ -94,22 +97,22 @@ contract Withdraw_Dynamic_Integration_Fuzz_Test is Dynamic_Integration_Fuzz_Test
         expectCallToTransfer({ to: params.to, amount: vars.withdrawAmount });
 
         // Expect a {WithdrawFromLockupStream} event to be emitted.
-        vm.expectEmit({ emitter: address(dynamic) });
+        vm.expectEmit({ emitter: address(lockupDynamic) });
         emit WithdrawFromLockupStream({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
 
         // Make the Recipient the caller.
         changePrank({ msgSender: users.recipient });
 
         // Make the withdrawal.
-        dynamic.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
+        lockupDynamic.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });
 
         // Check if the stream is depleted or settled. It is possible for the stream to be just settled
         // and not depleted because the withdraw amount is fuzzed.
         vars.isDepleted = vars.withdrawAmount == vars.createAmounts.deposit;
-        vars.isSettled = dynamic.refundableAmountOf(vars.streamId) == 0;
+        vars.isSettled = lockupDynamic.refundableAmountOf(vars.streamId) == 0;
 
         // Assert that the stream's status is correct.
-        vars.actualStatus = dynamic.statusOf(vars.streamId);
+        vars.actualStatus = lockupDynamic.statusOf(vars.streamId);
         if (vars.isDepleted) {
             vars.expectedStatus = Lockup.Status.DEPLETED;
         } else if (vars.isSettled) {
@@ -120,7 +123,7 @@ contract Withdraw_Dynamic_Integration_Fuzz_Test is Dynamic_Integration_Fuzz_Test
         assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
-        vars.actualWithdrawnAmount = dynamic.getWithdrawnAmount(vars.streamId);
+        vars.actualWithdrawnAmount = lockupDynamic.getWithdrawnAmount(vars.streamId);
         vars.expectedWithdrawnAmount = vars.withdrawAmount;
         assertEq(vars.actualWithdrawnAmount, vars.expectedWithdrawnAmount, "withdrawnAmount");
     }

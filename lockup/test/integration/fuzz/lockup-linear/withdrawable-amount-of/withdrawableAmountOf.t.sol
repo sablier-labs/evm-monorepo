@@ -5,20 +5,20 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 
-import { Linear_Integration_Fuzz_Test } from "../Linear.t.sol";
+import { LockupLinear_Integration_Fuzz_Test } from "../LockupLinear.t.sol";
 import { WithdrawableAmountOf_Integration_Shared_Test } from
     "../../../shared/lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 
-contract WithdrawableAmountOf_Linear_Integration_Fuzz_Test is
-    Linear_Integration_Fuzz_Test,
+contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
+    LockupLinear_Integration_Fuzz_Test,
     WithdrawableAmountOf_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(Linear_Integration_Fuzz_Test, WithdrawableAmountOf_Integration_Shared_Test)
+        override(LockupLinear_Integration_Fuzz_Test, WithdrawableAmountOf_Integration_Shared_Test)
     {
-        Linear_Integration_Fuzz_Test.setUp();
+        LockupLinear_Integration_Fuzz_Test.setUp();
         WithdrawableAmountOf_Integration_Shared_Test.setUp();
     }
 
@@ -29,7 +29,7 @@ contract WithdrawableAmountOf_Linear_Integration_Fuzz_Test is
     {
         timeJump = boundUint40(timeJump, 0, defaults.CLIFF_DURATION() - 1);
         vm.warp({ timestamp: defaults.START_TIME() + timeJump });
-        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -68,14 +68,14 @@ contract WithdrawableAmountOf_Linear_Integration_Fuzz_Test is
         LockupLinear.CreateWithRange memory params = defaults.createWithRange();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = depositAmount;
-        uint256 streamId = linear.createWithRange(params);
+        uint256 streamId = lockupLinear.createWithRange(params);
 
         // Simulate the passage of time.
         uint40 currentTime = defaults.START_TIME() + timeJump;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(streamId);
+        uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount = calculateStreamedAmount(currentTime, depositAmount);
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -123,16 +123,16 @@ contract WithdrawableAmountOf_Linear_Integration_Fuzz_Test is
         LockupLinear.CreateWithRange memory params = defaults.createWithRange();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = depositAmount;
-        uint256 streamId = linear.createWithRange(params);
+        uint256 streamId = lockupLinear.createWithRange(params);
 
         // Simulate the passage of time.
         vm.warp({ timestamp: currentTime });
 
         // Make the withdrawal.
-        linear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
+        lockupLinear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(streamId);
+        uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

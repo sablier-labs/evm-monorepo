@@ -13,25 +13,25 @@ import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { CreateWithMilestones_Integration_Shared_Test } from
     "../../../shared/lockup-dynamic/create-with-milestones/createWithMilestones.t.sol";
-import { Dynamic_Integration_Basic_Test } from "../Dynamic.t.sol";
+import { LockupDynamic_Integration_Basic_Test } from "../LockupDynamic.t.sol";
 
-contract CreateWithMilestones_Dynamic_Integration_Basic_Test is
-    Dynamic_Integration_Basic_Test,
+contract CreateWithMilestones_LockupDynamic_Integration_Basic_Test is
+    LockupDynamic_Integration_Basic_Test,
     CreateWithMilestones_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(Dynamic_Integration_Basic_Test, CreateWithMilestones_Integration_Shared_Test)
+        override(LockupDynamic_Integration_Basic_Test, CreateWithMilestones_Integration_Shared_Test)
     {
-        Dynamic_Integration_Basic_Test.setUp();
+        LockupDynamic_Integration_Basic_Test.setUp();
         CreateWithMilestones_Integration_Shared_Test.setUp();
     }
 
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2LockupDynamic.createWithMilestones, defaults.createWithMilestones());
-        (bool success, bytes memory returnData) = address(dynamic).delegatecall(callData);
+        (bool success, bytes memory returnData) = address(lockupDynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
@@ -225,7 +225,7 @@ contract CreateWithMilestones_Dynamic_Integration_Basic_Test is
         );
 
         // Create the stream.
-        dynamic.createWithMilestones(params);
+        lockupDynamic.createWithMilestones(params);
     }
 
     function test_RevertWhen_ProtocolFeeTooHigh()
@@ -350,7 +350,7 @@ contract CreateWithMilestones_Dynamic_Integration_Basic_Test is
         expectCallToTransferFrom({
             asset: IERC20(asset),
             from: funder,
-            to: address(dynamic),
+            to: address(lockupDynamic),
             amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
@@ -363,7 +363,7 @@ contract CreateWithMilestones_Dynamic_Integration_Basic_Test is
         });
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
-        vm.expectEmit({ emitter: address(dynamic) });
+        vm.expectEmit({ emitter: address(lockupDynamic) });
         emit CreateLockupDynamicStream({
             streamId: streamId,
             funder: funder,
@@ -373,7 +373,7 @@ contract CreateWithMilestones_Dynamic_Integration_Basic_Test is
             segments: defaults.segments(),
             asset: IERC20(asset),
             cancelable: true,
-            range: defaults.dynamicRange(),
+            range: defaults.lockupDynamicRange(),
             broker: users.broker
         });
 
@@ -381,23 +381,23 @@ contract CreateWithMilestones_Dynamic_Integration_Basic_Test is
         streamId = createDefaultStreamWithAsset(IERC20(asset));
 
         // Assert that the stream has been created.
-        LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
-        LockupDynamic.Stream memory expectedStream = defaults.dynamicStream();
+        LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(streamId);
+        LockupDynamic.Stream memory expectedStream = defaults.lockupDynamicStream();
         expectedStream.asset = IERC20(asset);
         assertEq(actualStream, expectedStream);
 
         // Assert that the stream's status is "PENDING".
-        Lockup.Status actualStatus = dynamic.statusOf(streamId);
+        Lockup.Status actualStatus = lockupDynamic.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.PENDING;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the next stream id has been bumped.
-        uint256 actualNextStreamId = dynamic.nextStreamId();
+        uint256 actualNextStreamId = lockupDynamic.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the NFT has been minted.
-        address actualNFTOwner = dynamic.ownerOf({ tokenId: streamId });
+        address actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }

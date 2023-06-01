@@ -5,16 +5,16 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
 
-import { Dynamic_Integration_Basic_Test } from "../Dynamic.t.sol";
+import { LockupDynamic_Integration_Basic_Test } from "../LockupDynamic.t.sol";
 
-contract Constructor_Dynamic_Integration_Basic_Test is Dynamic_Integration_Basic_Test {
+contract Constructor_LockupDynamic_Integration_Basic_Test is LockupDynamic_Integration_Basic_Test {
     function test_Constructor() external {
         // Expect a {TransferAdmin} event to be emitted.
         vm.expectEmit();
         emit TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
 
-        // Construct the dynamic contract.
-        SablierV2LockupDynamic constructedDynamic = new SablierV2LockupDynamic({
+        // Construct the contract.
+        SablierV2LockupDynamic constructedLockupDynamic = new SablierV2LockupDynamic({
             initialAdmin: users.admin,
             initialComptroller: comptroller,
             initialNFTDescriptor: nftDescriptor,
@@ -22,21 +22,21 @@ contract Constructor_Dynamic_Integration_Basic_Test is Dynamic_Integration_Basic
         });
 
         // {SablierV2Base.constructor}
-        address actualAdmin = constructedDynamic.admin();
+        address actualAdmin = constructedLockupDynamic.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");
 
-        address actualComptroller = address(constructedDynamic.comptroller());
+        address actualComptroller = address(constructedLockupDynamic.comptroller());
         address expectedComptroller = address(comptroller);
         assertEq(actualComptroller, expectedComptroller, "comptroller");
 
         // {SablierV2Lockup.constructor}
-        uint256 actualStreamId = constructedDynamic.nextStreamId();
+        uint256 actualStreamId = constructedLockupDynamic.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
 
         // {SablierV2LockupDynamic.constructor}
-        uint256 actualMaxSegmentCount = constructedDynamic.MAX_SEGMENT_COUNT();
+        uint256 actualMaxSegmentCount = constructedLockupDynamic.MAX_SEGMENT_COUNT();
         uint256 expectedMaxSegmentCount = defaults.MAX_SEGMENT_COUNT();
         assertEq(actualMaxSegmentCount, expectedMaxSegmentCount, "MAX_SEGMENT_COUNT");
     }

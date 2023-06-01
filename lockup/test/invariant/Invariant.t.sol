@@ -54,8 +54,8 @@ abstract contract Invariant_Test is Base_Test, StdInvariant {
         // Prevent these contracts from being fuzzed as `msg.sender`.
         excludeSender(address(comptroller));
         excludeSender(address(comptrollerHandler));
-        excludeSender(address(dynamic));
-        excludeSender(address(linear));
+        excludeSender(address(lockupDynamic));
+        excludeSender(address(lockupLinear));
         excludeSender(address(timestampStore));
     }
 }

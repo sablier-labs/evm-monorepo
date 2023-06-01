@@ -8,7 +8,7 @@ import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 import { Lockup_Integration_Shared_Test } from "../lockup/Lockup.t.sol";
 
 /// @notice Common testing logic needed by all {SablierV2LockupLinear} integration tests.
-abstract contract Linear_Integration_Shared_Test is Lockup_Integration_Shared_Test {
+abstract contract LockupLinear_Integration_Shared_Test is Lockup_Integration_Shared_Test {
     struct Params {
         LockupLinear.CreateWithDurations createWithDurations;
         LockupLinear.CreateWithRange createWithRange;
@@ -26,26 +26,26 @@ abstract contract Linear_Integration_Shared_Test is Lockup_Integration_Shared_Te
 
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
-        streamId = linear.createWithRange(_params.createWithRange);
+        streamId = lockupLinear.createWithRange(_params.createWithRange);
     }
 
     /// @dev Creates the default stream with the provided address.
     function createDefaultStreamWithAsset(IERC20 asset) internal override returns (uint256 streamId) {
         LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.asset = asset;
-        streamId = linear.createWithRange(params);
+        streamId = lockupLinear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided broker.
     function createDefaultStreamWithBroker(Broker memory broker) internal override returns (uint256 streamId) {
         LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.broker = broker;
-        streamId = linear.createWithRange(params);
+        streamId = lockupLinear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with durations.
     function createDefaultStreamWithDurations() internal returns (uint256 streamId) {
-        streamId = linear.createWithDurations(_params.createWithDurations);
+        streamId = lockupLinear.createWithDurations(_params.createWithDurations);
     }
 
     /// @dev Creates the default stream with the provided durations.
@@ -55,21 +55,21 @@ abstract contract Linear_Integration_Shared_Test is Lockup_Integration_Shared_Te
     {
         LockupLinear.CreateWithDurations memory params = _params.createWithDurations;
         params.durations = durations;
-        streamId = linear.createWithDurations(params);
+        streamId = lockupLinear.createWithDurations(params);
     }
 
     /// @dev Creates the default stream that is not cancelable.
     function createDefaultStreamNotCancelable() internal override returns (uint256 streamId) {
         LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.cancelable = false;
-        streamId = linear.createWithRange(params);
+        streamId = lockupLinear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided end time.
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
         LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.range.end = endTime;
-        streamId = linear.createWithRange(params);
+        streamId = lockupLinear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided createWithRange.
@@ -79,34 +79,34 @@ abstract contract Linear_Integration_Shared_Test is Lockup_Integration_Shared_Te
     {
         LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.range = createWithRange;
-        streamId = linear.createWithRange(params);
+        streamId = lockupLinear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.recipient = recipient;
-        streamId = linear.createWithRange(params);
+        streamId = lockupLinear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided sender.
     function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
         LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.sender = sender;
-        streamId = linear.createWithRange(params);
+        streamId = lockupLinear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided start time.
     function createDefaultStreamWithStartTime(uint40 startTime) internal override returns (uint256 streamId) {
         LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.range.start = startTime;
-        streamId = linear.createWithRange(params);
+        streamId = lockupLinear.createWithRange(params);
     }
 
     /// @dev Creates the default stream with the provided total amount.
     function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal override returns (uint256 streamId) {
         LockupLinear.CreateWithRange memory params = _params.createWithRange;
         params.totalAmount = totalAmount;
-        streamId = linear.createWithRange(params);
+        streamId = lockupLinear.createWithRange(params);
     }
 }

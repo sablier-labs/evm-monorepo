@@ -19,13 +19,13 @@ contract MapSymbol_Integration_Basic_Test is NFTDescriptor_Integration_Basic_Tes
     }
 
     function test_MapSymbol_LockupDynamic() external {
-        string memory actualStreamingModel = nftDescriptorMock.mapSymbol_(dynamic);
+        string memory actualStreamingModel = nftDescriptorMock.mapSymbol_(lockupDynamic);
         string memory expectedStreamingModel = "Lockup Dynamic";
         assertEq(actualStreamingModel, expectedStreamingModel, "streamingModel");
     }
 
     function test_MapSymbol_LockupLinear() external {
-        string memory actualStreamingModel = nftDescriptorMock.mapSymbol_(linear);
+        string memory actualStreamingModel = nftDescriptorMock.mapSymbol_(lockupLinear);
         string memory expectedStreamingModel = "Lockup Linear";
         assertEq(actualStreamingModel, expectedStreamingModel, "streamingModel");
     }

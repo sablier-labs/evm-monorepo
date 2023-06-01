@@ -4,20 +4,20 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Errors } from "src/libraries/Errors.sol";
 import { LockupLinear } from "src/types/DataTypes.sol";
 
-import { Linear_Integration_Basic_Test } from "../Linear.t.sol";
+import { LockupLinear_Integration_Basic_Test } from "../LockupLinear.t.sol";
 
-contract GetStream_Linear_Integration_Basic_Test is Linear_Integration_Basic_Test {
+contract GetStream_LockupLinear_Integration_Basic_Test is LockupLinear_Integration_Basic_Test {
     uint256 internal defaultStreamId;
 
     function setUp() public virtual override {
-        Linear_Integration_Basic_Test.setUp();
+        LockupLinear_Integration_Basic_Test.setUp();
         defaultStreamId = createDefaultStream();
     }
 
     function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
-        linear.getStream(nullStreamId);
+        lockupLinear.getStream(nullStreamId);
     }
 
     modifier whenNotNull() {
@@ -26,8 +26,8 @@ contract GetStream_Linear_Integration_Basic_Test is Linear_Integration_Basic_Tes
 
     function test_GetStream_StatusSettled() external whenNotNull {
         vm.warp({ timestamp: defaults.END_TIME() });
-        LockupLinear.Stream memory actualStream = linear.getStream(defaultStreamId);
-        LockupLinear.Stream memory expectedStream = defaults.linearStream();
+        LockupLinear.Stream memory actualStream = lockupLinear.getStream(defaultStreamId);
+        LockupLinear.Stream memory expectedStream = defaults.lockupLinearStream();
         expectedStream.isCancelable = false;
         assertEq(actualStream, expectedStream);
     }
@@ -37,8 +37,8 @@ contract GetStream_Linear_Integration_Basic_Test is Linear_Integration_Basic_Tes
     }
 
     function test_GetStream() external whenNotNull whenStatusNotSettled {
-        LockupLinear.Stream memory actualStream = linear.getStream(defaultStreamId);
-        LockupLinear.Stream memory expectedStream = defaults.linearStream();
+        LockupLinear.Stream memory actualStream = lockupLinear.getStream(defaultStreamId);
+        LockupLinear.Stream memory expectedStream = defaults.lockupLinearStream();
         assertEq(actualStream, expectedStream);
     }
 }

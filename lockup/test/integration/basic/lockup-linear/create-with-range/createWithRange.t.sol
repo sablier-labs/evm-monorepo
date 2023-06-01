@@ -10,20 +10,24 @@ import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { CreateWithRange_Integration_Shared_Test } from
     "../../../shared/lockup-linear/create-with-range/createWithRange.t.sol";
-import { Linear_Integration_Basic_Test } from "../Linear.t.sol";
+import { LockupLinear_Integration_Basic_Test } from "../LockupLinear.t.sol";
 
-contract CreateWithRange_Linear_Integration_Basic_Test is
-    Linear_Integration_Basic_Test,
+contract CreateWithRange_LockupLinear_Integration_Basic_Test is
+    LockupLinear_Integration_Basic_Test,
     CreateWithRange_Integration_Shared_Test
 {
-    function setUp() public virtual override(Linear_Integration_Basic_Test, CreateWithRange_Integration_Shared_Test) {
-        Linear_Integration_Basic_Test.setUp();
+    function setUp()
+        public
+        virtual
+        override(LockupLinear_Integration_Basic_Test, CreateWithRange_Integration_Shared_Test)
+    {
+        LockupLinear_Integration_Basic_Test.setUp();
         CreateWithRange_Integration_Shared_Test.setUp();
     }
 
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData = abi.encodeCall(ISablierV2LockupLinear.createWithRange, defaults.createWithRange());
-        (bool success, bytes memory returnData) = address(linear).delegatecall(callData);
+        (bool success, bytes memory returnData) = address(lockupLinear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
@@ -182,7 +186,7 @@ contract CreateWithRange_Linear_Integration_Basic_Test is
         expectCallToTransferFrom({
             asset: IERC20(asset),
             from: funder,
-            to: address(linear),
+            to: address(lockupLinear),
             amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
@@ -195,7 +199,7 @@ contract CreateWithRange_Linear_Integration_Basic_Test is
         });
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
-        vm.expectEmit({ emitter: address(linear) });
+        vm.expectEmit({ emitter: address(lockupLinear) });
         emit CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,
@@ -204,7 +208,7 @@ contract CreateWithRange_Linear_Integration_Basic_Test is
             amounts: defaults.lockupCreateAmounts(),
             asset: IERC20(asset),
             cancelable: true,
-            range: defaults.linearRange(),
+            range: defaults.lockupLinearRange(),
             broker: users.broker
         });
 
@@ -212,23 +216,23 @@ contract CreateWithRange_Linear_Integration_Basic_Test is
         createDefaultStreamWithAsset(IERC20(asset));
 
         // Assert that the stream has been created.
-        LockupLinear.Stream memory actualStream = linear.getStream(streamId);
-        LockupLinear.Stream memory expectedStream = defaults.linearStream();
+        LockupLinear.Stream memory actualStream = lockupLinear.getStream(streamId);
+        LockupLinear.Stream memory expectedStream = defaults.lockupLinearStream();
         expectedStream.asset = IERC20(asset);
         assertEq(actualStream, expectedStream);
 
         // Assert that the stream's status is "PENDING".
-        Lockup.Status actualStatus = linear.statusOf(streamId);
+        Lockup.Status actualStatus = lockupLinear.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.PENDING;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the next stream id has been bumped.
-        uint256 actualNextStreamId = linear.nextStreamId();
+        uint256 actualNextStreamId = lockupLinear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the NFT has been minted.
-        address actualNFTOwner = linear.ownerOf({ tokenId: streamId });
+        address actualNFTOwner = lockupLinear.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }

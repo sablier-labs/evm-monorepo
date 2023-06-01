@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { Linear_Integration_Shared_Test } from "../Linear.t.sol";
+import { LockupLinear_Integration_Shared_Test } from "../LockupLinear.t.sol";
 
-contract CreateWithDurations_Integration_Shared_Test is Linear_Integration_Shared_Test {
+contract CreateWithDurations_Integration_Shared_Test is LockupLinear_Integration_Shared_Test {
     uint256 internal streamId;
 
     function setUp() public virtual override {
-        streamId = linear.nextStreamId();
+        streamId = lockupLinear.nextStreamId();
     }
 
     modifier whenNotDelegateCalled() {

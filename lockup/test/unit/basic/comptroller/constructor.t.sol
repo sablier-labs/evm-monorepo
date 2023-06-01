@@ -11,7 +11,7 @@ contract Constructor_Comptroller_Unit_Basic_Test is Base_Test {
         vm.expectEmit();
         emit TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
 
-        // Construct the comptroller contract.
+        // Construct the contract.
         SablierV2Comptroller constructedComptroller = new SablierV2Comptroller({ initialAdmin: users.admin });
 
         // Assert that the admin has been initialized.

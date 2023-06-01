@@ -21,7 +21,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
     //////////////////////////////////////////////////////////////////////////*/
 
     ISablierV2Comptroller public comptroller;
-    ISablierV2LockupDynamic public dynamic;
+    ISablierV2LockupDynamic public lockupDynamic;
     LockupStore public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -33,13 +33,13 @@ contract LockupDynamicCreateHandler is BaseHandler {
         TimestampStore timestampStore_,
         LockupStore lockupStore_,
         ISablierV2Comptroller comptroller_,
-        ISablierV2LockupDynamic dynamic_
+        ISablierV2LockupDynamic lockupDynamic_
     )
         BaseHandler(asset_, timestampStore_)
     {
         lockupStore = lockupStore_;
         comptroller = comptroller_;
-        dynamic = dynamic_;
+        lockupDynamic = lockupDynamic_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -84,11 +84,11 @@ contract LockupDynamicCreateHandler is BaseHandler {
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupDynamic} to spend the assets.
-        asset.approve({ spender: address(dynamic), amount: params.totalAmount });
+        asset.approve({ spender: address(lockupDynamic), amount: params.totalAmount });
 
         // Create the stream.
         params.asset = asset;
-        uint256 streamId = dynamic.createWithDeltas(params);
+        uint256 streamId = lockupDynamic.createWithDeltas(params);
 
         // Store the stream id.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -132,11 +132,11 @@ contract LockupDynamicCreateHandler is BaseHandler {
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupDynamic} to spend the assets.
-        asset.approve({ spender: address(dynamic), amount: params.totalAmount });
+        asset.approve({ spender: address(lockupDynamic), amount: params.totalAmount });
 
         // Create the stream.
         params.asset = asset;
-        uint256 streamId = dynamic.createWithMilestones(params);
+        uint256 streamId = lockupDynamic.createWithMilestones(params);
 
         // Store the stream id.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);

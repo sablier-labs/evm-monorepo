@@ -16,8 +16,8 @@ contract LockupLinearHandler is LockupHandler {
         IERC20 asset_,
         TimestampStore timestampStore_,
         LockupStore lockupStore_,
-        ISablierV2LockupLinear linear_
+        ISablierV2LockupLinear lockupLinear_
     )
-        LockupHandler(asset_, timestampStore_, lockupStore_, linear_)
+        LockupHandler(asset_, timestampStore_, lockupStore_, lockupLinear_)
     { }
 }

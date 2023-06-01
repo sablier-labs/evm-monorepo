@@ -3,20 +3,20 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Linear_Integration_Basic_Test } from "../Linear.t.sol";
+import { LockupLinear_Integration_Basic_Test } from "../LockupLinear.t.sol";
 import { WithdrawableAmountOf_Integration_Basic_Test } from
     "../../lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 
-contract WithdrawableAmountOf_Linear_Integration_Basic_Test is
-    Linear_Integration_Basic_Test,
+contract WithdrawableAmountOf_LockupLinear_Integration_Basic_Test is
+    LockupLinear_Integration_Basic_Test,
     WithdrawableAmountOf_Integration_Basic_Test
 {
     function setUp()
         public
         virtual
-        override(Linear_Integration_Basic_Test, WithdrawableAmountOf_Integration_Basic_Test)
+        override(LockupLinear_Integration_Basic_Test, WithdrawableAmountOf_Integration_Basic_Test)
     {
-        Linear_Integration_Basic_Test.setUp();
+        LockupLinear_Integration_Basic_Test.setUp();
         WithdrawableAmountOf_Integration_Basic_Test.setUp();
     }
 
@@ -26,7 +26,7 @@ contract WithdrawableAmountOf_Linear_Integration_Basic_Test is
         whenStreamHasNotBeenCanceled
         whenStatusStreaming
     {
-        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -43,13 +43,13 @@ contract WithdrawableAmountOf_Linear_Integration_Basic_Test is
         whenStatusStreaming
         whenCliffTimeNotInTheFuture
     {
-        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = defaults.WITHDRAW_AMOUNT();
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     modifier whenPreviousWithdrawals() {
-        linear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
+        lockupLinear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
         _;
     }
 
@@ -61,7 +61,7 @@ contract WithdrawableAmountOf_Linear_Integration_Basic_Test is
         whenCliffTimeNotInTheFuture
         whenPreviousWithdrawals
     {
-        uint128 actualWithdrawableAmount = linear.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

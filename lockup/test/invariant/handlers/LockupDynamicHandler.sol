@@ -16,8 +16,8 @@ contract LockupDynamicHandler is LockupHandler {
         IERC20 asset_,
         TimestampStore timestampStore_,
         LockupStore lockupStore_,
-        ISablierV2LockupDynamic dynamic_
+        ISablierV2LockupDynamic lockupDynamic_
     )
-        LockupHandler(asset_, timestampStore_, lockupStore_, dynamic_)
+        LockupHandler(asset_, timestampStore_, lockupStore_, lockupDynamic_)
     { }
 }
