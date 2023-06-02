@@ -5,7 +5,6 @@
 
 # Pre-requisites:
 # - foundry (https://getfoundry.sh)
-# - jq (https://stedolan.github.io/jq/)
 
 # Strict mode: https://gist.github.com/vncsna/64825d5609c146e80de8b1fd623011ca
 set -euo pipefail
