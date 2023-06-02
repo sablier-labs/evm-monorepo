@@ -133,7 +133,7 @@ library LockupDynamic {
         uint40 delta;
     }
 
-    /// @notice Lockup dynamic stream.
+    /// @notice Lockup Dynamic stream.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
     /// @param sender The address streaming the assets, with the ability to cancel the stream.
     /// @param startTime The Unix timestamp indicating the stream's start.

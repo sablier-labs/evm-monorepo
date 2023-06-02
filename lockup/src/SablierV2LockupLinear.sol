@@ -474,7 +474,7 @@ contract SablierV2LockupLinear is
             Helpers.checkAndCalculateFees(params.totalAmount, protocolFee, params.broker.fee, MAX_FEE);
 
         // Checks: validate the user-provided parameters.
-        Helpers.checkCreateLinearParams(createAmounts.deposit, params.range);
+        Helpers.checkCreateWithRange(createAmounts.deposit, params.range);
 
         // Load the stream id.
         streamId = _nextStreamId;

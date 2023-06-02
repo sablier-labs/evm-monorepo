@@ -56,7 +56,7 @@ library Helpers {
     }
 
     /// @dev Checks the parameters of the {SablierV2LockupDynamic-_createWithMilestones} function.
-    function checkCreateDynamicParams(
+    function checkCreateWithMilestones(
         uint128 depositAmount,
         LockupDynamic.Segment[] memory segments,
         uint256 maxSegmentCount,
@@ -86,7 +86,7 @@ library Helpers {
     }
 
     /// @dev Checks the parameters of the {SablierV2LockupLinear-_createWithRange} function.
-    function checkCreateLinearParams(uint128 depositAmount, LockupLinear.Range memory range) internal view {
+    function checkCreateWithRange(uint128 depositAmount, LockupLinear.Range memory range) internal view {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierV2Lockup_DepositAmountZero();
