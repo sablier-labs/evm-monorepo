@@ -10,18 +10,18 @@ import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { CreateWithMilestones_Integration_Shared_Test } from
     "../../../shared/lockup-dynamic/create-with-milestones/createWithMilestones.t.sol";
-import { Dynamic_Integration_Fuzz_Test } from "../Dynamic.t.sol";
+import { LockupDynamic_Integration_Fuzz_Test } from "../LockupDynamic.t.sol";
 
-contract CreateWithMilestones_Dynamic_Integration_Fuzz_Test is
-    Dynamic_Integration_Fuzz_Test,
+contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
+    LockupDynamic_Integration_Fuzz_Test,
     CreateWithMilestones_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(Dynamic_Integration_Fuzz_Test, CreateWithMilestones_Integration_Shared_Test)
+        override(LockupDynamic_Integration_Fuzz_Test, CreateWithMilestones_Integration_Shared_Test)
     {
-        Dynamic_Integration_Fuzz_Test.setUp();
+        LockupDynamic_Integration_Fuzz_Test.setUp();
         CreateWithMilestones_Integration_Shared_Test.setUp();
     }
 
@@ -127,7 +127,7 @@ contract CreateWithMilestones_Dynamic_Integration_Fuzz_Test is
         );
 
         // Create the stream.
-        dynamic.createWithMilestones(params);
+        lockupDynamic.createWithMilestones(params);
     }
 
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
@@ -253,12 +253,12 @@ contract CreateWithMilestones_Dynamic_Integration_Fuzz_Test is
         deal({ token: address(dai), to: funder, give: vars.totalAmount });
 
         // Approve {SablierV2LockupDynamic} to transfer the assets from the fuzzed funder.
-        dai.approve({ spender: address(dynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupDynamic), amount: MAX_UINT256 });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
             from: funder,
-            to: address(dynamic),
+            to: address(lockupDynamic),
             amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
         });
 
@@ -268,7 +268,7 @@ contract CreateWithMilestones_Dynamic_Integration_Fuzz_Test is
         }
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
-        vm.expectEmit({ emitter: address(dynamic) });
+        vm.expectEmit({ emitter: address(lockupDynamic) });
         LockupDynamic.Range memory range =
             LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].milestone });
         emit CreateLockupDynamicStream({
@@ -285,7 +285,7 @@ contract CreateWithMilestones_Dynamic_Integration_Fuzz_Test is
         });
 
         // Create the stream.
-        dynamic.createWithMilestones(
+        lockupDynamic.createWithMilestones(
             LockupDynamic.CreateWithMilestones({
                 asset: dai,
                 broker: params.broker,
@@ -298,13 +298,13 @@ contract CreateWithMilestones_Dynamic_Integration_Fuzz_Test is
             })
         );
 
-        // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
+        // Check if the stream is settled. It is possible for a Lockup Dynamic stream to settle at the time of creation
         // because some segment amounts can be zero.
-        vars.isSettled = dynamic.refundableAmountOf(streamId) == 0;
+        vars.isSettled = lockupDynamic.refundableAmountOf(streamId) == 0;
         vars.isCancelable = vars.isSettled ? false : params.cancelable;
 
         // Assert that the stream has been created.
-        LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
+        LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
@@ -317,7 +317,7 @@ contract CreateWithMilestones_Dynamic_Integration_Fuzz_Test is
         assertEq(actualStream.wasCanceled, false, "wasCanceled");
 
         // Assert that the stream's status is correct.
-        vars.actualStatus = dynamic.statusOf(streamId);
+        vars.actualStatus = lockupDynamic.statusOf(streamId);
         if (params.startTime > getBlockTimestamp()) {
             vars.expectedStatus = Lockup.Status.PENDING;
         } else if (vars.isSettled) {
@@ -328,17 +328,17 @@ contract CreateWithMilestones_Dynamic_Integration_Fuzz_Test is
         assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the next stream id has been bumped.
-        vars.actualNextStreamId = dynamic.nextStreamId();
+        vars.actualNextStreamId = lockupDynamic.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = dynamic.protocolRevenues(dai);
+        vars.actualProtocolRevenues = lockupDynamic.protocolRevenues(dai);
         vars.expectedProtocolRevenues = vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
-        vars.actualNFTOwner = dynamic.ownerOf({ tokenId: streamId });
+        vars.actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
     }

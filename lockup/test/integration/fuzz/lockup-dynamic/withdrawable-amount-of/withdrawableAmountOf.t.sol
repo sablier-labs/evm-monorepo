@@ -5,20 +5,20 @@ import { ZERO } from "@prb/math/UD60x18.sol";
 
 import { Broker, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { Dynamic_Integration_Fuzz_Test } from "../Dynamic.t.sol";
+import { LockupDynamic_Integration_Fuzz_Test } from "../LockupDynamic.t.sol";
 import { WithdrawableAmountOf_Integration_Shared_Test } from
     "../../../shared/lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 
-contract WithdrawableAmountOf_Dynamic_Integration_Fuzz_Test is
-    Dynamic_Integration_Fuzz_Test,
+contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is
+    LockupDynamic_Integration_Fuzz_Test,
     WithdrawableAmountOf_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(Dynamic_Integration_Fuzz_Test, WithdrawableAmountOf_Integration_Shared_Test)
+        override(LockupDynamic_Integration_Fuzz_Test, WithdrawableAmountOf_Integration_Shared_Test)
     {
-        Dynamic_Integration_Fuzz_Test.setUp();
+        LockupDynamic_Integration_Fuzz_Test.setUp();
         WithdrawableAmountOf_Integration_Shared_Test.setUp();
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
@@ -46,14 +46,14 @@ contract WithdrawableAmountOf_Dynamic_Integration_Fuzz_Test is
         LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = defaults.DEPOSIT_AMOUNT();
-        uint256 streamId = dynamic.createWithMilestones(params);
+        uint256 streamId = lockupDynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
         uint40 currentTime = defaults.START_TIME() + timeJump;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(streamId);
+        uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount =
             calculateStreamedAmountForMultipleSegments(currentTime, defaults.segments(), defaults.DEPOSIT_AMOUNT());
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
@@ -96,16 +96,16 @@ contract WithdrawableAmountOf_Dynamic_Integration_Fuzz_Test is
         LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = defaults.DEPOSIT_AMOUNT();
-        uint256 streamId = dynamic.createWithMilestones(params);
+        uint256 streamId = lockupDynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
         vm.warp({ timestamp: currentTime });
 
         // Make the withdrawal.
-        dynamic.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
+        lockupDynamic.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(streamId);
+        uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount = streamedAmount - withdrawAmount;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }

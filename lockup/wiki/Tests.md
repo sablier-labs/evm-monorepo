@@ -56,8 +56,8 @@ The tests have a complex inheritance structure because of the significant shared
 To minimize redundancy, we created the following test contracts:
 
 - `Lockup_Integration_Shared_Test`
-- `Dynamic_Integration_Shared_Test`
-- `Linear_Integration_Shared_Test`
+- `LockupDynamic_Integration_Shared_Test`
+- `LockupLinear_Integration_Shared_Test`
 
 These contracts are then used in the tests corresponding to `SablierV2LockupLinear` and `SablierV2LockupDynamic`.
 

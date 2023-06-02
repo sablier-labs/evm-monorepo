@@ -8,14 +8,18 @@ import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
 import { CreateWithRange_Integration_Shared_Test } from
     "../../../shared/lockup-linear/create-with-range/createWithRange.t.sol";
-import { Linear_Integration_Fuzz_Test } from "../Linear.t.sol";
+import { LockupLinear_Integration_Fuzz_Test } from "../LockupLinear.t.sol";
 
-contract CreateWithRange_Linear_Integration_Fuzz_Test is
-    Linear_Integration_Fuzz_Test,
+contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
+    LockupLinear_Integration_Fuzz_Test,
     CreateWithRange_Integration_Shared_Test
 {
-    function setUp() public virtual override(Linear_Integration_Fuzz_Test, CreateWithRange_Integration_Shared_Test) {
-        Linear_Integration_Fuzz_Test.setUp();
+    function setUp()
+        public
+        virtual
+        override(LockupLinear_Integration_Fuzz_Test, CreateWithRange_Integration_Shared_Test)
+    {
+        LockupLinear_Integration_Fuzz_Test.setUp();
         CreateWithRange_Integration_Shared_Test.setUp();
     }
 
@@ -165,12 +169,12 @@ contract CreateWithRange_Linear_Integration_Fuzz_Test is
         deal({ token: address(dai), to: funder, give: params.totalAmount });
 
         // Approve {SablierV2LockupLinear} to transfer the assets from the fuzzed funder.
-        dai.approve({ spender: address(linear), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupLinear), amount: MAX_UINT256 });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectCallToTransferFrom({
             from: funder,
-            to: address(linear),
+            to: address(lockupLinear),
             amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
         });
 
@@ -180,7 +184,7 @@ contract CreateWithRange_Linear_Integration_Fuzz_Test is
         }
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
-        vm.expectEmit({ emitter: address(linear) });
+        vm.expectEmit({ emitter: address(lockupLinear) });
         emit CreateLockupLinearStream({
             streamId: streamId,
             funder: funder,
@@ -194,7 +198,7 @@ contract CreateWithRange_Linear_Integration_Fuzz_Test is
         });
 
         // Create the stream.
-        linear.createWithRange(
+        lockupLinear.createWithRange(
             LockupLinear.CreateWithRange({
                 asset: dai,
                 broker: params.broker,
@@ -207,7 +211,7 @@ contract CreateWithRange_Linear_Integration_Fuzz_Test is
         );
 
         // Assert that the stream has been created.
-        LockupLinear.Stream memory actualStream = linear.getStream(streamId);
+        LockupLinear.Stream memory actualStream = lockupLinear.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.cliffTime, params.range.cliff, "cliffTime");
@@ -220,22 +224,22 @@ contract CreateWithRange_Linear_Integration_Fuzz_Test is
         assertEq(actualStream.wasCanceled, false, "wasCanceled");
 
         // Assert that the stream's status is correct.
-        vars.actualStatus = linear.statusOf(streamId);
+        vars.actualStatus = lockupLinear.statusOf(streamId);
         vars.expectedStatus = params.range.start > getBlockTimestamp() ? Lockup.Status.PENDING : Lockup.Status.STREAMING;
         assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the next stream id has been bumped.
-        vars.actualNextStreamId = linear.nextStreamId();
+        vars.actualNextStreamId = lockupLinear.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = linear.protocolRevenues(dai);
+        vars.actualProtocolRevenues = lockupLinear.protocolRevenues(dai);
         vars.expectedProtocolRevenues = vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
-        vars.actualNFTOwner = linear.ownerOf({ tokenId: streamId });
+        vars.actualNFTOwner = lockupLinear.ownerOf({ tokenId: streamId });
         vars.expectedNFTOwner = params.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
     }

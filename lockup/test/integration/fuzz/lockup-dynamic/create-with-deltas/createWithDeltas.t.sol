@@ -6,14 +6,18 @@ import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { CreateWithDeltas_Integration_Shared_Test } from
     "../../../shared/lockup-dynamic/create-with-deltas/createWithDeltas.t.sol";
-import { Dynamic_Integration_Fuzz_Test } from "../Dynamic.t.sol";
+import { LockupDynamic_Integration_Fuzz_Test } from "../LockupDynamic.t.sol";
 
-contract CreateWithDeltas_Dynamic_Integration_Fuzz_Test is
-    Dynamic_Integration_Fuzz_Test,
+contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
+    LockupDynamic_Integration_Fuzz_Test,
     CreateWithDeltas_Integration_Shared_Test
 {
-    function setUp() public virtual override(Dynamic_Integration_Fuzz_Test, CreateWithDeltas_Integration_Shared_Test) {
-        Dynamic_Integration_Fuzz_Test.setUp();
+    function setUp()
+        public
+        virtual
+        override(LockupDynamic_Integration_Fuzz_Test, CreateWithDeltas_Integration_Shared_Test)
+    {
+        LockupDynamic_Integration_Fuzz_Test.setUp();
         CreateWithDeltas_Integration_Shared_Test.setUp();
     }
 
@@ -55,7 +59,7 @@ contract CreateWithDeltas_Dynamic_Integration_Fuzz_Test is
         vars.funder = users.sender;
 
         // Load the initial protocol revenues.
-        vars.initialProtocolRevenues = dynamic.protocolRevenues(dai);
+        vars.initialProtocolRevenues = lockupDynamic.protocolRevenues(dai);
 
         // Mint enough assets to the fuzzed funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
@@ -63,7 +67,7 @@ contract CreateWithDeltas_Dynamic_Integration_Fuzz_Test is
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
             from: vars.funder,
-            to: address(dynamic),
+            to: address(lockupDynamic),
             amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
         });
 
@@ -80,7 +84,7 @@ contract CreateWithDeltas_Dynamic_Integration_Fuzz_Test is
         });
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
-        vm.expectEmit({ emitter: address(dynamic) });
+        vm.expectEmit({ emitter: address(lockupDynamic) });
         emit CreateLockupDynamicStream({
             streamId: streamId,
             funder: vars.funder,
@@ -98,15 +102,15 @@ contract CreateWithDeltas_Dynamic_Integration_Fuzz_Test is
         LockupDynamic.CreateWithDeltas memory params = defaults.createWithDeltas();
         params.segments = segments;
         params.totalAmount = vars.totalAmount;
-        dynamic.createWithDeltas(params);
+        lockupDynamic.createWithDeltas(params);
 
-        // Check if the stream is settled. It is possible for a dynamic stream to settle at the time of creation
+        // Check if the stream is settled. It is possible for a Lockup Dynamic stream to settle at the time of creation
         // because some segment amounts can be zero.
-        vars.isSettled = dynamic.refundableAmountOf(streamId) == 0;
+        vars.isSettled = lockupDynamic.refundableAmountOf(streamId) == 0;
         vars.isCancelable = vars.isSettled ? false : true;
 
         // Assert that the stream has been created.
-        LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
+        LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
@@ -119,22 +123,22 @@ contract CreateWithDeltas_Dynamic_Integration_Fuzz_Test is
         assertEq(actualStream.wasCanceled, false, "wasCanceled");
 
         // Assert that the stream's status is correct.
-        vars.actualStatus = dynamic.statusOf(streamId);
+        vars.actualStatus = lockupDynamic.statusOf(streamId);
         vars.expectedStatus = vars.isSettled ? Lockup.Status.SETTLED : Lockup.Status.STREAMING;
         assertEq(vars.actualStatus, vars.expectedStatus);
 
         // Assert that the next stream id has been bumped.
-        vars.actualNextStreamId = dynamic.nextStreamId();
+        vars.actualNextStreamId = lockupDynamic.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = dynamic.protocolRevenues(dai);
+        vars.actualProtocolRevenues = lockupDynamic.protocolRevenues(dai);
         vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
-        vars.actualNFTOwner = dynamic.ownerOf({ tokenId: streamId });
+        vars.actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });
         vars.expectedNFTOwner = users.recipient;
         assertEq(vars.actualNFTOwner, vars.expectedNFTOwner, "NFT owner");
     }

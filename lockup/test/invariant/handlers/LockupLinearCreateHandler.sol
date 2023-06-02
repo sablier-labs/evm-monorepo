@@ -18,7 +18,7 @@ contract LockupLinearCreateHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2LockupLinear public linear;
+    ISablierV2LockupLinear public lockupLinear;
     LockupStore public lockupStore;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -29,12 +29,12 @@ contract LockupLinearCreateHandler is BaseHandler {
         IERC20 asset_,
         TimestampStore timestampStore_,
         LockupStore lockupStore_,
-        ISablierV2LockupLinear linear_
+        ISablierV2LockupLinear lockupLinear_
     )
         BaseHandler(asset_, timestampStore_)
     {
         lockupStore = lockupStore_;
-        linear = linear_;
+        lockupLinear = lockupLinear_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -67,11 +67,11 @@ contract LockupLinearCreateHandler is BaseHandler {
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupLinear} to spend the assets.
-        asset.approve({ spender: address(linear), amount: params.totalAmount });
+        asset.approve({ spender: address(lockupLinear), amount: params.totalAmount });
 
         // Create the stream.
         params.asset = asset;
-        uint256 streamId = linear.createWithDurations(params);
+        uint256 streamId = lockupLinear.createWithDurations(params);
 
         // Store the stream id.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
@@ -110,11 +110,11 @@ contract LockupLinearCreateHandler is BaseHandler {
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupLinear} to spend the assets.
-        asset.approve({ spender: address(linear), amount: params.totalAmount });
+        asset.approve({ spender: address(lockupLinear), amount: params.totalAmount });
 
         // Create the stream.
         params.asset = asset;
-        uint256 streamId = linear.createWithRange(params);
+        uint256 streamId = lockupLinear.createWithRange(params);
 
         // Store the stream id.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);

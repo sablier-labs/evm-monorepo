@@ -39,8 +39,8 @@ abstract contract Cancel_Integration_Shared_Test is Lockup_Integration_Shared_Te
         _;
     }
 
-    /// @dev In the linear contract, the streaming starts after the cliff time, whereas in the dynamic contract,
-    /// the streaming starts after the start time.
+    /// @dev In the LockupLinear contract, the streaming starts after the cliff time, whereas in the LockupDynamic
+    /// contract, the streaming starts after the start time.
     modifier whenStatusStreaming() {
         // Warp to the future, after the stream's start time but before the stream's end time.
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });

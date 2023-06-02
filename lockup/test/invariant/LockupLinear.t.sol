@@ -4,18 +4,18 @@ pragma solidity >=0.8.19 <0.9.0;
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { Lockup_Invariant_Test } from "../lockup/Lockup.t.sol";
-import { LockupLinearHandler } from "../handlers/LockupLinearHandler.sol";
-import { LockupLinearCreateHandler } from "../handlers/LockupLinearCreateHandler.sol";
+import { Lockup_Invariant_Test } from "./Lockup.t.sol";
+import { LockupLinearHandler } from "./handlers/LockupLinearHandler.sol";
+import { LockupLinearCreateHandler } from "./handlers/LockupLinearCreateHandler.sol";
 
 /// @dev Invariant tests for {SablierV2LockupLinear}.
-contract Linear_Invariant_Test is Lockup_Invariant_Test {
+contract LockupLinear_Invariant_Test is Lockup_Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    LockupLinearHandler internal linearHandler;
-    LockupLinearCreateHandler internal linearCreateHandler;
+    LockupLinearHandler internal lockupLinearHandler;
+    LockupLinearCreateHandler internal lockupLinearCreateHandler;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -24,35 +24,35 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
     function setUp() public virtual override {
         Lockup_Invariant_Test.setUp();
 
-        // Deploy the linear contract handlers.
-        linearHandler = new LockupLinearHandler({
+        // Deploy the lockupLinear contract handlers.
+        lockupLinearHandler = new LockupLinearHandler({
             asset_: dai,
             timestampStore_: timestampStore,
             lockupStore_: lockupStore,
-            linear_: linear
+            lockupLinear_: lockupLinear
         });
-        linearCreateHandler = new LockupLinearCreateHandler({
+        lockupLinearCreateHandler = new LockupLinearCreateHandler({
             asset_: dai,
             timestampStore_: timestampStore,
             lockupStore_: lockupStore,
-            linear_: linear
+            lockupLinear_: lockupLinear
         });
 
         // Label the handler contracts.
-        vm.label({ account: address(linearHandler), newLabel: "LockupLinearHandler" });
-        vm.label({ account: address(linearCreateHandler), newLabel: "LockupLinearCreateHandler" });
+        vm.label({ account: address(lockupLinearHandler), newLabel: "LockupLinearHandler" });
+        vm.label({ account: address(lockupLinearCreateHandler), newLabel: "LockupLinearCreateHandler" });
 
-        // Cast the linear contract as {ISablierV2Lockup} and the linear handler as {LockupHandler}.
-        lockup = linear;
-        lockupHandler = linearHandler;
+        // Cast the lockupLinear contract as {ISablierV2Lockup} and the lockupLinear handler as {LockupHandler}.
+        lockup = lockupLinear;
+        lockupHandler = lockupLinearHandler;
 
-        // Target the linear handlers for invariant testing.
-        targetContract(address(linearHandler));
-        targetContract(address(linearCreateHandler));
+        // Target the lockupLinear handlers for invariant testing.
+        targetContract(address(lockupLinearHandler));
+        targetContract(address(lockupLinearCreateHandler));
 
         // Prevent these contracts from being fuzzed as `msg.sender`.
-        excludeSender(address(linearHandler));
-        excludeSender(address(linearCreateHandler));
+        excludeSender(address(lockupLinearHandler));
+        excludeSender(address(lockupLinearCreateHandler));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -65,8 +65,8 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
             assertGte(
-                linear.getCliffTime(streamId),
-                linear.getStartTime(streamId),
+                lockupLinear.getCliffTime(streamId),
+                lockupLinear.getStartTime(streamId),
                 "Invariant violated: cliff time < start time"
             );
         }
@@ -77,7 +77,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            LockupLinear.Stream memory stream = linear.getStream(streamId);
+            LockupLinear.Stream memory stream = lockupLinear.getStream(streamId);
             assertNotEq(stream.amounts.deposited, 0, "Invariant violated: stream non-null, deposited amount zero");
         }
     }
@@ -88,7 +88,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
             assertGt(
-                linear.getEndTime(streamId), linear.getCliffTime(streamId), "Invariant violated: end time <= cliff time"
+                lockupLinear.getEndTime(streamId),
+                lockupLinear.getCliffTime(streamId),
+                "Invariant violated: end time <= cliff time"
             );
         }
     }
@@ -98,7 +100,7 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            LockupLinear.Stream memory stream = linear.getStream(streamId);
+            LockupLinear.Stream memory stream = lockupLinear.getStream(streamId);
             assertNotEq(stream.endTime, 0, "Invariant violated: stream non-null, end time zero");
         }
     }
@@ -108,9 +110,9 @@ contract Linear_Invariant_Test is Lockup_Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            if (linear.statusOf(streamId) == Lockup.Status.SETTLED) {
+            if (lockupLinear.statusOf(streamId) == Lockup.Status.SETTLED) {
                 assertFalse(
-                    linear.getStream(streamId).isCancelable,
+                    lockupLinear.getStream(streamId).isCancelable,
                     "Invariant violation: stream returned by getStream() is cancelable"
                 );
             }

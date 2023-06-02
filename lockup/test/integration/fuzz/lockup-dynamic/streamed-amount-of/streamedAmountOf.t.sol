@@ -6,14 +6,18 @@ import { Broker, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { StreamedAmountOf_Integration_Shared_Test } from
     "../../../shared/lockup/streamed-amount-of/streamedAmountOf.t.sol";
-import { Dynamic_Integration_Fuzz_Test } from "../Dynamic.t.sol";
+import { LockupDynamic_Integration_Fuzz_Test } from "../LockupDynamic.t.sol";
 
-contract StreamedAmountOf_Dynamic_Integration_Fuzz_Test is
-    Dynamic_Integration_Fuzz_Test,
+contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
+    LockupDynamic_Integration_Fuzz_Test,
     StreamedAmountOf_Integration_Shared_Test
 {
-    function setUp() public virtual override(Dynamic_Integration_Fuzz_Test, StreamedAmountOf_Integration_Shared_Test) {
-        Dynamic_Integration_Fuzz_Test.setUp();
+    function setUp()
+        public
+        virtual
+        override(LockupDynamic_Integration_Fuzz_Test, StreamedAmountOf_Integration_Shared_Test)
+    {
+        LockupDynamic_Integration_Fuzz_Test.setUp();
         StreamedAmountOf_Integration_Shared_Test.setUp();
 
         // Disable the protocol fee so that it doesn't interfere with the calculations.
@@ -54,14 +58,14 @@ contract StreamedAmountOf_Dynamic_Integration_Fuzz_Test is
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.segments = segments;
         params.totalAmount = segment.amount;
-        uint256 streamId = dynamic.createWithMilestones(params);
+        uint256 streamId = lockupDynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
         uint40 currentTime = defaults.START_TIME() + timeJump;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
-        uint128 actualStreamedAmount = dynamic.streamedAmountOf(streamId);
+        uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount = calculateStreamedAmountForOneSegment(currentTime, segment);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -119,14 +123,14 @@ contract StreamedAmountOf_Dynamic_Integration_Fuzz_Test is
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.segments = segments;
         params.totalAmount = totalAmount;
-        uint256 streamId = dynamic.createWithMilestones(params);
+        uint256 streamId = lockupDynamic.createWithMilestones(params);
 
         // Simulate the passage of time.
         uint40 currentTime = defaults.START_TIME() + timeJump;
         vm.warp({ timestamp: currentTime });
 
         // Run the test.
-        uint128 actualStreamedAmount = dynamic.streamedAmountOf(streamId);
+        uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(streamId);
         uint128 expectedStreamedAmount = calculateStreamedAmountForMultipleSegments(currentTime, segments, totalAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
@@ -171,19 +175,19 @@ contract StreamedAmountOf_Dynamic_Integration_Fuzz_Test is
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.segments = segments;
         params.totalAmount = totalAmount;
-        uint256 streamId = dynamic.createWithMilestones(params);
+        uint256 streamId = lockupDynamic.createWithMilestones(params);
 
         // Warp to the future for the first time.
         vm.warp({ timestamp: defaults.START_TIME() + timeWarp0 });
 
         // Calculate the streamed amount at this midpoint in time.
-        uint128 streamedAmount0 = dynamic.streamedAmountOf(streamId);
+        uint128 streamedAmount0 = lockupDynamic.streamedAmountOf(streamId);
 
         // Warp to the future for the second time.
         vm.warp({ timestamp: defaults.START_TIME() + timeWarp1 });
 
         // Assert that this streamed amount is greater than or equal to the previous streamed amount.
-        uint128 streamedAmount1 = dynamic.streamedAmountOf(streamId);
+        uint128 streamedAmount1 = lockupDynamic.streamedAmountOf(streamId);
         assertGte(streamedAmount1, streamedAmount0, "streamedAmount");
     }
 }

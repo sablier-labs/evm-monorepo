@@ -4,12 +4,12 @@ pragma solidity >=0.8.19 <0.9.0;
 import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { Lockup_Invariant_Test } from "../lockup/Lockup.t.sol";
-import { LockupDynamicCreateHandler } from "../handlers/LockupDynamicCreateHandler.sol";
-import { LockupDynamicHandler } from "../handlers/LockupDynamicHandler.sol";
+import { Lockup_Invariant_Test } from "./Lockup.t.sol";
+import { LockupDynamicCreateHandler } from "./handlers/LockupDynamicCreateHandler.sol";
+import { LockupDynamicHandler } from "./handlers/LockupDynamicHandler.sol";
 
 /// @dev Invariant tests for for {SablierV2LockupDynamic}.
-contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
+contract LockupDynamic_Invariant_Test is Lockup_Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -24,30 +24,30 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
     function setUp() public virtual override {
         Lockup_Invariant_Test.setUp();
 
-        // Deploy the dynamic contract handlers.
+        // Deploy the LockupDynamic handlers.
         dynamicHandler = new LockupDynamicHandler({
             asset_: dai,
             timestampStore_: timestampStore,
             lockupStore_: lockupStore,
-            dynamic_: dynamic
+            lockupDynamic_: lockupDynamic
         });
         dynamicCreateHandler = new LockupDynamicCreateHandler({
             asset_: dai,
             timestampStore_: timestampStore,
             lockupStore_: lockupStore,
             comptroller_: comptroller,
-            dynamic_: dynamic
+            lockupDynamic_: lockupDynamic
         });
 
         // Label the contracts.
         vm.label({ account: address(dynamicHandler), newLabel: "LockupDynamicHandler" });
         vm.label({ account: address(dynamicCreateHandler), newLabel: "LockupDynamicCreateHandler" });
 
-        // Cast the dynamic contract as {ISablierV2Lockup} and the dynamic handler as {LockupHandler}.
-        lockup = dynamic;
+        // Cast the LockupDynamic contract and handler.
+        lockup = lockupDynamic;
         lockupHandler = dynamicHandler;
 
-        // Target the dynamic handlers for invariant testing.
+        // Target the LockupDynamic handlers for invariant testing.
         targetContract(address(dynamicHandler));
         targetContract(address(dynamicCreateHandler));
 
@@ -65,7 +65,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            LockupDynamic.Stream memory stream = dynamic.getStream(streamId);
+            LockupDynamic.Stream memory stream = lockupDynamic.getStream(streamId);
             assertNotEq(stream.amounts.deposited, 0, "Invariant violated: stream non-null, deposited amount zero");
         }
     }
@@ -75,7 +75,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            LockupDynamic.Stream memory stream = dynamic.getStream(streamId);
+            LockupDynamic.Stream memory stream = lockupDynamic.getStream(streamId);
             assertNotEq(stream.endTime, 0, "Invariant violated: end time zero");
         }
     }
@@ -85,7 +85,7 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            LockupDynamic.Segment[] memory segments = dynamic.getSegments(streamId);
+            LockupDynamic.Segment[] memory segments = lockupDynamic.getSegments(streamId);
             uint40 previousMilestone = segments[0].milestone;
             for (uint256 j = 1; j < segments.length; ++j) {
                 assertGt(segments[j].milestone, previousMilestone, "Invariant violated: segment milestones not ordered");
@@ -99,9 +99,9 @@ contract Dynamic_Invariant_Test is Lockup_Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            if (dynamic.statusOf(streamId) == Lockup.Status.SETTLED) {
+            if (lockupDynamic.statusOf(streamId) == Lockup.Status.SETTLED) {
                 assertFalse(
-                    dynamic.getStream(streamId).isCancelable,
+                    lockupDynamic.getStream(streamId).isCancelable,
                     "Invariant violation: stream returned by getStream() is cancelable"
                 );
             }

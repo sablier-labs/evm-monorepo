@@ -8,7 +8,7 @@ import { Broker, LockupDynamic } from "src/types/DataTypes.sol";
 import { Lockup_Integration_Shared_Test } from "../lockup/Lockup.t.sol";
 
 /// @notice Common testing logic needed across {SablierV2LockupDynamic} integration tests.
-abstract contract Dynamic_Integration_Shared_Test is Lockup_Integration_Shared_Test {
+abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Shared_Test {
     struct CreateParams {
         LockupDynamic.CreateWithDeltas createWithDeltas;
         LockupDynamic.CreateWithMilestones createWithMilestones;
@@ -47,26 +47,26 @@ abstract contract Dynamic_Integration_Shared_Test is Lockup_Integration_Shared_T
 
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
-        streamId = dynamic.createWithMilestones(_params.createWithMilestones);
+        streamId = lockupDynamic.createWithMilestones(_params.createWithMilestones);
     }
 
     /// @dev Creates the default stream with the provided asset.
     function createDefaultStreamWithAsset(IERC20 asset) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.asset = asset;
-        streamId = dynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided broker.
     function createDefaultStreamWithBroker(Broker memory broker) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.broker = broker;
-        streamId = dynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with deltas.
     function createDefaultStreamWithDeltas() internal returns (uint256 streamId) {
-        streamId = dynamic.createWithDeltas(_params.createWithDeltas);
+        streamId = lockupDynamic.createWithDeltas(_params.createWithDeltas);
     }
 
     /// @dev Creates the default stream with the provided deltas.
@@ -76,21 +76,21 @@ abstract contract Dynamic_Integration_Shared_Test is Lockup_Integration_Shared_T
     {
         LockupDynamic.CreateWithDeltas memory params = _params.createWithDeltas;
         params.segments = segments;
-        streamId = dynamic.createWithDeltas(params);
+        streamId = lockupDynamic.createWithDeltas(params);
     }
 
     /// @dev Creates the default stream with the provided end time.
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.segments[1].milestone = endTime;
-        streamId = dynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithMilestones(params);
     }
 
     /// @dev Creates a stream that will not be cancelable.
     function createDefaultStreamNotCancelable() internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.cancelable = false;
-        streamId = dynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided range.
@@ -98,14 +98,14 @@ abstract contract Dynamic_Integration_Shared_Test is Lockup_Integration_Shared_T
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.startTime = range.start;
         params.segments[1].milestone = range.end;
-        streamId = dynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.recipient = recipient;
-        streamId = dynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided segments.
@@ -115,27 +115,27 @@ abstract contract Dynamic_Integration_Shared_Test is Lockup_Integration_Shared_T
     {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.segments = segments;
-        streamId = dynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided sender.
     function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.sender = sender;
-        streamId = dynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided start time..
     function createDefaultStreamWithStartTime(uint40 startTime) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.startTime = startTime;
-        streamId = dynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithMilestones(params);
     }
 
     /// @dev Creates the default stream with the provided total amount.
     function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.totalAmount = totalAmount;
-        streamId = dynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithMilestones(params);
     }
 }

@@ -43,11 +43,11 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     ISablierV2Comptroller internal comptroller;
     ERC20 internal dai;
     Defaults internal defaults;
-    ISablierV2LockupDynamic internal dynamic;
     GoodFlashLoanReceiver internal goodFlashLoanReceiver;
     GoodRecipient internal goodRecipient;
     GoodSender internal goodSender;
-    ISablierV2LockupLinear internal linear;
+    ISablierV2LockupDynamic internal lockupDynamic;
+    ISablierV2LockupLinear internal lockupLinear;
     ISablierV2NFTDescriptor internal nftDescriptor;
     Noop internal noop;
     ERC20MissingReturn internal usdt;
@@ -101,28 +101,28 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     /// @dev Approves all V2 Core contracts to spend assets from the Sender, Recipient, Alice and Eve.
     function approveProtocol() internal {
         changePrank({ msgSender: users.sender });
-        dai.approve({ spender: address(linear), amount: MAX_UINT256 });
-        dai.approve({ spender: address(dynamic), amount: MAX_UINT256 });
-        usdt.approve({ spender: address(linear), value: MAX_UINT256 });
-        usdt.approve({ spender: address(dynamic), value: MAX_UINT256 });
+        dai.approve({ spender: address(lockupLinear), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupDynamic), amount: MAX_UINT256 });
+        usdt.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
+        usdt.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.recipient });
-        dai.approve({ spender: address(linear), amount: MAX_UINT256 });
-        dai.approve({ spender: address(dynamic), amount: MAX_UINT256 });
-        usdt.approve({ spender: address(linear), value: MAX_UINT256 });
-        usdt.approve({ spender: address(dynamic), value: MAX_UINT256 });
+        dai.approve({ spender: address(lockupLinear), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupDynamic), amount: MAX_UINT256 });
+        usdt.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
+        usdt.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.alice });
-        dai.approve({ spender: address(linear), amount: MAX_UINT256 });
-        dai.approve({ spender: address(dynamic), amount: MAX_UINT256 });
-        usdt.approve({ spender: address(linear), value: MAX_UINT256 });
-        usdt.approve({ spender: address(dynamic), value: MAX_UINT256 });
+        dai.approve({ spender: address(lockupLinear), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupDynamic), amount: MAX_UINT256 });
+        usdt.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
+        usdt.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.eve });
-        dai.approve({ spender: address(linear), amount: MAX_UINT256 });
-        dai.approve({ spender: address(dynamic), amount: MAX_UINT256 });
-        usdt.approve({ spender: address(linear), value: MAX_UINT256 });
-        usdt.approve({ spender: address(dynamic), value: MAX_UINT256 });
+        dai.approve({ spender: address(lockupLinear), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupDynamic), amount: MAX_UINT256 });
+        usdt.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
+        usdt.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
         // Finally, change the active prank back to the Admin.
         changePrank({ msgSender: users.admin });
@@ -146,18 +146,19 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
         if (!isTestOptimizedProfile()) {
             comptroller = new SablierV2Comptroller(users.admin);
             nftDescriptor = new SablierV2NFTDescriptor();
-            dynamic = new SablierV2LockupDynamic(users.admin, comptroller, nftDescriptor, defaults.MAX_SEGMENT_COUNT());
-            linear = new SablierV2LockupLinear(users.admin, comptroller, nftDescriptor);
+            lockupDynamic =
+                new SablierV2LockupDynamic(users.admin, comptroller, nftDescriptor, defaults.MAX_SEGMENT_COUNT());
+            lockupLinear = new SablierV2LockupLinear(users.admin, comptroller, nftDescriptor);
         } else {
             comptroller = deployPrecompiledComptroller(users.admin);
             nftDescriptor = deployPrecompiledNFTDescriptor();
-            dynamic = deployPrecompiledDynamic(users.admin, comptroller, nftDescriptor);
-            linear = deployPrecompiledLinear(users.admin, comptroller, nftDescriptor);
+            lockupDynamic = deployPrecompiledDynamic(users.admin, comptroller, nftDescriptor);
+            lockupLinear = deployPrecompiledLinear(users.admin, comptroller, nftDescriptor);
         }
 
         vm.label({ account: address(comptroller), newLabel: "Comptroller" });
-        vm.label({ account: address(dynamic), newLabel: "LockupDynamic" });
-        vm.label({ account: address(linear), newLabel: "LockupLinear" });
+        vm.label({ account: address(lockupDynamic), newLabel: "LockupDynamic" });
+        vm.label({ account: address(lockupLinear), newLabel: "LockupLinear" });
         vm.label({ account: address(nftDescriptor), newLabel: "NFTDescriptor" });
     }
 

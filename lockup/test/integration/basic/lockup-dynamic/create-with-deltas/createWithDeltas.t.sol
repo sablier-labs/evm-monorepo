@@ -9,26 +9,26 @@ import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { CreateWithDeltas_Integration_Shared_Test } from
     "../../../shared/lockup-dynamic/create-with-deltas/createWithDeltas.t.sol";
-import { Dynamic_Integration_Basic_Test } from "../Dynamic.t.sol";
+import { LockupDynamic_Integration_Basic_Test } from "../LockupDynamic.t.sol";
 
-contract CreateWithDeltas_Dynamic_Integration_Basic_Test is
-    Dynamic_Integration_Basic_Test,
+contract CreateWithDeltas_LockupDynamic_Integration_Basic_Test is
+    LockupDynamic_Integration_Basic_Test,
     CreateWithDeltas_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(Dynamic_Integration_Basic_Test, CreateWithDeltas_Integration_Shared_Test)
+        override(LockupDynamic_Integration_Basic_Test, CreateWithDeltas_Integration_Shared_Test)
     {
-        Dynamic_Integration_Basic_Test.setUp();
+        LockupDynamic_Integration_Basic_Test.setUp();
         CreateWithDeltas_Integration_Shared_Test.setUp();
-        streamId = dynamic.nextStreamId();
+        streamId = lockupDynamic.nextStreamId();
     }
 
     /// @dev it should revert.
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData = abi.encodeCall(ISablierV2LockupDynamic.createWithDeltas, defaults.createWithDeltas());
-        (bool success, bytes memory returnData) = address(dynamic).delegatecall(callData);
+        (bool success, bytes memory returnData) = address(lockupDynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
 
@@ -122,7 +122,7 @@ contract CreateWithDeltas_Dynamic_Integration_Basic_Test is
         address funder = users.sender;
 
         // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = dynamic.protocolRevenues(dai);
+        uint128 initialProtocolRevenues = lockupDynamic.protocolRevenues(dai);
 
         // Declare the range.
         uint40 currentTime = getBlockTimestamp();
@@ -138,7 +138,7 @@ contract CreateWithDeltas_Dynamic_Integration_Basic_Test is
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
             from: funder,
-            to: address(dynamic),
+            to: address(lockupDynamic),
             amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
@@ -146,7 +146,7 @@ contract CreateWithDeltas_Dynamic_Integration_Basic_Test is
         expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
 
         // Expect a {CreateLockupDynamicStream} event to be emitted.
-        vm.expectEmit({ emitter: address(dynamic) });
+        vm.expectEmit({ emitter: address(lockupDynamic) });
         emit CreateLockupDynamicStream({
             streamId: streamId,
             funder: funder,
@@ -164,30 +164,30 @@ contract CreateWithDeltas_Dynamic_Integration_Basic_Test is
         createDefaultStreamWithDeltas();
 
         // Assert that the stream has been created.
-        LockupDynamic.Stream memory actualStream = dynamic.getStream(streamId);
-        LockupDynamic.Stream memory expectedStream = defaults.dynamicStream();
+        LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(streamId);
+        LockupDynamic.Stream memory expectedStream = defaults.lockupDynamicStream();
         expectedStream.endTime = range.end;
         expectedStream.segments = segments;
         expectedStream.startTime = range.start;
         assertEq(actualStream, expectedStream);
 
         // Assert that the stream's status is "STREAMING".
-        Lockup.Status actualStatus = dynamic.statusOf(streamId);
+        Lockup.Status actualStatus = lockupDynamic.statusOf(streamId);
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
 
         // Assert that the next stream id has been bumped.
-        uint256 actualNextStreamId = dynamic.nextStreamId();
+        uint256 actualNextStreamId = lockupDynamic.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = dynamic.protocolRevenues(dai);
+        uint128 actualProtocolRevenues = lockupDynamic.protocolRevenues(dai);
         uint128 expectedProtocolRevenues = initialProtocolRevenues + defaults.PROTOCOL_FEE_AMOUNT();
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
-        address actualNFTOwner = dynamic.ownerOf({ tokenId: streamId });
+        address actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }

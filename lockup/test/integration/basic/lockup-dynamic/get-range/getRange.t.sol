@@ -4,13 +4,13 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Errors } from "src/libraries/Errors.sol";
 import { LockupDynamic } from "src/types/DataTypes.sol";
 
-import { Dynamic_Integration_Basic_Test } from "../Dynamic.t.sol";
+import { LockupDynamic_Integration_Basic_Test } from "../LockupDynamic.t.sol";
 
-contract GetRange_Dynamic_Integration_Basic_Test is Dynamic_Integration_Basic_Test {
+contract GetRange_LockupDynamic_Integration_Basic_Test is LockupDynamic_Integration_Basic_Test {
     function test_RevertWhen_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
-        dynamic.getRange(nullStreamId);
+        lockupDynamic.getRange(nullStreamId);
     }
 
     modifier whenNotNull() {
@@ -19,8 +19,8 @@ contract GetRange_Dynamic_Integration_Basic_Test is Dynamic_Integration_Basic_Te
 
     function test_GetRange() external whenNotNull {
         uint256 streamId = createDefaultStream();
-        LockupDynamic.Range memory actualRange = dynamic.getRange(streamId);
-        LockupDynamic.Range memory expectedRange = defaults.dynamicRange();
+        LockupDynamic.Range memory actualRange = lockupDynamic.getRange(streamId);
+        LockupDynamic.Range memory expectedRange = defaults.lockupDynamicRange();
         assertEq(actualRange, expectedRange);
     }
 }

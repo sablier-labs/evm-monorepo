@@ -3,20 +3,20 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Dynamic_Integration_Basic_Test } from "../Dynamic.t.sol";
+import { LockupDynamic_Integration_Basic_Test } from "../LockupDynamic.t.sol";
 import { WithdrawableAmountOf_Integration_Basic_Test } from
     "../../lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
 
-contract WithdrawableAmountOf_Dynamic_Integration_Basic_Test is
-    Dynamic_Integration_Basic_Test,
+contract WithdrawableAmountOf_LockupDynamic_Integration_Basic_Test is
+    LockupDynamic_Integration_Basic_Test,
     WithdrawableAmountOf_Integration_Basic_Test
 {
     function setUp()
         public
         virtual
-        override(Dynamic_Integration_Basic_Test, WithdrawableAmountOf_Integration_Basic_Test)
+        override(LockupDynamic_Integration_Basic_Test, WithdrawableAmountOf_Integration_Basic_Test)
     {
-        Dynamic_Integration_Basic_Test.setUp();
+        LockupDynamic_Integration_Basic_Test.setUp();
         WithdrawableAmountOf_Integration_Basic_Test.setUp();
     }
 
@@ -27,7 +27,7 @@ contract WithdrawableAmountOf_Dynamic_Integration_Basic_Test is
         whenStatusStreaming
     {
         vm.warp({ timestamp: defaults.START_TIME() });
-        uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
@@ -47,7 +47,7 @@ contract WithdrawableAmountOf_Dynamic_Integration_Basic_Test is
         vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 3750 seconds });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(defaultStreamId);
         // The second term is 7,500*0.5^{0.5}
         uint128 expectedWithdrawableAmount = defaults.segments()[0].amount + 5303.30085889910643e18;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
@@ -69,10 +69,10 @@ contract WithdrawableAmountOf_Dynamic_Integration_Basic_Test is
         vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 3750 seconds });
 
         // Make the withdrawal.
-        dynamic.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
+        lockupDynamic.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
 
         // Run the test.
-        uint128 actualWithdrawableAmount = dynamic.withdrawableAmountOf(defaultStreamId);
+        uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(defaultStreamId);
 
         // The second term is 7,500*0.5^{0.5}
         uint128 expectedWithdrawableAmount =

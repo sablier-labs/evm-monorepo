@@ -80,11 +80,23 @@ contract Defaults is Constants {
         return LockupLinear.Durations({ cliff: CLIFF_DURATION, total: TOTAL_DURATION });
     }
 
-    function dynamicRange() public view returns (LockupDynamic.Range memory) {
+    function lockupAmounts() public pure returns (Lockup.Amounts memory) {
+        return Lockup.Amounts({ deposited: DEPOSIT_AMOUNT, refunded: 0, withdrawn: 0 });
+    }
+
+    function lockupCreateAmounts() external pure returns (Lockup.CreateAmounts memory) {
+        return Lockup.CreateAmounts({
+            deposit: DEPOSIT_AMOUNT,
+            protocolFee: PROTOCOL_FEE_AMOUNT,
+            brokerFee: BROKER_FEE_AMOUNT
+        });
+    }
+
+    function lockupDynamicRange() public view returns (LockupDynamic.Range memory) {
         return LockupDynamic.Range({ start: START_TIME, end: END_TIME });
     }
 
-    function dynamicStream() external view returns (LockupDynamic.Stream memory) {
+    function lockupDynamicStream() external view returns (LockupDynamic.Stream memory) {
         return LockupDynamic.Stream({
             amounts: lockupAmounts(),
             asset: asset,
@@ -99,11 +111,11 @@ contract Defaults is Constants {
         });
     }
 
-    function linearRange() public view returns (LockupLinear.Range memory) {
+    function lockupLinearRange() public view returns (LockupLinear.Range memory) {
         return LockupLinear.Range({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
     }
 
-    function linearStream() external view returns (LockupLinear.Stream memory) {
+    function lockupLinearStream() external view returns (LockupLinear.Stream memory) {
         return LockupLinear.Stream({
             amounts: lockupAmounts(),
             asset: asset,
@@ -115,18 +127,6 @@ contract Defaults is Constants {
             sender: users.sender,
             startTime: START_TIME,
             wasCanceled: false
-        });
-    }
-
-    function lockupAmounts() public pure returns (Lockup.Amounts memory) {
-        return Lockup.Amounts({ deposited: DEPOSIT_AMOUNT, refunded: 0, withdrawn: 0 });
-    }
-
-    function lockupCreateAmounts() external pure returns (Lockup.CreateAmounts memory) {
-        return Lockup.CreateAmounts({
-            deposit: DEPOSIT_AMOUNT,
-            protocolFee: PROTOCOL_FEE_AMOUNT,
-            brokerFee: BROKER_FEE_AMOUNT
         });
     }
 
@@ -222,7 +222,7 @@ contract Defaults is Constants {
             asset: asset,
             broker: broker(),
             cancelable: true,
-            range: linearRange(),
+            range: lockupLinearRange(),
             recipient: users.recipient,
             sender: users.sender,
             totalAmount: TOTAL_AMOUNT
