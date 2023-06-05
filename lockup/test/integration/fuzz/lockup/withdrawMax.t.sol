@@ -3,17 +3,19 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { WithdrawMax_Integration_Shared_Test } from "../../../shared/lockup/withdrawMax.t.sol";
-import { Integration_Test } from "../../../Integration.t.sol";
+import { WithdrawMax_Integration_Shared_Test } from "../../shared/lockup/withdrawMax.t.sol";
+import { Integration_Test } from "../../Integration.t.sol";
 
-abstract contract WithdrawMax_Integration_Basic_Test is Integration_Test, WithdrawMax_Integration_Shared_Test {
+abstract contract WithdrawMax_Integration_Fuzz_Test is Integration_Test, WithdrawMax_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, WithdrawMax_Integration_Shared_Test) {
         WithdrawMax_Integration_Shared_Test.setUp();
     }
 
-    function test_WithdrawMax_EndTimeNotInTheFuture() external {
-        // Warp to the stream's end.
-        vm.warp({ timestamp: defaults.END_TIME() + 1 seconds });
+    function testFuzz_WithdrawMax_EndTimeNotInTheFuture(uint256 timeJump) external {
+        timeJump = _bound(timeJump, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2);
+
+        // Simulate the passage of time.
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Expect the ERC-20 assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT() });
@@ -49,9 +51,11 @@ abstract contract WithdrawMax_Integration_Basic_Test is Integration_Test, Withdr
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    function test_WithdrawMax() external whenEndTimeInTheFuture {
+    function testFuzz_WithdrawMax(uint256 timeJump) external whenEndTimeInTheFuture {
+        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
+
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
@@ -65,11 +69,6 @@ abstract contract WithdrawMax_Integration_Basic_Test is Integration_Test, Withdr
 
         // Make the max withdrawal.
         lockup.withdrawMax(defaultStreamId, users.recipient);
-
-        // Assert that the stream's status is still "STREAMING".
-        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
-        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
-        assertEq(actualStatus, expectedStatus);
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);

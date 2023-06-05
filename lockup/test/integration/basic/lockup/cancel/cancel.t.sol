@@ -8,7 +8,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { Cancel_Integration_Shared_Test } from "../../../shared/lockup/cancel/cancel.t.sol";
+import { Cancel_Integration_Shared_Test } from "../../../shared/lockup/cancel.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Integration_Shared_Test {

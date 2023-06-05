@@ -7,7 +7,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { Withdraw_Integration_Shared_Test } from "../../../shared/lockup/withdraw/withdraw.t.sol";
+import { Withdraw_Integration_Shared_Test } from "../../../shared/lockup/withdraw.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_Integration_Shared_Test {

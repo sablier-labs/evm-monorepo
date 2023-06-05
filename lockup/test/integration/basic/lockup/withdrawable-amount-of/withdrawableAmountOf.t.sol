@@ -3,8 +3,7 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { WithdrawableAmountOf_Integration_Shared_Test } from
-    "../../../shared/lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";
+import { WithdrawableAmountOf_Integration_Shared_Test } from "../../../shared/lockup/withdrawableAmountOf.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract WithdrawableAmountOf_Integration_Basic_Test is

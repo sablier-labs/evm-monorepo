@@ -7,8 +7,7 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
-import { WithdrawMultiple_Integration_Shared_Test } from
-    "../../../shared/lockup/withdraw-multiple/withdrawMultiple.t.sol";
+import { WithdrawMultiple_Integration_Shared_Test } from "../../../shared/lockup/withdrawMultiple.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract WithdrawMultiple_Integration_Basic_Test is

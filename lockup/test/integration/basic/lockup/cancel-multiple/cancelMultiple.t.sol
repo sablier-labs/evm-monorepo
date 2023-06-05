@@ -8,7 +8,7 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../../../Integration.t.sol";
-import { CancelMultiple_Integration_Shared_Test } from "../../../shared/lockup/cancel-multiple/cancelMultiple.t.sol";
+import { CancelMultiple_Integration_Shared_Test } from "../../../shared/lockup/cancelMultiple.t.sol";
 
 abstract contract CancelMultiple_Integration_Basic_Test is Integration_Test, CancelMultiple_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, CancelMultiple_Integration_Shared_Test) {

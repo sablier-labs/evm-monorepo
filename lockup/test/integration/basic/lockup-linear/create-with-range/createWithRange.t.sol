@@ -8,8 +8,7 @@ import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.so
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { CreateWithRange_Integration_Shared_Test } from
-    "../../../shared/lockup-linear/create-with-range/createWithRange.t.sol";
+import { CreateWithRange_Integration_Shared_Test } from "../../../shared/lockup-linear/createWithRange.t.sol";
 import { LockupLinear_Integration_Basic_Test } from "../LockupLinear.t.sol";
 
 contract CreateWithRange_LockupLinear_Integration_Basic_Test is

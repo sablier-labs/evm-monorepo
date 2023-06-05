@@ -8,13 +8,13 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 
 import { LockupLinear_Integration_Shared_Test } from "../../shared/lockup-linear/LockupLinear.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";
-import { Cancel_Integration_Fuzz_Test } from "../lockup/cancel/cancel.t.sol";
-import { CancelMultiple_Integration_Fuzz_Test } from "../lockup/cancel-multiple/cancelMultiple.t.sol";
-import { GetWithdrawnAmount_Integration_Fuzz_Test } from "../lockup/get-withdrawn-amount/getWithdrawnAmount.t.sol";
-import { RefundableAmountOf_Integration_Fuzz_Test } from "../lockup/refundable-amount-of/refundableAmountOf.t.sol";
-import { Withdraw_Integration_Fuzz_Test } from "../lockup/withdraw/withdraw.t.sol";
-import { WithdrawMax_Integration_Fuzz_Test } from "../lockup/withdraw-max/withdrawMax.t.sol";
-import { WithdrawMultiple_Integration_Fuzz_Test } from "../lockup/withdraw-multiple/withdrawMultiple.t.sol";
+import { Cancel_Integration_Fuzz_Test } from "../lockup/cancel.t.sol";
+import { CancelMultiple_Integration_Fuzz_Test } from "../lockup/cancelMultiple.t.sol";
+import { GetWithdrawnAmount_Integration_Fuzz_Test } from "../lockup/getWithdrawnAmount.t.sol";
+import { RefundableAmountOf_Integration_Fuzz_Test } from "../lockup/refundableAmountOf.t.sol";
+import { Withdraw_Integration_Fuzz_Test } from "../lockup/withdraw.t.sol";
+import { WithdrawMax_Integration_Fuzz_Test } from "../lockup/withdrawMax.t.sol";
+import { WithdrawMultiple_Integration_Fuzz_Test } from "../lockup/withdrawMultiple.t.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
                             NON-SHARED ABSTRACT TEST

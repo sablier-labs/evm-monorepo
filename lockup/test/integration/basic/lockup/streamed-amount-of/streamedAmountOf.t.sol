@@ -3,8 +3,7 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { StreamedAmountOf_Integration_Shared_Test } from
-    "../../../shared/lockup/streamed-amount-of/streamedAmountOf.t.sol";
+import { StreamedAmountOf_Integration_Shared_Test } from "../../../shared/lockup/streamedAmountOf.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract StreamedAmountOf_Integration_Basic_Test is

@@ -1,36 +1,31 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup-linear/createWithDurations.t.sol";
-import { LockupLinear_Integration_Basic_Test } from "../LockupLinear.t.sol";
+import { CreateWithDurations_Integration_Shared_Test } from "../../shared/lockup-linear/createWithDurations.t.sol";
+import { LockupLinear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
-contract CreateWithDurations_LockupLinear_Integration_Basic_Test is
-    LockupLinear_Integration_Basic_Test,
+contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
+    LockupLinear_Integration_Fuzz_Test,
     CreateWithDurations_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(LockupLinear_Integration_Basic_Test, CreateWithDurations_Integration_Shared_Test)
+        override(LockupLinear_Integration_Fuzz_Test, CreateWithDurations_Integration_Shared_Test)
     {
-        LockupLinear_Integration_Basic_Test.setUp();
+        LockupLinear_Integration_Fuzz_Test.setUp();
         CreateWithDurations_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_DelegateCalled() external {
-        bytes memory callData =
-            abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaults.createWithDurations());
-        (bool success, bytes memory returnData) = address(lockupLinear).delegatecall(callData);
-        expectRevertDueToDelegateCall(success, returnData);
-    }
-
-    function test_RevertWhen_CliffDurationCalculationOverflows() external whenNotDelegateCalled {
+    function testFuzz_RevertWhen_CliffDurationCalculationOverflows(uint40 cliffDuration)
+        external
+        whenNotDelegateCalled
+    {
         uint40 startTime = getBlockTimestamp();
-        uint40 cliffDuration = MAX_UINT40 - startTime + 1;
+        cliffDuration = boundUint40(cliffDuration, MAX_UINT40 - startTime + 1, MAX_UINT40);
 
         // Calculate the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -52,14 +47,14 @@ contract CreateWithDurations_LockupLinear_Integration_Basic_Test is
         createDefaultStreamWithDurations(LockupLinear.Durations({ cliff: cliffDuration, total: totalDuration }));
     }
 
-    function test_RevertWhen_TotalDurationCalculationOverflows()
+    function testFuzz_RevertWhen_TotalDurationCalculationOverflows(LockupLinear.Durations memory durations)
         external
         whenNotDelegateCalled
         whenCliffDurationCalculationDoesNotOverflow
     {
         uint40 startTime = getBlockTimestamp();
-        LockupLinear.Durations memory durations =
-            LockupLinear.Durations({ cliff: 0, total: MAX_UINT40 - startTime + 1 });
+        durations.cliff = boundUint40(durations.cliff, 0, MAX_UINT40 - startTime);
+        durations.total = boundUint40(durations.total, MAX_UINT40 - startTime + 1, MAX_UINT40);
 
         // Calculate the cliff time and the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -80,25 +75,20 @@ contract CreateWithDurations_LockupLinear_Integration_Basic_Test is
         createDefaultStreamWithDurations(durations);
     }
 
-    function test_CreateWithDurations()
+    function testFuzz_CreateWithDurations(LockupLinear.Durations memory durations)
         external
         whenNotDelegateCalled
         whenCliffDurationCalculationDoesNotOverflow
         whenTotalDurationCalculationDoesNotOverflow
     {
-        // Make the Sender the stream's funder
+        durations.total = boundUint40(durations.total, 0, MAX_UNIX_TIMESTAMP);
+        vm.assume(durations.cliff < durations.total);
+
+        // Make the Sender the stream's funder (recall that the Sender is the default caller).
         address funder = users.sender;
 
         // Load the initial protocol revenues.
         uint128 initialProtocolRevenues = lockupLinear.protocolRevenues(dai);
-
-        // Declare the range.
-        uint40 currentTime = getBlockTimestamp();
-        LockupLinear.Range memory range = LockupLinear.Range({
-            start: currentTime,
-            cliff: currentTime + defaults.CLIFF_DURATION(),
-            end: currentTime + defaults.TOTAL_DURATION()
-        });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectCallToTransferFrom({
@@ -109,6 +99,13 @@ contract CreateWithDurations_LockupLinear_Integration_Basic_Test is
 
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
+
+        // Create the range struct by calculating the start time, cliff time and the end time.
+        LockupLinear.Range memory range = LockupLinear.Range({
+            start: getBlockTimestamp(),
+            cliff: getBlockTimestamp() + durations.cliff,
+            end: getBlockTimestamp() + durations.total
+        });
 
         // Expect a {CreateLockupLinearStream} event to be emitted.
         vm.expectEmit({ emitter: address(lockupLinear) });
@@ -125,14 +122,14 @@ contract CreateWithDurations_LockupLinear_Integration_Basic_Test is
         });
 
         // Create the stream.
-        createDefaultStreamWithDurations();
+        createDefaultStreamWithDurations(durations);
 
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = lockupLinear.getStream(streamId);
         LockupLinear.Stream memory expectedStream = defaults.lockupLinearStream();
-        expectedStream.startTime = range.start;
         expectedStream.cliffTime = range.cliff;
         expectedStream.endTime = range.end;
+        expectedStream.startTime = range.start;
         assertEq(actualStream, expectedStream);
 
         // Assert that the stream's status is "STREAMING".

@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { Errors } from "src/libraries/Errors.sol";
+import { GetWithdrawnAmount_Integration_Shared_Test } from "../../shared/lockup/getWithdrawnAmount.t.sol";
+import { Integration_Test } from "../../Integration.t.sol";
 
-import { GetWithdrawnAmount_Integration_Shared_Test } from "../../../shared/lockup/getWithdrawnAmount.t.sol";
-import { Integration_Test } from "../../../Integration.t.sol";
-
-abstract contract GetWithdrawnAmount_Integration_Basic_Test is
+abstract contract GetWithdrawnAmount_Integration_Fuzz_Test is
     Integration_Test,
     GetWithdrawnAmount_Integration_Shared_Test
 {
@@ -14,15 +12,11 @@ abstract contract GetWithdrawnAmount_Integration_Basic_Test is
         GetWithdrawnAmount_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_Null() external {
-        uint256 nullStreamId = 1729;
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
-        lockup.getWithdrawnAmount(nullStreamId);
-    }
+    function testFuzz_GetWithdrawnAmount_NoPreviousWithdrawals(uint256 timeJump) external whenNotNull {
+        timeJump = _bound(timeJump, 0 seconds, defaults.TOTAL_DURATION() * 2);
 
-    function test_GetWithdrawnAmount_NoPreviousWithdrawals() external whenNotNull {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
@@ -30,12 +24,22 @@ abstract contract GetWithdrawnAmount_Integration_Basic_Test is
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    function test_GetWithdrawnAmount() external whenNotNull whenPreviousWithdrawals {
-        // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+    function testFuzz_GetWithdrawnAmount(
+        uint256 timeJump,
+        uint128 withdrawAmount
+    )
+        external
+        whenNotNull
+        whenPreviousWithdrawals
+    {
+        timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
 
-        // Set the withdraw amount to the streamed amount.
-        uint128 withdrawAmount = lockup.streamedAmountOf(defaultStreamId);
+        // Simulate the passage of time.
+        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+
+        // Bound the withdraw amount.
+        uint128 streamedAmount = lockup.streamedAmountOf(defaultStreamId);
+        withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });

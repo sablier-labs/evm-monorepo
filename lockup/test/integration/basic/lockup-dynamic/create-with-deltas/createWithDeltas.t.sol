@@ -7,8 +7,7 @@ import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { CreateWithDeltas_Integration_Shared_Test } from
-    "../../../shared/lockup-dynamic/create-with-deltas/createWithDeltas.t.sol";
+import { CreateWithDeltas_Integration_Shared_Test } from "../../../shared/lockup-dynamic/createWithDeltas.t.sol";
 import { LockupDynamic_Integration_Basic_Test } from "../LockupDynamic.t.sol";
 
 contract CreateWithDeltas_LockupDynamic_Integration_Basic_Test is

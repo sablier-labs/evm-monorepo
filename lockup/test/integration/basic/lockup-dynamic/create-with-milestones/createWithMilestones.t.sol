@@ -11,8 +11,7 @@ import { Errors } from "src/libraries/Errors.sol";
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { CreateWithMilestones_Integration_Shared_Test } from
-    "../../../shared/lockup-dynamic/create-with-milestones/createWithMilestones.t.sol";
+import { CreateWithMilestones_Integration_Shared_Test } from "../../../shared/lockup-dynamic/createWithMilestones.t.sol";
 import { LockupDynamic_Integration_Basic_Test } from "../LockupDynamic.t.sol";
 
 contract CreateWithMilestones_LockupDynamic_Integration_Basic_Test is
