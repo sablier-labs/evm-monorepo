@@ -60,11 +60,11 @@ contract Defaults is Constants {
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setAsset(IERC20 asset_) external {
+    function setAsset(IERC20 asset_) public {
         asset = asset_;
     }
 
-    function setUsers(Users memory users_) external {
+    function setUsers(Users memory users_) public {
         users = users_;
     }
 
@@ -84,7 +84,7 @@ contract Defaults is Constants {
         return Lockup.Amounts({ deposited: DEPOSIT_AMOUNT, refunded: 0, withdrawn: 0 });
     }
 
-    function lockupCreateAmounts() external pure returns (Lockup.CreateAmounts memory) {
+    function lockupCreateAmounts() public pure returns (Lockup.CreateAmounts memory) {
         return Lockup.CreateAmounts({
             deposit: DEPOSIT_AMOUNT,
             protocolFee: PROTOCOL_FEE_AMOUNT,
@@ -96,7 +96,7 @@ contract Defaults is Constants {
         return LockupDynamic.Range({ start: START_TIME, end: END_TIME });
     }
 
-    function lockupDynamicStream() external view returns (LockupDynamic.Stream memory) {
+    function lockupDynamicStream() public view returns (LockupDynamic.Stream memory) {
         return LockupDynamic.Stream({
             amounts: lockupAmounts(),
             asset: asset,
@@ -115,7 +115,7 @@ contract Defaults is Constants {
         return LockupLinear.Range({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
     }
 
-    function lockupLinearStream() external view returns (LockupLinear.Stream memory) {
+    function lockupLinearStream() public view returns (LockupLinear.Stream memory) {
         return LockupLinear.Stream({
             amounts: lockupAmounts(),
             asset: asset,
@@ -130,7 +130,7 @@ contract Defaults is Constants {
         });
     }
 
-    function maxSegments() external view returns (LockupDynamic.Segment[] memory maxSegments_) {
+    function maxSegments() public view returns (LockupDynamic.Segment[] memory maxSegments_) {
         uint128 amount = DEPOSIT_AMOUNT / uint128(MAX_SEGMENT_COUNT);
         UD2x18 exponent = ud2x18(2.71e18);
 
@@ -180,7 +180,7 @@ contract Defaults is Constants {
                                        PARAMS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDeltas() external view returns (LockupDynamic.CreateWithDeltas memory) {
+    function createWithDeltas() public view returns (LockupDynamic.CreateWithDeltas memory) {
         return LockupDynamic.CreateWithDeltas({
             asset: asset,
             broker: broker(),
@@ -204,7 +204,7 @@ contract Defaults is Constants {
         });
     }
 
-    function createWithMilestones() external view returns (LockupDynamic.CreateWithMilestones memory) {
+    function createWithMilestones() public view returns (LockupDynamic.CreateWithMilestones memory) {
         return LockupDynamic.CreateWithMilestones({
             asset: asset,
             broker: broker(),
