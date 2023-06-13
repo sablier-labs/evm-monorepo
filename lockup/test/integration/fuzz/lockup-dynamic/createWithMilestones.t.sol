@@ -299,7 +299,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
 
         // Check if the stream is settled. It is possible for a Lockup Dynamic stream to settle at the time of creation
         // because some segment amounts can be zero.
-        vars.isSettled = lockupDynamic.refundableAmountOf(streamId) == 0;
+        vars.isSettled = lockupDynamic.getDepositedAmount(streamId) - lockupDynamic.streamedAmountOf(streamId) == 0;
         vars.isCancelable = vars.isSettled ? false : params.cancelable;
 
         // Assert that the stream has been created.

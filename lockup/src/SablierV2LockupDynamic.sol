@@ -230,9 +230,10 @@ contract SablierV2LockupDynamic is
         notNull(streamId)
         returns (uint128 refundableAmount)
     {
-        // If the stream is neither depleted nor canceled, subtract the streamed amount from the deposited amount.
-        // Both of these checks are needed because {_calculateStreamedAmount} does not look up the stream's status.
-        if (!_streams[streamId].isDepleted && !_streams[streamId].wasCanceled) {
+        // If the stream is cancelable and if the stream is neither depleted nor canceled, subtract the streamed amount
+        // from the deposited amount.
+        // All these checks are needed because {_calculateStreamedAmount} does not look up the stream's status.
+        if (_streams[streamId].isCancelable && !_streams[streamId].isDepleted && !_streams[streamId].wasCanceled) {
             refundableAmount = _streams[streamId].amounts.deposited - _calculateStreamedAmount(streamId);
         }
         // Otherwise, if the stream is either depleted or canceled, the result is implicitly zero.
