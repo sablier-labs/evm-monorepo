@@ -1,6 +1,6 @@
 # Tests
 
-Tests are organized into three categories:
+Tests are organized into four categories:
 
 1. Unit: simple tests that check the behavior of individual functions against a local EVM.
 2. Integration: similar to the unit tests but with more complex scenarios that involve multiple contracts.
