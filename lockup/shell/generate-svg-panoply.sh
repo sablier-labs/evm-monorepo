@@ -31,7 +31,13 @@ set -euo pipefail
 ./shell/generate-svg.sh 4999 "Streaming" "999.45K" 10000
 
 ./shell/generate-svg.sh 10000 "Settled" "1" 892
-./shell/generate-svg.sh 10000 "Settled" "14.94K" 892
+./shell/generate-svg.sh 10000 "Settled" "14.94K" 11
 ./shell/generate-svg.sh 10000 "Settled" "733" 3402
 ./shell/generate-svg.sh 10000 "Settled" "645.01M" 3402
 ./shell/generate-svg.sh 10000 "Settled" "990.12B" 6503
+
+./shell/generate-svg.sh 10000 "Depleted" "1" 892
+./shell/generate-svg.sh 10000 "Depleted" "79.1B" 892
+./shell/generate-svg.sh 4972 "Depleted" "29" 3402
+./shell/generate-svg.sh 744 "Depleted" "343.01K" 3402
+./shell/generate-svg.sh 10000 "Depleted" "84.1M" 6503
