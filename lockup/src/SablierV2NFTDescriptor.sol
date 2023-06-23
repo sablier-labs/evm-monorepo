@@ -80,8 +80,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
         // Generate the JSON metadata.
         vars.json = string.concat(
-            "{",
-            '"attributes":',
+            '{"attributes":',
             generateAttributes({
                 assetSymbol: vars.assetSymbol,
                 sender: vars.sablier.getSender(streamId).toHexString(),
@@ -95,8 +94,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
                 sablierAddress: address(sablier).toHexString(),
                 assetAddress: address(vars.asset).toHexString()
             }),
-            '","external_url":"https://sablier.com"',
-            ',"name":"',
+            '","external_url":"https://sablier.com","name":"',
             generateName({ streamingModel: vars.streamingModel, streamId: streamId.toString() }),
             '","image":"data:image/svg+xml;base64,',
             Base64.encode(bytes(vars.svg)),
@@ -238,8 +236,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
         returns (string memory)
     {
         return string.concat(
-            "[{",
-            '"trait_type":"Asset","value":"',
+            '[{"trait_type":"Asset","value":"',
             assetSymbol,
             '"},{"trait_type":"Sender","value":"',
             sender,
@@ -266,8 +263,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             streamingModel,
             " contract. The owner of this NFT can withdraw the streamed assets, which are denominated in ",
             assetSymbol,
-            ".\\n\\n",
-            "- Stream ID: ",
+            ".\\n\\n- Stream ID: ",
             streamId,
             "\\n- ",
             streamingModel,

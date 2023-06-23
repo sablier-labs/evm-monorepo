@@ -129,7 +129,7 @@ library SVGElements {
         return string.concat(
             '<textPath startOffset="',
             offset,
-            '" href="#FloatingText" fill="#fff" font-family="\'Courier New\',Arial,monospace" fill-opacity=".8" font-size="26px" >',
+            '" href="#FloatingText" fill="#fff" font-family="\'Courier New\',Arial,monospace" fill-opacity=".8" font-size="26px">',
             '<animate additive="sum" attributeName="startOffset" begin="0s" dur="50s" from="0%" repeatCount="indefinite" to="100%"/>',
             text,
             "</textPath>"
