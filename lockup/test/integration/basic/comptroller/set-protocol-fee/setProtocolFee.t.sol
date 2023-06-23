@@ -24,7 +24,7 @@ contract SetProtocolFee_Integration_Basic_Test is Integration_Test {
     }
 
     function test_SetProtocolFee_SameFee() external whenCallerAdmin {
-        // Expect a {SetProtocolFee} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
         emit SetProtocolFee({ admin: users.admin, asset: dai, oldProtocolFee: ZERO, newProtocolFee: ZERO });
 
@@ -44,7 +44,7 @@ contract SetProtocolFee_Integration_Basic_Test is Integration_Test {
     function test_SetProtocolFee() external whenCallerAdmin whenNewFee {
         UD60x18 newProtocolFee = defaults.FLASH_FEE();
 
-        // Expect a {SetProtocolFee} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
         emit SetProtocolFee({ admin: users.admin, asset: dai, oldProtocolFee: ZERO, newProtocolFee: newProtocolFee });
 

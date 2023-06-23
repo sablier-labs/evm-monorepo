@@ -23,7 +23,7 @@ contract SetFlashFee_Integration_Basic_Test is Integration_Test {
     }
 
     function test_SetFlashFee_SameFee() external whenCallerAdmin {
-        // Expect a {SetFlashFee} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
         emit SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: ZERO });
         comptroller.setFlashFee({ newFlashFee: ZERO });
@@ -44,7 +44,7 @@ contract SetFlashFee_Integration_Basic_Test is Integration_Test {
     function test_SetFlashFee() external {
         UD60x18 newFlashFee = defaults.FLASH_FEE();
 
-        // Expect a {SetFlashFee} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
         emit SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: newFlashFee });
 

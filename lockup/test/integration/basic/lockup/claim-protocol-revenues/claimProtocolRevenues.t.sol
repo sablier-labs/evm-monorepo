@@ -42,7 +42,7 @@ abstract contract ClaimProtocolRevenues_Integration_Basic_Test is Integration_Te
         uint128 protocolRevenues = defaults.PROTOCOL_FEE_AMOUNT();
         expectCallToTransfer({ to: users.admin, amount: protocolRevenues });
 
-        // Expect a {ClaimProtocolRevenues} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(base) });
         emit ClaimProtocolRevenues(users.admin, dai, protocolRevenues);
 

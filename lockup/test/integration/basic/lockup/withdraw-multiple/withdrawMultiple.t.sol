@@ -68,7 +68,7 @@ abstract contract WithdrawMultiple_Integration_Basic_Test is
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 
-        // Expect a {Null} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
 
         // Withdraw from multiple streams.
@@ -91,7 +91,7 @@ abstract contract WithdrawMultiple_Integration_Basic_Test is
         // Deplete the first test stream.
         lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient });
 
-        // Expect a {StreamDepleted} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, testStreamIds[0]));
 
         // Withdraw from multiple streams.
@@ -111,7 +111,7 @@ abstract contract WithdrawMultiple_Integration_Basic_Test is
         // Deplete the first test stream.
         lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient });
 
-        // Expect a {StreamDepleted} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, testStreamIds[0]));
 
         // Withdraw from multiple streams.
@@ -295,7 +295,7 @@ abstract contract WithdrawMultiple_Integration_Basic_Test is
         expectCallToTransfer({ to: users.recipient, amount: testAmounts[1] });
         expectCallToTransfer({ to: users.recipient, amount: testAmounts[2] });
 
-        // Expect multiple events to be emitted.
+        // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: testStreamIds[0], to: users.recipient, amount: testAmounts[0] });
         vm.expectEmit({ emitter: address(lockup) });

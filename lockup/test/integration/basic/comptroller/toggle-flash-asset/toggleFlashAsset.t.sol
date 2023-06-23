@@ -23,7 +23,7 @@ contract ToggleFlashAsset_Integration_Basic_Test is Integration_Test {
     }
 
     function test_ToggleFlashAsset_FlagNotEnabled() external whenCallerAdmin {
-        // Expect a {ToggleFlashAsset} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
         emit ToggleFlashAsset({ admin: users.admin, asset: dai, newFlag: true });
 
@@ -41,7 +41,7 @@ contract ToggleFlashAsset_Integration_Basic_Test is Integration_Test {
     }
 
     function test_ToggleFlashAsset() external whenCallerAdmin whenFlagEnabled {
-        // Expect a {ToggleFlashAsset} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
         emit ToggleFlashAsset({ admin: users.admin, asset: dai, newFlag: false });
 

@@ -144,7 +144,7 @@ abstract contract Fuzzers is Constants, Utils {
 
         // The first milestones is precomputed to avoid an underflow in the first loop iteration. We have to
         // add 1 because the first milestone must be greater than the start time.
-        segments[0].milestone = startTime + 1;
+        segments[0].milestone = startTime + 1 seconds;
 
         // Fuzz the milestones while preserving their order in the array. For each milestone, set its initial guess
         // as the sum of the starting milestone and the step size multiplied by the current index. This ensures that

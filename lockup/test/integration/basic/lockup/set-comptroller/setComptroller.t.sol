@@ -27,7 +27,7 @@ abstract contract SetComptroller_Integration_Basic_Test is Integration_Test, Loc
     }
 
     function test_SetComptroller_SameComptroller() external whenCallerAdmin {
-        // Expect a {SetComptroller} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(base) });
         emit SetComptroller(users.admin, comptroller, comptroller);
 
@@ -44,7 +44,7 @@ abstract contract SetComptroller_Integration_Basic_Test is Integration_Test, Loc
         // Deploy the new comptroller.
         ISablierV2Comptroller newComptroller = new SablierV2Comptroller({ initialAdmin: users.admin });
 
-        // Expect a {SetComptroller} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(base) });
         emit SetComptroller(users.admin, comptroller, newComptroller);
 

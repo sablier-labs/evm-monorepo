@@ -13,7 +13,7 @@ contract SetFlashFee_Integration_Fuzz_Test is Integration_Test {
     function testFuzz_SetFlashFee(UD60x18 newFlashFee) external whenCallerAdmin {
         newFlashFee = _bound(newFlashFee, 0, MAX_FEE);
 
-        // Expect a {SetFlashFee} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
         emit SetFlashFee({ admin: users.admin, oldFlashFee: ZERO, newFlashFee: newFlashFee });
 

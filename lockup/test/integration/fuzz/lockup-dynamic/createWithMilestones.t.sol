@@ -74,7 +74,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].milestone = firstMilestone;
 
-        // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
@@ -116,7 +116,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         params.broker = Broker({ account: address(0), fee: brokerFee });
         params.totalAmount = depositAmount;
 
-        // Expect a {DepositAmountNotEqualToSegmentAmountsSum} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum.selector,
@@ -266,7 +266,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
             expectCallToTransferFrom({ from: funder, to: params.broker.account, amount: vars.createAmounts.brokerFee });
         }
 
-        // Expect a {CreateLockupDynamicStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupDynamic) });
         LockupDynamic.Range memory range =
             LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].milestone });

@@ -63,7 +63,7 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
         expectCallToTransfer({ to: to, amount: ongoingWithdrawAmount });
         expectCallToTransfer({ to: to, amount: settledWithdrawAmount });
 
-        // Expect multiple events to be emitted.
+        // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: ongoingStreamId, to: to, amount: ongoingWithdrawAmount });
         vm.expectEmit({ emitter: address(lockup) });

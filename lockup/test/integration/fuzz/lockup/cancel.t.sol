@@ -79,7 +79,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         expectCallToTransfer({ to: users.sender, amount: senderAmount });
 
-        // Expect a {CancelLockupStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamId, users.sender, address(goodRecipient), senderAmount, recipientAmount);
@@ -144,7 +144,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
         expectCallToTransfer({ to: address(goodSender), amount: senderAmount });
 
-        // Expect a {CancelLockupStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);
         vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamId, address(goodSender), users.recipient, senderAmount, recipientAmount);

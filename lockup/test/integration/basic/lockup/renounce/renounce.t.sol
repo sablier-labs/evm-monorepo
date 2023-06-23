@@ -125,7 +125,7 @@ abstract contract Renounce_Integration_Basic_Test is Integration_Test, Lockup_In
         // Create the stream with a no-op contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(noop));
 
-        // Expect a call to hook.
+        // Expect a call to the hook.
         vm.expectCall(address(noop), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
 
         // Renounce the stream.
@@ -152,7 +152,7 @@ abstract contract Renounce_Integration_Basic_Test is Integration_Test, Lockup_In
         // Create the stream with a reverting contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(revertingRecipient));
 
-        // Expect a call to hook.
+        // Expect a call to the hook.
         vm.expectCall(
             address(revertingRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
         );
@@ -182,7 +182,7 @@ abstract contract Renounce_Integration_Basic_Test is Integration_Test, Lockup_In
         // Create the stream with a reentrant contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(reentrantRecipient));
 
-        // Expect a call to hook.
+        // Expect a call to the hook.
         vm.expectCall(
             address(reentrantRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
         );
@@ -213,10 +213,10 @@ abstract contract Renounce_Integration_Basic_Test is Integration_Test, Lockup_In
         // Create the stream with a contract as the stream's recipient.
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
-        // Expect a call to hook.
+        // Expect a call to the hook.
         vm.expectCall(address(goodRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
 
-        // Expect a {RenounceLockupStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit RenounceLockupStream(streamId);
 

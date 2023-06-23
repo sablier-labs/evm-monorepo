@@ -9,7 +9,7 @@ import { LockupLinear_Integration_Basic_Test } from "./LockupLinear.t.sol";
 
 contract Constructor_LockupLinear_Integration_Basic_Test is LockupLinear_Integration_Basic_Test {
     function test_Constructor() external {
-        // Expect a {TransferAdmin} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit();
         emit TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
 

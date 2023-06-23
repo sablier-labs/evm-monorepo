@@ -25,7 +25,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
         whenNotDelegateCalled
     {
         uint40 startTime = getBlockTimestamp();
-        cliffDuration = boundUint40(cliffDuration, MAX_UINT40 - startTime + 1, MAX_UINT40);
+        cliffDuration = boundUint40(cliffDuration, MAX_UINT40 - startTime + 1 seconds, MAX_UINT40);
 
         // Calculate the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -33,7 +33,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
             cliffTime = startTime + cliffDuration;
         }
 
-        // Expect a {StartTimeGreaterThanCliffTime} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime
@@ -54,7 +54,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
     {
         uint40 startTime = getBlockTimestamp();
         durations.cliff = boundUint40(durations.cliff, 0, MAX_UINT40 - startTime);
-        durations.total = boundUint40(durations.total, MAX_UINT40 - startTime + 1, MAX_UINT40);
+        durations.total = boundUint40(durations.total, MAX_UINT40 - startTime + 1 seconds, MAX_UINT40);
 
         // Calculate the cliff time and the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -64,7 +64,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
             endTime = startTime + durations.total;
         }
 
-        // Expect a {CliffTimeNotLessThanEndTime} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
@@ -107,7 +107,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
             end: getBlockTimestamp() + durations.total
         });
 
-        // Expect a {CreateLockupLinearStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupLinear) });
         emit CreateLockupLinearStream({
             streamId: streamId,

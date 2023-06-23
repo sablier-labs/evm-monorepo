@@ -20,7 +20,7 @@ abstract contract WithdrawMax_Integration_Fuzz_Test is Integration_Test, Withdra
         // Expect the ERC-20 assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT() });
 
-        // Expect a {WithdrawFromLockupStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({
             streamId: defaultStreamId,
@@ -63,7 +63,7 @@ abstract contract WithdrawMax_Integration_Fuzz_Test is Integration_Test, Withdra
         // Expect the assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
 
-        // Expect a {WithdrawFromLockupStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 

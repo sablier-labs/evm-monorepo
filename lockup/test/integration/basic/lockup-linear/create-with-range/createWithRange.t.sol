@@ -197,7 +197,7 @@ contract CreateWithRange_LockupLinear_Integration_Basic_Test is
             amount: defaults.BROKER_FEE_AMOUNT()
         });
 
-        // Expect a {CreateLockupLinearStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupLinear) });
         emit CreateLockupLinearStream({
             streamId: streamId,

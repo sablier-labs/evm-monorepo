@@ -90,11 +90,12 @@ contract CreateWithDeltas_LockupDynamic_Integration_Basic_Test is
 
             // Create new segments that overflow when the milestones are eventually calculated.
             LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](2);
-            segments[0] = LockupDynamic.SegmentWithDelta({ amount: 0, exponent: ud2x18(1e18), delta: startTime + 1 });
+            segments[0] =
+                LockupDynamic.SegmentWithDelta({ amount: 0, exponent: ud2x18(1e18), delta: startTime + 1 seconds });
             segments[1] = defaults.segmentsWithDeltas()[0];
             segments[1].delta = MAX_UINT40;
 
-            // Expect a {SegmentMilestonesNotOrdered} error.
+            // Expect the relevant error to be thrown.
             uint256 index = 1;
             vm.expectRevert(
                 abi.encodeWithSelector(
@@ -144,7 +145,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Basic_Test is
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
 
-        // Expect a {CreateLockupDynamicStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupDynamic) });
         emit CreateLockupDynamicStream({
             streamId: streamId,
