@@ -76,11 +76,11 @@ abstract contract Events {
 
     event CreateLockupDynamicStream(
         uint256 streamId,
-        address indexed funder,
+        address funder,
         address indexed sender,
         address indexed recipient,
         Lockup.CreateAmounts amounts,
-        IERC20 asset,
+        IERC20 indexed asset,
         bool cancelable,
         LockupDynamic.Segment[] segments,
         LockupDynamic.Range range,
@@ -93,11 +93,11 @@ abstract contract Events {
 
     event CreateLockupLinearStream(
         uint256 streamId,
-        address indexed funder,
+        address funder,
         address indexed sender,
         address indexed recipient,
         Lockup.CreateAmounts amounts,
-        IERC20 asset,
+        IERC20 indexed asset,
         bool cancelable,
         LockupLinear.Range range,
         address broker

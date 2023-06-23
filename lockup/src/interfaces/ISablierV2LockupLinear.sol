@@ -27,11 +27,11 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateLockupLinearStream(
         uint256 streamId,
-        address indexed funder,
+        address funder,
         address indexed sender,
         address indexed recipient,
         Lockup.CreateAmounts amounts,
-        IERC20 asset,
+        IERC20 indexed asset,
         bool cancelable,
         LockupLinear.Range range,
         address broker
