@@ -27,7 +27,7 @@ abstract contract RefundableAmountOf_Integration_Basic_Test is Integration_Test,
         vm.warp({ timestamp: defaults.CLIFF_TIME() });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(streamId);
         uint128 expectedRefundableAmount = 0;
-        assertEq(actualRefundableAmount, expectedRefundableAmount, "refundedAmount");
+        assertEq(actualRefundableAmount, expectedRefundableAmount, "refundableAmount");
     }
 
     modifier whenStreamIsCancelable() {
@@ -48,7 +48,7 @@ abstract contract RefundableAmountOf_Integration_Basic_Test is Integration_Test,
         lockup.cancel(defaultStreamId);
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedRefundableAmount = 0;
-        assertEq(actualRefundableAmount, expectedRefundableAmount, "refundedAmount");
+        assertEq(actualRefundableAmount, expectedRefundableAmount, "refundableAmount");
     }
 
     /// @dev This test warps a second time to ensure that {refundableAmountOf} ignores the current time.
@@ -64,7 +64,7 @@ abstract contract RefundableAmountOf_Integration_Basic_Test is Integration_Test,
         vm.warp({ timestamp: defaults.CLIFF_TIME() + 10 seconds });
         uint128 actualRefundableAmount = lockup.refundableAmountOf(defaultStreamId);
         uint128 expectedRefundableAmount = 0;
-        assertEq(actualRefundableAmount, expectedRefundableAmount, "refundedAmount");
+        assertEq(actualRefundableAmount, expectedRefundableAmount, "refundableAmount");
     }
 
     modifier whenStreamHasNotBeenCanceled() {
