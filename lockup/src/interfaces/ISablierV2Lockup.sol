@@ -171,7 +171,7 @@ interface ISablierV2Lockup is
 
     /// @notice Cancels the stream and refunds any remaining assets to the sender.
     ///
-    /// @dev Emits a {CancelLockupStream} event and a {Transfer} event.
+    /// @dev Emits a {Transfer}, {CancelLockupStream}, and {MetadataUpdate} event.
     ///
     /// Notes:
     /// - If there any assets left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
@@ -189,7 +189,7 @@ interface ISablierV2Lockup is
 
     /// @notice Cancels multiple streams and refunds any remaining assets to the sender.
     ///
-    /// @dev Emits multiple {CancelLockupStream} and {Transfer} events.
+    /// @dev Emits multiple {Transfer}, {CancelLockupStream}, and {MetadataUpdate} events.
     ///
     /// Notes:
     /// - Refer to the notes in {cancel}.
@@ -202,7 +202,7 @@ interface ISablierV2Lockup is
 
     /// @notice Removes the right of the stream's sender to cancel the stream.
     ///
-    /// @dev Emits a {RenounceLockupStream} event.
+    /// @dev Emits a {RenounceLockupStream} and {MetadataUpdate} event.
     ///
     /// Notes:
     /// - This is an irreversible operation.
@@ -219,7 +219,7 @@ interface ISablierV2Lockup is
 
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///
-    /// @dev Emits a {SetNFTDescriptor} event.
+    /// @dev Emits a {SetNFTDescriptor} and {BatchMetadataUpdate} event.
     ///
     /// Notes:
     /// - Does not revert if the NFT descriptor is the same.
@@ -232,7 +232,7 @@ interface ISablierV2Lockup is
 
     /// @notice Withdraws the provided amount of assets from the stream to the `to` address.
     ///
-    /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
+    /// @dev Emits a {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} event.
     ///
     /// Notes:
     /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract
@@ -253,7 +253,7 @@ interface ISablierV2Lockup is
 
     /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.
     ///
-    /// @dev Emits a {WithdrawFromLockupStream} and a {Transfer} event.
+    /// @dev Emits a {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} event.
     ///
     /// Notes:
     /// - Refer to the notes in {withdraw}.
@@ -285,7 +285,7 @@ interface ISablierV2Lockup is
 
     /// @notice Withdraws assets from streams to the provided address `to`.
     ///
-    /// @dev Emits multiple {WithdrawFromLockupStream} and {Transfer} events.
+    /// @dev Emits multiple {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} events.
     ///
     /// Notes:
     /// - This function attempts to call a hook on the recipient of each stream, unless `msg.sender` is the recipient.

@@ -46,7 +46,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @dev This is initialized at construction time and cannot be changed later.
     function MAX_SEGMENT_COUNT() external view returns (uint256);
 
-    /// @notice Retrieves the stream's range, a struct containing (i) the stream's start time and (ii) end
+    /// @notice Retrieves the stream's range, which is a struct containing (i) the stream's start time and (ii) end
     /// time, both as Unix timestamps.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
@@ -93,7 +93,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// `block.timestamp` and all specified time deltas. The segment milestones are derived from these
     /// deltas. The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateLockupDynamicStream} and a {Transfer} event.
+    /// @dev Emits a {Transfer} and {CreateLockupDynamicStream} event.
     ///
     /// Requirements:
     /// - All requirements in {createWithMilestones} must be met for the calculated parameters.
@@ -105,7 +105,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @notice Creates a stream with the provided segment milestones, implying the end time from the last milestone.
     /// The stream is funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateLockupDynamicStream} and a {Transfer} event.
+    /// @dev Emits a {Transfer} and {CreateLockupDynamicStream} event.
     ///
     /// Notes:
     /// - As long as the segment milestones are arranged in ascending order, it is not an error for some

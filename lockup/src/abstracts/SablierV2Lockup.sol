@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.19;
 
+import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
@@ -14,6 +15,7 @@ import { SablierV2Base } from "./SablierV2Base.sol";
 /// @title SablierV2Lockup
 /// @notice See the documentation in {ISablierV2Lockup}.
 abstract contract SablierV2Lockup is
+    IERC4906, // 2 inherited components
     SablierV2Base, // 4 inherited components
     ISablierV2Lockup, // 4 inherited components
     ERC721 // 6 inherited components
@@ -21,6 +23,9 @@ abstract contract SablierV2Lockup is
     /*//////////////////////////////////////////////////////////////////////////
                                   INTERNAL STORAGE
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Counter for stream ids, used in the create functions.
+    uint256 internal _nextStreamId;
 
     /// @dev Contract that generates the non-fungible token URI.
     ISablierV2NFTDescriptor internal _nftDescriptor;
@@ -54,6 +59,12 @@ abstract contract SablierV2Lockup is
         _;
     }
 
+    /// @dev Emits an ERC-4906 event to trigger an update of the NFT metadata.
+    modifier updateMetadata(uint256 streamId) {
+        _;
+        emit MetadataUpdate({ _tokenId: streamId });
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -79,7 +90,7 @@ abstract contract SablierV2Lockup is
         _requireMinted({ tokenId: streamId });
 
         // Generate the URI describing the stream NFT.
-        uri = _nftDescriptor.tokenURI(this, streamId);
+        uri = _nftDescriptor.tokenURI({ sablier: this, streamId: streamId });
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -119,7 +130,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId) public override noDelegateCall {
+    function cancel(uint256 streamId) public override noDelegateCall updateMetadata(streamId) {
         // Checks: the stream is neither depleted nor canceled. This also checks that the stream is not null.
         if (isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
@@ -152,7 +163,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) {
+    function renounce(uint256 streamId) external override noDelegateCall notNull(streamId) updateMetadata(streamId) {
         // Checks: the stream is not cold.
         Lockup.Status status = _statusOf(streamId);
         if (status == Lockup.Status.DEPLETED) {
@@ -184,10 +195,22 @@ abstract contract SablierV2Lockup is
             oldNFTDescriptor: oldNftDescriptor,
             newNFTDescriptor: newNFTDescriptor
         });
+
+        // Refresh the NFT metadata for all streams.
+        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: _nextStreamId - 1 });
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall {
+    function withdraw(
+        uint256 streamId,
+        address to,
+        uint128 amount
+    )
+        public
+        override
+        noDelegateCall
+        updateMetadata(streamId)
+    {
         // Checks: the stream is not depleted. This also checks that the stream is not null.
         if (isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
