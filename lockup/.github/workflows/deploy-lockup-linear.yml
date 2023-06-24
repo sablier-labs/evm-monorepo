@@ -48,6 +48,7 @@ jobs:
           --broadcast
           --rpc-url ${{ inputs.chain }}
           --sig "run(address,address,address)"
+          --verify
           "${{ inputs.admin }}"
           "${{ inputs.comptroller }}"
           "${{ inputs.nft-descriptor }}"

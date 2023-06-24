@@ -46,6 +46,7 @@ jobs:
           --broadcast
           --rpc-url "${{ inputs.chain }}"
           --sig "run(address,uint256)"
+          --verify
           "${{ inputs.admin }}"
           "${{ inputs.max-segment-count }}"
           -vvvv
