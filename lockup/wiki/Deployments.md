@@ -35,6 +35,7 @@ forge script script/DeployComptroller.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address)" \
+  --verify \
   ADMIN_ADDRESS
 ```
 
@@ -47,6 +48,7 @@ forge script script/DeployLockupDynamic.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address,address,address,uint256)" \
+  --verify \
   ADMIN_ADDRESS \
   COMPTROLLER_ADDRESS \
   NFT_DESCRIPTOR_ADDRESS \
@@ -62,6 +64,7 @@ forge script script/DeployLockupLinear.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address,address,address)" \
+  --verify \
   ADMIN_ADDRESS \
   COMPTROLLER_ADDRESS \
   NFT_DESCRIPTOR_ADDRESS
@@ -74,6 +77,7 @@ forge script script/DeployCore.s.sol \
   --broadcast \
   --rpc-url goerli \
   --sig "run(address,address,uint256)" \
+  --verify \
   ADMIN_ADDRESS \
   NFT_DESCRIPTOR_ADDRESS \
   MAX_SEGMENT_COUNT

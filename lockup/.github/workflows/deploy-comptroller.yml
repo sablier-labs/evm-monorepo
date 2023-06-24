@@ -42,6 +42,7 @@ jobs:
           --broadcast
           --rpc-url "${{ inputs.chain }}"
           --sig "run(address)"
+          --verify
           -vvvv
           "${{ inputs.admin }}"
 

@@ -37,6 +37,7 @@ jobs:
           forge script script/DeployNFTDescriptor.s.sol
           --broadcast
           --rpc-url "${{ inputs.chain }}"
+          --verify
           -vvvv
 
       - name: "Add workflow summary"
