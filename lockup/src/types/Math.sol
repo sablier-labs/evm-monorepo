@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.19;
 
-// This file simply re-exports all PRBMath types needed in v2-core. It is provided for convenience so
+// Math.sol
+//
+// This file re-exports all PRBMath types used in V2 Core. It is provided for convenience so
 // that users don't have to install PRBMath separately.
 
 import { SD59x18, sd, sd59x18 } from "@prb/math/SD59x18.sol";

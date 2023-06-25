@@ -5,6 +5,18 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
+// DataTypes.sol
+//
+// This file defines all structs used in V2 Core, most of which are organized under three namespaces:
+//
+// - Lockup
+// - LockupDynamic
+// - LockupLinear
+//
+// You will notice that some structs contain "slot" annotations - they are used to indicate the
+// storage layout of the struct. It is more gas efficient to group small data types together so
+// that they fit in a single 32-byte slot.
+
 /// @notice Struct encapsulating the broker parameters passed to the create functions. Both can be set to zero.
 /// @param account The address receiving the broker's fee.
 /// @param fee The broker's percentage fee from the total amount, denoted as a fixed-point number where 1e18 is 100%.
