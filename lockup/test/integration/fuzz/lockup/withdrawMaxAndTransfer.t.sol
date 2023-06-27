@@ -23,6 +23,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
         address newRecipient
     )
         external
+        whenNotDelegateCalled
         whenNotNull
         whenCallerCurrentRecipient
         whenNFTNotBurned

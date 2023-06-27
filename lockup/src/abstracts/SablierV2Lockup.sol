@@ -21,11 +21,15 @@ abstract contract SablierV2Lockup is
     ERC721 // 6 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
-                                  INTERNAL STORAGE
+                                USER-FACING STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Counter for stream ids, used in the create functions.
-    uint256 internal _nextStreamId;
+    /// @inheritdoc ISablierV2Lockup
+    uint256 public override nextStreamId;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  INTERNAL STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Contract that generates the non-fungible token URI.
     ISablierV2NFTDescriptor internal _nftDescriptor;
@@ -197,7 +201,7 @@ abstract contract SablierV2Lockup is
         });
 
         // Refresh the NFT metadata for all streams.
-        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: _nextStreamId - 1 });
+        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -246,7 +250,16 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function withdrawMaxAndTransfer(uint256 streamId, address newRecipient) external override notNull(streamId) {
+    function withdrawMaxAndTransfer(
+        uint256 streamId,
+        address newRecipient
+    )
+        external
+        override
+        noDelegateCall
+        notNull(streamId)
+        updateMetadata(streamId)
+    {
         // Checks: the caller is the current recipient. This also checks that the NFT was not burned.
         address currentRecipient = _ownerOf(streamId);
         if (msg.sender != currentRecipient) {

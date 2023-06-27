@@ -31,11 +31,7 @@ abstract contract SetNFTDescriptor_Integration_Basic_Test is Integration_Test, L
     }
 
     function test_SetNFTDescriptor_SameNFTDescriptor() external whenCallerAdmin {
-<<<<<<< HEAD
-        // Expect the relevant event to be emitted.
-=======
         // Expect the relevant events to be emitted.
->>>>>>> 9b5ea4f1 (feat: integrate ERC-4906)
         vm.expectEmit({ emitter: address(lockup) });
         emit SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
         vm.expectEmit({ emitter: address(lockup) });
@@ -53,11 +49,7 @@ abstract contract SetNFTDescriptor_Integration_Basic_Test is Integration_Test, L
         // Deploy another NFT descriptor.
         ISablierV2NFTDescriptor newNFTDescriptor = new SablierV2NFTDescriptor();
 
-<<<<<<< HEAD
-        // Expect the relevant event to be emitted.
-=======
         // Expect the relevant events to be emitted.
->>>>>>> 9b5ea4f1 (feat: integrate ERC-4906)
         vm.expectEmit({ emitter: address(lockup) });
         emit SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
         vm.expectEmit({ emitter: address(lockup) });

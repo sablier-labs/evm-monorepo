@@ -11,6 +11,10 @@ abstract contract WithdrawMaxAndTransfer_Integration_Shared_Test is Lockup_Integ
         changePrank({ msgSender: users.recipient });
     }
 
+    modifier whenNotDelegateCalled() {
+        _;
+    }
+
     modifier whenNotNull() {
         _;
     }

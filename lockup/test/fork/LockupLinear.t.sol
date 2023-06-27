@@ -321,11 +321,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
             vars.initialSenderBalance = vars.balances[1];
             vars.initialRecipientBalance = vars.balances[2];
 
-<<<<<<< HEAD
-            // Expect the relevant event to be emitted.
-=======
             // Expect the relevant events to be emitted.
->>>>>>> 9b5ea4f1 (feat: integrate ERC-4906)
             vm.expectEmit({ emitter: address(lockupLinear) });
             vars.senderAmount = lockupLinear.refundableAmountOf(vars.streamId);
             vars.recipientAmount = lockupLinear.withdrawableAmountOf(vars.streamId);
