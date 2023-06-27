@@ -102,7 +102,7 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function burn(uint256 streamId) external override noDelegateCall {
-        // Checks: only depleted streams can be burned.
+        // Checks: only depleted streams can be burned. This also checks that the stream is not null.
         if (!isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamNotDepleted(streamId);
         }
@@ -120,7 +120,7 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function cancel(uint256 streamId) public override noDelegateCall {
-        // Checks: the stream is neither depleted nor canceled.
+        // Checks: the stream is neither depleted nor canceled. This also checks that the stream is not null.
         if (isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
         } else if (wasCanceled(streamId)) {
@@ -188,7 +188,7 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function withdraw(uint256 streamId, address to, uint128 amount) public override noDelegateCall {
-        // Checks: the stream is not depleted.
+        // Checks: the stream is not depleted. This also checks that the stream is not null.
         if (isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
         }
@@ -219,7 +219,25 @@ abstract contract SablierV2Lockup is
 
     /// @inheritdoc ISablierV2Lockup
     function withdrawMax(uint256 streamId, address to) external override {
-        withdraw(streamId, to, _withdrawableAmountOf(streamId));
+        withdraw({ streamId: streamId, to: to, amount: _withdrawableAmountOf(streamId) });
+    }
+
+    /// @inheritdoc ISablierV2Lockup
+    function withdrawMaxAndTransfer(uint256 streamId, address newRecipient) external override notNull(streamId) {
+        // Checks: the caller is the current recipient. This also checks that the NFT was not burned.
+        address currentRecipient = _ownerOf(streamId);
+        if (msg.sender != currentRecipient) {
+            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+        }
+
+        // Skip the withdrawal if the withdrawable amount is zero.
+        uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
+        if (withdrawableAmount > 0) {
+            _withdraw({ streamId: streamId, to: currentRecipient, amount: withdrawableAmount });
+        }
+
+        // Checks and Effects: transfer the NFT.
+        _transfer({ from: currentRecipient, to: newRecipient, tokenId: streamId });
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -257,23 +275,21 @@ abstract contract SablierV2Lockup is
 
     /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party.
     /// @param streamId The stream id for the query.
-    function _isCallerStreamRecipientOrApproved(uint256 streamId) internal view returns (bool result) {
+    function _isCallerStreamRecipientOrApproved(uint256 streamId) internal view returns (bool) {
         address recipient = _ownerOf(streamId);
-        result = (
-            msg.sender == recipient || isApprovedForAll({ owner: recipient, operator: msg.sender })
-                || getApproved(streamId) == msg.sender
-        );
+        return msg.sender == recipient || isApprovedForAll({ owner: recipient, operator: msg.sender })
+            || getApproved(streamId) == msg.sender;
     }
 
     /// @notice Checks whether `msg.sender` is the stream's sender.
     /// @param streamId The stream id for the query.
-    function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool result);
+    function _isCallerStreamSender(uint256 streamId) internal view virtual returns (bool);
 
     /// @dev Retrieves the stream's status without performing a null check.
-    function _statusOf(uint256 streamId) internal view virtual returns (Lockup.Status status);
+    function _statusOf(uint256 streamId) internal view virtual returns (Lockup.Status);
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdrawableAmountOf(uint256 streamId) internal view virtual returns (uint128 withdrawableAmount);
+    function _withdrawableAmountOf(uint256 streamId) internal view virtual returns (uint128);
 
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS

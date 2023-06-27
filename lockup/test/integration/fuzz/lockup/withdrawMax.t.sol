@@ -68,7 +68,7 @@ abstract contract WithdrawMax_Integration_Fuzz_Test is Integration_Test, Withdra
         emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Make the max withdrawal.
-        lockup.withdrawMax(defaultStreamId, users.recipient);
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         // Assert that the withdrawn amount has been updated.
         uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);

@@ -71,15 +71,8 @@ library SVGElements {
                                      COMPONENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function card(
-        CardType cardType,
-        string memory content
-    )
-        internal
-        pure
-        returns (uint256 width, string memory card_)
-    {
-        (width, card_) = card(cardType, content, "");
+    function card(CardType cardType, string memory content) internal pure returns (uint256, string memory) {
+        return card({ cardType: cardType, content: content, circle: "" });
     }
 
     function card(

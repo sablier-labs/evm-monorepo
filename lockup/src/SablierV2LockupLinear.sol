@@ -300,7 +300,7 @@ contract SablierV2LockupLinear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculates the streamed amount without looking up the stream's status.
-    function _calculateStreamedAmount(uint256 streamId) internal view returns (uint128 streamedAmount) {
+    function _calculateStreamedAmount(uint256 streamId) internal view returns (uint128) {
         // If the cliff time is in the future, return zero.
         uint256 cliffTime = uint256(_streams[streamId].cliffTime);
         uint256 currentTime = block.timestamp;
@@ -329,27 +329,27 @@ contract SablierV2LockupLinear is
             UD60x18 depositedAmount = ud(_streams[streamId].amounts.deposited);
 
             // Calculate the streamed amount by multiplying the elapsed time percentage by the deposited amount.
-            UD60x18 streamedAmountUd = elapsedTimePercentage.mul(depositedAmount);
+            UD60x18 streamedAmount = elapsedTimePercentage.mul(depositedAmount);
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
             // without asserting to avoid locking funds in case of a bug. If this situation occurs, the withdrawn
             // amount is considered to be the streamed amount, and the stream is effectively frozen.
-            if (streamedAmountUd.gt(depositedAmount)) {
+            if (streamedAmount.gt(depositedAmount)) {
                 return _streams[streamId].amounts.withdrawn;
             }
 
             // Cast the streamed amount to uint128. This is safe due to the check above.
-            streamedAmount = uint128(streamedAmountUd.intoUint256());
+            return uint128(streamedAmount.intoUint256());
         }
     }
 
     /// @inheritdoc SablierV2Lockup
-    function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
-        result = msg.sender == _streams[streamId].sender;
+    function _isCallerStreamSender(uint256 streamId) internal view override returns (bool) {
+        return msg.sender == _streams[streamId].sender;
     }
 
     /// @inheritdoc SablierV2Lockup
-    function _statusOf(uint256 streamId) internal view override returns (Lockup.Status status) {
+    function _statusOf(uint256 streamId) internal view override returns (Lockup.Status) {
         if (_streams[streamId].isDepleted) {
             return Lockup.Status.DEPLETED;
         } else if (_streams[streamId].wasCanceled) {
@@ -361,14 +361,14 @@ contract SablierV2LockupLinear is
         }
 
         if (_calculateStreamedAmount(streamId) < _streams[streamId].amounts.deposited) {
-            status = Lockup.Status.STREAMING;
+            return Lockup.Status.STREAMING;
         } else {
-            status = Lockup.Status.SETTLED;
+            return Lockup.Status.SETTLED;
         }
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
+    function _streamedAmountOf(uint256 streamId) internal view returns (uint128) {
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
 
         if (_streams[streamId].isDepleted) {
@@ -377,12 +377,12 @@ contract SablierV2LockupLinear is
             return amounts.deposited - amounts.refunded;
         }
 
-        streamedAmount = _calculateStreamedAmount(streamId);
+        return _calculateStreamedAmount(streamId);
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdrawableAmountOf(uint256 streamId) internal view override returns (uint128 withdrawableAmount) {
-        withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
+    function _withdrawableAmountOf(uint256 streamId) internal view override returns (uint128) {
+        return _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

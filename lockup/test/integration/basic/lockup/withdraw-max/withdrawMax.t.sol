@@ -64,7 +64,7 @@ abstract contract WithdrawMax_Integration_Basic_Test is Integration_Test, Withdr
         emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
         // Make the max withdrawal.
-        lockup.withdrawMax(defaultStreamId, users.recipient);
+        lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         // Assert that the stream's status is still "STREAMING".
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);

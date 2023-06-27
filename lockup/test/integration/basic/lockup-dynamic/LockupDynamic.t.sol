@@ -35,6 +35,8 @@ import { StatusOf_Integration_Basic_Test } from "../lockup/status-of/statusOf.t.
 import { Withdraw_Integration_Basic_Test } from "../lockup/withdraw/withdraw.t.sol";
 import { WasCanceled_Integration_Basic_Test } from "../lockup/was-canceled/wasCanceled.t.sol";
 import { WithdrawMax_Integration_Basic_Test } from "../lockup/withdraw-max/withdrawMax.t.sol";
+import { WithdrawMaxAndTransfer_Integration_Basic_Test } from
+    "../lockup/withdraw-max-and-transfer/withdrawMaxAndTransfer.t.sol";
 import { WithdrawMultiple_Integration_Basic_Test } from "../lockup/withdraw-multiple/withdrawMultiple.t.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -372,6 +374,20 @@ contract WithdrawMax_LockupDynamic_Integration_Basic_Test is
     {
         LockupDynamic_Integration_Basic_Test.setUp();
         WithdrawMax_Integration_Basic_Test.setUp();
+    }
+}
+
+contract WithdrawMaxAndTransfer_LockupDynamic_Integration_Basic_Test is
+    LockupDynamic_Integration_Basic_Test,
+    WithdrawMaxAndTransfer_Integration_Basic_Test
+{
+    function setUp()
+        public
+        virtual
+        override(LockupDynamic_Integration_Basic_Test, WithdrawMaxAndTransfer_Integration_Basic_Test)
+    {
+        LockupDynamic_Integration_Basic_Test.setUp();
+        WithdrawMaxAndTransfer_Integration_Basic_Test.setUp();
     }
 }
 

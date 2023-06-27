@@ -310,7 +310,7 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Calculates the streamed amount without looking up the stream's status.
-    function _calculateStreamedAmount(uint256 streamId) internal view returns (uint128 streamedAmount) {
+    function _calculateStreamedAmount(uint256 streamId) internal view returns (uint128) {
         // If the start time is in the future, return zero.
         uint40 currentTime = uint40(block.timestamp);
         if (_streams[streamId].startTime >= currentTime) {
@@ -325,10 +325,10 @@ contract SablierV2LockupDynamic is
 
         if (_streams[streamId].segments.length > 1) {
             // If there is more than one segment, it may be necessary to iterate over all of them.
-            streamedAmount = _calculateStreamedAmountForMultipleSegments(streamId);
+            return _calculateStreamedAmountForMultipleSegments(streamId);
         } else {
             // Otherwise, there is only one segment, and the calculation is simpler.
-            streamedAmount = _calculateStreamedAmountForOneSegment(streamId);
+            return _calculateStreamedAmountForOneSegment(streamId);
         }
     }
 
@@ -340,11 +340,7 @@ contract SablierV2LockupDynamic is
     /// 2. The stream's start time must be in the past so that the calculations below do not overflow.
     /// 3. The stream's end time must be in the future so that the the loop below does not panic with an "index out of
     /// bounds" error.
-    function _calculateStreamedAmountForMultipleSegments(uint256 streamId)
-        internal
-        view
-        returns (uint128 streamedAmount)
-    {
+    function _calculateStreamedAmountForMultipleSegments(uint256 streamId) internal view returns (uint128) {
         unchecked {
             uint40 currentTime = uint40(block.timestamp);
             LockupDynamic.Stream memory stream = _streams[streamId];
@@ -397,13 +393,13 @@ contract SablierV2LockupDynamic is
 
             // Calculate the total streamed amount by adding the previous segment amounts and the amount streamed in
             // the current segment. Casting to uint128 is safe due to the if statement above.
-            streamedAmount = previousSegmentAmounts + uint128(segmentStreamedAmount.intoUint256());
+            return previousSegmentAmounts + uint128(segmentStreamedAmount.intoUint256());
         }
     }
 
     /// @dev Calculates the streamed amount for a a stream with one segment. Normalization to 18 decimals is not
     /// needed because there is no mix of amounts with different decimals.
-    function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128 streamedAmount) {
+    function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128) {
         unchecked {
             // Calculate how much time has passed since the stream started, and the stream's total duration.
             SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
@@ -418,27 +414,27 @@ contract SablierV2LockupDynamic is
 
             // Calculate the streamed amount using the special formula.
             SD59x18 multiplier = elapsedTimePercentage.pow(exponent);
-            SD59x18 streamedAmountSd = multiplier.mul(depositedAmount);
+            SD59x18 streamedAmount = multiplier.mul(depositedAmount);
 
             // Although the streamed amount should never exceed the deposited amount, this condition is checked
             // without asserting to avoid locking funds in case of a bug. If this situation occurs, the withdrawn
             // amount is considered to be the streamed amount, and the stream is effectively frozen.
-            if (streamedAmountSd.gt(depositedAmount)) {
+            if (streamedAmount.gt(depositedAmount)) {
                 return _streams[streamId].amounts.withdrawn;
             }
 
             // Cast the streamed amount to uint128. This is safe due to the check above.
-            streamedAmount = uint128(streamedAmountSd.intoUint256());
+            return uint128(streamedAmount.intoUint256());
         }
     }
 
     /// @inheritdoc SablierV2Lockup
-    function _isCallerStreamSender(uint256 streamId) internal view override returns (bool result) {
-        result = msg.sender == _streams[streamId].sender;
+    function _isCallerStreamSender(uint256 streamId) internal view override returns (bool) {
+        return msg.sender == _streams[streamId].sender;
     }
 
     /// @inheritdoc SablierV2Lockup
-    function _statusOf(uint256 streamId) internal view override returns (Lockup.Status status) {
+    function _statusOf(uint256 streamId) internal view override returns (Lockup.Status) {
         if (_streams[streamId].isDepleted) {
             return Lockup.Status.DEPLETED;
         } else if (_streams[streamId].wasCanceled) {
@@ -450,14 +446,14 @@ contract SablierV2LockupDynamic is
         }
 
         if (_calculateStreamedAmount(streamId) < _streams[streamId].amounts.deposited) {
-            status = Lockup.Status.STREAMING;
+            return Lockup.Status.STREAMING;
         } else {
-            status = Lockup.Status.SETTLED;
+            return Lockup.Status.SETTLED;
         }
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _streamedAmountOf(uint256 streamId) internal view returns (uint128 streamedAmount) {
+    function _streamedAmountOf(uint256 streamId) internal view returns (uint128) {
         Lockup.Amounts memory amounts = _streams[streamId].amounts;
 
         if (_streams[streamId].isDepleted) {
@@ -466,12 +462,12 @@ contract SablierV2LockupDynamic is
             return amounts.deposited - amounts.refunded;
         }
 
-        streamedAmount = _calculateStreamedAmount(streamId);
+        return _calculateStreamedAmount(streamId);
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdrawableAmountOf(uint256 streamId) internal view override returns (uint128 withdrawableAmount) {
-        withdrawableAmount = _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
+    function _withdrawableAmountOf(uint256 streamId) internal view override returns (uint128) {
+        return _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

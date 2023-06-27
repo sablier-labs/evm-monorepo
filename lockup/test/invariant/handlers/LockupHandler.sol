@@ -257,8 +257,48 @@ abstract contract LockupHandler is BaseHandler {
             to = currentRecipient;
         }
 
-        // Withdraw everything from the stream.
+        // Make the max withdrawal.
         lockup.withdrawMax({ streamId: currentStreamId, to: to });
+    }
+
+    function withdrawMaxAndTransfer(
+        uint256 timeJumpSeed,
+        uint256 streamIndexSeed,
+        address newRecipient
+    )
+        external
+        instrument("withdrawMaxAndTransfer")
+        adjustTimestamp(timeJumpSeed)
+        useFuzzedStream(streamIndexSeed)
+        useFuzzedStreamRecipient
+    {
+        // Pending and depleted streams cannot be withdrawn from.
+        Lockup.Status status = lockup.statusOf(currentStreamId);
+        if (status == Lockup.Status.PENDING || status == Lockup.Status.DEPLETED) {
+            return;
+        }
+
+        // OpenZeppelin's ERC-721 implementation doesn't allow the new recipient to be the zero address.
+        if (newRecipient == address(0)) {
+            return;
+        }
+
+        // Skip burned NFTs.
+        if (currentRecipient == address(0)) {
+            return;
+        }
+
+        // The protocol doesn't allow a zero amount to be withdrawn.
+        uint128 withdrawableAmount = lockup.withdrawableAmountOf(currentStreamId);
+        if (withdrawableAmount == 0) {
+            return;
+        }
+
+        // Make the max withdrawal and transfer the NFT.
+        lockup.withdrawMaxAndTransfer({ streamId: currentStreamId, newRecipient: newRecipient });
+
+        // Update the recipient associated with this stream id.
+        lockupStore.updateRecipient(currentStreamId, newRecipient);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
