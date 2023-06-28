@@ -11,11 +11,11 @@
     "url": "https://github.com/sablier-labs/v2-core/issues"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "4.9.0",
+    "@openzeppelin/contracts": "4.9.2",
     "@prb/math": "4.0.1"
   },
   "devDependencies": {
-    "prettier": "^2.8.7",
+    "prettier": "^2.8.8",
     "solhint": "^3.4.1"
   },
   "files": [
