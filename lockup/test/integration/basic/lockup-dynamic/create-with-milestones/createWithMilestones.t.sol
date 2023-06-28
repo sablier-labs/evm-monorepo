@@ -102,7 +102,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Basic_Test is
         LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].milestone = defaults.START_TIME() - 1 seconds;
 
-        // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
@@ -128,7 +128,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Basic_Test is
         LockupDynamic.Segment[] memory segments = defaults.segments();
         segments[0].milestone = defaults.START_TIME();
 
-        // Expect a {StartTimeNotLessThanFirstSegmentMilestone} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
@@ -155,7 +155,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Basic_Test is
         LockupDynamic.Segment[] memory segments = defaults.segments();
         (segments[0].milestone, segments[1].milestone) = (segments[1].milestone, segments[0].milestone);
 
-        // Expect a {SegmentMilestonesNotOrdered} error.
+        // Expect the relevant error to be thrown.
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -214,7 +214,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Basic_Test is
         params.broker = Broker({ account: address(0), fee: brokerFee });
         params.totalAmount = depositAmount;
 
-        // Expect a {DepositAmountNotEqualToSegmentAmountsSum} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum.selector,
@@ -361,7 +361,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Basic_Test is
             amount: defaults.BROKER_FEE_AMOUNT()
         });
 
-        // Expect a {CreateLockupDynamicStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupDynamic) });
         emit CreateLockupDynamicStream({
             streamId: streamId,

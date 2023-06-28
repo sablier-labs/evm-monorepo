@@ -13,7 +13,7 @@ contract SetProtocolFee_Integration_Fuzz_Test is Integration_Test {
     function testFuzz_SetProtocolFee(UD60x18 newProtocolFee) external whenCallerAdmin {
         newProtocolFee = _bound(newProtocolFee, 1, MAX_FEE);
 
-        // Expect a {SetProtocolFee} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
         emit SetProtocolFee({ admin: users.admin, asset: dai, oldProtocolFee: ZERO, newProtocolFee: newProtocolFee });
 

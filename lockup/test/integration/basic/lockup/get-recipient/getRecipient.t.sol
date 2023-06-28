@@ -36,7 +36,7 @@ abstract contract GetRecipient_Integration_Basic_Test is Integration_Test, Locku
         // Burn the NFT.
         lockup.burn(defaultStreamId);
 
-        // Expect an error when retrieving the recipient.
+        // Expect the relevant error when retrieving the recipient.
         vm.expectRevert("ERC721: invalid token ID");
         lockup.getRecipient(defaultStreamId);
     }

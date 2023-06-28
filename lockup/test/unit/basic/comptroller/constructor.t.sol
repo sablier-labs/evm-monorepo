@@ -7,7 +7,7 @@ import { Base_Test } from "../../../Base.t.sol";
 
 contract Constructor_Comptroller_Unit_Basic_Test is Base_Test {
     function test_Constructor() external {
-        // Expect a {TransferAdmin} to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit();
         emit TransferAdmin({ oldAdmin: address(0), newAdmin: users.admin });
 

@@ -294,7 +294,7 @@ abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_
         // Expect the assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
 
-        // Expect a {WithdrawFromLockupStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
 
@@ -489,7 +489,7 @@ abstract contract Withdraw_Integration_Basic_Test is Integration_Test, Withdraw_
             )
         );
 
-        // Expect a {WithdrawFromLockupStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
 

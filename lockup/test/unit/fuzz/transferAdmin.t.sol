@@ -25,7 +25,7 @@ contract TransferAdmin_Unit_Fuzz_Test is Adminable_Unit_Shared_Test {
     function testFuzz_TransferAdmin(address newAdmin) external whenCallerAdmin {
         vm.assume(newAdmin != address(0));
 
-        // Expect a {TransferAdmin} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(adminableMock) });
         emit TransferAdmin({ oldAdmin: users.admin, newAdmin: newAdmin });
 

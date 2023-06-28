@@ -281,7 +281,7 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
             )
         );
 
-        // Expect a {CancelLockupStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamId, users.sender, address(goodRecipient), senderAmount, recipientAmount);
 
@@ -456,7 +456,7 @@ abstract contract Cancel_Integration_Basic_Test is Integration_Test, Cancel_Inte
             )
         );
 
-        // Expect a {CancelLockupStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit CancelLockupStream(streamId, address(goodSender), users.recipient, senderAmount, recipientAmount);
 

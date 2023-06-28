@@ -107,14 +107,14 @@ contract FlashLoanFunction_Integration_Basic_Test is FlashLoanFunction_Integrati
         // Mint the flash fee to the receiver so that they can repay the flash loan.
         deal({ token: address(dai), to: address(goodFlashLoanReceiver), give: fee });
 
-        // Expect `amount` of assets to be transferred from {SablierV2FlashLoan} to the receiver.
+        // Expect `amount` of assets to be transferred to the receiver.
         expectCallToTransfer({ to: address(goodFlashLoanReceiver), amount: LIQUIDITY_AMOUNT });
 
         // Expect `amount+fee` of assets to be transferred back from the receiver.
         uint256 returnAmount = LIQUIDITY_AMOUNT + fee;
         expectCallToTransferFrom({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
 
-        // Expect a {FlashLoan} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(flashLoan) });
         bytes memory data = bytes("Hello World");
         emit FlashLoan({

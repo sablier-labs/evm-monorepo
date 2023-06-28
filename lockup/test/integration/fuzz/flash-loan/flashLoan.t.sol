@@ -85,7 +85,7 @@ contract FlashLoanFunction_Integration_Fuzz_Test is FlashLoanFunction_Integratio
         uint256 returnAmount = amount + fee;
         expectCallToTransferFrom({ from: address(goodFlashLoanReceiver), to: address(flashLoan), amount: returnAmount });
 
-        // Expect a {FlashLoan} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(flashLoan) });
         emit FlashLoan({
             initiator: users.admin,

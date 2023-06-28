@@ -30,7 +30,7 @@ contract CreateWithDurations_LockupLinear_Integration_Basic_Test is
 
     function test_RevertWhen_CliffDurationCalculationOverflows() external whenNotDelegateCalled {
         uint40 startTime = getBlockTimestamp();
-        uint40 cliffDuration = MAX_UINT40 - startTime + 1;
+        uint40 cliffDuration = MAX_UINT40 - startTime + 1 seconds;
 
         // Calculate the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -38,7 +38,7 @@ contract CreateWithDurations_LockupLinear_Integration_Basic_Test is
             cliffTime = startTime + cliffDuration;
         }
 
-        // Expect a {StartTimeGreaterThanCliffTime} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime
@@ -59,7 +59,7 @@ contract CreateWithDurations_LockupLinear_Integration_Basic_Test is
     {
         uint40 startTime = getBlockTimestamp();
         LockupLinear.Durations memory durations =
-            LockupLinear.Durations({ cliff: 0, total: MAX_UINT40 - startTime + 1 });
+            LockupLinear.Durations({ cliff: 0, total: MAX_UINT40 - startTime + 1 seconds });
 
         // Calculate the cliff time and the end time. Needs to be "unchecked" to avoid an overflow.
         uint40 cliffTime;
@@ -69,7 +69,7 @@ contract CreateWithDurations_LockupLinear_Integration_Basic_Test is
             endTime = startTime + durations.total;
         }
 
-        // Expect a {CliffTimeNotLessThanEndTime} error.
+        // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
@@ -110,7 +110,7 @@ contract CreateWithDurations_LockupLinear_Integration_Basic_Test is
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
 
-        // Expect a {CreateLockupLinearStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupLinear) });
         emit CreateLockupLinearStream({
             streamId: streamId,

@@ -182,7 +182,7 @@ contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
             expectCallToTransferFrom({ from: funder, to: params.broker.account, amount: vars.createAmounts.brokerFee });
         }
 
-        // Expect a {CreateLockupLinearStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupLinear) });
         emit CreateLockupLinearStream({
             streamId: streamId,

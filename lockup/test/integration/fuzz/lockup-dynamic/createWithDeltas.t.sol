@@ -82,7 +82,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
             end: vars.segmentsWithMilestones[vars.segmentsWithMilestones.length - 1].milestone
         });
 
-        // Expect a {CreateLockupDynamicStream} event to be emitted.
+        // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupDynamic) });
         emit CreateLockupDynamicStream({
             streamId: streamId,
