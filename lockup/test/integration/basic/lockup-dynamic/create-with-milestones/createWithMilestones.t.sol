@@ -2,8 +2,7 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
-import { UD2x18 } from "@prb/math/UD2x18.sol";
+import { UD60x18, ud, ZERO } from "@prb/math/UD60x18.sol";
 import { stdError } from "forge-std/StdError.sol";
 
 import { Errors } from "src/libraries/Errors.sol";

@@ -3,8 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { StdInvariant } from "forge-std/StdInvariant.sol";
 
-import { SablierV2Comptroller } from "src/SablierV2Comptroller.sol";
-
 import { Base_Test } from "../Base.t.sol";
 import { ComptrollerHandler } from "./handlers/ComptrollerHandler.sol";
 import { TimestampStore } from "./stores/TimestampStore.sol";

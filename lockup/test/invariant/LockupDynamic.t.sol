@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { SablierV2LockupDynamic } from "src/SablierV2LockupDynamic.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
 import { Lockup_Invariant_Test } from "./Lockup.t.sol";
 import { LockupDynamicCreateHandler } from "./handlers/LockupDynamicCreateHandler.sol";
 import { LockupDynamicHandler } from "./handlers/LockupDynamicHandler.sol";
 
-/// @dev Invariant tests for for {SablierV2LockupDynamic}.
+/// @dev Invariant tests for {SablierV2LockupDynamic}.
 contract LockupDynamic_Invariant_Test is Lockup_Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { UD60x18 } from "@prb/math/UD60x18.sol";
-
 import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 
 import { LockupLinear_Integration_Basic_Test } from "./LockupLinear.t.sol";

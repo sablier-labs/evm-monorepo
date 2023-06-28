@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { Errors } from "src/libraries/Errors.sol";
-
 import { LockupDynamic_Integration_Basic_Test } from "../LockupDynamic.t.sol";
 import { WithdrawableAmountOf_Integration_Basic_Test } from
     "../../lockup/withdrawable-amount-of/withdrawableAmountOf.t.sol";

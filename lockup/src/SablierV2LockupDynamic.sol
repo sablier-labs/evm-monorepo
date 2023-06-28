@@ -331,7 +331,7 @@ contract SablierV2LockupDynamic is
     ///
     /// 1. Normalization to 18 decimals is not needed because there is no mix of amounts with different decimals.
     /// 2. The stream's start time must be in the past so that the calculations below do not overflow.
-    /// 3. The stream's end time must be in the future so that the the loop below does not panic with an "index out of
+    /// 3. The stream's end time must be in the future so that the loop below does not panic with an "index out of
     /// bounds" error.
     function _calculateStreamedAmountForMultipleSegments(uint256 streamId) internal view returns (uint128) {
         unchecked {
