@@ -46,7 +46,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @param streamId The stream id for the query.
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
-    /// @notice Retrieves the range of the stream, a struct containing (i) the stream's start time, (ii) cliff
+    /// @notice Retrieves the stream's range, which is a struct containing (i) the stream's start time, (ii) cliff
     /// time, and (iii) end time, all as Unix timestamps.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
@@ -87,7 +87,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// the sum of `block.timestamp` and `params.durations.total. The stream is funded by `msg.sender` and is wrapped
     /// in an ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
+    /// @dev Emits a {Transfer} and {CreateLockupLinearStream} event.
     ///
     /// Requirements:
     /// - All requirements in {createWithRange} must be met for the calculated parameters.
@@ -101,7 +101,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @notice Creates a stream with the provided start time and end time as the range. The stream is
     /// funded by `msg.sender` and is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateLockupLinearStream} and a {Transfer} event.
+    /// @dev Emits a {Transfer} and {CreateLockupLinearStream} event.
     ///
     /// Notes:
     /// - As long as the times are ordered, it is not an error for the start or the cliff time to be in the past.

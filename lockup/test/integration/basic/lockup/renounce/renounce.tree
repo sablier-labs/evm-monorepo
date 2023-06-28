@@ -36,4 +36,5 @@ renounce.t.sol
                      └── when there is no reentrancy
                         ├── it should renounce the stream
                         ├── it should call the recipient hook
-                        └── it should emit a {RenounceLockupStream} event
+                        ├── it should emit a {RenounceLockupStream} event
+                        └── it should emit a {MetadataUpdate} event

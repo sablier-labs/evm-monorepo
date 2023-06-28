@@ -58,7 +58,8 @@ cancel.t.sol
                   │              ├── it should update the refunded amount
                   │              ├── it should refund the sender
                   │              ├── it should call the recipient hook
-                  │              └── it should emit a {CancelLockupStream} event
+                  │              ├── it should emit a {CancelLockupStream} event
+                  │              └── it should emit a {MetadataUpdate} event
                   └── when the caller is the recipient
                      ├── when the sender is not a contract
                      │  ├── it should cancel the stream
@@ -88,4 +89,5 @@ cancel.t.sol
                                     ├── it should update the refunded amount
                                     ├── it should refund the sender
                                     ├── it should call the sender hook
+                                    ├── it should emit a {MetadataUpdate} event
                                     └── it should emit a {CancelLockupStream} event

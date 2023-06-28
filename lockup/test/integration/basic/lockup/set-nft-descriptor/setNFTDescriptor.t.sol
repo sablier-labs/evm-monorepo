@@ -31,9 +31,11 @@ abstract contract SetNFTDescriptor_Integration_Basic_Test is Integration_Test, L
     }
 
     function test_SetNFTDescriptor_SameNFTDescriptor() external whenCallerAdmin {
-        // Expect the relevant event to be emitted.
+        // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit SetNFTDescriptor(users.admin, nftDescriptor, nftDescriptor);
+        vm.expectEmit({ emitter: address(lockup) });
+        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: lockup.nextStreamId() - 1 });
 
         // Re-set the NFT descriptor.
         lockup.setNFTDescriptor(nftDescriptor);
@@ -44,12 +46,14 @@ abstract contract SetNFTDescriptor_Integration_Basic_Test is Integration_Test, L
     }
 
     function test_SetNFTDescriptor_NewNFTDescriptor() external whenCallerAdmin {
-        // Deploy the new NFT descriptor.
+        // Deploy another NFT descriptor.
         ISablierV2NFTDescriptor newNFTDescriptor = new SablierV2NFTDescriptor();
 
-        // Expect the relevant event to be emitted.
+        // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit SetNFTDescriptor(users.admin, nftDescriptor, newNFTDescriptor);
+        vm.expectEmit({ emitter: address(lockup) });
+        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: lockup.nextStreamId() - 1 });
 
         // Set the new NFT descriptor.
         lockup.setNFTDescriptor(newNFTDescriptor);

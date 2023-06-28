@@ -216,9 +216,11 @@ abstract contract Renounce_Integration_Basic_Test is Integration_Test, Lockup_In
         // Expect a call to the hook.
         vm.expectCall(address(goodRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
 
-        // Expect the relevant event to be emitted.
+        // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit RenounceLockupStream(streamId);
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: streamId });
 
         // Renounce the stream.
         lockup.renounce(streamId);

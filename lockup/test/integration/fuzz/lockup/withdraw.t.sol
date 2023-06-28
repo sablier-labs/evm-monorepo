@@ -85,9 +85,11 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         // Expect the assets to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: to, amount: withdrawAmount });
 
-        // Expect the relevant event to be emitted.
+        // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream(defaultStreamId, to, withdrawAmount);
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: defaultStreamId });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: to, amount: withdrawAmount });
@@ -147,9 +149,11 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         // Expect the assets to be transferred to the fuzzed `to` address.
         expectCallToTransfer({ to: to, amount: withdrawAmount });
 
-        // Expect the relevant event to be emitted.
+        // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream(defaultStreamId, to, withdrawAmount);
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: defaultStreamId });
 
         // Make the withdrawal.
         lockup.withdraw(defaultStreamId, to, withdrawAmount);

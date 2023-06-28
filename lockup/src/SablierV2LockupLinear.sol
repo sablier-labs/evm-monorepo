@@ -47,9 +47,6 @@ contract SablierV2LockupLinear is
                                   PRIVATE STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Counter for stream ids, used in the create functions.
-    uint256 private _nextStreamId;
-
     /// @dev Sablier V2 Lockup Linear streams mapped by unsigned integers.
     mapping(uint256 id => LockupLinear.Stream stream) private _streams;
 
@@ -69,7 +66,7 @@ contract SablierV2LockupLinear is
         ERC721("Sablier V2 Lockup Linear NFT", "SAB-V2-LOCKUP-LIN")
         SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor)
     {
-        _nextStreamId = 1;
+        nextStreamId = 1;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -198,11 +195,6 @@ contract SablierV2LockupLinear is
     function isWarm(uint256 streamId) external view override notNull(streamId) returns (bool result) {
         Lockup.Status status = _statusOf(streamId);
         result = status == Lockup.Status.PENDING || status == Lockup.Status.STREAMING;
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function nextStreamId() external view override returns (uint256) {
-        return _nextStreamId;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -478,7 +470,7 @@ contract SablierV2LockupLinear is
         Helpers.checkCreateWithRange(createAmounts.deposit, params.range);
 
         // Load the stream id.
-        streamId = _nextStreamId;
+        streamId = nextStreamId;
 
         // Effects: create the stream.
         _streams[streamId] = LockupLinear.Stream({
@@ -497,7 +489,7 @@ contract SablierV2LockupLinear is
         // Effects: bump the next stream id and record the protocol fee.
         // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
         unchecked {
-            _nextStreamId = streamId + 1;
+            nextStreamId = streamId + 1;
             protocolRevenues[params.asset] = protocolRevenues[params.asset] + createAmounts.protocolFee;
         }
 

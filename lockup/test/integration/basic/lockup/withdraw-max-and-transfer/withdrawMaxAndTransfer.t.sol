@@ -2,6 +2,7 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
@@ -16,13 +17,19 @@ abstract contract WithdrawMaxAndTransfer_Integration_Basic_Test is
         WithdrawMaxAndTransfer_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertWhen_DelegateCalled() external {
+        bytes memory callData = abi.encodeCall(ISablierV2Lockup.withdrawMaxAndTransfer, (defaultStreamId, users.alice));
+        (bool success, bytes memory returnData) = address(lockup).delegatecall(callData);
+        expectRevertDueToDelegateCall(success, returnData);
+    }
+
+    function test_RevertWhen_Null() external whenNotDelegateCalled {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.withdrawMaxAndTransfer({ streamId: nullStreamId, newRecipient: users.recipient });
     }
 
-    function test_RevertWhen_CallerNotCurrentRecipient() external whenNotNull {
+    function test_RevertWhen_CallerNotCurrentRecipient() external whenNotDelegateCalled whenNotNull {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
 
@@ -33,7 +40,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Basic_Test is
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.eve });
     }
 
-    function test_RevertWhen_NFTBurned() external whenNotNull whenCallerCurrentRecipient {
+    function test_RevertWhen_NFTBurned() external whenNotDelegateCalled whenNotNull whenCallerCurrentRecipient {
         // Deplete the stream.
         vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
@@ -50,6 +57,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Basic_Test is
 
     function test_WithdrawMaxAndTransfer_WithdrawableAmountZero()
         external
+        whenNotDelegateCalled
         whenNotNull
         whenCallerCurrentRecipient
         whenNFTNotBurned
@@ -61,6 +69,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Basic_Test is
 
     function test_WithdrawMaxAndTransfer()
         external
+        whenNotDelegateCalled
         whenNotNull
         whenCallerCurrentRecipient
         whenNFTNotBurned

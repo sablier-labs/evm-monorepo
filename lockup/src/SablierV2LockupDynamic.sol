@@ -59,9 +59,6 @@ contract SablierV2LockupDynamic is
                                   PRIVATE STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Counter for stream ids, used in the create functions.
-    uint256 private _nextStreamId;
-
     /// @dev Sablier V2 Lockup Dynamic streams mapped by unsigned integer ids.
     mapping(uint256 id => LockupDynamic.Stream stream) private _streams;
 
@@ -84,7 +81,7 @@ contract SablierV2LockupDynamic is
         SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor)
     {
         MAX_SEGMENT_COUNT = maxSegmentCount;
-        _nextStreamId = 1;
+        nextStreamId = 1;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -215,11 +212,6 @@ contract SablierV2LockupDynamic is
     function isWarm(uint256 streamId) external view override notNull(streamId) returns (bool result) {
         Lockup.Status status = _statusOf(streamId);
         result = status == Lockup.Status.PENDING || status == Lockup.Status.STREAMING;
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function nextStreamId() external view override returns (uint256) {
-        return _nextStreamId;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -566,7 +558,7 @@ contract SablierV2LockupDynamic is
         Helpers.checkCreateWithMilestones(createAmounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
         // Load the stream id in a variable.
-        streamId = _nextStreamId;
+        streamId = nextStreamId;
 
         // Effects: create the stream.
         LockupDynamic.Stream storage stream = _streams[streamId];
@@ -590,7 +582,7 @@ contract SablierV2LockupDynamic is
 
             // Effects: bump the next stream id and record the protocol fee.
             // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
-            _nextStreamId = streamId + 1;
+            nextStreamId = streamId + 1;
             protocolRevenues[params.asset] = protocolRevenues[params.asset] + createAmounts.protocolFee;
         }
 
