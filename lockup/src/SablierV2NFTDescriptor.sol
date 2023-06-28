@@ -299,10 +299,12 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
     /// @notice Retrieves the asset's decimals safely, defaulting to "0" if an error occurs.
     /// @dev Performs a low-level call to handle assets in which the decimals are not implemented.
-    function safeAssetDecimals(address asset) internal view returns (uint8 decimals) {
+    function safeAssetDecimals(address asset) internal view returns (uint8) {
         (bool success, bytes memory returnData) = asset.staticcall(abi.encodeCall(IERC20Metadata.decimals, ()));
         if (success && returnData.length == 32) {
-            decimals = abi.decode(returnData, (uint8));
+            return abi.decode(returnData, (uint8));
+        } else {
+            return 0;
         }
     }
 
@@ -310,14 +312,22 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
     /// @dev Performs a low-level call to handle assets in which the symbol is not implemented or it is a bytes32
     /// instead of a string.
     function safeAssetSymbol(address asset) internal view returns (string memory) {
-        (bool success, bytes memory symbol) = asset.staticcall(abi.encodeCall(IERC20Metadata.symbol, ()));
+        (bool success, bytes memory returnData) = asset.staticcall(abi.encodeCall(IERC20Metadata.symbol, ()));
 
         // Non-empty strings have a length greater than 64, and bytes32 has length 32.
-        if (!success || symbol.length <= 64) {
+        if (!success || returnData.length <= 64) {
             return "ERC20";
         }
 
-        return abi.decode(symbol, (string));
+        string memory symbol = abi.decode(returnData, (string));
+
+        // The length check is a precautionary measure to help mitigate potential security threats from malicious assets
+        // injecting scripts in the symbol string.
+        if (bytes(symbol).length > 30) {
+            return "Long Symbol";
+        } else {
+            return symbol;
+        }
     }
 
     /// @notice Converts the provided fractional amount to a string prefixed by a dot.

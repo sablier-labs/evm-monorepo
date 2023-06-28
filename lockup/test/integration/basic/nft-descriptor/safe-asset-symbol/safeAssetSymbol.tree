@@ -1,5 +1,8 @@
 safeAssetSymbol.t.sol
 ├── when the call reverts
-│  └── it should return the hard-coded value
-└── when the NFT contract is known
-   └── it should return the symbol
+│  └── it should return a hard-coded value
+└── when the call does not revert
+   ├── when the symbol is long
+   │  └── it should return a hard-coded value
+   └── when the symbol is not long
+      └── it should return the correct value
