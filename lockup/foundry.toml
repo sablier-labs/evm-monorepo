@@ -12,7 +12,7 @@
     "SablierV2NFTDescriptor",
   ]
   optimizer = true
-  optimizer_runs = 4000
+  optimizer_runs = 1000
   out = "out"
   script = "script"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"

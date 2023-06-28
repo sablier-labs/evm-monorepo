@@ -156,7 +156,7 @@ library NFTSVG {
         return string.concat(
             '<use href="#Glow" fill-opacity=".9"/>',
             '<use href="#Glow" x="1000" y="1000" fill-opacity=".9"/>',
-            '<use href="#Logo" x="170" y="170" transform="scale(.6)" />'
+            '<use href="#Logo" x="170" y="170" transform="scale(.6)"/>'
             '<use href="#Hourglass" x="150" y="90" transform="rotate(10)" transform-origin="500 500"/>',
             '<use href="#Progress" x="',
             progressXPosition.toString(),
