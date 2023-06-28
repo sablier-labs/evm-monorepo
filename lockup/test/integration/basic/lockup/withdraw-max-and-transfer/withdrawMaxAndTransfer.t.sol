@@ -82,11 +82,9 @@ abstract contract WithdrawMaxAndTransfer_Integration_Basic_Test is
         // Expect the assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
 
-        // Expect a {WithdrawFromLockupStream} event to be emitted.
+        // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
-
-        // Expect a {Transfer} event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
         emit Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
 
