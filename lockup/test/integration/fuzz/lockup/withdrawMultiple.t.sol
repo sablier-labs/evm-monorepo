@@ -3,7 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { Solarray } from "solarray/Solarray.sol";
 
-import { Errors } from "src/libraries/Errors.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { WithdrawMultiple_Integration_Shared_Test } from "../../shared/lockup/withdrawMultiple.t.sol";

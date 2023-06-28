@@ -16,7 +16,6 @@ import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
 
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { GoodFlashLoanReceiver } from "./mocks/flash-loan/GoodFlashLoanReceiver.sol";
-import { NFTDescriptorMock } from "./mocks/NFTDescriptorMock.sol";
 import { Noop } from "./mocks/Noop.sol";
 import { GoodRecipient } from "./mocks/hooks/GoodRecipient.sol";
 import { GoodSender } from "./mocks/hooks/GoodSender.sol";

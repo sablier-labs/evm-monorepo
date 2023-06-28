@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { Lockup } from "src/types/DataTypes.sol";
 
 import { WithdrawMaxAndTransfer_Integration_Shared_Test } from "../../../shared/lockup/withdrawMaxAndTransfer.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";

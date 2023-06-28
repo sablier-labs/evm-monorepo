@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import { ISablierV2Base } from "src/interfaces/ISablierV2Base.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 
@@ -12,7 +10,6 @@ import { Cancel_Integration_Fuzz_Test } from "../lockup/cancel.t.sol";
 import { CancelMultiple_Integration_Fuzz_Test } from "../lockup/cancelMultiple.t.sol";
 import { GetWithdrawnAmount_Integration_Fuzz_Test } from "../lockup/getWithdrawnAmount.t.sol";
 import { RefundableAmountOf_Integration_Fuzz_Test } from "../lockup/refundableAmountOf.t.sol";
-import { Withdraw_Integration_Fuzz_Test } from "../lockup/withdraw.t.sol";
 import { WithdrawMax_Integration_Fuzz_Test } from "../lockup/withdrawMax.t.sol";
 import { WithdrawMaxAndTransfer_Integration_Fuzz_Test } from "../lockup/withdrawMaxAndTransfer.t.sol";
 import { WithdrawMultiple_Integration_Fuzz_Test } from "../lockup/withdrawMultiple.t.sol";

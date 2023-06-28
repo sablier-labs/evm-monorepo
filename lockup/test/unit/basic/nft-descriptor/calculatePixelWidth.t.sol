@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { SVGElements } from "src/libraries/SVGElements.sol";
-
 import { NFTDescriptor_Unit_Basic_Test } from "./NFTDescriptor.t.sol";
 
 contract CalculatePixelWidth_Unit_Basic_Test is NFTDescriptor_Unit_Basic_Test {

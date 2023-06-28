@@ -4,7 +4,6 @@ pragma solidity >=0.8.19;
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/SD59x18.sol";
-import { UD2x18 } from "@prb/math/UD2x18.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { LockupDynamic } from "../../src/types/DataTypes.sol";

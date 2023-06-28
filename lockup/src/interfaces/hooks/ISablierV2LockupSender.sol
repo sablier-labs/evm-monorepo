@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.19;
 
-import { ISablierV2Lockup } from "../ISablierV2Lockup.sol";
-
 /// @title ISablierV2LockupSender
 /// @notice Interface for sender contracts capable of reacting to cancellations.
 /// @dev Implementation of this interface is optional. If a sender contract doesn't implement this interface,

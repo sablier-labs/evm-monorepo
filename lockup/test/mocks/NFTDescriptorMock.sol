@@ -3,7 +3,6 @@ pragma solidity >=0.8.19;
 
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
-import { Errors } from "../../src/libraries/Errors.sol";
 import { NFTSVG } from "../../src/libraries/NFTSVG.sol";
 import { SVGElements } from "../../src/libraries/SVGElements.sol";
 import { Lockup } from "../../src/types/DataTypes.sol";

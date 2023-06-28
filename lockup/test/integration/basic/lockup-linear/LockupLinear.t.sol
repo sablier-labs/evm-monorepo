@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import { ISablierV2Base } from "src/interfaces/ISablierV2Base.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
-import { SablierV2LockupLinear } from "src/SablierV2LockupLinear.sol";
 
 import { LockupLinear_Integration_Shared_Test } from "../../shared/lockup-linear/LockupLinear.t.sol";
 import { Integration_Test } from "../../Integration.t.sol";
