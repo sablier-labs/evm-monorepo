@@ -213,12 +213,13 @@ contract SablierV2LockupLinear is
         notNull(streamId)
         returns (uint128 refundableAmount)
     {
-        // If the stream is neither depleted nor canceled, subtract the streamed amount from the deposited amount.
-        // Both of these checks are needed because {_calculateStreamedAmount} does not look up the stream's status.
-        if (!_streams[streamId].isDepleted && !_streams[streamId].wasCanceled) {
+        // These checks are needed because {_calculateStreamedAmount} does not look up the stream's status. Note that
+        // checking for `isCancelable` also checks if the stream `wasCanceled` thanks to the protocol invariant that
+        // canceled streams are not cancelable anymore.
+        if (_streams[streamId].isCancelable && !_streams[streamId].isDepleted) {
             refundableAmount = _streams[streamId].amounts.deposited - _calculateStreamedAmount(streamId);
         }
-        // Otherwise, if the stream is either depleted or canceled, the result is implicitly zero.
+        // Otherwise, the result is implicitly zero.
     }
 
     /// @inheritdoc ISablierV2Lockup
