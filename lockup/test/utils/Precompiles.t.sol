@@ -64,16 +64,14 @@ contract Precompiles_Test is Base_Test {
         address expectedComptroller = address(deployPrecompiledComptroller(users.admin));
         assertEq(address(actualComptroller).code, expectedComptroller.code, "bytecodes mismatch");
 
-        address expectedLockupDynamic = address(deployPrecompiledDynamic(users.admin, comptroller, nftDescriptor));
-        bytes memory expectedLockupDynamicCode = adjustBytecode(
-            address(expectedLockupDynamic).code, address(expectedLockupDynamic), address(actualLockupDynamic)
-        );
+        address expectedLockupDynamic = address(deployPrecompiledDynamic(users.admin, actualComptroller, nftDescriptor));
+        bytes memory expectedLockupDynamicCode =
+            adjustBytecode(expectedLockupDynamic.code, expectedLockupDynamic, address(actualLockupDynamic));
         assertEq(address(actualLockupDynamic).code, expectedLockupDynamicCode, "bytecodes mismatch");
 
-        address expectedLockupLinear = address(deployPrecompiledLinear(users.admin, comptroller, nftDescriptor));
-        bytes memory expectedLockupLinearCode = adjustBytecode(
-            address(expectedLockupLinear).code, address(expectedLockupLinear), address(actualLockupLinear)
-        );
+        address expectedLockupLinear = address(deployPrecompiledLinear(users.admin, actualComptroller, nftDescriptor));
+        bytes memory expectedLockupLinearCode =
+            adjustBytecode(expectedLockupLinear.code, expectedLockupLinear, address(actualLockupLinear));
         assertEq(address(actualLockupLinear).code, expectedLockupLinearCode, "bytecodes mismatch");
 
         address expectedNFTDescriptor = address(deployPrecompiledNFTDescriptor());
