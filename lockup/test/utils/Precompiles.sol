@@ -155,7 +155,7 @@ contract Precompiles {
         );
     }
 
-    /// @notice Deploys all V2 Core contract in the following order:
+    /// @notice Deploys all V2 Core contracts in the following order:
     ///
     /// 1. {SablierV2Comptroller}
     /// 2. {SablierV2NFTDescriptor}
