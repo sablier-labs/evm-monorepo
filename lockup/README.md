@@ -4,7 +4,7 @@
 [gha-badge]: https://github.com/sablier-labs/v2-core/actions/workflows/ci.yml/badge.svg
 [codecov]: https://codecov.io/gh/sablier-labs/v2-core
 [codecov-badge]: https://codecov.io/gh/sablier-labs/v2-core/branch/main/graph/badge.svg?token=ND1LZOUF2G
-[foundry]: https://getfoundry.sh/
+[foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
 This repository contains the core smart contracts of the Sablier V2 Protocol. For higher-level logic, see the
@@ -17,10 +17,10 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 Sablier is a smart contract protocol that enables trustless streaming of ERC-20 assets. In this context, streaming means
 the ability to make payments by the second.
 
-The protocol features a type of stream called a lockup stream, in which the sender locks up a specified amount of ERC-20
-assets in a contract. Subsequently, the contract progressively allocates these assets to the designated recipient, who
-can access them as they become available. The streaming rate is influenced by various factors, including the start and
-end times, as well as the total amount of assets locked up.
+The protocol features two streaming models called Lockup Linear and Lockup Dynamic, in which the sender locks up a
+specified amount of ERC-20 assets in a contract. The contract progressively allocates the funds to the designated
+recipient, who can access them as they become available over time. The streaming rate is influenced by various factors,
+including the start and end times, as well as the total amount of assets locked up.
 
 ## Install
 
@@ -74,8 +74,8 @@ contract MyContract {
 
 ## Deployments
 
-See the [Deployments](./wiki/Deployments.md) wiki for guidance on the deployment scripts. The list of all deployments
-addresses can be found [here](https://docs.sablier.com).
+See the [Deployments wiki](https://github.com/sablier-labs/v2-core/wiki/Deployments) for guidance on the deployment
+scripts. The list of all deployments addresses can be found [here](https://docs.sablier.com/contracts/v2/addresses).
 
 It is worth noting that not every file in this repository is included in each deployment. For instance, the
 `SablierV2FlashLoan` abstract is not inherited by any contract on the `main` branch, but we have kept it in version
@@ -95,4 +95,4 @@ The primary license for Sablier V2 Core is the Business Source License 1.1 (`BUS
   SPDX headers), see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
 - Several files in `src/abstracts/`, `src/libraries/`, `script`, and `test` may also be licensed under
   `GPL-3.0-or-later` (as indicated in their SPDX headers), see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
-- All other files in `test/` remain unlicensed (as indicated in their SPDX headers).
+- Many files in `test/` remain unlicensed (as indicated in their SPDX headers).
