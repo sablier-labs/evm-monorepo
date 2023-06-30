@@ -13,7 +13,7 @@ Licensed Work: Sablier V2 Core The Licensed Work is (C) 2023 Sablier Labs Ltd
 
 Additional Use Grant: Any uses listed and defined at v2-core-license-grants.sablier.eth
 
-Change Date: The earlier of 2025-07-01 or a date specified at v2-core-license-date.sablier.eth
+Change Date: The earlier of 2027-07-01 or a date specified at v2-core-license-date.sablier.eth
 
 Change License: GNU General Public License v3.0 or later
 
