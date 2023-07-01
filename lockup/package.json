@@ -2,7 +2,7 @@
   "name": "@sablier/v2-core",
   "description": "Core smart contracts of the Sablier V2 cryptoasset streaming protocol",
   "license": "BUSL-1.1",
-  "version": "1.0.0",
+  "version": "1.0.0-rc.0",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
@@ -46,10 +46,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sablier-labs/v2-core"
-  },
+  "repository": "github.com/sablier-labs/v2-core",
   "scripts": {
     "build": "forge build",
     "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
