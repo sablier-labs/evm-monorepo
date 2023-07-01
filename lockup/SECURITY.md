@@ -1,9 +1,9 @@
 # Security
 
 Ensuring the security of the Sablier Protocol is our utmost priority. We have dedicated significant efforts towards the
-design and thorough testing of the protocol to guarantee its safety and reliability. However, we are aware that security
-is a continuous process. If you believe you have found a security vulnerability, please read the following guidelines
-and report it to us.
+design and testing of the protocol to guarantee its safety and reliability. However, we are aware that security is a
+continuous process. If you believe you have found a security vulnerability, please read the following guidelines and
+report it to us.
 
 ## Bug Bounty
 
@@ -19,13 +19,14 @@ Happy hunting!
 
 The scope of the Program is limited to bugs that result in the draining of funds locked up in contracts.
 
-The Program does not cover the following:
+The Program does NOT cover the following:
 
-- Contracts located within the [test](./test) or [script](./script) directories.
-- External contracts within the [lib](./lib) directory, unless used by any contract in [src](./src).
+- Code located in the [test](./test) or [script](./script) directories.
+- External code in the [lib](./lib) directory, except for code that is explicitly used by a deployed contract located in
+  the [src](./src) directory.
 - Contract deployments on test networks, such as Goerli.
-- Bugs in third-party contracts or platforms interacting with Sablier V2.
-- Previously reported or discovered vulnerabilities in contracts built by third parties on Sablier V2.
+- Bugs in third-party contracts or platforms interacting with Sablier V2 Core.
+- Previously reported or discovered vulnerabilities in contracts built by third parties on Sablier V2 Core.
 - Bugs that have already been reported.
 
 Vulnerabilities contingent upon the occurrence of any of the following also are outside the scope of this Program:
@@ -35,16 +36,16 @@ Vulnerabilities contingent upon the occurrence of any of the following also are 
 - Spamming
 - Phishing
 - Social engineering attacks
+- Private key leaks
 - Automated tools (Github Actions, etc.)
 - Compromise or misuse of third party systems or services
 
 ### Assumptions
 
-Sablier V2 has been developed based on the following assumptions, and for a disclosure to qualify for the bug bounty, it
-must adhere to these assumptions as well:
+Sablier V2 Core has been developed with a number of technical assumptions in mind. For a disclosure to qualify as a
+vulnerability, it must adhere to these assumptions as well:
 
-- Immutable variables have been set correctly in the constructors, i.e. `MAX_FEE` does not exceed 10<sup>18</sup>, and
-  `MAX_SEGMENT_COUNT` has a value that cannot lead to an overflow of the block gas limit.
+- The immutable variable `MAX_SEGMENT_COUNT` has a low value that cannot lead to an overflow of the block gas limit.
 - The total supply of any ERC-20 token remains below 2<sup>128</sup> - 1, i.e. `type(uint128).max`.
 - The `transfer` and `transferFrom` methods of any ERC-20 token strictly reduce the sender's balance by the transfer
   amount and increase the recipient's balance by the same amount. In other words, tokens that charge fees on transfers
