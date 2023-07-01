@@ -86,13 +86,13 @@ control because we may decide to use it in the future.
 Please refer to the [SECURITY](./SECURITY.md) policy for any security-related concerns. This repository is subject to a
 bug bounty program per the terms outlined in the aforementioned policy.
 
-## Licensing
+## License
 
 The primary license for Sablier V2 Core is the Business Source License 1.1 (`BUSL-1.1`), see
-[`LICENSE.md`](./LICENSE.md). However, some files are dual-licensed under `GPL-3.0-or-later`:
+[`LICENSE.md`](./LICENSE.md). However, there are exceptions:
 
-- All files in `src/interfaces/` and `src/types` may also be licensed under `GPL-3.0-or-later` (as indicated in their
-  SPDX headers), see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
-- Several files in `src/abstracts/`, `src/libraries/`, `script`, and `test` may also be licensed under
-  `GPL-3.0-or-later` (as indicated in their SPDX headers), see [`LICENSE-GPL.md`](./GPL-LICENSE.md).
+- All files in `src/interfaces/` and `src/types` are licensed under `GPL-3.0-or-later`, see
+  [`LICENSE-GPL.md`](./GPL-LICENSE.md).
+- Several files in `src/abstracts/`, `src/libraries/`, `script`, and `test` are licensed under `GPL-3.0-or-later`, see
+  [`LICENSE-GPL.md`](./GPL-LICENSE.md).
 - Many files in `test/` remain unlicensed (as indicated in their SPDX headers).
