@@ -74,10 +74,10 @@ contract MyContract {
 
 ## Deployments
 
-See the [Deployments wiki](https://github.com/sablier-labs/v2-core/wiki/Deployments) for guidance on the deployment
-scripts. The list of all deployments addresses can be found [here](https://docs.sablier.com/contracts/v2/addresses).
+The list of all deployment addresses can be found [here](https://docs.sablier.com). For guidance on the deploy scripts,
+see the [Deployments wiki](./wiki/Deployments.md).
 
-It is worth noting that not every file in this repository is included in each deployment. For instance, the
+It is worth noting that not every file in this repository is included in the current deployments. For instance, the
 `SablierV2FlashLoan` abstract is not inherited by any contract on the `main` branch, but we have kept it in version
 control because we may decide to use it in the future.
 
