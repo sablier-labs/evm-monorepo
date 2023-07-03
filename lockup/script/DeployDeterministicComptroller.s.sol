@@ -16,7 +16,7 @@ contract DeployDeterministicComptroller is BaseScript {
     )
         public
         virtual
-        broadcaster
+        broadcast
         returns (SablierV2Comptroller comptroller)
     {
         comptroller = new SablierV2Comptroller{ salt: bytes32(abi.encodePacked(create2Salt)) }(initialAdmin);

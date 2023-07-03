@@ -15,7 +15,7 @@ contract DeployLockupLinear is BaseScript {
     )
         public
         virtual
-        broadcaster
+        broadcast
         returns (SablierV2LockupLinear lockupLinear)
     {
         lockupLinear = new SablierV2LockupLinear(initialAdmin, initialComptroller, initialNFTDescriptor);
