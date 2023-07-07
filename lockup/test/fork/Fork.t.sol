@@ -35,8 +35,8 @@ abstract contract Fork_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        // Fork Ethereum Mainnet at a block mined on Dec 6, 2022.
-        vm.createSelectFork({ urlOrAlias: "mainnet", blockNumber: 16_126_000 });
+        // Fork Ethereum Mainnet at a specific block number.
+        vm.createSelectFork({ blockNumber: 16_126_000, urlOrAlias: "mainnet" });
 
         // The base is set up after the fork is selected so that the base test contracts are deployed on the fork.
         Base_Test.setUp();
