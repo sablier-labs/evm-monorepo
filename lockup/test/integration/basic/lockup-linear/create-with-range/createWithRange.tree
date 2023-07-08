@@ -26,7 +26,7 @@ createWithRange.t.sol
                         ├── when the asset is not a contract
                         │  └── it should revert
                         └── when the asset is a contract
-                           ├── when the asset misses the ERc-20 return value
+                           ├── when the asset misses the ERC-20 return value
                            │  ├── it should create the stream
                            │  ├── it should bump the next stream id
                            │  ├── it should record the protocol fee
