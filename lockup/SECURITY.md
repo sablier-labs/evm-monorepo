@@ -83,8 +83,10 @@ publicly for their contribution if they so choose.
 
 To qualify for a reward under this Program, you must adhere to the following criteria:
 
-- Identify an undisclosed, non-public vulnerability in Sablier V2 that could result in the loss of or lock on any ERC-20
-  asset, and which is within the scope of this Program.
+- Identify a previously unreported, non-public vulnerability that could result in the loss or freeze of any ERC-20 asset
+  in Sablier V2 (but not on any third-party platform interacting with Sablier V2) and that is within the scope of this
+  Program.
+- The vulnerability must be distinct from the issues covered in the [Audits](https://github.com/sablier-labs/audits).
 - Be the first to report the unique vulnerability to [security@sablier.com](mailto:security@sablier.com) in accordance
   with the disclosure requirements specified above. If multiple similar vulnerabilities are reported within a 24-hour
   timeframe, rewards will be split at the discretion of Sablier Labs.
