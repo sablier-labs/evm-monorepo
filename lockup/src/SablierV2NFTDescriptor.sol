@@ -92,7 +92,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
                 assetSymbol: vars.assetSymbol,
                 streamId: streamId.toString(),
                 sablierAddress: vars.sablierAddress,
-                assetAddress: address(vars.asset).toHexString()
+                assetAddress: vars.asset.toHexString()
             }),
             '","external_url":"https://sablier.com","name":"',
             generateName({ streamingModel: vars.streamingModel, streamId: streamId.toString() }),
@@ -101,8 +101,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             '"}'
         );
 
-        // Encode the JSON metadata in base64.
-        uri = Base64.encode(bytes(string.concat("data:application/json;base64,", vars.json)));
+        // Encode the JSON metadata in Base64.
+        uri = string.concat("data:application/json;base64,", Base64.encode(bytes(vars.json)));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
