@@ -36,7 +36,7 @@ Your `.gitmodules` file should now contain the following entry:
 
 ```toml
 [submodule "lib/v2-core"]
-  branch = "main"
+  branch = "release"
   path = "lib/v2-core"
   url = "https://github.com/sablier-labs/v2-core"
 ```
