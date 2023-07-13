@@ -69,7 +69,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
                     startTime: vars.sablier.getStartTime(streamId),
                     endTime: vars.sablier.getEndTime(streamId)
                 }),
-                sablierAddress: address(sablier).toHexString(),
+                sablierAddress: vars.sablierAddress,
                 progress: stringifyPercentage(vars.streamedPercentage),
                 progressNumerical: vars.streamedPercentage,
                 status: vars.status,
@@ -91,7 +91,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
                 streamingModel: vars.streamingModel,
                 assetSymbol: vars.assetSymbol,
                 streamId: streamId.toString(),
-                sablierAddress: address(sablier).toHexString(),
+                sablierAddress: vars.sablierAddress,
                 assetAddress: address(vars.asset).toHexString()
             }),
             '","external_url":"https://sablier.com","name":"',
