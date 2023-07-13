@@ -2,7 +2,7 @@
   "name": "@sablier/v2-core",
   "description": "Core smart contracts of the Sablier V2 token streaming protocol",
   "license": "BUSL-1.1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
@@ -21,6 +21,7 @@
   "files": [
     "artifacts",
     "src",
+    "CHANGELOG.md",
     "LICENSE-GPL.md"
   ],
   "homepage": "https://github.com/sablier-labs/v2-core#readme",
