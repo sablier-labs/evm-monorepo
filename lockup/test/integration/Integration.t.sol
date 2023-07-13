@@ -11,7 +11,7 @@ import { ReentrantSender } from "../mocks/hooks/ReentrantSender.sol";
 import { RevertingRecipient } from "../mocks/hooks/RevertingRecipient.sol";
 import { RevertingSender } from "../mocks/hooks/RevertingSender.sol";
 
-/// @notice Common logic needed by all integration tests, both basic and fuzz tests.
+/// @notice Common logic needed by all integration tests, both concrete and fuzz tests.
 abstract contract Integration_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
