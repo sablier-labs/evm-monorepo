@@ -28,7 +28,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
     /// @dev Needed to avoid Stack Too Deep.
     struct TokenURIVars {
-        IERC20Metadata asset;
+        address asset;
         string assetSymbol;
         string json;
         ISablierV2Lockup sablier;
@@ -47,8 +47,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
         // Load the contracts.
         vars.sablier = ISablierV2Lockup(address(sablier));
         vars.sablierAddress = address(sablier).toHexString();
-        vars.asset = IERC20Metadata(address(vars.sablier.getAsset(streamId)));
-        vars.assetSymbol = safeAssetSymbol(address(vars.asset));
+        vars.asset = address(vars.sablier.getAsset(streamId));
+        vars.assetSymbol = safeAssetSymbol(vars.asset);
 
         // Load the stream's data.
         vars.status = stringifyStatus(vars.sablier.statusOf(streamId));
@@ -63,17 +63,17 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
         vars.svg = NFTSVG.generateSVG(
             NFTSVG.SVGParams({
                 accentColor: generateAccentColor(address(sablier), streamId),
-                assetAddress: address(vars.asset).toHexString(),
+                assetAddress: vars.asset.toHexString(),
                 assetSymbol: vars.assetSymbol,
                 duration: calculateDurationInDays({
                     startTime: vars.sablier.getStartTime(streamId),
                     endTime: vars.sablier.getEndTime(streamId)
                 }),
-                sablierAddress: address(sablier).toHexString(),
+                sablierAddress: vars.sablierAddress,
                 progress: stringifyPercentage(vars.streamedPercentage),
                 progressNumerical: vars.streamedPercentage,
                 status: vars.status,
-                streamed: abbreviateAmount({ amount: vars.streamedAmount, decimals: safeAssetDecimals(address(vars.asset)) }),
+                streamed: abbreviateAmount({ amount: vars.streamedAmount, decimals: safeAssetDecimals(vars.asset) }),
                 streamingModel: vars.streamingModel
             })
         );
@@ -91,8 +91,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
                 streamingModel: vars.streamingModel,
                 assetSymbol: vars.assetSymbol,
                 streamId: streamId.toString(),
-                sablierAddress: address(sablier).toHexString(),
-                assetAddress: address(vars.asset).toHexString()
+                sablierAddress: vars.sablierAddress,
+                assetAddress: vars.asset.toHexString()
             }),
             '","external_url":"https://sablier.com","name":"',
             generateName({ streamingModel: vars.streamingModel, streamId: streamId.toString() }),
@@ -101,8 +101,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             '"}'
         );
 
-        // Encode the JSON metadata in base64.
-        uri = Base64.encode(bytes(string.concat("data:application/json;base64,", vars.json)));
+        // Encode the JSON metadata in Base64.
+        uri = string.concat("data:application/json;base64,", Base64.encode(bytes(vars.json)));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
