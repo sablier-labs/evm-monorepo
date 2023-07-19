@@ -81,6 +81,12 @@ It is worth noting that not every file in this repository is included in the cur
 `SablierV2FlashLoan` abstract is not inherited by any contract on the `main` branch, but we have kept it in version
 control because we may decide to use it in the future.
 
+## Contributing
+
+Feel free to dive in! [Open](https://github.com/sablier-labs/v2-core/issues/new) an issue, [start](https://github.com/sablier-labs/v2-core/discussions/new) a discussion or submit a PR. For any informal concerns or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
+
+For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) guide.
+
 ## Security
 
 Please refer to the [SECURITY](./SECURITY.md) policy for any security-related concerns. This repository is subject to a
