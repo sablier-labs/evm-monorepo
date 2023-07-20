@@ -3,9 +3,23 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
-import { Integration_Test } from "../../../Integration.t.sol";
+import { Base_Test } from "../../../../Base.t.sol";
 
-contract FlashFee_Unit_Concrete_Test is Integration_Test {
+contract FlashFee_Unit_Concrete_Test is Base_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  SET-UP FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function setUp() public virtual override {
+        Base_Test.setUp();
+
+        // Deploy V2 Core.
+        deployCoreConditionally();
+
+        // Make the Admin the default caller in this test suite.
+        vm.startPrank({ msgSender: users.admin });
+    }
+
     function test_FlashFee_Zero() external {
         UD60x18 actualFlashFee = comptroller.flashFee();
         UD60x18 expectedFlashFee = ZERO;
