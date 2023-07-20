@@ -5,19 +5,11 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Base_Test } from "../../../../Base.t.sol";
+import { Comptroller_Unit_Concrete_Test } from "../Comptroller.t.sol";
 
-contract SetFlashFee_Unit_Concrete_Test is Base_Test {
-    /*//////////////////////////////////////////////////////////////////////////
-                                  SET-UP FUNCTION
-    //////////////////////////////////////////////////////////////////////////*/
-
+contract SetFlashFee_Unit_Concrete_Test is Comptroller_Unit_Concrete_Test {
     function setUp() public virtual override {
-        Base_Test.setUp();
-
-        // Deploy V2 Core.
-        deployCoreConditionally();
-
+        Comptroller_Unit_Concrete_Test.setUp();
         // Make the Admin the default caller in this test suite.
         vm.startPrank({ msgSender: users.admin });
     }
