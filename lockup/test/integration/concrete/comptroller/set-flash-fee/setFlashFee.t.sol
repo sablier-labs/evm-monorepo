@@ -41,7 +41,7 @@ contract SetFlashFee_Integration_Concrete_Test is Integration_Test {
         _;
     }
 
-    function test_SetFlashFee() external {
+    function test_SetFlashFee() external whenCallerAdmin whenNewFee {
         UD60x18 newFlashFee = defaults.FLASH_FEE();
 
         // Expect the relevant event to be emitted.
