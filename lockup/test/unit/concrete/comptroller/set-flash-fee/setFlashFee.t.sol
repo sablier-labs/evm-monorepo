@@ -5,9 +5,23 @@ import { UD60x18, ZERO } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 
-import { Integration_Test } from "../../../Integration.t.sol";
+import { Base_Test } from "../../../../Base.t.sol";
 
-contract SetFlashFee_Integration_Concrete_Test is Integration_Test {
+contract SetFlashFee_Unit_Concrete_Test is Base_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  SET-UP FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function setUp() public virtual override {
+        Base_Test.setUp();
+
+        // Deploy V2 Core.
+        deployCoreConditionally();
+
+        // Make the Admin the default caller in this test suite.
+        vm.startPrank({ msgSender: users.admin });
+    }
+
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
