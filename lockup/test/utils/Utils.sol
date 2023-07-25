@@ -56,7 +56,7 @@ abstract contract Utils is StdUtils, PRBMathUtils {
 
     /// @dev Checks if the Foundry profile is "test-optimized".
     function isTestOptimizedProfile() internal returns (bool) {
-        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("") });
+        string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: "default" });
         return Strings.equal(profile, "test-optimized");
     }
 }
