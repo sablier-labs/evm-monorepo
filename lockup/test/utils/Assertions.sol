@@ -2,7 +2,7 @@
 pragma solidity >=0.8.19;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
+import { PRBMathAssertions } from "@prb/math/src/test/Assertions.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 
 import { Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";

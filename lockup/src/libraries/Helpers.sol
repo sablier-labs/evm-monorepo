@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.19;
 
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 import { Lockup, LockupDynamic, LockupLinear } from "../types/DataTypes.sol";
 import { Errors } from "./Errors.sol";

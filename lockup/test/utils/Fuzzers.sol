@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.19;
 
-import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
-import { UD60x18, ud, uUNIT } from "@prb/math/UD60x18.sol";
+import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
+import { UD60x18, ud, uUNIT } from "@prb/math/src/UD60x18.sol";
 
 import { Lockup, LockupDynamic } from "../../src/types/DataTypes.sol";
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { ud2x18 } from "@prb/math/UD2x18.sol";
+import { ud2x18 } from "@prb/math/src/UD2x18.sol";
 
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { Errors } from "src/libraries/Errors.sol";

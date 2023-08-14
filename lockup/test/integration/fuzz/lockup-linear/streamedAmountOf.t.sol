@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { ZERO } from "@prb/math/UD60x18.sol";
+import { ZERO } from "@prb/math/src/UD60x18.sol";
 
 import { Broker, LockupLinear } from "src/types/DataTypes.sol";
 

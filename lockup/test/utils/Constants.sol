@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.19;
 
-import { UD60x18 } from "@prb/math/UD60x18.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 abstract contract Constants {
     bytes32 internal constant FLASH_LOAN_CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");

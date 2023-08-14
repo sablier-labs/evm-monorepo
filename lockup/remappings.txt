@@ -1,5 +1,5 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-@prb/math/=lib/prb-math/src/
+@prb/math/=lib/prb-math/
 @prb/test/=lib/prb-test/src/
 forge-std/=lib/forge-std/src/
 solady/=lib/solady/src/

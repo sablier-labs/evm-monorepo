@@ -4,10 +4,10 @@ pragma solidity >=0.8.19;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/casting/Uint128.sol";
-import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/casting/Uint40.sol";
-import { SD59x18 } from "@prb/math/SD59x18.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
+import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
+import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
+import { SD59x18 } from "@prb/math/src/SD59x18.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
