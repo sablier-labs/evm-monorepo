@@ -187,6 +187,11 @@ contract SablierV2LockupDynamic is
     }
     /// @inheritdoc ISablierV2Lockup
 
+    function isTransferrable(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].isTransferrable;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
     function isDepleted(uint256 streamId)
         public
         view
@@ -266,6 +271,7 @@ contract SablierV2LockupDynamic is
                 asset: params.asset,
                 broker: params.broker,
                 cancelable: params.cancelable,
+                transferrable: params.transferrable,
                 recipient: params.recipient,
                 segments: segments,
                 sender: params.sender,
@@ -553,6 +559,7 @@ contract SablierV2LockupDynamic is
         stream.amounts.deposited = createAmounts.deposit;
         stream.asset = params.asset;
         stream.isCancelable = params.cancelable;
+        stream.isTransferrable = params.transferrable;
         stream.isStream = true;
         stream.sender = params.sender;
 
@@ -601,6 +608,7 @@ contract SablierV2LockupDynamic is
             amounts: createAmounts,
             asset: params.asset,
             cancelable: params.cancelable,
+            transferrable: params.transferrable,
             segments: params.segments,
             range: LockupDynamic.Range({ start: stream.startTime, end: stream.endTime }),
             broker: params.broker.account

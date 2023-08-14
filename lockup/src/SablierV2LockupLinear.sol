@@ -170,6 +170,11 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2Lockup
+    function isTransferrable(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].isTransferrable;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
     function isDepleted(uint256 streamId)
         public
         view
@@ -257,6 +262,7 @@ contract SablierV2LockupLinear is
                 asset: params.asset,
                 broker: params.broker,
                 cancelable: params.cancelable,
+                transferrable: params.transferrable,
                 range: range,
                 recipient: params.recipient,
                 sender: params.sender,
@@ -467,6 +473,7 @@ contract SablierV2LockupLinear is
             cliffTime: params.range.cliff,
             endTime: params.range.end,
             isCancelable: params.cancelable,
+            isTransferrable: params.transferrable,
             isDepleted: false,
             isStream: true,
             sender: params.sender,
@@ -508,6 +515,7 @@ contract SablierV2LockupLinear is
             amounts: createAmounts,
             asset: params.asset,
             cancelable: params.cancelable,
+            transferrable: params.transferrable,
             range: params.range,
             broker: params.broker.account
         });

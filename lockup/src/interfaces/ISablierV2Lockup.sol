@@ -103,6 +103,11 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function isCancelable(uint256 streamId) external view returns (bool result);
 
+    /// @notice Retrieves a flag indicating whether the stream NFT can be transferred.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isTransferrable(uint256 streamId) external view returns (bool result);
+
     /// @notice Retrieves a flag indicating whether the stream is cold, i.e. settled, canceled, or depleted.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
