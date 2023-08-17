@@ -44,7 +44,7 @@ Your `.gitmodules` file should now contain the following entry:
 Finally, add this to your `remappings.txt` file:
 
 ```text
-@sablier/v2-core/=lib/v2-core/src/
+@sablier/v2-core/=lib/v2-core/
 ```
 
 ### Node.js
@@ -61,7 +61,7 @@ This is just a glimpse of Sablier V2 Core. For more guides and examples, see the
 [documentation](https://docs.sablier.com).
 
 ```solidity
-import { ISablierV2LockupLinear } from "@sablier/v2-core/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierV2LockupLinear } from "@sablier/v2-core/src/interfaces/ISablierV2LockupLinear.sol";
 
 contract MyContract {
   ISablierV2LockupLinear sablier;
