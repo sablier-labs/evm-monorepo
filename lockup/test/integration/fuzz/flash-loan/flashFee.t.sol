@@ -6,7 +6,7 @@ import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { FlashLoan_Integration_Shared_Test } from "../../shared/flash-loan/FlashLoan.t.sol";
 
 contract FlashFee_Integration_Fuzz_Test is FlashLoan_Integration_Shared_Test {
-    modifier whenAssetFlashLoanable() {
+    modifier givenAssetFlashLoanable() {
         comptroller.toggleFlashAsset(dai);
         _;
     }
@@ -15,7 +15,7 @@ contract FlashFee_Integration_Fuzz_Test is FlashLoan_Integration_Shared_Test {
     ///
     /// - Multiple values for the comptroller flash fee, including zero
     /// - Multiple values for the flash loan amount, including zero
-    function testFuzz_FlashFee(UD60x18 comptrollerFlashFee, uint256 amount) external whenAssetFlashLoanable {
+    function testFuzz_FlashFee(UD60x18 comptrollerFlashFee, uint256 amount) external givenAssetFlashLoanable {
         comptrollerFlashFee = _bound(comptrollerFlashFee, 0, MAX_FEE);
         comptroller.setFlashFee(comptrollerFlashFee);
         uint256 actualFlashFee = flashLoan.flashFee({ asset: address(dai), amount: amount });

@@ -15,15 +15,15 @@ abstract contract Cancel_Integration_Shared_Test is Lockup_Integration_Shared_Te
         _;
     }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         _;
     }
 
-    modifier whenStreamCold() {
+    modifier givenStreamCold() {
         _;
     }
 
-    modifier whenStreamWarm() {
+    modifier givenStreamWarm() {
         _;
     }
 
@@ -35,13 +35,13 @@ abstract contract Cancel_Integration_Shared_Test is Lockup_Integration_Shared_Te
         _;
     }
 
-    modifier whenStreamCancelable() {
+    modifier givenStreamCancelable() {
         _;
     }
 
     /// @dev In the LockupLinear contract, the streaming starts after the cliff time, whereas in the LockupDynamic
     /// contract, the streaming starts after the start time.
-    modifier whenStatusStreaming() {
+    modifier givenStatusStreaming() {
         // Warp to the future, after the stream's start time but before the stream's end time.
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         _;
@@ -52,11 +52,11 @@ abstract contract Cancel_Integration_Shared_Test is Lockup_Integration_Shared_Te
         _;
     }
 
-    modifier whenRecipientContract() {
+    modifier givenRecipientContract() {
         _;
     }
 
-    modifier whenRecipientImplementsHook() {
+    modifier givenRecipientImplementsHook() {
         _;
     }
 
@@ -73,11 +73,11 @@ abstract contract Cancel_Integration_Shared_Test is Lockup_Integration_Shared_Te
         _;
     }
 
-    modifier whenSenderContract() {
+    modifier givenSenderContract() {
         _;
     }
 
-    modifier whenSenderImplementsHook() {
+    modifier givenSenderImplementsHook() {
         _;
     }
 

@@ -33,12 +33,12 @@ contract ToggleFlashAsset_Integration_Concrete_Test is Integration_Test {
         assertTrue(isFlashAsset, "isFlashAsset");
     }
 
-    modifier whenFlagEnabled() {
+    modifier givenFlagEnabled() {
         comptroller.toggleFlashAsset(dai);
         _;
     }
 
-    function test_ToggleFlashAsset() external whenCallerAdmin whenFlagEnabled {
+    function test_ToggleFlashAsset() external whenCallerAdmin givenFlagEnabled {
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });
         emit ToggleFlashAsset({ admin: users.admin, asset: dai, newFlag: false });

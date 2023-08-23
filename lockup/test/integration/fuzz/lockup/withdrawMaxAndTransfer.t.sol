@@ -22,9 +22,9 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
     )
         external
         whenNotDelegateCalled
-        whenNotNull
+        givenNotNull
         whenCallerCurrentRecipient
-        whenNFTNotBurned
+        givenNFTNotBurned
     {
         vm.assume(newRecipient != address(0));
         timeJump = _bound(timeJump, 0, defaults.TOTAL_DURATION() * 2);

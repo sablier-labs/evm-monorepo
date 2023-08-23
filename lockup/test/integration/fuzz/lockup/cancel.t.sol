@@ -14,10 +14,10 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
     function testFuzz_Cancel_StatusPending(uint256 timeJump)
         external
         whenNotDelegateCalled
-        whenNotNull
-        whenStreamWarm
+        givenNotNull
+        givenStreamWarm
         whenCallerAuthorized
-        whenStreamCancelable
+        givenStreamCancelable
     {
         timeJump = _bound(timeJump, 1 seconds, 100 weeks);
 
@@ -47,14 +47,14 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
     )
         external
         whenNotDelegateCalled
-        whenNotNull
-        whenStreamWarm
+        givenNotNull
+        givenStreamWarm
         whenCallerAuthorized
-        whenStreamCancelable
-        whenStatusStreaming
+        givenStreamCancelable
+        givenStatusStreaming
         whenCallerSender
-        whenRecipientContract
-        whenRecipientImplementsHook
+        givenRecipientContract
+        givenRecipientImplementsHook
         whenRecipientDoesNotRevert
         whenNoRecipientReentrancy
     {
@@ -114,14 +114,14 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
     )
         external
         whenNotDelegateCalled
-        whenNotNull
-        whenStreamWarm
+        givenNotNull
+        givenStreamWarm
         whenCallerAuthorized
-        whenStreamCancelable
-        whenStatusStreaming
+        givenStreamCancelable
+        givenStatusStreaming
         whenCallerRecipient
-        whenSenderContract
-        whenSenderImplementsHook
+        givenSenderContract
+        givenSenderImplementsHook
         whenSenderDoesNotRevert
         whenNoSenderReentrancy
     {

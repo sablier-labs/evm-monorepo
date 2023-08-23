@@ -9,17 +9,17 @@ import { Integration_Test } from "../../../Integration.t.sol";
 abstract contract GetStartTime_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) { }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.getStartTime(nullStreamId);
     }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         _;
     }
 
-    function test_GetStartTime() external whenNotNull {
+    function test_GetStartTime() external givenNotNull {
         uint256 streamId = createDefaultStream();
         uint40 actualStartTime = lockup.getStartTime(streamId);
         uint40 expectedStartTime = defaults.START_TIME();

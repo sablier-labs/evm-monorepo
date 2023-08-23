@@ -2,17 +2,17 @@ cancel.t.sol
 ├── when delegate called
 │  └── it should revert
 └── when not delegate called
-   ├── when the id references a null stream
+   ├── given the id references a null stream
    │  └── it should revert
-   └── when the id does not reference a null stream
-      ├── when the stream is cold
-      │  ├── when the stream's status is "DEPLETED"
+   └── given the id does not reference a null stream
+      ├── given the stream is cold
+      │  ├── given the stream's status is "DEPLETED"
       │  │  └── it should revert
-      │  ├── when the stream's status is "CANCELED"
+      │  ├── given the stream's status is "CANCELED"
       │  │  └── it should revert
-      │  └── when the stream's status is "SETTLED"
+      │  └── given the stream's status is "SETTLED"
       │     └── it should revert
-      └── when the stream is warm
+      └── given the stream is warm
          ├── when the caller is unauthorized
          │  ├── when the caller is a malicious third party
          │  │  └── it should revert
@@ -21,25 +21,25 @@ cancel.t.sol
          │  └── when the caller is a former recipient
          │     └── it should revert
          └── when the caller is authorized
-            ├── when the stream is not cancelable
+            ├── given the stream is not cancelable
             │  └── it should revert
-            └── when the stream is cancelable
-               ├── when the stream's status is "PENDING"
+            └── given the stream is cancelable
+               ├── given the stream's status is "PENDING"
                │  ├── it should cancel the stream
                │  ├── it should mark the stream as depleted
                │  └── it should make the stream not cancelable
-               └── when the stream's status is "STREAMING"
+               └── given the stream's status is "STREAMING"
                   ├── when the caller is the sender
-                  │  ├── when the recipient is not a contract
+                  │  ├── given the recipient is not a contract
                   │  │  ├── it should cancel the stream
                   │  │  └── it should mark the stream as canceled
-                  │  └── when the recipient is a contract
-                  │     ├── when the recipient does not implement the hook
+                  │  └── given the recipient is a contract
+                  │     ├── given the recipient does not implement the hook
                   │     │  ├── it should cancel the stream
                   │     │  ├── it should mark the stream as canceled
                   │     │  ├── it should call the recipient hook
                   │     │  └── it should ignore the revert
-                  │     └── when the recipient implements the hook
+                  │     └── given the recipient implements the hook
                   │        ├── when the recipient reverts
                   │        │  ├── it should cancel the stream
                   │        │  ├── it should mark the stream as canceled
@@ -61,16 +61,16 @@ cancel.t.sol
                   │              ├── it should emit a {CancelLockupStream} event
                   │              └── it should emit a {MetadataUpdate} event
                   └── when the caller is the recipient
-                     ├── when the sender is not a contract
+                     ├── given the sender is not a contract
                      │  ├── it should cancel the stream
                      │  └── it should mark the stream as canceled
-                     └── when the sender is a contract
-                        ├── when the sender does not implement the hook
+                     └── given the sender is a contract
+                        ├── given the sender does not implement the hook
                         │  ├── it should cancel the stream
                         │  ├── it should mark the stream as canceled
                         │  ├── it should call the sender hook
                         │  └── it should ignore the revert
-                        └── when the sender implements the hook
+                        └── given the sender implements the hook
                               ├── when the sender reverts
                               │  ├── it should cancel the stream
                               │  ├── it should mark the stream as canceled

@@ -8,20 +8,20 @@ abstract contract WithdrawableAmountOf_Integration_Shared_Test is Lockup_Integra
 
     function setUp() public virtual override { }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         defaultStreamId = createDefaultStream();
         _;
     }
 
-    modifier whenStreamHasBeenCanceled() {
+    modifier givenStreamHasBeenCanceled() {
         _;
     }
 
-    modifier whenStreamHasNotBeenCanceled() {
+    modifier givenStreamHasNotBeenCanceled() {
         _;
     }
 
-    modifier whenStatusStreaming() {
+    modifier givenStatusStreaming() {
         _;
     }
 }

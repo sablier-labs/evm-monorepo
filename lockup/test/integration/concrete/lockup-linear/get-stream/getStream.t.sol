@@ -14,17 +14,17 @@ contract GetStream_LockupLinear_Integration_Concrete_Test is LockupLinear_Integr
         defaultStreamId = createDefaultStream();
     }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockupLinear.getStream(nullStreamId);
     }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         _;
     }
 
-    function test_GetStream_StatusSettled() external whenNotNull {
+    function test_GetStream_StatusSettled() external givenNotNull {
         vm.warp({ timestamp: defaults.END_TIME() });
         LockupLinear.Stream memory actualStream = lockupLinear.getStream(defaultStreamId);
         LockupLinear.Stream memory expectedStream = defaults.lockupLinearStream();
@@ -32,11 +32,11 @@ contract GetStream_LockupLinear_Integration_Concrete_Test is LockupLinear_Integr
         assertEq(actualStream, expectedStream);
     }
 
-    modifier whenStatusNotSettled() {
+    modifier givenStatusNotSettled() {
         _;
     }
 
-    function test_GetStream() external whenNotNull whenStatusNotSettled {
+    function test_GetStream() external givenNotNull givenStatusNotSettled {
         LockupLinear.Stream memory actualStream = lockupLinear.getStream(defaultStreamId);
         LockupLinear.Stream memory expectedStream = defaults.lockupLinearStream();
         assertEq(actualStream, expectedStream);

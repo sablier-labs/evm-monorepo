@@ -12,18 +12,18 @@ abstract contract StatusOf_Integration_Concrete_Test is Integration_Test, Lockup
 
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) { }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.statusOf(nullStreamId);
     }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         defaultStreamId = createDefaultStream();
         _;
     }
 
-    function test_StatusOf_AssetsFullyWithdrawn() external whenNotNull {
+    function test_StatusOf_AssetsFullyWithdrawn() external givenNotNull {
         vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -31,11 +31,11 @@ abstract contract StatusOf_Integration_Concrete_Test is Integration_Test, Lockup
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier whenAssetsNotFullyWithdrawn() {
+    modifier givenAssetsNotFullyWithdrawn() {
         _;
     }
 
-    function test_StatusOf_StreamCanceled() external whenNotNull whenAssetsNotFullyWithdrawn {
+    function test_StatusOf_StreamCanceled() external givenNotNull givenAssetsNotFullyWithdrawn {
         vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -43,15 +43,15 @@ abstract contract StatusOf_Integration_Concrete_Test is Integration_Test, Lockup
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier whenStreamNotCanceled() {
+    modifier givenStreamNotCanceled() {
         _;
     }
 
     function test_StatusOf_StartTimeInTheFuture()
         external
-        whenNotNull
-        whenAssetsNotFullyWithdrawn
-        whenStreamNotCanceled
+        givenNotNull
+        givenAssetsNotFullyWithdrawn
+        givenStreamNotCanceled
     {
         vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
@@ -65,9 +65,9 @@ abstract contract StatusOf_Integration_Concrete_Test is Integration_Test, Lockup
 
     function test_StatusOf_RefundableAmountNotZero()
         external
-        whenNotNull
-        whenAssetsNotFullyWithdrawn
-        whenStreamNotCanceled
+        givenNotNull
+        givenAssetsNotFullyWithdrawn
+        givenStreamNotCanceled
         whenStartTimeNotInTheFuture
     {
         vm.warp({ timestamp: defaults.END_TIME() });
@@ -76,17 +76,17 @@ abstract contract StatusOf_Integration_Concrete_Test is Integration_Test, Lockup
         assertEq(actualStatus, expectedStatus);
     }
 
-    modifier whenRefundableAmountNotZero() {
+    modifier givenRefundableAmountNotZero() {
         _;
     }
 
     function test_StatusOf()
         external
-        whenNotNull
-        whenAssetsNotFullyWithdrawn
-        whenStreamNotCanceled
+        givenNotNull
+        givenAssetsNotFullyWithdrawn
+        givenStreamNotCanceled
         whenStartTimeNotInTheFuture
-        whenRefundableAmountNotZero
+        givenRefundableAmountNotZero
     {
         vm.warp({ timestamp: defaults.START_TIME() + 1 seconds });
         Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);

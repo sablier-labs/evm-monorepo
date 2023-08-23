@@ -11,29 +11,29 @@ abstract contract IsDepleted_Integration_Concrete_Test is Integration_Test, Lock
 
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) { }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.isDepleted(nullStreamId);
     }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         defaultStreamId = createDefaultStream();
         _;
     }
 
-    function test_IsDepleted_StreamNotDepleted() external whenNotNull {
+    function test_IsDepleted_StreamNotDepleted() external givenNotNull {
         bool isDepleted = lockup.isDepleted(defaultStreamId);
         assertFalse(isDepleted, "isDepleted");
     }
 
-    modifier whenStreamDepleted() {
+    modifier givenStreamDepleted() {
         vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         _;
     }
 
-    function test_IsDepleted() external whenNotNull whenStreamDepleted {
+    function test_IsDepleted() external givenNotNull givenStreamDepleted {
         bool isDepleted = lockup.isDepleted(defaultStreamId);
         assertTrue(isDepleted, "isDepleted");
     }

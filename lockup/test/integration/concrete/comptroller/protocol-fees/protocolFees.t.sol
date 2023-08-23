@@ -19,12 +19,12 @@ contract ProtocolFees_Integration_Concrete_Test is Integration_Test {
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFees");
     }
 
-    modifier whenProtocolFeeSet() {
+    modifier givenProtocolFeeSet() {
         comptroller.setProtocolFee({ asset: dai, newProtocolFee: defaults.PROTOCOL_FEE() });
         _;
     }
 
-    function test_ProtocolFees() external whenProtocolFeeSet {
+    function test_ProtocolFees() external givenProtocolFeeSet {
         UD60x18 actualProtocolFee = comptroller.protocolFees(dai);
         UD60x18 expectedProtocolFee = defaults.PROTOCOL_FEE();
         assertEq(actualProtocolFee, expectedProtocolFee, "protocolFees");

@@ -43,7 +43,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
     function testFuzz_Withdraw_SegmentFuzing(Params memory params)
         external
         whenNotDelegateCalled
-        whenNotNull
+        givenNotNull
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero

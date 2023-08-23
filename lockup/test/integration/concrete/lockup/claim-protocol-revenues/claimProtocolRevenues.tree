@@ -2,9 +2,9 @@ claimProtocolRevenues.t.sol
 ├── when the caller is not the admin
 │  └── it should revert
 └── when the caller is the admin
-   ├── when the protocol revenues are zero
+   ├── given the protocol revenues are zero
    │  └── it should revert
-   └── when the protocol revenues are not zero
+   └── given the protocol revenues are not zero
       ├── it should claim the protocol revenues
       ├── it should update the protocol revenues
       └── it should emit a {ClaimProtocolRevenues} event

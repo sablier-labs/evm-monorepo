@@ -10,12 +10,12 @@ contract MaxFlashLoan_Integration_Concrete_Test is FlashLoan_Integration_Shared_
         assertEq(actualAmount, expectedAmount, "maxFlashLoan amount");
     }
 
-    modifier whenAssetFlashLoanable() {
+    modifier givenAssetFlashLoanable() {
         comptroller.toggleFlashAsset(dai);
         _;
     }
 
-    function test_MaxFlashLoan() external whenAssetFlashLoanable {
+    function test_MaxFlashLoan() external givenAssetFlashLoanable {
         uint256 dealAmount = 14_607_904e18;
         deal({ token: address(dai), to: address(flashLoan), give: dealAmount });
         uint256 actualAmount = flashLoan.maxFlashLoan(address(dai));

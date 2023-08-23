@@ -11,37 +11,37 @@ abstract contract IsCancelable_Integration_Concrete_Test is Integration_Test, Lo
 
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) { }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.isCancelable(nullStreamId);
     }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         defaultStreamId = createDefaultStream();
         _;
     }
 
-    function test_IsCancelable_Cold() external whenNotNull {
+    function test_IsCancelable_Cold() external givenNotNull {
         vm.warp({ timestamp: defaults.END_TIME() }); // settled status
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertFalse(isCancelable, "isCancelable");
     }
 
-    modifier whenNotCold() {
+    modifier givenNotCold() {
         _;
     }
 
-    function test_IsCancelable_StreamCancelable() external whenNotNull whenNotCold {
+    function test_IsCancelable_StreamCancelable() external givenNotNull givenNotCold {
         bool isCancelable = lockup.isCancelable(defaultStreamId);
         assertTrue(isCancelable, "isCancelable");
     }
 
-    modifier whenStreamNotCancelable() {
+    modifier givenStreamNotCancelable() {
         _;
     }
 
-    function test_IsCancelable() external whenNotNull whenNotCold whenStreamNotCancelable {
+    function test_IsCancelable() external givenNotNull givenNotCold givenStreamNotCancelable {
         uint256 streamId = createDefaultStreamNotCancelable();
         bool isCancelable = lockup.isCancelable(streamId);
         assertFalse(isCancelable, "isCancelable");

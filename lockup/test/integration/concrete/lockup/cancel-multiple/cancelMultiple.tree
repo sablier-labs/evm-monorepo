@@ -5,16 +5,16 @@ cancelMultiple.t.sol
    ├── when the array count is zero
    │  └── it should do nothing
    └── when the array count is not zero
-      ├── when the stream ids array references only null streams
+      ├── given the stream ids array references only null streams
       │  └── it should revert
-      ├── when the stream ids array references some null streams
+      ├── given the stream ids array references some null streams
       │  └── it should revert
-      └── when the stream ids array references only streams that are not null
-         ├── when all streams are cold
+      └── given the stream ids array references only streams that are not null
+         ├── given all streams are cold
          │  └── it should revert
-         ├── when some streams are cold
+         ├── given some streams are cold
          │  └── it should revert
-         └── when all streams are warm
+         └── given all streams are warm
             ├── when the caller is unauthorized for all streams
             │  ├── when the caller is a malicious third party
             │  │  └── it should revert
@@ -30,11 +30,11 @@ cancelMultiple.t.sol
             │  └── when the caller is a former recipient
             │     └── it should revert
             └── when the caller is authorized for all streams
-               ├── when all streams are not cancelable
+               ├── given all streams are not cancelable
                │  └── it should revert
-               ├── when some streams are not cancelable
+               ├── given some streams are not cancelable
                │  └── it should revert
-               └── when all streams are cancelable
+               └── given all streams are cancelable
                   ├── when the caller is the sender
                   │  ├── it should cancel the streams
                   │  ├── it should refund the sender

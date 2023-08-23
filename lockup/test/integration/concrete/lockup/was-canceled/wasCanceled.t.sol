@@ -11,28 +11,28 @@ abstract contract WasCanceled_Integration_Concrete_Test is Integration_Test, Loc
 
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) { }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.wasCanceled(nullStreamId);
     }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         defaultStreamId = createDefaultStream();
         _;
     }
 
-    function test_WasCanceled_StreamNotCanceled() external whenNotNull {
+    function test_WasCanceled_StreamNotCanceled() external givenNotNull {
         bool wasCanceled = lockup.wasCanceled(defaultStreamId);
         assertFalse(wasCanceled, "wasCanceled");
     }
 
-    modifier whenStreamCanceled() {
+    modifier givenStreamCanceled() {
         lockup.cancel(defaultStreamId);
         _;
     }
 
-    function test_WasCanceled() external whenNotNull whenStreamCanceled {
+    function test_WasCanceled() external givenNotNull givenStreamCanceled {
         bool wasCanceled = lockup.wasCanceled(defaultStreamId);
         assertTrue(wasCanceled, "wasCanceled");
     }

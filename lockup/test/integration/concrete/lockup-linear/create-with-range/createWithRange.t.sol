@@ -77,7 +77,7 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime }));
     }
 
-    function test_RevertWhen_EndTimeNotInTheFuture()
+    function test_RevertGiven_EndTimeNotInTheFuture()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -92,7 +92,7 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
         createDefaultStream();
     }
 
-    function test_RevertWhen_ProtocolFeeTooHigh()
+    function test_RevertGiven_ProtocolFeeTooHigh()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -123,7 +123,7 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
-        whenProtocolFeeNotTooHigh
+        givenProtocolFeeNotTooHigh
     {
         UD60x18 brokerFee = MAX_FEE + ud(1);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, MAX_FEE));
@@ -138,7 +138,7 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
-        whenProtocolFeeNotTooHigh
+        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
     {
         address nonContract = address(8128);
@@ -154,7 +154,7 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
-        whenProtocolFeeNotTooHigh
+        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
     {
@@ -168,7 +168,7 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
-        whenProtocolFeeNotTooHigh
+        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
         whenAssetERC20

@@ -26,7 +26,7 @@ contract FlashLoanFunction_Integration_Concrete_Test is FlashLoanFunction_Integr
         flashLoan.flashLoan({ receiver: goodFlashLoanReceiver, asset: address(dai), amount: amount, data: bytes("") });
     }
 
-    function test_RevertWhen_AssetNotFlashLoanable() external whenNotDelegateCalled whenAmountNotTooHigh {
+    function test_RevertGiven_AssetNotFlashLoanable() external whenNotDelegateCalled whenAmountNotTooHigh {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2FlashLoan_AssetNotFlashLoanable.selector, dai));
         flashLoan.flashLoan({ receiver: goodFlashLoanReceiver, asset: address(dai), amount: 0, data: bytes("") });
     }
@@ -35,7 +35,7 @@ contract FlashLoanFunction_Integration_Concrete_Test is FlashLoanFunction_Integr
         external
         whenNotDelegateCalled
         whenAmountNotTooHigh
-        whenAssetFlashLoanable
+        givenAssetFlashLoanable
     {
         // Set the comptroller flash fee so that the calculated fee ends up being greater than 2^128.
         comptroller.setFlashFee({ newFlashFee: ud(1.1e18) });
@@ -54,7 +54,7 @@ contract FlashLoanFunction_Integration_Concrete_Test is FlashLoanFunction_Integr
         external
         whenNotDelegateCalled
         whenAmountNotTooHigh
-        whenAssetFlashLoanable
+        givenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh
     {
         deal({ token: address(dai), to: address(flashLoan), give: LIQUIDITY_AMOUNT });
@@ -71,7 +71,7 @@ contract FlashLoanFunction_Integration_Concrete_Test is FlashLoanFunction_Integr
         external
         whenNotDelegateCalled
         whenAmountNotTooHigh
-        whenAssetFlashLoanable
+        givenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh
         whenBorrowDoesNotFail
     {
@@ -90,7 +90,7 @@ contract FlashLoanFunction_Integration_Concrete_Test is FlashLoanFunction_Integr
         external
         whenNotDelegateCalled
         whenAmountNotTooHigh
-        whenAssetFlashLoanable
+        givenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh
         whenBorrowDoesNotFail
         whenNoReentrancy

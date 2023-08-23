@@ -19,9 +19,9 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
 
     function test_StreamedAmountOf_CliffTimeInThePast()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
     {
         uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
@@ -30,9 +30,9 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
 
     function test_StreamedAmountOf_CliffTimeInThePresent()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
     {
         vm.warp({ timestamp: defaults.CLIFF_TIME() });
         uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(defaultStreamId);
@@ -42,9 +42,9 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
 
     function test_StreamedAmountOf_CliffTimeInTheFuture()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
     {
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(defaultStreamId);

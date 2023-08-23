@@ -12,7 +12,7 @@ abstract contract GetWithdrawnAmount_Integration_Fuzz_Test is
         GetWithdrawnAmount_Integration_Shared_Test.setUp();
     }
 
-    function testFuzz_GetWithdrawnAmount_NoPreviousWithdrawals(uint256 timeJump) external whenNotNull {
+    function testFuzz_GetWithdrawnAmount_NoPreviousWithdrawals(uint256 timeJump) external givenNotNull {
         timeJump = _bound(timeJump, 0 seconds, defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
@@ -29,8 +29,8 @@ abstract contract GetWithdrawnAmount_Integration_Fuzz_Test is
         uint128 withdrawAmount
     )
         external
-        whenNotNull
-        whenPreviousWithdrawals
+        givenNotNull
+        givenPreviousWithdrawals
     {
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
 

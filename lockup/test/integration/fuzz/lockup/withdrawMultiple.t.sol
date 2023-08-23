@@ -24,8 +24,8 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
         external
         whenNotDelegateCalled
         whenArraysEqual
-        whenNoNull
-        whenNoDepletedStream
+        givenNoNull
+        givenNoDepletedStream
         whenCallerAuthorizedAllStreams
         whenToNonZeroAddress
         whenNoAmountZero

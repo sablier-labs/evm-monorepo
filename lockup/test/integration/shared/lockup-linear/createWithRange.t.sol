@@ -34,7 +34,7 @@ abstract contract CreateWithRange_Integration_Shared_Test is LockupLinear_Integr
         _;
     }
 
-    modifier whenProtocolFeeNotTooHigh() {
+    modifier givenProtocolFeeNotTooHigh() {
         _;
     }
 

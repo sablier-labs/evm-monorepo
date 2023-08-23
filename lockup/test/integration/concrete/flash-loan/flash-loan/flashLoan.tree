@@ -5,9 +5,9 @@ flashLoan.t.sol
    ├── when the flash loan amount is too high
    │  └── it should revert
    └── when the flash loan amount is not too high
-      ├── when the asset is not flash loanable
+      ├── given the asset is not flash loanable
       │  └── it should revert
-      └── when the asset is flash loanable
+      └── given the asset is flash loanable
          ├── when the calculated fee is too high
          │  └── it should revert
          └── when the calculated fee is not too high
@@ -21,6 +21,6 @@ flashLoan.t.sol
                   │  └── it should revert
                   └── when there is no reentrancy
                      ├── it should execute the flash loan
-                     ├── it should  make the ERC-20 transfers
+                     ├── it should make the ERC-20 transfers
                      ├── it should update the protocol revenues
                      └── it should emit a {FlashLoan} event

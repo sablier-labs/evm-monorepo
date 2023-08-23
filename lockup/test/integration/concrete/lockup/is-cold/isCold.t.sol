@@ -11,43 +11,43 @@ abstract contract IsCold_Integration_Concrete_Test is Integration_Test, Lockup_I
 
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) { }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.isCold(nullStreamId);
     }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         defaultStreamId = createDefaultStream();
         _;
     }
 
-    function test_IsCold_StatusPending() external whenNotNull {
+    function test_IsCold_StatusPending() external givenNotNull {
         vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
         bool isCold = lockup.isCold(defaultStreamId);
         assertFalse(isCold, "isCold");
     }
 
-    function test_IsCold_StatusStreaming() external whenNotNull {
+    function test_IsCold_StatusStreaming() external givenNotNull {
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         bool isCold = lockup.isCold(defaultStreamId);
         assertFalse(isCold, "isCold");
     }
 
-    function test_IsCold_StatusSettled() external whenNotNull {
+    function test_IsCold_StatusSettled() external givenNotNull {
         vm.warp({ timestamp: defaults.END_TIME() });
         bool isCold = lockup.isCold(defaultStreamId);
         assertTrue(isCold, "isCold");
     }
 
-    function test_IsCold_StatusCanceled() external whenNotNull {
+    function test_IsCold_StatusCanceled() external givenNotNull {
         vm.warp({ timestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         bool isCold = lockup.isCold(defaultStreamId);
         assertTrue(isCold, "isCold");
     }
 
-    function test_IsCold_StatusDepleted() external whenNotNull {
+    function test_IsCold_StatusDepleted() external givenNotNull {
         vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         bool isCold = lockup.isCold(defaultStreamId);

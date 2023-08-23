@@ -20,9 +20,9 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Concrete_Test is
 
     function test_WithdrawableAmountOf_StartTimeInThePresent()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
     {
         vm.warp({ timestamp: defaults.START_TIME() });
         uint128 actualWithdrawableAmount = lockupDynamic.withdrawableAmountOf(defaultStreamId);
@@ -36,9 +36,9 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Concrete_Test is
 
     function test_WithdrawableAmountOf_NoPreviousWithdrawals()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
         whenStartTimeInThePast
     {
         // Simulate the passage of time.
@@ -57,9 +57,9 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Concrete_Test is
 
     function test_WithdrawableAmountOf()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
         whenStartTimeInThePast
         whenWithWithdrawals
     {

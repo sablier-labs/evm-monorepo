@@ -167,7 +167,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
-        whenProtocolFeeNotTooHigh
+        givenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
         broker.fee = _bound(broker.fee, MAX_FEE + ud(1), MAX_UD60x18);
@@ -217,7 +217,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
-        whenProtocolFeeNotTooHigh
+        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
         whenAssetERC20

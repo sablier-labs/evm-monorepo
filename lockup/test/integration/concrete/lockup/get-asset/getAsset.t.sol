@@ -11,17 +11,17 @@ import { Integration_Test } from "../../../Integration.t.sol";
 abstract contract GetAsset_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) { }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.getAsset(nullStreamId);
     }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         _;
     }
 
-    function test_GetAsset() external whenNotNull {
+    function test_GetAsset() external givenNotNull {
         uint256 streamId = createDefaultStream();
         IERC20 actualAsset = lockup.getAsset(streamId);
         IERC20 expectedAsset = dai;

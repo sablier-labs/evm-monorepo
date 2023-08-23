@@ -28,7 +28,7 @@ contract FlashLoanFunction_Integration_Fuzz_Test is FlashLoanFunction_Integratio
         external
         whenNotDelegateCalled
         whenAmountNotTooHigh
-        whenAssetFlashLoanable
+        givenAssetFlashLoanable
     {
         // Bound the flash fee so that the calculated fee ends up being greater than 2^128.
         flashFee = _bound(flashFee, ud(1.1e18), ud(10e18));
@@ -58,7 +58,7 @@ contract FlashLoanFunction_Integration_Fuzz_Test is FlashLoanFunction_Integratio
         external
         whenNotDelegateCalled
         whenAmountNotTooHigh
-        whenAssetFlashLoanable
+        givenAssetFlashLoanable
         whenCalculatedFeeNotTooHigh
         whenBorrowDoesNotFail
         whenNoReentrancy

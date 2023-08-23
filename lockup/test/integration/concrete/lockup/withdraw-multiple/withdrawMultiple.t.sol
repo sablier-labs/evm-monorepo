@@ -50,7 +50,12 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         _;
     }
 
-    function test_RevertWhen_OnlyNull() external whenNotDelegateCalled whenArrayCountsAreEqual whenArrayCountsNotZero {
+    function test_RevertGiven_OnlyNull()
+        external
+        whenNotDelegateCalled
+        whenArrayCountsAreEqual
+        whenArrayCountsNotZero
+    {
         uint256 nullStreamId = 1729;
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
@@ -61,7 +66,12 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         });
     }
 
-    function test_RevertWhen_SomeNull() external whenNotDelegateCalled whenArrayCountsAreEqual whenArrayCountsNotZero {
+    function test_RevertGiven_SomeNull()
+        external
+        whenNotDelegateCalled
+        whenArrayCountsAreEqual
+        whenArrayCountsNotZero
+    {
         uint256 nullStreamId = 1729;
         uint256[] memory streamIds = Solarray.uint256s(testStreamIds[0], testStreamIds[1], nullStreamId);
 
@@ -75,12 +85,12 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: testAmounts });
     }
 
-    function test_RevertWhen_AllStatusesDepleted()
+    function test_RevertGiven_AllStatusesDepleted()
         external
         whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenNoNull
+        givenNoNull
     {
         uint256[] memory streamIds = Solarray.uint256s(testStreamIds[0]);
         uint128[] memory amounts = Solarray.uint128s(defaults.WITHDRAW_AMOUNT());
@@ -98,12 +108,12 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         lockup.withdrawMultiple({ streamIds: streamIds, to: users.recipient, amounts: amounts });
     }
 
-    function test_RevertWhen_SomeStatusesDepleted()
+    function test_RevertGiven_SomeStatusesDepleted()
         external
         whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenNoNull
+        givenNoNull
     {
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.END_TIME() });
@@ -123,8 +133,8 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenNoNull
-        whenNoDepletedStream
+        givenNoNull
+        givenNoDepletedStream
         whenCallerUnauthorized
     {
         // Make Eve the caller in this test.
@@ -142,8 +152,8 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenNoNull
-        whenNoDepletedStream
+        givenNoNull
+        givenNoDepletedStream
         whenCallerUnauthorized
     {
         // Transfer all streams to Alice.
@@ -164,8 +174,8 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenNoNull
-        whenNoDepletedStream
+        givenNoNull
+        givenNoDepletedStream
         whenCallerUnauthorized
     {
         // Create a stream with Eve as the stream's recipient.
@@ -190,8 +200,8 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenNoNull
-        whenNoDepletedStream
+        givenNoNull
+        givenNoDepletedStream
         whenCallerUnauthorized
     {
         // Transfer one of the streams to Eve.
@@ -213,8 +223,8 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenNoNull
-        whenNoDepletedStream
+        givenNoNull
+        givenNoDepletedStream
         whenCallerAuthorizedAllStreams
     {
         if (caller == users.sender) {
@@ -229,8 +239,8 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenNoNull
-        whenNoDepletedStream
+        givenNoNull
+        givenNoDepletedStream
         whenCallerAuthorizedAllStreams
         whenToNonZeroAddress
     {
@@ -248,8 +258,8 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenNoNull
-        whenNoDepletedStream
+        givenNoNull
+        givenNoDepletedStream
         whenCallerAuthorizedAllStreams
         whenToNonZeroAddress
         whenNoAmountZero
@@ -273,8 +283,8 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenArrayCountsAreEqual
         whenArrayCountsNotZero
-        whenNoNull
-        whenNoDepletedStream
+        givenNoNull
+        givenNoDepletedStream
         whenCallerAuthorizedAllStreams
         whenToNonZeroAddress
         whenNoAmountZero

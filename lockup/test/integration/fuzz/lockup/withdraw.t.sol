@@ -17,8 +17,8 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
     function testFuzz_Withdraw_CallerApprovedOperator(address to)
         external
         whenNotDelegateCalled
-        whenNotNull
-        whenStreamNotDepleted
+        givenNotNull
+        givenStreamNotDepleted
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -61,7 +61,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
     )
         external
         whenNotDelegateCalled
-        whenNotNull
+        givenNotNull
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
@@ -127,7 +127,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
     )
         external
         whenNotDelegateCalled
-        whenNotNull
+        givenNotNull
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero

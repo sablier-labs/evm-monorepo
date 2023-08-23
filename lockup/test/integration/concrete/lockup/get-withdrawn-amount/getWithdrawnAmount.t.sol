@@ -14,13 +14,13 @@ abstract contract GetWithdrawnAmount_Integration_Concrete_Test is
         GetWithdrawnAmount_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
         lockup.getWithdrawnAmount(nullStreamId);
     }
 
-    function test_GetWithdrawnAmount_NoPreviousWithdrawals() external whenNotNull {
+    function test_GetWithdrawnAmount_NoPreviousWithdrawals() external givenNotNull {
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 
@@ -30,7 +30,7 @@ abstract contract GetWithdrawnAmount_Integration_Concrete_Test is
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    function test_GetWithdrawnAmount() external whenNotNull whenPreviousWithdrawals {
+    function test_GetWithdrawnAmount() external givenNotNull givenPreviousWithdrawals {
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 

@@ -23,8 +23,8 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
 
     function testFuzz_WithdrawableAmountOf_CliffTimeInTheFuture(uint40 timeJump)
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
+        givenNotNull
+        givenStreamHasNotBeenCanceled
     {
         timeJump = boundUint40(timeJump, 0, defaults.CLIFF_DURATION() - 1);
         vm.warp({ timestamp: defaults.START_TIME() + timeJump });
@@ -53,8 +53,8 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         uint128 depositAmount
     )
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
+        givenNotNull
+        givenStreamHasNotBeenCanceled
         whenCliffTimeNotInTheFuture
     {
         vm.assume(depositAmount != 0);
@@ -79,7 +79,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier whenPreviousWithdrawals() {
+    modifier givenPreviousWithdrawals() {
         _;
     }
 
@@ -100,10 +100,10 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         uint128 withdrawAmount
     )
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
+        givenNotNull
+        givenStreamHasNotBeenCanceled
         whenCliffTimeNotInTheFuture
-        whenPreviousWithdrawals
+        givenPreviousWithdrawals
     {
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
         depositAmount = boundUint128(depositAmount, 10_000, MAX_UINT128);

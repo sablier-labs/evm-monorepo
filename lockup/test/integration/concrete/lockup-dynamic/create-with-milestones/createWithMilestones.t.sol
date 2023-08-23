@@ -168,7 +168,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_EndTimeNotInTheFuture()
+    function test_RevertGiven_EndTimeNotInTheFuture()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -225,7 +225,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         lockupDynamic.createWithMilestones(params);
     }
 
-    function test_RevertWhen_ProtocolFeeTooHigh()
+    function test_RevertGiven_ProtocolFeeTooHigh()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -264,7 +264,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
-        whenProtocolFeeNotTooHigh
+        givenProtocolFeeNotTooHigh
     {
         UD60x18 brokerFee = MAX_FEE + ud(1);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, MAX_FEE));
@@ -283,7 +283,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
-        whenProtocolFeeNotTooHigh
+        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
     {
         address nonContract = address(8128);
@@ -311,7 +311,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
-        whenProtocolFeeNotTooHigh
+        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
     {
@@ -330,7 +330,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         whenSegmentMilestonesOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
-        whenProtocolFeeNotTooHigh
+        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
         whenAssetERC20

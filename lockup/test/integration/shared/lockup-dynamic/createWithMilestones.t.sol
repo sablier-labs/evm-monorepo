@@ -50,7 +50,7 @@ contract CreateWithMilestones_Integration_Shared_Test is LockupDynamic_Integrati
         _;
     }
 
-    modifier whenProtocolFeeNotTooHigh() {
+    modifier givenProtocolFeeNotTooHigh() {
         _;
     }
 

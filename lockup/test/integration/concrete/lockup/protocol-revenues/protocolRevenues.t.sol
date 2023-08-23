@@ -13,7 +13,7 @@ abstract contract ProtocolRevenues_Integration_Concrete_Test is Integration_Test
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
     }
 
-    modifier whenProtocolRevenuesNotZero() {
+    modifier givenProtocolRevenuesNotZero() {
         // Create the default stream, which will accrue revenues for the protocol.
         changePrank({ msgSender: users.sender });
         createDefaultStream();
@@ -21,7 +21,7 @@ abstract contract ProtocolRevenues_Integration_Concrete_Test is Integration_Test
         _;
     }
 
-    function test_ProtocolRevenues() external whenProtocolRevenuesNotZero {
+    function test_ProtocolRevenues() external givenProtocolRevenuesNotZero {
         uint128 actualProtocolRevenues = base.protocolRevenues(dai);
         uint128 expectedProtocolRevenues = defaults.PROTOCOL_FEE_AMOUNT();
         assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");

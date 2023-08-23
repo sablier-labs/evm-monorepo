@@ -17,11 +17,11 @@ contract SafeAssetDecimals_Integration_Concrete_Test is NFTDescriptor_Integratio
         assertEq(actualDecimals, expectedDecimals, "decimals");
     }
 
-    modifier whenNotReverted() {
+    modifier whenAssetDecimalsDefined() {
         _;
     }
 
-    function test_SafeAssetDecimals() external whenNotReverted {
+    function test_SafeAssetDecimals() external whenAssetDecimalsDefined {
         uint8 actualDecimals = nftDescriptorMock.safeAssetDecimals_(address(dai));
         uint8 expectedDecimals = dai.decimals();
         assertEq(actualDecimals, expectedDecimals, "decimals");

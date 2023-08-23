@@ -49,11 +49,11 @@ abstract contract WithdrawMultiple_Integration_Shared_Test is Lockup_Integration
         _;
     }
 
-    modifier whenNoNull() {
+    modifier givenNoNull() {
         _;
     }
 
-    modifier whenNoDepletedStream() {
+    modifier givenNoDepletedStream() {
         vm.warp({ timestamp: defaults.START_TIME() });
         _;
     }

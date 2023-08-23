@@ -18,7 +18,7 @@ contract FlashLoanFunction_Integration_Shared_Test is FlashLoan_Integration_Shar
         _;
     }
 
-    modifier whenAssetFlashLoanable() {
+    modifier givenAssetFlashLoanable() {
         if (!comptroller.isFlashAsset(dai)) {
             comptroller.toggleFlashAsset(dai);
         }

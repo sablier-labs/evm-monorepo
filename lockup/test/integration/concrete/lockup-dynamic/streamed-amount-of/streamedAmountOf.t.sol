@@ -21,9 +21,9 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
 
     function test_StreamedAmountOf_StartTimeInTheFuture()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
     {
         vm.warp({ timestamp: 0 });
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
@@ -33,9 +33,9 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
 
     function test_StreamedAmountOf_StartTimeInThePresent()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
     {
         vm.warp({ timestamp: defaults.START_TIME() });
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
@@ -45,9 +45,9 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
 
     function test_StreamedAmountOf_OneSegment()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
         whenStartTimeInThePast
     {
         // Simulate the passage of time.
@@ -70,16 +70,16 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier whenMultipleSegments() {
+    modifier givenMultipleSegments() {
         _;
     }
 
     function test_StreamedAmountOf_CurrentMilestone1st()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
-        whenMultipleSegments
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
+        givenMultipleSegments
         whenStartTimeInThePast
     {
         // Warp 1 second to the future.
@@ -97,11 +97,11 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
 
     function test_StreamedAmountOf_CurrentMilestoneNot1st()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
         whenStartTimeInThePast
-        whenMultipleSegments
+        givenMultipleSegments
         whenCurrentMilestoneNot1st
     {
         // Simulate the passage of time. 750 seconds is ~10% of the way in the second segment.

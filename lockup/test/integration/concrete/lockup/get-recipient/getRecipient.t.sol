@@ -11,17 +11,17 @@ abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test, Lo
         defaultStreamId = createDefaultStream();
     }
 
-    function test_RevertWhen_Null() external {
+    function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert("ERC721: invalid token ID");
         lockup.getRecipient(nullStreamId);
     }
 
-    modifier whenNotNull() {
+    modifier givenNotNull() {
         _;
     }
 
-    function test_RevertWhen_NFTBurned() external {
+    function test_RevertGiven_NFTBurned() external {
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.END_TIME() });
 
@@ -39,11 +39,11 @@ abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test, Lo
         lockup.getRecipient(defaultStreamId);
     }
 
-    modifier whenNFTNotBurned() {
+    modifier givenNFTNotBurned() {
         _;
     }
 
-    function test_GetRecipient() external whenNotNull whenNFTNotBurned {
+    function test_GetRecipient() external givenNotNull givenNFTNotBurned {
         address actualRecipient = lockup.getRecipient(defaultStreamId);
         address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient, "recipient");

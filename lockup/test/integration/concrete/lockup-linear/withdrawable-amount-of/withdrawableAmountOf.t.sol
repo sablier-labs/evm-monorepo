@@ -20,9 +20,9 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test is
 
     function test_WithdrawableAmountOf_CliffTimeInTheFuture()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
     {
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
@@ -36,9 +36,9 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test is
 
     function test_WithdrawableAmountOf_NoPreviousWithdrawals()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
         whenCliffTimeNotInTheFuture
     {
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
@@ -46,18 +46,18 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test is
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier whenPreviousWithdrawals() {
+    modifier givenPreviousWithdrawals() {
         lockupLinear.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
         _;
     }
 
     function test_WithdrawableAmountOf_WithWithdrawals()
         external
-        whenNotNull
-        whenStreamHasNotBeenCanceled
-        whenStatusStreaming
+        givenNotNull
+        givenStreamHasNotBeenCanceled
+        givenStatusStreaming
         whenCliffTimeNotInTheFuture
-        whenPreviousWithdrawals
+        givenPreviousWithdrawals
     {
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;

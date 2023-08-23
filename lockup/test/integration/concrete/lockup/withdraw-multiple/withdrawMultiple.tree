@@ -8,16 +8,16 @@ withdrawMultiple.t.sol
       ├── when the array counts are zero
       │  └── it should do nothing
       └── when the array counts are not zero
-         ├── when the stream ids array references only null streams
+         ├── given the stream ids array references only null streams
          │  └── it should revert
-         ├── when the stream ids array references some null streams
+         ├── given the stream ids array references some null streams
          │  └── it should revert
-         └── when the stream ids array references only non-null streams
-            ├── when all streams' statuses are "DEPLETED"
+         └── given the stream ids array references only non-null streams
+            ├── given all streams' statuses are "DEPLETED"
             │  └── it should revert
-            ├── when some streams' statuses are "DEPLETED"
+            ├── given some streams' statuses are "DEPLETED"
             │  └── it should revert
-            └── when no stream's status is "DEPLETED"
+            └── given no stream's status is "DEPLETED"
                ├── when the caller is unauthorized for all streams
                │  ├── when the caller is a malicious third party
                │  │  └── it should revert

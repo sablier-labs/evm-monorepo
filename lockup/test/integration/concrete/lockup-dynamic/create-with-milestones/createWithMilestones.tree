@@ -31,14 +31,12 @@ createWithMilestones.t.sol
                            ├── when the deposit amount is not equal to the segment amounts sum
                            │  └── it should revert
                            └── when the deposit amount is equal to the segment amounts sum
-                              ├── when the protocol fee is too high
+                              ├── given the protocol fee is too high
                               │  └── it should revert
-                              └── when the protocol fee is not too high
+                              └── given the protocol fee is not too high
                                  ├── when the broker fee is too high
                                  │  └── it should revert
                                  └── when the broker fee is not too high
-                                    ├── when the asset is not a contract
-                                    │  └── it should revert
                                     ├── when the asset is not a contract
                                     │  └── it should revert
                                     └── when the asset is a contract
