@@ -185,14 +185,8 @@ contract SablierV2LockupDynamic is
             result = _streams[streamId].isCancelable;
         }
     }
-
     /// @inheritdoc ISablierV2Lockup
-    function isCold(uint256 streamId) external view override notNull(streamId) returns (bool result) {
-        Lockup.Status status = _statusOf(streamId);
-        result = status == Lockup.Status.SETTLED || status == Lockup.Status.CANCELED || status == Lockup.Status.DEPLETED;
-    }
 
-    /// @inheritdoc ISablierV2Lockup
     function isDepleted(uint256 streamId)
         public
         view
@@ -206,12 +200,6 @@ contract SablierV2LockupDynamic is
     /// @inheritdoc ISablierV2Lockup
     function isStream(uint256 streamId) public view override(ISablierV2Lockup, SablierV2Lockup) returns (bool result) {
         result = _streams[streamId].isStream;
-    }
-
-    /// @inheritdoc ISablierV2Lockup
-    function isWarm(uint256 streamId) external view override notNull(streamId) returns (bool result) {
-        Lockup.Status status = _statusOf(streamId);
-        result = status == Lockup.Status.PENDING || status == Lockup.Status.STREAMING;
     }
 
     /// @inheritdoc ISablierV2Lockup

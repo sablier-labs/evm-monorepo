@@ -83,10 +83,22 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
+    function isCold(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        Lockup.Status status = _statusOf(streamId);
+        result = status == Lockup.Status.SETTLED || status == Lockup.Status.CANCELED || status == Lockup.Status.DEPLETED;
+    }
+
+    /// @inheritdoc ISablierV2Lockup
     function isDepleted(uint256 streamId) public view virtual override returns (bool result);
 
     /// @inheritdoc ISablierV2Lockup
     function isStream(uint256 streamId) public view virtual override returns (bool result);
+
+    /// @inheritdoc ISablierV2Lockup
+    function isWarm(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+        Lockup.Status status = _statusOf(streamId);
+        result = status == Lockup.Status.PENDING || status == Lockup.Status.STREAMING;
+    }
 
     /// @inheritdoc ERC721
     function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
