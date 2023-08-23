@@ -9,7 +9,7 @@ import { ISablierV2Base } from "./ISablierV2Base.sol";
 import { ISablierV2NFTDescriptor } from "./ISablierV2NFTDescriptor.sol";
 
 /// @title ISablierV2Lockup
-/// @notice Common logic between all Sablier V2 lockup streaming contracts.
+/// @notice Common logic between all Sablier V2 Lockup streaming contracts.
 interface ISablierV2Lockup is
     ISablierV2Base, // 1 inherited component
     IERC721Metadata // 2 inherited components
