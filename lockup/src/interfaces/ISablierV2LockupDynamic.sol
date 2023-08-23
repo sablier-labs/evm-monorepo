@@ -7,7 +7,7 @@ import { Lockup, LockupDynamic } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupDynamic
-/// @notice Creates and manages lockup streams with dynamic streaming functions.
+/// @notice Creates and manages Lockup streams with dynamic streaming functions.
 interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
