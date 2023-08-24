@@ -343,6 +343,9 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         // Make the Sender the stream's funder.
         address funder = users.sender;
 
+        // make NFT transferrable
+        bool transferrable = true;
+
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
             asset: IERC20(asset),
@@ -370,6 +373,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
             segments: defaults.segments(),
             asset: IERC20(asset),
             cancelable: true,
+            transferrable: transferrable,
             range: defaults.lockupDynamicRange(),
             broker: users.broker
         });

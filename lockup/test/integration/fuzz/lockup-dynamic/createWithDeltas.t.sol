@@ -91,6 +91,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
             amounts: vars.createAmounts,
             asset: dai,
             cancelable: true,
+            transferrable: true,
             segments: vars.segmentsWithMilestones,
             range: range,
             broker: users.broker
@@ -113,6 +114,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
+        assertEq(actualStream.isTransferrable, true, "isTransferrable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.segments, vars.segmentsWithMilestones, "segments");

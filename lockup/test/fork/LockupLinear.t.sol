@@ -42,6 +42,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         uint128 totalAmount;
         uint40 warpTimestamp;
         uint128 withdrawAmount;
+        bool transferrable;
     }
 
     struct Vars {
@@ -167,6 +168,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
             amounts: vars.createAmounts,
             asset: asset,
             cancelable: true,
+            transferrable: params.transferrable,
             range: params.range,
             broker: params.broker.account
         });
@@ -177,6 +179,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
                 asset: asset,
                 broker: params.broker,
                 cancelable: true,
+                transferrable: params.transferrable,
                 range: params.range,
                 recipient: params.recipient,
                 sender: params.sender,

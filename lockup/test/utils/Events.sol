@@ -96,6 +96,7 @@ abstract contract Events {
         Lockup.CreateAmounts amounts,
         IERC20 indexed asset,
         bool cancelable,
+        bool transferrable,
         LockupDynamic.Segment[] segments,
         LockupDynamic.Range range,
         address broker
@@ -113,6 +114,7 @@ abstract contract Events {
         Lockup.CreateAmounts amounts,
         IERC20 indexed asset,
         bool cancelable,
+        bool transferrable,
         LockupLinear.Range range,
         address broker
     );

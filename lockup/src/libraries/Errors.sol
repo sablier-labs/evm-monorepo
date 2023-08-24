@@ -137,4 +137,11 @@ library Errors {
 
     /// @notice Thrown when trying to generate the token URI for an unknown ERC-721 NFT contract.
     error SablierV2NFTDescriptor_UnknownNFT(IERC721Metadata nft, string symbol);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                             SABLIER-V2-NFT-TRANSFERABILITY
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to transfer Stream NFT when transferrability is disabled.
+    error SablierV2NFT_NotTransferrable(uint256 tokenId);
 }

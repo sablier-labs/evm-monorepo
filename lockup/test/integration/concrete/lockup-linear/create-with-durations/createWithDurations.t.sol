@@ -100,6 +100,9 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
             end: currentTime + defaults.TOTAL_DURATION()
         });
 
+        // make NFT transferrable
+        bool transferrable = true;
+
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectCallToTransferFrom({
             from: funder,
@@ -120,6 +123,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
             amounts: defaults.lockupCreateAmounts(),
             asset: dai,
             cancelable: true,
+            transferrable: transferrable,
             range: range,
             broker: users.broker
         });

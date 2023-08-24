@@ -42,6 +42,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         uint40 warpTimestamp;
         LockupDynamic.Segment[] segments;
         uint128 withdrawAmount;
+        bool transferrable;
     }
 
     struct Vars {
@@ -165,6 +166,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
             amounts: vars.createAmounts,
             asset: asset,
             cancelable: true,
+            transferrable: params.transferrable,
             segments: params.segments,
             range: vars.range,
             broker: params.broker.account
@@ -176,6 +178,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
                 asset: asset,
                 broker: params.broker,
                 cancelable: true,
+                transferrable: params.transferrable,
                 recipient: params.recipient,
                 segments: params.segments,
                 sender: params.sender,

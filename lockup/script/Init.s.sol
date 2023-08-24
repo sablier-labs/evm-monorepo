@@ -30,6 +30,7 @@ contract Init is BaseScript {
     {
         address sender = broadcaster;
         address recipient = vm.addr(vm.deriveKey({ mnemonic: mnemonic, index: 1 }));
+        bool isTransferrable = true;
 
         /*//////////////////////////////////////////////////////////////////////////
                                         COMPTROLLER
@@ -73,6 +74,7 @@ contract Init is BaseScript {
                     totalAmount: totalAmounts[i],
                     asset: asset,
                     cancelable: true,
+                    transferrable: isTransferrable,
                     durations: LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] }),
                     broker: Broker(address(0), ud60x18(0))
                 })
@@ -98,6 +100,7 @@ contract Init is BaseScript {
                 asset: asset,
                 broker: Broker(address(0), ud60x18(0)),
                 cancelable: true,
+                transferrable: isTransferrable,
                 recipient: recipient,
                 sender: sender,
                 segments: segments,

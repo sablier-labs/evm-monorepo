@@ -260,7 +260,7 @@ library LockupLinear {
     /// @param endTime The Unix timestamp indicating the stream's end.
     /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
-    /// @param isTransferrable BooleaniIndicating if the stream NFT is transferrable.
+    /// @param isTransferrable Boolean indicating if the stream NFT is transferrable.
     /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.
     struct Stream {

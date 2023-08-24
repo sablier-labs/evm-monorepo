@@ -17,6 +17,8 @@ import { Errors } from "./libraries/Errors.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 
+import "forge-std/console.sol";
+
 /*
 
 ███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗   ██╗██████╗
@@ -67,6 +69,17 @@ contract SablierV2LockupLinear is
         SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor)
     {
         nextStreamId = 1;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            ERC721 TRANFER HOOK FUNCTION 
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _beforeTokenTransfer(address, address, uint256 streamId, uint256) internal view override(ERC721) {
+        console.logBool(_streams[streamId].isTransferrable);
+        if (!_streams[streamId].isTransferrable) {
+            revert Errors.SablierV2NFT_NotTransferrable(streamId);
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -280,6 +293,22 @@ contract SablierV2LockupLinear is
     {
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithRange(params);
+    }
+
+    function toggleTransfer(uint256 streamId) public updateMetadata(streamId) {
+        // Checks: the stream is neither depleted nor canceled. This also checks that the stream is not null.
+        if (isDepleted(streamId)) {
+            revert Errors.SablierV2Lockup_StreamDepleted(streamId);
+        } else if (wasCanceled(streamId)) {
+            revert Errors.SablierV2Lockup_StreamCanceled(streamId);
+        }
+
+        // Checks: `msg.sender` is the stream's sender
+        if (!_isCallerStreamSender(streamId)) {
+            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
+        }
+
+        _streams[streamId].isTransferrable = !_streams[streamId].isTransferrable;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

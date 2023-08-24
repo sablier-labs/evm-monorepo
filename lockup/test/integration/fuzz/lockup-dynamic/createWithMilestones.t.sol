@@ -277,6 +277,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
             amounts: vars.createAmounts,
             asset: dai,
             cancelable: params.cancelable,
+            transferrable: params.transferrable,
             segments: params.segments,
             range: range,
             broker: params.broker.account
@@ -288,6 +289,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
                 asset: dai,
                 broker: params.broker,
                 cancelable: params.cancelable,
+                transferrable: params.transferrable,
                 recipient: params.recipient,
                 segments: params.segments,
                 sender: params.sender,
@@ -307,6 +309,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
+        assertEq(actualStream.isTransferrable, true, "isTransferrable");
         assertEq(actualStream.isDepleted, false, "isStream");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
