@@ -222,6 +222,20 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream to renounce.
     function renounce(uint256 streamId) external;
 
+    /// @notice Toggle stream NFT transferrability.
+    ///
+    /// @dev Emits a {MetadataUpdate} event.
+    ///
+    /// Notes:
+    /// - This function attempts to invoke _beforeTokenTransfer() hook on the stream's NFT.
+    ///
+    /// Requirements:
+    /// - `streamId` must not reference a null or depleted or canceled stream.
+    /// - `msg.sender` must be the stream's sender.
+    ///
+    /// @param streamId The id of the stream.
+    function toggleTransfer(uint256 streamId) external;
+
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///
     /// @dev Emits a {SetNFTDescriptor} and {BatchMetadataUpdate} event.

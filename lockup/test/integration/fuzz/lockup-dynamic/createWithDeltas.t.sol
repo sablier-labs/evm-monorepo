@@ -101,6 +101,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
         LockupDynamic.CreateWithDeltas memory params = defaults.createWithDeltas();
         params.segments = segments;
         params.totalAmount = vars.totalAmount;
+        params.transferrable = true;
         lockupDynamic.createWithDeltas(params);
 
         // Check if the stream is settled. It is possible for a Lockup Dynamic stream to settle at the time of creation

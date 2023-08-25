@@ -23,6 +23,7 @@ import { GetWithdrawnAmount_Integration_Concrete_Test } from "../lockup/get-with
 import { IsCancelable_Integration_Concrete_Test } from "../lockup/is-cancelable/isCancelable.t.sol";
 import { IsCold_Integration_Concrete_Test } from "../lockup/is-cold/isCold.t.sol";
 import { IsDepleted_Integration_Concrete_Test } from "../lockup/is-depleted/isDepleted.t.sol";
+import { IsTransferrable_Integration_Concrete_Test } from "../lockup/is-transferrable/isTransferrable.t.sol";
 import { IsStream_Integration_Concrete_Test } from "../lockup/is-stream/isStream.t.sol";
 import { IsWarm_Integration_Concrete_Test } from "../lockup/is-warm/isWarm.t.sol";
 import { RefundableAmountOf_Integration_Concrete_Test } from "../lockup/refundable-amount-of/refundableAmountOf.t.sol";
@@ -262,6 +263,20 @@ contract IsDepleted_LockupLinear_Integration_Concrete_Test is
     {
         LockupLinear_Integration_Concrete_Test.setUp();
         IsDepleted_Integration_Concrete_Test.setUp();
+    }
+}
+
+contract IsTransferrable_LockupLinear_Integration_Concrete_Test is
+    LockupLinear_Integration_Concrete_Test,
+    IsTransferrable_Integration_Concrete_Test
+{
+    function setUp()
+        public
+        virtual
+        override(LockupLinear_Integration_Concrete_Test, IsTransferrable_Integration_Concrete_Test)
+    {
+        LockupLinear_Integration_Concrete_Test.setUp();
+        IsTransferrable_Integration_Concrete_Test.setUp();
     }
 }
 

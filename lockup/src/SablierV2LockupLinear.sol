@@ -17,8 +17,6 @@ import { Errors } from "./libraries/Errors.sol";
 import { Helpers } from "./libraries/Helpers.sol";
 import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 
-import "forge-std/console.sol";
-
 /*
 
 ███████╗ █████╗ ██████╗ ██╗     ██╗███████╗██████╗     ██╗   ██╗██████╗
@@ -75,8 +73,7 @@ contract SablierV2LockupLinear is
                             ERC721 TRANFER HOOK FUNCTION 
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _beforeTokenTransfer(address, address, uint256 streamId, uint256) internal view override(ERC721) {
-        console.logBool(_streams[streamId].isTransferrable);
+    function _beforeTokenTransfer(address, address, uint256 streamId, uint256) internal view override {
         if (!_streams[streamId].isTransferrable) {
             revert Errors.SablierV2NFT_NotTransferrable(streamId);
         }
@@ -295,7 +292,7 @@ contract SablierV2LockupLinear is
         streamId = _createWithRange(params);
     }
 
-    function toggleTransfer(uint256 streamId) public updateMetadata(streamId) {
+    function toggleTransfer(uint256 streamId) public updateMetadata(streamId) notNull(streamId) {
         // Checks: the stream is neither depleted nor canceled. This also checks that the stream is not null.
         if (isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);

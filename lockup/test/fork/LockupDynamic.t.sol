@@ -120,6 +120,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
         params.protocolFee = _bound(params.protocolFee, 0, MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
+        params.transferrable = true;
 
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(params.segments, params.startTime);
@@ -199,6 +200,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         assertEq(actualStream.endTime, vars.range.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
+        assertEq(actualStream.isTransferrable, true, "isTransferrable");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.segments, params.segments, "segments");
         assertEq(actualStream.sender, params.sender, "sender");

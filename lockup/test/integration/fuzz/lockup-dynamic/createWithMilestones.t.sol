@@ -227,6 +227,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
         protocolFee = _bound(protocolFee, 0, MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
+        params.transferrable = true;
 
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(params.segments, params.startTime);
