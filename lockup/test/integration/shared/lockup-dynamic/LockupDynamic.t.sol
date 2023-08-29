@@ -140,4 +140,11 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         params.totalAmount = totalAmount;
         streamId = lockupDynamic.createWithMilestones(params);
     }
+
+    /// @dev Creates the default stream with the NFT transfer disabled.
+    function createDefaultStreamWithTransferDisabled() internal override returns (uint256 streamId) {
+        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        params.transferrable = false;
+        streamId = lockupDynamic.createWithMilestones(params);
+    }
 }

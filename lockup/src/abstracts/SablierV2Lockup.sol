@@ -63,6 +63,14 @@ abstract contract SablierV2Lockup is
         _;
     }
 
+    /// @dev Checks that stream has transfer enabled on its NFT.
+    modifier canStreamTransfer(uint256 streamId) {
+        if (!isTransferrable(streamId)) {
+            revert Errors.SablierV2NFT_NotTransferrable(streamId);
+        }
+        _;
+    }
+
     /// @dev Emits an ERC-4906 event to trigger an update of the NFT metadata.
     modifier updateMetadata(uint256 streamId) {
         _;
@@ -122,6 +130,9 @@ abstract contract SablierV2Lockup is
     {
         withdrawableAmount = _withdrawableAmountOf(streamId);
     }
+
+    /// @inheritdoc ISablierV2Lockup
+    function isTransferrable(uint256 streamId) public view virtual returns (bool);
 
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
@@ -271,6 +282,7 @@ abstract contract SablierV2Lockup is
         noDelegateCall
         notNull(streamId)
         updateMetadata(streamId)
+        canStreamTransfer(streamId)
     {
         // Checks: the caller is the current recipient. This also checks that the NFT was not burned.
         address currentRecipient = _ownerOf(streamId);

@@ -1,0 +1,8 @@
+isTransferrable.t.sol
+├── given the id references a null stream
+│   └── it should revert
+└── given the id does not reference a null stream
+    ├── given the stream is not transferrable
+    │   └── it should return false
+    └── given the stream is transferrable
+        └── it should return true

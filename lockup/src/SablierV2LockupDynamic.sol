@@ -88,8 +88,8 @@ contract SablierV2LockupDynamic is
                             ERC721 TRANFER HOOK FUNCTION 
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _beforeTokenTransfer(address, address, uint256 streamId, uint256) internal view override {
-        if (!_streams[streamId].isTransferrable) {
+    function _beforeTokenTransfer(address from, address to, uint256 streamId, uint256) internal view override {
+        if (!isTransferrable(streamId) && to != address(0) && from != address(0)) {
             revert Errors.SablierV2NFT_NotTransferrable(streamId);
         }
     }
@@ -196,8 +196,14 @@ contract SablierV2LockupDynamic is
         }
     }
 
-    /// @inheritdoc ISablierV2Lockup
-    function isTransferrable(uint256 streamId) external view override notNull(streamId) returns (bool result) {
+    /// @inheritdoc SablierV2Lockup
+    function isTransferrable(uint256 streamId)
+        public
+        view
+        override(ISablierV2Lockup, SablierV2Lockup)
+        notNull(streamId)
+        returns (bool result)
+    {
         result = _streams[streamId].isTransferrable;
     }
 
@@ -300,22 +306,6 @@ contract SablierV2LockupDynamic is
     {
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithMilestones(params);
-    }
-
-    function toggleTransfer(uint256 streamId) public updateMetadata(streamId) notNull(streamId) {
-        // Checks: the stream is neither depleted nor canceled. This also checks that the stream is not null.
-        if (isDepleted(streamId)) {
-            revert Errors.SablierV2Lockup_StreamDepleted(streamId);
-        } else if (wasCanceled(streamId)) {
-            revert Errors.SablierV2Lockup_StreamCanceled(streamId);
-        }
-
-        // Checks: `msg.sender` is the stream's sender
-        if (!_isCallerStreamSender(streamId)) {
-            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-        }
-
-        _streams[streamId].isTransferrable = !_streams[streamId].isTransferrable;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -103,11 +103,6 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function isCancelable(uint256 streamId) external view returns (bool result);
 
-    /// @notice Retrieves a flag indicating whether the stream NFT can be transferred.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream id for the query.
-    function isTransferrable(uint256 streamId) external view returns (bool result);
-
     /// @notice Retrieves a flag indicating whether the stream is cold, i.e. settled, canceled, or depleted.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
@@ -156,6 +151,11 @@ interface ISablierV2Lockup is
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
+
+    /// @notice Retrieves a flag indicating whether the stream NFT can be transferred.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isTransferrable(uint256 streamId) external view returns (bool);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
@@ -221,20 +221,6 @@ interface ISablierV2Lockup is
     ///
     /// @param streamId The id of the stream to renounce.
     function renounce(uint256 streamId) external;
-
-    /// @notice Toggle stream NFT transferrability.
-    ///
-    /// @dev Emits a {MetadataUpdate} event.
-    ///
-    /// Notes:
-    /// - This function attempts to invoke _beforeTokenTransfer() hook on the stream's NFT.
-    ///
-    /// Requirements:
-    /// - `streamId` must not reference a null or depleted or canceled stream.
-    /// - `msg.sender` must be the stream's sender.
-    ///
-    /// @param streamId The id of the stream.
-    function toggleTransfer(uint256 streamId) external;
 
     /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
     ///

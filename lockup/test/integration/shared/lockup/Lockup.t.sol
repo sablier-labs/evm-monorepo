@@ -67,4 +67,7 @@ abstract contract Lockup_Integration_Shared_Test is Base_Test {
 
     /// @dev Creates the default stream with the provided total amount.
     function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal virtual returns (uint256 streamId);
+
+    /// @dev Creates the default stream with the NFT transfer disabled.
+    function createDefaultStreamWithTransferDisabled() internal virtual returns (uint256 streamId);
 }

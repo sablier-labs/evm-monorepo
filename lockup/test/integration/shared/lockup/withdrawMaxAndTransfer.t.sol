@@ -23,6 +23,10 @@ abstract contract WithdrawMaxAndTransfer_Integration_Shared_Test is Lockup_Integ
         _;
     }
 
+    modifier givenStreamTransferEnabled() {
+        _;
+    }
+
     modifier givenNFTNotBurned() {
         _;
     }

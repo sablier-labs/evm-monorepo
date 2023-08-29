@@ -7,6 +7,8 @@ import { Errors } from "src/libraries/Errors.sol";
 import { WithdrawMaxAndTransfer_Integration_Shared_Test } from "../../../shared/lockup/withdrawMaxAndTransfer.t.sol";
 import { Integration_Test } from "../../../Integration.t.sol";
 
+import "forge-std/console.sol";
+
 abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
     Integration_Test,
     WithdrawMaxAndTransfer_Integration_Shared_Test
@@ -27,7 +29,18 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         lockup.withdrawMaxAndTransfer({ streamId: nullStreamId, newRecipient: users.recipient });
     }
 
-    function test_RevertWhen_CallerNotCurrentRecipient() external whenNotDelegateCalled givenNotNull {
+    function test_RevertGiven_StreamTransferNotEnabled() external whenNotDelegateCalled {
+        uint256 noTransferStreamId = createDefaultStreamWithTransferDisabled();
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2NFT_NotTransferrable.selector, noTransferStreamId));
+        lockup.withdrawMaxAndTransfer({ streamId: noTransferStreamId, newRecipient: users.recipient });
+    }
+
+    function test_RevertWhen_CallerNotCurrentRecipient()
+        external
+        givenStreamTransferEnabled
+        whenNotDelegateCalled
+        givenNotNull
+    {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
 
@@ -38,7 +51,13 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.eve });
     }
 
-    function test_RevertGiven_NFTBurned() external whenNotDelegateCalled givenNotNull whenCallerCurrentRecipient {
+    function test_RevertGiven_NFTBurned()
+        external
+        givenStreamTransferEnabled
+        whenNotDelegateCalled
+        givenNotNull
+        whenCallerCurrentRecipient
+    {
         // Deplete the stream.
         vm.warp({ timestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
@@ -55,6 +74,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
 
     function test_WithdrawMaxAndTransfer_WithdrawableAmountZero()
         external
+        givenStreamTransferEnabled
         whenNotDelegateCalled
         givenNotNull
         whenCallerCurrentRecipient
@@ -67,6 +87,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
 
     function test_WithdrawMaxAndTransfer()
         external
+        givenStreamTransferEnabled
         whenNotDelegateCalled
         givenNotNull
         whenCallerCurrentRecipient
