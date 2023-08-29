@@ -9,6 +9,7 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
     uint256 internal streamId;
+    uint256 internal noTransferStreamId;
 
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) {
         streamId = createDefaultStream();
@@ -86,9 +87,9 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         lockup.burn(streamId);
     }
 
-    modifier givenStreamHasBeenDepleted() {
+    modifier givenStreamHasBeenDepleted(uint256 _streamId) {
         vm.warp({ timestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: streamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: _streamId, to: users.recipient });
         _;
     }
 
@@ -96,7 +97,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         external
         whenNotDelegateCalled
         givenNotNull
-        givenStreamHasBeenDepleted
+        givenStreamHasBeenDepleted(streamId)
     {
         changePrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, streamId, users.eve));
@@ -111,7 +112,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         external
         whenNotDelegateCalled
         givenNotNull
-        givenStreamHasBeenDepleted
+        givenStreamHasBeenDepleted(streamId)
         whenCallerAuthorized
     {
         // Burn the NFT so that it no longer exists.
@@ -126,11 +127,11 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         _;
     }
 
-    function test_Burn_CallerApprovedOperator()
+    function test_Burn_CallerApprovedOperator_TransferableNFT()
         external
         whenNotDelegateCalled
         givenNotNull
-        givenStreamHasBeenDepleted
+        givenStreamHasBeenDepleted(streamId)
         whenCallerAuthorized
         givenNFTExists
     {
@@ -148,16 +149,58 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         lockup.getRecipient(streamId);
     }
 
-    function test_Burn_CallerNFTOwner()
+    function test_Burn_CallerNFTOwner_TransferableNFT()
         external
         whenNotDelegateCalled
         givenNotNull
-        givenStreamHasBeenDepleted
+        givenStreamHasBeenDepleted(streamId)
         whenCallerAuthorized
         givenNFTExists
     {
         lockup.burn(streamId);
         vm.expectRevert("ERC721: invalid token ID");
         lockup.getRecipient(streamId);
+    }
+
+    modifier givenNonTransferableNFT() {
+        noTransferStreamId = createDefaultStreamNotTransferable();
+        _;
+    }
+
+    function test_Burn_CallerApprovedOperator_NonTransferableNFT()
+        external
+        givenNonTransferableNFT
+        whenNotDelegateCalled
+        givenNotNull
+        givenStreamHasBeenDepleted(noTransferStreamId)
+        whenCallerAuthorized
+        givenNFTExists
+    {
+        // Approve the operator to handle the stream.
+        lockup.approve({ to: users.operator, tokenId: noTransferStreamId });
+
+        // Make the approved operator the caller in this test.
+        changePrank({ msgSender: users.operator });
+
+        // Burn the NFT.
+        lockup.burn(noTransferStreamId);
+
+        // Assert that the NFT has been burned.
+        vm.expectRevert("ERC721: invalid token ID");
+        lockup.getRecipient(noTransferStreamId);
+    }
+
+    function test_Burn_CallerNFTOwner_NonTransferableNFT()
+        external
+        givenNonTransferableNFT
+        whenNotDelegateCalled
+        givenNotNull
+        givenStreamHasBeenDepleted(noTransferStreamId)
+        whenCallerAuthorized
+        givenNFTExists
+    {
+        lockup.burn(noTransferStreamId);
+        vm.expectRevert("ERC721: invalid token ID");
+        lockup.getRecipient(noTransferStreamId);
     }
 }
