@@ -288,8 +288,8 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
 
-        // skip if NFT transfer is not enabled
-        if (!lockup.isTransferrable(currentStreamId)) {
+        // Skip if the stream is not transferable.
+        if (!lockup.isTransferable(currentStreamId)) {
             return;
         }
 
@@ -331,8 +331,8 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
 
-        // skip if NFT transfer is not enabled
-        if (!lockup.isTransferrable(currentStreamId)) {
+        // Skip if the stream is not transferable.
+        if (!lockup.isTransferable(currentStreamId)) {
             return;
         }
 

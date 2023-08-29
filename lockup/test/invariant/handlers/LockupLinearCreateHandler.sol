@@ -71,9 +71,6 @@ contract LockupLinearCreateHandler is BaseHandler {
 
         // Create the stream.
         params.asset = asset;
-
-        // make stream NFT transferrable
-        params.transferrable = true;
         uint256 streamId = lockupLinear.createWithDurations(params);
 
         // Store the stream id.
@@ -117,9 +114,6 @@ contract LockupLinearCreateHandler is BaseHandler {
 
         // Create the stream.
         params.asset = asset;
-
-        // make stream NFT transferrable
-        params.transferrable = true;
         uint256 streamId = lockupLinear.createWithRange(params);
 
         // Store the stream id.

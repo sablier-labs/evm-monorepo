@@ -155,7 +155,7 @@ interface ISablierV2Lockup is
     /// @notice Retrieves a flag indicating whether the stream NFT can be transferred.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
-    function isTransferrable(uint256 streamId) external view returns (bool);
+    function isTransferable(uint256 streamId) external view returns (bool);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS

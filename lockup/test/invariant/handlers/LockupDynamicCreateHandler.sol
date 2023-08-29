@@ -87,9 +87,6 @@ contract LockupDynamicCreateHandler is BaseHandler {
 
         // Create the stream.
         params.asset = asset;
-
-        // make stream NFT transferrable
-        params.transferrable = true;
         uint256 streamId = lockupDynamic.createWithDeltas(params);
 
         // Store the stream id.
@@ -138,9 +135,6 @@ contract LockupDynamicCreateHandler is BaseHandler {
 
         // Create the stream.
         params.asset = asset;
-
-        // make stream NFT transferrable
-        params.transferrable = true;
         uint256 streamId = lockupDynamic.createWithMilestones(params);
 
         // Store the stream id.

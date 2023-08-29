@@ -78,7 +78,7 @@ library LockupDynamic {
     /// fees, all denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Indicates if the stream is cancelable.
-    /// @param transferrable Indicates if the stream NFT is transferrable.
+    /// @param transferable Indicates if the stream NFT is transferable.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     /// @param segments Segments with deltas used to compose the custom streaming curve. Milestones are calculated by
@@ -86,7 +86,7 @@ library LockupDynamic {
     struct CreateWithDeltas {
         address sender;
         bool cancelable;
-        bool transferrable;
+        bool transferable;
         address recipient;
         uint128 totalAmount;
         IERC20 asset;
@@ -100,7 +100,7 @@ library LockupDynamic {
     /// same as `msg.sender`.
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param cancelable Indicates if the stream is cancelable.
-    /// @param transferrable Indicates if the stream NFT is transferrable.
+    /// @param transferable Indicates if the stream NFT is transferable.
     /// @param recipient The address receiving the assets.
     /// @param totalAmount The total amount of ERC-20 assets to be paid, including the stream deposit and any potential
     /// fees, all denoted in units of the asset's decimals.
@@ -112,7 +112,7 @@ library LockupDynamic {
         address sender;
         uint40 startTime;
         bool cancelable;
-        bool transferrable;
+        bool transferable;
         address recipient;
         uint128 totalAmount;
         IERC20 asset;
@@ -159,7 +159,7 @@ library LockupDynamic {
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
-    /// @param isTransferrable BooleaniIndicating if the stream NFT is transferrable.
+    /// @param isTransferable BooleaniIndicating if the stream NFT is transferable.
     /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.
     /// @param segments Segments used to compose the custom streaming curve.
@@ -174,7 +174,7 @@ library LockupDynamic {
         IERC20 asset;
         bool isDepleted;
         bool isStream;
-        bool isTransferrable;
+        bool isTransferable;
         // slot 2 and 3
         Lockup.Amounts amounts;
         // slots [4..n]
@@ -192,7 +192,7 @@ library LockupLinear {
     /// fees, all denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Indicates if the stream is cancelable.
-    /// @param transferrable Indicates if the stream NFT is transferrable.
+    /// @param transferable Indicates if the stream NFT is transferable.
     /// @param durations Struct containing (i) cliff period duration and (ii) total stream duration, both in seconds.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
@@ -202,7 +202,7 @@ library LockupLinear {
         uint128 totalAmount;
         IERC20 asset;
         bool cancelable;
-        bool transferrable;
+        bool transferable;
         Durations durations;
         Broker broker;
     }
@@ -215,7 +215,7 @@ library LockupLinear {
     /// fees, all denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Indicates if the stream is cancelable.
-    /// @param transferrable Indicates if the stream NFT is transferrable.
+    /// @param transferable Indicates if the stream NFT is transferable.
     /// @param range Struct containing (i) the stream's start time, (ii) cliff time, and (iii) end time, all as Unix
     /// timestamps.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
@@ -226,7 +226,7 @@ library LockupLinear {
         uint128 totalAmount;
         IERC20 asset;
         bool cancelable;
-        bool transferrable;
+        bool transferable;
         Range range;
         Broker broker;
     }
@@ -260,7 +260,7 @@ library LockupLinear {
     /// @param endTime The Unix timestamp indicating the stream's end.
     /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
-    /// @param isTransferrable Boolean indicating if the stream NFT is transferrable.
+    /// @param isTransferable Boolean indicating if the stream NFT is transferable.
     /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.
     struct Stream {
@@ -275,7 +275,7 @@ library LockupLinear {
         uint40 endTime;
         bool isDepleted;
         bool isStream;
-        bool isTransferrable;
+        bool isTransferable;
         // slot 2 and 3
         Lockup.Amounts amounts;
     }

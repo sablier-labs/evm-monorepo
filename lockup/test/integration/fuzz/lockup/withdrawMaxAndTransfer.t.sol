@@ -25,7 +25,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
         givenNotNull
         whenCallerCurrentRecipient
         givenNFTNotBurned
-        givenStreamTransferEnabled
+        givenStreamTransferable
     {
         vm.assume(newRecipient != address(0));
         timeJump = _bound(timeJump, 0, defaults.TOTAL_DURATION() * 2);

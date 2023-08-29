@@ -117,7 +117,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
             amounts: defaults.lockupCreateAmounts(),
             asset: dai,
             cancelable: true,
-            transferrable: true,
+            transferable: true,
             range: range,
             broker: users.broker
         });

@@ -42,7 +42,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         uint128 totalAmount;
         uint40 warpTimestamp;
         uint128 withdrawAmount;
-        bool transferrable;
+        bool transferable;
     }
 
     struct Vars {
@@ -122,7 +122,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         params.range.start = boundUint40(params.range.start, currentTime - 1000 seconds, currentTime + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
-        params.transferrable = true;
+        params.transferable = true;
 
         // Bound the end time so that it is always greater than both the current time and the cliff time (this is
         // a requirement of the protocol).
@@ -169,7 +169,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
             amounts: vars.createAmounts,
             asset: asset,
             cancelable: true,
-            transferrable: params.transferrable,
+            transferable: params.transferable,
             range: params.range,
             broker: params.broker.account
         });
@@ -180,7 +180,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
                 asset: asset,
                 broker: params.broker,
                 cancelable: true,
-                transferrable: params.transferrable,
+                transferable: params.transferable,
                 range: params.range,
                 recipient: params.recipient,
                 sender: params.sender,
@@ -196,7 +196,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         assertEq(actualStream.endTime, params.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
-        assertEq(actualStream.isTransferrable, true, "isTransferrable");
+        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.range.start, "startTime");

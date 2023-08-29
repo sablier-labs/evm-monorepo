@@ -85,16 +85,6 @@ contract SablierV2LockupDynamic is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            ERC721 TRANFER HOOK FUNCTION 
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _beforeTokenTransfer(address from, address to, uint256 streamId, uint256) internal view override {
-        if (!isTransferrable(streamId) && to != address(0) && from != address(0)) {
-            revert Errors.SablierV2NFT_NotTransferrable(streamId);
-        }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -197,14 +187,14 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc SablierV2Lockup
-    function isTransferrable(uint256 streamId)
+    function isTransferable(uint256 streamId)
         public
         view
         override(ISablierV2Lockup, SablierV2Lockup)
         notNull(streamId)
         returns (bool result)
     {
-        result = _streams[streamId].isTransferrable;
+        result = _streams[streamId].isTransferable;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -287,7 +277,7 @@ contract SablierV2LockupDynamic is
                 asset: params.asset,
                 broker: params.broker,
                 cancelable: params.cancelable,
-                transferrable: params.transferrable,
+                transferable: params.transferable,
                 recipient: params.recipient,
                 segments: segments,
                 sender: params.sender,
@@ -575,7 +565,7 @@ contract SablierV2LockupDynamic is
         stream.amounts.deposited = createAmounts.deposit;
         stream.asset = params.asset;
         stream.isCancelable = params.cancelable;
-        stream.isTransferrable = params.transferrable;
+        stream.isTransferable = params.transferable;
         stream.isStream = true;
         stream.sender = params.sender;
 
@@ -624,7 +614,7 @@ contract SablierV2LockupDynamic is
             amounts: createAmounts,
             asset: params.asset,
             cancelable: params.cancelable,
-            transferrable: params.transferrable,
+            transferable: params.transferable,
             segments: params.segments,
             range: LockupDynamic.Range({ start: stream.startTime, end: stream.endTime }),
             broker: params.broker.account

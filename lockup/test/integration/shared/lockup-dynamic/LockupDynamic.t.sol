@@ -26,7 +26,7 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         _params.createWithDeltas.totalAmount = defaults.TOTAL_AMOUNT();
         _params.createWithDeltas.asset = dai;
         _params.createWithDeltas.cancelable = true;
-        _params.createWithDeltas.transferrable = true;
+        _params.createWithDeltas.transferable = true;
         _params.createWithDeltas.broker = defaults.broker();
 
         _params.createWithMilestones.sender = users.sender;
@@ -34,7 +34,7 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         _params.createWithMilestones.totalAmount = defaults.TOTAL_AMOUNT();
         _params.createWithMilestones.asset = dai;
         _params.createWithMilestones.cancelable = true;
-        _params.createWithMilestones.transferrable = true;
+        _params.createWithMilestones.transferable = true;
         _params.createWithMilestones.startTime = defaults.START_TIME();
         _params.createWithMilestones.broker = defaults.broker();
 
@@ -95,6 +95,13 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         streamId = lockupDynamic.createWithMilestones(params);
     }
 
+    /// @dev Creates the default stream with the NFT transfer disabled.
+    function createDefaultStreamNotTransferable() internal override returns (uint256 streamId) {
+        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        params.transferable = false;
+        streamId = lockupDynamic.createWithMilestones(params);
+    }
+
     /// @dev Creates the default stream with the provided range.
     function createDefaultStreamWithRange(LockupDynamic.Range memory range) internal returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
@@ -138,13 +145,6 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
     function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.totalAmount = totalAmount;
-        streamId = lockupDynamic.createWithMilestones(params);
-    }
-
-    /// @dev Creates the default stream with the NFT transfer disabled.
-    function createDefaultStreamWithTransferDisabled() internal override returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
-        params.transferrable = false;
         streamId = lockupDynamic.createWithMilestones(params);
     }
 }

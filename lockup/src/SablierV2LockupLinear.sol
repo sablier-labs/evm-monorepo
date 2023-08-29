@@ -70,16 +70,6 @@ contract SablierV2LockupLinear is
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            ERC721 TRANFER HOOK FUNCTION 
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _beforeTokenTransfer(address from, address to, uint256 streamId, uint256) internal view override {
-        if (!isTransferrable(streamId) && to != address(0) && from != address(0)) {
-            revert Errors.SablierV2NFT_NotTransferrable(streamId);
-        }
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                            USER-FACING CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -180,14 +170,14 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc SablierV2Lockup
-    function isTransferrable(uint256 streamId)
+    function isTransferable(uint256 streamId)
         public
         view
         override(ISablierV2Lockup, SablierV2Lockup)
         notNull(streamId)
         returns (bool result)
     {
-        result = _streams[streamId].isTransferrable;
+        result = _streams[streamId].isTransferable;
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -278,7 +268,7 @@ contract SablierV2LockupLinear is
                 asset: params.asset,
                 broker: params.broker,
                 cancelable: params.cancelable,
-                transferrable: params.transferrable,
+                transferable: params.transferable,
                 range: range,
                 recipient: params.recipient,
                 sender: params.sender,
@@ -489,7 +479,7 @@ contract SablierV2LockupLinear is
             cliffTime: params.range.cliff,
             endTime: params.range.end,
             isCancelable: params.cancelable,
-            isTransferrable: params.transferrable,
+            isTransferable: params.transferable,
             isDepleted: false,
             isStream: true,
             sender: params.sender,
@@ -531,7 +521,7 @@ contract SablierV2LockupLinear is
             amounts: createAmounts,
             asset: params.asset,
             cancelable: params.cancelable,
-            transferrable: params.transferrable,
+            transferable: params.transferable,
             range: params.range,
             broker: params.broker.account
         });

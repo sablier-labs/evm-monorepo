@@ -135,9 +135,6 @@ contract CreateWithDeltas_LockupDynamic_Integration_Concrete_Test is
         segments[0].milestone = range.start + segmentsWithDeltas[0].delta;
         segments[1].milestone = segments[0].milestone + segmentsWithDeltas[1].delta;
 
-        // make NFT transferrable
-        bool transferrable = true;
-
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
             from: funder,
@@ -158,7 +155,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Concrete_Test is
             amounts: defaults.lockupCreateAmounts(),
             asset: dai,
             cancelable: true,
-            transferrable: transferrable,
+            transferable: true,
             segments: segments,
             range: range,
             broker: users.broker

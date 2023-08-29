@@ -91,7 +91,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
             amounts: vars.createAmounts,
             asset: dai,
             cancelable: true,
-            transferrable: true,
+            transferable: true,
             segments: vars.segmentsWithMilestones,
             range: range,
             broker: users.broker
@@ -101,7 +101,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
         LockupDynamic.CreateWithDeltas memory params = defaults.createWithDeltas();
         params.segments = segments;
         params.totalAmount = vars.totalAmount;
-        params.transferrable = true;
+        params.transferable = true;
         lockupDynamic.createWithDeltas(params);
 
         // Check if the stream is settled. It is possible for a Lockup Dynamic stream to settle at the time of creation
@@ -115,7 +115,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
-        assertEq(actualStream.isTransferrable, true, "isTransferrable");
+        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.segments, vars.segmentsWithMilestones, "segments");

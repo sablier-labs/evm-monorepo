@@ -23,7 +23,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Shared_Test is Lockup_Integ
         _;
     }
 
-    modifier givenStreamTransferEnabled() {
+    modifier givenStreamTransferable() {
         _;
     }
 

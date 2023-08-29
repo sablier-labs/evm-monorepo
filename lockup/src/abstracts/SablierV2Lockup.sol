@@ -63,14 +63,6 @@ abstract contract SablierV2Lockup is
         _;
     }
 
-    /// @dev Checks that stream has transfer enabled on its NFT.
-    modifier canStreamTransfer(uint256 streamId) {
-        if (!isTransferrable(streamId)) {
-            revert Errors.SablierV2NFT_NotTransferrable(streamId);
-        }
-        _;
-    }
-
     /// @dev Emits an ERC-4906 event to trigger an update of the NFT metadata.
     modifier updateMetadata(uint256 streamId) {
         _;
@@ -132,7 +124,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function isTransferrable(uint256 streamId) public view virtual returns (bool);
+    function isTransferable(uint256 streamId) public view virtual returns (bool);
 
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
@@ -282,7 +274,6 @@ abstract contract SablierV2Lockup is
         noDelegateCall
         notNull(streamId)
         updateMetadata(streamId)
-        canStreamTransfer(streamId)
     {
         // Checks: the caller is the current recipient. This also checks that the NFT was not burned.
         address currentRecipient = _ownerOf(streamId);
@@ -332,6 +323,16 @@ abstract contract SablierV2Lockup is
     /*//////////////////////////////////////////////////////////////////////////
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Overrides the internal ERC-721 transfer function to check that the stream is transferable.
+    /// @dev There are two cases when the transferable flag is ignored:
+    /// - If `from` is 0, then the transfer is a mint and is allowed.
+    /// - If `to` is 0, then the transfer is a burn and is also allowed.
+    function _beforeTokenTransfer(address from, address to, uint256 streamId, uint256) internal view override {
+        if (!isTransferable(streamId) && to != address(0) && from != address(0)) {
+            revert Errors.SablierV2Lockup_NotTransferrable(streamId);
+        }
+    }
 
     /// @notice Checks whether `msg.sender` is the stream's recipient or an approved third party.
     /// @param streamId The stream id for the query.

@@ -181,9 +181,6 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
         // Make the Sender the stream's funder.
         address funder = users.sender;
 
-        // make NFT transferrable
-        bool transferrable = true;
-
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectCallToTransferFrom({
             asset: IERC20(asset),
@@ -210,7 +207,7 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
             amounts: defaults.lockupCreateAmounts(),
             asset: IERC20(asset),
             cancelable: true,
-            transferrable: transferrable,
+            transferable: true,
             range: defaults.lockupLinearRange(),
             broker: users.broker
         });
