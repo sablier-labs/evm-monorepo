@@ -90,6 +90,14 @@ It is worth noting that not every file in this repository is included in the cur
 `SablierV2FlashLoan` abstract is not inherited by any contract on the `main` branch, but we have kept it in version
 control because we may decide to use it in the future.
 
+## Security
+
+The codebase has undergone rigorous audits by leading security experts from Cantina, as well as independent auditors.
+For a comprehensive list of all audits conducted, please click [here](https://github.com/sablier-labs/audits).
+
+For any security-related concerns, please refer to the [SECURITY](./SECURITY.md) policy. This repository is subject to a
+bug bounty program per the terms outlined in the aforementioned policy.
+
 ## Contributing
 
 Feel free to dive in! [Open](https://github.com/sablier-labs/v2-core/issues/new) an issue,
@@ -97,11 +105,6 @@ Feel free to dive in! [Open](https://github.com/sablier-labs/v2-core/issues/new)
 or feedback, please join our [Discord server](https://discord.gg/bSwRCwWRsT).
 
 For guidance on how to create PRs, see the [CONTRIBUTING](./CONTRIBUTING.md) guide.
-
-## Security
-
-Please refer to the [SECURITY](./SECURITY.md) policy for any security-related concerns. This repository is subject to a
-bug bounty program per the terms outlined in the aforementioned policy.
 
 ## License
 
