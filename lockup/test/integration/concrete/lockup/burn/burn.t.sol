@@ -9,10 +9,11 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
     uint256 internal streamId;
-    uint256 internal noTransferStreamId;
+    uint256 internal notTransferableStreamId;
 
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) {
         streamId = createDefaultStream();
+        notTransferableStreamId = createDefaultStreamNotTransferable();
 
         // Make the Recipient (owner of the NFT) the caller in this test suite.
         changePrank({ msgSender: users.recipient });
@@ -87,9 +88,9 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         lockup.burn(streamId);
     }
 
-    modifier givenStreamHasBeenDepleted(uint256 _streamId) {
+    modifier givenStreamHasBeenDepleted(uint256 streamId_) {
         vm.warp({ timestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: _streamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: streamId_, to: users.recipient });
         _;
     }
 
@@ -127,13 +128,31 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         _;
     }
 
-    function test_Burn_CallerApprovedOperator_TransferableNFT()
+    function test_Burn_NonTransferableNFT()
+        external
+        whenNotDelegateCalled
+        givenNotNull
+        givenStreamHasBeenDepleted(notTransferableStreamId)
+        whenCallerAuthorized
+        givenNFTExists
+    {
+        lockup.burn(notTransferableStreamId);
+        vm.expectRevert("ERC721: invalid token ID");
+        lockup.getRecipient(notTransferableStreamId);
+    }
+
+    modifier givenTransferableStream() {
+        _;
+    }
+
+    function test_Burn_CallerApprovedOperator()
         external
         whenNotDelegateCalled
         givenNotNull
         givenStreamHasBeenDepleted(streamId)
         whenCallerAuthorized
         givenNFTExists
+        givenTransferableStream
     {
         // Approve the operator to handle the stream.
         lockup.approve({ to: users.operator, tokenId: streamId });
@@ -149,58 +168,17 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         lockup.getRecipient(streamId);
     }
 
-    function test_Burn_CallerNFTOwner_TransferableNFT()
+    function test_Burn_CallerNFTOwner()
         external
         whenNotDelegateCalled
         givenNotNull
         givenStreamHasBeenDepleted(streamId)
         whenCallerAuthorized
         givenNFTExists
+        givenTransferableStream
     {
         lockup.burn(streamId);
         vm.expectRevert("ERC721: invalid token ID");
         lockup.getRecipient(streamId);
-    }
-
-    modifier givenNonTransferableNFT() {
-        noTransferStreamId = createDefaultStreamNotTransferable();
-        _;
-    }
-
-    function test_Burn_CallerApprovedOperator_NonTransferableNFT()
-        external
-        givenNonTransferableNFT
-        whenNotDelegateCalled
-        givenNotNull
-        givenStreamHasBeenDepleted(noTransferStreamId)
-        whenCallerAuthorized
-        givenNFTExists
-    {
-        // Approve the operator to handle the stream.
-        lockup.approve({ to: users.operator, tokenId: noTransferStreamId });
-
-        // Make the approved operator the caller in this test.
-        changePrank({ msgSender: users.operator });
-
-        // Burn the NFT.
-        lockup.burn(noTransferStreamId);
-
-        // Assert that the NFT has been burned.
-        vm.expectRevert("ERC721: invalid token ID");
-        lockup.getRecipient(noTransferStreamId);
-    }
-
-    function test_Burn_CallerNFTOwner_NonTransferableNFT()
-        external
-        givenNonTransferableNFT
-        whenNotDelegateCalled
-        givenNotNull
-        givenStreamHasBeenDepleted(noTransferStreamId)
-        whenCallerAuthorized
-        givenNFTExists
-    {
-        lockup.burn(noTransferStreamId);
-        vm.expectRevert("ERC721: invalid token ID");
-        lockup.getRecipient(noTransferStreamId);
     }
 }
