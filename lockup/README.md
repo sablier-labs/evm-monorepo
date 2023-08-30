@@ -1,9 +1,11 @@
-# Sablier V2 Core [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry]
+# Sablier V2 Core [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry] [![Discord][discord-badge]][discord]
 
 [gha]: https://github.com/sablier-labs/v2-core/actions
 [gha-badge]: https://github.com/sablier-labs/v2-core/actions/workflows/ci.yml/badge.svg
 [codecov]: https://codecov.io/gh/sablier-labs/v2-core
 [codecov-badge]: https://codecov.io/gh/sablier-labs/v2-core/branch/main/graph/badge.svg
+[discord]: https://discord.gg/bSwRCwWRsT
+[discord-badge]: https://dcbadge.vercel.app/api/server/bSwRCwWRsT?style=flat
 [foundry]: https://getfoundry.sh
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
