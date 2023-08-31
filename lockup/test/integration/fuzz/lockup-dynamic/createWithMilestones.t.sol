@@ -190,7 +190,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         uint128 totalAmount;
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - All possible permutations for the funder, sender, recipient, and broker
     /// - Multiple values for the segment amounts, exponents, and milestones

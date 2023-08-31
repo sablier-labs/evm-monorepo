@@ -98,7 +98,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
     /// - It may cancel the stream
     /// - It may emit a {CancelLockupStream} event
     ///
-    /// Given enough test runs, all of the following scenarios will be fuzzed:
+    /// Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the sender, recipient, and broker
     /// - Multiple values for the total amount

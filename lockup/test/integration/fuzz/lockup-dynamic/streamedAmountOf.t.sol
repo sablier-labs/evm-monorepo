@@ -25,7 +25,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         changePrank({ msgSender: users.sender });
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
     /// - End time in the present
@@ -77,7 +77,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         _;
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
     /// - End time in the present

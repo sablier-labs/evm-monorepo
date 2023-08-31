@@ -11,7 +11,7 @@ abstract contract RefundableAmountOf_Integration_Fuzz_Test is Integration_Test, 
         defaultStreamId = createDefaultStream();
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Status streaming
     /// - Status settled

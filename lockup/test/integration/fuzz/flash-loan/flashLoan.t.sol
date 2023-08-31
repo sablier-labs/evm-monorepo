@@ -45,7 +45,7 @@ contract FlashLoanFunction_Integration_Fuzz_Test is FlashLoanFunction_Integratio
         });
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the comptroller flash fee, including zero
     /// - Multiple values for the flash loan amount, including zero
