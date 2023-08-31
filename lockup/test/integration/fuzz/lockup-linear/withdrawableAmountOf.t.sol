@@ -41,7 +41,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         _;
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
     /// - End time in the present
@@ -83,7 +83,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         _;
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
     /// - End time in the present

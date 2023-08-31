@@ -11,7 +11,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         Withdraw_Integration_Shared_Test.setUp();
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the withdrawal address.
     function testFuzz_Withdraw_CallerApprovedOperator(address to)
@@ -49,7 +49,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the current time.
     /// - Multiple values for the withdrawal address.
@@ -113,7 +113,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - End time in the past
     /// - End time in the present

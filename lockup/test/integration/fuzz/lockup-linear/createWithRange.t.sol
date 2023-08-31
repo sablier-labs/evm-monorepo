@@ -111,7 +111,7 @@ contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
         uint128 initialProtocolRevenues;
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - All possible permutations for the funder, sender, recipient, and broker
     /// - Multiple values for the total amount

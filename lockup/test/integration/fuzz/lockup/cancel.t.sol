@@ -37,7 +37,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         assertFalse(isCancelable, "isCancelable");
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the current time
     /// - With and without withdrawals
@@ -104,7 +104,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
-    /// @dev Given enough test runs, all of the following scenarios will be fuzzed:
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - Multiple values for the current time
     /// - With and without withdrawals
