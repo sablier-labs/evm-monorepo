@@ -8,9 +8,9 @@ statusOf.t.sol
       ├── given the stream has been canceled
       │  └── it should return CANCELED
       └── given the stream has not been canceled
-         ├── when the start time is in the future
+         ├── given the start time is in the future
          │  └── it should return PENDING
-         └── when the start time is not in the future
+         └── given the start time is not in the future
             ├── given the refundable amount is zero
             │  └── it should return SETTLED
             └── given the refundable amount is not zero

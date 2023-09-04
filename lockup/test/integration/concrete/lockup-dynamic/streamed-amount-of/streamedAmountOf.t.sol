@@ -91,7 +91,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier whenCurrentMilestoneNot1st() {
+    modifier givenCurrentMilestoneNot1st() {
         _;
     }
 
@@ -102,7 +102,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         givenStatusStreaming
         whenStartTimeInThePast
         givenMultipleSegments
-        whenCurrentMilestoneNot1st
+        givenCurrentMilestoneNot1st
     {
         // Simulate the passage of time. 750 seconds is ~10% of the way in the second segment.
         vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 750 seconds });

@@ -49,7 +49,7 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    function test_WithdrawMax() external whenEndTimeInTheFuture {
+    function test_WithdrawMax() external givenEndTimeInTheFuture {
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
 

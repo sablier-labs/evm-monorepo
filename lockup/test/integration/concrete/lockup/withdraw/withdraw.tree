@@ -32,11 +32,11 @@ withdraw.t.sol
                       │  ├── it should make the withdrawal
                       │  └── it should update the withdrawn amount
                       └── when the caller is the sender
-                         ├── when the end time is not in the future
+                         ├── given the end time is not in the future
                          │  ├── it should make the withdrawal
                          │  ├── it should mark the stream as depleted
                          │  └── it should make the stream not cancelable
-                         └── when the end time is in the future
+                         └── given the end time is in the future
                             ├── given the stream has been canceled
                             │  ├── it should make the withdrawal
                             │  ├── it should mark the stream as depleted

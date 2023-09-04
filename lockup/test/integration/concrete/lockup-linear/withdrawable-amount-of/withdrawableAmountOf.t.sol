@@ -29,7 +29,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test is
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier whenCliffTimeNotInTheFuture() {
+    modifier givenCliffTimeNotInTheFuture() {
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         _;
     }
@@ -39,7 +39,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test is
         givenNotNull
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
-        whenCliffTimeNotInTheFuture
+        givenCliffTimeNotInTheFuture
     {
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = defaults.WITHDRAW_AMOUNT();
@@ -56,7 +56,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test is
         givenNotNull
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
-        whenCliffTimeNotInTheFuture
+        givenCliffTimeNotInTheFuture
         givenPreviousWithdrawals
     {
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);

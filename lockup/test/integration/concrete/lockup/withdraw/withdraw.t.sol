@@ -225,7 +225,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         assertEq(actualNFTowner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier whenEndTimeInTheFuture() {
+    modifier givenEndTimeInTheFuture() {
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
         _;
@@ -241,7 +241,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         whenWithdrawAmountNotZero
         whenNoOverdraw
         whenCallerSender
-        whenEndTimeInTheFuture
+        givenEndTimeInTheFuture
         givenRecipientContract
         givenRecipientImplementsHook
         whenRecipientDoesNotRevert
@@ -285,7 +285,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         whenWithdrawAmountNotZero
         whenNoOverdraw
         whenCallerSender
-        whenEndTimeInTheFuture
+        givenEndTimeInTheFuture
         whenStreamHasNotBeenCanceled
     {
         // Set the withdraw amount to the streamed amount.
@@ -326,7 +326,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         whenWithdrawAmountNotZero
         whenNoOverdraw
         whenCallerSender
-        whenEndTimeInTheFuture
+        givenEndTimeInTheFuture
         whenStreamHasNotBeenCanceled
         givenRecipientContract
     {
@@ -370,7 +370,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         whenWithdrawAmountNotZero
         whenNoOverdraw
         whenCallerSender
-        whenEndTimeInTheFuture
+        givenEndTimeInTheFuture
         whenStreamHasNotBeenCanceled
         givenRecipientContract
         givenRecipientImplementsHook
@@ -415,7 +415,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         whenWithdrawAmountNotZero
         whenNoOverdraw
         whenCallerSender
-        whenEndTimeInTheFuture
+        givenEndTimeInTheFuture
         whenStreamHasNotBeenCanceled
         givenRecipientContract
         givenRecipientImplementsHook
@@ -464,7 +464,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         whenWithdrawAmountNotZero
         whenNoOverdraw
         whenCallerSender
-        whenEndTimeInTheFuture
+        givenEndTimeInTheFuture
         whenStreamHasNotBeenCanceled
         givenRecipientContract
         givenRecipientImplementsHook

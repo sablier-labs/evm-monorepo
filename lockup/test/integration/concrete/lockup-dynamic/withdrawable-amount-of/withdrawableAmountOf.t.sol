@@ -30,7 +30,7 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Concrete_Test is
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
-    modifier whenStartTimeInThePast() {
+    modifier givenStartTimeInThePast() {
         _;
     }
 
@@ -39,7 +39,7 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Concrete_Test is
         givenNotNull
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
-        whenStartTimeInThePast
+        givenStartTimeInThePast
     {
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 3750 seconds });
@@ -60,7 +60,7 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Concrete_Test is
         givenNotNull
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
-        whenStartTimeInThePast
+        givenStartTimeInThePast
         whenWithWithdrawals
     {
         // Simulate the passage of time.
