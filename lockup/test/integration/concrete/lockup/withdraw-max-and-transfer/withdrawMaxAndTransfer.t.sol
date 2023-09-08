@@ -103,6 +103,8 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
         vm.expectEmit({ emitter: address(lockup) });
         emit Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: defaultStreamId });
 
         // Make the max withdrawal and transfer the NFT.
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });

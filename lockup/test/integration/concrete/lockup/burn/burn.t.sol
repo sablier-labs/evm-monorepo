@@ -136,6 +136,9 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         whenCallerAuthorized
         givenNFTExists
     {
+        // Expect the relevant event to be emitted.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: notTransferableStreamId });
         lockup.burn(notTransferableStreamId);
         vm.expectRevert("ERC721: invalid token ID");
         lockup.getRecipient(notTransferableStreamId);
@@ -160,6 +163,10 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         // Make the approved operator the caller in this test.
         changePrank({ msgSender: users.operator });
 
+        // Expect the relevant event to be emitted.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: streamId });
+
         // Burn the NFT.
         lockup.burn(streamId);
 
@@ -177,6 +184,9 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenNFTExists
         givenTransferableStream
     {
+        // Expect the relevant event to be emitted.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: streamId });
         lockup.burn(streamId);
         vm.expectRevert("ERC721: invalid token ID");
         lockup.getRecipient(streamId);

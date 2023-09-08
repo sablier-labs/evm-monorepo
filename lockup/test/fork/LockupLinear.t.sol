@@ -92,7 +92,8 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
     /// - It should bump the next stream id.
     /// - It should record the protocol fee.
     /// - It should mint the NFT.
-    /// - It should emit a {CreateLockupDynamicStream} event.
+    /// - It should emit a {MetadataUpdate} event
+    /// - It should emit a {CreateLockupLinearStream} event.
     /// - It may make a withdrawal.
     /// - It may update the withdrawn amounts.
     /// - It may emit a {WithdrawFromLockupStream} event.
@@ -158,8 +159,11 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
         vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
 
-        // Expect the relevant event to be emitted.
         vars.streamId = lockupLinear.nextStreamId();
+
+        // Expect the relevant events to be emitted.
+        vm.expectEmit({ emitter: address(lockupLinear) });
+        emit MetadataUpdate({ _tokenId: vars.streamId });
         vm.expectEmit({ emitter: address(lockupLinear) });
         emit CreateLockupLinearStream({
             streamId: vars.streamId,

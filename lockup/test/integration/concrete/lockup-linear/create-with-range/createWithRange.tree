@@ -31,6 +31,7 @@ createWithRange.t.sol
                            │  ├── it should bump the next stream id
                            │  ├── it should record the protocol fee
                            │  ├── it should mint the NFT
+                           │  ├── it should emit a {MetadataUpdate} event
                            │  ├── it should perform the ERC-20 transfers
                            │  └── it should emit a {CreateLockupLinearStream} event
                            └── when the asset does not miss the ERC-20 return value
@@ -38,6 +39,7 @@ createWithRange.t.sol
                               ├── it should bump the next stream id
                               ├── it should record the protocol fee
                               ├── it should mint the NFT
+                              ├── it should emit a {MetadataUpdate} event
                               ├── it should perform the ERC-20 transfers
                               └── it should emit a {CreateLockupLinearStream} event
 

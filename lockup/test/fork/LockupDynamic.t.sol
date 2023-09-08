@@ -154,11 +154,14 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         vars.initialLockupDynamicBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
-        // Expect the relevant event to be emitted.
         vars.streamId = lockupDynamic.nextStreamId();
-        vm.expectEmit({ emitter: address(lockupDynamic) });
         vars.range =
             LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].milestone });
+
+        // Expect the relevant events to be emitted.
+        vm.expectEmit({ emitter: address(lockupDynamic) });
+        emit MetadataUpdate({ _tokenId: vars.streamId });
+        vm.expectEmit({ emitter: address(lockupDynamic) });
         emit CreateLockupDynamicStream({
             streamId: vars.streamId,
             funder: holder,

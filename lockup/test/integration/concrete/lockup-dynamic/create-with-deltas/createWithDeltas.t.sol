@@ -145,7 +145,9 @@ contract CreateWithDeltas_LockupDynamic_Integration_Concrete_Test is
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
 
-        // Expect the relevant event to be emitted.
+        // Expect the relevant events to be emitted.
+        vm.expectEmit({ emitter: address(lockupDynamic) });
+        emit MetadataUpdate({ _tokenId: streamId });
         vm.expectEmit({ emitter: address(lockupDynamic) });
         emit CreateLockupDynamicStream({
             streamId: streamId,

@@ -21,4 +21,5 @@ withdrawMaxAndTransfer.t.sol
                   ├── it should update the withdrawn amount
                   ├── it should transfer the NFT
                   ├── it should emit a {WithdrawFromLockupStream} event
-                  └── it should emit a {Transfer} event
+                  ├── it should emit a {Transfer} event
+                  └── it should emit a {MetadataUpdate} event
