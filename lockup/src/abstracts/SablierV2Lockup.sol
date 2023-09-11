@@ -328,10 +328,10 @@ abstract contract SablierV2Lockup is
     /// an event upon transfer.
     /// @dev This event is also emitted when the NFT is minted or burned.
     function _afterTokenTransfer(
-        address,
-        address,
+        address, /* from */
+        address, /* to */
         uint256 streamId,
-        uint256
+        uint256 /* batchSize */
     )
         internal
         override
@@ -342,7 +342,16 @@ abstract contract SablierV2Lockup is
     /// @dev There are two cases when the transferable flag is ignored:
     /// - If `from` is 0, then the transfer is a mint and is allowed.
     /// - If `to` is 0, then the transfer is a burn and is also allowed.
-    function _beforeTokenTransfer(address from, address to, uint256 streamId, uint256) internal view override {
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 streamId,
+        uint256 /* batchSize */
+    )
+        internal
+        view
+        override
+    {
         if (!isTransferable(streamId) && to != address(0) && from != address(0)) {
             revert Errors.SablierV2Lockup_NotTransferrable(streamId);
         }
