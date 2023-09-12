@@ -29,8 +29,8 @@ import { RefundableAmountOf_Integration_Concrete_Test } from "../lockup/refundab
 import { Renounce_Integration_Concrete_Test } from "../lockup/renounce/renounce.t.sol";
 import { SetComptroller_Integration_Concrete_Test } from "../lockup/set-comptroller/setComptroller.t.sol";
 import { SetNFTDescriptor_Integration_Concrete_Test } from "../lockup/set-nft-descriptor/setNFTDescriptor.t.sol";
-import { TransferFrom_Integration_Concrete_Test } from "../lockup/transfer-from/transferFrom.t.sol";
 import { StatusOf_Integration_Concrete_Test } from "../lockup/status-of/statusOf.t.sol";
+import { TransferFrom_Integration_Concrete_Test } from "../lockup/transfer-from/transferFrom.t.sol";
 import { Withdraw_Integration_Concrete_Test } from "../lockup/withdraw/withdraw.t.sol";
 import { WasCanceled_Integration_Concrete_Test } from "../lockup/was-canceled/wasCanceled.t.sol";
 import { WithdrawMax_Integration_Concrete_Test } from "../lockup/withdraw-max/withdrawMax.t.sol";

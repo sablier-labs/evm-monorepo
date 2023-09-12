@@ -324,8 +324,8 @@ abstract contract SablierV2Lockup is
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Overrides the internal ERC-721 transfer function to update the NFT SVG on external platforms by emitting
-    /// an event upon transfer.
+    /// @notice Overrides the internal ERC-721 transfer function to emit an ERC-4906 event upon transfer. The goal is to
+    /// refresh the NFT metadata on external platforms.
     /// @dev This event is also emitted when the NFT is minted or burned.
     function _afterTokenTransfer(
         address, /* from */

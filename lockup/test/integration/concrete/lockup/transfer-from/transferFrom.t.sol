@@ -23,7 +23,7 @@ abstract contract TransferFrom_Integration_Concrete_Test is Integration_Test, Lo
         _;
     }
 
-    function test_TransfeFrom() external givenStreamTransferable {
+    function test_TransferFrom() external givenStreamTransferable {
         // Create a stream.
         uint256 streamId = createDefaultStream();
 
