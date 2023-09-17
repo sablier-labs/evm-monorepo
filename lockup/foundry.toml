@@ -16,7 +16,7 @@
   out = "out"
   script = "script"
   sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
-  solc = "0.8.19"
+  solc = "0.8.21"
   src = "src"
   test = "test"
 
@@ -53,7 +53,9 @@
 [profile.smt.model_checker]
   engine = "chc" # constrained Horn clauses
   invariants = ["contract", "reentrancy"]
+  show_proved_safe = true
   show_unproved = true
+  show_unsupported = true
   timeout = 100_000 # in milliseconds, per solving query
   targets = [
     "assert",
