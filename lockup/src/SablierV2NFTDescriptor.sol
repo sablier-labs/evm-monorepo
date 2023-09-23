@@ -30,12 +30,12 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
     struct TokenURIVars {
         address asset;
         string assetSymbol;
+        uint128 depositedAmount;
         string json;
         ISablierV2Lockup sablier;
         string sablierAddress;
         string status;
         string svg;
-        uint128 streamedAmount;
         uint256 streamedPercentage;
         string streamingModel;
     }
@@ -49,13 +49,13 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
         vars.sablierAddress = address(sablier).toHexString();
         vars.asset = address(vars.sablier.getAsset(streamId));
         vars.assetSymbol = safeAssetSymbol(vars.asset);
+        vars.depositedAmount = vars.sablier.getDepositedAmount(streamId);
 
         // Load the stream's data.
         vars.status = stringifyStatus(vars.sablier.statusOf(streamId));
-        vars.streamedAmount = vars.sablier.streamedAmountOf(streamId);
         vars.streamedPercentage = calculateStreamedPercentage({
-            streamedAmount: vars.streamedAmount,
-            depositedAmount: vars.sablier.getDepositedAmount(streamId)
+            streamedAmount: vars.sablier.streamedAmountOf(streamId),
+            depositedAmount: vars.depositedAmount
         });
         vars.streamingModel = mapSymbol(sablier);
 
@@ -63,6 +63,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
         vars.svg = NFTSVG.generateSVG(
             NFTSVG.SVGParams({
                 accentColor: generateAccentColor(address(sablier), streamId),
+                amount: abbreviateAmount({ amount: vars.depositedAmount, decimals: safeAssetDecimals(vars.asset) }),
                 assetAddress: vars.asset.toHexString(),
                 assetSymbol: vars.assetSymbol,
                 duration: calculateDurationInDays({
@@ -73,7 +74,6 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
                 progress: stringifyPercentage(vars.streamedPercentage),
                 progressNumerical: vars.streamedPercentage,
                 status: vars.status,
-                streamed: abbreviateAmount({ amount: vars.streamedAmount, decimals: safeAssetDecimals(vars.asset) }),
                 streamingModel: vars.streamingModel
             })
         );
