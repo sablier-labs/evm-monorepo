@@ -536,26 +536,10 @@ contract SablierV2LockupLinear is
 
         // Effects: renounce the stream by making it not cancelable.
         _streams[streamId].isCancelable = false;
-
-        // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
-        // reverting if the hook is not implemented, and also without bubbling up any potential revert.
-        address recipient = _ownerOf(streamId);
-        if (recipient.code.length > 0) {
-            try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
-        }
-
-        // Log the renouncement.
-        emit ISablierV2Lockup.RenounceLockupStream(streamId);
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdraw(uint256 streamId, address to, uint128 amount) internal override {
-        // Checks: the withdraw amount is not greater than the withdrawable amount.
-        uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
-        if (amount > withdrawableAmount) {
-            revert Errors.SablierV2Lockup_Overdraw(streamId, amount, withdrawableAmount);
-        }
-
         // Effects: update the withdrawn amount.
         _streams[streamId].amounts.withdrawn = _streams[streamId].amounts.withdrawn + amount;
 
@@ -574,23 +558,5 @@ contract SablierV2LockupLinear is
 
         // Interactions: perform the ERC-20 transfer.
         _streams[streamId].asset.safeTransfer({ to: to, value: amount });
-
-        // Retrieve the recipient from storage.
-        address recipient = _ownerOf(streamId);
-
-        // Interactions: if `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
-        // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up
-        // any potential revert.
-        if (msg.sender != recipient && recipient.code.length > 0) {
-            try ISablierV2LockupRecipient(recipient).onStreamWithdrawn({
-                streamId: streamId,
-                caller: msg.sender,
-                to: to,
-                amount: amount
-            }) { } catch { }
-        }
-
-        // Log the withdrawal.
-        emit ISablierV2Lockup.WithdrawFromLockupStream(streamId, to, amount);
     }
 }
