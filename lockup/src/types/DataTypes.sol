@@ -159,7 +159,7 @@ library LockupDynamic {
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
-    /// @param isTransferable BooleaniIndicating if the stream NFT is transferable.
+    /// @param isTransferable Boolean indicating if the stream NFT is transferable.
     /// @param amounts Struct containing the deposit, withdrawn, and refunded amounts, all denoted in units of the
     /// asset's decimals.
     /// @param segments Segments used to compose the custom streaming curve.
