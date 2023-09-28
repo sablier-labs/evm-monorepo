@@ -13,18 +13,18 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
-- Move `isWarm` and `isCold` to `SablierV2Lockup` ([#664](https://github.com/sablier-labs/v2-core/pull/664))
 - Remove `@openzeppelin/contracts` from Node.js peer dependencies
-  ([#693](https://github.com/sablier-labs/v2-core/pull/693))
+  ([#694](https://github.com/sablier-labs/v2-core/pull/694))
 - Replace the streamed amount with the deposit amount in the NFT descriptor
   ([#692](https://github.com/sablier-labs/v2-core/pull/692))
-- Simplify `renounce` and `withdraw` implementations ([#683](https://github.com/sablier-labs/v2-core/pull/683))
 - Upgrade Solidity to `0.8.21` ([#688](https://github.com/sablier-labs/v2-core/pull/688))
+- Simplify `renounce` and `withdraw` implementations ([#683](https://github.com/sablier-labs/v2-core/pull/683))
+- Move `isWarm` and `isCold` to `SablierV2Lockup` ([#664](https://github.com/sablier-labs/v2-core/pull/664))
 
 ### Added
 
-- Add `ERC-4906` metadata update in `transferFrom` ([#686](hhttps://github.com/sablier-labs/v2-core/pull/686))
-- Add `transferrable` boolean flag ([#668](https://github.com/sablier-labs/v2-core/pull/668))
+- Add `ERC-4906` metadata update in `transferFrom` ([#686](https://github.com/sablier-labs/v2-core/pull/686))
+- Add `transferable` boolean flag ([#668](https://github.com/sablier-labs/v2-core/pull/668))
 
 ## [1.0.2] - 2023-08-14
 
