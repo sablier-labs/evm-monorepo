@@ -7,7 +7,6 @@
     "contract-name-camelcase": "off",
     "const-name-snakecase": "off",
     "custom-errors": "off",
-    "immutable-vars-naming": "off",
     "func-name-mixedcase": "off",
     "func-visibility": ["error", { "ignoreConstructors": true }],
     "max-line-length": ["error", 123],

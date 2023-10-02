@@ -14,7 +14,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, address holder_) Fork_Test(asset_, holder_) { }
+    constructor(IERC20 asset, address holder) Fork_Test(asset, holder) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -25,7 +25,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
 
         // Approve {SablierV2LockupLinear} to transfer the asset holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
-        (bool success,) = address(asset).call(abi.encodeCall(IERC20.approve, (address(lockupLinear), MAX_UINT256)));
+        (bool success,) = address(ASSET).call(abi.encodeCall(IERC20.approve, (address(lockupLinear), MAX_UINT256)));
         success;
     }
 
@@ -135,10 +135,10 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: asset, newProtocolFee: params.protocolFee });
+        comptroller.setProtocolFee({ asset: ASSET, newProtocolFee: params.protocolFee });
 
         // Make the holder the caller.
-        changePrank(holder);
+        changePrank(HOLDER);
 
         /*//////////////////////////////////////////////////////////////////////////
                                             CREATE
@@ -146,11 +146,11 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
 
         // Load the pre-create protocol revenues.
         Vars memory vars;
-        vars.initialProtocolRevenues = lockupLinear.protocolRevenues(asset);
+        vars.initialProtocolRevenues = lockupLinear.protocolRevenues(ASSET);
 
         // Load the pre-create asset balances.
         vars.balances =
-            getTokenBalances(address(asset), Solarray.addresses(address(lockupLinear), params.broker.account));
+            getTokenBalances(address(ASSET), Solarray.addresses(address(lockupLinear), params.broker.account));
         vars.initialLockupLinearBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
@@ -167,11 +167,11 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         vm.expectEmit({ emitter: address(lockupLinear) });
         emit CreateLockupLinearStream({
             streamId: vars.streamId,
-            funder: holder,
+            funder: HOLDER,
             sender: params.sender,
             recipient: params.recipient,
             amounts: vars.createAmounts,
-            asset: asset,
+            asset: ASSET,
             cancelable: true,
             transferable: params.transferable,
             range: params.range,
@@ -181,7 +181,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         // Create the stream.
         lockupLinear.createWithRange(
             LockupLinear.CreateWithRange({
-                asset: asset,
+                asset: ASSET,
                 broker: params.broker,
                 cancelable: true,
                 transferable: params.transferable,
@@ -195,7 +195,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         // Assert that the stream has been created.
         LockupLinear.Stream memory actualStream = lockupLinear.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
-        assertEq(actualStream.asset, asset, "asset");
+        assertEq(actualStream.asset, ASSET, "asset");
         assertEq(actualStream.cliffTime, params.range.cliff, "cliffTime");
         assertEq(actualStream.endTime, params.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
@@ -217,7 +217,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "post-create nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = lockupLinear.protocolRevenues(asset);
+        vars.actualProtocolRevenues = lockupLinear.protocolRevenues(ASSET);
         vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "post-create protocolRevenues");
 
@@ -228,7 +228,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
 
         // Load the post-create asset balances.
         vars.balances =
-            getTokenBalances(address(asset), Solarray.addresses(address(lockupLinear), holder, params.broker.account));
+            getTokenBalances(address(ASSET), Solarray.addresses(address(lockupLinear), HOLDER, params.broker.account));
         vars.actualLockupLinearBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
@@ -267,7 +267,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         if (params.withdrawAmount > 0) {
             // Load the pre-withdraw asset balances.
             vars.initialLockupLinearBalance = vars.actualLockupLinearBalance;
-            vars.initialRecipientBalance = asset.balanceOf(params.recipient);
+            vars.initialRecipientBalance = ASSET.balanceOf(params.recipient);
 
             // Expect the relevant events to be emitted.
             vm.expectEmit({ emitter: address(lockupLinear) });
@@ -301,7 +301,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
 
             // Load the post-withdraw asset balances.
             vars.balances =
-                getTokenBalances(address(asset), Solarray.addresses(address(lockupLinear), params.recipient));
+                getTokenBalances(address(ASSET), Solarray.addresses(address(lockupLinear), params.recipient));
             vars.actualLockupLinearBalance = vars.balances[0];
             vars.actualRecipientBalance = vars.balances[1];
 
@@ -324,7 +324,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         if (!vars.isDepleted && !vars.isSettled) {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(asset), Solarray.addresses(address(lockupLinear), params.sender, params.recipient)
+                address(ASSET), Solarray.addresses(address(lockupLinear), params.sender, params.recipient)
             );
             vars.initialLockupLinearBalance = vars.balances[0];
             vars.initialSenderBalance = vars.balances[1];
@@ -351,7 +351,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
 
             // Load the post-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(asset), Solarray.addresses(address(lockupLinear), params.sender, params.recipient)
+                address(ASSET), Solarray.addresses(address(lockupLinear), params.sender, params.recipient)
             );
             vars.actualLockupLinearBalance = vars.balances[0];
             vars.actualSenderBalance = vars.balances[1];

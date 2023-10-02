@@ -7,9 +7,9 @@ import { LockupDynamic_Fork_Test } from "../LockupDynamic.t.sol";
 import { LockupLinear_Fork_Test } from "../LockupLinear.t.sol";
 
 /// @dev An ERC-20 asset with a large total supply.
-IERC20 constant asset = IERC20(0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE);
-address constant holder = 0x73AF3bcf944a6559933396c1577B257e2054D935;
+IERC20 constant ASSET = IERC20(0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE);
+address constant HOLDER = 0x73AF3bcf944a6559933396c1577B257e2054D935;
 
-contract SHIB_LockupDynamic_Fork_Test is LockupDynamic_Fork_Test(asset, holder) { }
+contract SHIB_LockupDynamic_Fork_Test is LockupDynamic_Fork_Test(ASSET, HOLDER) { }
 
-contract SHIB_LockupLinear_Fork_Test is LockupLinear_Fork_Test(asset, holder) { }
+contract SHIB_LockupLinear_Fork_Test is LockupLinear_Fork_Test(ASSET, HOLDER) { }
