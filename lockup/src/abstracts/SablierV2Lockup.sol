@@ -246,13 +246,18 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
         }
 
+        bool isCallerStreamSender = _isCallerStreamSender(streamId);
+
         // Checks: `msg.sender` is the stream's sender, the stream's recipient, or an approved third party.
-        if (!_isCallerStreamSender(streamId) && !_isCallerStreamRecipientOrApproved(streamId)) {
+        if (!isCallerStreamSender && !_isCallerStreamRecipientOrApproved(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
+        // Retrieve the recipient from storage.
+        address recipient = _ownerOf(streamId);
+
         // Checks: if `msg.sender` is the stream's sender, the withdrawal address must be the recipient.
-        if (_isCallerStreamSender(streamId) && to != _ownerOf(streamId)) {
+        if (isCallerStreamSender && to != recipient) {
             revert Errors.SablierV2Lockup_InvalidSenderWithdrawal(streamId, msg.sender, to);
         }
 
@@ -274,9 +279,6 @@ abstract contract SablierV2Lockup is
 
         // Effects and Interactions: make the withdrawal.
         _withdraw(streamId, to, amount);
-
-        // Retrieve the recipient from storage.
-        address recipient = _ownerOf(streamId);
 
         // Interactions: if `msg.sender` is not the recipient and the recipient is a contract, try to invoke the
         // withdraw hook on it without reverting if the hook is not implemented, and also without bubbling up
