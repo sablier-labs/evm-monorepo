@@ -7,9 +7,7 @@ import { Base_Test } from "../Base.t.sol";
 import { FaultyFlashLoanReceiver } from "../mocks/flash-loan/FaultyFlashLoanReceiver.sol";
 import { ReentrantFlashLoanReceiver } from "../mocks/flash-loan/ReentrantFlashLoanReceiver.sol";
 import { ReentrantRecipient } from "../mocks/hooks/ReentrantRecipient.sol";
-import { ReentrantSender } from "../mocks/hooks/ReentrantSender.sol";
 import { RevertingRecipient } from "../mocks/hooks/RevertingRecipient.sol";
-import { RevertingSender } from "../mocks/hooks/RevertingSender.sol";
 
 /// @notice Common logic needed by all integration tests, both concrete and fuzz tests.
 abstract contract Integration_Test is Base_Test {
@@ -20,9 +18,7 @@ abstract contract Integration_Test is Base_Test {
     FaultyFlashLoanReceiver internal faultyFlashLoanReceiver = new FaultyFlashLoanReceiver();
     ReentrantFlashLoanReceiver internal reentrantFlashLoanReceiver = new ReentrantFlashLoanReceiver();
     ReentrantRecipient internal reentrantRecipient = new ReentrantRecipient();
-    ReentrantSender internal reentrantSender = new ReentrantSender();
     RevertingRecipient internal revertingRecipient = new RevertingRecipient();
-    RevertingSender internal revertingSender = new RevertingSender();
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -53,9 +49,7 @@ abstract contract Integration_Test is Base_Test {
         vm.label({ account: address(faultyFlashLoanReceiver), newLabel: "Faulty Flash Loan Receiver" });
         vm.label({ account: address(reentrantFlashLoanReceiver), newLabel: "Reentrant Flash Loan Receiver" });
         vm.label({ account: address(reentrantRecipient), newLabel: "Reentrant Lockup Recipient" });
-        vm.label({ account: address(reentrantSender), newLabel: "Reentrant Lockup Sender" });
         vm.label({ account: address(revertingRecipient), newLabel: "Reverting Lockup Recipient" });
-        vm.label({ account: address(revertingSender), newLabel: "Reverting Lockup Sender" });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

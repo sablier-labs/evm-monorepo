@@ -72,7 +72,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
         lockup.cancelMultiple(testStreamIds);
     }
 
-    function test_RevertWhen_CallerUnauthorizedAllStreams_ApprovedOperator()
+    function test_RevertWhen_CallerUnauthorizedAllStreams_Recipient()
         external
         whenNotDelegateCalled
         whenArrayCountNotZero
@@ -80,32 +80,8 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
         givenAllStreamsWarm
         whenCallerUnauthorized
     {
-        // Approve the operator for all streams.
+        // Make the Recipient the caller in this test.
         changePrank({ msgSender: users.recipient });
-        lockup.setApprovalForAll({ operator: users.operator, approved: true });
-
-        // Make the approved operator the caller in this test.
-        changePrank({ msgSender: users.operator });
-
-        // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, testStreamIds[0], users.operator)
-        );
-        lockup.cancelMultiple(testStreamIds);
-    }
-
-    function test_RevertWhen_CallerUnauthorizedAllStreams_FormerRecipient()
-        external
-        whenNotDelegateCalled
-        whenArrayCountNotZero
-        givenNoNull
-        givenAllStreamsWarm
-        whenCallerUnauthorized
-    {
-        // Transfer the streams to Alice.
-        changePrank({ msgSender: users.recipient });
-        lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: testStreamIds[0] });
-        lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: testStreamIds[1] });
 
         // Run the test.
         vm.expectRevert(
@@ -135,7 +111,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
         lockup.cancelMultiple(streamIds);
     }
 
-    function test_RevertWhen_CallerUnauthorizedSomeStreams_ApprovedOperator()
+    function test_RevertWhen_CallerUnauthorizedSomeStreams_Recipient()
         external
         whenNotDelegateCalled
         whenArrayCountNotZero
@@ -143,31 +119,8 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
         givenAllStreamsWarm
         whenCallerUnauthorized
     {
-        // Approve the operator to handle the first stream.
+        // Make the Recipient the caller in this test.
         changePrank({ msgSender: users.recipient });
-        lockup.approve({ to: users.operator, tokenId: testStreamIds[0] });
-
-        // Make the approved operator the caller in this test.
-        changePrank({ msgSender: users.operator });
-
-        // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, testStreamIds[0], users.operator)
-        );
-        lockup.cancelMultiple(testStreamIds);
-    }
-
-    function test_RevertWhen_CallerUnauthorizedSomeStreams_FormerRecipient()
-        external
-        whenNotDelegateCalled
-        whenArrayCountNotZero
-        givenNoNull
-        givenAllStreamsWarm
-        whenCallerUnauthorized
-    {
-        // Transfer the first stream to Eve.
-        changePrank({ msgSender: users.recipient });
-        lockup.transferFrom({ from: users.recipient, to: users.alice, tokenId: testStreamIds[0] });
 
         // Run the test.
         vm.expectRevert(
@@ -229,6 +182,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
             streamId: testStreamIds[0],
             sender: users.sender,
             recipient: users.recipient,
+            asset: dai,
             senderAmount: senderAmount0,
             recipientAmount: defaults.DEPOSIT_AMOUNT() - senderAmount0
         });
@@ -237,6 +191,7 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
             streamId: testStreamIds[1],
             sender: users.sender,
             recipient: users.recipient,
+            asset: dai,
             senderAmount: senderAmount1,
             recipientAmount: defaults.DEPOSIT_AMOUNT() - senderAmount1
         });

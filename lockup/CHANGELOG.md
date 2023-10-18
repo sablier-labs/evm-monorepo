@@ -13,6 +13,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
+- **Breaking**: Remove ability to `cancel` for recipients ([#710](https://github.com/sablier-labs/v2-core/pull/710))
 - Replace the streamed amount with the deposit amount in the NFT descriptor
   ([#692](https://github.com/sablier-labs/v2-core/pull/692))
 - Upgrade Solidity to `0.8.21` ([#688](https://github.com/sablier-labs/v2-core/pull/688))

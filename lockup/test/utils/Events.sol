@@ -69,9 +69,10 @@ abstract contract Events {
     //////////////////////////////////////////////////////////////////////////*/
 
     event CancelLockupStream(
-        uint256 indexed streamId,
+        uint256 streamId,
         address indexed sender,
         address indexed recipient,
+        IERC20 indexed asset,
         uint128 senderAmount,
         uint128 recipientAmount
     );
@@ -82,7 +83,7 @@ abstract contract Events {
         address indexed admin, ISablierV2NFTDescriptor oldNFTDescriptor, ISablierV2NFTDescriptor newNFTDescriptor
     );
 
-    event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, uint128 amount);
+    event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 amount);
 
     /*//////////////////////////////////////////////////////////////////////////
                              SABLIER-V2-LOCKUP-DYNAMIC

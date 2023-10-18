@@ -18,16 +18,12 @@ cancelMultiple.t.sol
             ├── when the caller is unauthorized for all streams
             │  ├── when the caller is a malicious third party
             │  │  └── it should revert
-            │  ├── when the caller is an approved third party
-            │  │  └── it should revert
-            │  └── when the caller is a former recipient
+            │  └── when the caller is the recipient
             │     └── it should revert
             ├── when the caller is unauthorized for some streams
             │  ├── when the caller is a malicious third party
             │  │  └── it should revert
-            │  ├── when the caller is an approved third party
-            │  │  └── it should revert
-            │  └── when the caller is a former recipient
+            │  └── when the caller is the recipient
             │     └── it should revert
             └── when the caller is authorized for all streams
                ├── given all streams are not cancelable
@@ -35,13 +31,7 @@ cancelMultiple.t.sol
                ├── given some streams are not cancelable
                │  └── it should revert
                └── given all streams are cancelable
-                  ├── when the caller is the sender
-                  │  ├── it should cancel the streams
-                  │  ├── it should refund the sender
-                  │  ├── it should update the refunded amounts
-                  │  └── it should emit {CancelLockupStream} events
-                  └── when the caller is the recipient
-                     ├── it should cancel the streams
-                     ├── it should refund the sender
-                     ├── it should update the refunded amounts
-                     └── it should emit {CancelLockupStream} events
+                  ├── it should cancel the streams
+                  ├── it should refund the sender
+                  ├── it should update the refunded amounts
+                  └── it should emit {CancelLockupStream} events

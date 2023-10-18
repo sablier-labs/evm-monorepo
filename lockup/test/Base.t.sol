@@ -18,7 +18,6 @@ import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { GoodFlashLoanReceiver } from "./mocks/flash-loan/GoodFlashLoanReceiver.sol";
 import { Noop } from "./mocks/Noop.sol";
 import { GoodRecipient } from "./mocks/hooks/GoodRecipient.sol";
-import { GoodSender } from "./mocks/hooks/GoodSender.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Calculations } from "./utils/Calculations.sol";
 import { Constants } from "./utils/Constants.sol";
@@ -44,7 +43,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     Defaults internal defaults;
     GoodFlashLoanReceiver internal goodFlashLoanReceiver;
     GoodRecipient internal goodRecipient;
-    GoodSender internal goodSender;
     ISablierV2LockupDynamic internal lockupDynamic;
     ISablierV2LockupLinear internal lockupLinear;
     ISablierV2NFTDescriptor internal nftDescriptor;
@@ -60,7 +58,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
         dai = new ERC20("Dai Stablecoin", "DAI");
         goodFlashLoanReceiver = new GoodFlashLoanReceiver();
         goodRecipient = new GoodRecipient();
-        goodSender = new GoodSender();
         noop = new Noop();
         usdt = new ERC20MissingReturn("Tether USD", "USDT", 6);
 
@@ -68,7 +65,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
         vm.label({ account: address(dai), newLabel: "DAI" });
         vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
         vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
-        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
         vm.label({ account: address(nftDescriptor), newLabel: "NFT Descriptor" });
         vm.label({ account: address(noop), newLabel: "Noop" });
         vm.label({ account: address(usdt), newLabel: "USDT" });

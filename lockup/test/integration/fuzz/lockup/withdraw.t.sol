@@ -75,7 +75,9 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         vm.warp({ timestamp: defaults.START_TIME() + timeJump });
 
         // Cancel the stream.
+        changePrank({ msgSender: users.sender });
         lockup.cancel({ streamId: defaultStreamId });
+        changePrank({ msgSender: users.recipient });
 
         // Bound the withdraw amount.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(defaultStreamId);
@@ -86,7 +88,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream(defaultStreamId, to, withdrawAmount);
+        emit WithdrawFromLockupStream(defaultStreamId, to, dai, withdrawAmount);
         vm.expectEmit({ emitter: address(lockup) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
@@ -150,7 +152,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream(defaultStreamId, to, withdrawAmount);
+        emit WithdrawFromLockupStream(defaultStreamId, to, dai, withdrawAmount);
         vm.expectEmit({ emitter: address(lockup) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 

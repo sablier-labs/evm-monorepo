@@ -158,8 +158,8 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_StreamCanceled(streamId);
         }
 
-        // Checks: `msg.sender` is either the stream's sender or the stream's recipient (i.e. the NFT owner).
-        if (!_isCallerStreamSender(streamId) && msg.sender != _ownerOf(streamId)) {
+        // Checks: `msg.sender` is the stream's sender.
+        if (!_isCallerStreamSender(streamId)) {
             revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
         }
 
@@ -291,9 +291,6 @@ abstract contract SablierV2Lockup is
                 amount: amount
             }) { } catch { }
         }
-
-        // Log the withdrawal.
-        emit ISablierV2Lockup.WithdrawFromLockupStream(streamId, to, amount);
     }
 
     /// @inheritdoc ISablierV2Lockup

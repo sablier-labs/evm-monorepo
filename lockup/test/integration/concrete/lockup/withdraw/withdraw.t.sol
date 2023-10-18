@@ -296,7 +296,12 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+        emit WithdrawFromLockupStream({
+            streamId: defaultStreamId,
+            to: users.recipient,
+            asset: dai,
+            amount: withdrawAmount
+        });
 
         // Make the withdrawal.
         lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
@@ -491,7 +496,12 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: streamId, to: address(goodRecipient), amount: withdrawAmount });
+        emit WithdrawFromLockupStream({
+            streamId: streamId,
+            to: address(goodRecipient),
+            asset: dai,
+            amount: withdrawAmount
+        });
         vm.expectEmit({ emitter: address(lockup) });
         emit MetadataUpdate({ _tokenId: streamId });
 

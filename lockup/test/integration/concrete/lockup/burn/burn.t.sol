@@ -83,7 +83,9 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenStreamHasNotBeenDepleted
     {
         vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        changePrank({ msgSender: users.sender });
         lockup.cancel(streamId);
+        changePrank({ msgSender: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }

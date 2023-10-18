@@ -294,7 +294,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         vm.warp({ timestamp: earlyStopTime });
 
         // Cancel the 3rd stream.
-        changePrank({ msgSender: users.recipient });
+        changePrank({ msgSender: users.sender });
         lockup.cancel(testStreamIds[2]);
 
         // Run the test with the caller provided in {whenCallerAuthorizedAllStreams}.
@@ -307,11 +307,26 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: testStreamIds[0], to: users.recipient, amount: testAmounts[0] });
+        emit WithdrawFromLockupStream({
+            streamId: testStreamIds[0],
+            to: users.recipient,
+            asset: dai,
+            amount: testAmounts[0]
+        });
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: testStreamIds[1], to: users.recipient, amount: testAmounts[1] });
+        emit WithdrawFromLockupStream({
+            streamId: testStreamIds[1],
+            to: users.recipient,
+            asset: dai,
+            amount: testAmounts[1]
+        });
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: testStreamIds[2], to: users.recipient, amount: testAmounts[2] });
+        emit WithdrawFromLockupStream({
+            streamId: testStreamIds[2],
+            to: users.recipient,
+            asset: dai,
+            amount: testAmounts[2]
+        });
 
         // Make the withdrawals.
         lockup.withdrawMultiple({ streamIds: testStreamIds, to: users.recipient, amounts: testAmounts });

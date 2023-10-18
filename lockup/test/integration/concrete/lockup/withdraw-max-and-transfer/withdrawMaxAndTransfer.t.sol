@@ -100,7 +100,12 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+        emit WithdrawFromLockupStream({
+            streamId: defaultStreamId,
+            to: users.recipient,
+            amount: withdrawAmount,
+            asset: dai
+        });
         vm.expectEmit({ emitter: address(lockup) });
         emit Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
         vm.expectEmit({ emitter: address(lockup) });
