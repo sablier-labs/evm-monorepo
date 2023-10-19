@@ -16,7 +16,7 @@ contract Comptroller_Unit_Concrete_Test is Base_Test {
         if (!isTestOptimizedProfile()) {
             comptroller = new SablierV2Comptroller(users.admin);
         } else {
-            comptroller = deployPrecompiledComptroller(users.admin);
+            comptroller = deployOptimizedComptroller(users.admin);
         }
         vm.label({ account: address(comptroller), newLabel: "SablierV2Comptroller" });
     }
