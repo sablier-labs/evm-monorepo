@@ -9,16 +9,17 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 [1.0.1]: https://github.com/sablier-labs/v2-core/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/sablier-labs/v2-core/releases/tag/v1.0.0
 
-## [1.1.0] - 2023-09-27
+## [1.1.0] - 2023-10-19
 
 ### Changed
 
-- **Breaking**: Remove ability to `cancel` for recipients ([#710](https://github.com/sablier-labs/v2-core/pull/710))
+- **Breaking**: Remove ability to cancel for recipients ([#710](https://github.com/sablier-labs/v2-core/pull/710))
+- Move `isWarm` and `isCold` to `SablierV2Lockup` ([#664](https://github.com/sablier-labs/v2-core/pull/664))
 - Replace the streamed amount with the deposit amount in the NFT descriptor
   ([#692](https://github.com/sablier-labs/v2-core/pull/692))
+- Simplify `renounce` and `withdraw` implementations ([#683](https://github.com/sablier-labs/v2-core/pull/683),
+  [#705](https://github.com/sablier-labs/v2-core/pull/705))
 - Upgrade Solidity to `0.8.21` ([#688](https://github.com/sablier-labs/v2-core/pull/688))
-- Simplify `renounce` and `withdraw` implementations ([#683](https://github.com/sablier-labs/v2-core/pull/683))
-- Move `isWarm` and `isCold` to `SablierV2Lockup` ([#664](https://github.com/sablier-labs/v2-core/pull/664))
 
 ### Added
 
