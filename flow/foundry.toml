@@ -31,7 +31,6 @@
   polygon = { key = "${API_KEY_POLYGONSCAN}" }
   sepolia = { key = "${API_KEY_ETHERSCAN}" }
 
-
 [fmt]
   bracket_spacing = true
   int_types = "long"
