@@ -18,6 +18,11 @@ library Errors {
     /// not match the number of deposit amounts.
     error SablierV2Payroll_DepositArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
 
+    /// @notice Thrown when an unexpected error occurs during the calculation of amounts.
+    error SablierV2Payroll_CancelInvalidCalculation(
+        uint256 streamId, uint128 balance, uint128 senderAmount, uint128 recipientAmount
+    );
+
     /// @notice Thrown when the id references a null stream.
     error SablierV2Payroll_Null(uint256 streamId);
 

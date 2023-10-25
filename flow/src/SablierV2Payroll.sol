@@ -5,12 +5,13 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { Payroll } from "./libraries/DataTypes.sol";
+import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
 import { Errors } from "./libraries/Errors.sol";
+import { Payroll } from "./types/DataTypes.sol";
 
 import { ISablierV2Payroll } from "./interfaces/ISablierV2Payroll.sol";
 
-contract SablierV2Payroll is ISablierV2Payroll {
+contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -121,20 +122,19 @@ contract SablierV2Payroll is ISablierV2Payroll {
 
     /// @inheritdoc ISablierV2Payroll
     function refundableAmountOf(uint256 streamId)
-        public
+        external
         view
         override
         notNull(streamId)
         returns (uint128 refundableAmount)
     {
-        // Invariant: balance >= withdrawableAmount
-        refundableAmount = _streams[streamId].balance - withdrawableAmountOf(streamId);
+        refundableAmount = _refundableAmountOf(streamId);
     }
 
     /// @inheritdoc ISablierV2Payroll
-    function senderDebt(uint256 streamId) external view notNull(streamId) returns (uint128 debt) {
+    function streamDebt(uint256 streamId) external view notNull(streamId) returns (uint128 debt) {
         int256 balance = int256(uint256(_streams[streamId].balance));
-        int256 streamedAmount = int256(uint256(streamedAmountOf(streamId)));
+        int256 streamedAmount = int256(uint256(_streamedAmountOf(streamId)));
         int256 delta = balance - streamedAmount;
 
         if (delta >= 0) {
@@ -145,29 +145,8 @@ contract SablierV2Payroll is ISablierV2Payroll {
     }
 
     /// @inheritdoc ISablierV2Payroll
-    function streamedAmountOf(uint256 streamId)
-        public
-        view
-        override
-        notNull(streamId)
-        returns (uint128 streamedAmount)
-    {
-        // Invariant: lastTimeUpdate <= block.timestamp;
-        uint256 currentTime = block.timestamp;
-        uint256 lastTimeUpdate = uint256(_streams[streamId].lastTimeUpdate);
-
-        // Calculate the amount streamed since last update. Normalization to 18 decimals is not needed
-        // because there is no mix of amounts with different decimals.
-        unchecked {
-            // Calculate how much time has passed since the last update.
-            UD60x18 elapsedTime = ud(currentTime - lastTimeUpdate);
-
-            // Calculate the streamed amount by multiplying the elapsed time by the amount per second.
-            UD60x18 amountPerSecond = ud(_streams[streamId].amountPerSecond);
-            UD60x18 _streamedAmount = elapsedTime.mul(amountPerSecond);
-
-            streamedAmount = uint128(UD60x18.unwrap(_streamedAmount));
-        }
+    function streamedAmountOf(uint256 streamId) external view notNull(streamId) returns (uint128 streamedAmount) {
+        streamedAmount = _streamedAmountOf(streamId);
     }
 
     /// @inheritdoc ISablierV2Payroll
@@ -176,20 +155,13 @@ contract SablierV2Payroll is ISablierV2Payroll {
     }
 
     /// @inheritdoc ISablierV2Payroll
-    function withdrawableAmountOf(uint256 streamId) public view returns (uint128 withdrawableAmount) {
-        uint128 balance = _streams[streamId].balance;
-        uint128 streamedAmount = streamedAmountOf(streamId);
-
-        if (balance == 0) {
-            return 0;
-        }
-
-        // If there has been streamed more than how much is available, return the stream balance.
-        if (streamedAmount >= balance) {
-            return balance;
-        } else {
-            withdrawableAmount = streamedAmount;
-        }
+    function withdrawableAmountOf(uint256 streamId)
+        external
+        view
+        notNull(streamId)
+        returns (uint128 withdrawableAmount)
+    {
+        withdrawableAmount = _withdrawableAmountOf(streamId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -197,11 +169,12 @@ contract SablierV2Payroll is ISablierV2Payroll {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Payroll
-    function adjustStream(
+    function adjustAmountPerSecond(
         uint256 streamId,
         uint128 newAmountPerSecond
     )
         external
+        noDelegateCall
         notCanceled(streamId)
         onlySender(streamId)
     {
@@ -211,54 +184,56 @@ contract SablierV2Payroll is ISablierV2Payroll {
         }
 
         // Effects and Interactions: adjust the stream.
-        _adjustStream(streamId, newAmountPerSecond);
+        _adjustAmountPerSecond(streamId, newAmountPerSecond);
     }
 
     /// @inheritdoc ISablierV2Payroll
-    function cancel(uint256 streamId) external notCanceled(streamId) onlySender(streamId) {
+    function cancel(uint256 streamId) external noDelegateCall notCanceled(streamId) onlySender(streamId) {
         _cancel(streamId);
     }
 
     /// @inheritdoc ISablierV2Payroll
     function create(
-        address recipient,
         address sender,
+        address recipient,
         uint128 amountPerSecond,
         IERC20 asset
     )
         external
+        noDelegateCall
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(recipient, sender, amountPerSecond, asset);
+        streamId = _create(sender, recipient, amountPerSecond, asset);
     }
 
     /// @inheritdoc ISablierV2Payroll
     function createAndDeposit(
-        address recipient,
         address sender,
+        address recipient,
         uint128 amountPerSecond,
         IERC20 asset,
         uint128 depositAmount
     )
         external
+        noDelegateCall
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(recipient, sender, amountPerSecond, asset);
+        streamId = _create(sender, recipient, amountPerSecond, asset);
 
         // Checks, Effects and Interactions: deposit on the stream.
         _deposit(streamId, depositAmount);
     }
 
     /// @inheritdoc ISablierV2Payroll
-    function deposit(uint256 streamId, uint128 amount) external {
+    function deposit(uint256 streamId, uint128 amount) external noDelegateCall {
         // Checks, Effects and Interactions: deposit on the stream.
         _deposit(streamId, amount);
     }
 
     /// @inheritdoc ISablierV2Payroll
-    function depositMultiple(uint256[] calldata streamIds, uint128[] calldata amounts) external {
+    function depositMultiple(uint256[] calldata streamIds, uint128[] calldata amounts) external noDelegateCall {
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
 
@@ -284,9 +259,17 @@ contract SablierV2Payroll is ISablierV2Payroll {
     }
 
     /// @inheritdoc ISablierV2Payroll
-    function refundFromStream(uint256 streamId, uint128 amount) external notCanceled(streamId) onlySender(streamId) {
+    function refundFromStream(
+        uint256 streamId,
+        uint128 amount
+    )
+        external
+        noDelegateCall
+        notNull(streamId)
+        onlySender(streamId)
+    {
         address sender = _streams[streamId].sender;
-        uint128 senderAmount = refundableAmountOf(streamId);
+        uint128 senderAmount = _refundableAmountOf(streamId);
 
         // Checks, Effects and Interactions: withdraw from the stream.
         _withdraw(streamId, sender, amount, senderAmount);
@@ -296,7 +279,7 @@ contract SablierV2Payroll is ISablierV2Payroll {
     }
 
     /// @inheritdoc ISablierV2Payroll
-    function withdraw(uint256 streamId, address to, uint128 amount) external {
+    function withdraw(uint256 streamId, address to, uint128 amount) external noDelegateCall notCanceled(streamId) {
         bool isCallerStreamSender = _isCallerStreamSender(streamId);
         address recipient = _streams[streamId].recipient;
 
@@ -315,7 +298,7 @@ contract SablierV2Payroll is ISablierV2Payroll {
             revert Errors.SablierV2Payroll_WithdrawToZeroAddress();
         }
 
-        uint128 recipientAmount = withdrawableAmountOf(streamId);
+        uint128 recipientAmount = _withdrawableAmountOf(streamId);
 
         // Effects: update the stream time.
         _streams[streamId].lastTimeUpdate = uint40(block.timestamp);
@@ -337,13 +320,53 @@ contract SablierV2Payroll is ISablierV2Payroll {
         return msg.sender == _streams[streamId].sender;
     }
 
+    function _refundableAmountOf(uint256 streamId) internal view returns (uint128) {
+        return _streams[streamId].balance - _withdrawableAmountOf(streamId);
+    }
+
+    /// @dev Calculates the streamed amount.
+    function _streamedAmountOf(uint256 streamId) internal view returns (uint128) {
+        uint256 currentTime = block.timestamp;
+        uint256 lastTimeUpdate = uint256(_streams[streamId].lastTimeUpdate);
+
+        // Calculate the amount streamed since last update. Normalization to 18 decimals is not needed
+        // because there is no mix of amounts with different decimals.
+        unchecked {
+            // Calculate how much time has passed since the last update.
+            UD60x18 elapsedTime = ud(currentTime - lastTimeUpdate);
+
+            // Calculate the streamed amount by multiplying the elapsed time by the amount per second.
+            UD60x18 amountPerSecond = ud(_streams[streamId].amountPerSecond);
+            UD60x18 streamedAmount = elapsedTime.mul(amountPerSecond);
+
+            return uint128(streamedAmount.intoUint256());
+        }
+    }
+
+    function _withdrawableAmountOf(uint256 streamId) internal view returns (uint128) {
+        uint128 balance = _streams[streamId].balance;
+
+        if (balance == 0) {
+            return 0;
+        }
+
+        uint128 streamedAmount = _streamedAmountOf(streamId);
+
+        // If there has been streamed more than how much is available, return the stream balance.
+        if (streamedAmount >= balance) {
+            return balance;
+        } else {
+            return streamedAmount;
+        }
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                            INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _adjustStream(uint256 streamId, uint128 newAmountPerSecond) internal {
-        uint128 recipientAmount = withdrawableAmountOf(streamId);
+    function _adjustAmountPerSecond(uint256 streamId, uint128 newAmountPerSecond) internal {
+        uint128 recipientAmount = _withdrawableAmountOf(streamId);
         uint128 oldAmountPerSecond = _streams[streamId].amountPerSecond;
 
         // Effects: update the stream time.
@@ -365,9 +388,23 @@ contract SablierV2Payroll is ISablierV2Payroll {
     function _cancel(uint256 streamId) internal {
         address recipient = _streams[streamId].recipient;
         address sender = _streams[streamId].sender;
+        uint128 balance = _streams[streamId].balance;
+        uint128 recipientAmount = _withdrawableAmountOf(streamId);
 
-        uint128 senderAmount = refundableAmountOf(streamId);
-        uint128 recipientAmount = withdrawableAmountOf(streamId);
+        // Calculate the refundable amount here for gas optimization.
+        uint128 senderAmount = balance - recipientAmount;
+
+        // Although the sum of the withdrawable and refundable amounts should never exceed the balance, this
+        // condition is checked to avoid exploits in case of a bug.
+        uint128 sum = senderAmount + recipientAmount;
+        if (sum > balance) {
+            revert Errors.SablierV2Payroll_CancelInvalidCalculation(streamId, balance, senderAmount, recipientAmount);
+        }
+        // In case there is a rounding error and the sum is less than the balance, the sender receives the remainder.
+        else if (sum < balance) {
+            uint128 delta = balance - sum;
+            senderAmount += delta;
+        }
 
         // Effects: mark the stream as canceled.
         _streams[streamId].wasCanceled = true;
@@ -380,7 +417,7 @@ contract SablierV2Payroll is ISablierV2Payroll {
             _extractFromStream(streamId, sender, senderAmount);
         }
 
-        // Interactions: withdraw the assets to the recipient, if any.
+        // Interactions: withdraw the assets to the recipient, if any assets available.
         if (recipientAmount > 0) {
             _extractFromStream(streamId, sender, senderAmount);
         }
@@ -393,8 +430,8 @@ contract SablierV2Payroll is ISablierV2Payroll {
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _create(
-        address recipient,
         address sender,
+        address recipient,
         uint128 amountPerSecond,
         IERC20 asset
     )
@@ -473,15 +510,7 @@ contract SablierV2Payroll is ISablierV2Payroll {
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdraw(
-        uint256 streamId,
-        address to,
-        uint128 amount,
-        uint128 availableAmount
-    )
-        internal
-        notCanceled(streamId)
-    {
+    function _withdraw(uint256 streamId, address to, uint128 amount, uint128 availableAmount) internal {
         // Checks: the amount is not zero.
         if (amount == 0) {
             revert Errors.SablierV2Payroll_AmountZero(streamId);

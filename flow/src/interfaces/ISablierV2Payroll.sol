@@ -3,7 +3,7 @@ pragma solidity >=0.8.20;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { Payroll } from "../libraries/DataTypes.sol";
+import { Payroll } from "../types/DataTypes.sol";
 
 interface ISablierV2Payroll {
     /*//////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ interface ISablierV2Payroll {
     /// @param recipient The address toward which to stream the assets.
     /// @param amountPerSecond The amount of assets that is increasing by every second.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param lastTimeUpdate The time reference for the streamed amount calculation.
+    /// @param lastTimeUpdate The Unix timestamp for the streamed amount calculation.
     event CreatePayrollStream(
         uint256 streamId,
         address indexed sender,
@@ -98,7 +98,7 @@ interface ISablierV2Payroll {
     /// @param streamId The stream id for the query.
     function getBalance(uint256 streamId) external view returns (uint128 balance);
 
-    /// @notice Retrieves the last time update of the stream, which is a Unix timestamp..
+    /// @notice Retrieves the last time update of the stream, which is a Unix timestamp.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The id of the stream to make the query for.
     function getLastTimeUpdate(uint256 streamId) external view returns (uint40 lastTimeUpdate);
@@ -132,11 +132,11 @@ interface ISablierV2Payroll {
     /// @param streamId The stream id for the query.
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
 
-    /// @notice Calculates the amount that the sender owns the stream, if there is no debt it will return zero,
-    /// denoted in units of the asset's decimals.
+    /// @notice Calculates the amount that the sender owes on the stream, i.e. if more assets have been streamed than
+    /// its balance, denoted in units of the asset's decimals. If there is no debt, it will return zero
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
-    function senderDebt(uint256 streamId) external view returns (uint128 debt);
+    function streamDebt(uint256 streamId) external view returns (uint128 debt);
 
     /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
     /// @dev Reverts if `streamId` references a null stream.
@@ -174,7 +174,7 @@ interface ISablierV2Payroll {
     /// @param streamId The id of the stream to adjust.
     /// @param newAmountPerSecond The new amount per second of the payroll stream, denoted in units of the asset's
     /// decimals.
-    function adjustStream(uint256 streamId, uint128 newAmountPerSecond) external;
+    function adjustAmountPerSecond(uint256 streamId, uint128 newAmountPerSecond) external;
 
     /// @notice Cancels the stream and refunds any remaining assets to the sender.
     ///
@@ -273,7 +273,8 @@ interface ISablierV2Payroll {
     /// @dev Emits a {Transfer} and {RefundFromPayrollStream} event.
     ///
     /// Requirements:
-    /// - `streamId` must not reference a canceled stream.
+    /// - Must not be delegate called.
+    /// - `streamId` must not reference a null stream.
     /// - `msg.sender` must be the sender.
     /// - `amount` must be greater than zero and must not exceed the refundable amount.
     ///
