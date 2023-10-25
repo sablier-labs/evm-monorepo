@@ -178,11 +178,6 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         notCanceled(streamId)
         onlySender(streamId)
     {
-        // Checks: the amount per second is not zero.
-        if (newAmountPerSecond == 0) {
-            revert Errors.SablierV2Payroll_AmountPerSecondZero();
-        }
-
         // Effects and Interactions: adjust the stream.
         _adjustAmountPerSecond(streamId, newAmountPerSecond);
     }
@@ -265,49 +260,15 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
     )
         external
         noDelegateCall
-        notNull(streamId)
+        notCanceled(streamId)
         onlySender(streamId)
     {
-        address sender = _streams[streamId].sender;
-        uint128 senderAmount = _refundableAmountOf(streamId);
-
-        // Checks, Effects and Interactions: withdraw from the stream.
-        _withdraw(streamId, sender, amount, senderAmount);
-
-        // Log the refund.
-        emit ISablierV2Payroll.RefundFromPayrollStream(streamId, sender, _streams[streamId].asset, amount);
+        _refundFromStream(streamId, amount);
     }
 
     /// @inheritdoc ISablierV2Payroll
     function withdraw(uint256 streamId, address to, uint128 amount) external noDelegateCall notCanceled(streamId) {
-        bool isCallerStreamSender = _isCallerStreamSender(streamId);
-        address recipient = _streams[streamId].recipient;
-
-        // Checks: `msg.sender` is the stream's sender or the stream's recipient.
-        if (!isCallerStreamSender && !(msg.sender == recipient)) {
-            revert Errors.SablierV2Payroll_Unauthorized(streamId, msg.sender);
-        }
-
-        // Checks: the provided address is the recipient if `msg.sender` is the sender of the stream.
-        if (isCallerStreamSender && to != recipient) {
-            revert Errors.SablierV2Payroll_Unauthorized(streamId, msg.sender);
-        }
-
-        // Checks: the withdrawal address is not zero.
-        if (to == address(0)) {
-            revert Errors.SablierV2Payroll_WithdrawToZeroAddress();
-        }
-
-        uint128 recipientAmount = _withdrawableAmountOf(streamId);
-
-        // Effects: update the stream time.
-        _streams[streamId].lastTimeUpdate = uint40(block.timestamp);
-
-        // Effects and Interactions: withdraw from the stream.
-        _withdraw(streamId, to, amount, recipientAmount);
-
-        // Log the withdrawal.
-        emit ISablierV2Payroll.WithdrawFromPayrollStream(streamId, to, _streams[streamId].asset, amount);
+        _withdraw(streamId, to, amount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -320,6 +281,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         return msg.sender == _streams[streamId].sender;
     }
 
+    /// @dev Calculates the refundable amount.
     function _refundableAmountOf(uint256 streamId) internal view returns (uint128) {
         return _streams[streamId].balance - _withdrawableAmountOf(streamId);
     }
@@ -343,6 +305,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         }
     }
 
+    /// @dev Calculates the withdrawable amount.
     function _withdrawableAmountOf(uint256 streamId) internal view returns (uint128) {
         uint128 balance = _streams[streamId].balance;
 
@@ -366,11 +329,16 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _adjustAmountPerSecond(uint256 streamId, uint128 newAmountPerSecond) internal {
+        // Checks: the amount per second is not zero.
+        if (newAmountPerSecond == 0) {
+            revert Errors.SablierV2Payroll_AmountPerSecondZero();
+        }
+
         uint128 recipientAmount = _withdrawableAmountOf(streamId);
         uint128 oldAmountPerSecond = _streams[streamId].amountPerSecond;
 
         // Effects: update the stream time.
-        _streams[streamId].lastTimeUpdate = uint40(block.timestamp);
+        _updateTime(streamId);
 
         // Effects: change the amount per second.
         _streams[streamId].amountPerSecond = newAmountPerSecond;
@@ -510,18 +478,71 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdraw(uint256 streamId, address to, uint128 amount, uint128 availableAmount) internal {
+    function _refundFromStream(uint256 streamId, uint128 amount) internal {
+        address sender = _streams[streamId].sender;
+        uint128 senderAmount = _refundableAmountOf(streamId);
+
         // Checks: the amount is not zero.
         if (amount == 0) {
             revert Errors.SablierV2Payroll_AmountZero(streamId);
         }
 
         // Checks: the amount is not greater than what is available.
-        if (amount > availableAmount) {
-            revert Errors.SablierV2Payroll_Overdraw(streamId, amount, availableAmount);
+        if (amount > senderAmount) {
+            revert Errors.SablierV2Payroll_Overdraw(streamId, amount, senderAmount);
         }
 
         // Effects and interactions: update the `balance` and perform the ERC-20 transfer.
+        _extractFromStream(streamId, sender, amount);
+
+        // Log the refund.
+        emit ISablierV2Payroll.RefundFromPayrollStream(streamId, sender, _streams[streamId].asset, amount);
+    }
+
+    /// @dev Sets the stream time to the current block timestamp.
+    function _updateTime(uint256 streamId) internal {
+        _streams[streamId].lastTimeUpdate = uint40(block.timestamp);
+    }
+
+    /// @dev See the documentation for the user-facing functions that call this internal function.
+    function _withdraw(uint256 streamId, address to, uint128 amount) internal {
+        bool isCallerStreamSender = _isCallerStreamSender(streamId);
+        address recipient = _streams[streamId].recipient;
+
+        // Checks: `msg.sender` is the stream's sender or the stream's recipient.
+        if (!isCallerStreamSender && !(msg.sender == recipient)) {
+            revert Errors.SablierV2Payroll_Unauthorized(streamId, msg.sender);
+        }
+
+        // Checks: the provided address is the recipient if `msg.sender` is the sender of the stream.
+        if (isCallerStreamSender && to != recipient) {
+            revert Errors.SablierV2Payroll_Unauthorized(streamId, msg.sender);
+        }
+
+        // Checks: the withdrawal address is not zero.
+        if (to == address(0)) {
+            revert Errors.SablierV2Payroll_WithdrawToZeroAddress();
+        }
+
+        uint128 recipientAmount = _withdrawableAmountOf(streamId);
+
+        // Checks: the amount is not zero.
+        if (amount == 0) {
+            revert Errors.SablierV2Payroll_AmountZero(streamId);
+        }
+
+        // Checks: the amount is not greater than what is available.
+        if (amount > recipientAmount) {
+            revert Errors.SablierV2Payroll_Overdraw(streamId, amount, recipientAmount);
+        }
+
+        // Effects: update the stream time.
+        _updateTime(streamId);
+
+        // Effects and interactions: update the `balance` and perform the ERC-20 transfer.
         _extractFromStream(streamId, to, amount);
+
+        // Log the withdrawal.
+        emit ISablierV2Payroll.WithdrawFromPayrollStream(streamId, to, _streams[streamId].asset, amount);
     }
 }

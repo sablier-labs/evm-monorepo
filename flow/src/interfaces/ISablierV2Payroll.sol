@@ -274,7 +274,7 @@ interface ISablierV2Payroll {
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null stream.
+    /// - `streamId` must not reference a canceled stream.
     /// - `msg.sender` must be the sender.
     /// - `amount` must be greater than zero and must not exceed the refundable amount.
     ///
