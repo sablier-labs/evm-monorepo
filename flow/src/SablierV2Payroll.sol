@@ -284,6 +284,18 @@ contract SablierV2Payroll is ISablierV2Payroll {
     }
 
     /// @inheritdoc ISablierV2Payroll
+    function refundFromStream(uint256 streamId, uint128 amount) external notCanceled(streamId) onlySender(streamId) {
+        address sender = _streams[streamId].sender;
+        uint128 senderAmount = refundableAmountOf(streamId);
+
+        // Checks, Effects and Interactions: withdraw from the stream.
+        _withdraw(streamId, sender, amount, senderAmount);
+
+        // Log the refund.
+        emit ISablierV2Payroll.RefundFromPayrollStream(streamId, sender, _streams[streamId].asset, amount);
+    }
+
+    /// @inheritdoc ISablierV2Payroll
     function withdraw(uint256 streamId, address to, uint128 amount) external {
         bool isCallerStreamSender = _isCallerStreamSender(streamId);
         address recipient = _streams[streamId].recipient;
@@ -313,18 +325,6 @@ contract SablierV2Payroll is ISablierV2Payroll {
 
         // Log the withdrawal.
         emit ISablierV2Payroll.WithdrawFromPayrollStream(streamId, to, _streams[streamId].asset, amount);
-    }
-
-    /// @inheritdoc ISablierV2Payroll
-    function refundFromStream(uint256 streamId, uint128 amount) external notCanceled(streamId) onlySender(streamId) {
-        address sender = _streams[streamId].sender;
-        uint128 senderAmount = refundableAmountOf(streamId);
-
-        // Checks, Effects and Interactions: withdraw from the stream.
-        _withdraw(streamId, sender, amount, senderAmount);
-
-        // Log the refund.
-        emit ISablierV2Payroll.RefundFromPayrollStream(streamId, sender, _streams[streamId].asset, amount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
