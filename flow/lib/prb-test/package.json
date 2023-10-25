@@ -1,0 +1,46 @@
+{
+  "name": "@prb/test",
+  "description": "Modern collection of testing assertions and logging utilities for Solidity",
+  "version": "0.6.0",
+  "author": {
+    "name": "Paul Razvan Berg",
+    "url": "https://github.com/PaulRBerg"
+  },
+  "bugs": {
+    "url": "https://github.com/PaulRBerg/prb-test/issues"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.7",
+    "solhint": "^3.4.1"
+  },
+  "files": [
+    "src",
+    "CHANGELOG.md"
+  ],
+  "homepage": "https://github.com/PaulRBerg/prb-test#readme",
+  "keywords": [
+    "assertions",
+    "blockchain",
+    "ethereum",
+    "foundry",
+    "smart-contracts",
+    "solidity",
+    "testing"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PaulRBerg/prb-test"
+  },
+  "scripts": {
+    "clean": "rm -rf cache out",
+    "lint": "pnpm lint:sol && pnpm prettier:check",
+    "lint:sol": "forge fmt --check && pnpm solhint \"{script,src,test}/**/*.sol\"",
+    "prettier:check": "prettier --check \"**/*.{json,md,yml}\"",
+    "prettier:write": "prettier --write \"**/*.{json,md,yml}\"",
+    "test": "forge test"
+  }
+}

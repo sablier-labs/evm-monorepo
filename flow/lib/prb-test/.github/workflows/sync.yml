@@ -1,0 +1,29 @@
+name: "Sync"
+
+on:
+  push:
+    tags:
+      - "v0.*"
+
+jobs:
+  sync-release-branch:
+    runs-on: "ubuntu-latest"
+    if: "startsWith(github.ref, 'refs/tags/v0.')"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+          fetch-depth: 0
+          ref: "v0"
+
+      - name: "Configure Git"
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      - name: "Sync Release Branch"
+        run: |
+          git fetch --tags
+          git checkout v0
+          git reset --hard ${GITHUB_REF}
+          git push --force

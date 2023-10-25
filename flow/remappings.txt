@@ -1,0 +1,4 @@
+@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
+@prb/math/=node_modules/@prb/math/
+@prb/test/=lib/prb-test/src/
+forge-std/=lib/forge-std/src/
