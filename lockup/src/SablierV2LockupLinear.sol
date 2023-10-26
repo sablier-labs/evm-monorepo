@@ -427,6 +427,9 @@ contract SablierV2LockupLinear is
         // Interactions: refund the sender.
         asset.safeTransfer({ to: sender, value: senderAmount });
 
+        // Log the cancellation.
+        emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, asset, senderAmount, recipientAmount);
+
         // Interactions: if the recipient is a contract, try to invoke the cancel hook on the recipient without
         // reverting if the hook is not implemented, and without bubbling up any potential revert.
         if (recipient.code.length > 0) {
@@ -437,9 +440,6 @@ contract SablierV2LockupLinear is
                 recipientAmount: recipientAmount
             }) { } catch { }
         }
-
-        // Log the cancellation.
-        emit ISablierV2Lockup.CancelLockupStream(streamId, sender, recipient, asset, senderAmount, recipientAmount);
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.

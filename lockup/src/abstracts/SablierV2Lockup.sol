@@ -202,15 +202,15 @@ abstract contract SablierV2Lockup is
         // Checks and Effects: renounce the stream.
         _renounce(streamId);
 
+        // Log the renouncement.
+        emit ISablierV2Lockup.RenounceLockupStream(streamId);
+
         // Interactions: if the recipient is a contract, try to invoke the renounce hook on the recipient without
         // reverting if the hook is not implemented, and also without bubbling up any potential revert.
         address recipient = _ownerOf(streamId);
         if (recipient.code.length > 0) {
             try ISablierV2LockupRecipient(recipient).onStreamRenounced(streamId) { } catch { }
         }
-
-        // Log the renouncement.
-        emit ISablierV2Lockup.RenounceLockupStream(streamId);
     }
 
     /// @inheritdoc ISablierV2Lockup
