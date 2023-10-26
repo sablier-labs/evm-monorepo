@@ -222,7 +222,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function deposit(uint256 streamId, uint128 amount) external noDelegateCall {
+    function deposit(uint256 streamId, uint128 amount) external noDelegateCall notCanceled(streamId) {
         // Checks, Effects and Interactions: deposit on the stream.
         _deposit(streamId, amount);
     }
@@ -438,7 +438,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             wasCanceled: false
         });
 
-        // Effects: bump the next stream id and record the protocol fee.
+        // Effects: bump the next stream id.
         // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
@@ -451,7 +451,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _deposit(uint256 streamId, uint128 amount) internal notCanceled(streamId) {
+    function _deposit(uint256 streamId, uint128 amount) internal {
         // Checks: the amount is not zero.
         if (amount == 0) {
             revert Errors.SablierV2OpenEnded_DepositAmountZero();
