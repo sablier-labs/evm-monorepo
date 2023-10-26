@@ -1,6 +1,6 @@
 {
-  "name": "@sablier/v2-payroll",
-  "description": "Payroll smart contracts of the Sablier V2 token streaming protocol",
+  "name": "@sablier/v2-open-ended",
+  "description": "Open ended smart contracts of the Sablier V2 token streaming protocol",
   "version": "1.0.0",
   "author": {
     "name": "Sablier Labs Ltd",

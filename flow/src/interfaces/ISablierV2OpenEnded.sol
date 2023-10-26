@@ -3,9 +3,9 @@ pragma solidity >=0.8.20;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { Payroll } from "../types/DataTypes.sol";
+import { OpenEnded } from "../types/DataTypes.sol";
 
-interface ISablierV2Payroll {
+interface ISablierV2OpenEnded {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -16,11 +16,11 @@ interface ISablierV2Payroll {
     /// decimals.
     /// @param oldAmountPerSecond The amount per second to change.
     /// @param newAmountPerSecond The newly changed amount per second.
-    event AdjustPayrollStream(
+    event AdjustOpenEndedStream(
         uint256 indexed streamId, uint128 recipientAmount, uint128 oldAmountPerSecond, uint128 newAmountPerSecond
     );
 
-    /// @notice Emitted when a payroll stream is canceled.
+    /// @notice Emitted when a OpenEnded stream is canceled.
     /// @param streamId The id of the stream.
     /// @param sender The address of the stream's sender.
     /// @param recipient The address of the stream's recipient.
@@ -29,7 +29,7 @@ interface ISablierV2Payroll {
     /// decimals.
     /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of the
     /// asset's decimals.
-    event CancelPayrollStream(
+    event CancelOpenEndedStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
@@ -38,7 +38,7 @@ interface ISablierV2Payroll {
         uint128 recipientAmount
     );
 
-    /// @notice Emitted when a payroll stream is created.
+    /// @notice Emitted when a OpenEnded stream is created.
     /// @param streamId The id of the newly created stream.
     /// @param sender The address from which to stream the assets, which has the ability to
     /// adjust and cancel the stream.
@@ -46,7 +46,7 @@ interface ISablierV2Payroll {
     /// @param amountPerSecond The amount of assets that is increasing by every second.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param lastTimeUpdate The Unix timestamp for the streamed amount calculation.
-    event CreatePayrollStream(
+    event CreateOpenEndedStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
@@ -55,28 +55,30 @@ interface ISablierV2Payroll {
         uint40 lastTimeUpdate
     );
 
-    /// @notice Emitted when a payroll stream is funded.
-    /// @param streamId The id of the payroll stream.
+    /// @notice Emitted when a OpenEnded stream is funded.
+    /// @param streamId The id of the OpenEnded stream.
     /// @param funder The address which funded the stream.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param amount The amount of assets deposited, denoted in units of the asset's decimals.
-    event DepositPayrollStream(uint256 indexed streamId, address indexed funder, IERC20 asset, uint128 amount);
+    event DepositOpenEndedStream(uint256 indexed streamId, address indexed funder, IERC20 asset, uint128 amount);
 
-    /// @notice Emitted when assets are refunded from a payroll stream.
-    /// @param streamId The id of the payroll stream.
+    /// @notice Emitted when assets are refunded from a OpenEnded stream.
+    /// @param streamId The id of the OpenEnded stream.
     /// @param sender The address of the stream's sender.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param amount The amount of assets deposited, denoted in units of the asset's decimals.
-    event RefundFromPayrollStream(
+    event RefundFromOpenEndedStream(
         uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 amount
     );
 
-    /// @notice Emitted when assets are withdrawn from a payroll stream.
+    /// @notice Emitted when assets are withdrawn from a OpenEnded stream.
     /// @param streamId The id of the stream.
     /// @param to The address that has received the withdrawn assets.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param amount The amount of assets withdrawn, denoted in units of the asset's decimals.
-    event WithdrawFromPayrollStream(uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 amount);
+    event WithdrawFromOpenEndedStream(
+        uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 amount
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
@@ -116,7 +118,7 @@ interface ISablierV2Payroll {
     /// @notice Retrieves the stream entity.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
-    function getStream(uint256 streamId) external view returns (Payroll.Stream memory stream);
+    function getStream(uint256 streamId) external view returns (OpenEnded.Stream memory stream);
 
     /// @notice Retrieves a flag indicating whether the stream exists.
     /// @dev Does not revert if `streamId` references a null stream.
@@ -160,7 +162,7 @@ interface ISablierV2Payroll {
 
     /// @notice Changes the stream's amount per second.
     ///
-    /// @dev Emits a {Transfer} and {AdjustPayrollStream} event.
+    /// @dev Emits a {Transfer} and {AdjustOpenEndedStream} event.
     ///
     /// Notes:
     /// - The streamed assets, until the adjustment moment, must be transferred to the recipient.
@@ -172,13 +174,13 @@ interface ISablierV2Payroll {
     /// - `newAmountPerSecond` must be greater than zero.
     ///
     /// @param streamId The id of the stream to adjust.
-    /// @param newAmountPerSecond The new amount per second of the payroll stream, denoted in units of the asset's
+    /// @param newAmountPerSecond The new amount per second of the OpenEnded stream, denoted in units of the asset's
     /// decimals.
     function adjustAmountPerSecond(uint256 streamId, uint128 newAmountPerSecond) external;
 
     /// @notice Cancels the stream and refunds any remaining assets to the sender.
     ///
-    /// @dev Emits a {Transfer} and {CancelPayrollStream} event.
+    /// @dev Emits a {Transfer} and {CancelOpenEndedStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -188,9 +190,9 @@ interface ISablierV2Payroll {
     /// @param streamId The id of the stream to cancel.
     function cancel(uint256 streamId) external;
 
-    /// @notice Creates a new payroll stream with the `block.timestamp` as the time reference and with 0 balance.
+    /// @notice Creates a new OpenEnded stream with the `block.timestamp` as the time reference and with 0 balance.
     ///
-    /// @dev Emits a {Transfer} and {CreatePayrollStream} event.
+    /// @dev Emits a {Transfer} and {CreateOpenEndedStream} event.
     ///
     /// Requiremenets:
     /// - Must not be delegate called.
@@ -215,10 +217,10 @@ interface ISablierV2Payroll {
         external
         returns (uint256 streamId);
 
-    /// @notice Creates a new payroll stream with the `block.timestamp` as the time reference
+    /// @notice Creates a new OpenEnded stream with the `block.timestamp` as the time reference
     /// and with `depositAmount` balance.
     ///
-    /// @dev Emits a {Transfer}, {CreatePayrollStream} and {DepositPayrollStream} events.
+    /// @dev Emits a {Transfer}, {CreateOpenEndedStream} and {DepositOpenEndedStream} events.
     ///
     /// Requirements:
     /// - `depositAmount` must be greater than zero.
@@ -245,7 +247,7 @@ interface ISablierV2Payroll {
 
     /// @notice Deposits assets in a stream.
     ///
-    /// @dev Emits a {Transfer} and {DepositPayrollStream} event.
+    /// @dev Emits a {Transfer} and {DepositOpenEndedStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -258,7 +260,7 @@ interface ISablierV2Payroll {
 
     /// @notice Deposits assets in multiple streams.
     ///
-    /// @dev Emits multiple {Transfer} and {DepositPayrollStream} events.
+    /// @dev Emits multiple {Transfer} and {DepositOpenEndedStream} events.
     ///
     /// Requirements:
     /// - All requirements from {deposit} must be met for each stream.
@@ -270,7 +272,7 @@ interface ISablierV2Payroll {
 
     /// @notice Refunds the provided amount of assets from the stream to the sender's address.
     ///
-    /// @dev Emits a {Transfer} and {RefundFromPayrollStream} event.
+    /// @dev Emits a {Transfer} and {RefundFromOpenEndedStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.

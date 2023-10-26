@@ -7,11 +7,11 @@ import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { Payroll } from "./types/DataTypes.sol";
+import { OpenEnded } from "./types/DataTypes.sol";
 
-import { ISablierV2Payroll } from "./interfaces/ISablierV2Payroll.sol";
+import { ISablierV2OpenEnded } from "./interfaces/ISablierV2OpenEnded.sol";
 
-contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
+contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
     /// @dev Checks that `streamId` does not reference a canceled stream.
     modifier notCanceled(uint256 streamId) {
         if (wasCanceled(streamId)) {
-            revert Errors.SablierV2Payroll_StreamCanceled(streamId);
+            revert Errors.SablierV2OpenEnded_StreamCanceled(streamId);
         }
         _;
     }
@@ -29,7 +29,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
     /// @dev Checks that `streamId` does not reference a null stream.
     modifier notNull(uint256 streamId) {
         if (!isStream(streamId)) {
-            revert Errors.SablierV2Payroll_Null(streamId);
+            revert Errors.SablierV2OpenEnded_Null(streamId);
         }
         _;
     }
@@ -37,7 +37,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
     /// @dev Checks the `msg.sender` is the stream's sender.
     modifier onlySender(uint256 streamId) {
         if (!_isCallerStreamSender(streamId)) {
-            revert Errors.SablierV2Payroll_Unauthorized(streamId, msg.sender);
+            revert Errors.SablierV2OpenEnded_Unauthorized(streamId, msg.sender);
         }
         _;
     }
@@ -46,15 +46,15 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
                                 USER-FACING STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     uint256 public override nextStreamId;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   PRIVATE STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Sablier V2 Payroll streams mapped by unsigned integers.
-    mapping(uint256 id => Payroll.Stream stream) private _streams;
+    /// @dev Sablier V2 OpenEnded streams mapped by unsigned integers.
+    mapping(uint256 id => OpenEnded.Stream stream) private _streams;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
@@ -68,7 +68,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function getAmountPerSecond(uint256 streamId)
         external
         view
@@ -79,17 +79,17 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         amountPerSecond = _streams[streamId].amountPerSecond;
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function getAsset(uint256 streamId) external view override notNull(streamId) returns (IERC20 asset) {
         asset = _streams[streamId].asset;
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function getBalance(uint256 streamId) external view override notNull(streamId) returns (uint128 balance) {
         balance = _streams[streamId].balance;
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function getLastTimeUpdate(uint256 streamId)
         external
         view
@@ -100,27 +100,27 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         lastTimeUpdate = _streams[streamId].lastTimeUpdate;
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function getRecipient(uint256 streamId) external view override notNull(streamId) returns (address recipient) {
         recipient = _streams[streamId].recipient;
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function getSender(uint256 streamId) external view notNull(streamId) returns (address sender) {
         sender = _streams[streamId].sender;
     }
 
-    /// @inheritdoc ISablierV2Payroll
-    function getStream(uint256 streamId) external view notNull(streamId) returns (Payroll.Stream memory stream) {
+    /// @inheritdoc ISablierV2OpenEnded
+    function getStream(uint256 streamId) external view notNull(streamId) returns (OpenEnded.Stream memory stream) {
         stream = _streams[streamId];
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function isStream(uint256 streamId) public view returns (bool result) {
         result = _streams[streamId].isStream;
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function refundableAmountOf(uint256 streamId)
         external
         view
@@ -131,7 +131,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         refundableAmount = _refundableAmountOf(streamId);
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function streamDebt(uint256 streamId) external view notNull(streamId) returns (uint128 debt) {
         int256 balance = int256(uint256(_streams[streamId].balance));
         int256 streamedAmount = int256(uint256(_streamedAmountOf(streamId)));
@@ -144,17 +144,17 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         debt = uint128(uint256(-delta));
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function streamedAmountOf(uint256 streamId) external view notNull(streamId) returns (uint128 streamedAmount) {
         streamedAmount = _streamedAmountOf(streamId);
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function wasCanceled(uint256 streamId) public view override notNull(streamId) returns (bool result) {
         result = _streams[streamId].wasCanceled;
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function withdrawableAmountOf(uint256 streamId)
         external
         view
@@ -168,7 +168,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function adjustAmountPerSecond(
         uint256 streamId,
         uint128 newAmountPerSecond
@@ -182,12 +182,12 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         _adjustAmountPerSecond(streamId, newAmountPerSecond);
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function cancel(uint256 streamId) external noDelegateCall notCanceled(streamId) onlySender(streamId) {
         _cancel(streamId);
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function create(
         address sender,
         address recipient,
@@ -202,7 +202,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         streamId = _create(sender, recipient, amountPerSecond, asset);
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function createAndDeposit(
         address sender,
         address recipient,
@@ -221,20 +221,20 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         _deposit(streamId, depositAmount);
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function deposit(uint256 streamId, uint128 amount) external noDelegateCall {
         // Checks, Effects and Interactions: deposit on the stream.
         _deposit(streamId, amount);
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function depositMultiple(uint256[] calldata streamIds, uint128[] calldata amounts) external noDelegateCall {
         uint256 streamIdsCount = streamIds.length;
         uint256 amountsCount = amounts.length;
 
         // Checks: count of `streamIds` matches count of `amounts`.
         if (streamIdsCount != amountsCount) {
-            revert Errors.SablierV2Payroll_DepositArrayCountsNotEqual(streamIdsCount, amountsCount);
+            revert Errors.SablierV2OpenEnded_DepositArrayCountsNotEqual(streamIdsCount, amountsCount);
         }
 
         uint256 streamId;
@@ -253,7 +253,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         }
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function refundFromStream(
         uint256 streamId,
         uint128 amount
@@ -266,7 +266,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         _refundFromStream(streamId, amount);
     }
 
-    /// @inheritdoc ISablierV2Payroll
+    /// @inheritdoc ISablierV2OpenEnded
     function withdraw(uint256 streamId, address to, uint128 amount) external noDelegateCall notCanceled(streamId) {
         _withdraw(streamId, to, amount);
     }
@@ -331,7 +331,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
     function _adjustAmountPerSecond(uint256 streamId, uint128 newAmountPerSecond) internal {
         // Checks: the amount per second is not zero.
         if (newAmountPerSecond == 0) {
-            revert Errors.SablierV2Payroll_AmountPerSecondZero();
+            revert Errors.SablierV2OpenEnded_AmountPerSecondZero();
         }
 
         uint128 recipientAmount = _withdrawableAmountOf(streamId);
@@ -349,7 +349,9 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         }
 
         // Log the adjustment.
-        emit ISablierV2Payroll.AdjustPayrollStream(streamId, recipientAmount, oldAmountPerSecond, newAmountPerSecond);
+        emit ISablierV2OpenEnded.AdjustOpenEndedStream(
+            streamId, recipientAmount, oldAmountPerSecond, newAmountPerSecond
+        );
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
@@ -366,7 +368,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         // condition is checked to avoid exploits in case of a bug.
         uint128 sum = senderAmount + recipientAmount;
         if (sum > balance) {
-            revert Errors.SablierV2Payroll_CancelInvalidCalculation(streamId, balance, senderAmount, recipientAmount);
+            revert Errors.SablierV2OpenEnded_CancelInvalidCalculation(streamId, balance, senderAmount, recipientAmount);
         }
         // In case there is a rounding error and the sum is less than the balance, the sender receives the remainder.
         else if (sum < balance) {
@@ -391,7 +393,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         }
 
         // Log the cancellation.
-        emit ISablierV2Payroll.CancelPayrollStream(
+        emit ISablierV2OpenEnded.CancelOpenEndedStream(
             streamId, sender, recipient, _streams[streamId].asset, senderAmount, recipientAmount
         );
     }
@@ -408,24 +410,24 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
     {
         // Checks: the sender is not the zero address.
         if (sender == address(0)) {
-            revert Errors.SablierV2Payroll_SenderZeroAddress();
+            revert Errors.SablierV2OpenEnded_SenderZeroAddress();
         }
 
         // Checks: the recipient is not the zero address.
         if (recipient == address(0)) {
-            revert Errors.SablierV2Payroll_RecipientZeroAddress();
+            revert Errors.SablierV2OpenEnded_RecipientZeroAddress();
         }
 
         // Checks: the amount per second is not zero.
         if (amountPerSecond == 0) {
-            revert Errors.SablierV2Payroll_AmountPerSecondZero();
+            revert Errors.SablierV2OpenEnded_AmountPerSecondZero();
         }
 
         // Load the stream id.
         streamId = nextStreamId;
 
         // Effects: create the stream.
-        _streams[streamId] = Payroll.Stream({
+        _streams[streamId] = OpenEnded.Stream({
             amountPerSecond: amountPerSecond,
             asset: asset,
             balance: 0,
@@ -443,7 +445,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         }
 
         // Log the newly created stream.
-        emit ISablierV2Payroll.CreatePayrollStream(
+        emit ISablierV2OpenEnded.CreateOpenEndedStream(
             streamId, sender, recipient, amountPerSecond, asset, uint40(block.timestamp)
         );
     }
@@ -452,7 +454,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
     function _deposit(uint256 streamId, uint128 amount) internal notCanceled(streamId) {
         // Checks: the amount is not zero.
         if (amount == 0) {
-            revert Errors.SablierV2Payroll_DepositAmountZero();
+            revert Errors.SablierV2OpenEnded_DepositAmountZero();
         }
 
         // Effects: update the stream balance.
@@ -465,7 +467,7 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         asset.safeTransferFrom(msg.sender, address(this), amount);
 
         // Log the deposit.
-        emit ISablierV2Payroll.DepositPayrollStream(streamId, msg.sender, asset, amount);
+        emit ISablierV2OpenEnded.DepositOpenEndedStream(streamId, msg.sender, asset, amount);
     }
 
     /// @dev Helper function to update the `balance` and to perform the ERC-20 transfer.
@@ -484,19 +486,19 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
 
         // Checks: the amount is not zero.
         if (amount == 0) {
-            revert Errors.SablierV2Payroll_AmountZero(streamId);
+            revert Errors.SablierV2OpenEnded_AmountZero(streamId);
         }
 
         // Checks: the amount is not greater than what is available.
         if (amount > senderAmount) {
-            revert Errors.SablierV2Payroll_Overdraw(streamId, amount, senderAmount);
+            revert Errors.SablierV2OpenEnded_Overdraw(streamId, amount, senderAmount);
         }
 
         // Effects and interactions: update the `balance` and perform the ERC-20 transfer.
         _extractFromStream(streamId, sender, amount);
 
         // Log the refund.
-        emit ISablierV2Payroll.RefundFromPayrollStream(streamId, sender, _streams[streamId].asset, amount);
+        emit ISablierV2OpenEnded.RefundFromOpenEndedStream(streamId, sender, _streams[streamId].asset, amount);
     }
 
     /// @dev Sets the stream time to the current block timestamp.
@@ -511,29 +513,29 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
 
         // Checks: `msg.sender` is the stream's sender or the stream's recipient.
         if (!isCallerStreamSender && !(msg.sender == recipient)) {
-            revert Errors.SablierV2Payroll_Unauthorized(streamId, msg.sender);
+            revert Errors.SablierV2OpenEnded_Unauthorized(streamId, msg.sender);
         }
 
         // Checks: the provided address is the recipient if `msg.sender` is the sender of the stream.
         if (isCallerStreamSender && to != recipient) {
-            revert Errors.SablierV2Payroll_Unauthorized(streamId, msg.sender);
+            revert Errors.SablierV2OpenEnded_Unauthorized(streamId, msg.sender);
         }
 
         // Checks: the withdrawal address is not zero.
         if (to == address(0)) {
-            revert Errors.SablierV2Payroll_WithdrawToZeroAddress();
+            revert Errors.SablierV2OpenEnded_WithdrawToZeroAddress();
         }
 
         uint128 recipientAmount = _withdrawableAmountOf(streamId);
 
         // Checks: the amount is not zero.
         if (amount == 0) {
-            revert Errors.SablierV2Payroll_AmountZero(streamId);
+            revert Errors.SablierV2OpenEnded_AmountZero(streamId);
         }
 
         // Checks: the amount is not greater than what is available.
         if (amount > recipientAmount) {
-            revert Errors.SablierV2Payroll_Overdraw(streamId, amount, recipientAmount);
+            revert Errors.SablierV2OpenEnded_Overdraw(streamId, amount, recipientAmount);
         }
 
         // Effects: update the stream time.
@@ -543,6 +545,6 @@ contract SablierV2Payroll is ISablierV2Payroll, NoDelegateCall {
         _extractFromStream(streamId, to, amount);
 
         // Log the withdrawal.
-        emit ISablierV2Payroll.WithdrawFromPayrollStream(streamId, to, _streams[streamId].asset, amount);
+        emit ISablierV2OpenEnded.WithdrawFromOpenEndedStream(streamId, to, _streams[streamId].asset, amount);
     }
 }

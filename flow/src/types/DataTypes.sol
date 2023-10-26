@@ -5,8 +5,8 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // TODO: add Broker
 
-library Payroll {
-    /// @notice Payroll stream.
+library OpenEnded {
+    /// @notice OpenEnded stream.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
     /// @param amountPerSecond The amount of assets that is increasing by every second,
     /// denoted in units of the asset's decimals.
