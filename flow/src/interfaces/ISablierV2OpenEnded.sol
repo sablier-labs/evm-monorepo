@@ -135,7 +135,7 @@ interface ISablierV2OpenEnded {
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
 
     /// @notice Calculates the amount that the sender owes on the stream, i.e. if more assets have been streamed than
-    /// its balance, denoted in units of the asset's decimals. If there is no debt, it will return zero
+    /// its balance, denoted in units of the asset's decimals. If there is no debt, it will return zero.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function streamDebt(uint256 streamId) external view returns (uint128 debt);
