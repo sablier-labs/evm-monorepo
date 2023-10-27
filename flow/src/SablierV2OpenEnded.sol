@@ -2,6 +2,8 @@
 pragma solidity >=0.8.20;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
@@ -12,6 +14,7 @@ import { OpenEnded } from "./types/DataTypes.sol";
 import { ISablierV2OpenEnded } from "./interfaces/ISablierV2OpenEnded.sol";
 
 contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
+    using SafeCast for uint256;
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -82,6 +85,17 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     /// @inheritdoc ISablierV2OpenEnded
     function getAsset(uint256 streamId) external view override notNull(streamId) returns (IERC20 asset) {
         asset = _streams[streamId].asset;
+    }
+
+    /// @inheritdoc ISablierV2OpenEnded
+    function getAssetDecimals(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        returns (uint8 assetDecimals)
+    {
+        assetDecimals = _streams[streamId].assetDecimals;
     }
 
     /// @inheritdoc ISablierV2OpenEnded
@@ -291,6 +305,50 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    enum TransferType {
+        Deposit,
+        Extract
+    }
+
+    /// @notice Calculates the transfer amount based on the asset's decimals.
+    /// @dev Changes the amount based on the asset's decimal difference from 18.
+    /// For deposits: if the asset has fewer decimals, the amount is reduced; if more, the amount is increased.
+    /// For extractions: if the asset has fewer decimals, the amount is increased; if more, the amount is reduced.
+    function _calculateTransferAmount(
+        uint256 streamId,
+        uint128 amount,
+        TransferType transferType
+    )
+        internal
+        view
+        returns (uint128 transferAmount)
+    {
+        // Retrieve the asset's decimals from storage.
+        uint8 assetDecimals = _streams[streamId].assetDecimals;
+
+        // Return the original amount if it's already in the standard 18-decimal format.
+        if (assetDecimals == 18) {
+            return amount;
+        }
+
+        // Determine if the asset's decimals are greater than 18.
+        bool isGreaterThan18 = assetDecimals > 18;
+
+        // Calculate the difference in decimals.
+        uint8 normalizationFactor = isGreaterThan18 ? assetDecimals - 18 : 18 - assetDecimals;
+
+        // Change the transfer amount based on the decimal difference and the transfer type.
+        if (transferType == TransferType.Deposit) {
+            transferAmount = isGreaterThan18
+                ? (amount / (10 ** normalizationFactor)).toUint128()
+                : (amount * (10 ** normalizationFactor)).toUint128();
+        } else if (transferType == TransferType.Extract) {
+            transferAmount = isGreaterThan18
+                ? (amount * (10 ** normalizationFactor)).toUint128()
+                : (amount / (10 ** normalizationFactor)).toUint128();
+        }
+    }
+
     /// @dev Checks whether the withdrawable amount or the sum of the withdrawable and refundable amounts is greater
     /// than the stream's balance.
     function _checkCalculatedAmount(uint256 streamId, uint128 amount) internal view {
@@ -309,6 +367,17 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     /// @dev Calculates the refundable amount.
     function _refundableAmountOf(uint256 streamId) internal view returns (uint128) {
         return _streams[streamId].balance - _withdrawableAmountOf(streamId);
+    }
+
+    /// @notice Retrieves the asset's decimals safely, defaulting to "0" if an error occurs.
+    /// @dev Performs a low-level call to handle assets in which the decimals are not implemented.
+    function _safeAssetDecimals(address asset) internal view returns (uint8) {
+        (bool success, bytes memory returnData) = asset.staticcall(abi.encodeCall(IERC20Metadata.decimals, ()));
+        if (success && returnData.length == 32) {
+            return abi.decode(returnData, (uint8));
+        } else {
+            return 0;
+        }
     }
 
     /// @dev Calculates the streamed amount.
@@ -453,6 +522,13 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             revert Errors.SablierV2OpenEnded_AmountPerSecondZero();
         }
 
+        uint8 assetDecimals = _safeAssetDecimals(address(asset));
+
+        // Checks: the asset has decimals.
+        if (assetDecimals == 0) {
+            revert Errors.SablierV2OpenEnded_InvalidAssetDecimals(asset);
+        }
+
         // Load the stream id.
         streamId = nextStreamId;
 
@@ -460,6 +536,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         _streams[streamId] = OpenEnded.Stream({
             amountPerSecond: amountPerSecond,
             asset: asset,
+            assetDecimals: assetDecimals,
             balance: 0,
             isStream: true,
             lastTimeUpdate: uint40(block.timestamp),
@@ -493,8 +570,11 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Retrieve the ERC-20 asset from storage.
         IERC20 asset = _streams[streamId].asset;
 
+        // Calculate the transfer amount.
+        uint128 transferAmount = _calculateTransferAmount(streamId, amount, TransferType.Deposit);
+
         // Interactions: transfer the deposit amount.
-        asset.safeTransferFrom(msg.sender, address(this), amount);
+        asset.safeTransferFrom(msg.sender, address(this), transferAmount);
 
         // Log the deposit.
         emit ISablierV2OpenEnded.DepositOpenEndedStream(streamId, msg.sender, asset, amount);
@@ -505,8 +585,11 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Effects: update the stream balance.
         _streams[streamId].balance -= amount;
 
+        // Calculate the transfer amount.
+        uint128 transferAmount = _calculateTransferAmount(streamId, amount, TransferType.Extract);
+
         // Interactions: perform the ERC-20 transfer.
-        _streams[streamId].asset.safeTransfer(to, amount);
+        _streams[streamId].asset.safeTransfer(to, transferAmount);
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.

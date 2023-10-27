@@ -1,5 +1,8 @@
 ## Decisions
 
+Asset decimals can’t be passed in create function because one may create a fake stream with less or more decimals and in
+this way he may extract more assets from stream.
+
 Recipient address **must** be checked because there is no NFT minted in `_create` function.
 
 Sender address **must** be checked because there is no ERC20 transfer in `_create` function.

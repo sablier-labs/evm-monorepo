@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0
 pragma solidity >=0.8.20;
 
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 /// @title Errors
 /// @notice Library with custom erros used across the OpenEnded contract.
 library Errors {
@@ -17,6 +19,9 @@ library Errors {
     /// @notice Thrown when trying to deposit on multiple streams and the number of stream ids does
     /// not match the number of deposit amounts.
     error SablierV2OpenEnded_DepositArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
+
+    /// @notice Thrown when trying to create a stream with an asset with no decimals.
+    error SablierV2OpenEnded_InvalidAssetDecimals(IERC20 asset);
 
     /// @notice Thrown when an unexpected error occurs during the calculation of an amount.
     error SablierV2OpenEnded_InvalidCalculation(uint256 streamId, uint128 balance, uint128 amount);
