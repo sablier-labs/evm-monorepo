@@ -206,7 +206,7 @@ interface ISablierV2OpenEnded {
     /// @param streamId The id of the stream to cancel.
     function cancel(uint256 streamId) external;
 
-    /// @notice Creates a new open-ended stream with the `block.timestamp` as the time reference and with 0 balance.
+    /// @notice Creates a new open-ended stream with the `block.timestamp` as the time reference and with zero balance.
     ///
     /// @dev Emits a {CreateOpenEndedStream} event.
     ///
@@ -244,8 +244,7 @@ interface ISablierV2OpenEnded {
     ///
     /// @param recipient The address receiving the assets.
     /// @param sender The address streaming the assets, with the ability to adjust and cancel the stream. It doesn't
-    /// have
-    /// to be the same as `msg.sender`.
+    /// have to be the same as `msg.sender`.
     /// @param amountPerSecond The amount of assets that is increasing by every second,
     /// denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.

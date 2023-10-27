@@ -320,6 +320,11 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
     /// @dev Calculates the streamed amount.
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128) {
+        // If the stream is canceled, return zero.
+        if (_streams[streamId].isCanceled) {
+            return 0;
+        }
+
         uint256 currentTime = block.timestamp;
         uint256 lastTimeUpdate = uint256(_streams[streamId].lastTimeUpdate);
 
