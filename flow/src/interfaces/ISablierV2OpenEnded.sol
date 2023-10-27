@@ -136,6 +136,11 @@ interface ISablierV2OpenEnded {
     /// @param streamId The stream id for the query.
     function getStream(uint256 streamId) external view returns (OpenEnded.Stream memory stream);
 
+    /// @notice Retrieves a flag indicating whether the stream is canceled.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isCanceled(uint256 streamId) external view returns (bool result);
+
     /// @notice Retrieves a flag indicating whether the stream exists.
     /// @dev Does not revert if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
@@ -146,29 +151,24 @@ interface ISablierV2OpenEnded {
     function nextStreamId() external view returns (uint256);
 
     /// @notice Calculates the amount that the sender can refund from stream, denoted in units of the asset's decimals.
-    /// @dev Reverts if `streamId` references a null stream.
+    /// @dev Reverts if `streamId` references a canceled stream.
     /// @param streamId The stream id for the query.
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
 
     /// @notice Calculates the amount that the sender owes on the stream, i.e. if more assets have been streamed than
     /// its balance, denoted in units of the asset's decimals. If there is no debt, it will return zero.
-    /// @dev Reverts if `streamId` references a null stream.
+    /// @dev Reverts if `streamId` references a canceled stream.
     /// @param streamId The stream id for the query.
     function streamDebt(uint256 streamId) external view returns (uint128 debt);
 
     /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
-    /// @dev Reverts if `streamId` references a null stream.
+    /// @dev Reverts if `streamId` references a canceled stream.
     /// @param streamId The stream id for the query.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
-    /// @notice Retrieves a flag indicating whether the stream is canceled.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream id for the query.
-    function isCanceled(uint256 streamId) external view returns (bool result);
-
     /// @notice Calculates the amount that the recipient can withdraw from the stream,
     /// denoted in units of the asset's decimals.
-    /// @dev Reverts if `streamId` references a null stream.
+    /// @dev Reverts if `streamId` references a canceled stream.
     /// @param streamId The stream id for the query.
     function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
 

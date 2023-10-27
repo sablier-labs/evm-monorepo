@@ -116,6 +116,11 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @inheritdoc ISablierV2OpenEnded
+    function isCanceled(uint256 streamId) public view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].isCanceled;
+    }
+
+    /// @inheritdoc ISablierV2OpenEnded
     function isStream(uint256 streamId) public view returns (bool result) {
         result = _streams[streamId].isStream;
     }
@@ -125,14 +130,14 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         external
         view
         override
-        notNull(streamId)
+        notCanceled(streamId)
         returns (uint128 refundableAmount)
     {
         refundableAmount = _refundableAmountOf(streamId);
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function streamDebt(uint256 streamId) external view notNull(streamId) returns (uint128 debt) {
+    function streamDebt(uint256 streamId) external view notCanceled(streamId) returns (uint128 debt) {
         uint128 balance = _streams[streamId].balance;
         uint128 streamedAmount = _streamedAmountOf(streamId);
 
@@ -144,20 +149,15 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function streamedAmountOf(uint256 streamId) external view notNull(streamId) returns (uint128 streamedAmount) {
+    function streamedAmountOf(uint256 streamId) external view notCanceled(streamId) returns (uint128 streamedAmount) {
         streamedAmount = _streamedAmountOf(streamId);
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function isCanceled(uint256 streamId) public view override notNull(streamId) returns (bool result) {
-        result = _streams[streamId].isCanceled;
     }
 
     /// @inheritdoc ISablierV2OpenEnded
     function withdrawableAmountOf(uint256 streamId)
         external
         view
-        notNull(streamId)
+        notCanceled(streamId)
         returns (uint128 withdrawableAmount)
     {
         withdrawableAmount = _withdrawableAmountOf(streamId);
@@ -259,14 +259,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function restartStreamAndDeposit(
-        uint256 streamId,
-        uint128 amountPerSecond,
-        uint128 depositAmount
-    )
-        external
-        noDelegateCall
-    {
+    function restartStreamAndDeposit(uint256 streamId, uint128 amountPerSecond, uint128 depositAmount) external {
         // Checks, Effects and Interactions: restart the stream.
         _restartStream(streamId, amountPerSecond);
 
@@ -320,11 +313,6 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
     /// @dev Calculates the streamed amount.
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128) {
-        // If the stream is canceled, return zero.
-        if (_streams[streamId].isCanceled) {
-            return 0;
-        }
-
         uint256 currentTime = block.timestamp;
         uint256 lastTimeUpdate = uint256(_streams[streamId].lastTimeUpdate);
 
@@ -385,8 +373,8 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Effects: update the stream time.
         _updateTime(streamId);
 
+        // Effects and Interactions: withdraw the assets to the recipient, if any assets available.
         if (recipientAmount > 0) {
-            // Effects and interactions: update the `balance` and perform the ERC-20 transfer.
             _extractFromStream(streamId, _streams[streamId].recipient, recipientAmount);
         }
 
@@ -424,14 +412,14 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Effects: set the amount per second to zero.
         _streams[streamId].amountPerSecond = 0;
 
-        // Interactions: refund the sender, if any assets available.
+        // Effects and Interactions: refund the sender, if any assets available.
         if (senderAmount > 0) {
             _extractFromStream(streamId, sender, senderAmount);
         }
 
-        // Interactions: withdraw the assets to the recipient, if any assets available.
+        // Effects and Interactions: withdraw the assets to the recipient, if any assets available.
         if (recipientAmount > 0) {
-            _extractFromStream(streamId, sender, senderAmount);
+            _extractFromStream(streamId, recipient, senderAmount);
         }
 
         // Log the cancellation.
@@ -602,14 +590,14 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             revert Errors.SablierV2OpenEnded_AmountZero(streamId);
         }
 
-        // Although the withdrawable amount should never exceed the balance, this condition is checked to avoid exploits
-        // in case of a bug.
-        _checkCalculatedAmount(streamId, withdrawableAmount);
-
         // Checks: the amount is not greater than what is available.
         if (amount > withdrawableAmount) {
             revert Errors.SablierV2OpenEnded_Overdraw(streamId, amount, withdrawableAmount);
         }
+
+        // Although the withdrawable amount should never exceed the balance, this condition is checked to avoid exploits
+        // in case of a bug.
+        _checkCalculatedAmount(streamId, withdrawableAmount);
 
         // Effects: update the stream time.
         _updateTime(streamId);
