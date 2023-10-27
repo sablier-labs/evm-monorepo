@@ -20,7 +20,7 @@ on:
         description: "Initial protocol admin."
         required: false
       chain:
-        default: "goerli"
+        default: "sepolia"
         description: "Chain name as defined in the Foundry config."
         required: false
       max-segment-count:

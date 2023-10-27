@@ -24,7 +24,7 @@ The Program does NOT cover the following:
 - Code located in the [test](./test) or [script](./script) directories.
 - External code in the [lib](./lib) directory, except for code that is explicitly used by a deployed contract located in
   the [src](./src) directory.
-- Contract deployments on test networks, such as Goerli.
+- Contract deployments on test networks, such as Sepolia.
 - Bugs in third-party contracts or platforms interacting with Sablier V2 Core.
 - Previously reported or discovered vulnerabilities in contracts built by third parties on Sablier V2 Core.
 - Bugs that have already been reported.
