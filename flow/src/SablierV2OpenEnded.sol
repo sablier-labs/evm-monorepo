@@ -274,6 +274,15 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Checks whether the withdrawable amount or the sum of the withdrawable and refundable amounts is greater
+    /// than the stream's balance.
+    function _checkCalculatedAmount(uint256 streamId, uint128 amount) internal view {
+        uint128 balance = _streams[streamId].balance;
+        if (amount > balance) {
+            revert Errors.SablierV2OpenEnded_InvalidCalculation(streamId, balance, amount);
+        }
+    }
+
     /// @notice Checks whether `msg.sender` is the stream's sender.
     /// @param streamId The stream id for the query.
     function _isCallerStreamSender(uint256 streamId) internal view returns (bool) {
@@ -334,6 +343,11 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         }
 
         uint128 recipientAmount = _withdrawableAmountOf(streamId);
+
+        // Although the withdrawable amount should never exceed the balance, this condition is checked to avoid exploits
+        // in case of a bug.
+        _checkCalculatedAmount(streamId, recipientAmount);
+
         uint128 oldAmountPerSecond = _streams[streamId].amountPerSecond;
 
         // Effects: update the stream time.
@@ -363,14 +377,14 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Calculate the refundable amount here for gas optimization.
         uint128 senderAmount = balance - recipientAmount;
 
+        uint128 sum = senderAmount + recipientAmount;
+
         // Although the sum of the withdrawable and refundable amounts should never exceed the balance, this
         // condition is checked to avoid exploits in case of a bug.
-        uint128 sum = senderAmount + recipientAmount;
-        if (sum > balance) {
-            revert Errors.SablierV2OpenEnded_CancelInvalidCalculation(streamId, balance, senderAmount, recipientAmount);
-        }
+        _checkCalculatedAmount(streamId, sum);
+
         // In case there is a rounding error and the sum is less than the balance, the sender receives the remainder.
-        else if (sum < balance) {
+        if (sum < balance) {
             uint128 delta = balance - sum;
             senderAmount += delta;
         }
@@ -525,16 +539,20 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             revert Errors.SablierV2OpenEnded_WithdrawToZeroAddress();
         }
 
-        uint128 recipientAmount = _withdrawableAmountOf(streamId);
+        uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
 
         // Checks: the amount is not zero.
         if (amount == 0) {
             revert Errors.SablierV2OpenEnded_AmountZero(streamId);
         }
 
+        // Although the withdrawable amount should never exceed the balance, this condition is checked to avoid exploits
+        // in case of a bug.
+        _checkCalculatedAmount(streamId, withdrawableAmount);
+
         // Checks: the amount is not greater than what is available.
-        if (amount > recipientAmount) {
-            revert Errors.SablierV2OpenEnded_Overdraw(streamId, amount, recipientAmount);
+        if (amount > withdrawableAmount) {
+            revert Errors.SablierV2OpenEnded_Overdraw(streamId, amount, withdrawableAmount);
         }
 
         // Effects: update the stream time.

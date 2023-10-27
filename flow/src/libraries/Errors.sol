@@ -18,10 +18,8 @@ library Errors {
     /// not match the number of deposit amounts.
     error SablierV2OpenEnded_DepositArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
 
-    /// @notice Thrown when an unexpected error occurs during the calculation of amounts.
-    error SablierV2OpenEnded_CancelInvalidCalculation(
-        uint256 streamId, uint128 balance, uint128 senderAmount, uint128 recipientAmount
-    );
+    /// @notice Thrown when an unexpected error occurs during the calculation of an amount.
+    error SablierV2OpenEnded_InvalidCalculation(uint256 streamId, uint128 balance, uint128 amount);
 
     /// @notice Thrown when the id references a null stream.
     error SablierV2OpenEnded_Null(uint256 streamId);
