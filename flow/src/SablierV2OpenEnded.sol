@@ -216,13 +216,13 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Checks, Effects and Interactions: create the stream.
         streamId = _create(sender, recipient, amountPerSecond, asset);
 
-        // Checks, Effects and Interactions: deposit on the stream.
+        // Checks, Effects and Interactions: deposit on stream.
         _deposit(streamId, depositAmount);
     }
 
     /// @inheritdoc ISablierV2OpenEnded
     function deposit(uint256 streamId, uint128 amount) external noDelegateCall notCanceled(streamId) {
-        // Checks, Effects and Interactions: deposit on the stream.
+        // Checks, Effects and Interactions: deposit on stream.
         _deposit(streamId, amount);
     }
 
@@ -242,7 +242,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             streamId = streamIds[i];
             amount = amounts[i];
 
-            // Checks, Effects and Interactions: deposit on the stream.
+            // Checks, Effects and Interactions: deposit on stream.
             _deposit(streamId, amount);
 
             // Increment the for loop iterator.
@@ -250,6 +250,28 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
                 i += 1;
             }
         }
+    }
+
+    /// @inheritdoc ISablierV2OpenEnded
+    function restartStream(uint256 streamId, uint128 amountPerSecond) external {
+        // Checks, Effects and Interactions: restart the stream.
+        _restartStream(streamId, amountPerSecond);
+    }
+
+    /// @inheritdoc ISablierV2OpenEnded
+    function restartStreamAndDeposit(
+        uint256 streamId,
+        uint128 amountPerSecond,
+        uint128 depositAmount
+    )
+        external
+        noDelegateCall
+    {
+        // Checks, Effects and Interactions: restart the stream.
+        _restartStream(streamId, amountPerSecond);
+
+        // Checks, Effects and Interactions: deposit on stream.
+        _deposit(streamId, depositAmount);
     }
 
     /// @inheritdoc ISablierV2OpenEnded
@@ -262,11 +284,13 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         notCanceled(streamId)
         onlySender(streamId)
     {
+        // Checks, Effects and Interactions: make the refund.
         _refundFromStream(streamId, amount);
     }
 
     /// @inheritdoc ISablierV2OpenEnded
     function withdraw(uint256 streamId, address to, uint128 amount) external noDelegateCall notCanceled(streamId) {
+        // Checks, Effects and Interactions: make the withdrawal.
         _withdraw(streamId, to, amount);
     }
 
@@ -350,11 +374,11 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
         uint128 oldAmountPerSecond = _streams[streamId].amountPerSecond;
 
-        // Effects: update the stream time.
-        _updateTime(streamId);
-
         // Effects: change the amount per second.
         _streams[streamId].amountPerSecond = newAmountPerSecond;
+
+        // Effects: update the stream time.
+        _updateTime(streamId);
 
         if (recipientAmount > 0) {
             // Effects and interactions: update the `balance` and perform the ERC-20 transfer.
@@ -363,7 +387,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
         // Log the adjustment.
         emit ISablierV2OpenEnded.AdjustOpenEndedStream(
-            streamId, recipientAmount, oldAmountPerSecond, newAmountPerSecond
+            streamId, _streams[streamId].asset, recipientAmount, oldAmountPerSecond, newAmountPerSecond
         );
     }
 
@@ -389,7 +413,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             senderAmount += delta;
         }
 
-        // Effects: mark the stream as canceled.
+        // Effects: set the stream as canceled.
         _streams[streamId].wasCanceled = true;
 
         // Effects: set the amount per second to zero.
@@ -512,6 +536,33 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
         // Log the refund.
         emit ISablierV2OpenEnded.RefundFromOpenEndedStream(streamId, sender, _streams[streamId].asset, amount);
+    }
+
+    /// @dev See the documentation for the user-facing functions that call this internal function.
+    function _restartStream(uint256 streamId, uint128 amountPerSecond) internal noDelegateCall onlySender(streamId) {
+        // Checks: the stream is not canceled.
+        if (!wasCanceled(streamId)) {
+            revert Errors.SablierV2OpenEnded_StreamNotCanceled(streamId);
+        }
+
+        // Checks: the amount per second is not zero.
+        if (amountPerSecond == 0) {
+            revert Errors.SablierV2OpenEnded_AmountPerSecondZero();
+        }
+
+        // Effects: set the amount per second.
+        _streams[streamId].amountPerSecond = amountPerSecond;
+
+        // Effects: set the stream as not canceled.
+        _streams[streamId].wasCanceled = false;
+
+        // Effects: update the stream time.
+        _updateTime(streamId);
+
+        // Log the restart.
+        emit ISablierV2OpenEnded.RestartOpenEndedStream(
+            streamId, _streams[streamId].sender, _streams[streamId].asset, amountPerSecond
+        );
     }
 
     /// @dev Sets the stream time to the current block timestamp.
