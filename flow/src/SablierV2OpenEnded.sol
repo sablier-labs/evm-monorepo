@@ -20,7 +20,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
     /// @dev Checks that `streamId` does not reference a canceled stream.
     modifier notCanceled(uint256 streamId) {
-        if (wasCanceled(streamId)) {
+        if (isCanceled(streamId)) {
             revert Errors.SablierV2OpenEnded_StreamCanceled(streamId);
         }
         _;
@@ -149,8 +149,8 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function wasCanceled(uint256 streamId) public view override notNull(streamId) returns (bool result) {
-        result = _streams[streamId].wasCanceled;
+    function isCanceled(uint256 streamId) public view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].isCanceled;
     }
 
     /// @inheritdoc ISablierV2OpenEnded
@@ -414,7 +414,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         }
 
         // Effects: set the stream as canceled.
-        _streams[streamId].wasCanceled = true;
+        _streams[streamId].isCanceled = true;
 
         // Effects: set the amount per second to zero.
         _streams[streamId].amountPerSecond = 0;
@@ -472,7 +472,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             lastTimeUpdate: uint40(block.timestamp),
             recipient: recipient,
             sender: sender,
-            wasCanceled: false
+            isCanceled: false
         });
 
         // Effects: bump the next stream id.
@@ -540,8 +540,8 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _restartStream(uint256 streamId, uint128 amountPerSecond) internal noDelegateCall onlySender(streamId) {
-        // Checks: the stream is not canceled.
-        if (!wasCanceled(streamId)) {
+        // Checks: the stream is canceled.
+        if (!isCanceled(streamId)) {
             revert Errors.SablierV2OpenEnded_StreamNotCanceled(streamId);
         }
 
@@ -554,7 +554,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         _streams[streamId].amountPerSecond = amountPerSecond;
 
         // Effects: set the stream as not canceled.
-        _streams[streamId].wasCanceled = false;
+        _streams[streamId].isCanceled = false;
 
         // Effects: update the stream time.
         _updateTime(streamId);

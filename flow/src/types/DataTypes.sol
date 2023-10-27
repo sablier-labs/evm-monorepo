@@ -15,7 +15,7 @@ library OpenEnded {
     /// @param recipient The address receiving the assets.
     /// @param lastTimeUpdate The Unix timestamp for the streamed amount calculation.
     /// @param isStream Boolean indicating if the struct entity exists.
-    /// @param wasCanceled Boolean indicating if the stream was canceled.
+    /// @param isCanceled Boolean indicating if the stream is canceled.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param sender The address streaming the assets, with the ability to cancel the stream.
     struct Stream {
@@ -26,7 +26,7 @@ library OpenEnded {
         address recipient;
         uint40 lastTimeUpdate;
         bool isStream;
-        bool wasCanceled;
+        bool isCanceled;
         // slot 2
         IERC20 asset;
         // slot 3

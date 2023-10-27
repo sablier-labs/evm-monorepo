@@ -161,10 +161,10 @@ interface ISablierV2OpenEnded {
     /// @param streamId The stream id for the query.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
-    /// @notice Retrieves a flag indicating whether the stream was canceled.
+    /// @notice Retrieves a flag indicating whether the stream is canceled.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
-    function wasCanceled(uint256 streamId) external view returns (bool result);
+    function isCanceled(uint256 streamId) external view returns (bool result);
 
     /// @notice Calculates the amount that the recipient can withdraw from the stream,
     /// denoted in units of the asset's decimals.
