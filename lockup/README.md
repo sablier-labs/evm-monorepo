@@ -83,6 +83,11 @@ contract, which is more gas-efficient and easier to maintain.
 For more information, see the [Technical Overview](https://docs.sablier.com/contracts/v2/reference/overview) in our
 docs, as well as these [diagrams](https://docs.sablier.com/contracts/v2/reference/diagrams).
 
+### Branching Tree Technique
+
+You may notice that some test files are accompanied by `.tree` files. This is called the Branching Tree Technique, and
+it is explained in depth [here](https://github.com/sablier-labs/v2-core/wiki/Tests#branching-tree-technique).
+
 ## Deployments
 
 The list of all deployment addresses can be found [here](https://docs.sablier.com). For guidance on the deploy scripts,
