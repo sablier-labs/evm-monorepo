@@ -254,6 +254,11 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         uint128 amount;
         for (uint256 i = 0; i < streamIdsCount;) {
             streamId = streamIds[i];
+
+            if (isCanceled(streamId)) {
+                revert Errors.SablierV2OpenEnded_StreamCanceled(streamId);
+            }
+
             amount = amounts[i];
 
             // Checks, Effects and Interactions: deposit on stream.
@@ -532,11 +537,11 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             asset: asset,
             assetDecimals: assetDecimals,
             balance: 0,
+            isCanceled: false,
             isStream: true,
             lastTimeUpdate: uint40(block.timestamp),
             recipient: recipient,
-            sender: sender,
-            isCanceled: false
+            sender: sender
         });
 
         // Effects: bump the next stream id.

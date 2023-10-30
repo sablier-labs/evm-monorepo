@@ -185,6 +185,7 @@ interface ISablierV2OpenEnded {
     ///
     /// Requiremenets:
     /// - Must not be delegate called.
+    /// - `streamId` must not reference a null stream.
     /// - `streamId` must not reference a canceled stream.
     /// - `msg.sender` must be the stream's sender.
     /// - `newAmountPerSecond` must be greater than zero.
@@ -199,6 +200,7 @@ interface ISablierV2OpenEnded {
     ///
     /// Requirements:
     /// - Must not be delegate called.
+    /// - `streamId` must not reference a null stream.
     /// - `streamId` must not reference a canceled stream.
     /// - `msg.sender` must be the stream's sender.
     ///
@@ -264,6 +266,7 @@ interface ISablierV2OpenEnded {
     ///
     /// Requirements:
     /// - Must not be delegate called.
+    /// - `streamId` must not reference a null stream.
     /// - `streamId` must not reference a canceled stream.
     /// - `amount` must be greater than zero.
     ///
@@ -289,6 +292,7 @@ interface ISablierV2OpenEnded {
     ///
     /// Requirements:
     /// - Must not be delegate called.
+    /// - `streamId` must not reference a null stream.
     /// - `streamId` must not reference a canceled stream.
     /// - `msg.sender` must be the sender.
     /// - `amount` must be greater than zero and must not exceed the refundable amount.
@@ -303,6 +307,7 @@ interface ISablierV2OpenEnded {
     ///
     /// Requirements:
     /// - Must not be delegate called.
+    // - `streamId` must not reference a null stream.
     /// - `streamId` must reference a canceled stream.
     /// - `msg.sender` must be the stream's sender.
     /// - `amountPerSecond` must be greater than zero.
@@ -331,6 +336,7 @@ interface ISablierV2OpenEnded {
     ///
     /// Requirements:
     /// - Must not be delegate called.
+    /// - `streamId` must not reference a null stream.
     /// - `streamId` must not reference a canceled stream.
     /// - `msg.sender` must be the stream's sender or the stream's recipient.
     /// - `to` must be the recipient if `msg.sender` is the stream's sender.
