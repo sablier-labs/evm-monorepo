@@ -16,15 +16,17 @@ _balance ≥ withdrawable amount + refundable amount_
 
 _lastTimeUpdate ≤ block.timestamp;_
 
-_if(wasCanceled = true) balance= 0_
+_if(isCanceled = true) then balance= 0_
 
-_if(wasCanceled = true) amountPerSecond= 0_
+_if(isCanceled = true) then amountPerSecond= 0_
+
+_sum of withdrawn amounts ≤ sum of deposits_
 
 ## Issues:
 
 - Amount per second precision for tokens with less decimals: if one wants to stream 10 USDC per day the
-  `amountPerSecond` should be 0.00011574074074 but USDC having 6 decimals it would be 000115, resulting 9.936 at the end
-  of the month. (0.064 loss at the end of the month)
+  `amountPerSecond` should be 0.00011574074074 but USDC having 6 decimals it would be 0.000115, resulting 9.936 at the
+  end of the month. (0.064 loss at the end of the month)
   - Potential solution: normalization to 18 decimals for all stored amounts, i.e. `stream.amountPerSecond` and
     `stream.balance` (attempting this fix in
     [this branch](https://github.com/sablier-labs/v2-open-ended/tree/fix/amount-per-second-precision) )
