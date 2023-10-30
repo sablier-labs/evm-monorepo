@@ -482,7 +482,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
         // Effects and Interactions: withdraw the assets to the recipient, if any assets available.
         if (recipientAmount > 0) {
-            _extractFromStream(streamId, recipient, senderAmount);
+            _extractFromStream(streamId, recipient, recipientAmount);
         }
 
         // Log the cancellation.
