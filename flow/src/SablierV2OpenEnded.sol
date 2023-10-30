@@ -469,13 +469,6 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // condition is checked to avoid exploits in case of a bug.
         _checkCalculatedAmount(streamId, sum);
 
-        // In case there is a precision error and the sum is less than the balance, the recipient receives the
-        // remainder.
-        if (sum < balance) {
-            uint128 delta = balance - sum;
-            recipientAmount += delta;
-        }
-
         // Effects: set the stream as canceled.
         _streams[streamId].isCanceled = true;
 

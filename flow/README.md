@@ -27,18 +27,20 @@ _sum of withdrawn amounts ≤ sum of deposits_
 
 ## Issues:
 
-- Amount per second precision for tokens with less decimals: if one wants to stream 10 USDC per day the
-  `amountPerSecond` should be 0.00011574074074 but USDC having 6 decimals it would be 0.000115, resulting 9.936 at the
-  end of the month. (0.064 loss at the end of the month)
-  - Potential solution: normalization to 18 decimals for all stored amounts, i.e. `stream.amountPerSecond` and
-    `stream.balance` (attempting this fix in
-    [this branch](https://github.com/sablier-labs/v2-open-ended/tree/fix/amount-per-second-precision) )
+#### Precision
+
+- Amount per second precision for tokens with fewer decimals: If one wants to stream 10 USDC per day, the
+  `amountPerSecond` should be 0.00011574074074074, but with USDC having 6 decimals, it would be 0.000115, resulting in
+  9.936 at the end of the month. (0.064 loss at the end of the month)
+  - The solution approach: Normalize to 18 decimals for all stored amounts, i.e., `stream.amountPerSecond` and
+    `stream.balance`. Although this does not completely fix the issue, it minimizes it as much as possible. For the
+    example from above, at the end of the month the result would be 9.999999999999936000 (0.0000000000000064000 loss at
+    the end of the month). Currently, I don't think it's possible to address this precision problem entirely, given the
+    nature of open-endedness.
 
 ## Questions:
 
 Should we update the time in `_cancel`?
-
-In `_cancel` who should receive(sender or recipient) the remainder in case of rounding issues?
 
 Should we add TimeUpdated event?
 
