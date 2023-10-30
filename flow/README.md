@@ -29,13 +29,15 @@ _if(isCanceled = true) then amountPerSecond= 0_
 
 _sum of withdrawn amounts ≤ sum of deposits_
 
+_sum of stream balances for an asset ≤ asset.balanceOf(SablierV2OpenEnded) normalized to 18 decimals_
+
 ## Issues:
 
 #### Precision
 
 - Amount per second precision for tokens with fewer decimals: If one wants to stream 10 USDC per day, the
   `amountPerSecond` should be 0.00011574074074074.., but with USDC having 6 decimals, it would be 0.000115, resulting in
-  9.936 at the end of the day. (0.064000 loss at the end of the day)
+  9.936000 at the end of the day. (0.064000 loss at the end of the day)
   - The solution approach: Normalize to 18 decimals for all stored amounts, i.e., `stream.amountPerSecond` and
     `stream.balance`. Although this does not completely fix the issue, it minimizes it as much as possible. For the
     example from above, at the end of the day the result would be 9.999999999999936000 (0.0000000000000064000 loss at
