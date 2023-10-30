@@ -3,6 +3,9 @@
 Asset decimals can’t be passed in create function because one may create a fake stream with less or more decimals and in
 this way he may extract more assets from stream.
 
+We store the asset decimals, so that we don't have to make an external call to get the decimals of the asset each time a
+deposit or an extraction is made. Decimals are `uint8`, meaning it is not an expensive operation to store them.
+
 Recipient address **must** be checked because there is no NFT minted in `_create` function.
 
 Sender address **must** be checked because there is no ERC20 transfer in `_create` function.
