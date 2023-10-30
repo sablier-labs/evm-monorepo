@@ -385,8 +385,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         uint256 currentTime = block.timestamp;
         uint256 lastTimeUpdate = uint256(_streams[streamId].lastTimeUpdate);
 
-        // Calculate the amount streamed since last update. Normalization to 18 decimals is not needed
-        // because there is no mix of amounts with different decimals.
+        // Calculate the amount streamed since last update. Each amount is normalized to 18 decimals.
         unchecked {
             // Calculate how much time has passed since the last update.
             UD60x18 elapsedTime = ud(currentTime - lastTimeUpdate);
@@ -463,16 +462,18 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Calculate the refundable amount here for gas optimization.
         uint128 senderAmount = balance - recipientAmount;
 
+        // Calculate the sum of the withdrawable and refundable amounts.
         uint128 sum = senderAmount + recipientAmount;
 
         // Although the sum of the withdrawable and refundable amounts should never exceed the balance, this
         // condition is checked to avoid exploits in case of a bug.
         _checkCalculatedAmount(streamId, sum);
 
-        // In case there is a rounding error and the sum is less than the balance, the sender receives the remainder.
+        // In case there is a precision error and the sum is less than the balance, the recipient receives the
+        // remainder.
         if (sum < balance) {
             uint128 delta = balance - sum;
-            senderAmount += delta;
+            recipientAmount += delta;
         }
 
         // Effects: set the stream as canceled.
