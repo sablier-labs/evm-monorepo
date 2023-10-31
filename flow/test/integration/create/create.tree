@@ -1,0 +1,19 @@
+create.t.sol
+├── when delegate called
+│  └── it should revert
+└── when not delegate called
+   ├── when the sender is the zero address
+   │  └── it should revert
+   └── when the sender is not the zero address
+      ├── when the recipient is the zero address
+      │  └── it should revert
+      └── when the recipient is not the zero address
+        ├── when the amount per second is zero
+        │  └── it should revert
+        └── when the amount per second is not zero
+            ├── when the asset is not a contract
+            │  └── it should revert due to no decimals
+            └── when the asset is a contract
+               ├── it should create the stream
+               ├── it should bump the next stream id
+               └── it should emit a {CreateOpenEndedStream} event

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.20 <0.9.0;
 
-import { console2 } from "forge-std/console2.sol";
-
 import { Invariant_Test } from "./Invariant.t.sol";
 import { OpenEndedHandler } from "./handlers/OpenEndedHandler.sol";
 import { OpenEndedCreateHandler } from "./handlers/OpenEndedCreateHandler.sol";
@@ -85,9 +83,6 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
             streamBalancesSumNormalized += uint256(normalizeToAssetDecimals(streamId, streamBalance));
         }
 
-        console2.log("contractBalance: ", contractBalance);
-        console2.log("streamBalancesSumNormalized: ", streamBalancesSumNormalized);
-
         assertGe(
             contractBalance,
             streamBalancesSumNormalized,
@@ -104,9 +99,6 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
             streamExtractedAmountsSum,
             "Invariant violation: stream deposited amounts sum < stream extracted amounts sum"
         );
-
-        console2.log("streamDepositedAmountsSum: ", streamDepositedAmountsSum);
-        console2.log("streamExtractedAmountsSum: ", streamExtractedAmountsSum);
     }
 
     function invariant_NextStreamId() external useCurrentTimestamp {

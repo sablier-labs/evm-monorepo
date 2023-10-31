@@ -1,0 +1,24 @@
+deposit.t.sol
+├── when delegate called
+│  └── it should revert
+└── when not delegate called
+   ├── given the id references a null stream
+   │  └── it should revert
+   └── given the id does not reference a null stream
+      ├── given the id references a canceled stream
+      │  └── it should revert
+      └── given the id does not reference a canceled stream
+         ├── when the deposit amount is zero
+         │  └── it should revert
+         └── when the deposit amount is not zero
+            ├── when the asset misses the ERC-20 return 
+            │  └── it should make the deposit
+            └── when the asset does not miss the ERC-20 return value
+               ├── when the asset does not have 18 decimals
+               │  ├── it should update the stream balance
+               │  ├── it should perform the ERC-20 transfer
+               │  └── it should emit a {Transfer} and {DepositOpenEndedStream} event
+               └── when the asset has 18 decimals
+                  ├── it should update the stream balance
+                  ├── it should perform the ERC-20 transfer
+                  └── it should emit a {Transfer} and {DepositOpenEndedStream} event

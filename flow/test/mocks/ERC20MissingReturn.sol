@@ -12,9 +12,9 @@ contract ERC20MissingReturn {
     mapping(address owner => mapping(address spender => uint256 allowance)) internal _allowances;
     mapping(address account => uint256 balance) internal _balances;
 
-    event Transfer(address indexed from, address indexed to, uint256 amount);
+    event Transfer(address indexed from, address indexed to, uint256 value);
 
-    event Approval(address indexed owner, address indexed spender, uint256 amount);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 
     constructor(string memory name_, string memory symbol_, uint8 decimals_) {
         name = name_;
