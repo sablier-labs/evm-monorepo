@@ -5,7 +5,7 @@
   block_timestamp = 1_680_220_800 # March 31, 2023 at 00:00 GMT
   bytecode_hash = "none"
   evm_version = "paris"           # See https://www.evmdiff.com/features?name=PUSH0&kind=opcode
-  fuzz = { runs = 1_000 }
+  fuzz = { runs = 10_000 }
   gas_reports = ["*"]
   libs = ["lib"]
   optimizer = true
@@ -15,6 +15,11 @@
   solc = "0.8.21"
   src = "src"
   test = "test"
+
+[profile.default.invariant]
+  call_override = false # Override unsafe external calls to perform reentrancy checks
+  depth = 100            # Number of calls executed in one run
+  runs = 100
 
 [profile.ci]
   fuzz = { runs = 10_000 }

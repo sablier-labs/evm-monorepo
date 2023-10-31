@@ -19,17 +19,17 @@ to worry about [this issue](https://github.com/cantinasec/review-sablier/issues/
 
 ## Invariants:
 
-_balance ≥ withdrawable amount + refundable amount_
+_balance = withdrawable amount + refundable amount_
+
+_withdrawable amount ≤ streamed amount_
 
 _lastTimeUpdate ≤ block.timestamp;_
 
-_if(isCanceled = true) then balance= 0_
-
-_if(isCanceled = true) then amountPerSecond= 0_
+_if(isCanceled = true) then balance= 0 && amountPerSecond= 0_
 
 _sum of withdrawn amounts ≤ sum of deposits_
 
-_sum of stream balances for an asset ≤ asset.balanceOf(SablierV2OpenEnded) normalized to 18 decimals_
+_sum of stream balances normilized to asset decimals ≤ asset.balanceOf(SablierV2OpenEnded)_
 
 ## Issues:
 
