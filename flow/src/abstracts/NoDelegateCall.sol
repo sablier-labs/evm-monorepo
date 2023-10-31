@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.20;
 
+import { Errors } from "../libraries/Errors.sol";
+
 /// @title NoDelegateCall
 /// @notice This contract implements logic to prevent delegate calls.
 abstract contract NoDelegateCall {
@@ -25,6 +27,8 @@ abstract contract NoDelegateCall {
     /// which would increase the contract size. By using a function instead, we can avoid this duplication of code
     /// and reduce the overall size of the contract.
     function _preventDelegateCall() private view {
-        require(address(this) == ORIGINAL, "No delegate call");
+        if (address(this) != ORIGINAL) {
+            revert Errors.DelegateCall();
+        }
     }
 }

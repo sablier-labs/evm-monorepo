@@ -255,6 +255,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         for (uint256 i = 0; i < streamIdsCount;) {
             streamId = streamIds[i];
 
+            // Checks: the stream is not canceled.
             if (isCanceled(streamId)) {
                 revert Errors.SablierV2OpenEnded_StreamCanceled(streamId);
             }
