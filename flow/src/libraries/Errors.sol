@@ -13,6 +13,9 @@ library Errors {
     /// @notice Thrown when trying to set the amount per second of a stream to zero.
     error SablierV2OpenEnded_AmountPerSecondZero();
 
+    /// @notice Thrown when trying to change the amount per second with the same amount per second.
+    error SablierV2OpenEnded_AmountPerSecondNotDifferent(uint128 amountPerSecond);
+
     /// @notice Thrown when trying to create a OpenEnded stream with a zero deposit amount.
     error SablierV2OpenEnded_DepositAmountZero();
 

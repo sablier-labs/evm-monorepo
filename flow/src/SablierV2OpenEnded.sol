@@ -427,9 +427,16 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _adjustAmountPerSecond(uint256 streamId, uint128 newAmountPerSecond) internal {
-        // Checks: the amount per second is not zero.
+        // Checks: the new amount per second is not zero.
         if (newAmountPerSecond == 0) {
             revert Errors.SablierV2OpenEnded_AmountPerSecondZero();
+        }
+
+        uint128 oldAmountPerSecond = _streams[streamId].amountPerSecond;
+
+        // Checks: the new amount per second is not equal to the actual amount per second.
+        if (newAmountPerSecond == oldAmountPerSecond) {
+            revert Errors.SablierV2OpenEnded_AmountPerSecondNotDifferent(newAmountPerSecond);
         }
 
         uint128 recipientAmount = _withdrawableAmountOf(streamId);
@@ -437,8 +444,6 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Although the withdrawable amount should never exceed the balance, this condition is checked to avoid exploits
         // in case of a bug.
         _checkCalculatedAmount(streamId, recipientAmount);
-
-        uint128 oldAmountPerSecond = _streams[streamId].amountPerSecond;
 
         // Effects: change the amount per second.
         _streams[streamId].amountPerSecond = newAmountPerSecond;

@@ -189,6 +189,7 @@ interface ISablierV2OpenEnded {
     /// - `streamId` must not reference a canceled stream.
     /// - `msg.sender` must be the stream's sender.
     /// - `newAmountPerSecond` must be greater than zero.
+    /// - `newAmountPerSecond` must not be equal to the actual amount per second.
     ///
     /// @param streamId The id of the stream to adjust.
     /// @param newAmountPerSecond The new amount per second of the open-ended stream, denoted in 18 decimals.
