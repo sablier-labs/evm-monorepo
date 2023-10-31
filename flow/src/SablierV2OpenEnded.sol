@@ -346,12 +346,12 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Change the transfer amount based on the decimal difference and the transfer type.
         if (transferType == TransferType.Deposit) {
             transferAmount = isGreaterThan18
-                ? (amount / (10 ** normalizationFactor)).toUint128()
-                : (amount * (10 ** normalizationFactor)).toUint128();
-        } else if (transferType == TransferType.Extract) {
-            transferAmount = isGreaterThan18
                 ? (amount * (10 ** normalizationFactor)).toUint128()
                 : (amount / (10 ** normalizationFactor)).toUint128();
+        } else if (transferType == TransferType.Extract) {
+            transferAmount = isGreaterThan18
+                ? (amount / (10 ** normalizationFactor)).toUint128()
+                : (amount * (10 ** normalizationFactor)).toUint128();
         }
     }
 
