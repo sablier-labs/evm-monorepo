@@ -28,6 +28,7 @@ abstract contract Base_Test is Assertions, Events, Modifiers {
     uint128 public constant DEPOSIT_AMOUNT = 50_000e18;
     uint128 public constant REFUND_AMOUNT = 10_000e18;
     uint128 public constant ONE_MONTH_STREAMED_AMOUNT = 2592e18; // 86.4 * 30
+    uint128 public constant ONE_MONTH_REFUNDABLE_AMOUNT = DEPOSIT_AMOUNT - ONE_MONTH_STREAMED_AMOUNT;
     uint40 public immutable WARP_ONE_MONTH;
 
     Users internal users;

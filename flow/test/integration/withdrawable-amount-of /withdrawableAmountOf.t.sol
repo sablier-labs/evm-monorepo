@@ -19,7 +19,7 @@ contract WithdrawableAmountOf_Integration_Test is Integration_Test {
     }
 
     function test_WithdrawableAmountOf_BalanceZero() external givenNotNull givenNotCanceled {
-        uint256 withdrawableAmount = openEnded.withdrawableAmountOf(defaultStreamId);
+        uint128 withdrawableAmount = openEnded.withdrawableAmountOf(defaultStreamId);
         assertEq(withdrawableAmount, 0, "withdrawable amount");
     }
 
@@ -28,7 +28,7 @@ contract WithdrawableAmountOf_Integration_Test is Integration_Test {
         openEnded.deposit(defaultStreamId, depositAmount);
 
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
-        uint256 withdrawableAmount = openEnded.withdrawableAmountOf(defaultStreamId);
+        uint128 withdrawableAmount = openEnded.withdrawableAmountOf(defaultStreamId);
         assertEq(withdrawableAmount, depositAmount, "withdrawable amount");
     }
 
@@ -36,7 +36,7 @@ contract WithdrawableAmountOf_Integration_Test is Integration_Test {
         defaultDeposit();
 
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
-        uint256 withdrawableAmount = openEnded.withdrawableAmountOf(defaultStreamId);
+        uint128 withdrawableAmount = openEnded.withdrawableAmountOf(defaultStreamId);
         assertEq(withdrawableAmount, ONE_MONTH_STREAMED_AMOUNT, "withdrawable amount");
     }
 }
