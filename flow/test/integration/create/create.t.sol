@@ -17,12 +17,7 @@ contract Create_Integration_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2OpenEnded.create, (users.sender, users.recipient, AMOUNT_PER_SECOND, dai));
-        (bool success, bytes memory returnData) = address(openEnded).delegatecall(callData);
-        expectRevertDueToDelegateCall(success, returnData);
-    }
-
-    modifier whenNotDelegateCalled() {
-        _;
+        _test_RevertWhen_DelegateCall(callData);
     }
 
     function test_RevertWhen_SenderZeroAddress() external whenNotDelegateCalled {
@@ -35,17 +30,9 @@ contract Create_Integration_Test is Integration_Test {
         });
     }
 
-    modifier whenSenderNonZeroAddress() {
-        _;
-    }
-
     function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled whenSenderNonZeroAddress {
         vm.expectRevert(Errors.SablierV2OpenEnded_RecipientZeroAddress.selector);
         openEnded.create({ sender: users.sender, recipient: address(0), amountPerSecond: AMOUNT_PER_SECOND, asset: dai });
-    }
-
-    modifier whenRecipientNonZeroAddress() {
-        _;
     }
 
     function test_RevertWhen_AmountPerSecondZero()
@@ -56,10 +43,6 @@ contract Create_Integration_Test is Integration_Test {
     {
         vm.expectRevert(Errors.SablierV2OpenEnded_AmountPerSecondZero.selector);
         openEnded.create({ sender: users.sender, recipient: users.recipient, amountPerSecond: 0, asset: dai });
-    }
-
-    modifier whenAmountPerSecondNonZero() {
-        _;
     }
 
     function test_RevertWhen_AssetNotContract()
@@ -79,10 +62,6 @@ contract Create_Integration_Test is Integration_Test {
             amountPerSecond: AMOUNT_PER_SECOND,
             asset: IERC20(nonContract)
         });
-    }
-
-    modifier whenAssetContract() {
-        _;
     }
 
     function test_Create()

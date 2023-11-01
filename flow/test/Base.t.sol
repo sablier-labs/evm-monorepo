@@ -10,13 +10,14 @@ import { ERC20Mock } from "./mocks/ERC20Mock.sol";
 import { ERC20MissingReturn } from "./mocks/ERC20MissingReturn.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Events } from "./utils/Events.sol";
+import { Modifiers } from "./utils/Modifiers.sol";
 
 struct Users {
     address sender;
     address recipient;
 }
 
-abstract contract Base_Test is Assertions, Events {
+abstract contract Base_Test is Assertions, Events, Modifiers {
     using SafeCast for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -26,7 +27,7 @@ abstract contract Base_Test is Assertions, Events {
     uint128 public constant AMOUNT_PER_SECOND = 0.001e18; // 86.4 daily
     uint128 public constant DEPOSIT_AMOUNT = 50_000e18;
     uint128 public constant REFUND_AMOUNT = 10_000e18;
-    uint128 public constant WITHDRAW_AMOUNT = 2500e18;
+    uint128 public constant ONE_MONTH_STREAMED_AMOUNT = 2592e18; // 86.4 * 30
     uint40 public immutable WARP_ONE_MONTH;
 
     Users internal users;
