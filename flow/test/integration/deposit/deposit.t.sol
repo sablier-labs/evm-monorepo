@@ -34,7 +34,7 @@ contract Deposit_Integration_Test is Integration_Test {
         openEnded.deposit(defaultStreamId, 0);
     }
 
-    function test_Deposit_AssetMissingReturnValue_Not18Decimals()
+    function test_Deposit_AssetMissingReturnValue_AssetNot18Decimals()
         external
         whenNotDelegateCalled
         givenNotNull
@@ -54,7 +54,7 @@ contract Deposit_Integration_Test is Integration_Test {
         emit Transfer({
             from: users.sender,
             to: address(openEnded),
-            value: normalizeToAssetDecimals(streamId, DEPOSIT_AMOUNT)
+            value: normalizeTransferAmount(streamId, DEPOSIT_AMOUNT)
         });
 
         vm.expectEmit({ emitter: address(openEnded) });
@@ -64,7 +64,7 @@ contract Deposit_Integration_Test is Integration_Test {
             asset: asset,
             from: users.sender,
             to: address(openEnded),
-            amount: normalizeToAssetDecimals(streamId, DEPOSIT_AMOUNT)
+            amount: normalizeTransferAmount(streamId, DEPOSIT_AMOUNT)
         });
         openEnded.deposit(streamId, DEPOSIT_AMOUNT);
 

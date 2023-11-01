@@ -1,0 +1,38 @@
+withdraw.t.sol
+├── when delegate called
+│  └── it should revert
+└── when not delegate called
+   ├── given the id references a null stream
+   │  └── it should revert
+   └── given the id does not reference a null stream
+      ├── given the id references a canceled stream
+      │  └── it should revert
+      └── given the id does not reference a canceled stream
+          ├── when the caller is unauthorized
+          │  ├── when the caller is the sender
+          │  │  └── it should revert
+          │  └── when the caller is a malicious third party
+          │     └── it should revert
+          └── when the caller is authorized
+              ├── when the provided address is zero
+              │  └── it should revert
+              └── when the provided address is not zero
+                 ├── when the withdraw amount is zero
+                 │  └── it should revert
+                 └── when the withdraw amount is not zero
+                    ├── when the withdraw amount overdraws
+                    │  └── it should revert
+                    └── when the withdraw amount does not overdraw
+                       ├── when the caller is the sender
+                       │  └── it should make the withdrawal
+                       └── when the caller is the recipient
+                          ├── when the asset does not have 18 decimals
+                          │  ├── it should make the withdrawal
+                          │  ├── it should update the time
+                          │  ├── it should update the stream balance
+                          │  └── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
+                          └── when the asset has 18 decimals
+                             ├── it should make the withdrawal   
+                             ├── it should update the time
+                             ├── it should update the stream balance
+                             └── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event

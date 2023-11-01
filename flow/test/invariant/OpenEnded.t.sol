@@ -75,12 +75,10 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         uint256 contractBalance = dai.balanceOf(address(openEnded));
 
         uint256 lastStreamId = openEndedStore.lastStreamId();
-        uint128 streamBalance;
         uint256 streamBalancesSumNormalized;
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
-            streamBalance = openEnded.getBalance(streamId);
-            streamBalancesSumNormalized += uint256(normalizeToAssetDecimals(streamId, streamBalance));
+            streamBalancesSumNormalized += uint256(normalizeBalance(streamId));
         }
 
         assertGe(

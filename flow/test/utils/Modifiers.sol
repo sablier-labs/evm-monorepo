@@ -6,11 +6,19 @@ abstract contract Modifiers {
                                        COMMON
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenNotDelegateCalled() {
+    modifier whenAmountPerSecondNonZero() {
         _;
     }
 
-    modifier givenNotNull() {
+    modifier whenCallerAuthorized() {
+        _;
+    }
+
+    modifier whenCallerUnauthorized() {
+        _;
+    }
+
+    modifier whenNotDelegateCalled() {
         _;
     }
 
@@ -18,7 +26,7 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenAmountPerSecondNonZero() {
+    modifier givenNotNull() {
         _;
     }
 
@@ -38,7 +46,27 @@ abstract contract Modifiers {
         _;
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                      DEPOSIT
+    //////////////////////////////////////////////////////////////////////////*/
+
     modifier whenDepositAmountNonZero() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                      WITHDRAW
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier whenNoOverdraw() {
+        _;
+    }
+
+    modifier whenToNonZeroAddress() {
+        _;
+    }
+
+    modifier whenWithdrawAmountNotZero() {
         _;
     }
 }
