@@ -311,19 +311,13 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
                             INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    enum TransferType {
-        Deposit,
-        Extract
-    }
-
     /// @notice Calculates the transfer amount based on the asset's decimals.
-    /// @dev Changes the amount based on the asset's decimal difference from 18.
-    /// For deposits: if the asset has fewer decimals, the amount is reduced; if more, the amount is increased.
-    /// For extractions: if the asset has fewer decimals, the amount is increased; if more, the amount is reduced.
+    /// @dev Changes the amount based on the asset's decimal difference from 18:
+    /// - if the asset has fewer decimals, the amount is reduced
+    /// - if the asset has more decimals, the amount is increased
     function _calculateTransferAmount(
         uint256 streamId,
-        uint128 amount,
-        TransferType transferType
+        uint128 amount
     )
         internal
         view
@@ -343,16 +337,10 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Calculate the difference in decimals.
         uint8 normalizationFactor = isGreaterThan18 ? assetDecimals - 18 : 18 - assetDecimals;
 
-        // Change the transfer amount based on the decimal difference and the transfer type.
-        if (transferType == TransferType.Deposit) {
-            transferAmount = isGreaterThan18
-                ? (amount * (10 ** normalizationFactor)).toUint128()
-                : (amount / (10 ** normalizationFactor)).toUint128();
-        } else if (transferType == TransferType.Extract) {
-            transferAmount = isGreaterThan18
-                ? (amount / (10 ** normalizationFactor)).toUint128()
-                : (amount * (10 ** normalizationFactor)).toUint128();
-        }
+        // Change the transfer amount based on the decimal difference.
+        transferAmount = isGreaterThan18
+            ? (amount * (10 ** normalizationFactor)).toUint128()
+            : (amount / (10 ** normalizationFactor)).toUint128();
     }
 
     /// @dev Checks whether the withdrawable amount or the sum of the withdrawable and refundable amounts is greater
@@ -576,7 +564,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         IERC20 asset = _streams[streamId].asset;
 
         // Calculate the transfer amount.
-        uint128 transferAmount = _calculateTransferAmount(streamId, amount, TransferType.Deposit);
+        uint128 transferAmount = _calculateTransferAmount(streamId, amount);
 
         // Interactions: transfer the deposit amount.
         asset.safeTransferFrom(msg.sender, address(this), transferAmount);
@@ -591,7 +579,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         _streams[streamId].balance -= amount;
 
         // Calculate the transfer amount.
-        uint128 transferAmount = _calculateTransferAmount(streamId, amount, TransferType.Extract);
+        uint128 transferAmount = _calculateTransferAmount(streamId, amount);
 
         // Interactions: perform the ERC-20 transfer.
         _streams[streamId].asset.safeTransfer(to, transferAmount);
