@@ -1,0 +1,30 @@
+refundFromStream.t.sol
+├── when delegate called
+│  └── it should revert
+└── when not delegate called
+   ├── given the id references a null stream
+   │  └── it should revert
+   └── given the id does not reference a null stream
+      ├── given the id references a canceled stream
+      │  └── it should revert
+      └── given the id does not reference a canceled stream
+          ├── when the caller is unauthorized
+          │  ├── when the caller is the recipient
+          │  │  └── it should revert
+          │  └── when the caller is a malicious third party
+          │     └── it should revert
+          └── when the caller is authorized
+             ├── when the refund amount is zero
+             │  └── it should revert
+             └── when the refund amount is not zero
+                ├── when the refund amount overrefund
+                │  └── it should revert
+                └── when the refund amount does not overrefund
+                   ├── when the asset does not have 18 decimals
+                   │  ├── it should make the refund
+                   │  ├── it should update the stream balance
+                   │  └── it should emit a {Transfer} and {RefundFromOpenEndedStream} event
+                   └── when the asset has 18 decimals
+                      ├── it should make the refundal   
+                      ├── it should update the stream balance
+                      └── it should emit a {Transfer} and {RefundFromOpenEndedStream} event

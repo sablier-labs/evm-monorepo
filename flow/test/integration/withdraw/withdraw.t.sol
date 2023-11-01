@@ -116,6 +116,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
+        whenNoOverdraw
     {
         openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: WITHDRAW_AMOUNT });
     }
@@ -128,6 +129,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
+        whenNoOverdraw
     {
         // Set the timestamp to 1 month ago to create the stream with the same `lastTimeUpdate` as `defaultStreamId`.
         vm.warp({ newTimestamp: WARP_ONE_MONTH - ONE_MONTH });
@@ -146,6 +148,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
+        whenNoOverdraw
     {
         test_Withdraw(defaultStreamId, dai);
     }
