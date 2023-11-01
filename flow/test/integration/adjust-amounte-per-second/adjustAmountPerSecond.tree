@@ -1,0 +1,39 @@
+adjustAmountPerSecond.t.sol
+├── when delegate called
+│  └── it should revert
+└── when not delegate called
+   ├── given the id references a null stream
+   │  └── it should revert
+   └── given the id does not reference a null stream
+      ├── given the id references a canceled stream
+      │  └── it should revert
+      └── given the id does not reference a canceled stream
+          ├── when the caller is unauthorized
+          │  ├── when the caller is the recipient
+          │  │  └── it should revert
+          │  └── when the caller is a malicious third party
+          │     └── it should revert
+          └── when the caller is authorized
+              ├── when the provided amount per second is zero
+              │  └── it should revert
+              └── when the provided amount per second is not zero
+                 ├── when the provided amount per second is equal to the actual amount per second
+                 │  └── it should revert
+                 └── when the provided amount per second is not equal to the actual amount per second
+                    ├── given the withdrawable amount is zero
+                    │  ├── it should update the amount per second
+                    │  ├── it should update the stream time
+                    │  └── it should emit a {AdjustOpenEndedStream} event
+                    └── given the withdrawable amount is not zero
+                       ├── given the asset does not have 18 decimals
+                       │  ├── it should update the amount per second
+                       │  ├── it should update the stream time
+                       │  ├── it should update the stream balance
+                       │  ├── it should perform the ERC-20 transfer
+                       │  └── it should emit a {Transfer} and {AdjustOpenEndedStream} event
+                       └── given the asset has 18 decimals
+                          ├── it should make the withdrawal   
+                          ├── it should update the time
+                          ├── it should update the stream balance
+                          ├── it should perform the ERC-20 transfer
+                          └── it should emit a {Transfer} and {AdjustOpenEndedStream} event

@@ -26,13 +26,15 @@ withdraw.t.sol
                        ├── when the caller is the sender
                        │  └── it should make the withdrawal
                        └── when the caller is the recipient
-                          ├── when the asset does not have 18 decimals
+                          ├── given the asset does not have 18 decimals
                           │  ├── it should make the withdrawal
                           │  ├── it should update the time
                           │  ├── it should update the stream balance
+                          │  ├── it should perform the ERC-20 transfer
                           │  └── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
-                          └── when the asset has 18 decimals
+                          └── given the asset has 18 decimals
                              ├── it should make the withdrawal   
                              ├── it should update the time
                              ├── it should update the stream balance
+                             ├── it should perform the ERC-20 transfer
                              └── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
