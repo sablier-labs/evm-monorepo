@@ -36,8 +36,7 @@ contract RefundableAmountOf_Integration_Test is Integration_Test {
         defaultDeposit();
 
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
-        uint128 actualRefundableAmount = openEnded.refundableAmountOf(defaultStreamId);
-        uint128 expectedRefundableAmount = DEPOSIT_AMOUNT - ONE_MONTH_STREAMED_AMOUNT;
-        assertEq(actualRefundableAmount, expectedRefundableAmount, "refundable amount");
+        uint128 refundableAmount = openEnded.refundableAmountOf(defaultStreamId);
+        assertEq(refundableAmount, ONE_MONTH_REFUNDABLE_AMOUNT, "refundable amount");
     }
 }

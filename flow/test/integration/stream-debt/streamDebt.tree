@@ -1,0 +1,11 @@
+streamDebt.t.sol
+├── given the id references a null stream
+│  └── it should revert
+└── given the id does not reference a null stream
+   ├── given the id references a canceled stream
+   │  └── it should revert
+   └── given the id does not reference a canceled stream
+      ├── given the stream balance is greater than or equal to the streamed amount
+      │  └── it should return zero
+      └── given the stream balance is less than the streamed amount
+        └── it should return the correct stream debt
