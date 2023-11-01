@@ -600,16 +600,16 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _refundFromStream(uint256 streamId, uint128 amount) internal {
         address sender = _streams[streamId].sender;
-        uint128 senderAmount = _refundableAmountOf(streamId);
+        uint128 refundableAmount = _refundableAmountOf(streamId);
 
         // Checks: the amount is not zero.
         if (amount == 0) {
-            revert Errors.SablierV2OpenEnded_AmountZero(streamId);
+            revert Errors.SablierV2OpenEnded_RefundAmountZero();
         }
 
-        // Checks: the amount is not greater than what is available.
-        if (amount > senderAmount) {
-            revert Errors.SablierV2OpenEnded_Overdraw(streamId, amount, senderAmount);
+        // Checks: the withdraw amount is not greater than the refundable amount.
+        if (amount > refundableAmount) {
+            revert Errors.SablierV2OpenEnded_Overrefund(streamId, amount, refundableAmount);
         }
 
         // Effects and interactions: update the `balance` and perform the ERC-20 transfer.
@@ -675,7 +675,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
         // Checks: the amount is not zero.
         if (amount == 0) {
-            revert Errors.SablierV2OpenEnded_AmountZero(streamId);
+            revert Errors.SablierV2OpenEnded_WithdrawAmountZero();
         }
 
         // Checks: the amount is not greater than what is available.
