@@ -1,0 +1,17 @@
+withdrawableAmountOf.t.sol
+├── when delegate called
+│  └── it should revert
+└── when not delegate called
+   ├── given the id references a null stream
+   │  └── it should revert
+   └── given the id does not reference a null stream
+      ├── given the id references a canceled stream
+      │  └── it should revert
+      └── given the id does not reference a canceled stream
+         ├── given the stream balance is zero
+         │  └── it should return zero
+         └── given the stream balance is not zero
+            ├── given the stream balance is less than or equal to the streamed amount
+            │  └── it should return the balance
+            └── given the stream balance is greater than the streamed amount
+               └── it should return the correct withdrawable amount
