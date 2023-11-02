@@ -607,9 +607,17 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _restartStream(uint256 streamId, uint128 amountPerSecond) internal noDelegateCall onlySender(streamId) {
+    function _restartStream(
+        uint256 streamId,
+        uint128 amountPerSecond
+    )
+        internal
+        noDelegateCall
+        notNull(streamId)
+        onlySender(streamId)
+    {
         // Checks: the stream is canceled.
-        if (!isCanceled(streamId)) {
+        if (!_streams[streamId].isCanceled) {
             revert Errors.SablierV2OpenEnded_StreamNotCanceled(streamId);
         }
 
