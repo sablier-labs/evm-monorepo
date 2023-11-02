@@ -1,3 +1,16 @@
+## Issues:
+
+#### Precision
+
+- Amount per second precision for tokens with fewer decimals: If one wants to stream 10 USDC per day, the
+  `amountPerSecond` should be 0.00011574074074074.., but with USDC having 6 decimals, it would be 0.000115, resulting in
+  9.936000 at the end of the day. (0.064000 loss at the end of the day)
+  - The solution approach: Normalize to 18 decimals for all stored amounts, i.e., `stream.amountPerSecond` and
+    `stream.balance`. Although this does not completely fix the issue, it minimizes it as much as possible. For the
+    example from above, at the end of the day the result would be 9.999999999999936000 (0.0000000000000064000 loss at
+    the end of the day). Currently, I don't think it's possible to address this precision problem entirely, given the
+    nature of open-endedness(no explicit duration of the stream).
+
 ## Decisions
 
 Asset decimals can’t be passed in create function because one may create a fake stream with less or more decimals and in
@@ -30,19 +43,6 @@ _if(isCanceled = true) then balance= 0 && amountPerSecond= 0_
 _sum of withdrawn amounts ≤ sum of deposits_
 
 _sum of stream balances normilized to asset decimals ≤ asset.balanceOf(SablierV2OpenEnded)_
-
-## Issues:
-
-#### Precision
-
-- Amount per second precision for tokens with fewer decimals: If one wants to stream 10 USDC per day, the
-  `amountPerSecond` should be 0.00011574074074074.., but with USDC having 6 decimals, it would be 0.000115, resulting in
-  9.936000 at the end of the day. (0.064000 loss at the end of the day)
-  - The solution approach: Normalize to 18 decimals for all stored amounts, i.e., `stream.amountPerSecond` and
-    `stream.balance`. Although this does not completely fix the issue, it minimizes it as much as possible. For the
-    example from above, at the end of the day the result would be 9.999999999999936000 (0.0000000000000064000 loss at
-    the end of the day). Currently, I don't think it's possible to address this precision problem entirely, given the
-    nature of open-endedness(no explicit duration of the stream).
 
 ## Questions:
 
