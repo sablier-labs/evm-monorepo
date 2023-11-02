@@ -5,7 +5,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { UD60x18, convert, ud } from "@prb/math/src/UD60x18.sol";
 
 import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
 import { Errors } from "./libraries/Errors.sol";
@@ -376,19 +375,19 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
     /// @dev Calculates the streamed amount.
     function _streamedAmountOf(uint256 streamId) internal view returns (uint128) {
-        uint256 currentTime = block.timestamp;
-        uint256 lastTimeUpdate = uint256(_streams[streamId].lastTimeUpdate);
+        uint128 currentTime = uint128(block.timestamp);
+        uint128 lastTimeUpdate = uint128(_streams[streamId].lastTimeUpdate);
 
         // Calculate the amount streamed since last update. Each number is normalized to 18 decimals.
         unchecked {
             // Calculate how much time has passed since the last update.
-            UD60x18 elapsedTime = convert(currentTime - lastTimeUpdate);
+            uint128 elapsedTime = currentTime - lastTimeUpdate;
 
             // Calculate the streamed amount by multiplying the elapsed time by the amount per second.
-            UD60x18 amountPerSecond = ud(_streams[streamId].amountPerSecond);
-            UD60x18 streamedAmount = elapsedTime.mul(amountPerSecond);
+            uint128 amountPerSecond = _streams[streamId].amountPerSecond;
+            uint128 streamedAmount = elapsedTime * amountPerSecond;
 
-            return uint128(streamedAmount.intoUint256());
+            return streamedAmount;
         }
     }
 
