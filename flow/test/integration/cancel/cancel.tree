@@ -1,0 +1,33 @@
+cancel.t.sol
+├── when delegate called
+│  └── it should revert
+└── when not delegate called
+   ├── given the id references a null stream
+   │  └── it should revert
+   └── given the id does not reference a null stream
+      ├── given the id references a canceled stream
+      │  └── it should revert
+      └── given the id does not reference a canceled stream
+          ├── when the caller is unauthorized
+          │  ├── when the caller is the recipient
+          │  │  └── it should revert
+          │  └── when the caller is a malicious third party
+          │     └── it should revert
+          └── when the caller is authorized
+             ├── given the refundable amount and the withdrawable amounts are zero
+             │  ├── it should cancel the stream
+             │  ├── it should update the amount per second
+             │  └── it should update the stream balance
+             └── given the refundable amount and the withdrawable amounts are not zero
+                ├── given the asset does not have 18 decimals
+                │  ├── it should cancel the stream
+                │  ├── it should update the amount per second
+                │  ├── it should update the stream balance
+                │  ├── it should perform the ERC-20 transfers
+                │  └── it should emit two {Transfer} events and a {CancelOpenEndedStream} event
+                └── given the asset has 18 decimals
+                   ├── it should cancel the stream
+                   ├── it should update the amount per second
+                   ├── it should update the stream balance
+                   ├── it should perform the ERC-20 transfers
+                   └── it should emit two {Transfer} events and a {CancelOpenEndedStream} event
