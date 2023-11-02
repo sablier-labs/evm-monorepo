@@ -1,0 +1,26 @@
+restartStream.t.sol
+├── when delegate called
+│  └── it should revert
+└── when not delegate called
+   ├── given the id references a null stream
+   │  └── it should revert
+   └── given the id does not reference a null stream
+      ├── given the id does not references a canceled stream
+      │  └── it should revert
+      └── given the id reference a canceled stream
+         ├── when the caller is unauthorized
+         │  ├── when the caller is the sender
+         │  │  └── it should revert
+         │  └── when the caller is a malicious third party
+         │     └── it should revert
+         └── when the caller is authorized
+            ├── when the provided amount per second is zero
+            │  └── it should revert
+            └── when the provided amount per second is not zero
+               ├── when the provided amount per second is zero
+               │  └── it should revert
+               └── when the provided amount per second is not zero
+                  ├── it should restart the stream
+                  ├── it should update the amount per second
+                  ├── it should update the time
+                  └── it should emit a {RestartOpenEndedStream} event
