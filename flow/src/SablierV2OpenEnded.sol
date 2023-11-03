@@ -207,7 +207,6 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         IERC20 asset
     )
         external
-        noDelegateCall
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
@@ -223,7 +222,6 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         uint128 depositAmount
     )
         external
-        noDelegateCall
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
@@ -497,6 +495,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         IERC20 asset
     )
         internal
+        noDelegateCall
         returns (uint256 streamId)
     {
         // Checks: the sender is not the zero address.
