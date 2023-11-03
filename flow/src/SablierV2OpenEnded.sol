@@ -651,7 +651,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         address recipient = _streams[streamId].recipient;
 
         // Checks: `msg.sender` is the stream's sender or the stream's recipient.
-        if (!isCallerStreamSender && !(msg.sender == recipient)) {
+        if (!isCallerStreamSender && msg.sender != recipient) {
             revert Errors.SablierV2OpenEnded_Unauthorized(streamId, msg.sender);
         }
 
