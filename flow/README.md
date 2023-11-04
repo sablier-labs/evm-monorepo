@@ -1,17 +1,57 @@
-## Issues:
+## Sablier V2 Open-Ended
 
-#### Precision
+This repository contains the smart contracts for the EOES (EVM open-ended streams) product. By open-ended, we mean that
+the streams have no fixed duration. I have to add that this product is primarily beneficial for salaries and not for
+vesting or airdrops, where lockups are more appropriate.
 
-- Amount per second precision for tokens with fewer decimals: If one wants to stream 10 USDC per day, the
-  `amountPerSecond` should be 0.00011574074074074.., but with USDC having 6 decimals, it would be 0.000115, resulting in
-  9.936000 at the end of the day. (0.064000 loss at the end of the day)
-  - The solution approach: Normalize to 18 decimals for all stored amounts, i.e., `stream.amountPerSecond` and
-    `stream.balance`. Although this does not completely fix the issue, it minimizes it as much as possible. For the
-    example from above, at the end of the day the result would be 9.999999999999936000 (0.0000000000000064000 loss at
-    the end of the day). Currently, I don't think it's possible to address this precision problem entirely, given the
-    nature of open-endedness(no explicit duration of the stream).
+### Motivation
 
-## Decisions
+One of the most requested feature from Sablier users is the ability to create streams without depositing the full amount
+at start, i.e. the top-up functionality, which introduces the idea of _debt_ . This has been made possible by
+introducing an internal balance in the Stream entity:
+
+```solidity
+  struct Stream {
+      uint128 balance;
+      /// rest of the types
+  }
+```
+
+### Features
+
+- Top up, which are public (you can ask a friend to deposit money for you instead)
+- No deposits are required at the time of stream creation; thus, creation and deposit are distinct operations.
+- There are no deposit limits.
+- Streams can be created for an indefinite period, they will be collecting debt until the sender cancels the stream.
+- Ability to pause and restart streams.
+- The sender can refund from the stream balance at any time.
+  - This is only possible when the stream balance exceeds the withdrawable amount. For example, if a stream has a
+    balance of 100 DAI and a withdrawable amount of 50 DAI, the sender can refund up to 50 DAI from the stream.
+
+### Issues:
+
+Due to the lack of a fixed duration and a fixed deposit amount, we must store a rate per second in the Stream entity,
+which introduces a precision problem for assets with fewer decimals (e.g.
+[USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s), which has 6 decimals).
+
+Let's consider this example: If someone wants to stream 10 USDC per day, the rate per second should be
+0.000115740740740740740740... (with many decimals), but since USDC only has 6 decimals, the rate per second would be
+limited to _0.000115_. This leads to _0.000115\*one_day_in_seconds = 9.936000_ at the end of the day, resulting in a
+_0.064000_ loss each day. As you can see this is problematic.
+
+#### How to prevent this
+
+In the contracts we normalize to 18 decimals all internal amounts, i.e. the rate per second and the balance. While this
+doesn't completely solves the issue, it minimizes it significantly.
+
+Using the above example (stream of 10 USDC per day), if the rate per seconds has 18 decimals, at the end of the day the
+result would be _0.000115740740740740\*one_day_in_seconds = 9.999999999999936000_. A _0.0000000000000064000_ loss at the
+end of each day. This is not ideal but clearly much better, especially if you do the math: _0.000000000002336_ loss at
+the end of the year.
+
+Currently, I don't think it's possible to address this precision problem entirely, given the nature of open-endedness.
+
+### Technical decisions
 
 Asset decimals can’t be passed in create function because one may create a fake stream with less or more decimals and in
 this way he may extract more assets from stream.
@@ -30,7 +70,7 @@ Sender address **must** be checked because there is no ERC20 transfer in `_creat
 In `_cancel` function we can perform both sender and recipient ERC20 transfers because there is no NFT so we don’t have
 to worry about [this issue](https://github.com/cantinasec/review-sablier/issues/11).
 
-## Invariants:
+### Invariants:
 
 _balance = withdrawable amount + refundable amount_
 
@@ -44,13 +84,13 @@ _sum of withdrawn amounts ≤ sum of deposits_
 
 _sum of stream balances normilized to asset decimals ≤ asset.balanceOf(SablierV2OpenEnded)_
 
-## Questions:
+### Questions:
 
 Should we update the time in `_cancel`?
 
-Should we add TimeUpdated event?
+Should we add `TimeUpdated` event?
 
-Should we add pausable functionality? It would be basically a cancel function
+Should we add pausable function? It would be basically a cancel function
 
 ### TODOs:
 
@@ -58,5 +98,3 @@ Should we add pausable functionality? It would be basically a cancel function
 - withdrawMultiple
 - add broker fees and protocol fees (implicitely comptroller + adminable contract)
   - The fee should be on `create` or on `deposit` ? both?
-- explain what is different
-- explain how it works
