@@ -1,8 +1,8 @@
 ## Sablier V2 Open-Ended
 
 This repository contains the smart contracts for the EOES (EVM open-ended streams) product. By open-ended, we mean that
-the streams have no fixed duration. I have to add that this product is primarily beneficial for salaries and not for
-vesting or airdrops, where lockups are more appropriate.
+the streams have no fixed duration. This product is primarily beneficial for salaries and not for vesting or airdrops,
+where lockups are more appropriate.
 
 ### Motivation
 
@@ -53,22 +53,27 @@ Currently, I don't think it's possible to address this precision problem entirel
 
 ### Technical decisions
 
-Asset decimals can’t be passed in create function because one may create a fake stream with less or more decimals and in
-this way he may extract more assets from stream.
+We use 18 fixed-point numbers for all internal amounts (`balance`, `amountPerSecond`, `withdrawable`, `refundable`) to
+avoid the overload of conversion to actual `ERC20` balances. The only time we perform these conversions is during
+external calls, i.e. the deposit and extract operations.
+
+We need to either increase or reduce the calculated amount based on the each asset decimals:
+
+- if the asset has fewer decimals, the transfer amount is reduced
+- if the asset has more decimals, the transfer amount is increased
+
+Asset decimals can’t be passed in `create` function because one may create a fake stream with more decimals and in this
+way he may extract more assets from stream.
 
 We store the asset decimals, so that we don't have to make an external call to get the decimals of the asset each time a
 deposit or an extraction is made. Decimals are `uint8`, meaning it is not an expensive operation to store them.
 
-We use 18 fixed-point numbers for all internal amounts (`balance`, `amountPerSecond`, `withdrawable`, `refundable`) to
-avoid the overload of conversion to actual ERC20 balances. The only time we perform these conversions is during external
-calls, i.e. the deposit and extract operations.
-
 Recipient address **must** be checked because there is no NFT minted in `_create` function.
 
-Sender address **must** be checked because there is no ERC20 transfer in `_create` function.
+Sender address **must** be checked because there is no `ERC20` transfer in `_create` function.
 
-In `_cancel` function we can perform both sender and recipient ERC20 transfers because there is no NFT so we don’t have
-to worry about [this issue](https://github.com/cantinasec/review-sablier/issues/11).
+In `_cancel` function we can perform both sender and recipient `ERC20` transfers because there is no NFT so we don’t
+have to worry about [this issue](https://github.com/cantinasec/review-sablier/issues/11).
 
 ### Invariants:
 
@@ -90,7 +95,7 @@ Should we update the time in `_cancel`?
 
 Should we add `TimeUpdated` event?
 
-Should we add pausable function? It would be basically a cancel function
+Should we add `pause` function? Basically it would be a duplication of `cancel` function.
 
 ### TODOs:
 
