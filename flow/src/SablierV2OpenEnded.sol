@@ -152,7 +152,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     /// @inheritdoc ISablierV2OpenEnded
     function streamDebt(uint256 streamId) external view notCanceled(streamId) returns (uint128 debt) {
         uint128 balance = _streams[streamId].balance;
-        uint128 streamedAmount = _streamedAmountOf(streamId);
+        uint128 streamedAmount = _streamedAmountOf(streamId, uint40(block.timestamp));
 
         if (balance >= streamedAmount) {
             return 0;
@@ -163,7 +163,20 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
     /// @inheritdoc ISablierV2OpenEnded
     function streamedAmountOf(uint256 streamId) external view notCanceled(streamId) returns (uint128 streamedAmount) {
-        streamedAmount = _streamedAmountOf(streamId);
+        streamedAmount = _streamedAmountOf(streamId, uint40(block.timestamp));
+    }
+
+    /// @inheritdoc ISablierV2OpenEnded
+    function streamedAmountOf(
+        uint256 streamId,
+        uint40 time
+    )
+        external
+        view
+        notCanceled(streamId)
+        returns (uint128 streamedAmount)
+    {
+        streamedAmount = _streamedAmountOf(streamId, time);
     }
 
     /// @inheritdoc ISablierV2OpenEnded
@@ -299,9 +312,15 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function withdraw(uint256 streamId, address to, uint128 amount) external noDelegateCall notCanceled(streamId) {
+    function withdraw(uint256 streamId, address to, uint40 time) external {
         // Checks, Effects and Interactions: make the withdrawal.
-        _withdraw(streamId, to, amount);
+        _withdraw(streamId, to, time);
+    }
+
+    /// @inheritdoc ISablierV2OpenEnded
+    function withdrawMax(uint256 streamId, address to) external {
+        // Checks, Effects and Interactions: make the withdrawal.
+        _withdraw(streamId, to, uint40(block.timestamp));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -372,14 +391,18 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @dev Calculates the streamed amount.
-    function _streamedAmountOf(uint256 streamId) internal view returns (uint128) {
-        uint128 currentTime = uint128(block.timestamp);
+    function _streamedAmountOf(uint256 streamId, uint40 time) internal view returns (uint128) {
         uint128 lastTimeUpdate = uint128(_streams[streamId].lastTimeUpdate);
+
+        // If the time reference is less than or equal to the `lastTimeUpdate`, return zero.
+        if (time <= lastTimeUpdate) {
+            return 0;
+        }
 
         // Calculate the amount streamed since last update. Each number is normalized to 18 decimals.
         unchecked {
             // Calculate how much time has passed since the last update.
-            uint128 elapsedTime = currentTime - lastTimeUpdate;
+            uint128 elapsedTime = time - lastTimeUpdate;
 
             // Calculate the streamed amount by multiplying the elapsed time by the rate per second.
             uint128 ratePerSecond = _streams[streamId].ratePerSecond;
@@ -397,7 +420,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             return 0;
         }
 
-        uint128 streamedAmount = _streamedAmountOf(streamId);
+        uint128 streamedAmount = _streamedAmountOf(streamId, uint40(block.timestamp));
 
         // If there has been streamed more than how much is available, return the stream balance.
         if (streamedAmount >= balance) {
@@ -435,7 +458,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         _streams[streamId].ratePerSecond = newRatePerSecond;
 
         // Effects: update the stream time.
-        _updateTime(streamId);
+        _updateTime(streamId, uint40(block.timestamp));
 
         // Effects and Interactions: withdraw the assets to the recipient, if any assets available.
         if (recipientAmount > 0) {
@@ -632,7 +655,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         _streams[streamId].isCanceled = false;
 
         // Effects: update the stream time.
-        _updateTime(streamId);
+        _updateTime(streamId, uint40(block.timestamp));
 
         // Log the restart.
         emit ISablierV2OpenEnded.RestartOpenEndedStream(
@@ -641,12 +664,12 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @dev Sets the stream time to the current block timestamp.
-    function _updateTime(uint256 streamId) internal {
-        _streams[streamId].lastTimeUpdate = uint40(block.timestamp);
+    function _updateTime(uint256 streamId, uint40 time) internal {
+        _streams[streamId].lastTimeUpdate = time;
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdraw(uint256 streamId, address to, uint128 amount) internal {
+    function _withdraw(uint256 streamId, address to, uint40 time) internal noDelegateCall notCanceled(streamId) {
         bool isCallerStreamSender = _isCallerStreamSender(streamId);
         address recipient = _streams[streamId].recipient;
 
@@ -665,29 +688,32 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             revert Errors.SablierV2OpenEnded_WithdrawToZeroAddress();
         }
 
-        uint128 withdrawableAmount = _withdrawableAmountOf(streamId);
+        uint40 lastTimeUpdate = _streams[streamId].lastTimeUpdate;
 
-        // Checks: the amount is not zero.
-        if (amount == 0) {
-            revert Errors.SablierV2OpenEnded_WithdrawAmountZero();
+        // Checks: the time reference is greater than the `lastTimeUpdate`.
+        if (time <= lastTimeUpdate) {
+            revert Errors.SablierV2OpenEnded_TimeNotGreaterThanLastUpdate(time, lastTimeUpdate);
         }
 
-        // Checks: the amount is not greater than what is available.
-        if (amount > withdrawableAmount) {
-            revert Errors.SablierV2OpenEnded_Overdraw(streamId, amount, withdrawableAmount);
+        // Checks: the time reference is less than or equal to the current time.
+        if (time > uint40(block.timestamp)) {
+            revert Errors.SablierV2OpenEnded_TimeNotLessOrEqualToCurrentTime(time, uint40(block.timestamp));
         }
 
-        // Although the withdrawable amount should never exceed the balance, this condition is checked to avoid exploits
+        // Calculate how much to withdraw based on the time reference.
+        uint128 withdrawAmount = _streamedAmountOf(streamId, time);
+
+        // Although the withdraw amount should never exceed the balance, this condition is checked to avoid exploits
         // in case of a bug.
-        _checkCalculatedAmount(streamId, withdrawableAmount);
+        _checkCalculatedAmount(streamId, withdrawAmount);
 
         // Effects: update the stream time.
-        _updateTime(streamId);
+        _updateTime(streamId, time);
 
         // Effects and interactions: update the `balance` and perform the ERC-20 transfer.
-        _extractFromStream(streamId, to, amount);
+        _extractFromStream(streamId, to, withdrawAmount);
 
         // Log the withdrawal.
-        emit ISablierV2OpenEnded.WithdrawFromOpenEndedStream(streamId, to, _streams[streamId].asset, amount);
+        emit ISablierV2OpenEnded.WithdrawFromOpenEndedStream(streamId, to, _streams[streamId].asset, withdrawAmount);
     }
 }
