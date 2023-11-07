@@ -10,8 +10,8 @@ abstract contract Events {
         uint256 indexed streamId,
         IERC20 indexed asset,
         uint128 recipientAmount,
-        uint128 oldAmountPerSecond,
-        uint128 newAmountPerSecond
+        uint128 oldRatePerSecond,
+        uint128 newRatePerSecond
     );
 
     event CancelOpenEndedStream(
@@ -27,7 +27,7 @@ abstract contract Events {
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
-        uint128 amountPerSecond,
+        uint128 ratePerSecond,
         IERC20 asset,
         uint40 lastTimeUpdate
     );
@@ -41,7 +41,7 @@ abstract contract Events {
     );
 
     event RestartOpenEndedStream(
-        uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 amountPerSecond
+        uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 ratePerSecond
     );
 
     event WithdrawFromOpenEndedStream(

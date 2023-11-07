@@ -169,7 +169,7 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
             uint256 streamId = openEndedStore.streamIds(i);
             if (openEnded.isCanceled(streamId)) {
                 assertEq(
-                    openEnded.getAmountPerSecond(streamId),
+                    openEnded.getratePerSecond(streamId),
                     0,
                     "Invariant violation: canceled stream with a non-zero amount per second"
                 );

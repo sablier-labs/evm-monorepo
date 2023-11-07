@@ -171,7 +171,7 @@ contract OpenEndedHandler is BaseHandler {
     function restartStream(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        uint128 amountPerSecond
+        uint128 ratePerSecond
     )
         external
         instrument("restartStream")
@@ -185,16 +185,16 @@ contract OpenEndedHandler is BaseHandler {
         }
 
         // Bound the stream parameter.
-        amountPerSecond = uint128(_bound(amountPerSecond, 0.0001e18, 1e18));
+        ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
 
         // Restart the stream.
-        openEnded.restartStream(currentStreamId, amountPerSecond);
+        openEnded.restartStream(currentStreamId, ratePerSecond);
     }
 
     function restartStreamAndDeposit(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
-        uint128 amountPerSecond,
+        uint128 ratePerSecond,
         uint128 depositAmount
     )
         external
@@ -209,7 +209,7 @@ contract OpenEndedHandler is BaseHandler {
         }
 
         // Bound the stream parameter.
-        amountPerSecond = uint128(_bound(amountPerSecond, 0.0001e18, 1e18));
+        ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
         depositAmount = uint128(_bound(depositAmount, 100e18, 1_000_000_000e18));
 
         // Mint enough assets to the Sender.
@@ -220,7 +220,7 @@ contract OpenEndedHandler is BaseHandler {
         asset.approve({ spender: address(openEnded), value: depositAmount });
 
         // Restart the stream.
-        openEnded.restartStreamAndDeposit(currentStreamId, amountPerSecond, depositAmount);
+        openEnded.restartStreamAndDeposit(currentStreamId, ratePerSecond, depositAmount);
 
         // Store the deposited amount.
         openEndedStore.updateStreamDepositedAmountsSum(depositAmount);

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-3.0
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.20;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -13,14 +13,14 @@ interface ISablierV2OpenEnded {
     /// @notice Emitted when the sender changes the amount per second.
     /// @param streamId The id of the stream.
     /// @param recipientAmount The amount of assets withdrawn to the recipient, denoted in 18 decimals.
-    /// @param oldAmountPerSecond The amount per second to change.
-    /// @param newAmountPerSecond The newly changed amount per second.
+    /// @param oldRatePerSecond The amount per second to change.
+    /// @param newRatePerSecond The newly changed amount per second.
     event AdjustOpenEndedStream(
         uint256 indexed streamId,
         IERC20 indexed asset,
         uint128 recipientAmount,
-        uint128 oldAmountPerSecond,
-        uint128 newAmountPerSecond
+        uint128 oldRatePerSecond,
+        uint128 newRatePerSecond
     );
 
     /// @notice Emitted when a open-ended stream is canceled.
@@ -44,14 +44,14 @@ interface ISablierV2OpenEnded {
     /// @param sender The address from which to stream the assets, which has the ability to
     /// adjust and cancel the stream.
     /// @param recipient The address toward which to stream the assets.
-    /// @param amountPerSecond The amount of assets that is increasing by every second.
+    /// @param ratePerSecond The amount of assets that is increasing by every second.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param lastTimeUpdate The Unix timestamp for the streamed amount calculation.
     event CreateOpenEndedStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
-        uint128 amountPerSecond,
+        uint128 ratePerSecond,
         IERC20 asset,
         uint40 lastTimeUpdate
     );
@@ -78,9 +78,9 @@ interface ISablierV2OpenEnded {
     /// @param streamId The id of the open-ended stream.
     /// @param sender The address of the stream's sender.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param amountPerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
+    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     event RestartOpenEndedStream(
-        uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 amountPerSecond
+        uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 ratePerSecond
     );
 
     /// @notice Emitted when assets are withdrawn from a open-ended stream.
@@ -99,7 +99,7 @@ interface ISablierV2OpenEnded {
     /// @notice Retrieves the amount per second of the stream, denoted in 18 decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The id of the stream to make the query for.
-    function getAmountPerSecond(uint256 streamId) external view returns (uint128 amountPerSecond);
+    function getratePerSecond(uint256 streamId) external view returns (uint128 ratePerSecond);
 
     /// @notice Retrieves the asset of the stream.
     /// @dev Reverts if `streamId` references a null stream.
@@ -188,12 +188,12 @@ interface ISablierV2OpenEnded {
     /// - `streamId` must not reference a null stream.
     /// - `streamId` must not reference a canceled stream.
     /// - `msg.sender` must be the stream's sender.
-    /// - `newAmountPerSecond` must be greater than zero.
-    /// - `newAmountPerSecond` must not be equal to the actual amount per second.
+    /// - `newRatePerSecond` must be greater than zero.
+    /// - `newRatePerSecond` must not be equal to the actual amount per second.
     ///
     /// @param streamId The id of the stream to adjust.
-    /// @param newAmountPerSecond The new amount per second of the open-ended stream, denoted in 18 decimals.
-    function adjustAmountPerSecond(uint256 streamId, uint128 newAmountPerSecond) external;
+    /// @param newRatePerSecond The new amount per second of the open-ended stream, denoted in 18 decimals.
+    function adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) external;
 
     /// @notice Cancels the stream and refunds any remaining assets to the sender.
     ///
@@ -216,20 +216,20 @@ interface ISablierV2OpenEnded {
     /// - Must not be delegate called.
     /// - `recipient` must not be the zero address.
     /// - `sender` must not be the zero address.
-    /// - `amountPerSecond` must be greater than zero.
+    /// - `ratePerSecond` must be greater than zero.
     /// - 'asset' must have valid decimals.
     ///
     /// @param recipient The address receiving the assets.
     /// @param sender The address streaming the assets, with the ability to adjust and cancel the stream. It doesn't
     /// have
     /// to be the same as `msg.sender`.
-    /// @param amountPerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
+    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @return streamId The id of the newly created stream.
     function create(
         address recipient,
         address sender,
-        uint128 amountPerSecond,
+        uint128 ratePerSecond,
         IERC20 asset
     )
         external
@@ -247,14 +247,14 @@ interface ISablierV2OpenEnded {
     /// @param recipient The address receiving the assets.
     /// @param sender The address streaming the assets, with the ability to adjust and cancel the stream. It doesn't
     /// have to be the same as `msg.sender`.
-    /// @param amountPerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
+    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param depositAmount The amount deposited in the stream.
     /// @return streamId The id of the newly created stream.
     function createAndDeposit(
         address recipient,
         address sender,
-        uint128 amountPerSecond,
+        uint128 ratePerSecond,
         IERC20 asset,
         uint128 depositAmount
     )
@@ -311,11 +311,11 @@ interface ISablierV2OpenEnded {
     // - `streamId` must not reference a null stream.
     /// - `streamId` must reference a canceled stream.
     /// - `msg.sender` must be the stream's sender.
-    /// - `amountPerSecond` must be greater than zero.
+    /// - `ratePerSecond` must be greater than zero.
     ///
     /// @param streamId The id of the stream to restart.
-    /// @param amountPerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    function restartStream(uint256 streamId, uint128 amountPerSecond) external;
+    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
+    function restartStream(uint256 streamId, uint128 ratePerSecond) external;
 
     /// @notice Restarts the stream with the provided amount per second, and deposits `depositAmount` in the stream
     /// balance.
@@ -327,9 +327,9 @@ interface ISablierV2OpenEnded {
     /// - Refer to the requirements in {restartStream}.
     ///
     /// @param streamId The id of the stream to restart.
-    /// @param amountPerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
+    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param depositAmount The amount deposited in the stream.
-    function restartStreamAndDeposit(uint256 streamId, uint128 amountPerSecond, uint128 depositAmount) external;
+    function restartStreamAndDeposit(uint256 streamId, uint128 ratePerSecond, uint128 depositAmount) external;
 
     /// @notice Withdraws the provided amount of assets from the stream to the `to` address.
     ///

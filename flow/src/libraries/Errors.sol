@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-3.0
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.20;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -18,10 +18,10 @@ library Errors {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when trying to set the amount per second of a stream to zero.
-    error SablierV2OpenEnded_AmountPerSecondZero();
+    error SablierV2OpenEnded_ratePerSecondZero();
 
     /// @notice Thrown when trying to change the amount per second with the same amount per second.
-    error SablierV2OpenEnded_AmountPerSecondNotDifferent(uint128 amountPerSecond);
+    error SablierV2OpenEnded_ratePerSecondNotDifferent(uint128 ratePerSecond);
 
     /// @notice Thrown when trying to create a OpenEnded stream with a zero deposit amount.
     error SablierV2OpenEnded_DepositAmountZero();

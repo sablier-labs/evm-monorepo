@@ -45,7 +45,7 @@ contract OpenEndedCreateHandler is BaseHandler {
         uint256 timeJumpSeed,
         address sender,
         address recipient,
-        uint128 amountPerSecond
+        uint128 ratePerSecond
     )
         public
         instrument("createAndDeposit")
@@ -59,11 +59,11 @@ contract OpenEndedCreateHandler is BaseHandler {
         }
 
         // Bound the stream parameters.
-        amountPerSecond = uint128(_bound(amountPerSecond, 0.0001e18, 1e18));
+        ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
 
         // Create the stream.
         asset = asset;
-        uint256 streamId = openEnded.create(sender, recipient, amountPerSecond, asset);
+        uint256 streamId = openEnded.create(sender, recipient, ratePerSecond, asset);
 
         // Store the stream id.
         openEndedStore.pushStreamId(streamId, sender, recipient);
@@ -73,7 +73,7 @@ contract OpenEndedCreateHandler is BaseHandler {
         uint256 timeJumpSeed,
         address sender,
         address recipient,
-        uint128 amountPerSecond,
+        uint128 ratePerSecond,
         uint128 depositAmount
     )
         public
@@ -88,7 +88,7 @@ contract OpenEndedCreateHandler is BaseHandler {
         }
 
         // Bound the stream parameters.
-        amountPerSecond = uint128(_bound(amountPerSecond, 0.0001e18, 1e18));
+        ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
         depositAmount = uint128(_bound(depositAmount, 100e18, 1_000_000_000e18));
 
         // Mint enough assets to the Sender.
@@ -99,7 +99,7 @@ contract OpenEndedCreateHandler is BaseHandler {
 
         // Create the stream.
         asset = asset;
-        uint256 streamId = openEnded.createAndDeposit(sender, recipient, amountPerSecond, asset, depositAmount);
+        uint256 streamId = openEnded.createAndDeposit(sender, recipient, ratePerSecond, asset, depositAmount);
 
         // Store the stream id.
         openEndedStore.pushStreamId(streamId, sender, recipient);

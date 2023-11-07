@@ -23,7 +23,7 @@ abstract contract Assertions is Test {
 
     /// @dev Compares two {OpenEnded.Stream} struct entities.
     function assertEq(OpenEnded.Stream memory a, OpenEnded.Stream memory b) internal {
-        assertEq(a.amountPerSecond, b.amountPerSecond, "amountPerSecond");
+        assertEq(a.ratePerSecond, b.ratePerSecond, "ratePerSecond");
         assertEq(a.asset, b.asset, "asset");
         assertEq(a.assetDecimals, b.assetDecimals, "assetDecimals");
         assertEq(a.balance, b.balance, "balance");

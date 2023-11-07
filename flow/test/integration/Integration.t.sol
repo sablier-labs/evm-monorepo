@@ -28,7 +28,7 @@ abstract contract Integration_Test is Base_Test {
         return openEnded.create({
             sender: users.sender,
             recipient: users.recipient,
-            amountPerSecond: AMOUNT_PER_SECOND,
+            ratePerSecond: RATE_PER_SECOND,
             asset: asset_
         });
     }

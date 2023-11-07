@@ -71,14 +71,14 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2OpenEnded
-    function getAmountPerSecond(uint256 streamId)
+    function getratePerSecond(uint256 streamId)
         external
         view
         override
         notNull(streamId)
-        returns (uint128 amountPerSecond)
+        returns (uint128 ratePerSecond)
     {
-        amountPerSecond = _streams[streamId].amountPerSecond;
+        ratePerSecond = _streams[streamId].ratePerSecond;
     }
 
     /// @inheritdoc ISablierV2OpenEnded
@@ -181,9 +181,9 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2OpenEnded
-    function adjustAmountPerSecond(
+    function adjustRatePerSecond(
         uint256 streamId,
-        uint128 newAmountPerSecond
+        uint128 newRatePerSecond
     )
         external
         noDelegateCall
@@ -191,7 +191,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         onlySender(streamId)
     {
         // Effects and Interactions: adjust the stream.
-        _adjustAmountPerSecond(streamId, newAmountPerSecond);
+        _adjustRatePerSecond(streamId, newRatePerSecond);
     }
 
     /// @inheritdoc ISablierV2OpenEnded
@@ -203,21 +203,21 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     function create(
         address sender,
         address recipient,
-        uint128 amountPerSecond,
+        uint128 ratePerSecond,
         IERC20 asset
     )
         external
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(sender, recipient, amountPerSecond, asset);
+        streamId = _create(sender, recipient, ratePerSecond, asset);
     }
 
     /// @inheritdoc ISablierV2OpenEnded
     function createAndDeposit(
         address sender,
         address recipient,
-        uint128 amountPerSecond,
+        uint128 ratePerSecond,
         IERC20 asset,
         uint128 depositAmount
     )
@@ -225,7 +225,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _create(sender, recipient, amountPerSecond, asset);
+        streamId = _create(sender, recipient, ratePerSecond, asset);
 
         // Checks, Effects and Interactions: deposit on stream.
         _deposit(streamId, depositAmount);
@@ -270,15 +270,15 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function restartStream(uint256 streamId, uint128 amountPerSecond) external {
+    function restartStream(uint256 streamId, uint128 ratePerSecond) external {
         // Checks, Effects and Interactions: restart the stream.
-        _restartStream(streamId, amountPerSecond);
+        _restartStream(streamId, ratePerSecond);
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function restartStreamAndDeposit(uint256 streamId, uint128 amountPerSecond, uint128 depositAmount) external {
+    function restartStreamAndDeposit(uint256 streamId, uint128 ratePerSecond, uint128 depositAmount) external {
         // Checks, Effects and Interactions: restart the stream.
-        _restartStream(streamId, amountPerSecond);
+        _restartStream(streamId, ratePerSecond);
 
         // Checks, Effects and Interactions: deposit on stream.
         _deposit(streamId, depositAmount);
@@ -382,8 +382,8 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             uint128 elapsedTime = currentTime - lastTimeUpdate;
 
             // Calculate the streamed amount by multiplying the elapsed time by the amount per second.
-            uint128 amountPerSecond = _streams[streamId].amountPerSecond;
-            uint128 streamedAmount = elapsedTime * amountPerSecond;
+            uint128 ratePerSecond = _streams[streamId].ratePerSecond;
+            uint128 streamedAmount = elapsedTime * ratePerSecond;
 
             return streamedAmount;
         }
@@ -412,17 +412,17 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _adjustAmountPerSecond(uint256 streamId, uint128 newAmountPerSecond) internal {
+    function _adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) internal {
         // Checks: the new amount per second is not zero.
-        if (newAmountPerSecond == 0) {
-            revert Errors.SablierV2OpenEnded_AmountPerSecondZero();
+        if (newRatePerSecond == 0) {
+            revert Errors.SablierV2OpenEnded_ratePerSecondZero();
         }
 
-        uint128 oldAmountPerSecond = _streams[streamId].amountPerSecond;
+        uint128 oldRatePerSecond = _streams[streamId].ratePerSecond;
 
         // Checks: the new amount per second is not equal to the actual amount per second.
-        if (newAmountPerSecond == oldAmountPerSecond) {
-            revert Errors.SablierV2OpenEnded_AmountPerSecondNotDifferent(newAmountPerSecond);
+        if (newRatePerSecond == oldRatePerSecond) {
+            revert Errors.SablierV2OpenEnded_ratePerSecondNotDifferent(newRatePerSecond);
         }
 
         uint128 recipientAmount = _withdrawableAmountOf(streamId);
@@ -432,7 +432,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         _checkCalculatedAmount(streamId, recipientAmount);
 
         // Effects: change the amount per second.
-        _streams[streamId].amountPerSecond = newAmountPerSecond;
+        _streams[streamId].ratePerSecond = newRatePerSecond;
 
         // Effects: update the stream time.
         _updateTime(streamId);
@@ -444,7 +444,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
         // Log the adjustment.
         emit ISablierV2OpenEnded.AdjustOpenEndedStream(
-            streamId, _streams[streamId].asset, recipientAmount, oldAmountPerSecond, newAmountPerSecond
+            streamId, _streams[streamId].asset, recipientAmount, oldRatePerSecond, newRatePerSecond
         );
     }
 
@@ -469,7 +469,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         _streams[streamId].isCanceled = true;
 
         // Effects: set the amount per second to zero.
-        _streams[streamId].amountPerSecond = 0;
+        _streams[streamId].ratePerSecond = 0;
 
         // Effects and Interactions: refund the sender, if any assets available.
         if (senderAmount > 0) {
@@ -491,7 +491,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     function _create(
         address sender,
         address recipient,
-        uint128 amountPerSecond,
+        uint128 ratePerSecond,
         IERC20 asset
     )
         internal
@@ -509,8 +509,8 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         }
 
         // Checks: the amount per second is not zero.
-        if (amountPerSecond == 0) {
-            revert Errors.SablierV2OpenEnded_AmountPerSecondZero();
+        if (ratePerSecond == 0) {
+            revert Errors.SablierV2OpenEnded_ratePerSecondZero();
         }
 
         uint8 assetDecimals = _safeAssetDecimals(address(asset));
@@ -525,7 +525,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
         // Effects: create the stream.
         _streams[streamId] = OpenEnded.Stream({
-            amountPerSecond: amountPerSecond,
+            ratePerSecond: ratePerSecond,
             asset: asset,
             assetDecimals: assetDecimals,
             balance: 0,
@@ -544,7 +544,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
         // Log the newly created stream.
         emit ISablierV2OpenEnded.CreateOpenEndedStream(
-            streamId, sender, recipient, amountPerSecond, asset, uint40(block.timestamp)
+            streamId, sender, recipient, ratePerSecond, asset, uint40(block.timestamp)
         );
     }
 
@@ -608,7 +608,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _restartStream(
         uint256 streamId,
-        uint128 amountPerSecond
+        uint128 ratePerSecond
     )
         internal
         noDelegateCall
@@ -621,12 +621,12 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         }
 
         // Checks: the amount per second is not zero.
-        if (amountPerSecond == 0) {
-            revert Errors.SablierV2OpenEnded_AmountPerSecondZero();
+        if (ratePerSecond == 0) {
+            revert Errors.SablierV2OpenEnded_ratePerSecondZero();
         }
 
         // Effects: set the amount per second.
-        _streams[streamId].amountPerSecond = amountPerSecond;
+        _streams[streamId].ratePerSecond = ratePerSecond;
 
         // Effects: set the stream as not canceled.
         _streams[streamId].isCanceled = false;
@@ -636,7 +636,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
         // Log the restart.
         emit ISablierV2OpenEnded.RestartOpenEndedStream(
-            streamId, _streams[streamId].sender, _streams[streamId].asset, amountPerSecond
+            streamId, _streams[streamId].sender, _streams[streamId].asset, ratePerSecond
         );
     }
 

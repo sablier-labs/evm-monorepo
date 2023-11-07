@@ -76,8 +76,8 @@ contract Cancel_Integration_Test is Integration_Test {
         uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
         assertEq(actualStreamBalance, 0, "stream balance");
 
-        uint256 actualAmountPerSecond = openEnded.getAmountPerSecond(defaultStreamId);
-        assertEq(actualAmountPerSecond, 0, "amount per second");
+        uint256 actualratePerSecond = openEnded.getratePerSecond(defaultStreamId);
+        assertEq(actualratePerSecond, 0, "amount per second");
     }
 
     function test_Cancel_AssetNot18Decimals()
@@ -157,7 +157,7 @@ contract Cancel_Integration_Test is Integration_Test {
         uint128 actualStreamBalance = openEnded.getBalance(streamId);
         assertEq(actualStreamBalance, 0, "stream balance");
 
-        uint256 actualAmountPerSecond = openEnded.getAmountPerSecond(streamId);
-        assertEq(actualAmountPerSecond, 0, "amount per second");
+        uint256 actualratePerSecond = openEnded.getratePerSecond(streamId);
+        assertEq(actualratePerSecond, 0, "amount per second");
     }
 }

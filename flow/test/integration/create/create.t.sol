@@ -16,33 +16,28 @@ contract Create_Integration_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2OpenEnded.create, (users.sender, users.recipient, AMOUNT_PER_SECOND, dai));
+            abi.encodeCall(ISablierV2OpenEnded.create, (users.sender, users.recipient, RATE_PER_SECOND, dai));
         _test_RevertWhen_DelegateCall(callData);
     }
 
     function test_RevertWhen_SenderZeroAddress() external whenNotDelegateCalled {
         vm.expectRevert(Errors.SablierV2OpenEnded_SenderZeroAddress.selector);
-        openEnded.create({
-            sender: address(0),
-            recipient: users.recipient,
-            amountPerSecond: AMOUNT_PER_SECOND,
-            asset: dai
-        });
+        openEnded.create({ sender: address(0), recipient: users.recipient, ratePerSecond: RATE_PER_SECOND, asset: dai });
     }
 
     function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled whenSenderNonZeroAddress {
         vm.expectRevert(Errors.SablierV2OpenEnded_RecipientZeroAddress.selector);
-        openEnded.create({ sender: users.sender, recipient: address(0), amountPerSecond: AMOUNT_PER_SECOND, asset: dai });
+        openEnded.create({ sender: users.sender, recipient: address(0), ratePerSecond: RATE_PER_SECOND, asset: dai });
     }
 
-    function test_RevertWhen_AmountPerSecondZero()
+    function test_RevertWhen_ratePerSecondZero()
         external
         whenNotDelegateCalled
         whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
     {
-        vm.expectRevert(Errors.SablierV2OpenEnded_AmountPerSecondZero.selector);
-        openEnded.create({ sender: users.sender, recipient: users.recipient, amountPerSecond: 0, asset: dai });
+        vm.expectRevert(Errors.SablierV2OpenEnded_ratePerSecondZero.selector);
+        openEnded.create({ sender: users.sender, recipient: users.recipient, ratePerSecond: 0, asset: dai });
     }
 
     function test_RevertWhen_AssetNotContract()
@@ -50,7 +45,7 @@ contract Create_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
-        whenAmountPerSecondNonZero
+        whenratePerSecondNonZero
     {
         address nonContract = address(8128);
         vm.expectRevert(
@@ -59,7 +54,7 @@ contract Create_Integration_Test is Integration_Test {
         openEnded.create({
             sender: users.sender,
             recipient: users.recipient,
-            amountPerSecond: AMOUNT_PER_SECOND,
+            ratePerSecond: RATE_PER_SECOND,
             asset: IERC20(nonContract)
         });
     }
@@ -69,7 +64,7 @@ contract Create_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
-        whenAmountPerSecondNonZero
+        whenratePerSecondNonZero
         whenAssetContract
     {
         uint256 expectedStreamId = openEnded.nextStreamId();
@@ -79,7 +74,7 @@ contract Create_Integration_Test is Integration_Test {
             streamId: expectedStreamId,
             sender: users.sender,
             recipient: users.recipient,
-            amountPerSecond: AMOUNT_PER_SECOND,
+            ratePerSecond: RATE_PER_SECOND,
             asset: dai,
             lastTimeUpdate: uint40(block.timestamp)
         });
@@ -87,13 +82,13 @@ contract Create_Integration_Test is Integration_Test {
         uint256 actualStreamId = openEnded.create({
             sender: users.sender,
             recipient: users.recipient,
-            amountPerSecond: AMOUNT_PER_SECOND,
+            ratePerSecond: RATE_PER_SECOND,
             asset: dai
         });
 
         OpenEnded.Stream memory actualStream = openEnded.getStream(actualStreamId);
         OpenEnded.Stream memory expectedStream = OpenEnded.Stream({
-            amountPerSecond: AMOUNT_PER_SECOND,
+            ratePerSecond: RATE_PER_SECOND,
             asset: dai,
             assetDecimals: 18,
             balance: 0,

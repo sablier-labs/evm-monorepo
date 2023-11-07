@@ -6,7 +6,7 @@ abstract contract Modifiers {
                                        COMMON
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenAmountPerSecondNonZero() {
+    modifier whenratePerSecondNonZero() {
         _;
     }
 
@@ -34,7 +34,7 @@ abstract contract Modifiers {
                               ADJUST-AMOUNT-PER-SECOND
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenAmountPerSecondNotDifferent() {
+    modifier whenratePerSecondNotDifferent() {
         _;
     }
 

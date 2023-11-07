@@ -53,7 +53,7 @@ Currently, I don't think it's possible to address this precision problem entirel
 
 ### Technical decisions
 
-We use 18 fixed-point numbers for all internal amounts (`balance`, `amountPerSecond`, `withdrawable`, `refundable`) to
+We use 18 fixed-point numbers for all internal amounts (`balance`, `ratePerSecond`, `withdrawable`, `refundable`) to
 avoid the overload of conversion to actual `ERC20` balances. The only time we perform these conversions is during
 external calls, i.e. the deposit and extract operations.
 
@@ -83,7 +83,7 @@ _withdrawable amount ≤ streamed amount_
 
 _lastTimeUpdate ≤ block.timestamp;_
 
-_if(isCanceled = true) then balance= 0 && amountPerSecond= 0_
+_if(isCanceled = true) then balance= 0 && ratePerSecond= 0_
 
 _sum of withdrawn amounts ≤ sum of deposits_
 

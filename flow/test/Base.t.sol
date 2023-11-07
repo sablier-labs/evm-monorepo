@@ -25,7 +25,7 @@ abstract contract Base_Test is Assertions, Events, Modifiers {
                                      DEFAULTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint128 public constant AMOUNT_PER_SECOND = 0.001e18; // 86.4 daily
+    uint128 public constant RATE_PER_SECOND = 0.001e18; // 86.4 daily
     uint128 public constant DEPOSIT_AMOUNT = 50_000e18;
     uint40 public immutable ONE_MONTH = 1 days * 30; // "30/360" convention
     uint128 public constant ONE_MONTH_STREAMED_AMOUNT = 2592e18; // 86.4 * 30
