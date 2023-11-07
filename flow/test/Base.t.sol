@@ -33,6 +33,7 @@ abstract contract Base_Test is Assertions, Events, Modifiers {
     uint128 public constant REFUND_AMOUNT = 10_000e18;
     uint40 public immutable WARP_ONE_MONTH;
     uint128 public constant WITHDRAW_AMOUNT = 2500e18;
+    uint40 public immutable WITHDRAW_TIME;
 
     Users internal users;
 
@@ -50,6 +51,7 @@ abstract contract Base_Test is Assertions, Events, Modifiers {
 
     constructor() {
         WARP_ONE_MONTH = uint40(block.timestamp + ONE_MONTH);
+        WITHDRAW_TIME = uint40(block.timestamp) + 2_500_000;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

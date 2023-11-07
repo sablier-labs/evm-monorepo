@@ -86,15 +86,15 @@ abstract contract Modifiers {
                                       WITHDRAW
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenNoOverdraw() {
-        _;
-    }
-
     modifier whenToNonZeroAddress() {
         _;
     }
 
-    modifier whenWithdrawAmountNotZero() {
+    modifier whenTimeNotGreaterThanCurrentTime() {
+        _;
+    }
+
+    modifier whenTimeNotLessThanLastUpdate() {
         _;
     }
 }

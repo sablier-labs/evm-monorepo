@@ -51,13 +51,26 @@ the end of the year.
 
 Currently, I don't think it's possible to address this precision problem entirely, given the nature of open-endedness.
 
+### How it works
+
+As I mentioned in the Features section, the creation and deposit operations are distinct. This means that when a stream
+is created, the balance will be set to 0.
+
+Since the streams are open-ended, we don't have a start time neither an end time, instead we have a time reference
+(`lastTimeUpdate`) which will be always set to `block.timestampt`. The actions that will update this time reference are:
+
+1. when the stream is created
+2. when a withdrawal is made
+3. when the rate per second is changed
+
+#### Streamed amount calculation
+
 ### Technical decisions
 
 We use 18 fixed-point numbers for all internal amounts (`balance`, `ratePerSecond`, `withdrawable`, `refundable`) to
 avoid the overload of conversion to actual `ERC20` balances. The only time we perform these conversions is during
-external calls, i.e. the deposit and extract operations.
-
-We need to either increase or reduce the calculated amount based on the each asset decimals:
+external calls to `ERC20s` transfer/transferFrom, i.e. the deposit and extract operations. We need to either increase or
+reduce the calculated amount(`withdrawable` or `refundable`) based on the each asset decimals:
 
 - if the asset has fewer decimals, the transfer amount is reduced
 - if the asset has more decimals, the transfer amount is increased
