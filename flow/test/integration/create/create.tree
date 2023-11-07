@@ -8,9 +8,9 @@ create.t.sol
       ├── when the recipient is the zero address
       │  └── it should revert
       └── when the recipient is not the zero address
-        ├── when the amount per second is zero
+        ├── when the rate per second is zero
         │  └── it should revert
-        └── when the amount per second is not zero
+        └── when the rate per second is not zero
             ├── when the asset is not a contract
             │  └── it should revert due to no decimals
             └── when the asset is a contract

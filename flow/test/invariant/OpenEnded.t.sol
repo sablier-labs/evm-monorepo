@@ -171,7 +171,7 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
                 assertEq(
                     openEnded.getratePerSecond(streamId),
                     0,
-                    "Invariant violation: canceled stream with a non-zero amount per second"
+                    "Invariant violation: canceled stream with a non-zero rate per second"
                 );
                 assertEq(
                     openEnded.getBalance(streamId), 0, "Invariant violation: canceled stream with a non-zero balance"

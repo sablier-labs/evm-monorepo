@@ -99,7 +99,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
 
         uint128 actualratePerSecond = openEnded.getratePerSecond(defaultStreamId);
         uint128 expectedratePerSecond = RATE_PER_SECOND;
-        assertEq(actualratePerSecond, expectedratePerSecond, "amount per second");
+        assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
 
         uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
         uint40 expectedLastTimeUpdate = uint40(block.timestamp - ONE_MONTH);
@@ -120,7 +120,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
 
         actualratePerSecond = openEnded.getratePerSecond(defaultStreamId);
         expectedratePerSecond = newRatePerSecond;
-        assertEq(actualratePerSecond, expectedratePerSecond, "amount per second");
+        assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
 
         actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
         expectedLastTimeUpdate = uint40(block.timestamp);
@@ -154,7 +154,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
 
         uint128 actualratePerSecond = openEnded.getratePerSecond(streamId);
         uint128 expectedratePerSecond = RATE_PER_SECOND;
-        assertEq(actualratePerSecond, expectedratePerSecond, "amount per second");
+        assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
 
         uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(streamId);
         uint40 expectedLastTimeUpdate = uint40(block.timestamp - ONE_MONTH);
@@ -188,7 +188,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
 
         actualratePerSecond = openEnded.getratePerSecond(streamId);
         expectedratePerSecond = newRatePerSecond;
-        assertEq(actualratePerSecond, expectedratePerSecond, "amount per second");
+        assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
 
         actualLastTimeUpdate = openEnded.getLastTimeUpdate(streamId);
         expectedLastTimeUpdate = uint40(block.timestamp);

@@ -14,13 +14,13 @@ restartStream.t.sol
          │  └── when the caller is a malicious third party
          │     └── it should revert
          └── when the caller is authorized
-            ├── when the provided amount per second is zero
+            ├── when the provided rate per second is zero
             │  └── it should revert
-            └── when the provided amount per second is not zero
-               ├── when the provided amount per second is zero
+            └── when the provided rate per second is not zero
+               ├── when the provided rate per second is zero
                │  └── it should revert
-               └── when the provided amount per second is not zero
+               └── when the provided rate per second is not zero
                   ├── it should restart the stream
-                  ├── it should update the amount per second
+                  ├── it should update the rate per second
                   ├── it should update the time
                   └── it should emit a {RestartOpenEndedStream} event

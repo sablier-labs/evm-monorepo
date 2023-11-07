@@ -77,7 +77,7 @@ contract Cancel_Integration_Test is Integration_Test {
         assertEq(actualStreamBalance, 0, "stream balance");
 
         uint256 actualratePerSecond = openEnded.getratePerSecond(defaultStreamId);
-        assertEq(actualratePerSecond, 0, "amount per second");
+        assertEq(actualratePerSecond, 0, "rate per second");
     }
 
     function test_Cancel_AssetNot18Decimals()
@@ -158,6 +158,6 @@ contract Cancel_Integration_Test is Integration_Test {
         assertEq(actualStreamBalance, 0, "stream balance");
 
         uint256 actualratePerSecond = openEnded.getratePerSecond(streamId);
-        assertEq(actualratePerSecond, 0, "amount per second");
+        assertEq(actualratePerSecond, 0, "rate per second");
     }
 }

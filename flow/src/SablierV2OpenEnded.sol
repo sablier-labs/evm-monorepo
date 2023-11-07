@@ -381,7 +381,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             // Calculate how much time has passed since the last update.
             uint128 elapsedTime = currentTime - lastTimeUpdate;
 
-            // Calculate the streamed amount by multiplying the elapsed time by the amount per second.
+            // Calculate the streamed amount by multiplying the elapsed time by the rate per second.
             uint128 ratePerSecond = _streams[streamId].ratePerSecond;
             uint128 streamedAmount = elapsedTime * ratePerSecond;
 
@@ -413,14 +413,14 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) internal {
-        // Checks: the new amount per second is not zero.
+        // Checks: the new rate per second is not zero.
         if (newRatePerSecond == 0) {
             revert Errors.SablierV2OpenEnded_ratePerSecondZero();
         }
 
         uint128 oldRatePerSecond = _streams[streamId].ratePerSecond;
 
-        // Checks: the new amount per second is not equal to the actual amount per second.
+        // Checks: the new rate per second is not equal to the actual rate per second.
         if (newRatePerSecond == oldRatePerSecond) {
             revert Errors.SablierV2OpenEnded_ratePerSecondNotDifferent(newRatePerSecond);
         }
@@ -431,7 +431,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // in case of a bug.
         _checkCalculatedAmount(streamId, recipientAmount);
 
-        // Effects: change the amount per second.
+        // Effects: change the rate per second.
         _streams[streamId].ratePerSecond = newRatePerSecond;
 
         // Effects: update the stream time.
@@ -468,7 +468,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         // Effects: set the stream as canceled.
         _streams[streamId].isCanceled = true;
 
-        // Effects: set the amount per second to zero.
+        // Effects: set the rate per second to zero.
         _streams[streamId].ratePerSecond = 0;
 
         // Effects and Interactions: refund the sender, if any assets available.
@@ -508,7 +508,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             revert Errors.SablierV2OpenEnded_RecipientZeroAddress();
         }
 
-        // Checks: the amount per second is not zero.
+        // Checks: the rate per second is not zero.
         if (ratePerSecond == 0) {
             revert Errors.SablierV2OpenEnded_ratePerSecondZero();
         }
@@ -620,12 +620,12 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             revert Errors.SablierV2OpenEnded_StreamNotCanceled(streamId);
         }
 
-        // Checks: the amount per second is not zero.
+        // Checks: the rate per second is not zero.
         if (ratePerSecond == 0) {
             revert Errors.SablierV2OpenEnded_ratePerSecondZero();
         }
 
-        // Effects: set the amount per second.
+        // Effects: set the rate per second.
         _streams[streamId].ratePerSecond = ratePerSecond;
 
         // Effects: set the stream as not canceled.

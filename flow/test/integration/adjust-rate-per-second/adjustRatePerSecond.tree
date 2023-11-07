@@ -14,19 +14,19 @@ adjustRatePerSecond.t.sol
           │  └── when the caller is a malicious third party
           │     └── it should revert
           └── when the caller is authorized
-              ├── when the provided amount per second is zero
+              ├── when the provided rate per second is zero
               │  └── it should revert
-              └── when the provided amount per second is not zero
-                 ├── when the provided amount per second is equal to the actual amount per second
+              └── when the provided rate per second is not zero
+                 ├── when the provided rate per second is equal to the actual rate per second
                  │  └── it should revert
-                 └── when the provided amount per second is not equal to the actual amount per second
+                 └── when the provided rate per second is not equal to the actual rate per second
                     ├── given the withdrawable amount is zero
-                    │  ├── it should update the amount per second
+                    │  ├── it should update the rate per second
                     │  ├── it should update the stream time
                     │  └── it should emit a {AdjustOpenEndedStream} event
                     └── given the withdrawable amount is not zero
                        ├── given the asset does not have 18 decimals
-                       │  ├── it should update the amount per second
+                       │  ├── it should update the rate per second
                        │  ├── it should update the stream time
                        │  ├── it should update the stream balance
                        │  ├── it should perform the ERC-20 transfer

@@ -10,11 +10,11 @@ interface ISablierV2OpenEnded {
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when the sender changes the amount per second.
+    /// @notice Emitted when the sender changes the rate per second.
     /// @param streamId The id of the stream.
     /// @param recipientAmount The amount of assets withdrawn to the recipient, denoted in 18 decimals.
-    /// @param oldRatePerSecond The amount per second to change.
-    /// @param newRatePerSecond The newly changed amount per second.
+    /// @param oldRatePerSecond The rate per second to change.
+    /// @param newRatePerSecond The newly changed rate per second.
     event AdjustOpenEndedStream(
         uint256 indexed streamId,
         IERC20 indexed asset,
@@ -96,7 +96,7 @@ interface ISablierV2OpenEnded {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the amount per second of the stream, denoted in 18 decimals.
+    /// @notice Retrieves the rate per second of the stream, denoted in 18 decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The id of the stream to make the query for.
     function getratePerSecond(uint256 streamId) external view returns (uint128 ratePerSecond);
@@ -176,7 +176,7 @@ interface ISablierV2OpenEnded {
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Changes the stream's amount per second.
+    /// @notice Changes the stream's rate per second.
     ///
     /// @dev Emits a {Transfer} and {AdjustOpenEndedStream} event.
     ///
@@ -189,10 +189,10 @@ interface ISablierV2OpenEnded {
     /// - `streamId` must not reference a canceled stream.
     /// - `msg.sender` must be the stream's sender.
     /// - `newRatePerSecond` must be greater than zero.
-    /// - `newRatePerSecond` must not be equal to the actual amount per second.
+    /// - `newRatePerSecond` must not be equal to the actual rate per second.
     ///
     /// @param streamId The id of the stream to adjust.
-    /// @param newRatePerSecond The new amount per second of the open-ended stream, denoted in 18 decimals.
+    /// @param newRatePerSecond The new rate per second of the open-ended stream, denoted in 18 decimals.
     function adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) external;
 
     /// @notice Cancels the stream and refunds any remaining assets to the sender.
@@ -302,7 +302,7 @@ interface ISablierV2OpenEnded {
     /// @param amount The amount to refund, in units of the ERC-20 asset's decimals.
     function refundFromStream(uint256 streamId, uint128 amount) external;
 
-    /// @notice Restarts the stream with the provided amount per second.
+    /// @notice Restarts the stream with the provided rate per second.
     ///
     /// @dev Emits a {RestartOpenEndedStream} event.
     ///
@@ -317,7 +317,7 @@ interface ISablierV2OpenEnded {
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     function restartStream(uint256 streamId, uint128 ratePerSecond) external;
 
-    /// @notice Restarts the stream with the provided amount per second, and deposits `depositAmount` in the stream
+    /// @notice Restarts the stream with the provided rate per second, and deposits `depositAmount` in the stream
     /// balance.
     ///
     /// @dev Emits a {RestartOpenEndedStream}, {Transfer} and {DepositOpenEndedStream} event.
