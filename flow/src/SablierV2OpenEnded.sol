@@ -71,7 +71,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2OpenEnded
-    function getratePerSecond(uint256 streamId)
+    function getRatePerSecond(uint256 streamId)
         external
         view
         override

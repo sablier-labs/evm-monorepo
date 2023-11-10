@@ -99,7 +99,7 @@ interface ISablierV2OpenEnded {
     /// @notice Retrieves the rate per second of the stream, denoted in 18 decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The id of the stream to make the query for.
-    function getratePerSecond(uint256 streamId) external view returns (uint128 ratePerSecond);
+    function getRatePerSecond(uint256 streamId) external view returns (uint128 ratePerSecond);
 
     /// @notice Retrieves the asset of the stream.
     /// @dev Reverts if `streamId` references a null stream.

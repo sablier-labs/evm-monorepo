@@ -76,7 +76,7 @@ contract Cancel_Integration_Test is Integration_Test {
         uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
         assertEq(actualStreamBalance, 0, "stream balance");
 
-        uint256 actualratePerSecond = openEnded.getratePerSecond(defaultStreamId);
+        uint256 actualratePerSecond = openEnded.getRatePerSecond(defaultStreamId);
         assertEq(actualratePerSecond, 0, "rate per second");
     }
 
@@ -157,7 +157,7 @@ contract Cancel_Integration_Test is Integration_Test {
         uint128 actualStreamBalance = openEnded.getBalance(streamId);
         assertEq(actualStreamBalance, 0, "stream balance");
 
-        uint256 actualratePerSecond = openEnded.getratePerSecond(streamId);
+        uint256 actualratePerSecond = openEnded.getRatePerSecond(streamId);
         assertEq(actualratePerSecond, 0, "rate per second");
     }
 }

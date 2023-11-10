@@ -97,7 +97,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
     {
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
-        uint128 actualratePerSecond = openEnded.getratePerSecond(defaultStreamId);
+        uint128 actualratePerSecond = openEnded.getRatePerSecond(defaultStreamId);
         uint128 expectedratePerSecond = RATE_PER_SECOND;
         assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
 
@@ -118,7 +118,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
 
         openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: newRatePerSecond });
 
-        actualratePerSecond = openEnded.getratePerSecond(defaultStreamId);
+        actualratePerSecond = openEnded.getRatePerSecond(defaultStreamId);
         expectedratePerSecond = newRatePerSecond;
         assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
 
@@ -152,7 +152,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
         openEnded.deposit(streamId, DEPOSIT_AMOUNT);
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
-        uint128 actualratePerSecond = openEnded.getratePerSecond(streamId);
+        uint128 actualratePerSecond = openEnded.getRatePerSecond(streamId);
         uint128 expectedratePerSecond = RATE_PER_SECOND;
         assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
 
@@ -186,7 +186,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
 
         openEnded.adjustRatePerSecond({ streamId: streamId, newRatePerSecond: newRatePerSecond });
 
-        actualratePerSecond = openEnded.getratePerSecond(streamId);
+        actualratePerSecond = openEnded.getRatePerSecond(streamId);
         expectedratePerSecond = newRatePerSecond;
         assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
 
