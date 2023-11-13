@@ -1,23 +1,24 @@
 ## Sablier V2 Open-Ended
 
 This repository contains the smart contracts for the EOES (EVM open-ended streams) product. By open-ended, we mean that
-the streams have no fixed duration. This product is primarily beneficial for salaries and not for vesting or airdrops,
-where lockups are more appropriate.
+the streams have no fixed duration and deposit amount. This product is primarily beneficial for salaries and not for
+vesting or airdrops, where lockups are more appropriate.
 
 ### Motivation
 
 One of the most requested feature from Sablier users is the ability to create streams without depositing the full amount
 at start, i.e. the top-up functionality, which introduces the idea of _debt_ . This has been made possible by
-introducing an internal balance in the Stream entity:
+introducing an internal balance and a rate per second in the Stream entity:
 
 ```solidity
   struct Stream {
       uint128 balance;
+      uint128 ratePerSecond;
       /// rest of the types
   }
 ```
 
-### Features
+### New features
 
 - Top up, which are public (you can ask a friend to deposit money for you instead)
 - No deposits are required at the time of stream creation; thus, creation and deposit are distinct operations.
@@ -28,42 +29,70 @@ introducing an internal balance in the Stream entity:
   - This is only possible when the stream balance exceeds the withdrawable amount. For example, if a stream has a
     balance of 100 DAI and a withdrawable amount of 50 DAI, the sender can refund up to 50 DAI from the stream.
 
-### Issues:
-
-Due to the lack of a fixed duration and a fixed deposit amount, we must store a rate per second in the Stream entity,
-which introduces a precision problem for assets with fewer decimals (e.g.
-[USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s), which has 6 decimals).
-
-Let's consider this example: If someone wants to stream 10 USDC per day, the rate per second should be
-0.000115740740740740740740... (with many decimals), but since USDC only has 6 decimals, the rate per second would be
-limited to _0.000115_. This leads to _0.000115\*one_day_in_seconds = 9.936000_ at the end of the day, resulting in a
-_0.064000_ loss each day. As you can see this is problematic.
-
-#### How to prevent this
-
-In the contracts we normalize to 18 decimals all internal amounts, i.e. the rate per second and the balance. While this
-doesn't completely solves the issue, it minimizes it significantly.
-
-Using the above example (stream of 10 USDC per day), if the rate per seconds has 18 decimals, at the end of the day the
-result would be _0.000115740740740740\*one_day_in_seconds = 9.999999999999936000_. A _0.0000000000000064000_ loss at the
-end of each day. This is not ideal but clearly much better, especially if you do the math: _0.000000000002336_ loss at
-the end of the year.
-
-Currently, I don't think it's possible to address this precision problem entirely, given the nature of open-endedness.
-
 ### How it works
 
 As I mentioned in the Features section, the creation and deposit operations are distinct. This means that when a stream
 is created, the balance will be set to 0.
 
 Since the streams are open-ended, we don't have a start time neither an end time, instead we have a time reference
-(`lastTimeUpdate`) which will be always set to `block.timestampt`. The actions that will update this time reference are:
+(`lastTimeUpdate`) which will be set to `block.timestampt` at the creation of the stream. There are several actions that
+will update this time reference:
 
-1. when the stream is created
-2. when a withdrawal is made
-3. when the rate per second is changed
+- when a withdrawal is made
 
-#### Streamed amount calculation
+  - `lastTimeUpdate` will be set to the given `time` parameter passed in the function, you see why this parameter is
+    required in the explantion from [this PR](https://github.com/sablier-labs/v2-open-ended/pull/4)
+
+- when the rate per second is changed
+  - `lastTimeUpdate` will be set to `block.timestampt`, this time update is required in the `_adjustRatePerSecond`
+    function because it would cause loss of funds for the recipient if the previous rate was higher or gain of funds if
+    the previous rate was lower than the new rate
+- when the stream is restarted
+  - `lastTimeUpdate` will be set to `block.timestampt`
+
+### Amounts calculation
+
+#### Streamed amount
+
+The streamed amount (sa) is calculated simply by multiplying the rate per second (rps) by the delta between the current
+time and the time difference stored in the stream `lastTimeUpdate` (ltu):
+
+$\ sa = rps \times (now - ltu) \$
+
+_sa_ can be higher than the balance, this explaine the _debt_ I was referring to. The _debt_ is the difference between
+_sa_ and the actual balance - which is not stored in the contracts but calculated dynamically in a constant function.
+
+#### Withdrawable amount
+
+The withdrawable amount is actually the streamed amount when there is **no** debt or the balance itself when there is
+debt.
+
+#### Refundable amount
+
+The refundable amount is calculated by subtracting the streamed amount from the balance.
+
+### Issues:
+
+Due to the lack of a fixed duration and a fixed deposit amount, the rate per second (rps) introduces a precision problem
+for assets with fewer decimals (e.g. [USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s),
+which has 6 decimals).
+
+Let's consider this example: If someone wants to stream 10 USDC per day, the _rps_ should be
+0.000115740740740740740740... (with many decimals), but since USDC only has 6 decimals, the _rps_ would be limited to
+_0.000115_. This leads to _0.000115\*one_day_in_seconds = 9.936000_ at the end of the day, resulting in a _0.064000_
+loss each day. As you can see this is problematic.
+
+#### How to prevent this
+
+In the contracts we normalize to 18 decimals all internal amounts, i.e. the _rps_ and the balance. While this doesn't
+completely solves the issue, it minimizes it significantly.
+
+Using the above example (stream of 10 USDC per day), if the _rps_ has 18 decimals, at the end of the day the result
+would be _0.000115740740740740\*one_day_in_seconds = 9.999999999999936000_. A _0.0000000000000064000_ loss at the end of
+each day. This is not ideal but clearly much better, especially if you do the math: _0.000000000002336_ loss at the end
+of the year.
+
+Currently, I don't think it's possible to address this precision problem entirely, given the nature of open-endedness.
 
 ### Technical decisions
 

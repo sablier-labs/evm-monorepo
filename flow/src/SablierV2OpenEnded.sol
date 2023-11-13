@@ -548,13 +548,13 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
 
         // Effects: create the stream.
         _streams[streamId] = OpenEnded.Stream({
-            ratePerSecond: ratePerSecond,
             asset: asset,
             assetDecimals: assetDecimals,
             balance: 0,
             isCanceled: false,
             isStream: true,
             lastTimeUpdate: uint40(block.timestamp),
+            ratePerSecond: ratePerSecond,
             recipient: recipient,
             sender: sender
         });
