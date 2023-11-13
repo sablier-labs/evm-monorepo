@@ -31,17 +31,18 @@ introducing an internal balance and a rate per second in the Stream entity:
 
 ### How it works
 
-As I mentioned in the Features section, the creation and deposit operations are distinct. This means that when a stream
-is created, the balance will be set to 0.
+As I mentioned in the features section, the creation and deposit operations are distinct. This means that when a stream
+is created, the balance will be set to 0 with further deposits that will be made (we can still have `createAndDeposit`
+function to maintain the same UX).
 
-Since the streams are open-ended, we don't have a start time neither an end time, instead we have a time reference
+Since the streams are open-ended, we don't have a start time nor an end time, instead we have a time reference
 (`lastTimeUpdate`) which will be set to `block.timestampt` at the creation of the stream. There are several actions that
 will update this time reference:
 
 - when a withdrawal is made
 
-  - `lastTimeUpdate` will be set to the given `time` parameter passed in the function, you see why this parameter is
-    required in the explantion from [this PR](https://github.com/sablier-labs/v2-open-ended/pull/4)
+  - `lastTimeUpdate` will be set to the given `time` parameter passed in the function, you can see why this parameter is
+    needed in the explantion from [this PR](https://github.com/sablier-labs/v2-open-ended/pull/4)
 
 - when the rate per second is changed
   - `lastTimeUpdate` will be set to `block.timestampt`, this time update is required in the `_adjustRatePerSecond`
