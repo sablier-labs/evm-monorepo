@@ -60,7 +60,7 @@ time and the time difference stored in the stream `lastTimeUpdate` (ltu):
 
 $\ sa = rps \times (now - ltu) \$
 
-_sa_ can be higher than the balance, this explaine the _debt_ I was referring to. The _debt_ is the difference between
+_sa_ can be higher than the balance, this explaines the _debt_ I was referring to. The _debt_ is the difference between
 _sa_ and the actual balance - which is not stored in the contracts but calculated dynamically in a constant function.
 
 #### Withdrawable amount
@@ -81,7 +81,7 @@ which has 6 decimals).
 Let's consider this example: If someone wants to stream 10 USDC per day, the _rps_ should be
 0.000115740740740740740740... (with many decimals), but since USDC only has 6 decimals, the _rps_ would be limited to
 _0.000115_. This leads to _0.000115\*one_day_in_seconds = 9.936000_ at the end of the day, resulting in a _0.064000_
-loss each day. As you can see this is problematic.
+less. As you can see this is problematic.
 
 #### How to prevent this
 
@@ -89,9 +89,12 @@ In the contracts we normalize to 18 decimals all internal amounts, i.e. the _rps
 completely solves the issue, it minimizes it significantly.
 
 Using the above example (stream of 10 USDC per day), if the _rps_ has 18 decimals, at the end of the day the result
-would be _0.000115740740740740\*one_day_in_seconds = 9.999999999999936000_. A _0.0000000000000064000_ loss at the end of
-each day. This is not ideal but clearly much better, especially if you do the math: _0.000000000002336_ loss at the end
-of the year.
+would be _0.000115740740740740\*one_day_in_seconds = 9.999999999999936000_. A _0.0000000000000064000_ less at the end of
+each day. This is not ideal but clearly much better.
+
+It is important to mention that the funds will never be stuck on the contract, the recipient will just have to wait more
+time to get that 10 per day "streamed" (but not exact 10), using the 18 decimals format would delay it to 1 more second:
+_0.000115740740740740\*(one_day_in_seconds + 1 second) = 10.000115740740677000_.
 
 Currently, I don't think it's possible to address this precision problem entirely, given the nature of open-endedness.
 
