@@ -31,9 +31,9 @@ introducing an internal balance and a rate per second in the Stream entity:
 
 ### How it works
 
-As I mentioned in the features section, the creation and deposit operations are distinct. This means that when a stream
-is created, the balance will be set to 0 with further deposits that will be made (we can still have `createAndDeposit`
-function to maintain the same UX).
+As mentioned in the features section, the creation and deposit operations are distinct. This means that the balance is
+set to 0 when a stream is created, and deposits are made afterward. However, a `createAndDeposit` function is
+implemented to maintain the same user experience.
 
 Since the streams are open-ended, we don't have a start time nor an end time, instead we have a time reference
 (`lastTimeUpdate`) which will be set to `block.timestampt` at the creation of the stream. There are several actions that
@@ -47,7 +47,7 @@ will update this time reference:
 - when the rate per second is changed
   - `lastTimeUpdate` will be set to `block.timestampt`, this time update is required in the `_adjustRatePerSecond`
     function because it would cause loss of funds for the recipient if the previous rate was higher or gain of funds if
-    the previous rate was lower than the new rate
+    the previous rate was lower
 - when the stream is restarted
   - `lastTimeUpdate` will be set to `block.timestampt`
 
@@ -56,12 +56,13 @@ will update this time reference:
 #### Streamed amount
 
 The streamed amount (sa) is calculated simply by multiplying the rate per second (rps) by the delta between the current
-time and the time difference stored in the stream `lastTimeUpdate` (ltu):
+time and the time stored in the stream `lastTimeUpdate` (ltu):
 
 $\ sa = rps \times (now - ltu) \$
 
 _sa_ can be higher than the balance, this explaines the _debt_ I was referring to. The _debt_ is the difference between
-_sa_ and the actual balance - which is not stored in the contracts but calculated dynamically in a constant function.
+_sa_ and the actual balance - which is **not** stored in the contracts but calculated dynamically in a constant
+function.
 
 #### Withdrawable amount
 
@@ -79,9 +80,13 @@ for assets with fewer decimals (e.g. [USDC](https://etherscan.io/token/0xa0b8699
 which has 6 decimals).
 
 Let's consider this example: If someone wants to stream 10 USDC per day, the _rps_ should be
-0.000115740740740740740740... (with many decimals), but since USDC only has 6 decimals, the _rps_ would be limited to
-_0.000115_. This leads to _0.000115\*one_day_in_seconds = 9.936000_ at the end of the day, resulting in a _0.064000_
-less. As you can see this is problematic.
+
+$\ rps = 0.000115740740740740740740... \$(with many decimals)
+
+But since USDC only has 6 decimals, the _rps_ would be limited to $\ rps = 0.000115 \$, this leads to $\ 0.000115 \times
+oneDayInSeconds = 9.936000 \$, at the end of the day, resulting less with $\ 0.064000 \$.
+
+As you can see this is problematic.
 
 #### How to prevent this
 
@@ -89,12 +94,18 @@ In the contracts we normalize to 18 decimals all internal amounts, i.e. the _rps
 completely solves the issue, it minimizes it significantly.
 
 Using the above example (stream of 10 USDC per day), if the _rps_ has 18 decimals, at the end of the day the result
-would be _0.000115740740740740\*one_day_in_seconds = 9.999999999999936000_. A _0.0000000000000064000_ less at the end of
-each day. This is not ideal but clearly much better.
+would be:
+
+$\ 0.000115740740740740 \times oneDayInSeconds = 9.999999999999936000 \$
+
+$\ 10.000000000000000000 - 9.999999999999936000 = 0.0000000000000064000 \$
+
+An improvement by $\ \approx 10^{11} \$, this is not ideal but clearly much better.
 
 It is important to mention that the funds will never be stuck on the contract, the recipient will just have to wait more
-time to get that 10 per day "streamed" (but not exact 10), using the 18 decimals format would delay it to 1 more second:
-_0.000115740740740740\*(one_day_in_seconds + 1 second) = 10.000115740740677000_.
+time to get that 10 per day "streamed", using the 18 decimals format would delay it to 1 more second:
+
+$\ 0.000115740740740740 \times (oneDayInSeconds + 1 second) = 10.000115740740677000 \$
 
 Currently, I don't think it's possible to address this precision problem entirely, given the nature of open-endedness.
 
@@ -125,15 +136,17 @@ have to worry about [this issue](https://github.com/cantinasec/review-sablier/is
 
 _balance = withdrawable amount + refundable amount_
 
+_balance = sum of deposits - sum of withdrawals_
+
 _withdrawable amount ≤ streamed amount_
-
-_lastTimeUpdate ≤ block.timestamp;_
-
-_if(isCanceled = true) then balance= 0 && ratePerSecond= 0_
 
 _sum of withdrawn amounts ≤ sum of deposits_
 
 _sum of stream balances normilized to asset decimals ≤ asset.balanceOf(SablierV2OpenEnded)_
+
+_lastTimeUpdate ≤ block.timestamp;_
+
+_if(isCanceled = true) then balance = 0 && ratePerSecond = 0_
 
 ### Questions:
 
