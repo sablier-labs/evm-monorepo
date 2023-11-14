@@ -248,12 +248,6 @@ contract OpenEndedHandler is BaseHandler {
             return;
         }
 
-        // The protocol doesn't allow zero withdrawal amounts.
-        uint128 withdrawableAmount = openEnded.withdrawableAmountOf(currentStreamId);
-        if (withdrawableAmount == 0) {
-            return;
-        }
-
         // Bound the time so that it is between last time update and current time.
         time = uint40(_bound(time, openEnded.getLastTimeUpdate(currentStreamId) + 1, block.timestamp));
 
@@ -264,7 +258,7 @@ contract OpenEndedHandler is BaseHandler {
             to = currentRecipient;
         }
 
-        uint128 withdrawAmount = openEnded.streamedAmountOf(currentStreamId, time);
+        uint128 withdrawAmount = openEnded.withdrawableAmountOf(currentStreamId, time);
 
         // Withdraw from the stream.
         openEnded.withdraw({ streamId: currentStreamId, to: to, time: time });
