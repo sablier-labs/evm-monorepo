@@ -685,9 +685,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         _updateTime(streamId, uint40(block.timestamp));
 
         // Log the restart.
-        emit ISablierV2OpenEnded.RestartOpenEndedStream(
-            streamId, _streams[streamId].sender, _streams[streamId].asset, ratePerSecond
-        );
+        emit ISablierV2OpenEnded.RestartOpenEndedStream(streamId, msg.sender, _streams[streamId].asset, ratePerSecond);
     }
 
     /// @dev Sets the stream time to the current block timestamp.
