@@ -156,6 +156,12 @@ interface ISablierV2OpenEnded {
     /// @param streamId The stream id for the query.
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
 
+    /// @notice Calculates the amount that the sender can refund from stream at `time`, denoted in 18 decimals.
+    /// @dev Reverts if `streamId` references a canceled stream.
+    /// @param streamId The stream id for the query.
+    /// @param time The Unix timestamp for the streamed amount calculation.
+    function refundableAmountOf(uint256 streamId, uint40 time) external view returns (uint128 refundableAmount);
+
     /// @notice Calculates the amount that the sender owes on the stream, i.e. if more assets have been streamed than
     /// its balance, denoted in 18 decimals. If there is no debt, it will return zero.
     /// @dev Reverts if `streamId` references a canceled stream.
@@ -179,6 +185,12 @@ interface ISablierV2OpenEnded {
     /// @dev Reverts if `streamId` references a canceled stream.
     /// @param streamId The stream id for the query.
     function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
+
+    /// @notice Calculates the amount that the recipient can withdraw from the stream at `time`, denoted in 18 decimals.
+    /// @dev Reverts if `streamId` references a canceled stream.
+    /// @param streamId The stream id for the query.
+    /// @param time The Unix timestamp for the streamed amount calculation.
+    function withdrawableAmountOf(uint256 streamId, uint40 time) external view returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS

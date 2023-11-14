@@ -146,7 +146,21 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         notCanceled(streamId)
         returns (uint128 refundableAmount)
     {
-        refundableAmount = _refundableAmountOf(streamId);
+        refundableAmount = _refundableAmountOf(streamId, uint40(block.timestamp));
+    }
+
+    /// @inheritdoc ISablierV2OpenEnded
+    function refundableAmountOf(
+        uint256 streamId,
+        uint40 time
+    )
+        external
+        view
+        override
+        notCanceled(streamId)
+        returns (uint128 refundableAmount)
+    {
+        refundableAmount = _refundableAmountOf(streamId, time);
     }
 
     /// @inheritdoc ISablierV2OpenEnded
@@ -186,7 +200,20 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         notCanceled(streamId)
         returns (uint128 withdrawableAmount)
     {
-        withdrawableAmount = _withdrawableAmountOf(streamId);
+        withdrawableAmount = _withdrawableAmountOf(streamId, uint40(block.timestamp));
+    }
+
+    /// @inheritdoc ISablierV2OpenEnded
+    function withdrawableAmountOf(
+        uint256 streamId,
+        uint40 time
+    )
+        external
+        view
+        notCanceled(streamId)
+        returns (uint128 withdrawableAmount)
+    {
+        withdrawableAmount = _withdrawableAmountOf(streamId, time);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -375,8 +402,8 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @dev Calculates the refundable amount.
-    function _refundableAmountOf(uint256 streamId) internal view returns (uint128) {
-        return _streams[streamId].balance - _withdrawableAmountOf(streamId);
+    function _refundableAmountOf(uint256 streamId, uint40 time) internal view returns (uint128) {
+        return _streams[streamId].balance - _withdrawableAmountOf(streamId, time);
     }
 
     /// @notice Retrieves the asset's decimals safely, defaulting to "0" if an error occurs.
@@ -413,14 +440,14 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /// @dev Calculates the withdrawable amount.
-    function _withdrawableAmountOf(uint256 streamId) internal view returns (uint128) {
+    function _withdrawableAmountOf(uint256 streamId, uint40 time) internal view returns (uint128) {
         uint128 balance = _streams[streamId].balance;
 
         if (balance == 0) {
             return 0;
         }
 
-        uint128 streamedAmount = _streamedAmountOf(streamId, uint40(block.timestamp));
+        uint128 streamedAmount = _streamedAmountOf(streamId, time);
 
         // If there has been streamed more than how much is available, return the stream balance.
         if (streamedAmount >= balance) {
@@ -448,7 +475,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
             revert Errors.SablierV2OpenEnded_ratePerSecondNotDifferent(newRatePerSecond);
         }
 
-        uint128 recipientAmount = _withdrawableAmountOf(streamId);
+        uint128 recipientAmount = _withdrawableAmountOf(streamId, uint40(block.timestamp));
 
         // Although the withdrawable amount should never exceed the balance, this condition is checked to avoid exploits
         // in case of a bug.
@@ -476,7 +503,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         address recipient = _streams[streamId].recipient;
         address sender = _streams[streamId].sender;
         uint128 balance = _streams[streamId].balance;
-        uint128 recipientAmount = _withdrawableAmountOf(streamId);
+        uint128 recipientAmount = _withdrawableAmountOf(streamId, uint40(block.timestamp));
 
         // Calculate the refundable amount here for gas optimization.
         uint128 senderAmount = balance - recipientAmount;
@@ -609,7 +636,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _refundFromStream(uint256 streamId, uint128 amount) internal {
         address sender = _streams[streamId].sender;
-        uint128 refundableAmount = _refundableAmountOf(streamId);
+        uint128 refundableAmount = _refundableAmountOf(streamId, uint40(block.timestamp));
 
         // Checks: the amount is not zero.
         if (amount == 0) {
@@ -701,7 +728,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         }
 
         // Calculate how much to withdraw based on the time reference.
-        uint128 withdrawAmount = _streamedAmountOf(streamId, time);
+        uint128 withdrawAmount = _withdrawableAmountOf(streamId, time);
 
         // Although the withdraw amount should never exceed the balance, this condition is checked to avoid exploits
         // in case of a bug.
