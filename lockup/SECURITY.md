@@ -52,6 +52,7 @@ vulnerability, it must adhere to these assumptions as well:
   are not supported.
 - An address' ERC-20 balance can only change as a result of a `transfer` call by the sender or a `transferFrom` call by
   an approved address. This excludes rebase tokens and interest-bearing tokens.
+- The token contract does not allow callbacks (e.g. ERC-777 is not supported).
 
 ### Rewards
 
