@@ -121,6 +121,11 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function isStream(uint256 streamId) external view returns (bool result);
 
+    /// @notice Retrieves a flag indicating whether the stream NFT can be transferred.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isTransferable(uint256 streamId) external view returns (bool result);
+
     /// @notice Retrieves a flag indicating whether the stream is warm, i.e. either pending or streaming.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
@@ -155,11 +160,6 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
-    /// @notice Retrieves a flag indicating whether the stream NFT can be transferred.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream id for the query.
-    function isTransferable(uint256 streamId) external view returns (bool);
-
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -184,8 +184,7 @@ interface ISablierV2Lockup is
     /// Notes:
     /// - If there any assets left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
     /// stream is marked as depleted.
-    /// - This function attempts to invoke a hook on either the sender or the recipient, depending on who `msg.sender`
-    /// is, and if the resolved address is a contract.
+    /// - This function attempts to invoke a hook on the recipient, if the resolved address is a contract.
     ///
     /// Requirements:
     /// - Must not be delegate called.
