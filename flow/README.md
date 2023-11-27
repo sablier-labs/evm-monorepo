@@ -1,23 +1,24 @@
 ## Sablier V2 Open-Ended
 
 This repository contains the smart contracts for the EOES (EVM open-ended streams) product. By open-ended, we mean that
-the streams have no fixed duration. This product is primarily beneficial for salaries and not for vesting or airdrops,
-where lockups are more appropriate.
+the streams have no fixed duration and deposit amount. This product is primarily beneficial for salaries and not for
+vesting or airdrops, where lockups are more appropriate.
 
 ### Motivation
 
 One of the most requested feature from Sablier users is the ability to create streams without depositing the full amount
 at start, i.e. the top-up functionality, which introduces the idea of _debt_ . This has been made possible by
-introducing an internal balance in the Stream entity:
+introducing an internal balance and a rate per second in the Stream entity:
 
 ```solidity
   struct Stream {
       uint128 balance;
+      uint128 ratePerSecond;
       /// rest of the types
   }
 ```
 
-### Features
+### New features
 
 - Top up, which are public (you can ask a friend to deposit money for you instead)
 - No deposits are required at the time of stream creation; thus, creation and deposit are distinct operations.
@@ -28,26 +29,83 @@ introducing an internal balance in the Stream entity:
   - This is only possible when the stream balance exceeds the withdrawable amount. For example, if a stream has a
     balance of 100 DAI and a withdrawable amount of 50 DAI, the sender can refund up to 50 DAI from the stream.
 
+### How it works
+
+As mentioned in the features section, the creation and deposit operations are distinct. This means that the balance is
+set to 0 when a stream is created, and deposits are made afterward. However, a `createAndDeposit` function is
+implemented to maintain the same user experience.
+
+Since the streams are open-ended, we don't have a start time nor an end time, instead we have a time reference
+(`lastTimeUpdate`) which will be set to `block.timestampt` at the creation of the stream. There are several actions that
+will update this time reference:
+
+- when a withdrawal is made
+
+  - `lastTimeUpdate` will be set to the given `time` parameter passed in the function, you can see why this parameter is
+    needed in the explantion from [this PR](https://github.com/sablier-labs/v2-open-ended/pull/4)
+
+- when the rate per second is changed
+  - `lastTimeUpdate` will be set to `block.timestampt`, this time update is required in the `_adjustRatePerSecond`
+    function because it would cause loss of funds for the recipient if the previous rate was higher or gain of funds if
+    the previous rate was lower
+- when the stream is restarted
+  - `lastTimeUpdate` will be set to `block.timestampt`
+
+### Amounts calculation
+
+#### Streamed amount
+
+The streamed amount (sa) is calculated simply by multiplying the rate per second (rps) by the delta between the current
+time and the time stored in the stream `lastTimeUpdate` (ltu):
+
+$\ sa = rps \times (now - ltu) \$
+
+_sa_ can be higher than the balance, this explaines the _debt_ I was referring to. The _debt_ is the difference between
+_sa_ and the actual balance - which is **not** stored in the contracts but calculated dynamically in a constant
+function.
+
+#### Withdrawable amount
+
+The withdrawable amount is actually the streamed amount when there is **no** debt or the balance itself when there is
+debt.
+
+#### Refundable amount
+
+The refundable amount is calculated by subtracting the streamed amount from the balance.
+
 ### Issues:
 
-Due to the lack of a fixed duration and a fixed deposit amount, we must store a rate per second in the Stream entity,
-which introduces a precision problem for assets with fewer decimals (e.g.
-[USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s), which has 6 decimals).
+Due to the lack of a fixed duration and a fixed deposit amount, the rate per second (rps) introduces a precision problem
+for assets with fewer decimals (e.g. [USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s),
+which has 6 decimals).
 
-Let's consider this example: If someone wants to stream 10 USDC per day, the rate per second should be
-0.000115740740740740740740... (with many decimals), but since USDC only has 6 decimals, the rate per second would be
-limited to _0.000115_. This leads to _0.000115\*one_day_in_seconds = 9.936000_ at the end of the day, resulting in a
-_0.064000_ loss each day. As you can see this is problematic.
+Let's consider this example: If someone wants to stream 10 USDC per day, the _rps_ should be
+
+$\ rps = 0.000115740740740740740740... \$(with many decimals)
+
+But since USDC only has 6 decimals, the _rps_ would be limited to $\ rps = 0.000115 \$, this leads to $\ 0.000115 \times
+oneDayInSeconds = 9.936000 \$, at the end of the day, resulting less with $\ 0.064000 \$.
+
+As you can see this is problematic.
 
 #### How to prevent this
 
-In the contracts we normalize to 18 decimals all internal amounts, i.e. the rate per second and the balance. While this
-doesn't completely solves the issue, it minimizes it significantly.
+In the contracts we normalize to 18 decimals all internal amounts, i.e. the _rps_ and the balance. While this doesn't
+completely solves the issue, it minimizes it significantly.
 
-Using the above example (stream of 10 USDC per day), if the rate per seconds has 18 decimals, at the end of the day the
-result would be _0.000115740740740740\*one_day_in_seconds = 9.999999999999936000_. A _0.0000000000000064000_ loss at the
-end of each day. This is not ideal but clearly much better, especially if you do the math: _0.000000000002336_ loss at
-the end of the year.
+Using the above example (stream of 10 USDC per day), if the _rps_ has 18 decimals, at the end of the day the result
+would be:
+
+$\ 0.000115740740740740 \times oneDayInSeconds = 9.999999999999936000 \$
+
+$\ 10.000000000000000000 - 9.999999999999936000 = 0.0000000000000064000 \$
+
+An improvement by $\ \approx 10^{11} \$, this is not ideal but clearly much better.
+
+It is important to mention that the funds will never be stuck on the contract, the recipient will just have to wait more
+time to get that 10 per day "streamed", using the 18 decimals format would delay it to 1 more second:
+
+$\ 0.000115740740740740 \times (oneDayInSeconds + 1 second) = 10.000115740740677000 \$
 
 Currently, I don't think it's possible to address this precision problem entirely, given the nature of open-endedness.
 
@@ -55,9 +113,8 @@ Currently, I don't think it's possible to address this precision problem entirel
 
 We use 18 fixed-point numbers for all internal amounts (`balance`, `ratePerSecond`, `withdrawable`, `refundable`) to
 avoid the overload of conversion to actual `ERC20` balances. The only time we perform these conversions is during
-external calls, i.e. the deposit and extract operations.
-
-We need to either increase or reduce the calculated amount based on the each asset decimals:
+external calls to `ERC20s` transfer/transferFrom, i.e. the deposit and extract operations. We need to either increase or
+reduce the calculated amount(`withdrawable` or `refundable`) based on the each asset decimals:
 
 - if the asset has fewer decimals, the transfer amount is reduced
 - if the asset has more decimals, the transfer amount is increased
@@ -79,15 +136,17 @@ have to worry about [this issue](https://github.com/cantinasec/review-sablier/is
 
 _balance = withdrawable amount + refundable amount_
 
+_balance = sum of deposits - sum of withdrawals_
+
 _withdrawable amount ≤ streamed amount_
-
-_lastTimeUpdate ≤ block.timestamp;_
-
-_if(isCanceled = true) then balance= 0 && ratePerSecond= 0_
 
 _sum of withdrawn amounts ≤ sum of deposits_
 
 _sum of stream balances normilized to asset decimals ≤ asset.balanceOf(SablierV2OpenEnded)_
+
+_lastTimeUpdate ≤ block.timestamp;_
+
+_if(isCanceled = true) then balance = 0 && ratePerSecond = 0_
 
 ### Questions:
 

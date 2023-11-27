@@ -17,12 +17,12 @@ withdraw.t.sol
               ├── when the provided address is zero
               │  └── it should revert
               └── when the provided address is not zero
-                 ├── when the withdraw amount is zero
+                 ├── when the time is less than or equal to the stream's last time update
                  │  └── it should revert
-                 └── when the withdraw amount is not zero
-                    ├── when the withdraw amount overdraws
+                 └── when the time is greater than the stream's last time update
+                    ├── when the time greater than the current time
                     │  └── it should revert
-                    └── when the withdraw amount does not overdraw
+                    └── when the time is not greater than the current time
                        ├── when the caller is the sender
                        │  └── it should make the withdrawal
                        └── when the caller is the recipient

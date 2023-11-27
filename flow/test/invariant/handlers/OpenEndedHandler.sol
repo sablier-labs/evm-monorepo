@@ -230,7 +230,7 @@ contract OpenEndedHandler is BaseHandler {
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address to,
-        uint128 withdrawAmount
+        uint40 time
     )
         external
         instrument("withdraw")
@@ -248,14 +248,8 @@ contract OpenEndedHandler is BaseHandler {
             return;
         }
 
-        // The protocol doesn't allow zero withdrawal amounts.
-        uint128 withdrawableAmount = openEnded.withdrawableAmountOf(currentStreamId);
-        if (withdrawableAmount == 0) {
-            return;
-        }
-
-        // Bound the withdraw amount so that it is not zero.
-        withdrawAmount = uint128(_bound(withdrawAmount, 1, withdrawableAmount));
+        // Bound the time so that it is between last time update and current time.
+        time = uint40(_bound(time, openEnded.getLastTimeUpdate(currentStreamId) + 1, block.timestamp));
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.
@@ -264,8 +258,10 @@ contract OpenEndedHandler is BaseHandler {
             to = currentRecipient;
         }
 
+        uint128 withdrawAmount = openEnded.withdrawableAmountOf(currentStreamId, time);
+
         // Withdraw from the stream.
-        openEnded.withdraw({ streamId: currentStreamId, to: to, amount: withdrawAmount });
+        openEnded.withdraw({ streamId: currentStreamId, to: to, time: time });
 
         // Store the extracted amount.
         openEndedStore.updateStreamExtractedAmountsSum(withdrawAmount);

@@ -20,18 +20,18 @@ contract Withdraw_Integration_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2OpenEnded.withdraw, (defaultStreamId, users.recipient, WITHDRAW_AMOUNT));
+            abi.encodeCall(ISablierV2OpenEnded.withdraw, (defaultStreamId, users.recipient, WITHDRAW_TIME));
         _test_RevertWhen_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         _test_RevertGiven_Null();
-        openEnded.withdraw({ streamId: nullStreamId, to: users.recipient, amount: WITHDRAW_AMOUNT });
+        openEnded.withdraw({ streamId: nullStreamId, to: users.recipient, time: WITHDRAW_TIME });
     }
 
     function test_RevertGiven_Canceled() external whenNotDelegateCalled givenNotNull {
         _test_RevertGiven_Canceled();
-        openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: WITHDRAW_AMOUNT });
+        openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
     }
 
     function test_RevertWhen_CallerUnauthorized_Sender()
@@ -44,7 +44,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2OpenEnded_Unauthorized.selector, defaultStreamId, users.sender)
         );
-        openEnded.withdraw({ streamId: defaultStreamId, to: users.sender, amount: WITHDRAW_AMOUNT });
+        openEnded.withdraw({ streamId: defaultStreamId, to: users.sender, time: WITHDRAW_TIME });
     }
 
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty(address maliciousThirdParty)
@@ -61,7 +61,7 @@ contract Withdraw_Integration_Test is Integration_Test {
                 Errors.SablierV2OpenEnded_Unauthorized.selector, defaultStreamId, maliciousThirdParty
             )
         );
-        openEnded.withdraw({ streamId: defaultStreamId, to: maliciousThirdParty, amount: WITHDRAW_AMOUNT });
+        openEnded.withdraw({ streamId: defaultStreamId, to: maliciousThirdParty, time: WITHDRAW_TIME });
     }
 
     function test_RevertWhen_ToZeroAddress()
@@ -73,39 +73,44 @@ contract Withdraw_Integration_Test is Integration_Test {
     {
         changePrank({ msgSender: users.recipient });
         vm.expectRevert(Errors.SablierV2OpenEnded_WithdrawToZeroAddress.selector);
-        openEnded.withdraw({ streamId: defaultStreamId, to: address(0), amount: WITHDRAW_AMOUNT });
+        openEnded.withdraw({ streamId: defaultStreamId, to: address(0), time: WITHDRAW_TIME });
     }
 
-    function test_RevertWhen_WithdrawAmountZero()
+    function test_RevertWhen_TimeNotGreaterThanLastUpdate()
         external
         whenNotDelegateCalled
         givenNotNull
         givenNotCanceled
         whenCallerAuthorized
         whenToNonZeroAddress
-    {
-        vm.expectRevert(Errors.SablierV2OpenEnded_WithdrawAmountZero.selector);
-        openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: 0 });
-    }
-
-    function test_RevertWhen_Overdraw()
-        external
-        whenNotDelegateCalled
-        givenNotNull
-        givenNotCanceled
-        whenCallerAuthorized
-        whenToNonZeroAddress
-        whenWithdrawAmountNotZero
     {
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2OpenEnded_Overdraw.selector,
-                defaultStreamId,
-                ONE_MONTH_STREAMED_AMOUNT + 1,
-                ONE_MONTH_STREAMED_AMOUNT
+                Errors.SablierV2OpenEnded_TimeNotGreaterThanLastUpdate.selector,
+                0,
+                openEnded.getLastTimeUpdate(defaultStreamId)
             )
         );
-        openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: ONE_MONTH_STREAMED_AMOUNT + 1 });
+        openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, time: 0 });
+    }
+
+    function test_RevertWhen_TimeNotLessOrEqualToCurrentTime()
+        external
+        whenNotDelegateCalled
+        givenNotNull
+        givenNotCanceled
+        whenCallerAuthorized
+        whenToNonZeroAddress
+        whenTimeNotLessThanLastUpdate
+    {
+        uint40 futureTime = uint40(block.timestamp + 1);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierV2OpenEnded_TimeNotLessOrEqualToCurrentTime.selector, futureTime, uint40(block.timestamp)
+            )
+        );
+        openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, time: futureTime });
     }
 
     function test_Withdraw_CallerSender()
@@ -115,10 +120,10 @@ contract Withdraw_Integration_Test is Integration_Test {
         givenNotCanceled
         whenCallerAuthorized
         whenToNonZeroAddress
-        whenWithdrawAmountNotZero
-        whenNoOverdraw
+        whenTimeNotLessThanLastUpdate
+        whenTimeNotGreaterThanCurrentTime
     {
-        openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: WITHDRAW_AMOUNT });
+        openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
     }
 
     function test_Withdraw_AssetNot18Decimals()
@@ -128,8 +133,8 @@ contract Withdraw_Integration_Test is Integration_Test {
         givenNotCanceled
         whenCallerAuthorized
         whenToNonZeroAddress
-        whenWithdrawAmountNotZero
-        whenNoOverdraw
+        whenTimeNotLessThanLastUpdate
+        whenTimeNotGreaterThanCurrentTime
     {
         // Set the timestamp to 1 month ago to create the stream with the same `lastTimeUpdate` as `defaultStreamId`.
         vm.warp({ newTimestamp: WARP_ONE_MONTH - ONE_MONTH });
@@ -147,8 +152,8 @@ contract Withdraw_Integration_Test is Integration_Test {
         givenNotCanceled
         whenCallerAuthorized
         whenToNonZeroAddress
-        whenWithdrawAmountNotZero
-        whenNoOverdraw
+        whenTimeNotLessThanLastUpdate
+        whenTimeNotGreaterThanCurrentTime
     {
         test_Withdraw(defaultStreamId, dai);
     }
@@ -180,10 +185,10 @@ contract Withdraw_Integration_Test is Integration_Test {
             to: users.recipient,
             amount: normalizeTransferAmount(streamId, WITHDRAW_AMOUNT)
         });
-        openEnded.withdraw({ streamId: streamId, to: users.recipient, amount: WITHDRAW_AMOUNT });
+        openEnded.withdraw({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
 
         actualLastTimeUpdate = openEnded.getLastTimeUpdate(streamId);
-        expectedLastTimeUpdate = uint40(block.timestamp);
+        expectedLastTimeUpdate = WITHDRAW_TIME;
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
 
         uint128 actualStreamBalance = openEnded.getBalance(streamId);
