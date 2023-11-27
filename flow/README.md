@@ -1,14 +1,14 @@
 ## Sablier V2 Open-Ended
 
 This repository contains the smart contracts for the EOES (EVM open-ended streams) concept. By open-ended, we mean that
-the streams have no fixed duration and no deposit amount. This concept is primarily beneficial for salaries and not for
-vesting or airdrops, where lockups are more appropriate.
+the streams have no fixed duration and no deposit amount at stream creation. This concept is primarily beneficial for
+salaries and not for vesting or airdrops, where lockups are more appropriate.
 
 ### Motivation
 
 One of the most requested feature from Sablier users is the ability to create streams without depositing the full amount
-at start, i.e. the top-up functionality, which introduces the idea of _debt_ . This has been made possible by
-introducing an internal balance and a rate per second in the Stream entity:
+at start, i.e. the top-up functionality, which introduces the idea of _debt_ . This is enabled by the introduction of an
+internal balance and a rate-per-second in the Stream entity:
 
 ```solidity
   struct Stream {
@@ -23,7 +23,8 @@ introducing an internal balance and a rate per second in the Stream entity:
 - Top up, which are public (you can ask a friend to deposit money for you instead)
 - No deposits are required at the time of stream creation; thus, creation and deposit are distinct operations.
 - There are no deposit limits.
-- Streams can be created for an indefinite period, they will be collecting debt until the sender cancels the stream.
+- Streams can be created for an indefinite period, they will be collecting debt until the sender deposits or cancels the
+  stream.
 - Ability to pause and restart streams.
 - The sender can refund from the stream balance at any time.
   - This is only possible when the stream balance exceeds the withdrawable amount. For example, if a stream has a
@@ -31,9 +32,9 @@ introducing an internal balance and a rate per second in the Stream entity:
 
 ### How it works
 
-As mentioned in the features section, the creation and deposit operations are distinct. This means that the balance is
-set to 0 when a stream is created, and deposits are made afterward. However, a `createAndDeposit` function is
-implemented to maintain the same user experience.
+As mentioned in the above, the creation and deposit operations are distinct. This means that the balance is set to 0
+when a stream is created, and deposits are made afterward. However, a `createAndDeposit` function is implemented to
+maintain the same user experience.
 
 Since the streams are open-ended, we don't have a start time nor an end time, instead we have a time reference
 (`lastTimeUpdate`) which will be set to `block.timestamp` at the creation of the stream. There are several actions that
@@ -66,8 +67,7 @@ function.
 
 #### Withdrawable amount
 
-The withdrawable amount is actually the streamed amount when there is **no** debt or the balance itself when there is
-debt.
+The withdrawable amount is actually the streamed amount when there is no debt or the balance itself when there is debt.
 
 #### Refundable amount
 
@@ -111,10 +111,11 @@ Currently, I don't think it's possible to address this precision problem entirel
 
 ### Technical decisions
 
-We use 18 fixed-point numbers for all internal amounts (`balance`, `ratePerSecond`, `withdrawable`, `refundable`) to
-avoid the overload of conversion to actual `ERC20` balances. The only time we perform these conversions is during
-external calls to `ERC20s` transfer/transferFrom, i.e. the deposit and extract operations. We need to either increase or
-reduce the calculated amount(`withdrawable` or `refundable`) based on the each asset decimals:
+We use 18 fixed-point numbers for all internal amounts and calcalation functions (`balance`, `ratePerSecond`,
+`withdrawable`, `refundable` etc.) to avoid the overload of conversion to actual `ERC20` balances. The only time we
+perform these conversions is during external calls to `ERC20`'s transfer/transferFrom, i.e. the deposit and extract
+operations as you can see in contracts. When we perform these actions, we need to either increase or reduce the
+calculated amount(`withdrawable` or `refundable`) based on the each asset decimals:
 
 - if the asset has fewer decimals, the transfer amount is reduced
 - if the asset has more decimals, the transfer amount is increased
@@ -123,7 +124,7 @@ Asset decimals can’t be passed in `create` function because one may create a f
 way he may extract more assets from stream.
 
 We store the asset decimals, so that we don't have to make an external call to get the decimals of the asset each time a
-deposit or an extraction is made. Decimals are `uint8`, meaning it is not an expensive operation to store them.
+deposit or an extraction is made. Decimals are `uint8`, meaning it is not an expensive to store them.
 
 Recipient address **must** be checked because there is no NFT minted in `_create` function.
 
