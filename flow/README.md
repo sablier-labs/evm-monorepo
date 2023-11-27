@@ -36,7 +36,7 @@ set to 0 when a stream is created, and deposits are made afterward. However, a `
 implemented to maintain the same user experience.
 
 Since the streams are open-ended, we don't have a start time nor an end time, instead we have a time reference
-(`lastTimeUpdate`) which will be set to `block.timestampt` at the creation of the stream. There are several actions that
+(`lastTimeUpdate`) which will be set to `block.timestamp` at the creation of the stream. There are several actions that
 will update this time reference:
 
 - when a withdrawal is made
@@ -45,11 +45,11 @@ will update this time reference:
     needed in the explantion from [this PR](https://github.com/sablier-labs/v2-open-ended/pull/4)
 
 - when the rate per second is changed
-  - `lastTimeUpdate` will be set to `block.timestampt`, this time update is required in the `_adjustRatePerSecond`
+  - `lastTimeUpdate` will be set to `block.timestamp`, this time update is required in the `_adjustRatePerSecond`
     function because it would cause loss of funds for the recipient if the previous rate was higher or gain of funds if
     the previous rate was lower
 - when the stream is restarted
-  - `lastTimeUpdate` will be set to `block.timestampt`
+  - `lastTimeUpdate` will be set to `block.timestamp`
 
 ### Amounts calculation
 
