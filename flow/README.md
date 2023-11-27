@@ -1,7 +1,7 @@
 ## Sablier V2 Open-Ended
 
-This repository contains the smart contracts for the EOES (EVM open-ended streams) product. By open-ended, we mean that
-the streams have no fixed duration and deposit amount. This product is primarily beneficial for salaries and not for
+This repository contains the smart contracts for the EOES (EVM open-ended streams) concept. By open-ended, we mean that
+the streams have no fixed duration and no deposit amount. This concept is primarily beneficial for salaries and not for
 vesting or airdrops, where lockups are more appropriate.
 
 ### Motivation
