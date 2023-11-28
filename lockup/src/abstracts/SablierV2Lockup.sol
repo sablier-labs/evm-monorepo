@@ -150,7 +150,7 @@ abstract contract SablierV2Lockup is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function cancel(uint256 streamId) public override noDelegateCall updateMetadata(streamId) {
+    function cancel(uint256 streamId) public override noDelegateCall {
         // Checks: the stream is neither depleted nor canceled. This also checks that the stream is not null.
         if (isDepleted(streamId)) {
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
