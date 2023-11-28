@@ -32,7 +32,7 @@ abstract contract IsTransferable_Integration_Concrete_Test is Integration_Test, 
         _;
     }
 
-    function test_IsTransferrable_Stream() external givenNotNull givenStreamTransferable {
+    function test_IsTransferable_Stream() external givenNotNull givenStreamTransferable {
         bool isTransferable = lockup.isTransferable(defaultStreamId);
         assertTrue(isTransferable, "isTransferable");
     }

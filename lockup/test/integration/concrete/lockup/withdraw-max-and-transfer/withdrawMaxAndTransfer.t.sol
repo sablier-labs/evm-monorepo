@@ -75,7 +75,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
     {
         uint256 notTransferableStreamId = createDefaultStreamNotTransferable();
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_NotTransferrable.selector, notTransferableStreamId)
+            abi.encodeWithSelector(Errors.SablierV2Lockup_NotTransferable.selector, notTransferableStreamId)
         );
         lockup.withdrawMaxAndTransfer({ streamId: notTransferableStreamId, newRecipient: users.recipient });
     }

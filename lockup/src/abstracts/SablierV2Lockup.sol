@@ -387,7 +387,7 @@ abstract contract SablierV2Lockup is
         override
     {
         if (!isTransferable(streamId) && to != address(0) && from != address(0)) {
-            revert Errors.SablierV2Lockup_NotTransferrable(streamId);
+            revert Errors.SablierV2Lockup_NotTransferable(streamId);
         }
     }
 
