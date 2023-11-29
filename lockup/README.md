@@ -16,13 +16,13 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 ## Background
 
-Sablier is a token streaming protocol that enables by-the-second payments in web3. DAOs and businesses use it for
-vesting, payroll, airdrops, and more.
+Sablier V2 is a token distribution protocol used by DAOs and businesses for vesting, payroll, airdrops, and more. The
+linear stream is our flagship payment model, which distributes assets on a continuous, by-the-second basis.
 
-The sender of a payment stream first deposits a specific amount of ERC-20 tokens in a contract. Then, the contract
-progressively allocates the funds to the recipient, who can access them as they become available over time. The payment
-rate is influenced by various factors, including the start and end times, as well as the total amount of tokens
-deposited.
+The way it works is that the sender of a payment stream first deposits a specific amount of ERC-20 tokens in a contract.
+Then, the contract progressively allocates the funds to the recipient, who can access them as they become available over
+time. The payment rate is influenced by various factors, including the start and end times, as well as the total amount
+of tokens deposited.
 
 ## Install
 
