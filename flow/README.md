@@ -62,8 +62,7 @@ time and the time stored in the stream `lastTimeUpdate` (ltu):
 $\ sa = rps \times (now - ltu) \$
 
 _sa_ can be higher than the balance, this explaines the _debt_ I was referring to. The _debt_ is the difference between
-_sa_ and the actual balance - which is **not** stored in the contracts but calculated dynamically in a constant
-function.
+_sa_ and the actual balance - which is **not** stored in the contracts but calculated dynamically in a view function.
 
 #### Withdrawable amount
 
