@@ -7,12 +7,14 @@ import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
+import { SablierV2OpenEndedStorage } from "./abstracts/SablierV2OpenEndedStorage.sol";
+import { ISablierV2OpenEnded } from "./interfaces/ISablierV2OpenEnded.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { OpenEnded } from "./types/DataTypes.sol";
 
-import { ISablierV2OpenEnded } from "./interfaces/ISablierV2OpenEnded.sol";
-
-contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
+/// @title SablierV2OpenEnded
+/// @notice See the documentation in {ISablierV2OpenEnded}.
+contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2OpenEndedStorage {
     using SafeCast for uint256;
     using SafeERC20 for IERC20;
 
@@ -28,14 +30,6 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         _;
     }
 
-    /// @dev Checks that `streamId` does not reference a null stream.
-    modifier notNull(uint256 streamId) {
-        if (!isStream(streamId)) {
-            revert Errors.SablierV2OpenEnded_Null(streamId);
-        }
-        _;
-    }
-
     /// @dev Checks the `msg.sender` is the stream's sender.
     modifier onlySender(uint256 streamId) {
         if (!_isCallerStreamSender(streamId)) {
@@ -45,98 +39,8 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                USER-FACING STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierV2OpenEnded
-    uint256 public override nextStreamId;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  PRIVATE STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Sablier V2 OpenEnded streams mapped by unsigned integers.
-    mapping(uint256 id => OpenEnded.Stream stream) private _streams;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    constructor() {
-        nextStreamId = 1;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function getRatePerSecond(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        returns (uint128 ratePerSecond)
-    {
-        ratePerSecond = _streams[streamId].ratePerSecond;
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function getAsset(uint256 streamId) external view override notNull(streamId) returns (IERC20 asset) {
-        asset = _streams[streamId].asset;
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function getAssetDecimals(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        returns (uint8 assetDecimals)
-    {
-        assetDecimals = _streams[streamId].assetDecimals;
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function getBalance(uint256 streamId) external view override notNull(streamId) returns (uint128 balance) {
-        balance = _streams[streamId].balance;
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function getLastTimeUpdate(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        returns (uint40 lastTimeUpdate)
-    {
-        lastTimeUpdate = _streams[streamId].lastTimeUpdate;
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function getRecipient(uint256 streamId) external view override notNull(streamId) returns (address recipient) {
-        recipient = _streams[streamId].recipient;
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function getSender(uint256 streamId) external view notNull(streamId) returns (address sender) {
-        sender = _streams[streamId].sender;
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function getStream(uint256 streamId) external view notNull(streamId) returns (OpenEnded.Stream memory stream) {
-        stream = _streams[streamId];
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function isCanceled(uint256 streamId) public view override notNull(streamId) returns (bool result) {
-        result = _streams[streamId].isCanceled;
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function isStream(uint256 streamId) public view returns (bool result) {
-        result = _streams[streamId].isStream;
-    }
 
     /// @inheritdoc ISablierV2OpenEnded
     function refundableAmountOf(uint256 streamId)
@@ -393,12 +297,6 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall {
         if (amount > balance) {
             revert Errors.SablierV2OpenEnded_InvalidCalculation(streamId, balance, amount);
         }
-    }
-
-    /// @notice Checks whether `msg.sender` is the stream's sender.
-    /// @param streamId The stream id for the query.
-    function _isCallerStreamSender(uint256 streamId) internal view returns (bool) {
-        return msg.sender == _streams[streamId].sender;
     }
 
     /// @dev Calculates the refundable amount.
