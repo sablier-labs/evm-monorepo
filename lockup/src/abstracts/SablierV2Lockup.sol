@@ -307,7 +307,6 @@ abstract contract SablierV2Lockup is
         override
         noDelegateCall
         notNull(streamId)
-        updateMetadata(streamId)
     {
         // Checks: the caller is the current recipient. This also checks that the NFT was not burned.
         address currentRecipient = _ownerOf(streamId);
