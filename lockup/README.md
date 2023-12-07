@@ -86,7 +86,7 @@ docs, as well as these [diagrams](https://docs.sablier.com/contracts/v2/referenc
 ## Deployments
 
 The list of all deployment addresses can be found [here](https://docs.sablier.com). For guidance on the deploy scripts,
-see the [Deployments wiki](./wiki/Deployments.md).
+see the [Deployments wiki](https://github.com/sablier-labs/v2-core/wiki/Deployments.md).
 
 It is worth noting that not every file in this repository is included in the current deployments. For instance, the
 `SablierV2FlashLoan` abstract is not inherited by any contract on the `main` branch, but we have kept it in version
