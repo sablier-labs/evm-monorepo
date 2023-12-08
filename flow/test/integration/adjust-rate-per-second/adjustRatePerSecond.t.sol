@@ -68,7 +68,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
         givenNotCanceled
         whenCallerAuthorized
     {
-        vm.expectRevert(Errors.SablierV2OpenEnded_ratePerSecondZero.selector);
+        vm.expectRevert(Errors.SablierV2OpenEnded_RatePerSecondZero.selector);
         openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: 0 });
     }
 

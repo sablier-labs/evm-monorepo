@@ -363,7 +363,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
     function _adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) internal {
         // Checks: the new rate per second is not zero.
         if (newRatePerSecond == 0) {
-            revert Errors.SablierV2OpenEnded_ratePerSecondZero();
+            revert Errors.SablierV2OpenEnded_RatePerSecondZero();
         }
 
         uint128 oldRatePerSecond = _streams[streamId].ratePerSecond;
@@ -458,7 +458,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
 
         // Checks: the rate per second is not zero.
         if (ratePerSecond == 0) {
-            revert Errors.SablierV2OpenEnded_ratePerSecondZero();
+            revert Errors.SablierV2OpenEnded_RatePerSecondZero();
         }
 
         uint8 assetDecimals = _safeAssetDecimals(address(asset));
@@ -570,7 +570,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
 
         // Checks: the rate per second is not zero.
         if (ratePerSecond == 0) {
-            revert Errors.SablierV2OpenEnded_ratePerSecondZero();
+            revert Errors.SablierV2OpenEnded_RatePerSecondZero();
         }
 
         // Effects: set the rate per second.

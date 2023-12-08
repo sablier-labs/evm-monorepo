@@ -68,7 +68,7 @@ contract RestartStream_Integration_Test is Integration_Test {
         givenCanceled
         whenCallerAuthorized
     {
-        vm.expectRevert(Errors.SablierV2OpenEnded_ratePerSecondZero.selector);
+        vm.expectRevert(Errors.SablierV2OpenEnded_RatePerSecondZero.selector);
         openEnded.restartStream({ streamId: defaultStreamId, ratePerSecond: 0 });
     }
 

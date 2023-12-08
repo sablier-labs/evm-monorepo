@@ -18,7 +18,7 @@ library Errors {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Thrown when trying to set the rate per second of a stream to zero.
-    error SablierV2OpenEnded_ratePerSecondZero();
+    error SablierV2OpenEnded_RatePerSecondZero();
 
     /// @notice Thrown when trying to change the rate per second with the same rate per second.
     error SablierV2OpenEnded_ratePerSecondNotDifferent(uint128 ratePerSecond);

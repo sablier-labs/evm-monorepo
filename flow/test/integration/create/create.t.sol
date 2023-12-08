@@ -36,7 +36,7 @@ contract Create_Integration_Test is Integration_Test {
         whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
     {
-        vm.expectRevert(Errors.SablierV2OpenEnded_ratePerSecondZero.selector);
+        vm.expectRevert(Errors.SablierV2OpenEnded_RatePerSecondZero.selector);
         openEnded.create({ sender: users.sender, recipient: users.recipient, ratePerSecond: 0, asset: dai });
     }
 
