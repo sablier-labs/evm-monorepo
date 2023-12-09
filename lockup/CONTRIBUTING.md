@@ -39,6 +39,7 @@ Now you can start making changes.
 When making a pull request, ensure that:
 
 - All tests pass.
+  - Fork testing requires environment variables to be set up in the forked repo.
 - Code coverage remains the same or greater.
 - All new code adheres to the style guide:
   - All lint checks pass.
@@ -52,10 +53,19 @@ When making a pull request, ensure that:
 
 ## Environment Variables
 
-Some of the features of this repository, such as deployments, require environment variables to be set up.
+### Local setup
 
-Follow the [`.env.example`](./.env.example) file to create a `.env` file at the root of the repo and populate it with
-the appropriate environment values. You need to provide your mnemonic phrase and a few API keys.
+To build locally, follow the [`.env.example`](./.env.example) file to create a `.env` file at the root of the repo and
+populate it with the appropriate environment values. You need to provide your mnemonic phrase and a few API keys.
+
+### Deployment
+
+To make CI work in your pull request, ensure that the necessary environment variables are configured in your forked
+repository's secrets. Please add the following variables in your GitHub Secrets:
+
+- API_KEY_ETHERSCAN
+- API_KEY_INFURA
+- RPC_URL_MAINNET
 
 ## Integration with VSCode:
 
