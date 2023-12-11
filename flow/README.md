@@ -32,9 +32,9 @@ internal balance and a rate-per-second in the Stream entity:
 
 ### How it works
 
-As mentioned in the above, the creation and deposit operations are distinct. This means that the balance is set to 0
-when a stream is created, and deposits are made afterward. However, a `createAndDeposit` function is implemented to
-maintain the same user experience.
+As mentioned above, the creation and deposit operations are distinct. This means that the balance is set to 0 when a
+stream is created, and deposits are made afterward. However, a `createAndDeposit` function is implemented to maintain
+the same user experience.
 
 Since the streams are open-ended, we don't have a start time nor an end time, instead we have a time reference
 (`lastTimeUpdate`) which will be set to `block.timestamp` at the creation of the stream. There are several actions that
