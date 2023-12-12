@@ -2,9 +2,9 @@
 pragma solidity >=0.8.20 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Vm } from "forge-std/Vm.sol";
-import { StdCheats } from "forge-std/StdCheats.sol";
-import { StdUtils } from "forge-std/StdUtils.sol";
+import { Vm } from "@forge-std/src/Vm.sol";
+import { StdCheats } from "@forge-std/src/StdCheats.sol";
+import { StdUtils } from "@forge-std/src/StdUtils.sol";
 
 import { TimestampStore } from "../stores/TimestampStore.sol";
 

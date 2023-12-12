@@ -7,12 +7,14 @@
     "url": "https://sablier.com"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.0",
-    "@prb/math": "^4.0.1",
-    "solhint": "^3.6.2"
+    "@openzeppelin/contracts": "5.0.0",
+    "@prb/math": "4.0.2"
   },
   "devDependencies": {
-    "prettier": "^3.0.0"
+    "@forge-std": "github:foundry-rs/forge-std#e8a047e3f40f13fa37af6fe14e6e06283d9a060e",
+    "@prb/test": "0.6.4",
+    "prettier": "3.0.0",
+    "solhint": "3.6.2"
   },
   "keywords": [
     "blockchain",

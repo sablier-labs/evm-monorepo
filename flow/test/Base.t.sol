@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.20;
 
+import { StdCheats } from "@forge-std/src/StdCheats.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
@@ -18,7 +19,7 @@ struct Users {
     address recipient;
 }
 
-abstract contract Base_Test is Assertions, Events, Modifiers {
+abstract contract Base_Test is Assertions, Events, Modifiers, StdCheats {
     using SafeCast for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -69,8 +70,8 @@ abstract contract Base_Test is Assertions, Events, Modifiers {
         vm.label(address(usdt), "USDT");
 
         vm.startPrank({ msgSender: users.sender });
-        dai.approve({ spender: address(openEnded), value: UINT256_MAX });
-        usdt.approve({ spender: address(openEnded), value: UINT256_MAX });
+        dai.approve({ spender: address(openEnded), value: type(uint256).max });
+        usdt.approve({ spender: address(openEnded), value: type(uint256).max });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -95,7 +95,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
         whenratePerSecondNonZero
         whenratePerSecondNotDifferent
     {
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        vm.warp({ timestamp: WARP_ONE_MONTH });
 
         uint128 actualratePerSecond = openEnded.getRatePerSecond(defaultStreamId);
         uint128 expectedratePerSecond = RATE_PER_SECOND;
@@ -150,7 +150,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
 
     function test_adjustRatePerSecond(uint256 streamId, IERC20 asset) internal {
         openEnded.deposit(streamId, DEPOSIT_AMOUNT);
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        vm.warp({ timestamp: WARP_ONE_MONTH });
 
         uint128 actualratePerSecond = openEnded.getRatePerSecond(streamId);
         uint128 expectedratePerSecond = RATE_PER_SECOND;
