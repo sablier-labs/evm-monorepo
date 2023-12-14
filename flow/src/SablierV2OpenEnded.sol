@@ -193,7 +193,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
 
         uint256 streamId;
         uint128 amount;
-        for (uint256 i = 0; i < streamIdsCount;) {
+        for (uint256 i = 0; i < streamIdsCount; ++i) {
             streamId = streamIds[i];
 
             // Checks: the stream is not canceled.
@@ -205,11 +205,6 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
 
             // Checks, Effects and Interactions: deposit on stream.
             _deposit(streamId, amount);
-
-            // Increment the for loop iterator.
-            unchecked {
-                i += 1;
-            }
         }
     }
 
