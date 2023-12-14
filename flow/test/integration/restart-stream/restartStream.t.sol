@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.20;
+pragma solidity >=0.8.22;
 
 import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
 import { Errors } from "src/libraries/Errors.sol";

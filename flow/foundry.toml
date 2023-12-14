@@ -4,7 +4,7 @@
   auto_detect_solc = false
   block_timestamp = 1_698_796_800 # November 1, 2023 at 00:00 GMT
   bytecode_hash = "none"
-  evm_version = "paris"           # See https://www.evmdiff.com/features?name=PUSH0&kind=opcode
+  #evm_version = "shanghai"           # See https://www.evmdiff.com/features?name=PUSH0&kind=opcode
   fuzz = { runs = 10_000 }
   gas_reports = ["*"]
   libs = ["lib"]
@@ -12,7 +12,7 @@
   optimizer_runs = 10_000
   out = "out"
   script = "script"
-  solc = "0.8.21"
+  solc = "0.8.22"
   src = "src"
   test = "test"
 

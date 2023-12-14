@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.20;
+pragma solidity >=0.8.22;
 
 import { StdCheats } from "@forge-std/src/StdCheats.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
