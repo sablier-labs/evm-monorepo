@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { StdInvariant } from "forge-std/StdInvariant.sol";
+import { StdInvariant } from "forge-std/src/StdInvariant.sol";
 
 import { Base_Test } from "../Base.t.sol";
 import { ComptrollerHandler } from "./handlers/ComptrollerHandler.sol";

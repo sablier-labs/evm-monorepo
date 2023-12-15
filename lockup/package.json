@@ -12,15 +12,20 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.9.2",
-    "@prb/math": "4.0.1",
-    "solhint": "^3.6.2"
+    "@prb/math": "4.0.2"
   },
   "devDependencies": {
-    "prettier": "^2.8.8"
+    "@prb/test": "0.6.4",
+    "forge-std": "github:foundry-rs/forge-std#e8a047e3f40f13fa37af6fe14e6e06283d9a060e",
+    "prettier": "^2.8.8",
+    "solady": "0.0.129",
+    "solarray": "github:evmcheb/solarray#0625e7e4369eb299753fcb90a3cd7ffb91e1b5bc",
+    "solhint": "^4.0.0"
   },
   "files": [
     "artifacts",
     "src",
+    "test/utils",
     "CHANGELOG.md",
     "LICENSE-GPL.md"
   ],
@@ -46,7 +51,7 @@
     "web3"
   ],
   "peerDependencies": {
-    "@prb/math": "4.0.1"
+    "@prb/math": "4.0.x"
   },
   "publishConfig": {
     "access": "public"

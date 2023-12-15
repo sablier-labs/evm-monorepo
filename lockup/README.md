@@ -26,6 +26,22 @@ of tokens deposited.
 
 ## Install
 
+### Node.js (recommended)
+
+Sablier V2 Core is available as a Node.js package:
+
+```shell
+yarn add @sablier/v2-core
+```
+
+Finally, add these to your `remappings.txt` file:
+
+```text
+@sablier/v2-core/=node_modules/@sablier/v2-core/
+@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
+@prb/math/=node_modules/@prb/math/
+```
+
 ### Foundry
 
 First, run the install step:
@@ -34,27 +50,18 @@ First, run the install step:
 forge install sablier-labs/v2-core
 ```
 
-Your `.gitmodules` file should now contain the following entry:
+Second, you need to install the project's dependencies:
 
-```toml
-[submodule "lib/v2-core"]
-  branch = "release"
-  path = "lib/v2-core"
-  url = "https://github.com/sablier-labs/v2-core"
+```shell
+forge install --no-commit OpenZeppelin/openzeppelin-contracts@v4.9.2 PaulRBerg/prb-math
 ```
 
-Finally, add this to your `remappings.txt` file:
+Finally, add these to your `remappings.txt` file:
 
 ```text
 @sablier/v2-core/=lib/v2-core/
-```
-
-### Node.js
-
-Sablier V2 Core is available as a Node.js package:
-
-```shell
-pnpm add @sablier/v2-core
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@prb/math/=lib/prb-math/
 ```
 
 ## Usage

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import { MAX_UD60x18, UD60x18, ud, ZERO } from "@prb/math/src/UD60x18.sol";
-import { stdError } from "forge-std/StdError.sol";
+import { stdError } from "forge-std/src/StdError.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";

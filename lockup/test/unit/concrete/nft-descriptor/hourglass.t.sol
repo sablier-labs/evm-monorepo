@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { LibString } from "solady/utils/LibString.sol";
+import { LibString } from "solady/src/utils/LibString.sol";
 
 import { SVGElements } from "src/libraries/SVGElements.sol";
 

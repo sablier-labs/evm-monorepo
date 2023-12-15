@@ -2,10 +2,10 @@
 // solhint-disable max-line-length,no-console,quotes
 pragma solidity >=0.8.19 <0.9.0;
 
-import { console2 } from "forge-std/console2.sol";
-import { LibString } from "solady/utils/LibString.sol";
-import { StdStyle } from "forge-std/StdStyle.sol";
-import { Base64 } from "solady/utils/Base64.sol";
+import { console2 } from "forge-std/src/console2.sol";
+import { LibString } from "solady/src/utils/LibString.sol";
+import { StdStyle } from "forge-std/src/StdStyle.sol";
+import { Base64 } from "solady/src/utils/Base64.sol";
 
 import { LockupDynamic_Integration_Concrete_Test } from "../LockupDynamic.t.sol";
 
