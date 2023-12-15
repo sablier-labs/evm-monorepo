@@ -4,10 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+[1.1.1]: https://github.com/sablier-labs/v2-core/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/sablier-labs/v2-core/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/sablier-labs/v2-core/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/sablier-labs/v2-core/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/sablier-labs/v2-core/releases/tag/v1.0.0
+
+## [1.1.1] - 2023-12-16
+
+### Changed
+
+- Bump package version for NPM release
+  ([88db61](https://github.com/sablier-labs/v2-core/tree/88db61bcf193ef9494b31c883ed2c9ad997a1271))
 
 ## [1.1.0] - 2023-12-15
 
