@@ -5,17 +5,21 @@ withdrawMaxAndTransfer.t.sol
    ├── given the id references a null stream
    │  └── it should revert
    └── given the id does not reference a null stream
-      ├── when the caller is not the current recipient
+      ├── given the stream is not transferable
       │  └── it should revert
-      └── when the caller is the current recipient
+      └── given the stream is transferable
          ├── given the NFT has been burned
          │  └── it should revert
          └── given the NFT has not been burned
             ├── given the withdrawable amount is zero
             │  └── it should skip the withdrawal
             └── given the withdrawable amount is not zero
-               ├── it should make the max withdrawal
-               ├── it should update the withdrawn amount
-               ├── it should transfer the NFT
-               ├── it should emit a {WithdrawFromLockupStream} event
-               └── it should emit a {Transfer} event
+               ├── when the caller is not the current recipient
+               │  └── it should revert
+               └── when the caller is the current recipient
+                  ├── it should make the max withdrawal
+                  ├── it should update the withdrawn amount
+                  ├── it should transfer the NFT
+                  ├── it should emit a {WithdrawFromLockupStream} event
+                  ├── it should emit a {Transfer} event
+                  └── it should emit a {MetadataUpdate} event

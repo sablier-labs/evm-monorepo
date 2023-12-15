@@ -1,0 +1,83 @@
+name: "CI Slither"
+
+env:
+  API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
+  API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
+  RPC_URL_MAINNET: ${{ secrets.RPC_URL_MAINNET }}
+
+on:
+  schedule:
+    - cron: "0 3 * * 0" # at 3:00am UTC every Sunday
+
+jobs:
+  lint:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+
+      - name: "Install Pnpm"
+        uses: "pnpm/action-setup@v2"
+        with:
+          version: "8"
+
+      - name: "Install Node.js"
+        uses: "actions/setup-node@v3"
+        with:
+          cache: "pnpm"
+          node-version: "lts/*"
+
+      - name: "Install the Node.js dependencies"
+        run: "pnpm install"
+
+      - name: "Lint the contracts"
+        run: "pnpm lint"
+
+      - name: "Add lint summary"
+        run: |
+          echo "## Lint result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+  slither-analyze:
+    runs-on: "ubuntu-latest"
+    permissions:
+      actions: "read"
+      contents: "read"
+      security-events: "write"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+
+      - name: "Install Pnpm"
+        uses: "pnpm/action-setup@v2"
+        with:
+          version: "8"
+
+      - name: "Install Node.js"
+        uses: "actions/setup-node@v3"
+        with:
+          cache: "pnpm"
+          node-version: "lts/*"
+
+      - name: "Install the Node.js dependencies"
+        run: "pnpm install"
+
+      - name: "Run Slither analysis"
+        uses: "crytic/slither-action@v0.3.0"
+        id: "slither"
+        with:
+          fail-on: "none"
+          sarif: "results.sarif"
+
+      - name: "Upload SARIF file to GitHub code scanning"
+        uses: "github/codeql-action/upload-sarif@v2"
+        with:
+          sarif_file: ${{ steps.slither.outputs.sarif }}
+
+      - name: "Add Slither summary"
+        run: |
+          echo "## Slither result" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Uploaded to GitHub code scanning" >> $GITHUB_STEP_SUMMARY

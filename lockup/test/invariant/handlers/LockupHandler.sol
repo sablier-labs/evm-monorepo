@@ -288,6 +288,11 @@ abstract contract LockupHandler is BaseHandler {
             return;
         }
 
+        // Skip if the stream is not transferable.
+        if (!lockup.isTransferable(currentStreamId)) {
+            return;
+        }
+
         // The protocol doesn't allow a zero amount to be withdrawn.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(currentStreamId);
         if (withdrawableAmount == 0) {
@@ -323,6 +328,11 @@ abstract contract LockupHandler is BaseHandler {
 
         // Skip burned NFTs.
         if (currentRecipient == address(0)) {
+            return;
+        }
+
+        // Skip if the stream is not transferable.
+        if (!lockup.isTransferable(currentStreamId)) {
             return;
         }
 

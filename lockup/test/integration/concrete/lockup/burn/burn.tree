@@ -21,7 +21,13 @@ burn.t.sol
             ├── given the NFT does not exist
             │  └── it should revert
             └── given the NFT exists
-               ├── when the caller is an approved third party
-               │  └── it should burn the NFT
-               └── when the caller is the owner of the NFT
-                  └── it should burn the NFT
+               ├── given the NFT is not transferable
+               │  ├── it should burn the NFT
+               │  └── it should emit a {MetadataUpdate} event
+               └── given the NFT is transferable
+                  ├── when the caller is an approved third party
+                  │  ├── it should burn the NFT
+                  │  └── it should emit a {MetadataUpdate} event
+                  └── when the caller is the owner of the NFT
+                     ├── it should burn the NFT
+                     └── it should emit a {MetadataUpdate} event

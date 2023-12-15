@@ -8,7 +8,7 @@ abstract contract Cancel_Integration_Shared_Test is Lockup_Integration_Shared_Te
 
     function setUp() public virtual override {
         defaultStreamId = createDefaultStream();
-        changePrank({ msgSender: users.recipient });
+        changePrank({ msgSender: users.sender });
     }
 
     modifier whenNotDelegateCalled() {
@@ -47,11 +47,6 @@ abstract contract Cancel_Integration_Shared_Test is Lockup_Integration_Shared_Te
         _;
     }
 
-    modifier whenCallerSender() {
-        changePrank({ msgSender: users.sender });
-        _;
-    }
-
     modifier givenRecipientContract() {
         _;
     }
@@ -65,27 +60,6 @@ abstract contract Cancel_Integration_Shared_Test is Lockup_Integration_Shared_Te
     }
 
     modifier whenNoRecipientReentrancy() {
-        _;
-    }
-
-    modifier whenCallerRecipient() {
-        changePrank({ msgSender: users.recipient });
-        _;
-    }
-
-    modifier givenSenderContract() {
-        _;
-    }
-
-    modifier givenSenderImplementsHook() {
-        _;
-    }
-
-    modifier whenSenderDoesNotRevert() {
-        _;
-    }
-
-    modifier whenNoSenderReentrancy() {
         _;
     }
 }

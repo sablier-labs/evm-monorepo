@@ -25,6 +25,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
         givenNotNull
         whenCallerCurrentRecipient
         givenNFTNotBurned
+        givenStreamTransferable
     {
         vm.assume(newRecipient != address(0));
         timeJump = _bound(timeJump, 0, defaults.TOTAL_DURATION() * 2);
@@ -41,7 +42,12 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
 
             // Expect the relevant event to be emitted.
             vm.expectEmit({ emitter: address(lockup) });
-            emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+            emit WithdrawFromLockupStream({
+                streamId: defaultStreamId,
+                to: users.recipient,
+                asset: dai,
+                amount: withdrawAmount
+            });
         }
 
         // Expect the relevant event to be emitted.

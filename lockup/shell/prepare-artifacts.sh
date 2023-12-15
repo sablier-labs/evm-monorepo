@@ -45,7 +45,6 @@ cp out-optimized/IERC721Metadata.sol/IERC721Metadata.json $erc721
 
 hooks=./artifacts/interfaces/hooks
 cp out-optimized/ISablierV2LockupRecipient.sol/ISablierV2LockupRecipient.json $hooks
-cp out-optimized/ISablierV2LockupSender.sol/ISablierV2LockupSender.json $hooks
 
 libraries=./artifacts/libraries
 cp out-optimized/Errors.sol/Errors.json $libraries

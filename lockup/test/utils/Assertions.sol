@@ -2,8 +2,8 @@
 pragma solidity >=0.8.19;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { PRBMathAssertions } from "@prb/math/src/test/Assertions.sol";
-import { PRBTest } from "@prb/test/PRBTest.sol";
+import { PRBMathAssertions } from "@prb/math/test/utils/Assertions.sol";
+import { PRBTest } from "@prb/test/src/PRBTest.sol";
 
 import { Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";
 
@@ -47,6 +47,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.endTime, b.endTime, "endTime");
         assertEq(a.isCancelable, b.isCancelable, "isCancelable");
         assertEq(a.isDepleted, b.isDepleted, "isDepleted");
+        assertEq(a.isTransferable, b.isTransferable, "isTransferable");
         assertEq(a.isStream, b.isStream, "isStream");
         assertEq(a.sender, b.sender, "sender");
         assertEq(a.startTime, b.startTime, "startTime");
@@ -59,6 +60,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.endTime, b.endTime, "endTime");
         assertEq(a.isCancelable, b.isCancelable, "isCancelable");
         assertEq(a.isDepleted, b.isDepleted, "isDepleted");
+        assertEq(a.isTransferable, b.isTransferable, "isTransferable");
         assertEq(a.isStream, b.isStream, "isStream");
         assertEq(a.segments, b.segments, "segments");
         assertEq(a.sender, b.sender, "sender");

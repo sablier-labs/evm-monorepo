@@ -9,12 +9,12 @@
 # Strict mode: https://gist.github.com/vncsna/64825d5609c146e80de8b1fd623011ca
 set -euo pipefail
 
-./shell/generate-svg.sh 0 "Pending" "0" 5
-./shell/generate-svg.sh 0 "Pending" "0" 21
-./shell/generate-svg.sh 0 "Pending" "0" 565
+./shell/generate-svg.sh 0 "Pending" "100" 5
+./shell/generate-svg.sh 0 "Pending" "100" 21
+./shell/generate-svg.sh 0 "Pending" "100" 565
 
-./shell/generate-svg.sh 0 "Canceled" "0" 3
-./shell/generate-svg.sh 0 "Canceled" "0" 3
+./shell/generate-svg.sh 0 "Canceled" "100" 3
+./shell/generate-svg.sh 0 "Canceled" "100" 3
 ./shell/generate-svg.sh 144 "Canceled" "29.81K" 24
 ./shell/generate-svg.sh 7231 "Canceled" "421.11K" 24
 

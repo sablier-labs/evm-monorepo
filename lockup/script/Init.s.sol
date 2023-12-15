@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.8.19 <=0.9.0;
+pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ud2x18 } from "@prb/math/src/UD2x18.sol";
+import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { Solarray } from "solarray/Solarray.sol";
+import { Solarray } from "solarray/src/Solarray.sol";
 
 import { ISablierV2Comptroller } from "../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupDynamic } from "../src/interfaces/ISablierV2LockupDynamic.sol";
 import { ISablierV2LockupLinear } from "../src/interfaces/ISablierV2LockupLinear.sol";
 import { Broker, LockupDynamic, LockupLinear } from "../src/types/DataTypes.sol";
-import { ud2x18, ud60x18 } from "../src/types/Math.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
@@ -73,6 +74,7 @@ contract Init is BaseScript {
                     totalAmount: totalAmounts[i],
                     asset: asset,
                     cancelable: true,
+                    transferable: true,
                     durations: LockupLinear.Durations({ cliff: cliffDurations[i], total: totalDurations[i] }),
                     broker: Broker(address(0), ud60x18(0))
                 })
@@ -98,6 +100,7 @@ contract Init is BaseScript {
                 asset: asset,
                 broker: Broker(address(0), ud60x18(0)),
                 cancelable: true,
+                transferable: true,
                 recipient: recipient,
                 sender: sender,
                 segments: segments,

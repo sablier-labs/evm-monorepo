@@ -47,6 +47,9 @@ abstract contract Lockup_Integration_Shared_Test is Base_Test {
     /// @dev Creates the default stream but make it not cancelable.
     function createDefaultStreamNotCancelable() internal virtual returns (uint256 streamId);
 
+    /// @dev Creates the default stream with the NFT transfer disabled.
+    function createDefaultStreamNotTransferable() internal virtual returns (uint256 streamId);
+
     /// @dev Creates the default stream with the provided address.
     function createDefaultStreamWithAsset(IERC20 asset) internal virtual returns (uint256 streamId);
 

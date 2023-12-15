@@ -3,7 +3,6 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { StdCheats } from "forge-std/StdCheats.sol";
 
 import { ISablierV2Comptroller } from "../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupDynamic } from "../src/interfaces/ISablierV2LockupDynamic.sol";
@@ -18,17 +17,17 @@ import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { GoodFlashLoanReceiver } from "./mocks/flash-loan/GoodFlashLoanReceiver.sol";
 import { Noop } from "./mocks/Noop.sol";
 import { GoodRecipient } from "./mocks/hooks/GoodRecipient.sol";
-import { GoodSender } from "./mocks/hooks/GoodSender.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Calculations } from "./utils/Calculations.sol";
 import { Constants } from "./utils/Constants.sol";
 import { Defaults } from "./utils/Defaults.sol";
+import { DeployOptimized } from "./utils/DeployOptimized.sol";
 import { Events } from "./utils/Events.sol";
 import { Fuzzers } from "./utils/Fuzzers.sol";
 import { Users } from "./utils/Types.sol";
 
 /// @notice Base test contract with common logic needed by all tests.
-abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzzers, StdCheats {
+abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimized, Events, Fuzzers {
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -44,7 +43,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
     Defaults internal defaults;
     GoodFlashLoanReceiver internal goodFlashLoanReceiver;
     GoodRecipient internal goodRecipient;
-    GoodSender internal goodSender;
     ISablierV2LockupDynamic internal lockupDynamic;
     ISablierV2LockupLinear internal lockupLinear;
     ISablierV2NFTDescriptor internal nftDescriptor;
@@ -60,7 +58,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
         dai = new ERC20("Dai Stablecoin", "DAI");
         goodFlashLoanReceiver = new GoodFlashLoanReceiver();
         goodRecipient = new GoodRecipient();
-        goodSender = new GoodSender();
         noop = new Noop();
         usdt = new ERC20MissingReturn("Tether USD", "USDT", 6);
 
@@ -68,7 +65,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
         vm.label({ account: address(dai), newLabel: "DAI" });
         vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
         vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
-        vm.label({ account: address(goodSender), newLabel: "Good Sender" });
         vm.label({ account: address(nftDescriptor), newLabel: "NFT Descriptor" });
         vm.label({ account: address(noop), newLabel: "Noop" });
         vm.label({ account: address(usdt), newLabel: "USDT" });
@@ -136,7 +132,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
         return user;
     }
 
-    /// @dev Conditionally deploys V2 Core normally or from a source precompiled with `--via-ir`.
+    /// @dev Conditionally deploys V2 Core normally or from an optimized source compiled with `--via-ir`.
     /// We cannot use the {DeployCore} script because some tests rely on hard coded addresses for the
     /// deployed contracts. Since the script itself would have to be deployed, using it would bump the
     /// deployer's nonce, which would in turn lead to different addresses (recall that the addresses
@@ -149,63 +145,14 @@ abstract contract Base_Test is Assertions, Calculations, Constants, Events, Fuzz
                 new SablierV2LockupDynamic(users.admin, comptroller, nftDescriptor, defaults.MAX_SEGMENT_COUNT());
             lockupLinear = new SablierV2LockupLinear(users.admin, comptroller, nftDescriptor);
         } else {
-            comptroller = deployPrecompiledComptroller(users.admin);
-            nftDescriptor = deployPrecompiledNFTDescriptor();
-            lockupDynamic = deployPrecompiledDynamic(users.admin, comptroller, nftDescriptor);
-            lockupLinear = deployPrecompiledLinear(users.admin, comptroller, nftDescriptor);
+            (comptroller, lockupDynamic, lockupLinear, nftDescriptor) =
+                deployOptimizedCore(users.admin, defaults.MAX_SEGMENT_COUNT());
         }
 
         vm.label({ account: address(comptroller), newLabel: "Comptroller" });
         vm.label({ account: address(lockupDynamic), newLabel: "LockupDynamic" });
         vm.label({ account: address(lockupLinear), newLabel: "LockupLinear" });
         vm.label({ account: address(nftDescriptor), newLabel: "NFTDescriptor" });
-    }
-
-    /// @dev Deploys {SablierV2Comptroller} from a source precompiled with `--via-ir`.
-    function deployPrecompiledComptroller(address initialAdmin) internal returns (ISablierV2Comptroller) {
-        return ISablierV2Comptroller(
-            deployCode("out-optimized/SablierV2Comptroller.sol/SablierV2Comptroller.json", abi.encode(initialAdmin))
-        );
-    }
-
-    /// @dev Deploys {SablierV2LockupDynamic} from a source precompiled with `--via-ir`.
-    function deployPrecompiledDynamic(
-        address initialAdmin,
-        ISablierV2Comptroller comptroller_,
-        ISablierV2NFTDescriptor nftDescriptor_
-    )
-        internal
-        returns (ISablierV2LockupDynamic)
-    {
-        return ISablierV2LockupDynamic(
-            deployCode(
-                "out-optimized/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json",
-                abi.encode(initialAdmin, address(comptroller_), address(nftDescriptor_), defaults.MAX_SEGMENT_COUNT())
-            )
-        );
-    }
-
-    /// @dev Deploys {SablierV2LockupLinear} from a source precompiled with `--via-ir`.
-    function deployPrecompiledLinear(
-        address initialAdmin,
-        ISablierV2Comptroller comptroller_,
-        ISablierV2NFTDescriptor nftDescriptor_
-    )
-        internal
-        returns (ISablierV2LockupLinear)
-    {
-        return ISablierV2LockupLinear(
-            deployCode(
-                "out-optimized/SablierV2LockupLinear.sol/SablierV2LockupLinear.json",
-                abi.encode(initialAdmin, address(comptroller_), address(nftDescriptor_))
-            )
-        );
-    }
-
-    /// @dev Deploys {SablierV2NFTDescriptor} from a source precompiled with `--via-ir`.
-    function deployPrecompiledNFTDescriptor() internal returns (ISablierV2NFTDescriptor) {
-        return
-            ISablierV2NFTDescriptor(deployCode("out-optimized/SablierV2NFTDescriptor.sol/SablierV2NFTDescriptor.json"));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

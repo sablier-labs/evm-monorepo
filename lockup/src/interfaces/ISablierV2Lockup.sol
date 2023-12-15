@@ -22,14 +22,16 @@ interface ISablierV2Lockup is
     /// @param streamId The id of the stream.
     /// @param sender The address of the stream's sender.
     /// @param recipient The address of the stream's recipient.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in units of the asset's
     /// decimals.
     /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of the
     /// asset's decimals.
     event CancelLockupStream(
-        uint256 indexed streamId,
+        uint256 streamId,
         address indexed sender,
         address indexed recipient,
+        IERC20 indexed asset,
         uint128 senderAmount,
         uint128 recipientAmount
     );
@@ -49,8 +51,9 @@ interface ISablierV2Lockup is
     /// @notice Emitted when assets are withdrawn from a stream.
     /// @param streamId The id of the stream.
     /// @param to The address that has received the withdrawn assets.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param amount The amount of assets withdrawn, denoted in units of the asset's decimals.
-    event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, uint128 amount);
+    event WithdrawFromLockupStream(uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 amount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
@@ -118,6 +121,11 @@ interface ISablierV2Lockup is
     /// @param streamId The stream id for the query.
     function isStream(uint256 streamId) external view returns (bool result);
 
+    /// @notice Retrieves a flag indicating whether the stream NFT can be transferred.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream id for the query.
+    function isTransferable(uint256 streamId) external view returns (bool result);
+
     /// @notice Retrieves a flag indicating whether the stream is warm, i.e. either pending or streaming.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
@@ -176,13 +184,12 @@ interface ISablierV2Lockup is
     /// Notes:
     /// - If there any assets left for the recipient to withdraw, the stream is marked as canceled. Otherwise, the
     /// stream is marked as depleted.
-    /// - This function attempts to invoke a hook on either the sender or the recipient, depending on who `msg.sender`
-    /// is, and if the resolved address is a contract.
+    /// - This function attempts to invoke a hook on the recipient, if the resolved address is a contract.
     ///
     /// Requirements:
     /// - Must not be delegate called.
     /// - The stream must be warm and cancelable.
-    /// - `msg.sender` must be either the stream's sender or the stream's recipient (i.e. the NFT owner).
+    /// - `msg.sender` must be the stream's sender.
     ///
     /// @param streamId The id of the stream to cancel.
     function cancel(uint256 streamId) external;

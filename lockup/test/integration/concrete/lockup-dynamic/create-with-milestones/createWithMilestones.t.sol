@@ -3,7 +3,7 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18, ud, ZERO } from "@prb/math/src/UD60x18.sol";
-import { stdError } from "forge-std/StdError.sol";
+import { stdError } from "forge-std/src/StdError.sol";
 
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { Errors } from "src/libraries/Errors.sol";
@@ -359,7 +359,9 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
             amount: defaults.BROKER_FEE_AMOUNT()
         });
 
-        // Expect the relevant event to be emitted.
+        // Expect the relevant events to be emitted.
+        vm.expectEmit({ emitter: address(lockupDynamic) });
+        emit MetadataUpdate({ _tokenId: streamId });
         vm.expectEmit({ emitter: address(lockupDynamic) });
         emit CreateLockupDynamicStream({
             streamId: streamId,
@@ -370,6 +372,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
             segments: defaults.segments(),
             asset: IERC20(asset),
             cancelable: true,
+            transferable: true,
             range: defaults.lockupDynamicRange(),
             broker: users.broker
         });

@@ -3,7 +3,7 @@ pragma solidity >=0.8.19 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
-import { Solarray } from "solarray/Solarray.sol";
+import { Solarray } from "solarray/src/Solarray.sol";
 
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
@@ -14,7 +14,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, address holder_) Fork_Test(asset_, holder_) { }
+    constructor(IERC20 asset, address holder) Fork_Test(asset, holder) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -25,7 +25,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
 
         // Approve {SablierV2LockupDynamic} to transfer the holder's assets.
         // We use a low-level call to ignore reverts because the asset can have the missing return value bug.
-        (bool success,) = address(asset).call(abi.encodeCall(IERC20.approve, (address(lockupDynamic), MAX_UINT256)));
+        (bool success,) = address(ASSET).call(abi.encodeCall(IERC20.approve, (address(lockupDynamic), MAX_UINT256)));
         success;
     }
 
@@ -42,6 +42,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         uint40 warpTimestamp;
         LockupDynamic.Segment[] segments;
         uint128 withdrawAmount;
+        bool transferable;
     }
 
     struct Vars {
@@ -119,6 +120,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
         params.protocolFee = _bound(params.protocolFee, 0, MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
+        params.transferable = true;
 
         // Fuzz the segment milestones.
         fuzzSegmentMilestones(params.segments, params.startTime);
@@ -134,37 +136,41 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
 
         // Set the fuzzed protocol fee.
         changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: asset, newProtocolFee: params.protocolFee });
+        comptroller.setProtocolFee({ asset: ASSET, newProtocolFee: params.protocolFee });
 
         // Make the holder the caller.
-        changePrank(holder);
+        changePrank(HOLDER);
 
         /*//////////////////////////////////////////////////////////////////////////
                                             CREATE
         //////////////////////////////////////////////////////////////////////////*/
 
         // Load the pre-create protocol revenues.
-        vars.initialProtocolRevenues = lockupDynamic.protocolRevenues(asset);
+        vars.initialProtocolRevenues = lockupDynamic.protocolRevenues(ASSET);
 
         // Load the pre-create asset balances.
         vars.balances =
-            getTokenBalances(address(asset), Solarray.addresses(address(lockupDynamic), params.broker.account));
+            getTokenBalances(address(ASSET), Solarray.addresses(address(lockupDynamic), params.broker.account));
         vars.initialLockupDynamicBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
-        // Expect the relevant event to be emitted.
         vars.streamId = lockupDynamic.nextStreamId();
-        vm.expectEmit({ emitter: address(lockupDynamic) });
         vars.range =
             LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].milestone });
+
+        // Expect the relevant events to be emitted.
+        vm.expectEmit({ emitter: address(lockupDynamic) });
+        emit MetadataUpdate({ _tokenId: vars.streamId });
+        vm.expectEmit({ emitter: address(lockupDynamic) });
         emit CreateLockupDynamicStream({
             streamId: vars.streamId,
-            funder: holder,
+            funder: HOLDER,
             sender: params.sender,
             recipient: params.recipient,
             amounts: vars.createAmounts,
-            asset: asset,
+            asset: ASSET,
             cancelable: true,
+            transferable: params.transferable,
             segments: params.segments,
             range: vars.range,
             broker: params.broker.account
@@ -173,9 +179,10 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         // Create the stream.
         lockupDynamic.createWithMilestones(
             LockupDynamic.CreateWithMilestones({
-                asset: asset,
+                asset: ASSET,
                 broker: params.broker,
                 cancelable: true,
+                transferable: params.transferable,
                 recipient: params.recipient,
                 segments: params.segments,
                 sender: params.sender,
@@ -192,10 +199,11 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
-        assertEq(actualStream.asset, asset, "asset");
+        assertEq(actualStream.asset, ASSET, "asset");
         assertEq(actualStream.endTime, vars.range.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
+        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.segments, params.segments, "segments");
         assertEq(actualStream.sender, params.sender, "sender");
@@ -219,7 +227,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "post-create nextStreamId");
 
         // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = lockupDynamic.protocolRevenues(asset);
+        vars.actualProtocolRevenues = lockupDynamic.protocolRevenues(ASSET);
         vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
         assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "post-create protocolRevenues");
 
@@ -230,7 +238,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
 
         // Load the post-create asset balances.
         vars.balances =
-            getTokenBalances(address(asset), Solarray.addresses(address(lockupDynamic), holder, params.broker.account));
+            getTokenBalances(address(ASSET), Solarray.addresses(address(lockupDynamic), HOLDER, params.broker.account));
         vars.actualLockupDynamicBalance = vars.balances[0];
         vars.actualHolderBalance = vars.balances[1];
         vars.actualBrokerBalance = vars.balances[2];
@@ -273,13 +281,14 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         if (params.withdrawAmount > 0) {
             // Load the pre-withdraw asset balances.
             vars.initialLockupDynamicBalance = vars.actualLockupDynamicBalance;
-            vars.initialRecipientBalance = asset.balanceOf(params.recipient);
+            vars.initialRecipientBalance = ASSET.balanceOf(params.recipient);
 
             // Expect the relevant events to be emitted.
             vm.expectEmit({ emitter: address(lockupDynamic) });
             emit WithdrawFromLockupStream({
                 streamId: vars.streamId,
                 to: params.recipient,
+                asset: ASSET,
                 amount: params.withdrawAmount
             });
             vm.expectEmit({ emitter: address(lockupDynamic) });
@@ -307,7 +316,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
 
             // Load the post-withdraw asset balances.
             vars.balances =
-                getTokenBalances(address(asset), Solarray.addresses(address(lockupDynamic), params.recipient));
+                getTokenBalances(address(ASSET), Solarray.addresses(address(lockupDynamic), params.recipient));
             vars.actualLockupDynamicBalance = vars.balances[0];
             vars.actualRecipientBalance = vars.balances[1];
 
@@ -332,7 +341,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         if (!vars.isDepleted && !vars.isSettled) {
             // Load the pre-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(asset), Solarray.addresses(address(lockupDynamic), params.sender, params.recipient)
+                address(ASSET), Solarray.addresses(address(lockupDynamic), params.sender, params.recipient)
             );
             vars.initialLockupDynamicBalance = vars.balances[0];
             vars.initialSenderBalance = vars.balances[1];
@@ -343,7 +352,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
             vars.senderAmount = lockupDynamic.refundableAmountOf(vars.streamId);
             vars.recipientAmount = lockupDynamic.withdrawableAmountOf(vars.streamId);
             emit CancelLockupStream(
-                vars.streamId, params.sender, params.recipient, vars.senderAmount, vars.recipientAmount
+                vars.streamId, params.sender, params.recipient, ASSET, vars.senderAmount, vars.recipientAmount
             );
             vm.expectEmit({ emitter: address(lockupDynamic) });
             emit MetadataUpdate({ _tokenId: vars.streamId });
@@ -359,7 +368,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
 
             // Load the post-cancel asset balances.
             vars.balances = getTokenBalances(
-                address(asset), Solarray.addresses(address(lockupDynamic), params.sender, params.recipient)
+                address(ASSET), Solarray.addresses(address(lockupDynamic), params.sender, params.recipient)
             );
             vars.actualLockupDynamicBalance = vars.balances[0];
             vars.actualSenderBalance = vars.balances[1];

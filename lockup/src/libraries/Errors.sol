@@ -57,6 +57,9 @@ library Errors {
     /// @notice Thrown when the stream's sender tries to withdraw to an address other than the recipient's.
     error SablierV2Lockup_InvalidSenderWithdrawal(uint256 streamId, address sender, address to);
 
+    /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
+    error SablierV2Lockup_NotTransferable(uint256 tokenId);
+
     /// @notice Thrown when the id references a null stream.
     error SablierV2Lockup_Null(uint256 streamId);
 

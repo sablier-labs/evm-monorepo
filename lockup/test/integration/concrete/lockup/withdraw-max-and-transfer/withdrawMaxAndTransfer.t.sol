@@ -65,6 +65,21 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
     }
 
+    function test_RevertGiven_StreamNotTransferable()
+        external
+        whenNotDelegateCalled
+        givenNotNull
+        whenCallerCurrentRecipient
+        givenNFTNotBurned
+        givenWithdrawableAmountNotZero
+    {
+        uint256 notTransferableStreamId = createDefaultStreamNotTransferable();
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_NotTransferable.selector, notTransferableStreamId)
+        );
+        lockup.withdrawMaxAndTransfer({ streamId: notTransferableStreamId, newRecipient: users.recipient });
+    }
+
     function test_WithdrawMaxAndTransfer()
         external
         whenNotDelegateCalled
@@ -72,6 +87,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         whenCallerCurrentRecipient
         givenNFTNotBurned
         givenWithdrawableAmountNotZero
+        givenStreamTransferable
     {
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
@@ -84,9 +100,16 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: defaultStreamId, to: users.recipient, amount: withdrawAmount });
+        emit WithdrawFromLockupStream({
+            streamId: defaultStreamId,
+            to: users.recipient,
+            amount: withdrawAmount,
+            asset: dai
+        });
         vm.expectEmit({ emitter: address(lockup) });
         emit Transfer({ from: users.recipient, to: users.alice, tokenId: defaultStreamId });
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: defaultStreamId });
 
         // Make the max withdrawal and transfer the NFT.
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });

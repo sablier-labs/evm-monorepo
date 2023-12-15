@@ -15,7 +15,6 @@ import { GetAsset_Integration_Concrete_Test } from "../lockup/get-asset/getAsset
 import { GetDepositedAmount_Integration_Concrete_Test } from "../lockup/get-deposited-amount/getDepositedAmount.t.sol";
 import { GetEndTime_Integration_Concrete_Test } from "../lockup/get-end-time/getEndTime.t.sol";
 import { GetRefundedAmount_Integration_Concrete_Test } from "../lockup/get-refunded-amount/getRefundedAmount.t.sol";
-import { ProtocolRevenues_Integration_Concrete_Test } from "../lockup/protocol-revenues/protocolRevenues.t.sol";
 import { GetRecipient_Integration_Concrete_Test } from "../lockup/get-recipient/getRecipient.t.sol";
 import { GetSender_Integration_Concrete_Test } from "../lockup/get-sender/getSender.t.sol";
 import { GetStartTime_Integration_Concrete_Test } from "../lockup/get-start-time/getStartTime.t.sol";
@@ -24,12 +23,15 @@ import { IsCancelable_Integration_Concrete_Test } from "../lockup/is-cancelable/
 import { IsCold_Integration_Concrete_Test } from "../lockup/is-cold/isCold.t.sol";
 import { IsDepleted_Integration_Concrete_Test } from "../lockup/is-depleted/isDepleted.t.sol";
 import { IsStream_Integration_Concrete_Test } from "../lockup/is-stream/isStream.t.sol";
+import { IsTransferable_Integration_Concrete_Test } from "../lockup/is-transferable/isTransferable.t.sol";
 import { IsWarm_Integration_Concrete_Test } from "../lockup/is-warm/isWarm.t.sol";
+import { ProtocolRevenues_Integration_Concrete_Test } from "../lockup/protocol-revenues/protocolRevenues.t.sol";
 import { RefundableAmountOf_Integration_Concrete_Test } from "../lockup/refundable-amount-of/refundableAmountOf.t.sol";
 import { Renounce_Integration_Concrete_Test } from "../lockup/renounce/renounce.t.sol";
 import { SetComptroller_Integration_Concrete_Test } from "../lockup/set-comptroller/setComptroller.t.sol";
 import { SetNFTDescriptor_Integration_Concrete_Test } from "../lockup/set-nft-descriptor/setNFTDescriptor.t.sol";
 import { StatusOf_Integration_Concrete_Test } from "../lockup/status-of/statusOf.t.sol";
+import { TransferFrom_Integration_Concrete_Test } from "../lockup/transfer-from/transferFrom.t.sol";
 import { WasCanceled_Integration_Concrete_Test } from "../lockup/was-canceled/wasCanceled.t.sol";
 import { Withdraw_Integration_Concrete_Test } from "../lockup/withdraw/withdraw.t.sol";
 import { WithdrawMax_Integration_Concrete_Test } from "../lockup/withdraw-max/withdrawMax.t.sol";
@@ -279,6 +281,20 @@ contract IsStream_LockupLinear_Integration_Concrete_Test is
     }
 }
 
+contract IsTransferable_LockupLinear_Integration_Concrete_Test is
+    LockupLinear_Integration_Concrete_Test,
+    IsTransferable_Integration_Concrete_Test
+{
+    function setUp()
+        public
+        virtual
+        override(LockupLinear_Integration_Concrete_Test, IsTransferable_Integration_Concrete_Test)
+    {
+        LockupLinear_Integration_Concrete_Test.setUp();
+        IsTransferable_Integration_Concrete_Test.setUp();
+    }
+}
+
 contract IsWarm_LockupLinear_Integration_Concrete_Test is
     LockupLinear_Integration_Concrete_Test,
     IsWarm_Integration_Concrete_Test
@@ -374,6 +390,20 @@ contract StatusOf_LockupLinear_Integration_Concrete_Test is
     {
         LockupLinear_Integration_Concrete_Test.setUp();
         StatusOf_Integration_Concrete_Test.setUp();
+    }
+}
+
+contract TransferFrom_LockupLinear_Integration_Concrete_Test is
+    LockupLinear_Integration_Concrete_Test,
+    TransferFrom_Integration_Concrete_Test
+{
+    function setUp()
+        public
+        virtual
+        override(LockupLinear_Integration_Concrete_Test, TransferFrom_Integration_Concrete_Test)
+    {
+        LockupLinear_Integration_Concrete_Test.setUp();
+        TransferFrom_Integration_Concrete_Test.setUp();
     }
 }
 

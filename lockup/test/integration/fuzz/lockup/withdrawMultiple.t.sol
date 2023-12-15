@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { Solarray } from "solarray/Solarray.sol";
+import { Solarray } from "solarray/src/Solarray.sol";
 
 import { Lockup } from "src/types/DataTypes.sol";
 
@@ -64,9 +64,9 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: ongoingStreamId, to: to, amount: ongoingWithdrawAmount });
+        emit WithdrawFromLockupStream({ streamId: ongoingStreamId, to: to, asset: dai, amount: ongoingWithdrawAmount });
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: settledStreamId, to: to, amount: settledWithdrawAmount });
+        emit WithdrawFromLockupStream({ streamId: settledStreamId, to: to, asset: dai, amount: settledWithdrawAmount });
 
         // Make the withdrawals.
         uint256[] memory streamIds = Solarray.uint256s(ongoingStreamId, settledStreamId);

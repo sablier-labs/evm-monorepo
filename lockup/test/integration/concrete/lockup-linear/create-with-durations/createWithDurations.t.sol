@@ -110,7 +110,9 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
 
-        // Expect the relevant event to be emitted.
+        // Expect the relevant events to be emitted.
+        vm.expectEmit({ emitter: address(lockupLinear) });
+        emit MetadataUpdate({ _tokenId: streamId });
         vm.expectEmit({ emitter: address(lockupLinear) });
         emit CreateLockupLinearStream({
             streamId: streamId,
@@ -120,6 +122,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
             amounts: defaults.lockupCreateAmounts(),
             asset: dai,
             cancelable: true,
+            transferable: true,
             range: range,
             broker: users.broker
         });

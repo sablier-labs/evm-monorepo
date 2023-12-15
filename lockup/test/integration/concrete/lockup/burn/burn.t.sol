@@ -9,9 +9,11 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
     uint256 internal streamId;
+    uint256 internal notTransferableStreamId;
 
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) {
         streamId = createDefaultStream();
+        notTransferableStreamId = createDefaultStreamNotTransferable();
 
         // Make the Recipient (owner of the NFT) the caller in this test suite.
         changePrank({ msgSender: users.recipient });
@@ -81,14 +83,16 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenStreamHasNotBeenDepleted
     {
         vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        changePrank({ msgSender: users.sender });
         lockup.cancel(streamId);
+        changePrank({ msgSender: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
-    modifier givenStreamHasBeenDepleted() {
+    modifier givenStreamHasBeenDepleted(uint256 streamId_) {
         vm.warp({ timestamp: defaults.END_TIME() });
-        lockup.withdrawMax({ streamId: streamId, to: users.recipient });
+        lockup.withdrawMax({ streamId: streamId_, to: users.recipient });
         _;
     }
 
@@ -96,7 +100,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         external
         whenNotDelegateCalled
         givenNotNull
-        givenStreamHasBeenDepleted
+        givenStreamHasBeenDepleted(streamId)
     {
         changePrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, streamId, users.eve));
@@ -111,7 +115,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         external
         whenNotDelegateCalled
         givenNotNull
-        givenStreamHasBeenDepleted
+        givenStreamHasBeenDepleted(streamId)
         whenCallerAuthorized
     {
         // Burn the NFT so that it no longer exists.
@@ -126,19 +130,44 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         _;
     }
 
+    function test_Burn_NonTransferableNFT()
+        external
+        whenNotDelegateCalled
+        givenNotNull
+        givenStreamHasBeenDepleted(notTransferableStreamId)
+        whenCallerAuthorized
+        givenNFTExists
+    {
+        // Expect the relevant event to be emitted.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: notTransferableStreamId });
+        lockup.burn(notTransferableStreamId);
+        vm.expectRevert("ERC721: invalid token ID");
+        lockup.getRecipient(notTransferableStreamId);
+    }
+
+    modifier givenTransferableStream() {
+        _;
+    }
+
     function test_Burn_CallerApprovedOperator()
         external
         whenNotDelegateCalled
         givenNotNull
-        givenStreamHasBeenDepleted
+        givenStreamHasBeenDepleted(streamId)
         whenCallerAuthorized
         givenNFTExists
+        givenTransferableStream
     {
         // Approve the operator to handle the stream.
         lockup.approve({ to: users.operator, tokenId: streamId });
 
         // Make the approved operator the caller in this test.
         changePrank({ msgSender: users.operator });
+
+        // Expect the relevant event to be emitted.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: streamId });
 
         // Burn the NFT.
         lockup.burn(streamId);
@@ -152,10 +181,14 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         external
         whenNotDelegateCalled
         givenNotNull
-        givenStreamHasBeenDepleted
+        givenStreamHasBeenDepleted(streamId)
         whenCallerAuthorized
         givenNFTExists
+        givenTransferableStream
     {
+        // Expect the relevant event to be emitted.
+        vm.expectEmit({ emitter: address(lockup) });
+        emit MetadataUpdate({ _tokenId: streamId });
         lockup.burn(streamId);
         vm.expectRevert("ERC721: invalid token ID");
         lockup.getRecipient(streamId);

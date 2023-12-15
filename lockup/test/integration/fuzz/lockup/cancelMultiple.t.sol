@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19 <0.9.0;
 
-import { Solarray } from "solarray/Solarray.sol";
+import { Solarray } from "solarray/src/Solarray.sol";
 
 import { Lockup } from "src/types/DataTypes.sol";
 
@@ -48,6 +48,7 @@ abstract contract CancelMultiple_Integration_Fuzz_Test is Integration_Test, Canc
             streamId: streamIds[0],
             sender: users.sender,
             recipient: users.recipient,
+            asset: dai,
             senderAmount: senderAmount0,
             recipientAmount: defaults.DEPOSIT_AMOUNT() - senderAmount0
         });
@@ -56,6 +57,7 @@ abstract contract CancelMultiple_Integration_Fuzz_Test is Integration_Test, Canc
             streamId: streamIds[1],
             sender: users.sender,
             recipient: users.recipient,
+            asset: dai,
             senderAmount: senderAmount1,
             recipientAmount: defaults.DEPOSIT_AMOUNT() - senderAmount1
         });

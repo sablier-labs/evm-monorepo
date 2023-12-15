@@ -147,6 +147,7 @@ contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
         params.range.end = boundUint40(params.range.end, params.range.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
         protocolFee = _bound(protocolFee, 0, MAX_FEE);
+        params.transferable = true;
 
         // Calculate the fee amounts and the deposit amount.
         Vars memory vars;
@@ -189,6 +190,7 @@ contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
             amounts: vars.createAmounts,
             asset: dai,
             cancelable: params.cancelable,
+            transferable: params.transferable,
             range: params.range,
             broker: params.broker.account
         });
@@ -201,6 +203,7 @@ contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
                 cancelable: params.cancelable,
                 range: params.range,
                 recipient: params.recipient,
+                transferable: params.transferable,
                 sender: params.sender,
                 totalAmount: params.totalAmount
             })
@@ -214,6 +217,7 @@ contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
         assertEq(actualStream.endTime, params.range.end, "endTime");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isStream");
+        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isStream, true, "isStream");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.range.start, "startTime");

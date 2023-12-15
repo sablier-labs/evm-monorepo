@@ -26,6 +26,7 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         _params.createWithDeltas.totalAmount = defaults.TOTAL_AMOUNT();
         _params.createWithDeltas.asset = dai;
         _params.createWithDeltas.cancelable = true;
+        _params.createWithDeltas.transferable = true;
         _params.createWithDeltas.broker = defaults.broker();
 
         _params.createWithMilestones.sender = users.sender;
@@ -33,6 +34,7 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         _params.createWithMilestones.totalAmount = defaults.TOTAL_AMOUNT();
         _params.createWithMilestones.asset = dai;
         _params.createWithMilestones.cancelable = true;
+        _params.createWithMilestones.transferable = true;
         _params.createWithMilestones.startTime = defaults.START_TIME();
         _params.createWithMilestones.broker = defaults.broker();
 
@@ -90,6 +92,13 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
     function createDefaultStreamNotCancelable() internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
         params.cancelable = false;
+        streamId = lockupDynamic.createWithMilestones(params);
+    }
+
+    /// @dev Creates the default stream with the NFT transfer disabled.
+    function createDefaultStreamNotTransferable() internal override returns (uint256 streamId) {
+        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        params.transferable = false;
         streamId = lockupDynamic.createWithMilestones(params);
     }
 

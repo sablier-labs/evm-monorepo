@@ -9,7 +9,7 @@ contract StringifyCardType_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Tes
     function test_StringifyCardType() external {
         assertEq(nftDescriptorMock.stringifyCardType_(SVGElements.CardType.PROGRESS), "Progress");
         assertEq(nftDescriptorMock.stringifyCardType_(SVGElements.CardType.STATUS), "Status");
-        assertEq(nftDescriptorMock.stringifyCardType_(SVGElements.CardType.STREAMED), "Streamed");
+        assertEq(nftDescriptorMock.stringifyCardType_(SVGElements.CardType.AMOUNT), "Amount");
         assertEq(nftDescriptorMock.stringifyCardType_(SVGElements.CardType.DURATION), "Duration");
     }
 }

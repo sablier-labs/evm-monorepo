@@ -65,6 +65,13 @@ abstract contract LockupLinear_Integration_Shared_Test is Lockup_Integration_Sha
         streamId = lockupLinear.createWithRange(params);
     }
 
+    /// @dev Creates the default stream with the NFT transfer disabled.
+    function createDefaultStreamNotTransferable() internal override returns (uint256 streamId) {
+        LockupLinear.CreateWithRange memory params = _params.createWithRange;
+        params.transferable = false;
+        streamId = lockupLinear.createWithRange(params);
+    }
+
     /// @dev Creates the default stream with the provided end time.
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
         LockupLinear.CreateWithRange memory params = _params.createWithRange;

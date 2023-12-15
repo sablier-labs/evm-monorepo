@@ -16,15 +16,31 @@ In-depth documentation is available at [docs.sablier.com](https://docs.sablier.c
 
 ## Background
 
-Sablier is a smart contract protocol that enables trustless streaming of ERC-20 assets. In this context, streaming means
-the ability to make payments by the second.
+Sablier V2 is a token distribution protocol used by DAOs and businesses for vesting, payroll, airdrops, and more. The
+linear stream is our flagship payment model, which distributes assets on a continuous, by-the-second basis.
 
-The protocol features two streaming models called Lockup Linear and Lockup Dynamic, in which the sender locks up a
-specified amount of ERC-20 assets in a contract. The contract progressively allocates the funds to the designated
-recipient, who can access them as they become available over time. The streaming rate is influenced by various factors,
-including the start and end times, as well as the total amount of assets locked up.
+The way it works is that the sender of a payment stream first deposits a specific amount of ERC-20 tokens in a contract.
+Then, the contract progressively allocates the funds to the recipient, who can access them as they become available over
+time. The payment rate is influenced by various factors, including the start and end times, as well as the total amount
+of tokens deposited.
 
 ## Install
+
+### Node.js (recommended)
+
+Sablier V2 Core is available as a Node.js package:
+
+```shell
+yarn add @sablier/v2-core
+```
+
+Finally, add these to your `remappings.txt` file:
+
+```text
+@sablier/v2-core/=node_modules/@sablier/v2-core/
+@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
+@prb/math/=node_modules/@prb/math/
+```
 
 ### Foundry
 
@@ -34,27 +50,18 @@ First, run the install step:
 forge install sablier-labs/v2-core
 ```
 
-Your `.gitmodules` file should now contain the following entry:
+Second, you need to install the project's dependencies:
 
-```toml
-[submodule "lib/v2-core"]
-  branch = "release"
-  path = "lib/v2-core"
-  url = "https://github.com/sablier-labs/v2-core"
+```shell
+forge install --no-commit OpenZeppelin/openzeppelin-contracts@v4.9.2 PaulRBerg/prb-math
 ```
 
-Finally, add this to your `remappings.txt` file:
+Finally, add these to your `remappings.txt` file:
 
 ```text
 @sablier/v2-core/=lib/v2-core/
-```
-
-### Node.js
-
-Sablier V2 Core is available as a Node.js package:
-
-```shell
-pnpm add @sablier/v2-core
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@prb/math/=lib/prb-math/
 ```
 
 ## Usage
@@ -82,6 +89,11 @@ contract, which is more gas-efficient and easier to maintain.
 
 For more information, see the [Technical Overview](https://docs.sablier.com/contracts/v2/reference/overview) in our
 docs, as well as these [diagrams](https://docs.sablier.com/contracts/v2/reference/diagrams).
+
+### Branching Tree Technique
+
+You may notice that some test files are accompanied by `.tree` files. This is called the Branching Tree Technique, and
+it is explained in depth [here](https://github.com/sablier-labs/v2-core/wiki/Tests#branching-tree-technique).
 
 ## Deployments
 
