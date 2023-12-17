@@ -8,7 +8,7 @@ import { SablierV2LockupLinear } from "../src/SablierV2LockupLinear.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
-/// @notice Deploys all V2 Core contract in the following order:
+/// @notice Deploys these contracts in the following order:
 ///
 /// 1. {SablierV2Comptroller}
 /// 2. {SablierV2LockupDynamic}
