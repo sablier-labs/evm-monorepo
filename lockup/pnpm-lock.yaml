@@ -17,7 +17,7 @@ devDependencies:
     specifier: 0.6.4
     version: 0.6.4
   forge-std:
-    specifier: github:foundry-rs/forge-std#e8a047e3f40f13fa37af6fe14e6e06283d9a060e
+    specifier: github:foundry-rs/forge-std#v1.5.6
     version: github.com/foundry-rs/forge-std/e8a047e3f40f13fa37af6fe14e6e06283d9a060e
   prettier:
     specifier: ^2.8.8
@@ -26,8 +26,8 @@ devDependencies:
     specifier: 0.0.129
     version: 0.0.129
   solarray:
-    specifier: github:evmcheb/solarray#0625e7e4369eb299753fcb90a3cd7ffb91e1b5bc
-    version: github.com/evmcheb/solarray/0625e7e4369eb299753fcb90a3cd7ffb91e1b5bc
+    specifier: github:evmcheb/solarray#0625e7e
+    version: github.com/evmcheb/solarray/0625e7e
   solhint:
     specifier: ^4.0.0
     version: 4.0.0
@@ -725,9 +725,9 @@ packages:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
     dev: true
 
-  github.com/evmcheb/solarray/0625e7e4369eb299753fcb90a3cd7ffb91e1b5bc:
-    resolution: {tarball: https://codeload.github.com/evmcheb/solarray/tar.gz/0625e7e4369eb299753fcb90a3cd7ffb91e1b5bc}
-    name: solarray#0625e7e4369eb299753fcb90a3cd7ffb91e1b5bc
+  github.com/evmcheb/solarray/0625e7e:
+    resolution: {tarball: https://codeload.github.com/evmcheb/solarray/tar.gz/0625e7e}
+    name: solarray#0625e7e
     version: 0.0.0
     dev: true
 

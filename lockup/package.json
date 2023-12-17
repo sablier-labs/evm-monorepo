@@ -16,10 +16,10 @@
   },
   "devDependencies": {
     "@prb/test": "0.6.4",
-    "forge-std": "github:foundry-rs/forge-std#e8a047e3f40f13fa37af6fe14e6e06283d9a060e",
+    "forge-std": "github:foundry-rs/forge-std#v1.5.6",
     "prettier": "^2.8.8",
     "solady": "0.0.129",
-    "solarray": "github:evmcheb/solarray#0625e7e4369eb299753fcb90a3cd7ffb91e1b5bc",
+    "solarray": "github:evmcheb/solarray#0625e7e",
     "solhint": "^4.0.0"
   },
   "files": [
