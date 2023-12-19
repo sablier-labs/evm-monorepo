@@ -4,11 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+[1.1.2]: https://github.com/sablier-labs/v2-core/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/sablier-labs/v2-core/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/sablier-labs/v2-core/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/sablier-labs/v2-core/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/sablier-labs/v2-core/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/sablier-labs/v2-core/releases/tag/v1.0.0
+
+## [1.1.2] - 2023-12-19
+
+### Changed
+
+- Upgrade Solidity to `0.8.23` ([#758](https://github.com/sablier-labs/v2-core/pull/758))
 
 ## [1.1.1] - 2023-12-16
 
