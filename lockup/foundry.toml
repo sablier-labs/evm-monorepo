@@ -3,7 +3,6 @@
   bytecode_hash = "none"
   emv_version = "paris"
   fs_permissions = [{ access = "read", path = "out-optimized" }]
-  libs = ["lib"]
   gas_reports = [
     "SablierV2Comptroller",
     "SablierV2LockupDynamic",
