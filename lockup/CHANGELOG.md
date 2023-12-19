@@ -15,7 +15,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
-- Upgrade Solidity to `0.8.23` ([#758](https://github.com/sablier-labs/v2-core/pull/758))
+- Use Solidity v0.8.23 ([#758](https://github.com/sablier-labs/v2-core/pull/758))
 
 ## [1.1.1] - 2023-12-16
 
@@ -35,7 +35,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 - Simplify `renounce` and `withdraw` implementations ([#683](https://github.com/sablier-labs/v2-core/pull/683),
   [#705](https://github.com/sablier-labs/v2-core/pull/705))
 - Update import paths to use Node.js dependencies ([#734](https://github.com/sablier-labs/v2-core/pull/734))
-- Upgrade Solidity to `0.8.21` ([#688](https://github.com/sablier-labs/v2-core/pull/688))
+- Use Solidity v0.8.21 ([#688](https://github.com/sablier-labs/v2-core/pull/688))
 
 ### Added
 
