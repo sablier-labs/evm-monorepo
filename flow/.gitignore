@@ -10,7 +10,6 @@ out
 .DS_Store
 .pnp.*
 lcov.info
-yarn.lock
 
 # broadcasts
 !broadcast

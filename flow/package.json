@@ -7,14 +7,14 @@
     "url": "https://sablier.com"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.0.0",
+    "@openzeppelin/contracts": "5.0.1",
     "@prb/math": "4.0.2"
   },
   "devDependencies": {
-    "@forge-std": "github:foundry-rs/forge-std#e8a047e3f40f13fa37af6fe14e6e06283d9a060e",
-    "@prb/test": "0.6.4",
+    "@forge-std": "github:foundry-rs/forge-std#1.5.6",
+    "@prb/test": "^0.6.4",
     "prettier": "3.0.0",
-    "solhint": "3.6.2"
+    "solhint": "^4.0.0"
   },
   "keywords": [
     "blockchain",
@@ -29,8 +29,8 @@
   "scripts": {
     "clean": "rm -rf cache out",
     "build": "forge build",
-    "lint": "pnpm lint:sol && pnpm prettier:check",
-    "lint:sol": "forge fmt --check && pnpm solhint {script,src,test}/**/*.sol",
+    "lint": "yarn lint:sol && yarn prettier:check",
+    "lint:sol": "forge fmt --check && yarn solhint {script,src,test}/**/*.sol",
     "prettier:check": "prettier --check **/*.{json,md,yml} --ignore-path=.prettierignore",
     "prettier:write": "prettier --write **/*.{json,md,yml} --ignore-path=.prettierignore",
     "test": "forge test",
