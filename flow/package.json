@@ -11,8 +11,8 @@
     "@prb/math": "4.0.2"
   },
   "devDependencies": {
-    "@forge-std": "github:foundry-rs/forge-std#1.5.6",
-    "@prb/test": "^0.6.4",
+    "@prb/test": "0.6.4",
+    "forge-std": "github:foundry-rs/forge-std#v1.5.6",
     "prettier": "3.0.0",
     "solhint": "^4.0.0"
   },
@@ -29,8 +29,8 @@
   "scripts": {
     "clean": "rm -rf cache out",
     "build": "forge build",
-    "lint": "yarn lint:sol && yarn prettier:check",
-    "lint:sol": "forge fmt --check && yarn solhint {script,src,test}/**/*.sol",
+    "lint": "bun run lint:sol && bun run prettier:check",
+    "lint:sol": "forge fmt --check && bun solhint {script,src,test}/**/*.sol",
     "prettier:check": "prettier --check **/*.{json,md,yml} --ignore-path=.prettierignore",
     "prettier:write": "prettier --write **/*.{json,md,yml} --ignore-path=.prettierignore",
     "test": "forge test",

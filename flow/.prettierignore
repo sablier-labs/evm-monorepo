@@ -16,6 +16,7 @@ out-svg
 *.sol
 .DS_Store
 .pnp.*
+bun.lockb
 lcov.info
 package-lock.json
 pnpm-lock.yaml
