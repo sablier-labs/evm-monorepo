@@ -4,15 +4,14 @@
   auto_detect_solc = false
   block_timestamp = 1_698_796_800 # November 1, 2023 at 00:00 GMT
   bytecode_hash = "none"
-  #evm_version = "shanghai"           # See https://www.evmdiff.com/features?name=PUSH0&kind=opcode
+  evm_version = "paris"           # See https://www.evmdiff.com/features?name=PUSH0&kind=opcode
   fuzz = { runs = 10_000 }
   gas_reports = ["*"]
-  libs = ["lib"]
   optimizer = true
   optimizer_runs = 10_000
   out = "out"
   script = "script"
-  solc = "0.8.22"
+  solc = "0.8.23"
   src = "src"
   test = "test"
 
@@ -34,7 +33,7 @@
   quote_style = "double"
   tab_width = 4
   wrap_comments = true
-  
+
 [rpc_endpoints]
   arbitrum_one = "https://arbitrum-mainnet.infura.io/v3/${API_KEY_INFURA}"
   avalanche = "https://avalanche-mainnet.infura.io/v3/${API_KEY_INFURA}"
