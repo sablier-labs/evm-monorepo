@@ -30,13 +30,13 @@ of tokens deposited.
 
 This is the recommended approach.
 
-Install Sablier V2 Core as a Node.js package:
+Install Sablier V2 Core using your favorite package manager, e.g., with Bun:
 
 ```shell
-yarn add @sablier/v2-core
+bun add @sablier/v2-core
 ```
 
-Then, if you are using Foundry, add these to your `remappings.txt` file:
+Then, if you are using Foundry, you need to add these to your `remappings.txt` file:
 
 ```text
 @sablier/v2-core/=node_modules/@sablier/v2-core/
@@ -45,6 +45,8 @@ Then, if you are using Foundry, add these to your `remappings.txt` file:
 ```
 
 ### Git Submodules
+
+This installation method is not recommended, but it is available for those who prefer it.
 
 First, install the submodule using Forge:
 

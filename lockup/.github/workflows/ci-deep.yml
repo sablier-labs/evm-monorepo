@@ -41,22 +41,14 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Install Pnpm"
-        uses: "pnpm/action-setup@v2"
-        with:
-          version: "8"
-
-      - name: "Install Node.js"
-        uses: "actions/setup-node@v3"
-        with:
-          cache: "pnpm"
-          node-version: "lts/*"
+      - name: "Install Bun"
+        uses: "oven-sh/setup-bun@v1"
 
       - name: "Install the Node.js dependencies"
-        run: "pnpm install"
+        run: "bun install"
 
-      - name: "Lint the contracts"
-        run: "pnpm lint"
+      - name: "Lint the code"
+        run: "bun run lint"
 
       - name: "Add lint summary"
         run: |
@@ -72,19 +64,11 @@ jobs:
       - name: "Install Foundry"
         uses: "foundry-rs/foundry-toolchain@v1"
 
-      - name: "Install Pnpm"
-        uses: "pnpm/action-setup@v2"
-        with:
-          version: "8"
-
-      - name: "Install Node.js"
-        uses: "actions/setup-node@v3"
-        with:
-          cache: "pnpm"
-          node-version: "lts/*"
+      - name: "Install Bun"
+        uses: "oven-sh/setup-bun@v1"
 
       - name: "Install the Node.js dependencies"
-        run: "pnpm install"
+        run: "bun install"
 
       - name: "Show the Foundry config"
         run: "forge config"
