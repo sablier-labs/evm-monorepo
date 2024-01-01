@@ -47,7 +47,7 @@ abstract contract Integration_Test is Base_Test {
         assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
     }
 
-    uint256 nullStreamId = 420;
+    uint256 internal nullStreamId = 420;
 
     function _test_RevertGiven_Null() internal {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2OpenEnded_Null.selector, nullStreamId));

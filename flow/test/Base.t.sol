@@ -6,7 +6,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 import { SablierV2OpenEnded } from "src/SablierV2OpenEnded.sol";
-import { OpenEnded } from "src/types/DataTypes.sol";
 
 import { ERC20Mock } from "./mocks/ERC20Mock.sol";
 import { ERC20MissingReturn } from "./mocks/ERC20MissingReturn.sol";
