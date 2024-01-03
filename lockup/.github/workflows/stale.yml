@@ -21,6 +21,10 @@ jobs:
           exempt-issue-labels: "help,priority0"
           operations-per-run: 1000
           stale-issue-label: "stale"
-          stale-issue-message: "This issue is stale because it has been open 6 months with no activity. Leave a comment or remove the \"stale\" label, otherwise this will be closed in 14 days."
+          stale-issue-message:
+            'This issue is stale because it has been open 6 months with no activity. Leave a comment or remove the
+            "stale" label, otherwise this will be closed in 14 days.'
           stale-pr-label: "stale"
-          stale-pr-message: "This PR is stale because it has been open 3 months with no activity. Leave a comment or remove the \"stale\" label, otherwise this will be closed in 7 days."
+          stale-pr-message:
+            'This PR is stale because it has been open 3 months with no activity. Leave a comment or remove the "stale"
+            label, otherwise this will be closed in 7 days.'
