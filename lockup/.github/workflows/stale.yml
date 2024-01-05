@@ -7,24 +7,4 @@ on:
 
 jobs:
   stale:
-    runs-on: "ubuntu-latest"
-    steps:
-      - uses: "actions/stale@v9"
-        with:
-          close-issue-message: "This issue was closed because it has been stalled for 14 days with no activity."
-          close-issue-reason: "not_planned"
-          close-pr-message: "This PR was closed because it has been stalled for 7 days with no activity."
-          days-before-issue-close: 14
-          days-before-issue-stale: 182
-          days-before-pr-close: 7
-          days-before-pr-stale: 90
-          exempt-issue-labels: "help,priority0"
-          operations-per-run: 1000
-          stale-issue-label: "stale"
-          stale-issue-message:
-            'This issue is stale because it has been open 6 months with no activity. Leave a comment or remove the
-            "stale" label, otherwise this will be closed in 14 days.'
-          stale-pr-label: "stale"
-          stale-pr-message:
-            'This PR is stale because it has been open 3 months with no activity. Leave a comment or remove the "stale"
-            label, otherwise this will be closed in 7 days.'
+    uses: "sablier-labs/reusable-workflows/.github/workflows/stale.yml@main"
