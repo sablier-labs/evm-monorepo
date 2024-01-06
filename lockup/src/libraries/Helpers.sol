@@ -177,7 +177,7 @@ library Helpers {
         // 1. Calculate the sum of all segment amounts.
         // 2. Check that the milestones are ordered.
         uint256 count = segments.length;
-        for (uint256 index = 0; index < count;) {
+        for (uint256 index = 0; index < count; ++index) {
             // Add the current segment amount to the sum.
             segmentAmountsSum += segments[index].amount;
 
@@ -191,11 +191,6 @@ library Helpers {
 
             // Make the current milestone the previous milestone of the next loop iteration.
             previousMilestone = currentMilestone;
-
-            // Increment the loop iterator.
-            unchecked {
-                index += 1;
-            }
         }
 
         // Checks: the last milestone is in the future.

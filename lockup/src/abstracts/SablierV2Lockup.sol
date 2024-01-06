@@ -175,14 +175,9 @@ abstract contract SablierV2Lockup is
     function cancelMultiple(uint256[] calldata streamIds) external override noDelegateCall {
         // Iterate over the provided array of stream ids and cancel each stream.
         uint256 count = streamIds.length;
-        for (uint256 i = 0; i < count;) {
+        for (uint256 i = 0; i < count; ++i) {
             // Effects and Interactions: cancel the stream.
             cancel(streamIds[i]);
-
-            // Increment the loop iterator.
-            unchecked {
-                i += 1;
-            }
         }
     }
 
@@ -361,14 +356,9 @@ abstract contract SablierV2Lockup is
         }
 
         // Iterate over the provided array of stream ids and withdraw from each stream.
-        for (uint256 i = 0; i < streamIdsCount;) {
+        for (uint256 i = 0; i < streamIdsCount; ++i) {
             // Checks, Effects and Interactions: check the parameters and make the withdrawal.
             withdraw(streamIds[i], to, amounts[i]);
-
-            // Increment the loop iterator.
-            unchecked {
-                i += 1;
-            }
         }
     }
 

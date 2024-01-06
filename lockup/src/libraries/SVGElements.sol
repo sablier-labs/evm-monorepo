@@ -239,12 +239,11 @@ library SVGElements {
         unchecked {
             uint256 charWidth = largeFont ? 16 : 13;
             uint256 semicolonIndex;
-            for (uint256 i = 0; i < length;) {
+            for (uint256 i = 0; i < length; ++i) {
                 if (bytes(text)[i] == ";") {
                     semicolonIndex = i;
                 }
                 width += charWidth;
-                i += 1;
             }
 
             // Account for escaped characters (such as &#8805;).
