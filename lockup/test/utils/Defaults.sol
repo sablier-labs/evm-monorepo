@@ -183,54 +183,54 @@ contract Defaults is Constants {
 
     function createWithDeltas() public view returns (LockupDynamic.CreateWithDeltas memory) {
         return LockupDynamic.CreateWithDeltas({
+            sender: users.sender,
+            recipient: users.recipient,
+            totalAmount: TOTAL_AMOUNT,
             asset: asset,
-            broker: broker(),
             cancelable: true,
             transferable: true,
-            recipient: users.recipient,
             segments: segmentsWithDeltas(),
-            sender: users.sender,
-            totalAmount: TOTAL_AMOUNT
+            broker: broker()
         });
     }
 
     function createWithDurations() public view returns (LockupLinear.CreateWithDurations memory) {
         return LockupLinear.CreateWithDurations({
+            sender: users.sender,
+            recipient: users.recipient,
+            totalAmount: TOTAL_AMOUNT,
             asset: asset,
-            broker: broker(),
             cancelable: true,
             transferable: true,
             durations: durations(),
-            recipient: users.recipient,
-            sender: users.sender,
-            totalAmount: TOTAL_AMOUNT
+            broker: broker()
         });
     }
 
     function createWithMilestones() public view returns (LockupDynamic.CreateWithMilestones memory) {
         return LockupDynamic.CreateWithMilestones({
+            sender: users.sender,
+            recipient: users.recipient,
+            totalAmount: TOTAL_AMOUNT,
             asset: asset,
-            broker: broker(),
             cancelable: true,
             transferable: true,
-            recipient: users.recipient,
-            segments: segments(),
-            sender: users.sender,
             startTime: START_TIME,
-            totalAmount: TOTAL_AMOUNT
+            segments: segments(),
+            broker: broker()
         });
     }
 
     function createWithRange() public view returns (LockupLinear.CreateWithRange memory) {
         return LockupLinear.CreateWithRange({
+            sender: users.sender,
+            recipient: users.recipient,
+            totalAmount: TOTAL_AMOUNT,
             asset: asset,
-            broker: broker(),
             cancelable: true,
             transferable: true,
             range: lockupLinearRange(),
-            recipient: users.recipient,
-            sender: users.sender,
-            totalAmount: TOTAL_AMOUNT
+            broker: broker()
         });
     }
 }

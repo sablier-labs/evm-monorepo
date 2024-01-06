@@ -79,45 +79,45 @@ library LockupDynamic {
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
-    /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
-    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     /// @param segments Segments with deltas used to compose the custom streaming curve. Milestones are calculated by
     /// starting from `block.timestamp` and adding each delta to the previous milestone.
+    /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithDeltas {
         address sender;
-        bool cancelable;
-        bool transferable;
         address recipient;
         uint128 totalAmount;
         IERC20 asset;
-        Broker broker;
+        bool cancelable;
+        bool transferable;
         SegmentWithDelta[] segments;
+        Broker broker;
     }
 
     /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithMilestones}
     /// function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
     /// same as `msg.sender`.
-    /// @param startTime The Unix timestamp indicating the stream's start.
-    /// @param cancelable Indicates if the stream is cancelable.
-    /// @param transferable Indicates if the stream NFT is transferable.
     /// @param recipient The address receiving the assets.
     /// @param totalAmount The total amount of ERC-20 assets to be paid, including the stream deposit and any potential
     /// fees, all denoted in units of the asset's decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param cancelable Indicates if the stream is cancelable.
+    /// @param transferable Indicates if the stream NFT is transferable.
+    /// @param startTime The Unix timestamp indicating the stream's start.
+    /// @param segments Segments used to compose the custom streaming curve.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
-    /// @param segments Segments used to compose the custom streaming curve.
     struct CreateWithMilestones {
         address sender;
-        uint40 startTime;
-        bool cancelable;
-        bool transferable;
         address recipient;
         uint128 totalAmount;
         IERC20 asset;
-        Broker broker;
+        bool cancelable;
+        bool transferable;
+        uint40 startTime;
         Segment[] segments;
+        Broker broker;
     }
 
     /// @notice Struct encapsulating the time range.

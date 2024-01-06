@@ -198,14 +198,14 @@ contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
         // Create the stream.
         lockupLinear.createWithRange(
             LockupLinear.CreateWithRange({
-                asset: dai,
-                broker: params.broker,
-                cancelable: params.cancelable,
-                range: params.range,
-                recipient: params.recipient,
-                transferable: params.transferable,
                 sender: params.sender,
-                totalAmount: params.totalAmount
+                recipient: params.recipient,
+                totalAmount: params.totalAmount,
+                asset: dai,
+                cancelable: params.cancelable,
+                transferable: params.transferable,
+                range: params.range,
+                broker: params.broker
             })
         );
 

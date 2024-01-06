@@ -279,15 +279,15 @@ contract SablierV2LockupDynamic is
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithMilestones(
             LockupDynamic.CreateWithMilestones({
+                sender: params.sender,
+                recipient: params.recipient,
+                totalAmount: params.totalAmount,
                 asset: params.asset,
-                broker: params.broker,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
-                recipient: params.recipient,
-                segments: segments,
-                sender: params.sender,
                 startTime: uint40(block.timestamp),
-                totalAmount: params.totalAmount
+                segments: segments,
+                broker: params.broker
             })
         );
     }

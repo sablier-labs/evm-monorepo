@@ -34,15 +34,15 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     struct Params {
-        Broker broker;
-        UD60x18 protocolFee;
-        LockupLinear.Range range;
-        address recipient;
         address sender;
+        address recipient;
         uint128 totalAmount;
-        uint40 warpTimestamp;
         uint128 withdrawAmount;
         bool transferable;
+        UD60x18 protocolFee;
+        uint40 warpTimestamp;
+        LockupLinear.Range range;
+        Broker broker;
     }
 
     struct Vars {
@@ -181,14 +181,14 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         // Create the stream.
         lockupLinear.createWithRange(
             LockupLinear.CreateWithRange({
+                sender: params.sender,
+                recipient: params.recipient,
+                totalAmount: params.totalAmount,
                 asset: ASSET,
-                broker: params.broker,
                 cancelable: true,
                 transferable: params.transferable,
                 range: params.range,
-                recipient: params.recipient,
-                sender: params.sender,
-                totalAmount: params.totalAmount
+                broker: params.broker
             })
         );
 

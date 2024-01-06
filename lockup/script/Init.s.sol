@@ -83,14 +83,14 @@ contract Init is BaseScript {
         segments[1] = LockupDynamic.SegmentWithDelta({ amount: 7500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
         lockupDynamic.createWithDeltas(
             LockupDynamic.CreateWithDeltas({
+                sender: sender,
+                recipient: recipient,
+                totalAmount: 10_000e18,
                 asset: asset,
-                broker: Broker(address(0), ud60x18(0)),
                 cancelable: true,
                 transferable: true,
-                recipient: recipient,
-                sender: sender,
                 segments: segments,
-                totalAmount: 10_000e18
+                broker: Broker(address(0), ud60x18(0))
             })
         );
     }

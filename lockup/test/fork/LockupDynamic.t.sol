@@ -34,15 +34,15 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     struct Params {
-        Broker broker;
-        UD60x18 protocolFee;
-        address recipient;
         address sender;
+        address recipient;
+        uint128 withdrawAmount;
+        bool transferable;
+        UD60x18 protocolFee;
         uint40 startTime;
         uint40 warpTimestamp;
         LockupDynamic.Segment[] segments;
-        uint128 withdrawAmount;
-        bool transferable;
+        Broker broker;
     }
 
     struct Vars {
@@ -179,15 +179,15 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         // Create the stream.
         lockupDynamic.createWithMilestones(
             LockupDynamic.CreateWithMilestones({
+                sender: params.sender,
+                recipient: params.recipient,
+                totalAmount: vars.totalAmount,
                 asset: ASSET,
-                broker: params.broker,
                 cancelable: true,
                 transferable: params.transferable,
-                recipient: params.recipient,
-                segments: params.segments,
-                sender: params.sender,
                 startTime: params.startTime,
-                totalAmount: vars.totalAmount
+                segments: params.segments,
+                broker: params.broker
             })
         );
 

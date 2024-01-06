@@ -287,15 +287,15 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         // Create the stream.
         lockupDynamic.createWithMilestones(
             LockupDynamic.CreateWithMilestones({
+                sender: params.sender,
+                recipient: params.recipient,
+                totalAmount: vars.totalAmount,
                 asset: dai,
-                broker: params.broker,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
-                recipient: params.recipient,
-                segments: params.segments,
-                sender: params.sender,
                 startTime: params.startTime,
-                totalAmount: vars.totalAmount
+                segments: params.segments,
+                broker: params.broker
             })
         );
 
