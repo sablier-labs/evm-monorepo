@@ -4,7 +4,6 @@ pragma solidity >=0.8.19;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { IERC3156FlashBorrower } from "../../src/interfaces/erc3156/IERC3156FlashBorrower.sol";
 import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
 import { Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";
@@ -45,24 +44,7 @@ abstract contract Events {
                                SABLIER-V2-COMPTROLLER
     //////////////////////////////////////////////////////////////////////////*/
 
-    event SetFlashFee(address indexed admin, UD60x18 oldFlashFee, UD60x18 newFlashFee);
-
     event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
-
-    event ToggleFlashAsset(address indexed admin, IERC20 indexed asset, bool newFlag);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-V2-FLASH-LOAN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    event FlashLoan(
-        address indexed initiator,
-        IERC3156FlashBorrower indexed receiver,
-        IERC20 indexed asset,
-        uint256 amount,
-        uint256 feeAmount,
-        bytes data
-    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-LOCKUP

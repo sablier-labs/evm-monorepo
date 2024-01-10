@@ -8,4 +8,3 @@ setProtocolFee.t.sol
    └── when the new protocol fee is not the same as the current protocol fee
       ├── it should set the new protocol fee
       └── it should emit a {SetProtocolFee} event
-

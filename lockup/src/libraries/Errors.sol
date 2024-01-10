@@ -26,22 +26,6 @@ library Errors {
     error SablierV2Base_NoProtocolRevenues(IERC20 asset);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-V2-FLASH-LOAN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when trying to flash loan an unsupported asset.
-    error SablierV2FlashLoan_AssetNotFlashLoanable(IERC20 asset);
-
-    /// @notice Thrown when trying to flash loan an amount greater than or equal to 2^128.
-    error SablierV2FlashLoan_AmountTooHigh(uint256 amount);
-
-    /// @notice Thrown when the calculated fee during a flash loan is greater than or equal to 2^128.
-    error SablierV2FlashLoan_CalculatedFeeTooHigh(uint256 amount);
-
-    /// @notice Thrown when the callback to the flash borrower fails.
-    error SablierV2FlashLoan_FlashBorrowFail();
-
-    /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-LOCKUP
     //////////////////////////////////////////////////////////////////////////*/
 

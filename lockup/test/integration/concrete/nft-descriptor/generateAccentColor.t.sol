@@ -7,7 +7,7 @@ contract GenerateAccentColor_Integration_Concrete_Test is NFTDescriptor_Integrat
     function test_GenerateAccentColor() external {
         // Passing a dummy contract instead of a real Sablier contract to make this test easy to maintain.
         string memory actualColor = nftDescriptorMock.generateAccentColor_({ sablier: address(noop), streamId: 1337 });
-        string memory expectedColor = "hsl(302,69%,44%)";
+        string memory expectedColor = "hsl(268,54%,64%)";
         assertEq(actualColor, expectedColor, "accentColor");
     }
 }

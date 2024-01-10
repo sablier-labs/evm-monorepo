@@ -7,7 +7,6 @@ import { ud60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Solarray } from "solarray/src/Solarray.sol";
 
-import { ISablierV2Comptroller } from "../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupDynamic } from "../src/interfaces/ISablierV2LockupDynamic.sol";
 import { ISablierV2LockupLinear } from "../src/interfaces/ISablierV2LockupLinear.sol";
 import { Broker, LockupDynamic, LockupLinear } from "../src/types/DataTypes.sol";
@@ -21,7 +20,6 @@ interface IERC20Mint {
 /// @notice Initializes the protocol by setting up the comptroller and creating some streams.
 contract Init is BaseScript {
     function run(
-        ISablierV2Comptroller comptroller,
         ISablierV2LockupLinear lockupLinear,
         ISablierV2LockupDynamic lockupDynamic,
         IERC20 asset
@@ -31,18 +29,6 @@ contract Init is BaseScript {
     {
         address sender = broadcaster;
         address recipient = vm.addr(vm.deriveKey({ mnemonic: mnemonic, index: 1 }));
-
-        /*//////////////////////////////////////////////////////////////////////////
-                                        COMPTROLLER
-        //////////////////////////////////////////////////////////////////////////*/
-
-        // Enable the ERC-20 asset for flash loaning.
-        if (!comptroller.isFlashAsset(asset)) {
-            comptroller.toggleFlashAsset(asset);
-        }
-
-        // Set the flash fee to 0.05%.
-        comptroller.setFlashFee({ newFlashFee: ud60x18(0.0005e18) });
 
         /*//////////////////////////////////////////////////////////////////////////
                                        LOCKUP-LINEAR

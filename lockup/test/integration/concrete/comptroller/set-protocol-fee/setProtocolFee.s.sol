@@ -41,7 +41,7 @@ contract SetProtocolFee_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_SetProtocolFee() external whenCallerAdmin whenNewFee {
-        UD60x18 newProtocolFee = defaults.FLASH_FEE();
+        UD60x18 newProtocolFee = defaults.PROTOCOL_FEE();
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(comptroller) });

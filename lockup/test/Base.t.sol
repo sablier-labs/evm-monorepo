@@ -14,7 +14,6 @@ import { SablierV2LockupLinear } from "../src/SablierV2LockupLinear.sol";
 import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
 
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
-import { GoodFlashLoanReceiver } from "./mocks/flash-loan/GoodFlashLoanReceiver.sol";
 import { Noop } from "./mocks/Noop.sol";
 import { GoodRecipient } from "./mocks/hooks/GoodRecipient.sol";
 import { Assertions } from "./utils/Assertions.sol";
@@ -41,7 +40,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     ISablierV2Comptroller internal comptroller;
     ERC20 internal dai;
     Defaults internal defaults;
-    GoodFlashLoanReceiver internal goodFlashLoanReceiver;
     GoodRecipient internal goodRecipient;
     ISablierV2LockupDynamic internal lockupDynamic;
     ISablierV2LockupLinear internal lockupLinear;
@@ -56,14 +54,12 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     function setUp() public virtual {
         // Deploy the base test contracts.
         dai = new ERC20("Dai Stablecoin", "DAI");
-        goodFlashLoanReceiver = new GoodFlashLoanReceiver();
         goodRecipient = new GoodRecipient();
         noop = new Noop();
         usdt = new ERC20MissingReturn("Tether USD", "USDT", 6);
 
         // Label the base test contracts.
         vm.label({ account: address(dai), newLabel: "DAI" });
-        vm.label({ account: address(goodFlashLoanReceiver), newLabel: "Good Flash Loan Receiver" });
         vm.label({ account: address(goodRecipient), newLabel: "Good Recipient" });
         vm.label({ account: address(nftDescriptor), newLabel: "NFT Descriptor" });
         vm.label({ account: address(noop), newLabel: "Noop" });

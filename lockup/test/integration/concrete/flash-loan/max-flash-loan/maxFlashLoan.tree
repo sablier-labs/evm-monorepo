@@ -1,5 +1,0 @@
-maxFlashLoan.t.sol
-├── given the asset is not flash loanable
-│  └── it should revert
-└── given the asset is flash loanable
-   └── it should return the correct max flash loan

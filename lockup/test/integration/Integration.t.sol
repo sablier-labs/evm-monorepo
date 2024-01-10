@@ -4,8 +4,6 @@ pragma solidity >=0.8.19 <0.9.0;
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Base_Test } from "../Base.t.sol";
-import { FaultyFlashLoanReceiver } from "../mocks/flash-loan/FaultyFlashLoanReceiver.sol";
-import { ReentrantFlashLoanReceiver } from "../mocks/flash-loan/ReentrantFlashLoanReceiver.sol";
 import { ReentrantRecipient } from "../mocks/hooks/ReentrantRecipient.sol";
 import { RevertingRecipient } from "../mocks/hooks/RevertingRecipient.sol";
 
@@ -15,8 +13,6 @@ abstract contract Integration_Test is Base_Test {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    FaultyFlashLoanReceiver internal faultyFlashLoanReceiver = new FaultyFlashLoanReceiver();
-    ReentrantFlashLoanReceiver internal reentrantFlashLoanReceiver = new ReentrantFlashLoanReceiver();
     ReentrantRecipient internal reentrantRecipient = new ReentrantRecipient();
     RevertingRecipient internal revertingRecipient = new RevertingRecipient();
 
@@ -46,8 +42,6 @@ abstract contract Integration_Test is Base_Test {
 
     /// @dev Labels the most relevant contracts.
     function labelContracts() internal {
-        vm.label({ account: address(faultyFlashLoanReceiver), newLabel: "Faulty Flash Loan Receiver" });
-        vm.label({ account: address(reentrantFlashLoanReceiver), newLabel: "Reentrant Flash Loan Receiver" });
         vm.label({ account: address(reentrantRecipient), newLabel: "Reentrant Lockup Recipient" });
         vm.label({ account: address(revertingRecipient), newLabel: "Reverting Lockup Recipient" });
     }
