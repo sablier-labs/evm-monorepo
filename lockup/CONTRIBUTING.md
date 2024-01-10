@@ -69,7 +69,6 @@ populate it with the appropriate environment values. You need to provide your mn
 To make CI work in your pull request, ensure that the necessary environment variables are configured in your forked
 repository's secrets. Please add the following variables in your GitHub Secrets:
 
-- API_KEY_ETHERSCAN
 - API_KEY_INFURA
 - RPC_URL_MAINNET
 

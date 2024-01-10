@@ -1,7 +1,6 @@
 name: "CI Deep"
 
 env:
-  API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
   API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
   RPC_URL_MAINNET: ${{ secrets.RPC_URL_MAINNET }}
 
