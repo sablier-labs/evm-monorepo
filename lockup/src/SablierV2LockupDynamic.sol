@@ -13,7 +13,7 @@ import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
 import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2Lockup } from "./interfaces/ISablierV2Lockup.sol";
 import { ISablierV2LockupDynamic } from "./interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupRecipient } from "./interfaces/hooks/ISablierV2LockupRecipient.sol";
+import { ISablierV2Recipient } from "./interfaces/hooks/ISablierV2Recipient.sol";
 import { ISablierV2NFTDescriptor } from "./interfaces/ISablierV2NFTDescriptor.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Helpers } from "./libraries/Helpers.sol";
@@ -142,7 +142,13 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2Lockup
-    function getSender(uint256 streamId) external view override notNull(streamId) returns (address sender) {
+    function getSender(uint256 streamId)
+        public
+        view
+        override(ISablierV2Lockup, SablierV2Lockup)
+        notNull(streamId)
+        returns (address sender)
+    {
         sender = _streams[streamId].sender;
     }
 
@@ -521,7 +527,7 @@ contract SablierV2LockupDynamic is
         // Interactions: if the recipient is a contract, try to invoke the cancel hook on the recipient without
         // reverting if the hook is not implemented, and without bubbling up any potential revert.
         if (recipient.code.length > 0) {
-            try ISablierV2LockupRecipient(recipient).onStreamCanceled({
+            try ISablierV2Recipient(recipient).onLockupStreamCanceled({
                 streamId: streamId,
                 sender: sender,
                 senderAmount: senderAmount,

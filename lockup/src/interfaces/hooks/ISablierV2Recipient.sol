@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.19;
 
-/// @title ISablierV2LockupRecipient
+/// @title ISablierV2Recipient
 /// @notice Interface for recipient contracts capable of reacting to cancellations, renouncements, and withdrawals.
 /// @dev Implementation of this interface is optional. If a recipient contract doesn't implement this
 /// interface or implements it partially, function execution will not revert.
-interface ISablierV2LockupRecipient {
+interface ISablierV2Recipient {
     /// @notice Responds to sender-triggered cancellations.
     ///
     /// @dev Notes:
@@ -17,7 +17,7 @@ interface ISablierV2LockupRecipient {
     /// decimals.
     /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in units of
     /// the asset's decimals.
-    function onStreamCanceled(
+    function onLockupStreamCanceled(
         uint256 streamId,
         address sender,
         uint128 senderAmount,
@@ -31,7 +31,7 @@ interface ISablierV2LockupRecipient {
     /// - This function may revert, but the Sablier contract will ignore the revert.
     ///
     /// @param streamId The id of the renounced stream.
-    function onStreamRenounced(uint256 streamId) external;
+    function onLockupStreamRenounced(uint256 streamId) external;
 
     /// @notice Responds to withdrawals triggered by either the stream's sender or an approved third party.
     ///
@@ -42,5 +42,5 @@ interface ISablierV2LockupRecipient {
     /// @param caller The original `msg.sender` address that triggered the withdrawal.
     /// @param to The address receiving the withdrawn assets.
     /// @param amount The amount of assets withdrawn, denoted in units of the asset's decimals.
-    function onStreamWithdrawn(uint256 streamId, address caller, address to, uint128 amount) external;
+    function onLockupStreamWithdrawn(uint256 streamId, address caller, address to, uint128 amount) external;
 }

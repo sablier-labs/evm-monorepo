@@ -2,10 +2,10 @@
 pragma solidity >=0.8.19;
 
 import { ISablierV2Lockup } from "../../../src/interfaces/ISablierV2Lockup.sol";
-import { ISablierV2LockupRecipient } from "../../../src/interfaces/hooks/ISablierV2LockupRecipient.sol";
+import { ISablierV2Recipient } from "../../../src/interfaces/hooks/ISablierV2Recipient.sol";
 
-contract ReentrantRecipient is ISablierV2LockupRecipient {
-    function onStreamCanceled(
+contract ReentrantRecipient is ISablierV2Recipient {
+    function onLockupStreamCanceled(
         uint256 streamId,
         address sender,
         uint128 senderAmount,
@@ -20,11 +20,11 @@ contract ReentrantRecipient is ISablierV2LockupRecipient {
         ISablierV2Lockup(msg.sender).cancel(streamId);
     }
 
-    function onStreamRenounced(uint256 streamId) external {
+    function onLockupStreamRenounced(uint256 streamId) external {
         ISablierV2Lockup(msg.sender).renounce(streamId);
     }
 
-    function onStreamWithdrawn(uint256 streamId, address caller, address to, uint128 amount) external {
+    function onLockupStreamWithdrawn(uint256 streamId, address caller, address to, uint128 amount) external {
         streamId;
         caller;
         to;

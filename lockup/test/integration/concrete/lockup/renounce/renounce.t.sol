@@ -2,7 +2,7 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
-import { ISablierV2LockupRecipient } from "src/interfaces/hooks/ISablierV2LockupRecipient.sol";
+import { ISablierV2Recipient } from "src/interfaces/hooks/ISablierV2Recipient.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Lockup_Integration_Shared_Test } from "../../../shared/lockup/Lockup.t.sol";
@@ -126,7 +126,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
         uint256 streamId = createDefaultStreamWithRecipient(address(noop));
 
         // Expect a call to the hook.
-        vm.expectCall(address(noop), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
+        vm.expectCall(address(noop), abi.encodeCall(ISablierV2Recipient.onLockupStreamRenounced, (streamId)));
 
         // Renounce the stream.
         lockup.renounce(streamId);
@@ -154,7 +154,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
 
         // Expect a call to the hook.
         vm.expectCall(
-            address(revertingRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
+            address(revertingRecipient), abi.encodeCall(ISablierV2Recipient.onLockupStreamRenounced, (streamId))
         );
 
         // Renounce the stream.
@@ -184,7 +184,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
 
         // Expect a call to the hook.
         vm.expectCall(
-            address(reentrantRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId))
+            address(reentrantRecipient), abi.encodeCall(ISablierV2Recipient.onLockupStreamRenounced, (streamId))
         );
 
         // Renounce the stream.
@@ -214,7 +214,7 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Expect a call to the hook.
-        vm.expectCall(address(goodRecipient), abi.encodeCall(ISablierV2LockupRecipient.onStreamRenounced, (streamId)));
+        vm.expectCall(address(goodRecipient), abi.encodeCall(ISablierV2Recipient.onLockupStreamRenounced, (streamId)));
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

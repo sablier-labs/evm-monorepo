@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.19;
 
-import { ISablierV2LockupRecipient } from "../../../src/interfaces/hooks/ISablierV2LockupRecipient.sol";
+import { ISablierV2Recipient } from "../../../src/interfaces/hooks/ISablierV2Recipient.sol";
 
-contract RevertingRecipient is ISablierV2LockupRecipient {
-    function onStreamCanceled(
+contract RevertingRecipient is ISablierV2Recipient {
+    function onLockupStreamCanceled(
         uint256 streamId,
         address sender,
         uint128 senderAmount,
@@ -20,12 +20,12 @@ contract RevertingRecipient is ISablierV2LockupRecipient {
         revert("You shall not pass");
     }
 
-    function onStreamRenounced(uint256 streamId) external pure {
+    function onLockupStreamRenounced(uint256 streamId) external pure {
         streamId;
         revert("You shall not pass");
     }
 
-    function onStreamWithdrawn(uint256 streamId, address caller, address to, uint128 amount) external pure {
+    function onLockupStreamWithdrawn(uint256 streamId, address caller, address to, uint128 amount) external pure {
         streamId;
         caller;
         to;

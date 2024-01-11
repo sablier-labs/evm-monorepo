@@ -2,7 +2,7 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
-import { ISablierV2LockupRecipient } from "src/interfaces/hooks/ISablierV2LockupRecipient.sol";
+import { ISablierV2Recipient } from "src/interfaces/hooks/ISablierV2Recipient.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Lockup } from "src/types/DataTypes.sol";
@@ -144,7 +144,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test, Cancel_I
         vm.expectCall(
             address(noop),
             abi.encodeCall(
-                ISablierV2LockupRecipient.onStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
+                ISablierV2Recipient.onLockupStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
             )
         );
 
@@ -177,7 +177,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test, Cancel_I
         vm.expectCall(
             address(revertingRecipient),
             abi.encodeCall(
-                ISablierV2LockupRecipient.onStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
+                ISablierV2Recipient.onLockupStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
             )
         );
 
@@ -211,7 +211,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test, Cancel_I
         vm.expectCall(
             address(reentrantRecipient),
             abi.encodeCall(
-                ISablierV2LockupRecipient.onStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
+                ISablierV2Recipient.onLockupStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
             )
         );
 
@@ -249,7 +249,7 @@ abstract contract Cancel_Integration_Concrete_Test is Integration_Test, Cancel_I
         vm.expectCall(
             address(goodRecipient),
             abi.encodeCall(
-                ISablierV2LockupRecipient.onStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
+                ISablierV2Recipient.onLockupStreamCanceled, (streamId, users.sender, senderAmount, recipientAmount)
             )
         );
 
