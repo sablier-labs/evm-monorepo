@@ -29,7 +29,7 @@ jobs:
         uses: "oven-sh/setup-bun@v1"
 
       - name: "Install the Node.js dependencies"
-        run: "bun install"
+        run: "bun install --frozen-lockfile"
 
       - name: "Lint the code"
         run: "bun run lint"
@@ -52,7 +52,7 @@ jobs:
         uses: "oven-sh/setup-bun@v1"
 
       - name: "Install the Node.js dependencies"
-        run: "bun install"
+        run: "bun install --frozen-lockfile"
 
       - name: "Show the Foundry config"
         run: "forge config"
