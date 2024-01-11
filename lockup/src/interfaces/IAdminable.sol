@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
 /// @title IAdminable
 /// @notice Contract module that provides a basic access control mechanism, with an admin that can be

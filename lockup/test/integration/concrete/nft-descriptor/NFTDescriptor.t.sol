@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { Integration_Test } from "../../Integration.t.sol";
 import { NFTDescriptorMock } from "../../../mocks/NFTDescriptorMock.sol";

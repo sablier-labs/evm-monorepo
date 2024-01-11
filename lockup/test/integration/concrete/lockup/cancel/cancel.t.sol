@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { ISablierV2Recipient } from "src/interfaces/hooks/ISablierV2Recipient.sol";

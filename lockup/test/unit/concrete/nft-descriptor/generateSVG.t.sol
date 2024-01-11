@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // solhint-disable max-line-length
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { NFTSVG } from "src/libraries/NFTSVG.sol";
 import { SVGElements } from "src/libraries/SVGElements.sol";

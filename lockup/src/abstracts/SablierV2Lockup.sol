@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity >=0.8.19;
+pragma solidity >=0.8.22;
 
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";

@@ -21,6 +21,6 @@ jobs:
       - name: "Check that V2 Core can be built with multiple Solidity versions"
         uses: "PaulRBerg/foundry-multibuild@v1"
         with:
-          min: "0.8.19"
+          min: "0.8.22"
           max: "0.8.23"
           skip-test: "true"

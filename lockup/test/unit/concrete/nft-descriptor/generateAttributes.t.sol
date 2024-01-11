@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // solhint-disable max-line-length,quotes
-pragma solidity >=0.8.19 <0.9.0;
+pragma solidity >=0.8.22 <0.9.0;
 
 import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
 
