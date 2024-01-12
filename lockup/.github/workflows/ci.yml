@@ -4,10 +4,6 @@ concurrency:
   cancel-in-progress: true
   group: ${{github.workflow}}-${{github.ref}}
 
-env:
-  API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
-  RPC_URL_MAINNET: ${{ secrets.RPC_URL_MAINNET }}
-
 on:
   workflow_dispatch:
   pull_request:
@@ -17,257 +13,59 @@ on:
 
 jobs:
   lint:
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out the repo"
-        uses: "actions/checkout@v4"
-
-      - name: "Install Foundry"
-        uses: "foundry-rs/foundry-toolchain@v1"
-
-      - name: "Install Bun"
-        uses: "oven-sh/setup-bun@v1"
-
-      - name: "Install the Node.js dependencies"
-        run: "bun install --frozen-lockfile"
-
-      - name: "Lint the code"
-        run: "bun run lint"
-
-      - name: "Add lint summary"
-        run: |
-          echo "## Lint result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-lint.yml@main"
 
   build:
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out the repo"
-        uses: "actions/checkout@v4"
-
-      - name: "Install Foundry"
-        uses: "foundry-rs/foundry-toolchain@v1"
-
-      - name: "Install Bun"
-        uses: "oven-sh/setup-bun@v1"
-
-      - name: "Install the Node.js dependencies"
-        run: "bun install --frozen-lockfile"
-
-      - name: "Show the Foundry config"
-        run: "forge config"
-
-      - name: "Generate and prepare the contract artifacts"
-        run: "./shell/prepare-artifacts.sh"
-
-      - name: "Build the test contracts"
-        run: "FOUNDRY_PROFILE=test-optimized forge build"
-
-      - name: "Cache the build and the node modules so that they can be re-used by the other jobs"
-        uses: "actions/cache/save@v3"
-        with:
-          key: "build-and-modules-${{ github.sha }}"
-          path: |
-            cache
-            node_modules
-            out
-            out-optimized
-
-      - name: "Store the contract artifacts in CI"
-        uses: "actions/upload-artifact@v3"
-        with:
-          name: "contract-artifacts"
-          path: "artifacts"
-      - name: "Add build summary"
-        run: |
-          echo "## Build result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-build.yml@main"
 
   test-unit:
     needs: ["lint", "build"]
-    env:
-      FOUNDRY_FUZZ_RUNS: "5000"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out the repo"
-        uses: "actions/checkout@v4"
-
-      - name: "Install Foundry"
-        uses: "foundry-rs/foundry-toolchain@v1"
-
-      - name: "Restore the cached build and the node modules"
-        uses: "actions/cache/restore@v3"
-        with:
-          fail-on-cache-miss: true
-          key: "build-and-modules-${{ github.sha }}"
-          path: |
-            cache
-            node_modules
-            out
-            out-optimized
-
-      - name: "Run the unit tests against the optimized build"
-        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/unit/**/*.sol\""
-
-      - name: "Add test summary"
-        run: |
-          echo "## Unit tests result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: 5000
+      foundry-profile: "test-optimized"
+      match-path: "test/unit/**/*.sol"
+      name: "Unit tests"
 
   test-integration:
     needs: ["lint", "build"]
-    env:
-      FOUNDRY_FUZZ_RUNS: "5000"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out the repo"
-        uses: "actions/checkout@v4"
-
-      - name: "Install Foundry"
-        uses: "foundry-rs/foundry-toolchain@v1"
-
-      - name: "Restore the cached build and the node modules"
-        uses: "actions/cache/restore@v3"
-        with:
-          fail-on-cache-miss: true
-          key: "build-and-modules-${{ github.sha }}"
-          path: |
-            cache
-            node_modules
-            out
-            out-optimized
-
-      - name: "Run the integration tests against the optimized build"
-        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/integration/**/*.sol\""
-
-      - name: "Add test summary"
-        run: |
-          echo "## Integration tests result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: 5000
+      foundry-profile: "test-optimized"
+      match-path: "test/integration/**/*.sol"
+      name: "Integration tests"
 
   test-utils:
     needs: ["lint", "build"]
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out the repo"
-        uses: "actions/checkout@v4"
-
-      - name: "Install Foundry"
-        uses: "foundry-rs/foundry-toolchain@v1"
-
-      - name: "Restore the cached build and the node modules"
-        uses: "actions/cache/restore@v3"
-        with:
-          fail-on-cache-miss: true
-          key: "build-and-modules-${{ github.sha }}"
-          path: |
-            cache
-            node_modules
-            out
-            out-optimized
-
-      - name: "Run the utils tests against the optimized build"
-        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/utils/**/*.sol\""
-
-      - name: "Add test summary"
-        run: |
-          echo "## Utils tests result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-profile: "test-optimized"
+      match-path: "test/utils/**/*.sol"
+      name: "Utils tests"
 
   test-invariant:
     needs: ["lint", "build"]
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out the repo"
-        uses: "actions/checkout@v4"
-
-      - name: "Install Foundry"
-        uses: "foundry-rs/foundry-toolchain@v1"
-
-      - name: "Restore the cached build and the node modules"
-        uses: "actions/cache/restore@v3"
-        with:
-          fail-on-cache-miss: true
-          key: "build-and-modules-${{ github.sha }}"
-          path: |
-            cache
-            node_modules
-            out
-            out-optimized
-
-      - name: "Run the invariant tests against the optimized build"
-        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/invariant/**/*.sol\""
-
-      - name: "Add test summary"
-        run: |
-          echo "## Invariant tests result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-profile: "test-optimized"
+      match-path: "test/invariant/**/*.sol"
+      name: "Invariant tests"
 
   test-fork:
     needs: ["lint", "build"]
-    env:
-      FOUNDRY_FUZZ_RUNS: "100"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out the repo"
-        uses: "actions/checkout@v4"
-
-      - name: "Install Foundry"
-        uses: "foundry-rs/foundry-toolchain@v1"
-
-      - name: "Restore the cached build and the node modules"
-        uses: "actions/cache/restore@v3"
-        with:
-          fail-on-cache-miss: true
-          key: "build-and-modules-${{ github.sha }}"
-          path: |
-            cache
-            node_modules
-            out
-            out-optimized
-
-      - name: "Generate fuzz seed that changes weekly to avoid burning through RPC allowance"
-        run: |
-          echo "FOUNDRY_FUZZ_SEED=$(echo $(($EPOCHSECONDS / 604800)))" >> $GITHUB_ENV
-
-      - name: "Run the fork tests against the optimized build"
-        run: "FOUNDRY_PROFILE=test-optimized forge test --match-path \"test/fork/**/*.sol\""
-
-      - name: "Add test summary"
-        run: |
-          echo "## Fork tests result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+    secrets:
+      RPC_URL_MAINNET: ${{ secrets.RPC_URL_MAINNET }}
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
+    with:
+      foundry-fuzz-runs: 100
+      foundry-profile: "test-optimized"
+      fuzz-seed: true
+      match-path: "test/fork/**/*.sol"
+      name: "Fork tests"
 
   coverage:
     needs: ["lint", "build"]
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out the repo"
-        uses: "actions/checkout@v4"
-
-      - name: "Install Foundry"
-        uses: "foundry-rs/foundry-toolchain@v1"
-
-      - name: "Restore the cached build and the node modules"
-        uses: "actions/cache/restore@v3"
-        with:
-          fail-on-cache-miss: true
-          key: "build-and-modules-${{ github.sha }}"
-          path: |
-            cache
-            node_modules
-            out
-            out-optimized
-
-      - name: "Generate the coverage report using the unit and the integration tests"
-        run: "forge coverage --match-path \"test/{unit,integration}/**/*.sol\" --report lcov"
-
-      - name: "Upload coverage report to Codecov"
-        uses: "codecov/codecov-action@v3"
-        with:
-          files: "./lcov.info"
-
-      - name: "Add coverage summary"
-        run: |
-          echo "## Coverage result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
+    uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@main"
+    with:
+      match-path: "test/{integration,unit}/**/*.sol"
