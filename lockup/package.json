@@ -19,7 +19,7 @@
     "forge-std": "github:foundry-rs/forge-std#v1.5.6",
     "prettier": "^2.8.8",
     "solady": "0.0.129",
-    "solarray": "github:sablier-labs/solarray#6bf10cb",
+    "solarray": "github:evmcheb/solarray#a547630",
     "solhint": "^4.0.0"
   },
   "files": [
