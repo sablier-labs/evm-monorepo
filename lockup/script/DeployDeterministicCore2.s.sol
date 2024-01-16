@@ -35,7 +35,6 @@ contract DeployDeterministicCore2 is BaseScript {
     {
         bytes32 salt = bytes32(abi.encodePacked(create2Salt));
         comptroller = new SablierV2Comptroller{ salt: salt }(initialAdmin);
-        // forgefmt: disable-next-line
         lockupDynamic =
             new SablierV2LockupDynamic{ salt: salt }(initialAdmin, comptroller, nftDescriptor, maxSegmentCount);
         lockupLinear = new SablierV2LockupLinear{ salt: salt }(initialAdmin, comptroller, nftDescriptor);
