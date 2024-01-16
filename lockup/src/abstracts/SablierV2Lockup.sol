@@ -29,12 +29,8 @@ abstract contract SablierV2Lockup is
     /// @inheritdoc ISablierV2Lockup
     uint256 public override nextStreamId;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                  INTERNAL STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Contract that generates the non-fungible token URI.
-    ISablierV2NFTDescriptor internal _nftDescriptor;
+    /// @inheritdoc ISablierV2Lockup
+    ISablierV2NFTDescriptor public override nftDescriptor;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTRUCTOR
@@ -50,7 +46,7 @@ abstract contract SablierV2Lockup is
     )
         SablierV2Base(initialAdmin, initialComptroller)
     {
-        _nftDescriptor = initialNFTDescriptor;
+        nftDescriptor = initialNFTDescriptor;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -111,7 +107,7 @@ abstract contract SablierV2Lockup is
         _requireMinted({ tokenId: streamId });
 
         // Generate the URI describing the stream NFT.
-        uri = _nftDescriptor.tokenURI({ sablier: this, streamId: streamId });
+        uri = nftDescriptor.tokenURI({ sablier: this, streamId: streamId });
     }
 
     /// @inheritdoc ISablierV2Lockup
@@ -215,8 +211,8 @@ abstract contract SablierV2Lockup is
     /// @inheritdoc ISablierV2Lockup
     function setNFTDescriptor(ISablierV2NFTDescriptor newNFTDescriptor) external override onlyAdmin {
         // Effects: set the NFT descriptor.
-        ISablierV2NFTDescriptor oldNftDescriptor = _nftDescriptor;
-        _nftDescriptor = newNFTDescriptor;
+        ISablierV2NFTDescriptor oldNftDescriptor = nftDescriptor;
+        nftDescriptor = newNFTDescriptor;
 
         // Log the change of the NFT descriptor.
         emit ISablierV2Lockup.SetNFTDescriptor({

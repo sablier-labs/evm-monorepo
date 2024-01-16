@@ -134,6 +134,9 @@ interface ISablierV2Lockup is
     /// @notice Counter for stream ids, used in the create functions.
     function nextStreamId() external view returns (uint256);
 
+    /// @notice Contract that generates the non-fungible token URI.
+    function nftDescriptor() external view returns (ISablierV2NFTDescriptor);
+
     /// @notice Calculates the amount that the sender would be refunded if the stream were canceled, denoted in units
     /// of the asset's decimals.
     /// @dev Reverts if `streamId` references a null stream.

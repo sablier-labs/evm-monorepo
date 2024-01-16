@@ -33,6 +33,10 @@ contract Constructor_LockupDynamic_Integration_Concrete_Test is LockupDynamic_In
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
 
+        address actualNFTDescriptor = address(constructedLockupDynamic.nftDescriptor());
+        address expectedNFTDescriptor = address(nftDescriptor);
+        assertEq(actualNFTDescriptor, expectedNFTDescriptor, "nftDescriptor");
+
         // {SablierV2LockupDynamic.constructor}
         uint256 actualMaxSegmentCount = constructedLockupDynamic.MAX_SEGMENT_COUNT();
         uint256 expectedMaxSegmentCount = defaults.MAX_SEGMENT_COUNT();

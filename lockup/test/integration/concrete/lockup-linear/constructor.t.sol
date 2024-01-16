@@ -31,5 +31,9 @@ contract Constructor_LockupLinear_Integration_Concrete_Test is LockupLinear_Inte
         uint256 actualStreamId = constructedLockupLinear.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
+
+        address actualNFTDescriptor = address(constructedLockupLinear.nftDescriptor());
+        address expectedNFTDescriptor = address(nftDescriptor);
+        assertEq(actualNFTDescriptor, expectedNFTDescriptor, "nftDescriptor");
     }
 }
