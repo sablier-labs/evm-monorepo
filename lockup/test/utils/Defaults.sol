@@ -181,8 +181,8 @@ contract Defaults is Constants {
                                        PARAMS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDeltas() public view returns (LockupDynamic.CreateWithDeltas memory) {
-        return LockupDynamic.CreateWithDeltas({
+    function createWithDurationsLD() public view returns (LockupDynamic.CreateWithDurations memory) {
+        return LockupDynamic.CreateWithDurations({
             sender: users.sender,
             recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
@@ -194,7 +194,7 @@ contract Defaults is Constants {
         });
     }
 
-    function createWithDurations() public view returns (LockupLinear.CreateWithDurations memory) {
+    function createWithDurationsLL() public view returns (LockupLinear.CreateWithDurations memory) {
         return LockupLinear.CreateWithDurations({
             sender: users.sender,
             recipient: users.recipient,
@@ -207,8 +207,8 @@ contract Defaults is Constants {
         });
     }
 
-    function createWithMilestones() public view returns (LockupDynamic.CreateWithMilestones memory) {
-        return LockupDynamic.CreateWithMilestones({
+    function createWithTimestampsLD() public view returns (LockupDynamic.CreateWithTimestamps memory) {
+        return LockupDynamic.CreateWithTimestamps({
             sender: users.sender,
             recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,
@@ -221,8 +221,8 @@ contract Defaults is Constants {
         });
     }
 
-    function createWithRange() public view returns (LockupLinear.CreateWithRange memory) {
-        return LockupLinear.CreateWithRange({
+    function createWithTimestampsLL() public view returns (LockupLinear.CreateWithTimestamps memory) {
+        return LockupLinear.CreateWithTimestamps({
             sender: users.sender,
             recipient: users.recipient,
             totalAmount: TOTAL_AMOUNT,

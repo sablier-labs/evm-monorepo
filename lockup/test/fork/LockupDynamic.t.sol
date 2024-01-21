@@ -177,8 +177,8 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         });
 
         // Create the stream.
-        lockupDynamic.createWithMilestones(
-            LockupDynamic.CreateWithMilestones({
+        lockupDynamic.createWithTimestamps(
+            LockupDynamic.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: vars.totalAmount,

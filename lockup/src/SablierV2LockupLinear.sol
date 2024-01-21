@@ -261,15 +261,15 @@ contract SablierV2LockupLinear is
         range.start = uint40(block.timestamp);
 
         // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because
-        // {_createWithRange} will nonetheless check that the end time is greater than the cliff time,
+        // {_createWithTimestamps} will nonetheless check that the end time is greater than the cliff time,
         // and also that the cliff time is greater than or equal to the start time.
         unchecked {
             range.cliff = range.start + params.durations.cliff;
             range.end = range.start + params.durations.total;
         }
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithRange(
-            LockupLinear.CreateWithRange({
+        streamId = _createWithTimestamps(
+            LockupLinear.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: params.totalAmount,
@@ -283,14 +283,14 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2LockupLinear
-    function createWithRange(LockupLinear.CreateWithRange calldata params)
+    function createWithTimestamps(LockupLinear.CreateWithTimestamps calldata params)
         external
         override
         noDelegateCall
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithRange(params);
+        streamId = _createWithTimestamps(params);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -452,7 +452,10 @@ contract SablierV2LockupLinear is
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _createWithRange(LockupLinear.CreateWithRange memory params) internal returns (uint256 streamId) {
+    function _createWithTimestamps(LockupLinear.CreateWithTimestamps memory params)
+        internal
+        returns (uint256 streamId)
+    {
         // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
         // not call other unknown contracts.
         UD60x18 protocolFee = comptroller.protocolFees(params.asset);
@@ -462,7 +465,7 @@ contract SablierV2LockupLinear is
             Helpers.checkAndCalculateFees(params.totalAmount, protocolFee, params.broker.fee, MAX_FEE);
 
         // Checks: validate the user-provided parameters.
-        Helpers.checkCreateWithRange(createAmounts.deposit, params.range);
+        Helpers.checkCreateWithTimestamps(createAmounts.deposit, params.range);
 
         // Load the stream id.
         streamId = nextStreamId;

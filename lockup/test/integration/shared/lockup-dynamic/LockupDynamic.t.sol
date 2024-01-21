@@ -10,8 +10,8 @@ import { Lockup_Integration_Shared_Test } from "../lockup/Lockup.t.sol";
 /// @notice Common testing logic needed across {SablierV2LockupDynamic} integration tests.
 abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Shared_Test {
     struct CreateParams {
-        LockupDynamic.CreateWithDeltas createWithDeltas;
-        LockupDynamic.CreateWithMilestones createWithMilestones;
+        LockupDynamic.CreateWithDurations createWithDurations;
+        LockupDynamic.CreateWithTimestamps createWithTimestamps;
     }
 
     /// @dev These have to be pre-declared so that `vm.expectRevert` does not expect a revert in `defaults`.
@@ -21,54 +21,54 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
     function setUp() public virtual override {
         Lockup_Integration_Shared_Test.setUp();
 
-        _params.createWithDeltas.sender = users.sender;
-        _params.createWithDeltas.recipient = users.recipient;
-        _params.createWithDeltas.totalAmount = defaults.TOTAL_AMOUNT();
-        _params.createWithDeltas.asset = dai;
-        _params.createWithDeltas.cancelable = true;
-        _params.createWithDeltas.transferable = true;
-        _params.createWithDeltas.broker = defaults.broker();
+        _params.createWithDurations.sender = users.sender;
+        _params.createWithDurations.recipient = users.recipient;
+        _params.createWithDurations.totalAmount = defaults.TOTAL_AMOUNT();
+        _params.createWithDurations.asset = dai;
+        _params.createWithDurations.cancelable = true;
+        _params.createWithDurations.transferable = true;
+        _params.createWithDurations.broker = defaults.broker();
 
-        _params.createWithMilestones.sender = users.sender;
-        _params.createWithMilestones.recipient = users.recipient;
-        _params.createWithMilestones.totalAmount = defaults.TOTAL_AMOUNT();
-        _params.createWithMilestones.asset = dai;
-        _params.createWithMilestones.cancelable = true;
-        _params.createWithMilestones.transferable = true;
-        _params.createWithMilestones.startTime = defaults.START_TIME();
-        _params.createWithMilestones.broker = defaults.broker();
+        _params.createWithTimestamps.sender = users.sender;
+        _params.createWithTimestamps.recipient = users.recipient;
+        _params.createWithTimestamps.totalAmount = defaults.TOTAL_AMOUNT();
+        _params.createWithTimestamps.asset = dai;
+        _params.createWithTimestamps.cancelable = true;
+        _params.createWithTimestamps.transferable = true;
+        _params.createWithTimestamps.startTime = defaults.START_TIME();
+        _params.createWithTimestamps.broker = defaults.broker();
 
         // See https://github.com/ethereum/solidity/issues/12783
         LockupDynamic.SegmentWithDelta[] memory segmentsWithDeltas = defaults.segmentsWithDeltas();
         LockupDynamic.Segment[] memory segments = defaults.segments();
         for (uint256 i = 0; i < defaults.SEGMENT_COUNT(); ++i) {
-            _params.createWithDeltas.segments.push(segmentsWithDeltas[i]);
-            _params.createWithMilestones.segments.push(segments[i]);
+            _params.createWithDurations.segments.push(segmentsWithDeltas[i]);
+            _params.createWithTimestamps.segments.push(segments[i]);
         }
     }
 
     /// @dev Creates the default stream.
     function createDefaultStream() internal override returns (uint256 streamId) {
-        streamId = lockupDynamic.createWithMilestones(_params.createWithMilestones);
+        streamId = lockupDynamic.createWithTimestamps(_params.createWithTimestamps);
     }
 
     /// @dev Creates the default stream with the provided asset.
     function createDefaultStreamWithAsset(IERC20 asset) internal override returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.asset = asset;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 
     /// @dev Creates the default stream with the provided broker.
     function createDefaultStreamWithBroker(Broker memory broker) internal override returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.broker = broker;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 
     /// @dev Creates the default stream with deltas.
     function createDefaultStreamWithDeltas() internal returns (uint256 streamId) {
-        streamId = lockupDynamic.createWithDeltas(_params.createWithDeltas);
+        streamId = lockupDynamic.createWithDurations(_params.createWithDurations);
     }
 
     /// @dev Creates the default stream with the provided deltas.
@@ -76,45 +76,45 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         internal
         returns (uint256 streamId)
     {
-        LockupDynamic.CreateWithDeltas memory params = _params.createWithDeltas;
+        LockupDynamic.CreateWithDurations memory params = _params.createWithDurations;
         params.segments = segments;
-        streamId = lockupDynamic.createWithDeltas(params);
+        streamId = lockupDynamic.createWithDurations(params);
     }
 
     /// @dev Creates the default stream with the provided end time.
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.segments[1].milestone = endTime;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 
     /// @dev Creates a stream that will not be cancelable.
     function createDefaultStreamNotCancelable() internal override returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.cancelable = false;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 
     /// @dev Creates the default stream with the NFT transfer disabled.
     function createDefaultStreamNotTransferable() internal override returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.transferable = false;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 
     /// @dev Creates the default stream with the provided range.
     function createDefaultStreamWithRange(LockupDynamic.Range memory range) internal returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.startTime = range.start;
         params.segments[1].milestone = range.end;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 
     /// @dev Creates the default stream with the provided recipient.
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.recipient = recipient;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 
     /// @dev Creates the default stream with the provided segments.
@@ -122,29 +122,29 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         internal
         returns (uint256 streamId)
     {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.segments = segments;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 
     /// @dev Creates the default stream with the provided sender.
     function createDefaultStreamWithSender(address sender) internal override returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.sender = sender;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 
     /// @dev Creates the default stream with the provided start time..
     function createDefaultStreamWithStartTime(uint40 startTime) internal override returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.startTime = startTime;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 
     /// @dev Creates the default stream with the provided total amount.
     function createDefaultStreamWithTotalAmount(uint128 totalAmount) internal override returns (uint256 streamId) {
-        LockupDynamic.CreateWithMilestones memory params = _params.createWithMilestones;
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.totalAmount = totalAmount;
-        streamId = lockupDynamic.createWithMilestones(params);
+        streamId = lockupDynamic.createWithTimestamps(params);
     }
 }

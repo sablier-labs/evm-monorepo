@@ -7,20 +7,20 @@ import { stdError } from "forge-std/src/StdError.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { CreateWithMilestones_Integration_Shared_Test } from "../../shared/lockup-dynamic/createWithMilestones.t.sol";
+import { CreateWithTimestamps_Integration_Shared_Test } from "../../shared/lockup-dynamic/createWithTimestamps.t.sol";
 import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
-contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
+contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
     LockupDynamic_Integration_Fuzz_Test,
-    CreateWithMilestones_Integration_Shared_Test
+    CreateWithTimestamps_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(LockupDynamic_Integration_Fuzz_Test, CreateWithMilestones_Integration_Shared_Test)
+        override(LockupDynamic_Integration_Fuzz_Test, CreateWithTimestamps_Integration_Shared_Test)
     {
         LockupDynamic_Integration_Fuzz_Test.setUp();
-        CreateWithMilestones_Integration_Shared_Test.setUp();
+        CreateWithTimestamps_Integration_Shared_Test.setUp();
     }
 
     function testFuzz_RevertWhen_SegmentCountTooHigh(uint256 segmentCount)
@@ -111,7 +111,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         uint128 depositAmount = defaultDepositAmount + depositDiff;
 
         // Prepare the params.
-        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
+        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsLD();
         params.broker = Broker({ account: address(0), fee: brokerFee });
         params.totalAmount = depositAmount;
 
@@ -125,7 +125,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         );
 
         // Create the stream.
-        lockupDynamic.createWithMilestones(params);
+        lockupDynamic.createWithTimestamps(params);
     }
 
     function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
@@ -201,9 +201,9 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
     /// - Start time equal and not equal to the first segment milestone
     /// - Multiple values for the broker fee, including zero
     /// - Multiple values for the protocol fee, including zero
-    function testFuzz_CreateWithMilestones(
+    function testFuzz_CreateWithTimestamps(
         address funder,
-        LockupDynamic.CreateWithMilestones memory params,
+        LockupDynamic.CreateWithTimestamps memory params,
         UD60x18 protocolFee
     )
         external
@@ -285,8 +285,8 @@ contract CreateWithMilestones_LockupDynamic_Integration_Fuzz_Test is
         });
 
         // Create the stream.
-        lockupDynamic.createWithMilestones(
-            LockupDynamic.CreateWithMilestones({
+        lockupDynamic.createWithTimestamps(
+            LockupDynamic.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: vars.totalAmount,

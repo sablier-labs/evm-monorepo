@@ -8,24 +8,25 @@ import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.so
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { CreateWithRange_Integration_Shared_Test } from "../../../shared/lockup-linear/createWithRange.t.sol";
+import { CreateWithTimestamps_Integration_Shared_Test } from "../../../shared/lockup-linear/createWithTimestamps.t.sol";
 import { LockupLinear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 
-contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
+contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     LockupLinear_Integration_Concrete_Test,
-    CreateWithRange_Integration_Shared_Test
+    CreateWithTimestamps_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(LockupLinear_Integration_Concrete_Test, CreateWithRange_Integration_Shared_Test)
+        override(LockupLinear_Integration_Concrete_Test, CreateWithTimestamps_Integration_Shared_Test)
     {
         LockupLinear_Integration_Concrete_Test.setUp();
-        CreateWithRange_Integration_Shared_Test.setUp();
+        CreateWithTimestamps_Integration_Shared_Test.setUp();
     }
 
     function test_RevertWhen_DelegateCalled() external {
-        bytes memory callData = abi.encodeCall(ISablierV2LockupLinear.createWithRange, defaults.createWithRange());
+        bytes memory callData =
+            abi.encodeCall(ISablierV2LockupLinear.createWithTimestamps, defaults.createWithTimestampsLL());
         (bool success, bytes memory returnData) = address(lockupLinear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -146,7 +147,7 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithAsset(IERC20(nonContract));
     }
 
-    function test_CreateWithRange_AssetMissingReturnValue()
+    function test_CreateWithTimestamps_AssetMissingReturnValue()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -158,10 +159,10 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
         whenBrokerFeeNotTooHigh
         whenAssetContract
     {
-        testCreateWithRange(address(usdt));
+        testCreateWithTimestamps(address(usdt));
     }
 
-    function test_CreateWithRange()
+    function test_CreateWithTimestamps()
         external
         whenNotDelegateCalled
         whenDepositAmountNotZero
@@ -173,11 +174,11 @@ contract CreateWithRange_LockupLinear_Integration_Concrete_Test is
         whenAssetContract
         whenAssetERC20
     {
-        testCreateWithRange(address(dai));
+        testCreateWithTimestamps(address(dai));
     }
 
-    /// @dev Shared logic between {test_CreateWithRange_AssetMissingReturnValue} and {test_CreateWithRange}.
-    function testCreateWithRange(address asset) internal {
+    /// @dev Shared logic between {test_CreateWithTimestamps_AssetMissingReturnValue} and {test_CreateWithTimestamps}.
+    function testCreateWithTimestamps(address asset) internal {
         // Make the Sender the stream's funder.
         address funder = users.sender;
 

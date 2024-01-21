@@ -81,8 +81,8 @@ contract Init is BaseScript {
         LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](2);
         segments[0] = LockupDynamic.SegmentWithDelta({ amount: 2500e18, exponent: ud2x18(3.14e18), delta: 1 hours });
         segments[1] = LockupDynamic.SegmentWithDelta({ amount: 7500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
-        lockupDynamic.createWithDeltas(
-            LockupDynamic.CreateWithDeltas({
+        lockupDynamic.createWithDurations(
+            LockupDynamic.CreateWithDurations({
                 sender: sender,
                 recipient: recipient,
                 totalAmount: 10_000e18,

@@ -267,7 +267,7 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupDynamic
-    function createWithDeltas(LockupDynamic.CreateWithDeltas calldata params)
+    function createWithDurations(LockupDynamic.CreateWithDurations calldata params)
         external
         override
         noDelegateCall
@@ -277,8 +277,8 @@ contract SablierV2LockupDynamic is
         LockupDynamic.Segment[] memory segments = Helpers.checkDeltasAndCalculateMilestones(params.segments);
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithMilestones(
-            LockupDynamic.CreateWithMilestones({
+        streamId = _createWithTimestamps(
+            LockupDynamic.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: params.totalAmount,
@@ -293,14 +293,14 @@ contract SablierV2LockupDynamic is
     }
 
     /// @inheritdoc ISablierV2LockupDynamic
-    function createWithMilestones(LockupDynamic.CreateWithMilestones calldata params)
+    function createWithTimestamps(LockupDynamic.CreateWithTimestamps calldata params)
         external
         override
         noDelegateCall
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithMilestones(params);
+        streamId = _createWithTimestamps(params);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -537,7 +537,7 @@ contract SablierV2LockupDynamic is
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _createWithMilestones(LockupDynamic.CreateWithMilestones memory params)
+    function _createWithTimestamps(LockupDynamic.CreateWithTimestamps memory params)
         internal
         returns (uint256 streamId)
     {
@@ -550,7 +550,7 @@ contract SablierV2LockupDynamic is
             Helpers.checkAndCalculateFees(params.totalAmount, protocolFee, params.broker.fee, MAX_FEE);
 
         // Checks: validate the user-provided parameters.
-        Helpers.checkCreateWithMilestones(createAmounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
+        Helpers.checkCreateWithTimestamps(createAmounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
         // Load the stream id in a variable.
         streamId = nextStreamId;

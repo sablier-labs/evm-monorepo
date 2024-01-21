@@ -45,12 +45,12 @@ contract LockupDynamicCreateHandler is BaseHandler {
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function createWithDeltas(
+    function createWithDurations(
         uint256 timeJumpSeed,
-        LockupDynamic.CreateWithDeltas memory params
+        LockupDynamic.CreateWithDurations memory params
     )
         public
-        instrument("createWithDeltas")
+        instrument("createWithDurations")
         adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
@@ -87,18 +87,18 @@ contract LockupDynamicCreateHandler is BaseHandler {
 
         // Create the stream.
         params.asset = asset;
-        uint256 streamId = lockupDynamic.createWithDeltas(params);
+        uint256 streamId = lockupDynamic.createWithDurations(params);
 
         // Store the stream id.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    function createWithMilestones(
+    function createWithTimestamps(
         uint256 timeJumpSeed,
-        LockupDynamic.CreateWithMilestones memory params
+        LockupDynamic.CreateWithTimestamps memory params
     )
         public
-        instrument("createWithMilestones")
+        instrument("createWithTimestamps")
         adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
@@ -135,7 +135,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
 
         // Create the stream.
         params.asset = asset;
-        uint256 streamId = lockupDynamic.createWithMilestones(params);
+        uint256 streamId = lockupDynamic.createWithTimestamps(params);
 
         // Store the stream id.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);

@@ -23,7 +23,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
 
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaults.createWithDurations());
+            abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaults.createWithDurationsLL());
         (bool success, bytes memory returnData) = address(lockupLinear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }

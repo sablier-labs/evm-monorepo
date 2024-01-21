@@ -70,7 +70,7 @@ library Lockup {
 
 /// @notice Namespace for the structs used in {SablierV2LockupDynamic}.
 library LockupDynamic {
-    /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithDeltas} function.
+    /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithDurations} function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
     /// same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -83,7 +83,7 @@ library LockupDynamic {
     /// starting from `block.timestamp` and adding each delta to the previous milestone.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
-    struct CreateWithDeltas {
+    struct CreateWithDurations {
         address sender;
         address recipient;
         uint128 totalAmount;
@@ -94,7 +94,7 @@ library LockupDynamic {
         Broker broker;
     }
 
-    /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithMilestones}
+    /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithTimestamps}
     /// function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
     /// same as `msg.sender`.
@@ -108,7 +108,7 @@ library LockupDynamic {
     /// @param segments Segments used to compose the custom streaming curve.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
-    struct CreateWithMilestones {
+    struct CreateWithTimestamps {
         address sender;
         address recipient;
         uint128 totalAmount;
@@ -139,7 +139,7 @@ library LockupDynamic {
         uint40 milestone;
     }
 
-    /// @notice Segment struct used at runtime in {SablierV2LockupDynamic.createWithDeltas}.
+    /// @notice Segment struct used at runtime in {SablierV2LockupDynamic.createWithDurations}.
     /// @param amount The amount of assets to be streamed in this segment, denoted in units of the asset's decimals.
     /// @param exponent The exponent of this segment, denoted as a fixed-point number.
     /// @param delta The time difference in seconds between this segment and the previous one.
@@ -207,7 +207,7 @@ library LockupLinear {
         Broker broker;
     }
 
-    /// @notice Struct encapsulating the parameters for the {SablierV2LockupLinear.createWithRange} function.
+    /// @notice Struct encapsulating the parameters for the {SablierV2LockupLinear.createWithTimestamps} function.
     /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
     /// same as `msg.sender`.
     /// @param recipient The address receiving the assets.
@@ -220,7 +220,7 @@ library LockupLinear {
     /// timestamps.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
-    struct CreateWithRange {
+    struct CreateWithTimestamps {
         address sender;
         address recipient;
         uint128 totalAmount;

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { LockupDynamic_Integration_Shared_Test } from "./LockupDynamic.t.sol";
+import { LockupLinear_Integration_Shared_Test } from "./LockupLinear.t.sol";
 
-contract CreateWithMilestones_Integration_Shared_Test is LockupDynamic_Integration_Shared_Test {
+abstract contract CreateWithTimestamps_Integration_Shared_Test is LockupLinear_Integration_Shared_Test {
     uint256 internal streamId;
 
     function setUp() public virtual override {
-        streamId = lockupDynamic.nextStreamId();
+        streamId = lockupLinear.nextStreamId();
     }
 
     modifier whenNotDelegateCalled() {
@@ -22,31 +22,15 @@ contract CreateWithMilestones_Integration_Shared_Test is LockupDynamic_Integrati
         _;
     }
 
-    modifier whenSegmentCountNotZero() {
+    modifier whenStartTimeNotGreaterThanCliffTime() {
         _;
     }
 
-    modifier whenSegmentCountNotTooHigh() {
-        _;
-    }
-
-    modifier whenSegmentAmountsSumDoesNotOverflow() {
-        _;
-    }
-
-    modifier whenStartTimeLessThanFirstSegmentMilestone() {
-        _;
-    }
-
-    modifier whenSegmentMilestonesOrdered() {
+    modifier whenCliffTimeLessThanEndTime() {
         _;
     }
 
     modifier whenEndTimeInTheFuture() {
-        _;
-    }
-
-    modifier whenDepositAmountEqualToSegmentAmountsSum() {
         _;
     }
 

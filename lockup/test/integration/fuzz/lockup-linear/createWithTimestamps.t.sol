@@ -6,20 +6,20 @@ import { MAX_UD60x18, UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { CreateWithRange_Integration_Shared_Test } from "../../shared/lockup-linear/createWithRange.t.sol";
+import { CreateWithTimestamps_Integration_Shared_Test } from "../../shared/lockup-linear/createWithTimestamps.t.sol";
 import { LockupLinear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
-contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
+contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
     LockupLinear_Integration_Fuzz_Test,
-    CreateWithRange_Integration_Shared_Test
+    CreateWithTimestamps_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(LockupLinear_Integration_Fuzz_Test, CreateWithRange_Integration_Shared_Test)
+        override(LockupLinear_Integration_Fuzz_Test, CreateWithTimestamps_Integration_Shared_Test)
     {
         LockupLinear_Integration_Fuzz_Test.setUp();
-        CreateWithRange_Integration_Shared_Test.setUp();
+        CreateWithTimestamps_Integration_Shared_Test.setUp();
     }
 
     function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(uint40 startTime)
@@ -123,9 +123,9 @@ contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
     /// - Multiple values for the cliff time and the end time
     /// - Multiple values for the broker fee, including zero
     /// - Multiple values for the protocol fee, including zero
-    function testFuzz_CreateWithRange(
+    function testFuzz_CreateWithTimestamps(
         address funder,
-        LockupLinear.CreateWithRange memory params,
+        LockupLinear.CreateWithTimestamps memory params,
         UD60x18 protocolFee
     )
         external
@@ -196,8 +196,8 @@ contract CreateWithRange_LockupLinear_Integration_Fuzz_Test is
         });
 
         // Create the stream.
-        lockupLinear.createWithRange(
-            LockupLinear.CreateWithRange({
+        lockupLinear.createWithTimestamps(
+            LockupLinear.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: params.totalAmount,

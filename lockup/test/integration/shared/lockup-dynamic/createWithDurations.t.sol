@@ -3,7 +3,7 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { LockupDynamic_Integration_Shared_Test } from "./LockupDynamic.t.sol";
 
-contract CreateWithDeltas_Integration_Shared_Test is LockupDynamic_Integration_Shared_Test {
+contract CreateWithDurations_Integration_Shared_Test is LockupDynamic_Integration_Shared_Test {
     uint256 internal streamId;
 
     function setUp() public virtual override {

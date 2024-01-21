@@ -3,20 +3,20 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { CreateWithDeltas_Integration_Shared_Test } from "../../shared/lockup-dynamic/createWithDeltas.t.sol";
+import { CreateWithDurations_Integration_Shared_Test } from "../../shared/lockup-dynamic/createWithDurations.t.sol";
 import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
-contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
+contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
     LockupDynamic_Integration_Fuzz_Test,
-    CreateWithDeltas_Integration_Shared_Test
+    CreateWithDurations_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(LockupDynamic_Integration_Fuzz_Test, CreateWithDeltas_Integration_Shared_Test)
+        override(LockupDynamic_Integration_Fuzz_Test, CreateWithDurations_Integration_Shared_Test)
     {
         LockupDynamic_Integration_Fuzz_Test.setUp();
-        CreateWithDeltas_Integration_Shared_Test.setUp();
+        CreateWithDurations_Integration_Shared_Test.setUp();
     }
 
     struct Vars {
@@ -37,7 +37,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
         uint128 totalAmount;
     }
 
-    function testFuzz_CreateWithDeltas(LockupDynamic.SegmentWithDelta[] memory segments)
+    function testFuzz_CreateWithDurations(LockupDynamic.SegmentWithDelta[] memory segments)
         external
         whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit
@@ -98,11 +98,11 @@ contract CreateWithDeltas_LockupDynamic_Integration_Fuzz_Test is
         });
 
         // Create the stream.
-        LockupDynamic.CreateWithDeltas memory params = defaults.createWithDeltas();
+        LockupDynamic.CreateWithDurations memory params = defaults.createWithDurationsLD();
         params.segments = segments;
         params.totalAmount = vars.totalAmount;
         params.transferable = true;
-        lockupDynamic.createWithDeltas(params);
+        lockupDynamic.createWithDurations(params);
 
         // Check if the stream is settled. It is possible for a Lockup Dynamic stream to settle at the time of creation
         // because some segment amounts can be zero.

@@ -77,12 +77,12 @@ contract LockupLinearCreateHandler is BaseHandler {
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
-    function createWithRange(
+    function createWithTimestamps(
         uint256 timeJumpSeed,
-        LockupLinear.CreateWithRange memory params
+        LockupLinear.CreateWithTimestamps memory params
     )
         public
-        instrument("createWithRange")
+        instrument("createWithTimestamps")
         adjustTimestamp(timeJumpSeed)
         checkUsers(params.sender, params.recipient, params.broker.account)
         useNewSender(params.sender)
@@ -114,7 +114,7 @@ contract LockupLinearCreateHandler is BaseHandler {
 
         // Create the stream.
         params.asset = asset;
-        uint256 streamId = lockupLinear.createWithRange(params);
+        uint256 streamId = lockupLinear.createWithTimestamps(params);
 
         // Store the stream id.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);

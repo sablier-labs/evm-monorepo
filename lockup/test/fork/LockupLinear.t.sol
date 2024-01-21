@@ -179,8 +179,8 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         });
 
         // Create the stream.
-        lockupLinear.createWithRange(
-            LockupLinear.CreateWithRange({
+        lockupLinear.createWithTimestamps(
+            LockupLinear.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
                 totalAmount: params.totalAmount,

@@ -7,26 +7,27 @@ import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { CreateWithDeltas_Integration_Shared_Test } from "../../../shared/lockup-dynamic/createWithDeltas.t.sol";
+import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup-dynamic/createWithDurations.t.sol";
 import { LockupDynamic_Integration_Concrete_Test } from "../LockupDynamic.t.sol";
 
-contract CreateWithDeltas_LockupDynamic_Integration_Concrete_Test is
+contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
     LockupDynamic_Integration_Concrete_Test,
-    CreateWithDeltas_Integration_Shared_Test
+    CreateWithDurations_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(LockupDynamic_Integration_Concrete_Test, CreateWithDeltas_Integration_Shared_Test)
+        override(LockupDynamic_Integration_Concrete_Test, CreateWithDurations_Integration_Shared_Test)
     {
         LockupDynamic_Integration_Concrete_Test.setUp();
-        CreateWithDeltas_Integration_Shared_Test.setUp();
+        CreateWithDurations_Integration_Shared_Test.setUp();
         streamId = lockupDynamic.nextStreamId();
     }
 
     /// @dev it should revert.
     function test_RevertWhen_DelegateCalled() external {
-        bytes memory callData = abi.encodeCall(ISablierV2LockupDynamic.createWithDeltas, defaults.createWithDeltas());
+        bytes memory callData =
+            abi.encodeCall(ISablierV2LockupDynamic.createWithDurations, defaults.createWithDurationsLD());
         (bool success, bytes memory returnData) = address(lockupDynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -44,7 +45,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Concrete_Test is
         whenLoopCalculationsDoNotOverflowBlockGasLimit
     {
         uint40 startTime = getBlockTimestamp();
-        LockupDynamic.SegmentWithDelta[] memory segments = defaults.createWithDeltas().segments;
+        LockupDynamic.SegmentWithDelta[] memory segments = defaults.createWithDurationsLD().segments;
         segments[1].delta = 0;
         uint256 index = 1;
         vm.expectRevert(
@@ -66,7 +67,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Concrete_Test is
     {
         unchecked {
             uint40 startTime = getBlockTimestamp();
-            LockupDynamic.SegmentWithDelta[] memory segments = defaults.createWithDeltas().segments;
+            LockupDynamic.SegmentWithDelta[] memory segments = defaults.createWithDurationsLD().segments;
             segments[0].delta = MAX_UINT40;
             vm.expectRevert(
                 abi.encodeWithSelector(
@@ -111,7 +112,7 @@ contract CreateWithDeltas_LockupDynamic_Integration_Concrete_Test is
         }
     }
 
-    function test_CreateWithDeltas()
+    function test_CreateWithDurations()
         external
         whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit

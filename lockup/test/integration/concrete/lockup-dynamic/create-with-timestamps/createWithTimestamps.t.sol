@@ -9,25 +9,25 @@ import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { CreateWithMilestones_Integration_Shared_Test } from "../../../shared/lockup-dynamic/createWithMilestones.t.sol";
+import { CreateWithTimestamps_Integration_Shared_Test } from "../../../shared/lockup-dynamic/createWithTimestamps.t.sol";
 import { LockupDynamic_Integration_Concrete_Test } from "../LockupDynamic.t.sol";
 
-contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
+contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     LockupDynamic_Integration_Concrete_Test,
-    CreateWithMilestones_Integration_Shared_Test
+    CreateWithTimestamps_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(LockupDynamic_Integration_Concrete_Test, CreateWithMilestones_Integration_Shared_Test)
+        override(LockupDynamic_Integration_Concrete_Test, CreateWithTimestamps_Integration_Shared_Test)
     {
         LockupDynamic_Integration_Concrete_Test.setUp();
-        CreateWithMilestones_Integration_Shared_Test.setUp();
+        CreateWithTimestamps_Integration_Shared_Test.setUp();
     }
 
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2LockupDynamic.createWithMilestones, defaults.createWithMilestones());
+            abi.encodeCall(ISablierV2LockupDynamic.createWithTimestamps, defaults.createWithTimestampsLD());
         (bool success, bytes memory returnData) = address(lockupDynamic).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
     }
@@ -208,7 +208,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         uint128 depositAmount = defaultDepositAmount + 100;
 
         // Prepare the params.
-        LockupDynamic.CreateWithMilestones memory params = defaults.createWithMilestones();
+        LockupDynamic.CreateWithTimestamps memory params = defaults.createWithTimestampsLD();
         params.broker = Broker({ account: address(0), fee: brokerFee });
         params.totalAmount = depositAmount;
 
@@ -222,7 +222,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         );
 
         // Create the stream.
-        lockupDynamic.createWithMilestones(params);
+        lockupDynamic.createWithTimestamps(params);
     }
 
     function test_RevertGiven_ProtocolFeeTooHigh()
@@ -299,7 +299,7 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithAsset(IERC20(nonContract));
     }
 
-    function test_CreateWithMilestones_AssetMissingReturnValue()
+    function test_CreateWithTimestamps_AssetMissingReturnValue()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -315,10 +315,10 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         whenBrokerFeeNotTooHigh
         whenAssetContract
     {
-        testCreateWithMilestones(address(usdt));
+        testCreateWithTimestamps(address(usdt));
     }
 
-    function test_CreateWithMilestones()
+    function test_CreateWithTimestamps()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -335,11 +335,11 @@ contract CreateWithMilestones_LockupDynamic_Integration_Concrete_Test is
         whenAssetContract
         whenAssetERC20
     {
-        testCreateWithMilestones(address(dai));
+        testCreateWithTimestamps(address(dai));
     }
 
-    /// @dev Shared logic between {test_CreateWithMilestones_AssetMissingReturnValue} and {test_CreateWithMilestones}.
-    function testCreateWithMilestones(address asset) internal {
+    /// @dev Shared logic between {test_CreateWithTimestamps_AssetMissingReturnValue} and {test_CreateWithTimestamps}.
+    function testCreateWithTimestamps(address asset) internal {
         // Make the Sender the stream's funder.
         address funder = users.sender;
 

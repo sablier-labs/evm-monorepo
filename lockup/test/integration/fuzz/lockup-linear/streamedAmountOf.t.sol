@@ -67,10 +67,10 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
-        LockupLinear.CreateWithRange memory params = defaults.createWithRange();
+        LockupLinear.CreateWithTimestamps memory params = defaults.createWithTimestampsLL();
         params.broker = Broker({ account: address(0), fee: ZERO });
         params.totalAmount = depositAmount;
-        uint256 streamId = lockupLinear.createWithRange(params);
+        uint256 streamId = lockupLinear.createWithTimestamps(params);
 
         // Simulate the passage of time.
         uint40 currentTime = defaults.START_TIME() + timeJump;
@@ -101,9 +101,9 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         deal({ token: address(dai), to: users.sender, give: depositAmount });
 
         // Create the stream with the fuzzed deposit amount.
-        LockupLinear.CreateWithRange memory params = defaults.createWithRange();
+        LockupLinear.CreateWithTimestamps memory params = defaults.createWithTimestampsLL();
         params.totalAmount = depositAmount;
-        uint256 streamId = lockupLinear.createWithRange(params);
+        uint256 streamId = lockupLinear.createWithTimestamps(params);
 
         // Warp to the future for the first time.
         vm.warp({ timestamp: defaults.START_TIME() + timeWarp0 });

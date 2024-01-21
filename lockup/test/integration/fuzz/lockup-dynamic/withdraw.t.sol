@@ -72,11 +72,11 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         changePrank({ msgSender: users.sender });
 
         // Create the stream with the fuzzed segments.
-        LockupDynamic.CreateWithMilestones memory createParams = defaults.createWithMilestones();
+        LockupDynamic.CreateWithTimestamps memory createParams = defaults.createWithTimestampsLD();
         createParams.totalAmount = vars.totalAmount;
         createParams.segments = params.segments;
 
-        vars.streamId = lockupDynamic.createWithMilestones(createParams);
+        vars.streamId = lockupDynamic.createWithTimestamps(createParams);
 
         // Simulate the passage of time.
         vm.warp({ timestamp: defaults.START_TIME() + params.timeJump });
