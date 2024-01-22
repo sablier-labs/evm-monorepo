@@ -87,7 +87,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_StartTimeGreaterThanFirstSegmentMilestone()
+    function test_RevertWhen_StartTimeGreaterThanFirstSegmentTimestamp()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -96,16 +96,16 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
     {
-        // Change the milestone of the first segment.
+        // Change the timestamp of the first segment.
         LockupDynamic.Segment[] memory segments = defaults.segments();
-        segments[0].milestone = defaults.START_TIME() - 1 seconds;
+        segments[0].timestamp = defaults.START_TIME() - 1 seconds;
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
+                Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                 defaults.START_TIME(),
-                segments[0].milestone
+                segments[0].timestamp
             )
         );
 
@@ -113,7 +113,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_StartTimeEqualToFirstSegmentMilestone()
+    function test_RevertWhen_StartTimeEqualToFirstSegmentTimestamp()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -122,16 +122,16 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
     {
-        // Change the milestone of the first segment.
+        // Change the timestamp of the first segment.
         LockupDynamic.Segment[] memory segments = defaults.segments();
-        segments[0].milestone = defaults.START_TIME();
+        segments[0].timestamp = defaults.START_TIME();
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
+                Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                 defaults.START_TIME(),
-                segments[0].milestone
+                segments[0].timestamp
             )
         );
 
@@ -139,7 +139,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function test_RevertWhen_SegmentMilestonesNotOrdered()
+    function test_RevertWhen_SegmentTimestampsNotOrdered()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -147,20 +147,20 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
+        whenStartTimeLessThanFirstSegmentTimestamp
     {
-        // Swap the segment milestones.
+        // Swap the segment timestamps.
         LockupDynamic.Segment[] memory segments = defaults.segments();
-        (segments[0].milestone, segments[1].milestone) = (segments[1].milestone, segments[0].milestone);
+        (segments[0].timestamp, segments[1].timestamp) = (segments[1].timestamp, segments[0].timestamp);
 
         // Expect the relevant error to be thrown.
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_SegmentMilestonesNotOrdered.selector,
+                Errors.SablierV2LockupDynamic_SegmentTimestampsNotOrdered.selector,
                 index,
-                segments[0].milestone,
-                segments[1].milestone
+                segments[0].timestamp,
+                segments[1].timestamp
             )
         );
 
@@ -176,8 +176,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
     {
         uint40 endTime = defaults.END_TIME();
         vm.warp({ timestamp: endTime });
@@ -193,8 +193,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
     {
         // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
@@ -233,8 +233,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
     {
@@ -260,8 +260,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         givenProtocolFeeNotTooHigh
@@ -279,8 +279,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         givenProtocolFeeNotTooHigh
@@ -307,8 +307,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         givenProtocolFeeNotTooHigh
@@ -326,8 +326,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         givenProtocolFeeNotTooHigh

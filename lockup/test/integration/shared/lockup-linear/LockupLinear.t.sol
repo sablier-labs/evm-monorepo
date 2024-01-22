@@ -79,13 +79,10 @@ abstract contract LockupLinear_Integration_Shared_Test is Lockup_Integration_Sha
         streamId = lockupLinear.createWithTimestamps(params);
     }
 
-    /// @dev Creates the default stream with the provided createWithTimestamps.
-    function createDefaultStreamWithRange(LockupLinear.Range memory createWithTimestamps)
-        internal
-        returns (uint256 streamId)
-    {
+    /// @dev Creates the default stream with the provided range.
+    function createDefaultStreamWithRange(LockupLinear.Range memory range) internal returns (uint256 streamId) {
         LockupLinear.CreateWithTimestamps memory params = _params.createWithTimestamps;
-        params.range = createWithTimestamps;
+        params.range = range;
         streamId = lockupLinear.createWithTimestamps(params);
     }
 

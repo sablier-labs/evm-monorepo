@@ -78,9 +78,11 @@ contract Init is BaseScript {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Create the default lockupDynamic stream.
-        LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](2);
-        segments[0] = LockupDynamic.SegmentWithDelta({ amount: 2500e18, exponent: ud2x18(3.14e18), delta: 1 hours });
-        segments[1] = LockupDynamic.SegmentWithDelta({ amount: 7500e18, exponent: ud2x18(0.5e18), delta: 1 weeks });
+        LockupDynamic.SegmentWithDuration[] memory segments = new LockupDynamic.SegmentWithDuration[](2);
+        segments[0] =
+            LockupDynamic.SegmentWithDuration({ amount: 2500e18, exponent: ud2x18(3.14e18), duration: 1 hours });
+        segments[1] =
+            LockupDynamic.SegmentWithDuration({ amount: 7500e18, exponent: ud2x18(0.5e18), duration: 1 weeks });
         lockupDynamic.createWithDurations(
             LockupDynamic.CreateWithDurations({
                 sender: sender,

@@ -34,11 +34,11 @@ contract CreateWithTimestamps_Integration_Shared_Test is LockupDynamic_Integrati
         _;
     }
 
-    modifier whenStartTimeLessThanFirstSegmentMilestone() {
+    modifier whenStartTimeLessThanFirstSegmentTimestamp() {
         _;
     }
 
-    modifier whenSegmentMilestonesOrdered() {
+    modifier whenSegmentTimestampsOrdered() {
         _;
     }
 

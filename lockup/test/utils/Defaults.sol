@@ -135,14 +135,14 @@ contract Defaults is Constants {
         uint128 amount = DEPOSIT_AMOUNT / uint128(MAX_SEGMENT_COUNT);
         UD2x18 exponent = ud2x18(2.71e18);
 
-        // Generate a bunch of segments with the same amount, same exponent, and with milestones evenly spread apart.
+        // Generate a bunch of segments with the same amount, same exponent, and with timestamps evenly spread apart.
         maxSegments_ = new LockupDynamic.Segment[](MAX_SEGMENT_COUNT);
         for (uint40 i = 0; i < MAX_SEGMENT_COUNT; ++i) {
             maxSegments_[i] = (
                 LockupDynamic.Segment({
                     amount: amount,
                     exponent: exponent,
-                    milestone: START_TIME + MAX_SEGMENT_DURATION * (i + 1)
+                    timestamp: START_TIME + MAX_SEGMENT_DURATION * (i + 1)
                 })
             );
         }
@@ -151,28 +151,32 @@ contract Defaults is Constants {
     function segments() public view returns (LockupDynamic.Segment[] memory segments_) {
         segments_ = new LockupDynamic.Segment[](2);
         segments_[0] = (
-            LockupDynamic.Segment({ amount: 2500e18, exponent: ud2x18(3.14e18), milestone: START_TIME + CLIFF_DURATION })
+            LockupDynamic.Segment({ amount: 2500e18, exponent: ud2x18(3.14e18), timestamp: START_TIME + CLIFF_DURATION })
         );
         segments_[1] = (
-            LockupDynamic.Segment({ amount: 7500e18, exponent: ud2x18(0.5e18), milestone: START_TIME + TOTAL_DURATION })
+            LockupDynamic.Segment({ amount: 7500e18, exponent: ud2x18(0.5e18), timestamp: START_TIME + TOTAL_DURATION })
         );
     }
 
-    function segmentsWithDeltas() public view returns (LockupDynamic.SegmentWithDelta[] memory segmentsWithDeltas_) {
+    function segmentsWithDurations()
+        public
+        view
+        returns (LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations_)
+    {
         LockupDynamic.Segment[] memory segments_ = segments();
-        segmentsWithDeltas_ = new LockupDynamic.SegmentWithDelta[](2);
-        segmentsWithDeltas_[0] = (
-            LockupDynamic.SegmentWithDelta({
+        segmentsWithDurations_ = new LockupDynamic.SegmentWithDuration[](2);
+        segmentsWithDurations_[0] = (
+            LockupDynamic.SegmentWithDuration({
                 amount: segments_[0].amount,
                 exponent: segments_[0].exponent,
-                delta: 2500 seconds
+                duration: 2500 seconds
             })
         );
-        segmentsWithDeltas_[1] = (
-            LockupDynamic.SegmentWithDelta({
+        segmentsWithDurations_[1] = (
+            LockupDynamic.SegmentWithDuration({
                 amount: segments_[1].amount,
                 exponent: segments_[1].exponent,
-                delta: 7500 seconds
+                duration: 7500 seconds
             })
         );
     }
@@ -189,7 +193,7 @@ contract Defaults is Constants {
             asset: asset,
             cancelable: true,
             transferable: true,
-            segments: segmentsWithDeltas(),
+            segments: segmentsWithDurations(),
             broker: broker()
         });
     }

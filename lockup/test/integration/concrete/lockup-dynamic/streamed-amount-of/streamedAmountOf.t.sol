@@ -58,7 +58,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         segments[0] = LockupDynamic.Segment({
             amount: defaults.DEPOSIT_AMOUNT(),
             exponent: defaults.segments()[1].exponent,
-            milestone: defaults.END_TIME()
+            timestamp: defaults.END_TIME()
         });
 
         // Create the stream.
@@ -74,7 +74,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         _;
     }
 
-    function test_StreamedAmountOf_CurrentMilestone1st()
+    function test_StreamedAmountOf_CurrentTimestamp1st()
         external
         givenNotNull
         givenStreamHasNotBeenCanceled
@@ -91,18 +91,18 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 
-    modifier givenCurrentMilestoneNot1st() {
+    modifier givenCurrentTimestampNot1st() {
         _;
     }
 
-    function test_StreamedAmountOf_CurrentMilestoneNot1st()
+    function test_StreamedAmountOf_CurrentTimestampNot1st()
         external
         givenNotNull
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
         whenStartTimeInThePast
         givenMultipleSegments
-        givenCurrentMilestoneNot1st
+        givenCurrentTimestampNot1st
     {
         // Simulate the passage of time. 750 seconds is ~10% of the way in the second segment.
         vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 750 seconds });

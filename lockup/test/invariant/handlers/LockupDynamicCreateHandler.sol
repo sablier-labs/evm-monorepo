@@ -68,8 +68,8 @@ contract LockupDynamicCreateHandler is BaseHandler {
         // Bound the broker fee.
         params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
 
-        // Fuzz the deltas.
-        fuzzSegmentDeltas(params.segments);
+        // Fuzz the durations.
+        fuzzSegmentDurations(params.segments);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         (params.totalAmount,) = fuzzDynamicStreamAmounts({
@@ -116,8 +116,8 @@ contract LockupDynamicCreateHandler is BaseHandler {
         params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
         params.startTime = boundUint40(params.startTime, 0, getBlockTimestamp());
 
-        // Fuzz the segment milestones.
-        fuzzSegmentMilestones(params.segments, params.startTime);
+        // Fuzz the segment timestamps.
+        fuzzSegmentTimestamps(params.segments, params.startTime);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         (params.totalAmount,) = fuzzDynamicStreamAmounts({

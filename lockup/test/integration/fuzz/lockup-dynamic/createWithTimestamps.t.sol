@@ -58,7 +58,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         createDefaultStreamWithSegments(segments);
     }
 
-    function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentMilestone(uint40 firstMilestone)
+    function testFuzz_RevertWhen_StartTimeNotLessThanFirstSegmentTimestamp(uint40 firstTimestamp)
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -67,18 +67,18 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
     {
-        firstMilestone = boundUint40(firstMilestone, 0, defaults.START_TIME());
+        firstTimestamp = boundUint40(firstTimestamp, 0, defaults.START_TIME());
 
-        // Change the milestone of the first segment.
+        // Change the timestamp of the first segment.
         LockupDynamic.Segment[] memory segments = defaults.segments();
-        segments[0].milestone = firstMilestone;
+        segments[0].timestamp = firstTimestamp;
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
+                Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                 defaults.START_TIME(),
-                segments[0].milestone
+                segments[0].timestamp
             )
         );
 
@@ -94,8 +94,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
     {
         depositDiff = boundUint128(depositDiff, 100, defaults.TOTAL_AMOUNT());
@@ -136,8 +136,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
     {
@@ -163,8 +163,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         givenProtocolFeeNotTooHigh
@@ -193,12 +193,12 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
     /// - All possible permutations for the funder, sender, recipient, and broker
-    /// - Multiple values for the segment amounts, exponents, and milestones
+    /// - Multiple values for the segment amounts, exponents, and timestamps
     /// - Cancelable and not cancelable
     /// - Start time in the past
     /// - Start time in the present
     /// - Start time in the future
-    /// - Start time equal and not equal to the first segment milestone
+    /// - Start time equal and not equal to the first segment timestamp
     /// - Multiple values for the broker fee, including zero
     /// - Multiple values for the protocol fee, including zero
     function testFuzz_CreateWithTimestamps(
@@ -213,8 +213,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentMilestone
-        whenSegmentMilestonesOrdered
+        whenStartTimeLessThanFirstSegmentTimestamp
+        whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
         givenProtocolFeeNotTooHigh
@@ -229,8 +229,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
         params.transferable = true;
 
-        // Fuzz the segment milestones.
-        fuzzSegmentMilestones(params.segments, params.startTime);
+        // Fuzz the segment timestamps.
+        fuzzSegmentTimestamps(params.segments, params.startTime);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         Vars memory vars;
@@ -269,7 +269,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupDynamic) });
         LockupDynamic.Range memory range =
-            LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].milestone });
+            LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].timestamp });
         emit CreateLockupDynamicStream({
             streamId: streamId,
             funder: funder,

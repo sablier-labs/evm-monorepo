@@ -273,8 +273,8 @@ contract SablierV2LockupDynamic is
         noDelegateCall
         returns (uint256 streamId)
     {
-        // Checks: check the deltas and generate the canonical segments.
-        LockupDynamic.Segment[] memory segments = Helpers.checkDeltasAndCalculateMilestones(params.segments);
+        // Checks: check the durations and generate the canonical segments.
+        LockupDynamic.Segment[] memory segments = Helpers.checkDurationsAndCalculateTimestamps(params.segments);
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithTimestamps(
@@ -345,32 +345,32 @@ contract SablierV2LockupDynamic is
 
             // Sum the amounts in all segments that precede the current time.
             uint128 previousSegmentAmounts;
-            uint40 currentSegmentMilestone = stream.segments[0].milestone;
+            uint40 currentSegmentTimestamp = stream.segments[0].timestamp;
             uint256 index = 0;
-            while (currentSegmentMilestone < currentTime) {
+            while (currentSegmentTimestamp < currentTime) {
                 previousSegmentAmounts += stream.segments[index].amount;
                 index += 1;
-                currentSegmentMilestone = stream.segments[index].milestone;
+                currentSegmentTimestamp = stream.segments[index].timestamp;
             }
 
             // After exiting the loop, the current segment is at `index`.
             SD59x18 currentSegmentAmount = stream.segments[index].amount.intoSD59x18();
             SD59x18 currentSegmentExponent = stream.segments[index].exponent.intoSD59x18();
-            currentSegmentMilestone = stream.segments[index].milestone;
+            currentSegmentTimestamp = stream.segments[index].timestamp;
 
-            uint40 previousMilestone;
+            uint40 previousTimestamp;
             if (index > 0) {
                 // When the current segment's index is greater than or equal to 1, it implies that the segment is not
-                // the first. In this case, use the previous segment's milestone.
-                previousMilestone = stream.segments[index - 1].milestone;
+                // the first. In this case, use the previous segment's timestamp.
+                previousTimestamp = stream.segments[index - 1].timestamp;
             } else {
-                // Otherwise, the current segment is the first, so use the start time as the previous milestone.
-                previousMilestone = stream.startTime;
+                // Otherwise, the current segment is the first, so use the start time as the previous timestamp.
+                previousTimestamp = stream.startTime;
             }
 
             // Calculate how much time has passed since the segment started, and the total time of the segment.
-            SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
-            SD59x18 totalSegmentTime = (currentSegmentMilestone - previousMilestone).intoSD59x18();
+            SD59x18 elapsedSegmentTime = (currentTime - previousTimestamp).intoSD59x18();
+            SD59x18 totalSegmentTime = (currentSegmentTimestamp - previousTimestamp).intoSD59x18();
 
             // Divide the elapsed segment time by the total duration of the segment.
             SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
@@ -567,7 +567,7 @@ contract SablierV2LockupDynamic is
         unchecked {
             // The segment count cannot be zero at this point.
             uint256 segmentCount = params.segments.length;
-            stream.endTime = params.segments[segmentCount - 1].milestone;
+            stream.endTime = params.segments[segmentCount - 1].timestamp;
             stream.startTime = params.startTime;
 
             // Effects: store the segments. Since Solidity lacks a syntax for copying arrays directly from

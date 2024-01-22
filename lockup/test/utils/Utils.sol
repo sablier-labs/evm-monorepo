@@ -31,24 +31,24 @@ abstract contract Utils is StdUtils, PRBMathUtils {
         return uint40(block.timestamp);
     }
 
-    /// @dev Turns the segments with deltas into canonical segments, which have milestones.
-    function getSegmentsWithMilestones(LockupDynamic.SegmentWithDelta[] memory segments)
+    /// @dev Turns the segments with durations into canonical segments, which have timestamps.
+    function getSegmentsWithTimestamps(LockupDynamic.SegmentWithDuration[] memory segments)
         internal
         view
-        returns (LockupDynamic.Segment[] memory segmentsWithMilestones)
+        returns (LockupDynamic.Segment[] memory segmentsWithTimestamps)
     {
         unchecked {
-            segmentsWithMilestones = new LockupDynamic.Segment[](segments.length);
-            segmentsWithMilestones[0] = LockupDynamic.Segment({
+            segmentsWithTimestamps = new LockupDynamic.Segment[](segments.length);
+            segmentsWithTimestamps[0] = LockupDynamic.Segment({
                 amount: segments[0].amount,
                 exponent: segments[0].exponent,
-                milestone: getBlockTimestamp() + segments[0].delta
+                timestamp: getBlockTimestamp() + segments[0].duration
             });
             for (uint256 i = 1; i < segments.length; ++i) {
-                segmentsWithMilestones[i] = LockupDynamic.Segment({
+                segmentsWithTimestamps[i] = LockupDynamic.Segment({
                     amount: segments[i].amount,
                     exponent: segments[i].exponent,
-                    milestone: segmentsWithMilestones[i - 1].milestone + segments[i].delta
+                    timestamp: segmentsWithTimestamps[i - 1].timestamp + segments[i].duration
                 });
             }
         }

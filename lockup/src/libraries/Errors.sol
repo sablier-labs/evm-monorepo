@@ -97,15 +97,15 @@ library Errors {
     /// @notice Thrown when trying to create a stream with no segments.
     error SablierV2LockupDynamic_SegmentCountZero();
 
-    /// @notice Thrown when trying to create a stream with unordered segment milestones.
-    error SablierV2LockupDynamic_SegmentMilestonesNotOrdered(
-        uint256 index, uint40 previousMilestone, uint40 currentMilestone
+    /// @notice Thrown when trying to create a stream with unordered segment timestampts.
+    error SablierV2LockupDynamic_SegmentTimestampsNotOrdered(
+        uint256 index, uint40 previousTimestamp, uint40 currentTimestamp
     );
 
     /// @notice Thrown when trying to create a stream with a start time not strictly less than the first
-    /// segment milestone.
-    error SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone(
-        uint40 startTime, uint40 firstSegmentMilestone
+    /// segment timestamp.
+    error SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp(
+        uint40 startTime, uint40 firstSegmentTimestamp
     );
 
     /*//////////////////////////////////////////////////////////////////////////

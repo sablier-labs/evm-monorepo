@@ -33,22 +33,22 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         uint128 initialProtocolRevenues;
         bool isCancelable;
         bool isSettled;
-        LockupDynamic.Segment[] segmentsWithMilestones;
+        LockupDynamic.Segment[] segmentsWithTimestamps;
         uint128 totalAmount;
     }
 
-    function testFuzz_CreateWithDurations(LockupDynamic.SegmentWithDelta[] memory segments)
+    function testFuzz_CreateWithDurations(LockupDynamic.SegmentWithDuration[] memory segments)
         external
         whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit
-        whenDeltasNotZero
-        whenMilestonesCalculationsDoNotOverflow
+        whenDurationsNotZero
+        whenTimestampsCalculationsDoNotOverflow
     {
         vm.assume(segments.length != 0);
 
-        // Fuzz the deltas.
+        // Fuzz the durations.
         Vars memory vars;
-        fuzzSegmentDeltas(segments);
+        fuzzSegmentDurations(segments);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(segments);
@@ -75,10 +75,10 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         }
 
         // Create the range struct.
-        vars.segmentsWithMilestones = getSegmentsWithMilestones(segments);
+        vars.segmentsWithTimestamps = getSegmentsWithTimestamps(segments);
         LockupDynamic.Range memory range = LockupDynamic.Range({
             start: getBlockTimestamp(),
-            end: vars.segmentsWithMilestones[vars.segmentsWithMilestones.length - 1].milestone
+            end: vars.segmentsWithTimestamps[vars.segmentsWithTimestamps.length - 1].timestamp
         });
 
         // Expect the relevant event to be emitted.
@@ -92,7 +92,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
             asset: dai,
             cancelable: true,
             transferable: true,
-            segments: vars.segmentsWithMilestones,
+            segments: vars.segmentsWithTimestamps,
             range: range,
             broker: users.broker
         });
@@ -118,7 +118,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
-        assertEq(actualStream.segments, vars.segmentsWithMilestones, "segments");
+        assertEq(actualStream.segments, vars.segmentsWithTimestamps, "segments");
         assertEq(actualStream.sender, users.sender, "sender");
         assertEq(actualStream.startTime, range.start, "startTime");
         assertEq(actualStream.wasCanceled, false, "wasCanceled");

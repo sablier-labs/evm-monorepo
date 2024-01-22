@@ -34,81 +34,84 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
 
     /// @dev it should revert.
     function test_RevertWhen_LoopCalculationOverflowsBlockGasLimit() external whenNotDelegateCalled {
-        LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](250_000);
+        LockupDynamic.SegmentWithDuration[] memory segments = new LockupDynamic.SegmentWithDuration[](250_000);
         vm.expectRevert(bytes(""));
-        createDefaultStreamWithDeltas(segments);
+        createDefaultStreamWithDurations(segments);
     }
 
-    function test_RevertWhen_DeltasZero()
+    function test_RevertWhen_DurationsZero()
         external
         whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit
     {
         uint40 startTime = getBlockTimestamp();
-        LockupDynamic.SegmentWithDelta[] memory segments = defaults.createWithDurationsLD().segments;
-        segments[1].delta = 0;
+        LockupDynamic.SegmentWithDuration[] memory segments = defaults.createWithDurationsLD().segments;
+        segments[1].duration = 0;
         uint256 index = 1;
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupDynamic_SegmentMilestonesNotOrdered.selector,
+                Errors.SablierV2LockupDynamic_SegmentTimestampsNotOrdered.selector,
                 index,
-                startTime + segments[0].delta,
-                startTime + segments[0].delta
+                startTime + segments[0].duration,
+                startTime + segments[0].duration
             )
         );
-        createDefaultStreamWithDeltas(segments);
+        createDefaultStreamWithDurations(segments);
     }
 
-    function test_RevertWhen_MilestonesCalculationsOverflows_StartTimeNotLessThanFirstSegmentMilestone()
+    function test_RevertWhen_TimestampsCalculationsOverflows_StartTimeNotLessThanFirstSegmentTimestamp()
         external
         whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit
-        whenDeltasNotZero
+        whenDurationsNotZero
     {
         unchecked {
             uint40 startTime = getBlockTimestamp();
-            LockupDynamic.SegmentWithDelta[] memory segments = defaults.createWithDurationsLD().segments;
-            segments[0].delta = MAX_UINT40;
+            LockupDynamic.SegmentWithDuration[] memory segments = defaults.createWithDurationsLD().segments;
+            segments[0].duration = MAX_UINT40;
             vm.expectRevert(
                 abi.encodeWithSelector(
-                    Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentMilestone.selector,
+                    Errors.SablierV2LockupDynamic_StartTimeNotLessThanFirstSegmentTimestamp.selector,
                     startTime,
-                    startTime + segments[0].delta
+                    startTime + segments[0].duration
                 )
             );
-            createDefaultStreamWithDeltas(segments);
+            createDefaultStreamWithDurations(segments);
         }
     }
 
-    function test_RevertWhen_MilestonesCalculationsOverflows_SegmentMilestonesNotOrdered()
+    function test_RevertWhen_TimestampsCalculationsOverflows_SegmentTimestampsNotOrdered()
         external
         whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit
-        whenDeltasNotZero
+        whenDurationsNotZero
     {
         unchecked {
             uint40 startTime = getBlockTimestamp();
 
-            // Create new segments that overflow when the milestones are eventually calculated.
-            LockupDynamic.SegmentWithDelta[] memory segments = new LockupDynamic.SegmentWithDelta[](2);
-            segments[0] =
-                LockupDynamic.SegmentWithDelta({ amount: 0, exponent: ud2x18(1e18), delta: startTime + 1 seconds });
-            segments[1] = defaults.segmentsWithDeltas()[0];
-            segments[1].delta = MAX_UINT40;
+            // Create new segments that overflow when the timestamps are eventually calculated.
+            LockupDynamic.SegmentWithDuration[] memory segments = new LockupDynamic.SegmentWithDuration[](2);
+            segments[0] = LockupDynamic.SegmentWithDuration({
+                amount: 0,
+                exponent: ud2x18(1e18),
+                duration: startTime + 1 seconds
+            });
+            segments[1] = defaults.segmentsWithDurations()[0];
+            segments[1].duration = MAX_UINT40;
 
             // Expect the relevant error to be thrown.
             uint256 index = 1;
             vm.expectRevert(
                 abi.encodeWithSelector(
-                    Errors.SablierV2LockupDynamic_SegmentMilestonesNotOrdered.selector,
+                    Errors.SablierV2LockupDynamic_SegmentTimestampsNotOrdered.selector,
                     index,
-                    startTime + segments[0].delta,
-                    startTime + segments[0].delta + segments[1].delta
+                    startTime + segments[0].duration,
+                    startTime + segments[0].duration + segments[1].duration
                 )
             );
 
             // Create the stream.
-            createDefaultStreamWithDeltas(segments);
+            createDefaultStreamWithDurations(segments);
         }
     }
 
@@ -116,8 +119,8 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
         external
         whenNotDelegateCalled
         whenLoopCalculationsDoNotOverflowBlockGasLimit
-        whenDeltasNotZero
-        whenMilestonesCalculationsDoNotOverflow
+        whenDurationsNotZero
+        whenTimestampsCalculationsDoNotOverflow
     {
         // Make the Sender the stream's funder
         address funder = users.sender;
@@ -131,10 +134,10 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
             LockupDynamic.Range({ start: currentTime, end: currentTime + defaults.TOTAL_DURATION() });
 
         // Adjust the segments.
-        LockupDynamic.SegmentWithDelta[] memory segmentsWithDeltas = defaults.segmentsWithDeltas();
+        LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations = defaults.segmentsWithDurations();
         LockupDynamic.Segment[] memory segments = defaults.segments();
-        segments[0].milestone = range.start + segmentsWithDeltas[0].delta;
-        segments[1].milestone = segments[0].milestone + segmentsWithDeltas[1].delta;
+        segments[0].timestamp = range.start + segmentsWithDurations[0].duration;
+        segments[1].timestamp = segments[0].timestamp + segmentsWithDurations[1].duration;
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
@@ -165,7 +168,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
         });
 
         // Create the stream.
-        createDefaultStreamWithDeltas();
+        createDefaultStreamWithDurations();
 
         // Assert that the stream has been created.
         LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(streamId);

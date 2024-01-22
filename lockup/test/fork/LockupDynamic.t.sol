@@ -109,7 +109,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
     /// - Start time in the past
     /// - Start time in the present
     /// - Start time in the future
-    /// - Start time equal and not equal to the first segment milestone
+    /// - Start time equal and not equal to the first segment timestamp
     /// - Multiple values for the broker fee, including zero
     /// - Multiple values for the protocol fee, including zero
     /// - Multiple values for the withdraw amount, including zero
@@ -122,8 +122,8 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
         params.transferable = true;
 
-        // Fuzz the segment milestones.
-        fuzzSegmentMilestones(params.segments, params.startTime);
+        // Fuzz the segment timestamps.
+        fuzzSegmentTimestamps(params.segments, params.startTime);
 
         // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
         Vars memory vars;
@@ -156,7 +156,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
 
         vars.streamId = lockupDynamic.nextStreamId();
         vars.range =
-            LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].milestone });
+            LockupDynamic.Range({ start: params.startTime, end: params.segments[params.segments.length - 1].timestamp });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockupDynamic) });

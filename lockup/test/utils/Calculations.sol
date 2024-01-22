@@ -55,33 +55,33 @@ abstract contract Calculations {
         view
         returns (uint128)
     {
-        if (currentTime >= segments[segments.length - 1].milestone) {
+        if (currentTime >= segments[segments.length - 1].timestamp) {
             return depositAmount;
         }
 
         unchecked {
             uint128 previousSegmentAmounts;
-            uint40 currentSegmentMilestone = segments[0].milestone;
+            uint40 currentSegmentTimestamp = segments[0].timestamp;
             uint256 index = 0;
-            while (currentSegmentMilestone < currentTime) {
+            while (currentSegmentTimestamp < currentTime) {
                 previousSegmentAmounts += segments[index].amount;
                 index += 1;
-                currentSegmentMilestone = segments[index].milestone;
+                currentSegmentTimestamp = segments[index].timestamp;
             }
 
             SD59x18 currentSegmentAmount = segments[index].amount.intoSD59x18();
             SD59x18 currentSegmentExponent = segments[index].exponent.intoSD59x18();
-            currentSegmentMilestone = segments[index].milestone;
+            currentSegmentTimestamp = segments[index].timestamp;
 
-            uint40 previousMilestone;
+            uint40 previousTimestamp;
             if (index > 0) {
-                previousMilestone = segments[index - 1].milestone;
+                previousTimestamp = segments[index - 1].timestamp;
             } else {
-                previousMilestone = defaults.START_TIME();
+                previousTimestamp = defaults.START_TIME();
             }
 
-            SD59x18 elapsedSegmentTime = (currentTime - previousMilestone).intoSD59x18();
-            SD59x18 totalSegmentTime = (currentSegmentMilestone - previousMilestone).intoSD59x18();
+            SD59x18 elapsedSegmentTime = (currentTime - previousTimestamp).intoSD59x18();
+            SD59x18 totalSegmentTime = (currentSegmentTimestamp - previousTimestamp).intoSD59x18();
 
             SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
             SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
@@ -99,12 +99,12 @@ abstract contract Calculations {
         view
         returns (uint128)
     {
-        if (currentTime >= segment.milestone) {
+        if (currentTime >= segment.timestamp) {
             return segment.amount;
         }
         unchecked {
             SD59x18 elapsedTime = (currentTime - defaults.START_TIME()).intoSD59x18();
-            SD59x18 totalTime = (segment.milestone - defaults.START_TIME()).intoSD59x18();
+            SD59x18 totalTime = (segment.timestamp - defaults.START_TIME()).intoSD59x18();
 
             SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
             SD59x18 multiplier = elapsedTimePercentage.pow(segment.exponent.intoSD59x18());

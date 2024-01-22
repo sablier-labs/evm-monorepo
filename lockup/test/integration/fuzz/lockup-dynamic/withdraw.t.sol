@@ -55,14 +55,14 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         Vars memory vars;
         vars.funder = users.sender;
 
-        // Fuzz the segment milestones.
-        fuzzSegmentMilestones(params.segments, defaults.START_TIME());
+        // Fuzz the segment timestamps.
+        fuzzSegmentTimestamps(params.segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
         (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(params.segments);
 
         // Bound the time jump.
-        vars.totalDuration = params.segments[params.segments.length - 1].milestone - defaults.START_TIME();
+        vars.totalDuration = params.segments[params.segments.length - 1].timestamp - defaults.START_TIME();
         params.timeJump = _bound(params.timeJump, 1 seconds, vars.totalDuration + 100 seconds);
 
         // Mint enough assets to the funder.

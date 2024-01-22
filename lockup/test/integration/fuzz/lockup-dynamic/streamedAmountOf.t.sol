@@ -42,7 +42,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         whenStartTimeInThePast
     {
         vm.assume(segment.amount != 0);
-        segment.milestone = boundUint40(segment.milestone, defaults.CLIFF_TIME(), defaults.END_TIME());
+        segment.timestamp = boundUint40(segment.timestamp, defaults.CLIFF_TIME(), defaults.END_TIME());
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
         // Create the single-segment array.
@@ -73,7 +73,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         _;
     }
 
-    modifier whenCurrentMilestoneNot1st() {
+    modifier whenCurrentTimestampNot1st() {
         _;
     }
 
@@ -94,12 +94,12 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         givenStreamHasNotBeenCanceled
         whenStartTimeInThePast
         givenMultipleSegments
-        whenCurrentMilestoneNot1st
+        whenCurrentTimestampNot1st
     {
         vm.assume(segments.length > 1);
 
-        // Fuzz the segment milestones.
-        fuzzSegmentMilestones(segments, defaults.START_TIME());
+        // Fuzz the segment timestamps.
+        fuzzSegmentTimestamps(segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
         (uint128 totalAmount,) = fuzzDynamicStreamAmounts({
@@ -110,8 +110,8 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         });
 
         // Bound the time jump.
-        uint40 firstSegmentDuration = segments[1].milestone - segments[0].milestone;
-        uint40 totalDuration = segments[segments.length - 1].milestone - defaults.START_TIME();
+        uint40 firstSegmentDuration = segments[1].timestamp - segments[0].timestamp;
+        uint40 totalDuration = segments[segments.length - 1].timestamp - defaults.START_TIME();
         timeJump = boundUint40(timeJump, firstSegmentDuration, totalDuration + 100 seconds);
 
         // Mint enough assets to the Sender.
@@ -145,12 +145,12 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         givenStreamHasNotBeenCanceled
         whenStartTimeInThePast
         givenMultipleSegments
-        whenCurrentMilestoneNot1st
+        whenCurrentTimestampNot1st
     {
         vm.assume(segments.length > 1);
 
-        // Fuzz the segment milestones.
-        fuzzSegmentMilestones(segments, defaults.START_TIME());
+        // Fuzz the segment timestamps.
+        fuzzSegmentTimestamps(segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
         (uint128 totalAmount,) = fuzzDynamicStreamAmounts({
@@ -161,8 +161,8 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         });
 
         // Bound the time warps.
-        uint40 firstSegmentDuration = segments[1].milestone - segments[0].milestone;
-        uint40 totalDuration = segments[segments.length - 1].milestone - defaults.START_TIME();
+        uint40 firstSegmentDuration = segments[1].timestamp - segments[0].timestamp;
+        uint40 totalDuration = segments[segments.length - 1].timestamp - defaults.START_TIME();
         timeWarp0 = boundUint40(timeWarp0, firstSegmentDuration, totalDuration - 1);
         timeWarp1 = boundUint40(timeWarp1, timeWarp0, totalDuration);
 

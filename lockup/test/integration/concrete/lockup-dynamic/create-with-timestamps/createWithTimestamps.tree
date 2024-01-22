@@ -17,14 +17,14 @@ createWithTimestamps.t.sol
                ├── when the segment amounts sum overflows
                │  └── it should revert
                └── when the segment amounts sum does not overflow
-                  ├── when the start time is greater than the first segment milestone
+                  ├── when the start time is greater than the first segment timestamp
                   │  └── it should revert
-                  ├── when the start time is equal to the first segment milestone
+                  ├── when the start time is equal to the first segment timestamp
                   │  └── it should revert
-                  └── when the start time is less than the first segment milestone
-                     ├── when the segment milestones are not ordered
+                  └── when the start time is less than the first segment timestamp
+                     ├── when the segment timestamps are not ordered
                      │  └── it should revert
-                     └── when the segment milestones are ordered
+                     └── when the segment timestamps are ordered
                         ├── when the end time is not in the future
                         │  └── it should revert
                         └── when the end time is in the future

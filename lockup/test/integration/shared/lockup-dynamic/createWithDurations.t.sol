@@ -18,11 +18,11 @@ contract CreateWithDurations_Integration_Shared_Test is LockupDynamic_Integratio
         _;
     }
 
-    modifier whenDeltasNotZero() {
+    modifier whenDurationsNotZero() {
         _;
     }
 
-    modifier whenMilestonesCalculationsDoNotOverflow() {
+    modifier whenTimestampsCalculationsDoNotOverflow() {
         _;
     }
 }

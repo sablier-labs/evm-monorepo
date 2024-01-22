@@ -79,8 +79,8 @@ library LockupDynamic {
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
-    /// @param segments Segments with deltas used to compose the custom streaming curve. Milestones are calculated by
-    /// starting from `block.timestamp` and adding each delta to the previous milestone.
+    /// @param segments Segments with durations used to compose the custom streaming curve. Timestamps are calculated by
+    /// starting from `block.timestamp` and adding each duration to the previous timestamp.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithDurations {
@@ -90,7 +90,7 @@ library LockupDynamic {
         IERC20 asset;
         bool cancelable;
         bool transferable;
-        SegmentWithDelta[] segments;
+        SegmentWithDuration[] segments;
         Broker broker;
     }
 
@@ -131,22 +131,22 @@ library LockupDynamic {
     /// @notice Segment struct used in the Lockup Dynamic stream.
     /// @param amount The amount of assets to be streamed in this segment, denoted in units of the asset's decimals.
     /// @param exponent The exponent of this segment, denoted as a fixed-point number.
-    /// @param milestone The Unix timestamp indicating this segment's end.
+    /// @param timestamp The Unix timestamp indicating this segment's end.
     struct Segment {
         // slot 0
         uint128 amount;
         UD2x18 exponent;
-        uint40 milestone;
+        uint40 timestamp;
     }
 
     /// @notice Segment struct used at runtime in {SablierV2LockupDynamic.createWithDurations}.
     /// @param amount The amount of assets to be streamed in this segment, denoted in units of the asset's decimals.
     /// @param exponent The exponent of this segment, denoted as a fixed-point number.
-    /// @param delta The time difference in seconds between this segment and the previous one.
-    struct SegmentWithDelta {
+    /// @param duration The time difference in seconds between this segment and the previous one.
+    struct SegmentWithDuration {
         uint128 amount;
         UD2x18 exponent;
-        uint40 delta;
+        uint40 duration;
     }
 
     /// @notice Lockup Dynamic stream.

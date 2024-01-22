@@ -39,10 +39,10 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         _params.createWithTimestamps.broker = defaults.broker();
 
         // See https://github.com/ethereum/solidity/issues/12783
-        LockupDynamic.SegmentWithDelta[] memory segmentsWithDeltas = defaults.segmentsWithDeltas();
+        LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations = defaults.segmentsWithDurations();
         LockupDynamic.Segment[] memory segments = defaults.segments();
         for (uint256 i = 0; i < defaults.SEGMENT_COUNT(); ++i) {
-            _params.createWithDurations.segments.push(segmentsWithDeltas[i]);
+            _params.createWithDurations.segments.push(segmentsWithDurations[i]);
             _params.createWithTimestamps.segments.push(segments[i]);
         }
     }
@@ -66,13 +66,13 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
-    /// @dev Creates the default stream with deltas.
-    function createDefaultStreamWithDeltas() internal returns (uint256 streamId) {
+    /// @dev Creates the default stream with durations.
+    function createDefaultStreamWithDurations() internal returns (uint256 streamId) {
         streamId = lockupDynamic.createWithDurations(_params.createWithDurations);
     }
 
-    /// @dev Creates the default stream with the provided deltas.
-    function createDefaultStreamWithDeltas(LockupDynamic.SegmentWithDelta[] memory segments)
+    /// @dev Creates the default stream with the provided durations.
+    function createDefaultStreamWithDurations(LockupDynamic.SegmentWithDuration[] memory segments)
         internal
         returns (uint256 streamId)
     {
@@ -84,7 +84,7 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
     /// @dev Creates the default stream with the provided end time.
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
-        params.segments[1].milestone = endTime;
+        params.segments[1].timestamp = endTime;
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
@@ -106,7 +106,7 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
     function createDefaultStreamWithRange(LockupDynamic.Range memory range) internal returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.startTime = range.start;
-        params.segments[1].milestone = range.end;
+        params.segments[1].timestamp = range.end;
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 

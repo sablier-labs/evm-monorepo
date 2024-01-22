@@ -30,20 +30,20 @@ abstract contract Fuzzers is Constants, Utils {
     }
 
     /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
-    function fuzzDynamicStreamAmounts(LockupDynamic.SegmentWithDelta[] memory segments)
+    function fuzzDynamicStreamAmounts(LockupDynamic.SegmentWithDuration[] memory segments)
         internal
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
-        LockupDynamic.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
+        LockupDynamic.Segment[] memory segmentsWithTimestamps = getSegmentsWithTimestamps(segments);
         (totalAmount, createAmounts) = fuzzDynamicStreamAmounts({
             upperBound: MAX_UINT128,
-            segments: segmentsWithMilestones,
+            segments: segmentsWithTimestamps,
             protocolFee: defaults.PROTOCOL_FEE(),
             brokerFee: defaults.BROKER_FEE()
         });
-        for (uint256 i = 0; i < segmentsWithMilestones.length; ++i) {
-            segments[i].amount = segmentsWithMilestones[i].amount;
+        for (uint256 i = 0; i < segmentsWithTimestamps.length; ++i) {
+            segments[i].amount = segmentsWithTimestamps[i].amount;
         }
     }
 
@@ -51,7 +51,7 @@ abstract contract Fuzzers is Constants, Utils {
     /// fee).
     function fuzzDynamicStreamAmounts(
         uint128 upperBound,
-        LockupDynamic.SegmentWithDelta[] memory segments,
+        LockupDynamic.SegmentWithDuration[] memory segments,
         UD60x18 protocolFee,
         UD60x18 brokerFee
     )
@@ -59,11 +59,11 @@ abstract contract Fuzzers is Constants, Utils {
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
-        LockupDynamic.Segment[] memory segmentsWithMilestones = getSegmentsWithMilestones(segments);
+        LockupDynamic.Segment[] memory segmentsWithTimestamps = getSegmentsWithTimestamps(segments);
         (totalAmount, createAmounts) =
-            fuzzDynamicStreamAmounts(upperBound, segmentsWithMilestones, protocolFee, brokerFee);
-        for (uint256 i = 0; i < segmentsWithMilestones.length; ++i) {
-            segments[i].amount = segmentsWithMilestones[i].amount;
+            fuzzDynamicStreamAmounts(upperBound, segmentsWithTimestamps, protocolFee, brokerFee);
+        for (uint256 i = 0; i < segmentsWithTimestamps.length; ++i) {
+            segments[i].amount = segmentsWithTimestamps[i].amount;
         }
     }
 
@@ -115,47 +115,47 @@ abstract contract Fuzzers is Constants, Utils {
         segments[segments.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }
 
-    /// @dev Fuzzes the deltas.
-    function fuzzSegmentDeltas(LockupDynamic.SegmentWithDelta[] memory segments) internal pure {
+    /// @dev Fuzzes the durations.
+    function fuzzSegmentDurations(LockupDynamic.SegmentWithDuration[] memory segments) internal pure {
         unchecked {
-            // Precompute the first segment delta.
-            segments[0].delta = uint40(_bound(segments[0].delta, 1, 100));
+            // Precompute the first segment duration.
+            segments[0].duration = uint40(_bound(segments[0].duration, 1, 100));
 
-            // Bound the deltas so that none is zero and the calculations don't overflow.
-            uint256 deltaCount = segments.length;
-            uint40 maxDelta = (MAX_UNIX_TIMESTAMP - segments[0].delta) / uint40(deltaCount);
-            for (uint256 i = 1; i < deltaCount; ++i) {
-                segments[i].delta = boundUint40(segments[i].delta, 1, maxDelta);
+            // Bound the durations so that none is zero and the calculations don't overflow.
+            uint256 durationCount = segments.length;
+            uint40 maxDuration = (MAX_UNIX_TIMESTAMP - segments[0].duration) / uint40(durationCount);
+            for (uint256 i = 1; i < durationCount; ++i) {
+                segments[i].duration = boundUint40(segments[i].duration, 1, maxDuration);
             }
         }
     }
 
-    /// @dev Fuzzes the segment milestones.
-    function fuzzSegmentMilestones(LockupDynamic.Segment[] memory segments, uint40 startTime) internal view {
+    /// @dev Fuzzes the segment timestamps.
+    function fuzzSegmentTimestamps(LockupDynamic.Segment[] memory segments, uint40 startTime) internal view {
         // Return here if there's only one segment to not run into division by zero.
         uint40 segmentCount = uint40(segments.length);
         if (segmentCount == 1) {
             // The end time must be in the future.
             uint40 currentTime = getBlockTimestamp();
-            segments[0].milestone = (startTime < currentTime ? currentTime : startTime) + 2 days;
+            segments[0].timestamp = (startTime < currentTime ? currentTime : startTime) + 2 days;
             return;
         }
 
-        // The first milestones is precomputed to avoid an underflow in the first loop iteration. We have to
-        // add 1 because the first milestone must be greater than the start time.
-        segments[0].milestone = startTime + 1 seconds;
+        // The first timestamps is precomputed to avoid an underflow in the first loop iteration. We have to
+        // add 1 because the first timestamp must be greater than the start time.
+        segments[0].timestamp = startTime + 1 seconds;
 
-        // Fuzz the milestones while preserving their order in the array. For each milestone, set its initial guess
-        // as the sum of the starting milestone and the step size multiplied by the current index. This ensures that
-        // the initial guesses are evenly spaced. Next, we bound the milestone within a range of half the step size
+        // Fuzz the timestamps while preserving their order in the array. For each timestamp, set its initial guess
+        // as the sum of the starting timestamp and the step size multiplied by the current index. This ensures that
+        // the initial guesses are evenly spaced. Next, we bound the timestamp within a range of half the step size
         // around the initial guess.
-        uint256 start = segments[0].milestone;
-        uint40 step = (MAX_UNIX_TIMESTAMP - segments[0].milestone) / (segmentCount - 1);
+        uint256 start = segments[0].timestamp;
+        uint40 step = (MAX_UNIX_TIMESTAMP - segments[0].timestamp) / (segmentCount - 1);
         uint40 halfStep = step / 2;
         for (uint256 i = 1; i < segmentCount; ++i) {
-            uint256 milestone = start + i * step;
-            milestone = _bound(milestone, milestone - halfStep, milestone + halfStep);
-            segments[i].milestone = uint40(milestone);
+            uint256 timestamp = start + i * step;
+            timestamp = _bound(timestamp, timestamp - halfStep, timestamp + halfStep);
+            segments[i].timestamp = uint40(timestamp);
         }
     }
 }
