@@ -241,21 +241,6 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_StreamDepleted(streamId);
         }
 
-        bool isCallerStreamSender = _isCallerStreamSender(streamId);
-
-        // Checks: `msg.sender` is the stream's sender, the stream's recipient, or an approved third party.
-        if (!isCallerStreamSender && !_isCallerStreamRecipientOrApproved(streamId)) {
-            revert Errors.SablierV2Lockup_Unauthorized(streamId, msg.sender);
-        }
-
-        // Retrieve the recipient from storage.
-        address recipient = _ownerOf(streamId);
-
-        // Checks: if `msg.sender` is the stream's sender, the withdrawal address must be the recipient.
-        if (isCallerStreamSender && to != recipient) {
-            revert Errors.SablierV2Lockup_InvalidSenderWithdrawal(streamId, msg.sender, to);
-        }
-
         // Checks: the withdrawal address is not zero.
         if (to == address(0)) {
             revert Errors.SablierV2Lockup_WithdrawToZeroAddress();
@@ -264,6 +249,15 @@ abstract contract SablierV2Lockup is
         // Checks: the withdraw amount is not zero.
         if (amount == 0) {
             revert Errors.SablierV2Lockup_WithdrawAmountZero(streamId);
+        }
+
+        // Retrieve the recipient from storage.
+        address recipient = _ownerOf(streamId);
+
+        // Checks: if `msg.sender` is neither the stream's recipient nor an approved third party, the withdrawal address
+        // must be the recipient.
+        if (to != recipient && !_isCallerStreamRecipientOrApproved(streamId)) {
+            revert Errors.SablierV2Lockup_WithdrawalAddressNotRecipient(streamId, msg.sender, to);
         }
 
         // Checks: the withdraw amount is not greater than the withdrawable amount.
@@ -337,7 +331,6 @@ abstract contract SablierV2Lockup is
     /// @inheritdoc ISablierV2Lockup
     function withdrawMultiple(
         uint256[] calldata streamIds,
-        address to,
         uint128[] calldata amounts
     )
         external
@@ -354,7 +347,7 @@ abstract contract SablierV2Lockup is
         // Iterate over the provided array of stream ids and withdraw from each stream.
         for (uint256 i = 0; i < streamIdsCount; ++i) {
             // Checks, Effects and Interactions: check the parameters and make the withdrawal.
-            withdraw(streamIds[i], to, amounts[i]);
+            withdraw({ streamId: streamIds[i], to: _ownerOf(streamIds[i]), amount: amounts[i] });
         }
     }
 

@@ -13,16 +13,48 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
+    /// - Multiple caller addresses.
+    function testFuzz_Withdraw_UnknownCaller(address caller)
+        external
+        whenNotDelegateCalled
+        givenNotNull
+        whenToNonZeroAddress
+        whenWithdrawAmountNotZero
+        whenNoOverdraw
+    {
+        vm.assume(caller != users.sender && caller != users.recipient);
+
+        // Make the fuzzed address the caller in this test.
+        changePrank({ msgSender: caller });
+
+        // Simulate the passage of time.
+        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+
+        // Make the withdrawal.
+        lockup.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.WITHDRAW_AMOUNT() });
+
+        // Assert that the stream's status is still "STREAMING".
+        Lockup.Status actualStatus = lockup.statusOf(defaultStreamId);
+        Lockup.Status expectedStatus = Lockup.Status.STREAMING;
+        assertEq(actualStatus, expectedStatus);
+
+        // Assert that the withdrawn amount has been updated.
+        uint128 actualWithdrawnAmount = lockup.getWithdrawnAmount(defaultStreamId);
+        uint128 expectedWithdrawnAmount = defaults.WITHDRAW_AMOUNT();
+        assertEq(actualWithdrawnAmount, expectedWithdrawnAmount, "withdrawnAmount");
+    }
+
+    /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
+    ///
     /// - Multiple values for the withdrawal address.
     function testFuzz_Withdraw_CallerApprovedOperator(address to)
         external
         whenNotDelegateCalled
         givenNotNull
         givenStreamNotDepleted
-        whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
     {
         vm.assume(to != address(0));
 
@@ -62,10 +94,9 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         external
         whenNotDelegateCalled
         givenNotNull
-        whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
         whenCallerRecipient
     {
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() - 1 seconds);
@@ -130,11 +161,9 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         external
         whenNotDelegateCalled
         givenNotNull
-        whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
-        whenCallerRecipient
+        whenNoOverdraw
         whenStreamHasNotBeenCanceled
     {
         timeJump = _bound(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);

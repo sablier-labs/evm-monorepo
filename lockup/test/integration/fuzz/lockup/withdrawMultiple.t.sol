@@ -18,7 +18,6 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
 
     function testFuzz_WithdrawMultiple(
         uint256 timeJump,
-        address to,
         uint128 ongoingWithdrawAmount
     )
         external
@@ -31,13 +30,7 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
         whenNoAmountZero
         whenNoAmountOverdraws
     {
-        vm.assume(to != address(0));
         timeJump = _bound(timeJump, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2 - 1 seconds);
-
-        // Hard code the withdrawal address if the caller is the stream's sender.
-        if (caller == users.sender) {
-            to = users.recipient;
-        }
 
         // Create a new stream with an end time double that of the default stream.
         changePrank({ msgSender: users.sender });
@@ -59,19 +52,29 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
         ongoingWithdrawAmount = boundUint128(ongoingWithdrawAmount, 1, ongoingWithdrawableAmount);
 
         // Expect the withdrawals to be made.
-        expectCallToTransfer({ to: to, amount: ongoingWithdrawAmount });
-        expectCallToTransfer({ to: to, amount: settledWithdrawAmount });
+        expectCallToTransfer({ to: users.recipient, amount: ongoingWithdrawAmount });
+        expectCallToTransfer({ to: users.recipient, amount: settledWithdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: ongoingStreamId, to: to, asset: dai, amount: ongoingWithdrawAmount });
+        emit WithdrawFromLockupStream({
+            streamId: ongoingStreamId,
+            to: users.recipient,
+            asset: dai,
+            amount: ongoingWithdrawAmount
+        });
         vm.expectEmit({ emitter: address(lockup) });
-        emit WithdrawFromLockupStream({ streamId: settledStreamId, to: to, asset: dai, amount: settledWithdrawAmount });
+        emit WithdrawFromLockupStream({
+            streamId: settledStreamId,
+            to: users.recipient,
+            asset: dai,
+            amount: settledWithdrawAmount
+        });
 
         // Make the withdrawals.
         uint256[] memory streamIds = Solarray.uint256s(ongoingStreamId, settledStreamId);
         uint128[] memory amounts = Solarray.uint128s(ongoingWithdrawAmount, settledWithdrawAmount);
-        lockup.withdrawMultiple({ streamIds: streamIds, to: to, amounts: amounts });
+        lockup.withdrawMultiple(streamIds, amounts);
 
         // Assert that the statuses have been updated.
         assertEq(lockup.statusOf(streamIds[0]), Lockup.Status.STREAMING, "status0");

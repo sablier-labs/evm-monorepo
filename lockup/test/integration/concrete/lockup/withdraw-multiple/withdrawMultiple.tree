@@ -18,27 +18,13 @@ withdrawMultiple.t.sol
             ├── given some streams' statuses are "DEPLETED"
             │  └── it should revert
             └── given no stream's status is "DEPLETED"
-               ├── when the caller is unauthorized for all streams
-               │  ├── when the caller is a malicious third party
-               │  │  └── it should revert
-               │  └── when the caller is a former recipient
-               │     └── it should revert
-               ├── when the caller is unauthorized for some streams
-               │  ├── when the caller is a malicious third party
-               │  │  └── it should revert
-               │  └── when the caller is a former recipient
-               │     └── it should revert
-               └── when the caller is authorized for all streams
-                  ├── when the provided address is zero
+               ├── when some amounts are zero
+               │  └── it should revert
+               └── when none of the amounts are zero
+                  ├── when some amounts overdraw
                   │  └── it should revert
-                  └── when the provided address is not zero
-                     ├── when some amounts are zero
-                     │  └── it should revert
-                     └── when none of the amounts are zero
-                        ├── when some amounts overdraw
-                        │  └── it should revert
-                        └── when no amount overdraws
-                           ├── it should make the withdrawals
-                           ├── it should update the statuses
-                           ├── it should update the withdrawn amounts
-                           └── it should emit multiple {WithdrawFromLockupStream} events
+                  └── when no amount overdraws
+                     ├── it should make the withdrawals
+                     ├── it should update the statuses
+                     ├── it should update the withdrawn amounts
+                     └── it should emit multiple {WithdrawFromLockupStream} events

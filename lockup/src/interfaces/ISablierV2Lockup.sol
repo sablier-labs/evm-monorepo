@@ -245,16 +245,15 @@ interface ISablierV2Lockup is
     /// @dev Emits a {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} event.
     ///
     /// Notes:
-    /// - This function attempts to invoke a hook on the stream's recipient, provided that the recipient is a contract
-    /// and `msg.sender` is either the sender or an approved operator.
+    /// - This function attempts to call a hook on the recipient of the stream, unless `msg.sender` is the recipient.
+    /// - This function attempts to call a hook on the sender of the stream, unless `msg.sender` is the sender.
     ///
     /// Requirements:
     /// - Must not be delegate called.
     /// - `streamId` must not reference a null or depleted stream.
-    /// - `msg.sender` must be the stream's sender, the stream's recipient or an approved third party.
-    /// - `to` must be the recipient if `msg.sender` is the stream's sender.
     /// - `to` must not be the zero address.
     /// - `amount` must be greater than zero and must not exceed the withdrawable amount.
+    /// - `to` must be the recipient if `msg.sender` is not the stream's recipient or an approved third party.
     ///
     /// @param streamId The id of the stream to withdraw from.
     /// @param to The address receiving the withdrawn assets.
@@ -293,19 +292,21 @@ interface ISablierV2Lockup is
     /// @param newRecipient The address of the new owner of the stream NFT.
     function withdrawMaxAndTransfer(uint256 streamId, address newRecipient) external;
 
-    /// @notice Withdraws assets from streams to the provided address `to`.
+    /// @notice Withdraws assets from streams to the recipient of each stream.
     ///
     /// @dev Emits multiple {Transfer}, {WithdrawFromLockupStream}, and {MetadataUpdate} events.
     ///
     /// Notes:
     /// - This function attempts to call a hook on the recipient of each stream, unless `msg.sender` is the recipient.
+    /// - This function attempts to call a hook on the sender of each stream, unless `msg.sender` is the sender.
     ///
     /// Requirements:
-    /// - All requirements from {withdraw} must be met for each stream.
+    /// - Must not be delegate called.
     /// - There must be an equal number of `streamIds` and `amounts`.
+    /// - Each stream id in the array must not reference a null or depleted stream.
+    /// - Each amount in the array must be greater than zero and must not exceed the withdrawable amount.
     ///
     /// @param streamIds The ids of the streams to withdraw from.
-    /// @param to The address receiving the withdrawn assets.
     /// @param amounts The amounts to withdraw, denoted in units of the asset's decimals.
-    function withdrawMultiple(uint256[] calldata streamIds, address to, uint128[] calldata amounts) external;
+    function withdrawMultiple(uint256[] calldata streamIds, uint128[] calldata amounts) external;
 }

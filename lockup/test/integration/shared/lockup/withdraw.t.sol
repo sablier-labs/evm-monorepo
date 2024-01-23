@@ -24,14 +24,6 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
         _;
     }
 
-    modifier whenCallerUnauthorized() {
-        _;
-    }
-
-    modifier whenCallerAuthorized() {
-        _;
-    }
-
     modifier whenToNonZeroAddress() {
         _;
     }
@@ -40,7 +32,15 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
         _;
     }
 
-    modifier whenWithdrawAmountNotGreaterThanWithdrawableAmount() {
+    modifier whenNoOverdraw() {
+        _;
+    }
+
+    modifier whenWithdrawalAddressNotRecipient() {
+        _;
+    }
+
+    modifier whenWithdrawalAddressIsRecipient() {
         _;
     }
 

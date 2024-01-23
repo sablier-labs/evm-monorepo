@@ -38,9 +38,6 @@ library Errors {
     /// @notice Thrown when trying to create a stream with an end time not in the future.
     error SablierV2Lockup_EndTimeNotInTheFuture(uint40 currentTime, uint40 endTime);
 
-    /// @notice Thrown when the stream's sender tries to withdraw to an address other than the recipient's.
-    error SablierV2Lockup_InvalidSenderWithdrawal(uint256 streamId, address sender, address to);
-
     /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
     error SablierV2Lockup_NotTransferable(uint256 tokenId);
 
@@ -70,6 +67,9 @@ library Errors {
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierV2Lockup_Unauthorized(uint256 streamId, address caller);
+
+    /// @notice Thrown when trying to withdraw to an address other than the recipient's.
+    error SablierV2Lockup_WithdrawalAddressNotRecipient(uint256 streamId, address caller, address to);
 
     /// @notice Thrown when trying to withdraw zero assets from a stream.
     error SablierV2Lockup_WithdrawAmountZero(uint256 streamId);

@@ -44,10 +44,9 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         external
         whenNotDelegateCalled
         givenNotNull
-        whenCallerAuthorized
         whenToNonZeroAddress
         whenWithdrawAmountNotZero
-        whenWithdrawAmountNotGreaterThanWithdrawableAmount
+        whenNoOverdraw
     {
         vm.assume(params.segments.length != 0);
         vm.assume(params.to != address(0));

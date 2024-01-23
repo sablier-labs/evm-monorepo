@@ -6,7 +6,7 @@ pragma solidity >=0.8.22;
 /// @dev Implementation of this interface is optional. If a sender contract doesn't implement this
 /// interface or implements it partially, function execution will not revert.
 interface ISablierV2Sender {
-    /// @notice Responds to withdrawals triggered by either the stream's recipient or an approved third party.
+    /// @notice Responds to withdrawals triggered by any address except the contract implementing this interface.
     ///
     /// @dev Notes:
     /// - This function may revert, but the Sablier contract will ignore the revert.
