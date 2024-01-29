@@ -33,7 +33,7 @@ contract SablierV2Comptroller is
     Adminable // 1 inherited component
 {
     /*//////////////////////////////////////////////////////////////////////////
-                                   PUBLIC STORAGE
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Comptroller

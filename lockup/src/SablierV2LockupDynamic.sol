@@ -48,15 +48,11 @@ contract SablierV2LockupDynamic is
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  PUBLIC CONSTANTS
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupDynamic
     uint256 public immutable override MAX_SEGMENT_COUNT;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  PRIVATE STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 Lockup Dynamic streams mapped by unsigned integer ids.
     mapping(uint256 id => LockupDynamic.Stream stream) private _streams;

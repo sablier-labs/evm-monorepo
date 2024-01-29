@@ -22,15 +22,11 @@ abstract contract SablierV2Base is
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  PUBLIC CONSTANTS
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Base
     UD60x18 public constant override MAX_FEE = UD60x18.wrap(0.1e18);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                   PUBLIC STORAGE
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Base
     ISablierV2Comptroller public override comptroller;

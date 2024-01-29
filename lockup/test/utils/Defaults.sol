@@ -13,7 +13,7 @@ import { Users } from "./Types.sol";
 /// @notice Contract with default values used throughout the tests.
 contract Defaults is Constants {
     /*//////////////////////////////////////////////////////////////////////////
-                                     CONSTANTS
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     UD60x18 public constant BROKER_FEE = UD60x18.wrap(0.003e18); // 0.3%
@@ -34,10 +34,6 @@ contract Defaults is Constants {
     uint40 public constant TOTAL_DURATION = 10_000 seconds;
     uint128 public constant WITHDRAW_AMOUNT = 2600e18;
     uint40 public immutable WARP_26_PERCENT; // 26% of the way through the stream
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     VARIABLES
-    //////////////////////////////////////////////////////////////////////////*/
 
     IERC20 private asset;
     Users private users;

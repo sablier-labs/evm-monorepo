@@ -8,7 +8,7 @@ import { Errors } from "../libraries/Errors.sol";
 /// @notice See the documentation in {IAdminable}.
 abstract contract Adminable is IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
-                                       STORAGE
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IAdminable

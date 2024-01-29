@@ -23,7 +23,7 @@ abstract contract SablierV2Lockup is
     ERC721 // 6 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
-                                USER-FACING STORAGE
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2Lockup

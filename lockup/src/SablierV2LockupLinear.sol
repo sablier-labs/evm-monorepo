@@ -43,7 +43,7 @@ contract SablierV2LockupLinear is
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  PRIVATE STORAGE
+                                  STATE VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sablier V2 Lockup Linear streams mapped by unsigned integers.
