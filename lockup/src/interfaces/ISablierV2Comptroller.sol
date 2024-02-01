@@ -6,7 +6,7 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { IAdminable } from "./IAdminable.sol";
 
-/// @title ISablierV2Controller
+/// @title ISablierV2Comptroller
 /// @notice This contract is in charge of the Sablier V2 protocol configuration, handling such values as the
 /// protocol fees.
 interface ISablierV2Comptroller is IAdminable {
