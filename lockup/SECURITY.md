@@ -12,8 +12,8 @@ report it to us.
 Starting on July 1, 2023, the [sablier-labs/v2-core](https://github.com/sablier-labs/v2-core) repository is subject to
 the Sablier V2 Bug Bounty (the "Program") to incentivize responsible bug disclosure.
 
-We are limiting the scope of the Program to critical and high severity bugs, and are offering a reward of up to $50,000.
-Happy hunting!
+We are limiting the scope of the Program to critical and high severity bugs, and are offering a reward of up to
+$100,000. Happy hunting!
 
 ### Scope
 
@@ -57,7 +57,7 @@ vulnerability, it must adhere to these assumptions as well:
 ### Rewards
 
 Rewards will be allocated based on the severity of the bug disclosed and will be evaluated and rewarded at the
-discretion of the Sablier Labs team. For critical bugs that lead to any loss of user funds, rewards of up to $50,000
+discretion of the Sablier Labs team. For critical bugs that lead to any loss of user funds, rewards of up to $100,000
 will be granted. Lower severity bugs will be rewarded at the discretion of the team.
 
 ### Disclosure
