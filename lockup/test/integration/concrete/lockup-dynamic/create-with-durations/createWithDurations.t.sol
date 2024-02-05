@@ -143,11 +143,11 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
         expectCallToTransferFrom({
             from: funder,
             to: address(lockupDynamic),
-            amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
+            value: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
         // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
+        expectCallToTransferFrom({ from: funder, to: users.broker, value: defaults.BROKER_FEE_AMOUNT() });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockupDynamic) });

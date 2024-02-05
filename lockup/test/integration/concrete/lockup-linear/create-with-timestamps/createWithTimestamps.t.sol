@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
@@ -32,8 +34,9 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled {
-        vm.expectRevert("ERC721: mint to the zero address");
-        createDefaultStreamWithRecipient({ recipient: address(0) });
+        address recipient = address(0);
+        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, recipient));
+        createDefaultStreamWithRecipient(recipient);
     }
 
     /// @dev It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
@@ -143,7 +146,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenBrokerFeeNotTooHigh
     {
         address nonContract = address(8128);
-        vm.expectRevert("Address: call to non-contract");
+        vm.expectRevert(abi.encodeWithSelector(Address.AddressEmptyCode.selector, nonContract));
         createDefaultStreamWithAsset(IERC20(nonContract));
     }
 
@@ -187,7 +190,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
             asset: IERC20(asset),
             from: funder,
             to: address(lockupLinear),
-            amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
+            value: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
         // Expect the broker fee to be paid to the broker.
@@ -195,7 +198,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
             asset: IERC20(asset),
             from: funder,
             to: users.broker,
-            amount: defaults.BROKER_FEE_AMOUNT()
+            value: defaults.BROKER_FEE_AMOUNT()
         });
 
         // Expect the relevant events to be emitted.

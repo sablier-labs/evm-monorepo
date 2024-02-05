@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierV2Comptroller } from "../src/interfaces/ISablierV2Comptroller.sol";
@@ -13,6 +12,7 @@ import { SablierV2LockupDynamic } from "../src/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "../src/SablierV2LockupLinear.sol";
 import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
 
+import { ERC20Mock } from "./mocks/erc20/ERC20Mock.sol";
 import { ERC20MissingReturn } from "./mocks/erc20/ERC20MissingReturn.sol";
 import { Noop } from "./mocks/Noop.sol";
 import { GoodRecipient } from "./mocks/hooks/GoodRecipient.sol";
@@ -39,7 +39,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     //////////////////////////////////////////////////////////////////////////*/
 
     ISablierV2Comptroller internal comptroller;
-    ERC20 internal dai;
+    ERC20Mock internal dai;
     Defaults internal defaults;
     GoodRecipient internal goodRecipient;
     GoodSender internal goodSender;
@@ -55,7 +55,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
 
     function setUp() public virtual {
         // Deploy the base test contracts.
-        dai = new ERC20("Dai Stablecoin", "DAI");
+        dai = new ERC20Mock("Dai Stablecoin", "DAI");
         goodRecipient = new GoodRecipient();
         goodSender = new GoodSender();
         noop = new Noop();
@@ -96,26 +96,26 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     /// @dev Approves all V2 Core contracts to spend assets from the Sender, Recipient, Alice and Eve.
     function approveProtocol() internal {
         changePrank({ msgSender: users.sender });
-        dai.approve({ spender: address(lockupLinear), amount: MAX_UINT256 });
-        dai.approve({ spender: address(lockupDynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
+        dai.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.recipient });
-        dai.approve({ spender: address(lockupLinear), amount: MAX_UINT256 });
-        dai.approve({ spender: address(lockupDynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
+        dai.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.alice });
-        dai.approve({ spender: address(lockupLinear), amount: MAX_UINT256 });
-        dai.approve({ spender: address(lockupDynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
+        dai.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
         changePrank({ msgSender: users.eve });
-        dai.approve({ spender: address(lockupLinear), amount: MAX_UINT256 });
-        dai.approve({ spender: address(lockupDynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
+        dai.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
         usdt.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
@@ -160,22 +160,22 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Expects a call to {IERC20.transfer}.
-    function expectCallToTransfer(address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
+    function expectCallToTransfer(address to, uint256 value) internal {
+        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transfer, (to, value)) });
     }
 
     /// @dev Expects a call to {IERC20.transfer}.
-    function expectCallToTransfer(IERC20 asset, address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
+    function expectCallToTransfer(IERC20 asset, address to, uint256 value) internal {
+        vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transfer, (to, value)) });
     }
 
     /// @dev Expects a call to {IERC20.transferFrom}.
-    function expectCallToTransferFrom(address from, address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
+    function expectCallToTransferFrom(address from, address to, uint256 value) internal {
+        vm.expectCall({ callee: address(dai), data: abi.encodeCall(IERC20.transferFrom, (from, to, value)) });
     }
 
     /// @dev Expects a call to {IERC20.transferFrom}.
-    function expectCallToTransferFrom(IERC20 asset, address from, address to, uint256 amount) internal {
-        vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
+    function expectCallToTransferFrom(IERC20 asset, address from, address to, uint256 value) internal {
+        vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transferFrom, (from, to, value)) });
     }
 }

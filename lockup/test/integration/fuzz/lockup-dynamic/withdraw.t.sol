@@ -93,7 +93,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         vars.withdrawAmount = boundUint128(vars.withdrawAmount, 1, vars.withdrawableAmount);
 
         // Expect the assets to be transferred to the fuzzed `to` address.
-        expectCallToTransfer({ to: params.to, amount: vars.withdrawAmount });
+        expectCallToTransfer({ to: params.to, value: vars.withdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockupDynamic) });

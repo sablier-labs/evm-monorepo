@@ -252,18 +252,18 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         deal({ token: address(dai), to: funder, give: vars.totalAmount });
 
         // Approve {SablierV2LockupDynamic} to transfer the assets from the fuzzed funder.
-        dai.approve({ spender: address(lockupDynamic), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
         expectCallToTransferFrom({
             from: funder,
             to: address(lockupDynamic),
-            amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
+            value: vars.createAmounts.deposit + vars.createAmounts.protocolFee
         });
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.createAmounts.brokerFee > 0) {
-            expectCallToTransferFrom({ from: funder, to: params.broker.account, amount: vars.createAmounts.brokerFee });
+            expectCallToTransferFrom({ from: funder, to: params.broker.account, value: vars.createAmounts.brokerFee });
         }
 
         // Expect the relevant event to be emitted.

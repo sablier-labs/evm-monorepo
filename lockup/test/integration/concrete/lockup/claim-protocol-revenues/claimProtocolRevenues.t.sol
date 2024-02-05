@@ -43,7 +43,7 @@ abstract contract ClaimProtocolRevenues_Integration_Concrete_Test is
     function test_ClaimProtocolRevenues() external whenCallerAdmin givenProtocolRevenuesNotZero {
         // Expect the protocol revenues to be claimed.
         uint128 protocolRevenues = defaults.PROTOCOL_FEE_AMOUNT();
-        expectCallToTransfer({ to: users.admin, amount: protocolRevenues });
+        expectCallToTransfer({ to: users.admin, value: protocolRevenues });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(base) });

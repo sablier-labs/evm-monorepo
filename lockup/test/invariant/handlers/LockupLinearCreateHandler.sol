@@ -67,7 +67,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupLinear} to spend the assets.
-        asset.approve({ spender: address(lockupLinear), amount: params.totalAmount });
+        asset.approve({ spender: address(lockupLinear), value: params.totalAmount });
 
         // Create the stream.
         params.asset = asset;
@@ -110,7 +110,7 @@ contract LockupLinearCreateHandler is BaseHandler {
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupLinear} to spend the assets.
-        asset.approve({ spender: address(lockupLinear), amount: params.totalAmount });
+        asset.approve({ spender: address(lockupLinear), value: params.totalAmount });
 
         // Create the stream.
         params.asset = asset;

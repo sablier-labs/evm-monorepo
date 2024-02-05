@@ -38,9 +38,9 @@ abstract contract CancelMultiple_Integration_Fuzz_Test is Integration_Test, Canc
 
         // Expect the assets to be refunded to the Sender.
         uint128 senderAmount0 = lockup.refundableAmountOf(streamIds[0]);
-        expectCallToTransfer({ to: users.sender, amount: senderAmount0 });
+        expectCallToTransfer({ to: users.sender, value: senderAmount0 });
         uint128 senderAmount1 = lockup.refundableAmountOf(streamIds[1]);
-        expectCallToTransfer({ to: users.sender, amount: senderAmount1 });
+        expectCallToTransfer({ to: users.sender, value: senderAmount1 });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

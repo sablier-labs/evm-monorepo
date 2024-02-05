@@ -166,18 +166,18 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         deal({ token: address(dai), to: funder, give: params.totalAmount });
 
         // Approve {SablierV2LockupLinear} to transfer the assets from the fuzzed funder.
-        dai.approve({ spender: address(lockupLinear), amount: MAX_UINT256 });
+        dai.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
         expectCallToTransferFrom({
             from: funder,
             to: address(lockupLinear),
-            amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
+            value: vars.createAmounts.deposit + vars.createAmounts.protocolFee
         });
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.createAmounts.brokerFee > 0) {
-            expectCallToTransferFrom({ from: funder, to: params.broker.account, amount: vars.createAmounts.brokerFee });
+            expectCallToTransferFrom({ from: funder, to: params.broker.account, value: vars.createAmounts.brokerFee });
         }
 
         // Expect the relevant event to be emitted.

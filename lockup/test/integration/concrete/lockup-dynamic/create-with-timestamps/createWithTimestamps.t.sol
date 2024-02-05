@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18, ud, ZERO } from "@prb/math/src/UD60x18.sol";
 import { stdError } from "forge-std/src/StdError.sol";
@@ -33,8 +35,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled {
-        vm.expectRevert("ERC721: mint to the zero address");
         address recipient = address(0);
+        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, recipient));
         createDefaultStreamWithRecipient(recipient);
     }
 
@@ -295,7 +297,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         changePrank({ msgSender: users.sender });
 
         // Run the test.
-        vm.expectRevert("Address: call to non-contract");
+        vm.expectRevert(abi.encodeWithSelector(Address.AddressEmptyCode.selector, nonContract));
         createDefaultStreamWithAsset(IERC20(nonContract));
     }
 
@@ -348,7 +350,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
             asset: IERC20(asset),
             from: funder,
             to: address(lockupDynamic),
-            amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
+            value: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
         // Expect the broker fee to be paid to the broker.
@@ -356,7 +358,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
             asset: IERC20(asset),
             from: funder,
             to: users.broker,
-            amount: defaults.BROKER_FEE_AMOUNT()
+            value: defaults.BROKER_FEE_AMOUNT()
         });
 
         // Expect the relevant events to be emitted.

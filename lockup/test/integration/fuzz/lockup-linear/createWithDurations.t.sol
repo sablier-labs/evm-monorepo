@@ -94,11 +94,11 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
         expectCallToTransferFrom({
             from: funder,
             to: address(lockupLinear),
-            amount: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
+            value: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
         });
 
         // Expect the broker fee to be paid to the broker.
-        expectCallToTransferFrom({ from: funder, to: users.broker, amount: defaults.BROKER_FEE_AMOUNT() });
+        expectCallToTransferFrom({ from: funder, to: users.broker, value: defaults.BROKER_FEE_AMOUNT() });
 
         // Create the range struct by calculating the start time, cliff time and the end time.
         LockupLinear.Range memory range = LockupLinear.Range({

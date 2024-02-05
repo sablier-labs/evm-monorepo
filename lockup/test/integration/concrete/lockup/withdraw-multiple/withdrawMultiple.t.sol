@@ -190,9 +190,9 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         changePrank({ msgSender: caller });
 
         // Expect the withdrawals to be made.
-        expectCallToTransfer({ to: users.recipient, amount: testAmounts[0] });
-        expectCallToTransfer({ to: users.recipient, amount: testAmounts[1] });
-        expectCallToTransfer({ to: users.recipient, amount: testAmounts[2] });
+        expectCallToTransfer({ to: users.recipient, value: testAmounts[0] });
+        expectCallToTransfer({ to: users.recipient, value: testAmounts[1] });
+        expectCallToTransfer({ to: users.recipient, value: testAmounts[2] });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

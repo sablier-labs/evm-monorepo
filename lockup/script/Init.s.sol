@@ -14,7 +14,7 @@ import { Broker, LockupDynamic, LockupLinear } from "../src/types/DataTypes.sol"
 import { BaseScript } from "./Base.s.sol";
 
 interface IERC20Mint {
-    function mint(address beneficiary, uint256 amount) external;
+    function mint(address beneficiary, uint256 value) external;
 }
 
 /// @notice Initializes the protocol by setting up the comptroller and creating some streams.
@@ -35,11 +35,11 @@ contract Init is BaseScript {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Mint enough assets to the sender.
-        IERC20Mint(address(asset)).mint({ beneficiary: sender, amount: 131_601.1e18 + 10_000e18 });
+        IERC20Mint(address(asset)).mint({ beneficiary: sender, value: 131_601.1e18 + 10_000e18 });
 
         // Approve the Sablier contracts to transfer the ERC-20 assets from the sender.
-        asset.approve({ spender: address(lockupLinear), amount: type(uint256).max });
-        asset.approve({ spender: address(lockupDynamic), amount: type(uint256).max });
+        asset.approve({ spender: address(lockupLinear), value: type(uint256).max });
+        asset.approve({ spender: address(lockupDynamic), value: type(uint256).max });
 
         // Create 7 Lockup Linear streams with various amounts and durations.
         //

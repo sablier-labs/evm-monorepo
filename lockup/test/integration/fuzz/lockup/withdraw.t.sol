@@ -115,7 +115,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the assets to be transferred to the fuzzed `to` address.
-        expectCallToTransfer({ to: to, amount: withdrawAmount });
+        expectCallToTransfer({ to: to, value: withdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
@@ -177,7 +177,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
         withdrawAmount = boundUint128(withdrawAmount, 1, withdrawableAmount);
 
         // Expect the assets to be transferred to the fuzzed `to` address.
-        expectCallToTransfer({ to: to, amount: withdrawAmount });
+        expectCallToTransfer({ to: to, value: withdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

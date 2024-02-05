@@ -16,7 +16,7 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
         vm.warp({ timestamp: defaults.END_TIME() + 1 seconds });
 
         // Expect the ERC-20 assets to be transferred to the Recipient.
-        expectCallToTransfer({ to: users.recipient, amount: defaults.DEPOSIT_AMOUNT() });
+        expectCallToTransfer({ to: users.recipient, value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });
@@ -58,7 +58,7 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         // Expect the assets to be transferred to the Recipient.
-        expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
+        expectCallToTransfer({ to: users.recipient, value: withdrawAmount });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

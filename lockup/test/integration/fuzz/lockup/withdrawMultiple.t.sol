@@ -52,8 +52,8 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
         ongoingWithdrawAmount = boundUint128(ongoingWithdrawAmount, 1, ongoingWithdrawableAmount);
 
         // Expect the withdrawals to be made.
-        expectCallToTransfer({ to: users.recipient, amount: ongoingWithdrawAmount });
-        expectCallToTransfer({ to: users.recipient, amount: settledWithdrawAmount });
+        expectCallToTransfer({ to: users.recipient, value: ongoingWithdrawAmount });
+        expectCallToTransfer({ to: users.recipient, value: settledWithdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

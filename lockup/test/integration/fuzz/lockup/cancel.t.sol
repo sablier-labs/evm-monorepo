@@ -76,7 +76,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
 
         // Expect the assets to be refunded to the Sender.
         uint128 senderAmount = lockup.refundableAmountOf(streamId);
-        expectCallToTransfer({ to: users.sender, amount: senderAmount });
+        expectCallToTransfer({ to: users.sender, value: senderAmount });
 
         // Expect the relevant events to be emitted.
         uint128 recipientAmount = lockup.withdrawableAmountOf(streamId);

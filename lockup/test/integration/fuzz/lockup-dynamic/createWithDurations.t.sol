@@ -66,12 +66,12 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         expectCallToTransferFrom({
             from: vars.funder,
             to: address(lockupDynamic),
-            amount: vars.createAmounts.deposit + vars.createAmounts.protocolFee
+            value: vars.createAmounts.deposit + vars.createAmounts.protocolFee
         });
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.createAmounts.brokerFee > 0) {
-            expectCallToTransferFrom({ from: vars.funder, to: users.broker, amount: vars.createAmounts.brokerFee });
+            expectCallToTransferFrom({ from: vars.funder, to: users.broker, value: vars.createAmounts.brokerFee });
         }
 
         // Create the range struct.

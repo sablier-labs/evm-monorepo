@@ -172,9 +172,9 @@ abstract contract CancelMultiple_Integration_Concrete_Test is
 
         // Expect the assets to be refunded to the stream's sender.
         uint128 senderAmount0 = lockup.refundableAmountOf(testStreamIds[0]);
-        expectCallToTransfer({ to: users.sender, amount: senderAmount0 });
+        expectCallToTransfer({ to: users.sender, value: senderAmount0 });
         uint128 senderAmount1 = lockup.refundableAmountOf(testStreamIds[1]);
-        expectCallToTransfer({ to: users.sender, amount: senderAmount1 });
+        expectCallToTransfer({ to: users.sender, value: senderAmount1 });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

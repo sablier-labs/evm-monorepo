@@ -11,7 +11,7 @@
     "url": "https://github.com/sablier-labs/v2-core/issues"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "4.9.2",
+    "@openzeppelin/contracts": "5.0.0",
     "@prb/math": "4.0.2"
   },
   "devDependencies": {

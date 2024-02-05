@@ -83,7 +83,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupDynamic} to spend the assets.
-        asset.approve({ spender: address(lockupDynamic), amount: params.totalAmount });
+        asset.approve({ spender: address(lockupDynamic), value: params.totalAmount });
 
         // Create the stream.
         params.asset = asset;
@@ -131,7 +131,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });
 
         // Approve {SablierV2LockupDynamic} to spend the assets.
-        asset.approve({ spender: address(lockupDynamic), amount: params.totalAmount });
+        asset.approve({ spender: address(lockupDynamic), value: params.totalAmount });
 
         // Create the stream.
         params.asset = asset;

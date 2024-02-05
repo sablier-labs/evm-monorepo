@@ -619,7 +619,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
 
         // Expect the assets to be transferred to the recipient contract.
-        expectCallToTransfer({ to: address(recipient), amount: withdrawAmount });
+        expectCallToTransfer({ to: address(recipient), value: withdrawAmount });
 
         // Expect a call to the hook if the recipient is a contract.
         if (recipient.code.length > 0) {

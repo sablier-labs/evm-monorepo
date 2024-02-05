@@ -96,7 +96,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);
 
         // Expect the assets to be transferred to the Recipient.
-        expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
+        expectCallToTransfer({ to: users.recipient, value: withdrawAmount });
 
         // Expect the relevant events to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

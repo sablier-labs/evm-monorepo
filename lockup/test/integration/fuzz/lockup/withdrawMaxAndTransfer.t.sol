@@ -38,7 +38,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
 
         if (withdrawAmount > 0) {
             // Expect the assets to be transferred to the fuzzed recipient.
-            expectCallToTransfer({ to: users.recipient, amount: withdrawAmount });
+            expectCallToTransfer({ to: users.recipient, value: withdrawAmount });
 
             // Expect the relevant event to be emitted.
             vm.expectEmit({ emitter: address(lockup) });
