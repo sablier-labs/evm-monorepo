@@ -17,10 +17,7 @@ import { BaseScript } from "./Base.s.sol";
 ///
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicCore is BaseScript {
-    /// @dev The presence of the salt instructs Forge to deploy the contract via a deterministic CREATE2 factory.
-    /// https://github.com/Arachnid/deterministic-deployment-proxy
     function run(
-        string memory create2Salt,
         address initialAdmin,
         uint256 maxSegmentCount
     )
@@ -34,7 +31,7 @@ contract DeployDeterministicCore is BaseScript {
             SablierV2NFTDescriptor nftDescriptor
         )
     {
-        bytes32 salt = bytes32(abi.encodePacked(create2Salt));
+        bytes32 salt = constructCreate2Salt();
         comptroller = new SablierV2Comptroller{ salt: salt }(initialAdmin);
         nftDescriptor = new SablierV2NFTDescriptor{ salt: salt }();
         lockupDynamic =

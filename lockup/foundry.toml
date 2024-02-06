@@ -71,6 +71,7 @@
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
+  ffi = true
   src = "test"
 
 [doc]

@@ -86,19 +86,6 @@ export POLYGON_ADMIN="0x40A518C5B9c1d3D6d62Ba789501CE4D526C9d9C6"
 export SCROLL_ADMIN="0x0F7Ad835235Ede685180A5c611111610813457a9"
 export SEPOLIA_ADMIN="0xb1bEF51ebCA01EB12001a639bDBbFF6eEcA12B9F"
 
-# Declare the chain IDs
-ARBITRUM_CHAIN_ID="42161"
-ARBITRUM_SEPOLIA_CHAIN_ID="421614"
-AVALANCHE_CHAIN_ID="43114"
-BASE_CHAIN_ID="8453"
-BSC_CHAIN_ID="56"
-GNOSIS_CHAIN_ID="100"
-MAINNET_CHAIN_ID="1"
-OPTIMISM_CHAIN_ID="10"
-POLYGON_CHAIN_ID="137"
-SCROLL_CHAIN_ID="534352"
-SEPOLIA_CHAIN_ID="11155111"
-
 # Flag for broadcast deployment
 BROADCAST_DEPLOYMENT=false
 
@@ -129,17 +116,17 @@ declare -A chains
 
 # define function to initialize all configurations
 function initialize {
-    chains["arbitrum"]="$ARBITRUM_RPC_URL $ARBISCAN_API_KEY $ARBITRUM_CHAIN_ID $ARBITRUM_ADMIN $ARBITRUM_COMPTROLLER"
-    chains["arbitrum_sepolia"]="$ARBITRUM_SEPOLIA_RPC_URL $ARBISCAN_API_KEY $ARBITRUM_SEPOLIA_CHAIN_ID $ARBITRUM_SEPOLIA_ADMIN $ARBITRUM_SEPOLIA_COMPTROLLER"
-    chains["avalanche"]="$AVALANCHE_RPC_URL $SNOWTRACE_API_KEY $AVALANCHE_CHAIN_ID $AVALANCHE_ADMIN $AVALANCHE_COMPTROLLER"
-    chains["base"]="$BASE_RPC_URL $BASESCAN_API_KEY $BASE_CHAIN_ID $BASE_ADMIN $BASE_COMPTROLLER"
-    chains["bnb_smart_chain"]="$BSC_RPC_URL $BSCSCAN_API_KEY $BSC_CHAIN_ID $BSC_ADMIN $BSC_COMPTROLLER"
-    chains["gnosis"]="$GNOSIS_RPC_URL $GNOSISSCAN_API_KEY $GNOSIS_CHAIN_ID $GNOSIS_ADMIN $GNOSIS_COMPTROLLER"
-    chains["mainnet"]="$MAINNET_RPC_URL $ETHERSCAN_API_KEY $MAINNET_CHAIN_ID $MAINNET_ADMIN $MAINNET_COMPTROLLER"
-    chains["optimism"]="$OPTIMISM_RPC_URL $OPTIMISTIC_API_KEY $OPTIMISM_CHAIN_ID $OPTIMISM_ADMIN $OPTIMISM_COMPTROLLER"
-    chains["polygon"]="$POLYGON_RPC_URL $POLYGONSCAN_API_KEY $POLYGON_CHAIN_ID $POLYGON_ADMIN $POLYGON_COMPTROLLER"
-    chains["sepolia"]="$SEPOLIA_RPC_URL $ETHERSCAN_API_KEY $SEPOLIA_CHAIN_ID $SEPOLIA_ADMIN $SEPOLIA_COMPTROLLER"
-    chains["scroll"]="$SCROLL_RPC_URL $SCROLLSCAN_API_KEY $SCROLL_CHAIN_ID $SCROLL_ADMIN $SCROLL_COMPTROLLER"
+    chains["arbitrum"]="$ARBITRUM_RPC_URL $ARBISCAN_API_KEY $ARBITRUM_ADMIN $ARBITRUM_COMPTROLLER"
+    chains["arbitrum_sepolia"]="$ARBITRUM_SEPOLIA_RPC_URL $ARBISCAN_API_KEY $ARBITRUM_SEPOLIA_ADMIN $ARBITRUM_SEPOLIA_COMPTROLLER"
+    chains["avalanche"]="$AVALANCHE_RPC_URL $SNOWTRACE_API_KEY $AVALANCHE_ADMIN $AVALANCHE_COMPTROLLER"
+    chains["base"]="$BASE_RPC_URL $BASESCAN_API_KEY $BASE_ADMIN $BASE_COMPTROLLER"
+    chains["bnb_smart_chain"]="$BSC_RPC_URL $BSCSCAN_API_KEY $BSC_ADMIN $BSC_COMPTROLLER"
+    chains["gnosis"]="$GNOSIS_RPC_URL $GNOSISSCAN_API_KEY $GNOSIS_ADMIN $GNOSIS_COMPTROLLER"
+    chains["mainnet"]="$MAINNET_RPC_URL $ETHERSCAN_API_KEY $MAINNET_ADMIN $MAINNET_COMPTROLLER"
+    chains["optimism"]="$OPTIMISM_RPC_URL $OPTIMISTIC_API_KEY $OPTIMISM_ADMIN $OPTIMISM_COMPTROLLER"
+    chains["polygon"]="$POLYGON_RPC_URL $POLYGONSCAN_API_KEY $POLYGON_ADMIN $POLYGON_COMPTROLLER"
+    chains["sepolia"]="$SEPOLIA_RPC_URL $ETHERSCAN_API_KEY $SEPOLIA_ADMIN $SEPOLIA_COMPTROLLER"
+    chains["scroll"]="$SCROLL_RPC_URL $SCROLLSCAN_API_KEY $SCROLL_ADMIN $SCROLL_COMPTROLLER"
 }
 
 # define function to initialize limited configurations
@@ -154,18 +141,18 @@ function initialize_interactive {
     echo -e "3. Enter max segment count: \c"
     read MAX_SEGMENT_COUNT
 
-    # chain id and comptroller only
-    chains["arbitrum"]="$ARBITRUM_CHAIN_ID $ARBITRUM_COMPTROLLER"
-    chains["arbitrum_sepolia"]="$ARBITRUM_SEPOLIA_CHAIN_ID $ARBITRUM_SEPOLIA_COMPTROLLER"
-    chains["avalanche"]="$AVALANCHE_CHAIN_ID $AVALANCHE_COMPTROLLER"
-    chains["base"]="$BASE_CHAIN_ID $BASE_COMPTROLLER"
-    chains["bnb_smart_chain"]="$BSC_CHAIN_ID $BSC_COMPTROLLER"
-    chains["gnosis"]="$GNOSIS_CHAIN_ID $GNOSIS_COMPTROLLER"
-    chains["mainnet"]="$MAINNET_CHAIN_ID $MAINNET_COMPTROLLER"
-    chains["optimism"]="$OPTIMISM_CHAIN_ID $OPTIMISM_COMPTROLLER"
-    chains["polygon"]="$POLYGON_CHAIN_ID $POLYGON_COMPTROLLER"
-    chains["sepolia"]="$SEPOLIA_CHAIN_ID $SEPOLIA_COMPTROLLER"
-    chains["scroll"]="$SCROLL_CHAIN_ID $SCROLL_COMPTROLLER"
+    # Comptroller only
+    chains["arbitrum"]="$ARBITRUM_COMPTROLLER"
+    chains["arbitrum_sepolia"]="$ARBITRUM_SEPOLIA_COMPTROLLER"
+    chains["avalanche"]="$AVALANCHE_COMPTROLLER"
+    chains["base"]="$BASE_COMPTROLLER"
+    chains["bnb_smart_chain"]="$BSC_COMPTROLLER"
+    chains["gnosis"]="$GNOSIS_COMPTROLLER"
+    chains["mainnet"]="$MAINNET_COMPTROLLER"
+    chains["optimism"]="$OPTIMISM_COMPTROLLER"
+    chains["polygon"]="$POLYGON_COMPTROLLER"
+    chains["sepolia"]="$SEPOLIA_COMPTROLLER"
+    chains["scroll"]="$SCROLL_COMPTROLLER"
 }
 
 if [ -f .env.deployment ]; then
@@ -204,12 +191,6 @@ for ((i=1; i<=$#; i++)); do
 
     # Check if '--deterministic' flag is provided in the arguments
     if [[ ${arg} == "--deterministic" ]]; then
-        echo -e "\nWhat version is this deployment? (1.1.1 or 1.1.2): \c"
-        read VERSION
-        if [[ "${VERSION}" != "1.1.1" && "${VERSION}" != "1.1.2" ]]; then
-            echo -e "\n${EC}Invalid version. Please enter either 1.1.1 or 1.1.2${NC}"
-            exit 1
-        fi
         DETERMINISTIC_DEPLOYMENT=true
     fi
 
@@ -226,10 +207,10 @@ for ((i=1; i<=$#; i++)); do
 
         # Print the chains and their Chain IDs
         for chain in "${sorted_names[@]}"; do
-            IFS=' ' read -r rpc_url api_key chain_id admin comptroller <<< "${chains[$chain]}"
+            IFS=' ' read -r rpc_url api_key admin comptroller <<< "${chains[$chain]}"
 
-            # Print the chain and Chain ID
-            printf "%-20s %-20s\n" "${chain}" "${chain_id}"
+            # Print the chain
+            printf "%-20s %-20s\n" "${chain}"
         done
         exit 0
     fi
@@ -325,10 +306,10 @@ for chain in "${provided_chains[@]}"; do
         read rpc_url
 
         # Get the values from the chains array
-        IFS=' ' read -r chain_id comptroller <<< "${chains[$chain]}"
+        IFS=' ' read -r comptroller <<< "${chains[$chain]}"
     else
-        # Split the configuration into RPC, API key, Chain ID, admin, and comptroller
-        IFS=' ' read -r rpc_url api_key chain_id admin comptroller <<< "${chains[$chain]}"
+        # Split the configuration into RPC, API key, admin, and comptroller
+        IFS=' ' read -r rpc_url api_key admin comptroller <<< "${chains[$chain]}"
     fi
 
     # Declare the deployment command
@@ -340,7 +321,7 @@ for chain in "${provided_chains[@]}"; do
     if [[ ${DETERMINISTIC_DEPLOYMENT} == true ]]; then
         echo -e "${SC}+${NC} Deterministic address"
         if [[ ${sol_script} == "" ]]; then
-            deployment_command+=("script" "script/DeployDeterministicCore3.s.sol")
+            deployment_command+=("script" "script/DeployDeterministicCore3.s.sol" "--ffi")
         else
             deployment_command+=("script" "${sol_script}")
         fi
@@ -352,11 +333,9 @@ for chain in "${provided_chains[@]}"; do
         # echo removes single quotes
         ####################################################################
         if [[ ${READ_ONLY} == true ]]; then
-            deployment_command+=("--sig" "'run(string,address,address,uint256)'")
-            deployment_command+=("'ChainID ${chain_id}, Version ${VERSION}'")
+            deployment_command+=("--sig" "'run(address,address,uint256)'")
         else
-            deployment_command+=("--sig" "run(string,address,address,uint256)")
-            deployment_command+=("ChainID ${chain_id}, Version ${VERSION}")
+            deployment_command+=("--sig" "run(address,address,uint256)")
         fi
     else
         # Construct the command

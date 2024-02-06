@@ -10,10 +10,7 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev Deploys {SablierV2LockupLinear} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
 contract DeployDeterministicLockupLinear is BaseScript {
-    /// @dev The presence of the salt instructs Forge to deploy contracts via this deterministic CREATE2 factory:
-    /// https://github.com/Arachnid/deterministic-deployment-proxy
     function run(
-        string memory create2Salt,
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNFTDescriptor
@@ -23,8 +20,7 @@ contract DeployDeterministicLockupLinear is BaseScript {
         broadcast
         returns (SablierV2LockupLinear lockupLinear)
     {
-        lockupLinear = new SablierV2LockupLinear{ salt: bytes32(abi.encodePacked(create2Salt)) }(
-            initialAdmin, initialComptroller, initialNFTDescriptor
-        );
+        bytes32 salt = constructCreate2Salt();
+        lockupLinear = new SablierV2LockupLinear{ salt: salt }(initialAdmin, initialComptroller, initialNFTDescriptor);
     }
 }
