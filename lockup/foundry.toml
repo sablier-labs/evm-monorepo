@@ -2,6 +2,7 @@
   auto_detect_solc = false
   bytecode_hash = "none"
   emv_version = "paris"
+  ffi = true
   fs_permissions = [{ access = "read", path = "out-optimized" }]
   gas_reports = [
     "SablierV2Comptroller",
