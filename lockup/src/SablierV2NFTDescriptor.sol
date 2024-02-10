@@ -90,9 +90,10 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             generateDescription({
                 streamingModel: vars.streamingModel,
                 assetSymbol: vars.assetSymbol,
-                streamId: streamId.toString(),
                 sablierAddress: vars.sablierAddress,
-                assetAddress: vars.asset.toHexString()
+                assetAddress: vars.asset.toHexString(),
+                streamId: streamId.toString(),
+                isTransferable: vars.sablier.isTransferable(streamId)
             }),
             '","external_url":"https://sablier.com","name":"',
             generateName({ streamingModel: vars.streamingModel, streamId: streamId.toString() }),
@@ -250,14 +251,21 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
     function generateDescription(
         string memory streamingModel,
         string memory assetSymbol,
-        string memory streamId,
         string memory sablierAddress,
-        string memory assetAddress
+        string memory assetAddress,
+        string memory streamId,
+        bool isTransferable
     )
         internal
         pure
         returns (string memory)
     {
+        // Depending on the transferability of the NFT, declare the relevant information.
+        string memory info = isTransferable
+            ?
+            unicode"⚠️ WARNING: Transferring the NFT makes the new owner the recipient of the stream. The funds are not automatically withdrawn for the previous recipient."
+            : unicode"❕INFO: This NFT is non-transferable. It cannot be sold or transferred to another account.";
+
         return string.concat(
             "This NFT represents a payment stream in a Sablier V2 ",
             streamingModel,
@@ -274,7 +282,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             " Address: ",
             assetAddress,
             "\\n\\n",
-            unicode"⚠️ WARNING: Transferring the NFT makes the new owner the recipient of the stream. The funds are not automatically withdrawn for the previous recipient."
+            info
         );
     }
 
