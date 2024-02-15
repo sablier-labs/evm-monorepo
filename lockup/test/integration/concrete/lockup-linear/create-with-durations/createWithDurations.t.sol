@@ -28,30 +28,6 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         expectRevertDueToDelegateCall(success, returnData);
     }
 
-    function test_RevertWhen_CliffDurationCalculationOverflows() external whenNotDelegateCalled {
-        uint40 startTime = getBlockTimestamp();
-        uint40 cliffDuration = MAX_UINT40 - startTime + 1 seconds;
-
-        // Calculate the end time. Needs to be "unchecked" to avoid an overflow.
-        uint40 cliffTime;
-        unchecked {
-            cliffTime = startTime + cliffDuration;
-        }
-
-        // Expect the relevant error to be thrown.
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime
-            )
-        );
-
-        // Set the total duration to be the same as the cliff duration.
-        uint40 totalDuration = cliffDuration;
-
-        // Create the stream.
-        createDefaultStreamWithDurations(LockupLinear.Durations({ cliff: cliffDuration, total: totalDuration }));
-    }
-
     function test_RevertWhen_TotalDurationCalculationOverflows()
         external
         whenNotDelegateCalled
@@ -61,7 +37,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         LockupLinear.Durations memory durations =
             LockupLinear.Durations({ cliff: 0, total: MAX_UINT40 - startTime + 1 seconds });
 
-        // Calculate the cliff time and the end time. Needs to be "unchecked" to avoid an overflow.
+        // Calculate the cliff time and the end time. Needs to be "unchecked" to allow an overflow.
         uint40 cliffTime;
         uint40 endTime;
         unchecked {
@@ -72,7 +48,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
+                Errors.SablierV2LockupLinear_StartTimeNotLessThanEndTime.selector, startTime, endTime
             )
         );
 
@@ -131,8 +107,8 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithDurations();
 
         // Assert that the stream has been created.
-        LockupLinear.Stream memory actualStream = lockupLinear.getStream(streamId);
-        LockupLinear.Stream memory expectedStream = defaults.lockupLinearStream();
+        LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(streamId);
+        LockupLinear.StreamLL memory expectedStream = defaults.lockupLinearStream();
         expectedStream.startTime = range.start;
         expectedStream.cliffTime = range.cliff;
         expectedStream.endTime = range.end;

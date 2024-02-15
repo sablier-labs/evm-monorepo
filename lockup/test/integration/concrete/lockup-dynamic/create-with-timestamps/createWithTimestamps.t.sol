@@ -383,8 +383,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         streamId = createDefaultStreamWithAsset(IERC20(asset));
 
         // Assert that the stream has been created.
-        LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(streamId);
-        LockupDynamic.Stream memory expectedStream = defaults.lockupDynamicStream();
+        LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(streamId);
+        LockupDynamic.StreamLD memory expectedStream = defaults.lockupDynamicStream();
         expectedStream.asset = IERC20(asset);
         assertEq(actualStream, expectedStream);
 

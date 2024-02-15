@@ -305,7 +305,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         vars.isCancelable = vars.isSettled ? false : params.cancelable;
 
         // Assert that the stream has been created.
-        LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(streamId);
+        LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");

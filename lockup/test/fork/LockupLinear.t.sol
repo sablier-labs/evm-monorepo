@@ -121,7 +121,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
         params.protocolFee = _bound(params.protocolFee, 0, MAX_FEE);
         params.range.start = boundUint40(params.range.start, currentTime - 1000 seconds, currentTime + 10_000 seconds);
-        params.range.cliff = boundUint40(params.range.cliff, params.range.start, params.range.start + 52 weeks);
+        params.range.cliff = boundUint40(params.range.cliff, params.range.start + 1, params.range.start + 52 weeks);
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
         params.transferable = true;
 
@@ -193,7 +193,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         );
 
         // Assert that the stream has been created.
-        LockupLinear.Stream memory actualStream = lockupLinear.getStream(vars.streamId);
+        LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, ASSET, "asset");
         assertEq(actualStream.cliffTime, params.range.cliff, "cliffTime");

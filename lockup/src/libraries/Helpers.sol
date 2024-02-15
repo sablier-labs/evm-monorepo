@@ -92,9 +92,19 @@ library Helpers {
             revert Errors.SablierV2Lockup_DepositAmountZero();
         }
 
-        // Checks: the start time is less than or equal to the cliff time.
-        if (range.start > range.cliff) {
-            revert Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime(range.start, range.cliff);
+        // Checks: the start time is not zero.
+        if (range.start == 0) {
+            revert Errors.SablierV2LockupLinear_StartTimeZero();
+        }
+
+        // Checks: the start time is strictly less than the end time.
+        if (range.start >= range.end) {
+            revert Errors.SablierV2LockupLinear_StartTimeNotLessThanEndTime(range.start, range.end);
+        }
+
+        // Checks: the start time is strictly less than the cliff time when cliff time is not zero.
+        if (range.cliff > 0 && range.start >= range.cliff) {
+            revert Errors.SablierV2LockupLinear_StartTimeNotLessThanCliffTime(range.start, range.cliff);
         }
 
         // Checks: the cliff time is strictly less than the end time.

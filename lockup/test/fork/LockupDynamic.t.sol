@@ -197,7 +197,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         vars.isCancelable = vars.isSettled ? false : true;
 
         // Assert that the stream has been created.
-        LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(vars.streamId);
+        LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, ASSET, "asset");
         assertEq(actualStream.endTime, vars.range.end, "endTime");

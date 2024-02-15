@@ -91,8 +91,8 @@ contract Defaults is Constants {
         return LockupDynamic.Range({ start: START_TIME, end: END_TIME });
     }
 
-    function lockupDynamicStream() public view returns (LockupDynamic.Stream memory) {
-        return LockupDynamic.Stream({
+    function lockupDynamicStream() public view returns (LockupDynamic.StreamLD memory) {
+        return LockupDynamic.StreamLD({
             amounts: lockupAmounts(),
             asset: asset,
             endTime: END_TIME,
@@ -111,8 +111,8 @@ contract Defaults is Constants {
         return LockupLinear.Range({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
     }
 
-    function lockupLinearStream() public view returns (LockupLinear.Stream memory) {
-        return LockupLinear.Stream({
+    function lockupLinearStream() public view returns (LockupLinear.StreamLL memory) {
+        return LockupLinear.StreamLL({
             amounts: lockupAmounts(),
             asset: asset,
             cliffTime: CLIFF_TIME,

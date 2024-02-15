@@ -171,8 +171,8 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithDurations();
 
         // Assert that the stream has been created.
-        LockupDynamic.Stream memory actualStream = lockupDynamic.getStream(streamId);
-        LockupDynamic.Stream memory expectedStream = defaults.lockupDynamicStream();
+        LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(streamId);
+        LockupDynamic.StreamLD memory expectedStream = defaults.lockupDynamicStream();
         expectedStream.endTime = range.end;
         expectedStream.segments = segments;
         expectedStream.startTime = range.start;

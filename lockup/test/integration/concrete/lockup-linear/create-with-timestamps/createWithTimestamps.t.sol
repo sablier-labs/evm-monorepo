@@ -46,18 +46,80 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithTotalAmount(0);
     }
 
+    function test_RevertWhen_StartTimeZero() external whenNotDelegateCalled whenRecipientNonZeroAddress {
+        uint40 cliffTime = defaults.CLIFF_TIME();
+        uint40 endTime = defaults.END_TIME();
+
+        vm.expectRevert(Errors.SablierV2LockupLinear_StartTimeZero.selector);
+        createDefaultStreamWithRange(LockupLinear.Range({ start: 0, cliff: cliffTime, end: endTime }));
+    }
+
+    modifier whenCliffTimeZero() {
+        _;
+    }
+
+    function test_RevertWhen_StartTimeGreaterThanEndTime()
+        external
+        whenNotDelegateCalled
+        whenRecipientNonZeroAddress
+        whenCliffTimeZero
+    {
+        uint40 startTime = defaults.END_TIME();
+        uint40 endTime = defaults.START_TIME();
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierV2LockupLinear_StartTimeNotLessThanEndTime.selector, startTime, endTime
+            )
+        );
+        createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: 0, end: endTime }));
+    }
+
+    function test_CreateWithTimestamps_CliffTimeZero()
+        external
+        whenNotDelegateCalled
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenCliffTimeZero
+    {
+        createDefaultStreamWithRange(
+            LockupLinear.Range({ start: defaults.START_TIME(), cliff: 0, end: defaults.END_TIME() })
+        );
+
+        // Assert that the stream has been created.
+        LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(streamId);
+        LockupLinear.StreamLL memory expectedStream = defaults.lockupLinearStream();
+        expectedStream.cliffTime = 0;
+        assertEq(actualStream, expectedStream);
+
+        // Assert that the next stream id has been bumped.
+        uint256 actualNextStreamId = lockupLinear.nextStreamId();
+        uint256 expectedNextStreamId = streamId + 1;
+        assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
+
+        // Assert that the NFT has been minted.
+        address actualNFTOwner = lockupLinear.ownerOf({ tokenId: streamId });
+        address expectedNFTOwner = users.recipient;
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
+    }
+
+    modifier whenCliffTimeGreaterThanZero() {
+        _;
+    }
+
     function test_RevertWhen_StartTimeGreaterThanCliffTime()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenCliffTimeGreaterThanZero
     {
         uint40 startTime = defaults.CLIFF_TIME();
         uint40 cliffTime = defaults.START_TIME();
         uint40 endTime = defaults.END_TIME();
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeGreaterThanCliffTime.selector, startTime, cliffTime
+                Errors.SablierV2LockupLinear_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime
             )
         );
         createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime }));
@@ -68,6 +130,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
     {
         uint40 startTime = defaults.START_TIME();
@@ -86,6 +149,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
@@ -101,6 +165,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
@@ -124,6 +189,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
@@ -139,6 +205,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
@@ -155,6 +222,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
@@ -169,6 +237,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         external
         whenNotDelegateCalled
         whenDepositAmountNotZero
+        whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
@@ -222,8 +291,8 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithAsset(IERC20(asset));
 
         // Assert that the stream has been created.
-        LockupLinear.Stream memory actualStream = lockupLinear.getStream(streamId);
-        LockupLinear.Stream memory expectedStream = defaults.lockupLinearStream();
+        LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(streamId);
+        LockupLinear.StreamLL memory expectedStream = defaults.lockupLinearStream();
         expectedStream.asset = IERC20(asset);
         assertEq(actualStream, expectedStream);
 
