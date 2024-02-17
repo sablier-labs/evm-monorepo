@@ -18,8 +18,7 @@ import { BaseScript } from "./Base.s.sol";
 contract DeployDeterministicCore3 is BaseScript {
     function run(
         address initialAdmin,
-        ISablierV2Comptroller comptroller,
-        uint256 maxSegmentCount
+        ISablierV2Comptroller comptroller
     )
         public
         virtual
@@ -32,8 +31,7 @@ contract DeployDeterministicCore3 is BaseScript {
     {
         bytes32 salt = constructCreate2Salt();
         nftDescriptor = new SablierV2NFTDescriptor{ salt: salt }();
-        lockupDynamic =
-            new SablierV2LockupDynamic{ salt: salt }(initialAdmin, comptroller, nftDescriptor, maxSegmentCount);
+        lockupDynamic = new SablierV2LockupDynamic{ salt: salt }(initialAdmin, comptroller, nftDescriptor, maxCount);
         lockupLinear = new SablierV2LockupLinear{ salt: salt }(initialAdmin, comptroller, nftDescriptor);
     }
 }

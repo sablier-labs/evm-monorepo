@@ -16,8 +16,7 @@ import { BaseScript } from "./Base.s.sol";
 contract DeployCore2 is BaseScript {
     function run(
         address initialAdmin,
-        ISablierV2NFTDescriptor nftDescriptor,
-        uint256 maxSegmentCount
+        ISablierV2NFTDescriptor nftDescriptor
     )
         public
         virtual
@@ -29,7 +28,7 @@ contract DeployCore2 is BaseScript {
         )
     {
         comptroller = new SablierV2Comptroller(initialAdmin);
-        lockupDynamic = new SablierV2LockupDynamic(initialAdmin, comptroller, nftDescriptor, maxSegmentCount);
+        lockupDynamic = new SablierV2LockupDynamic(initialAdmin, comptroller, nftDescriptor, maxCount);
         lockupLinear = new SablierV2LockupLinear(initialAdmin, comptroller, nftDescriptor);
     }
 }

@@ -17,10 +17,7 @@ import { BaseScript } from "./Base.s.sol";
 ///
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicCore is BaseScript {
-    function run(
-        address initialAdmin,
-        uint256 maxSegmentCount
-    )
+    function run(address initialAdmin)
         public
         virtual
         broadcast
@@ -34,8 +31,7 @@ contract DeployDeterministicCore is BaseScript {
         bytes32 salt = constructCreate2Salt();
         comptroller = new SablierV2Comptroller{ salt: salt }(initialAdmin);
         nftDescriptor = new SablierV2NFTDescriptor{ salt: salt }();
-        lockupDynamic =
-            new SablierV2LockupDynamic{ salt: salt }(initialAdmin, comptroller, nftDescriptor, maxSegmentCount);
+        lockupDynamic = new SablierV2LockupDynamic{ salt: salt }(initialAdmin, comptroller, nftDescriptor, maxCount);
         lockupLinear = new SablierV2LockupLinear{ salt: salt }(initialAdmin, comptroller, nftDescriptor);
     }
 }

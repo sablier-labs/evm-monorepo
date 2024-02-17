@@ -138,9 +138,6 @@ function initialize_interactive {
     echo -e "2. Enter Etherscan API key: \c"
     read api_key
 
-    echo -e "3. Enter max segment count: \c"
-    read MAX_SEGMENT_COUNT
-
     # Comptroller only
     chains["arbitrum"]="$ARBITRUM_COMPTROLLER"
     chains["arbitrum_sepolia"]="$ARBITRUM_SEPOLIA_COMPTROLLER"
@@ -355,7 +352,6 @@ for chain in "${provided_chains[@]}"; do
 
     deployment_command+=("${admin}")
     deployment_command+=("${comptroller}")
-    deployment_command+=("${MAX_SEGMENT_COUNT}")
     deployment_command+=("-vvv")
 
     # Append additional options if gas price is enabled

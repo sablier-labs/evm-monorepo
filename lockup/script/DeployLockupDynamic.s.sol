@@ -11,15 +11,13 @@ contract DeployLockupDynamic is BaseScript {
     function run(
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
-        ISablierV2NFTDescriptor initialNFTDescriptor,
-        uint256 maxSegmentCount
+        ISablierV2NFTDescriptor initialNFTDescriptor
     )
         public
         virtual
         broadcast
         returns (SablierV2LockupDynamic lockupDynamic)
     {
-        lockupDynamic =
-            new SablierV2LockupDynamic(initialAdmin, initialComptroller, initialNFTDescriptor, maxSegmentCount);
+        lockupDynamic = new SablierV2LockupDynamic(initialAdmin, initialComptroller, initialNFTDescriptor, maxCount);
     }
 }

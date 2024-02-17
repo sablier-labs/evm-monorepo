@@ -13,8 +13,7 @@ contract DeployDeterministicLockupDynamic is BaseScript {
     function run(
         address initialAdmin,
         ISablierV2Comptroller initialComptroller,
-        ISablierV2NFTDescriptor initialNFTDescriptor,
-        uint256 maxSegmentCount
+        ISablierV2NFTDescriptor initialNFTDescriptor
     )
         public
         virtual
@@ -22,8 +21,7 @@ contract DeployDeterministicLockupDynamic is BaseScript {
         returns (SablierV2LockupDynamic lockupDynamic)
     {
         bytes32 salt = constructCreate2Salt();
-        lockupDynamic = new SablierV2LockupDynamic{ salt: salt }(
-            initialAdmin, initialComptroller, initialNFTDescriptor, maxSegmentCount
-        );
+        lockupDynamic =
+            new SablierV2LockupDynamic{ salt: salt }(initialAdmin, initialComptroller, initialNFTDescriptor, maxCount);
     }
 }

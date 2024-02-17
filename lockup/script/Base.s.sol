@@ -10,6 +10,9 @@ import { Script } from "forge-std/src/Script.sol";
 contract BaseScript is Script {
     using Strings for uint256;
 
+    /// @dev The Avalanche chain ID.
+    uint256 internal constant AVALANCHE_CHAIN_ID = 43_114;
+
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
 
@@ -18,6 +21,10 @@ contract BaseScript is Script {
 
     /// @dev The address of the transaction broadcaster.
     address internal broadcaster;
+
+    /// @dev The upper limit on the length of data structures to ensure that transactions stay within the
+    /// block gas limit.
+    uint256 internal maxCount;
 
     /// @dev Used to derive the broadcaster's address if $ETH_FROM is not defined.
     string internal mnemonic;
@@ -36,6 +43,13 @@ contract BaseScript is Script {
         } else {
             mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
+        }
+
+        // Sets `maxCount` to 300 for Avalanche, and 500 for all other chains.
+        if (block.chainid == AVALANCHE_CHAIN_ID) {
+            maxCount = 300;
+        } else {
+            maxCount = 500;
         }
     }
 
