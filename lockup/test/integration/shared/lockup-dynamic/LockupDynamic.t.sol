@@ -147,4 +147,19 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         params.totalAmount = totalAmount;
         streamId = lockupDynamic.createWithTimestamps(params);
     }
+
+    /// @dev Creates the default stream with the provided sender and recipient.
+    function createDefaultStreamWithUsers(
+        address recipient,
+        address sender
+    )
+        internal
+        override
+        returns (uint256 streamId)
+    {
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
+        params.sender = sender;
+        params.recipient = recipient;
+        streamId = lockupDynamic.createWithTimestamps(params);
+    }
 }

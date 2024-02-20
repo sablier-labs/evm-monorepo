@@ -16,10 +16,6 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         Withdraw_Integration_Shared_Test.setUp();
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                       TESTS
-    //////////////////////////////////////////////////////////////////////////*/
-
     function test_RevertWhen_DelegateCalled() external {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
         bytes memory callData =
@@ -197,10 +193,6 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         test_Withdraw_CallerRecipient(defaultStreamId, users.sender);
     }
 
-    modifier givenSenderContract() {
-        _;
-    }
-
     function test_Withdraw_SenderDoesNotImplementHook()
         external
         whenNotDelegateCalled
@@ -316,7 +308,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         test_Withdraw_CallerRecipient(streamId, address(goodSender));
     }
 
-    function test_Withdraw_CallerUnknownAddress()
+    function test_Withdraw_CallerUnknown()
         external
         whenNotDelegateCalled
         givenNotNull
@@ -457,10 +449,6 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
         whenStreamHasNotBeenCanceled
     {
         test_Withdraw_CallerSender(defaultStreamId, users.recipient);
-    }
-
-    modifier givenRecipientContract() {
-        _;
     }
 
     function test_Withdraw_RecipientDoesNotImplementHook()

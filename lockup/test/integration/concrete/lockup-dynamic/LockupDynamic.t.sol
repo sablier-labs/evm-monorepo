@@ -31,8 +31,9 @@ import { SetComptroller_Integration_Concrete_Test } from "../lockup/set-comptrol
 import { SetNFTDescriptor_Integration_Concrete_Test } from "../lockup/set-nft-descriptor/setNFTDescriptor.t.sol";
 import { StatusOf_Integration_Concrete_Test } from "../lockup/status-of/statusOf.t.sol";
 import { TransferFrom_Integration_Concrete_Test } from "../lockup/transfer-from/transferFrom.t.sol";
-import { Withdraw_Integration_Concrete_Test } from "../lockup/withdraw/withdraw.t.sol";
 import { WasCanceled_Integration_Concrete_Test } from "../lockup/was-canceled/wasCanceled.t.sol";
+import { Withdraw_Integration_Concrete_Test } from "../lockup/withdraw/withdraw.t.sol";
+import { WithdrawHooks_Integration_Concrete_Test } from "../lockup/withdraw-hooks/withdrawHooks.t.sol";
 import { WithdrawMax_Integration_Concrete_Test } from "../lockup/withdraw-max/withdrawMax.t.sol";
 import { WithdrawMaxAndTransfer_Integration_Concrete_Test } from
     "../lockup/withdraw-max-and-transfer/withdrawMaxAndTransfer.t.sol";
@@ -431,6 +432,20 @@ contract Withdraw_LockupDynamic_Integration_Concrete_Test is
     {
         LockupDynamic_Integration_Concrete_Test.setUp();
         Withdraw_Integration_Concrete_Test.setUp();
+    }
+}
+
+contract WithdrawHooks_LockupDynamic_Integration_Concrete_Test is
+    LockupDynamic_Integration_Concrete_Test,
+    WithdrawHooks_Integration_Concrete_Test
+{
+    function setUp()
+        public
+        virtual
+        override(LockupDynamic_Integration_Concrete_Test, WithdrawHooks_Integration_Concrete_Test)
+    {
+        LockupDynamic_Integration_Concrete_Test.setUp();
+        WithdrawHooks_Integration_Concrete_Test.setUp();
     }
 }
 

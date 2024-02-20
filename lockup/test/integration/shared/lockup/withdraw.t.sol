@@ -51,4 +51,12 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
     modifier whenStreamHasNotBeenCanceled() {
         _;
     }
+
+    modifier givenSenderContract() {
+        _;
+    }
+
+    modifier givenRecipientContract() {
+        _;
+    }
 }
