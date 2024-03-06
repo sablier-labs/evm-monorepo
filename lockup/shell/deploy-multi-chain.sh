@@ -165,7 +165,7 @@ else
     # load values from the terminal prompt
     echo -e "${WC}Missing '.env.deployment'. Provide details below: ${NC}\n"
 
-    # initialize chains with chain id and comptroller
+    # initialize chains with comptroller
     initialize_interactive
 
 fi
@@ -199,10 +199,10 @@ for ((i=1; i<=$#; i++)); do
         # Sort the names
         sorted_names=($(printf "%s\n" "${names[@]}" | sort))
         # Print the header
-        printf "\nSupported chains: \n%-20s %-20s\n" "Chain Name" "Chain ID"
-        printf "%-20s %-20s\n" "-----------" "-----------"
+        printf "\nSupported chains: \n%-20s %-20s\n" "Chain Name"
+        printf "%-20s %-20s\n" "-----------"
 
-        # Print the chains and their Chain IDs
+        # Print the supported chains
         for chain in "${sorted_names[@]}"; do
             IFS=' ' read -r rpc_url api_key admin comptroller <<< "${chains[$chain]}"
 
@@ -217,7 +217,7 @@ for ((i=1; i<=$#; i++)); do
         INTERACTIVE=true
         echo -e "Interactive mode activated. Provide details below: \n"
 
-        # initialize only chain id and comptroller
+        # initialize only comptroller
         initialize_interactive
     fi
 
@@ -330,9 +330,9 @@ for chain in "${provided_chains[@]}"; do
         # echo removes single quotes
         ####################################################################
         if [[ ${READ_ONLY} == true ]]; then
-            deployment_command+=("--sig" "'run(address,address,uint256)'")
+            deployment_command+=("--sig" "'run(address,address)'")
         else
-            deployment_command+=("--sig" "run(address,address,uint256)")
+            deployment_command+=("--sig" "run(address,address)")
         fi
     else
         # Construct the command
@@ -344,9 +344,9 @@ for chain in "${provided_chains[@]}"; do
         deployment_command+=("--rpc-url" "${rpc_url}")
 
         if [[ ${READ_ONLY} == true ]]; then
-            deployment_command+=("--sig" "'run(address,address,uint256)'")
+            deployment_command+=("--sig" "'run(address,address)'")
         else
-            deployment_command+=("--sig" "run(address,address,uint256)")
+            deployment_command+=("--sig" "run(address,address)")
         fi
     fi
 
@@ -389,12 +389,14 @@ for chain in "${provided_chains[@]}"; do
         # Extract and save contract addresses
         lockupDynamic_address=$(echo "${output}" | awk '/lockupDynamic: contract/{print $NF}')
         lockupLinear_address=$(echo "${output}" | awk '/lockupLinear: contract/{print $NF}')
+        lockupTranched_address=$(echo "${output}" | awk '/lockupTranched: contract/{print $NF}')
         nftDescriptor_address=$(echo "${output}" | awk '/nftDescriptor: contract/{print $NF}')
 
         # Save to the chain file
         {
             echo "SablierV2LockupDynamic = ${lockupDynamic_address}"
             echo "SablierV2LockupLinear = ${lockupLinear_address}"
+            echo "SablierV2LockupTranched = ${lockupTranched_address}"
             echo "SablierV2NFTDescriptor = ${nftDescriptor_address}"
         } >> "$chain_file"
 
