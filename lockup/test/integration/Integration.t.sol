@@ -27,17 +27,11 @@ abstract contract Integration_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Deploy V2 Core.
-        deployCoreConditionally();
-
         // Label the contracts.
         labelContracts();
 
         // Make the Admin the default caller in this test suite.
-        vm.startPrank({ msgSender: users.admin });
-
-        // Approve V2 Core to spend assets from the users.
-        approveProtocol();
+        changePrank({ msgSender: users.admin });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -49,9 +49,8 @@ abstract contract LockupHandler is BaseHandler {
 
     modifier useAdmin() {
         address admin = lockup.admin();
-        vm.startPrank(admin);
+        changePrank(admin);
         _;
-        vm.stopPrank();
     }
 
     /// @dev Picks a random stream from the store.
@@ -69,17 +68,15 @@ abstract contract LockupHandler is BaseHandler {
     modifier useFuzzedStreamRecipient() {
         uint256 lastStreamId = lockupStore.lastStreamId();
         currentRecipient = lockupStore.recipients(currentStreamId);
-        vm.startPrank(currentRecipient);
+        changePrank(currentRecipient);
         _;
-        vm.stopPrank();
     }
 
     modifier useFuzzedStreamSender() {
         uint256 lastStreamId = lockupStore.lastStreamId();
         currentSender = lockupStore.senders(currentStreamId);
-        vm.startPrank(currentSender);
+        changePrank(currentSender);
         _;
-        vm.stopPrank();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

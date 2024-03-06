@@ -66,7 +66,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenDepositAmountNotZero
         whenSegmentCountNotZero
     {
-        uint256 segmentCount = defaults.MAX_SEGMENT_COUNT() + 1;
+        uint256 segmentCount = defaults.MAX_COUNT() + 1;
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, segmentCount)

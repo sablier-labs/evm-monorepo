@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/utils/Assertions.sol";
 import { PRBTest } from "@prb/test/src/PRBTest.sol";
 
-import { Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
 
 abstract contract Assertions is PRBTest, PRBMathAssertions {
     /*//////////////////////////////////////////////////////////////////////////
@@ -13,6 +13,8 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     //////////////////////////////////////////////////////////////////////////*/
 
     event LogNamedArray(string key, LockupDynamic.Segment[] segments);
+
+    event LogNamedArray(string key, LockupTranched.Tranche[] tranches);
 
     event LogNamedUint128(string key, uint128 value);
 
@@ -68,6 +70,20 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.wasCanceled, b.wasCanceled, "wasCanceled");
     }
 
+    /// @dev Compares two {LockupTranched.Stream} struct entities.
+    function assertEq(LockupTranched.StreamLT memory a, LockupTranched.StreamLT memory b) internal {
+        assertEq(a.asset, b.asset, "asset");
+        assertEq(a.endTime, b.endTime, "endTime");
+        assertEq(a.isCancelable, b.isCancelable, "isCancelable");
+        assertEq(a.isDepleted, b.isDepleted, "isDepleted");
+        assertEq(a.isTransferable, b.isTransferable, "isTransferable");
+        assertEq(a.isStream, b.isStream, "isStream");
+        assertEq(a.sender, b.sender, "sender");
+        assertEq(a.startTime, b.startTime, "startTime");
+        assertEq(a.tranches, b.tranches, "tranches");
+        assertEq(a.wasCanceled, b.wasCanceled, "wasCanceled");
+    }
+
     /// @dev Compares two {LockupLinear.Range} struct entities.
     function assertEq(LockupLinear.Range memory a, LockupLinear.Range memory b) internal {
         assertEqUint40(a.cliff, b.cliff, "range.cliff");
@@ -77,6 +93,12 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
 
     /// @dev Compares two {LockupDynamic.Range} struct entities.
     function assertEq(LockupDynamic.Range memory a, LockupDynamic.Range memory b) internal {
+        assertEqUint40(a.end, b.end, "range.end");
+        assertEqUint40(a.start, b.start, "range.start");
+    }
+
+    /// @dev Compares two {LockupTranched.Range} struct entities.
+    function assertEq(LockupTranched.Range memory a, LockupTranched.Range memory b) internal {
         assertEqUint40(a.end, b.end, "range.end");
         assertEqUint40(a.start, b.start, "range.start");
     }
@@ -93,6 +115,30 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
 
     /// @dev Compares two `LockupDynamic.Segment[]` arrays.
     function assertEq(LockupDynamic.Segment[] memory a, LockupDynamic.Segment[] memory b, string memory err) internal {
+        if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
+            emit LogNamedString("Error", err);
+            assertEq(a, b);
+        }
+    }
+
+    /// @dev Compares two {LockupTranched.Tranche[]} arrays.
+    function assertEq(LockupTranched.Tranche[] memory a, LockupTranched.Tranche[] memory b) internal {
+        if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
+            emit Log("Error: a == b not satisfied [LockupTranched.Tranche[]]");
+            emit LogNamedArray("   Left", b);
+            emit LogNamedArray("  Right", a);
+            fail();
+        }
+    }
+
+    /// @dev Compares two `LockupTranched.Tranche[]` arrays.
+    function assertEq(
+        LockupTranched.Tranche[] memory a,
+        LockupTranched.Tranche[] memory b,
+        string memory err
+    )
+        internal
+    {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
             emit LogNamedString("Error", err);
             assertEq(a, b);

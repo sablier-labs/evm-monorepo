@@ -44,12 +44,7 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The maximum number of segments allowed in a stream.
-    /// @dev This is initialized at construction time and cannot be changed later.
-    function MAX_SEGMENT_COUNT() external view returns (uint256);
-
-    /// @notice Retrieves the stream's range, which is a struct containing (i) the stream's start time and (ii) end
-    /// time, both as Unix timestamps.
+    /// @notice Retrieves the stream's range, which is a struct documented in {DataTypes}.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function getRange(uint256 streamId) external view returns (LockupDynamic.Range memory range);
@@ -63,6 +58,10 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function getStream(uint256 streamId) external view returns (LockupDynamic.StreamLD memory stream);
+
+    /// @notice The maximum number of segments allowed in a stream.
+    /// @dev This is initialized at construction time and cannot be changed later.
+    function MAX_SEGMENT_COUNT() external view returns (uint256);
 
     /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
     ///

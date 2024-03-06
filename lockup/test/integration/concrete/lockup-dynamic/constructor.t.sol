@@ -16,7 +16,7 @@ contract Constructor_LockupDynamic_Integration_Concrete_Test is LockupDynamic_In
             initialAdmin: users.admin,
             initialComptroller: comptroller,
             initialNFTDescriptor: nftDescriptor,
-            maxSegmentCount: defaults.MAX_SEGMENT_COUNT()
+            maxSegmentCount: defaults.MAX_COUNT()
         });
 
         // {SablierV2Base.constructor}
@@ -39,7 +39,7 @@ contract Constructor_LockupDynamic_Integration_Concrete_Test is LockupDynamic_In
 
         // {SablierV2LockupDynamic.constructor}
         uint256 actualMaxSegmentCount = constructedLockupDynamic.MAX_SEGMENT_COUNT();
-        uint256 expectedMaxSegmentCount = defaults.MAX_SEGMENT_COUNT();
-        assertEq(actualMaxSegmentCount, expectedMaxSegmentCount, "MAX_SEGMENT_COUNT");
+        uint256 expectedMaxSegmentCount = defaults.MAX_COUNT();
+        assertEq(actualMaxSegmentCount, expectedMaxSegmentCount, "MAX_COUNT");
     }
 }

@@ -98,6 +98,7 @@ contract SablierV2LockupLinear is
         notNull(streamId)
         returns (LockupLinear.StreamLL memory stream)
     {
+        // Retrieve the lockup stream from storage.
         Lockup.Stream memory lockupStream = _streams[streamId];
 
         // Settled streams cannot be canceled.

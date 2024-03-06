@@ -110,6 +110,7 @@ contract SablierV2LockupDynamic is
         notNull(streamId)
         returns (LockupDynamic.StreamLD memory stream)
     {
+        // Retrieve the lockup stream from storage.
         Lockup.Stream memory lockupStream = _streams[streamId];
 
         // Settled streams cannot be canceled.

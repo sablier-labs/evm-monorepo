@@ -10,7 +10,7 @@ abstract contract Adminable_Unit_Shared_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
         deployConditionally();
-        vm.startPrank({ msgSender: users.admin });
+        changePrank({ msgSender: users.admin });
     }
 
     /// @dev Conditionally deploys {AdminableMock} normally or from a source precompiled with `--via-ir`.

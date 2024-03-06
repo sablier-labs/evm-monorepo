@@ -32,14 +32,11 @@ abstract contract Invariant_Test is Base_Test, StdInvariant {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        // Deploy V2 Core.
-        deployCoreConditionally();
-
         // Deploy the handlers.
         timestampStore = new TimestampStore();
         comptrollerHandler =
             new ComptrollerHandler({ asset_: dai, comptroller_: comptroller, timestampStore_: timestampStore });
-        vm.prank({ msgSender: users.admin });
+        changePrank(users.admin);
         comptroller.transferAdmin(address(comptrollerHandler));
 
         // Label the handlers.
