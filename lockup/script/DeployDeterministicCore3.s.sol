@@ -2,9 +2,10 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { ISablierV2Comptroller } from "../src/interfaces/ISablierV2Comptroller.sol";
-import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
 import { SablierV2LockupDynamic } from "../src/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "../src/SablierV2LockupLinear.sol";
+import { SablierV2LockupTranched } from "../src/SablierV2LockupTranched.sol";
+import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
@@ -13,6 +14,7 @@ import { BaseScript } from "./Base.s.sol";
 /// 1. {SablierV2NFTDescriptor}
 /// 2. {SablierV2LockupDynamic}
 /// 3. {SablierV2LockupLinear}
+/// 4. {SablierV2LockupTranched}
 ///
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicCore3 is BaseScript {
@@ -26,12 +28,14 @@ contract DeployDeterministicCore3 is BaseScript {
         returns (
             SablierV2NFTDescriptor nftDescriptor,
             SablierV2LockupDynamic lockupDynamic,
-            SablierV2LockupLinear lockupLinear
+            SablierV2LockupLinear lockupLinear,
+            SablierV2LockupTranched lockupTranched
         )
     {
         bytes32 salt = constructCreate2Salt();
         nftDescriptor = new SablierV2NFTDescriptor{ salt: salt }();
         lockupDynamic = new SablierV2LockupDynamic{ salt: salt }(initialAdmin, comptroller, nftDescriptor, maxCount);
         lockupLinear = new SablierV2LockupLinear{ salt: salt }(initialAdmin, comptroller, nftDescriptor);
+        lockupTranched = new SablierV2LockupTranched{ salt: salt }(initialAdmin, comptroller, nftDescriptor, maxCount);
     }
 }

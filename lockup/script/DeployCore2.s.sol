@@ -5,6 +5,7 @@ import { ISablierV2NFTDescriptor } from "../src/interfaces/ISablierV2NFTDescript
 import { SablierV2Comptroller } from "../src/SablierV2Comptroller.sol";
 import { SablierV2LockupDynamic } from "../src/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "../src/SablierV2LockupLinear.sol";
+import { SablierV2LockupTranched } from "../src/SablierV2LockupTranched.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
@@ -13,6 +14,7 @@ import { BaseScript } from "./Base.s.sol";
 /// 1. {SablierV2Comptroller}
 /// 2. {SablierV2LockupDynamic}
 /// 3. {SablierV2LockupLinear}
+/// 4. {SablierV2LockupTranched}
 contract DeployCore2 is BaseScript {
     function run(
         address initialAdmin,
@@ -24,11 +26,13 @@ contract DeployCore2 is BaseScript {
         returns (
             SablierV2Comptroller comptroller,
             SablierV2LockupDynamic lockupDynamic,
-            SablierV2LockupLinear lockupLinear
+            SablierV2LockupLinear lockupLinear,
+            SablierV2LockupTranched lockupTranched
         )
     {
         comptroller = new SablierV2Comptroller(initialAdmin);
         lockupDynamic = new SablierV2LockupDynamic(initialAdmin, comptroller, nftDescriptor, maxCount);
         lockupLinear = new SablierV2LockupLinear(initialAdmin, comptroller, nftDescriptor);
+        lockupTranched = new SablierV2LockupTranched(initialAdmin, comptroller, nftDescriptor, maxCount);
     }
 }
