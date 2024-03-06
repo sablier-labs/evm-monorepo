@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { Lockup, LockupDynamic, LockupLinear } from "../types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../types/DataTypes.sol";
 import { Errors } from "./Errors.sol";
 
 /// @title Helpers
@@ -119,6 +119,36 @@ library Helpers {
         }
     }
 
+    /// @dev Checks the parameters of the {SablierV2LockupTranched-_createWithTimestamps} function.
+    function checkCreateWithTimestamps(
+        uint128 depositAmount,
+        LockupTranched.Tranche[] memory tranches,
+        uint256 maxTrancheCount,
+        uint40 startTime
+    )
+        internal
+        view
+    {
+        // Checks: the deposit amount is not zero.
+        if (depositAmount == 0) {
+            revert Errors.SablierV2Lockup_DepositAmountZero();
+        }
+
+        // Checks: the tranche count is not zero.
+        uint256 trancheCount = tranches.length;
+        if (trancheCount == 0) {
+            revert Errors.SablierV2LockupTranched_TrancheCountZero();
+        }
+
+        // Checks: the tranche count is not greater than the maximum allowed.
+        if (trancheCount > maxTrancheCount) {
+            revert Errors.SablierV2LockupTranched_TrancheCountTooHigh(trancheCount);
+        }
+
+        // Checks: requirements of tranches variables.
+        _checkTranches(tranches, depositAmount, startTime);
+    }
+
     /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the timestamps.
     function checkDurationsAndCalculateTimestamps(LockupDynamic.SegmentWithDuration[] memory segments)
         internal
@@ -147,6 +177,35 @@ library Helpers {
                     amount: segments[i].amount,
                     exponent: segments[i].exponent,
                     timestamp: segmentsWithTimestamps[i - 1].timestamp + segments[i].duration
+                });
+            }
+        }
+    }
+
+    /// @dev Checks that the tranche array counts match, and then adjusts the tranches by calculating the timestamps.
+    function checkDurationsAndCalculateTimestamps(LockupTranched.TrancheWithDuration[] memory tranches)
+        internal
+        view
+        returns (LockupTranched.Tranche[] memory tranchesWithTimestamps)
+    {
+        uint256 trancheCount = tranches.length;
+        tranchesWithTimestamps = new LockupTranched.Tranche[](trancheCount);
+
+        // Make the current time the stream's start time.
+        uint40 startTime = uint40(block.timestamp);
+
+        // It is safe to use unchecked arithmetic because {_createWithTimestamps} will nonetheless check the soundness
+        // of the calculated tranche timestamps.
+        unchecked {
+            // Precompute the first tranche because of the need to add the start time to the first tranche duration.
+            tranchesWithTimestamps[0] =
+                LockupTranched.Tranche({ amount: tranches[0].amount, timestamp: startTime + tranches[0].duration });
+
+            // Copy the tranche amounts and calculate the tranche timestamps.
+            for (uint256 i = 1; i < trancheCount; ++i) {
+                tranchesWithTimestamps[i] = LockupTranched.Tranche({
+                    amount: tranches[i].amount,
+                    timestamp: tranchesWithTimestamps[i - 1].timestamp + tranches[i].duration
                 });
             }
         }
@@ -214,6 +273,68 @@ library Helpers {
         if (depositAmount != segmentAmountsSum) {
             revert Errors.SablierV2LockupDynamic_DepositAmountNotEqualToSegmentAmountsSum(
                 depositAmount, segmentAmountsSum
+            );
+        }
+    }
+
+    /// @dev Checks that:
+    ///
+    /// 1. The first timestamp is strictly greater than the start time.
+    /// 2. The timestamps are ordered chronologically.
+    /// 3. There are no duplicate timestamps.
+    /// 4. The deposit amount is equal to the sum of all tranche amounts.
+    function _checkTranches(
+        LockupTranched.Tranche[] memory tranches,
+        uint128 depositAmount,
+        uint40 startTime
+    )
+        private
+        view
+    {
+        // Checks: the start time is strictly less than the first tranche timestamp.
+        if (startTime >= tranches[0].timestamp) {
+            revert Errors.SablierV2LockupTranched_StartTimeNotLessThanFirstTrancheTimestamp(
+                startTime, tranches[0].timestamp
+            );
+        }
+
+        // Pre-declare the variables needed in the for loop.
+        uint128 trancheAmountsSum;
+        uint40 currentTimestamp;
+        uint40 previousTimestamp;
+
+        // Iterate over the tranches to:
+        //
+        // 1. Calculate the sum of all tranche amounts.
+        // 2. Check that the timestamps are ordered.
+        uint256 count = tranches.length;
+        for (uint256 index = 0; index < count; ++index) {
+            // Add the current tranche amount to the sum.
+            trancheAmountsSum += tranches[index].amount;
+
+            // Checks: the current timestamp is strictly greater than the previous timestamp.
+            currentTimestamp = tranches[index].timestamp;
+            if (currentTimestamp <= previousTimestamp) {
+                revert Errors.SablierV2LockupTranched_TrancheTimestampsNotOrdered(
+                    index, previousTimestamp, currentTimestamp
+                );
+            }
+
+            // Make the current timestamp the previous timestamp of the next loop iteration.
+            previousTimestamp = currentTimestamp;
+        }
+
+        // Checks: the last timestamp is in the future.
+        // When the loop exits, the current timestamp is the last timestamp, i.e. the stream's end time.
+        uint40 currentTime = uint40(block.timestamp);
+        if (currentTime >= currentTimestamp) {
+            revert Errors.SablierV2Lockup_EndTimeNotInTheFuture(currentTime, currentTimestamp);
+        }
+
+        // Checks: the deposit amount is equal to the tranche amounts sum.
+        if (depositAmount != trancheAmountsSum) {
+            revert Errors.SablierV2LockupTranched_DepositAmountNotEqualToTrancheAmountsSum(
+                depositAmount, trancheAmountsSum
             );
         }
     }

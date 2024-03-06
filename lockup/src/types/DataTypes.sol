@@ -12,6 +12,7 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 // - Lockup
 // - LockupDynamic
 // - LockupLinear
+// - LockupTranched
 //
 // You will notice that some structs contain "slot" annotations - they are used to indicate the
 // storage layout of the struct. It is more gas efficient to group small data types together so
@@ -278,5 +279,100 @@ library LockupLinear {
         bool isTransferable;
         Lockup.Amounts amounts;
         uint40 cliffTime;
+    }
+}
+
+/// @notice Namespace for the structs used in {SablierV2LockupTranched}.
+library LockupTranched {
+    /// @notice Struct encapsulating the parameters for the {SablierV2LockupTranched.createWithDurations} function.
+    /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
+    /// same as `msg.sender`.
+    /// @param recipient The address receiving the assets.
+    /// @param totalAmount The total amount of ERC-20 assets to be paid, including the stream deposit and any potential
+    /// fees, all denoted in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param cancelable Indicates if the stream is cancelable.
+    /// @param transferable Indicates if the stream NFT is transferable.
+    /// @param tranches Tranches with durations used to compose the custom streaming curve. Timestamps are calculated by
+    /// starting from `block.timestamp` and adding each duration to the previous timestamp.
+    /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
+    struct CreateWithDurations {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        IERC20 asset;
+        bool cancelable;
+        bool transferable;
+        TrancheWithDuration[] tranches;
+        Broker broker;
+    }
+
+    /// @notice Struct encapsulating the parameters for the {SablierV2LockupTranched.createWithTimestamps}
+    /// function.
+    /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
+    /// same as `msg.sender`.
+    /// @param recipient The address receiving the assets.
+    /// @param totalAmount The total amount of ERC-20 assets to be paid, including the stream deposit and any potential
+    /// fees, all denoted in units of the asset's decimals.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param cancelable Indicates if the stream is cancelable.
+    /// @param transferable Indicates if the stream NFT is transferable.
+    /// @param startTime The Unix timestamp indicating the stream's start.
+    /// @param tranches Tranches used to compose the custom streaming curve.
+    /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
+    /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
+    struct CreateWithTimestamps {
+        address sender;
+        address recipient;
+        uint128 totalAmount;
+        IERC20 asset;
+        bool cancelable;
+        bool transferable;
+        uint40 startTime;
+        Tranche[] tranches;
+        Broker broker;
+    }
+
+    /// @notice Struct encapsulating the time range.
+    /// @param start The Unix timestamp indicating the stream's start.
+    /// @param end The Unix timestamp indicating the stream's end.
+    struct Range {
+        uint40 start;
+        uint40 end;
+    }
+
+    /// @notice Struct encapsulating all the data for a specific id, allowing anyone to retrieve all information within
+    /// one call to the contract.
+    /// @dev It contains the same data as the `Lockup.Stream` struct, plus the tranches.
+    struct StreamLT {
+        address sender;
+        uint40 startTime;
+        uint40 endTime;
+        bool isCancelable;
+        bool wasCanceled;
+        IERC20 asset;
+        bool isDepleted;
+        bool isStream;
+        bool isTransferable;
+        Lockup.Amounts amounts;
+        Tranche[] tranches;
+    }
+
+    /// @notice Tranche struct used in the Lockup Tranched stream.
+    /// @param amount The amount of assets to be unlocked in this tranche, denoted in units of the asset's decimals.
+    /// @param timestamp The Unix timestamp indicating this tranche's end.
+    struct Tranche {
+        // slot 0
+        uint128 amount;
+        uint40 timestamp;
+    }
+
+    /// @notice Tranche struct used at runtime in {SablierV2LockupTranched.createWithDurations}.
+    /// @param amount The amount of assets to be unlocked in this tranche, denoted in units of the asset's decimals.
+    /// @param duration The time difference in seconds between this tranche and the previous one.
+    struct TrancheWithDuration {
+        uint128 amount;
+        uint40 duration;
     }
 }

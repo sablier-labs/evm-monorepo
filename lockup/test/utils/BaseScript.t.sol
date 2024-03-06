@@ -9,7 +9,11 @@ import { BaseScript } from "script/Base.s.sol";
 contract BaseScript_Test is PRBTest {
     using Strings for uint256;
 
-    BaseScript internal baseScript = new BaseScript();
+    BaseScript internal baseScript;
+
+    function setUp() public {
+        baseScript = new BaseScript();
+    }
 
     function test_ConstructCreate2Salt() public {
         string memory chainId = block.chainid.toString();

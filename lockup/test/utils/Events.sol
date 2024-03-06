@@ -6,7 +6,7 @@ import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
-import { Lockup, LockupDynamic, LockupLinear } from "../../src/types/DataTypes.sol";
+import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
 
 /// @notice Abstract contract containing all the events emitted by the protocol.
 abstract contract Events {
@@ -99,6 +99,24 @@ abstract contract Events {
         bool cancelable,
         bool transferable,
         LockupLinear.Range range,
+        address broker
+    );
+
+    /*//////////////////////////////////////////////////////////////////////////
+                             SABLIER-V2-LOCKUP-TRANCHED 
+    //////////////////////////////////////////////////////////////////////////*/
+
+    event CreateLockupTranchedStream(
+        uint256 streamId,
+        address funder,
+        address indexed sender,
+        address indexed recipient,
+        Lockup.CreateAmounts amounts,
+        IERC20 indexed asset,
+        bool cancelable,
+        bool transferable,
+        LockupTranched.Tranche[] tranches,
+        LockupTranched.Range range,
         address broker
     );
 }

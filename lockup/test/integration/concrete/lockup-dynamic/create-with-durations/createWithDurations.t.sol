@@ -67,7 +67,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
     {
         unchecked {
             uint40 startTime = getBlockTimestamp();
-            LockupDynamic.SegmentWithDuration[] memory segments = defaults.createWithDurationsLD().segments;
+            LockupDynamic.SegmentWithDuration[] memory segments = defaults.segmentsWithDurations();
             segments[0].duration = MAX_UINT40;
             vm.expectRevert(
                 abi.encodeWithSelector(

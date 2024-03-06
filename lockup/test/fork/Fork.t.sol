@@ -36,14 +36,11 @@ abstract contract Fork_Test is Base_Test {
         // The base is set up after the fork is selected so that the base test contracts are deployed on the fork.
         Base_Test.setUp();
 
-        // Deploy V2 Core.
-        deployCoreConditionally();
-
         // Label the contracts.
         labelContracts();
 
         // Make the ASSET HOLDER the caller in this test suite.
-        vm.startPrank({ msgSender: HOLDER });
+        changePrank({ msgSender: HOLDER });
 
         // Query the initial balance of the ASSET HOLDER.
         initialHolderBalance = ASSET.balanceOf(HOLDER);

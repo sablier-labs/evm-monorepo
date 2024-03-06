@@ -30,7 +30,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenDepositAmountNotZero
         whenSegmentCountNotZero
     {
-        segmentCount = _bound(segmentCount, defaults.MAX_SEGMENT_COUNT() + 1 seconds, defaults.MAX_SEGMENT_COUNT() * 10);
+        segmentCount = _bound(segmentCount, defaults.MAX_COUNT() + 1 seconds, defaults.MAX_COUNT() * 10);
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, segmentCount)

@@ -300,6 +300,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             return "Lockup Linear";
         } else if (symbol.equal("SAB-V2-LOCKUP-DYN")) {
             return "Lockup Dynamic";
+        } else if (symbol.equal("SAB-V2-LOCKUP-TRA")) {
+            return "Lockup Tranched";
         } else {
             revert Errors.SablierV2NFTDescriptor_UnknownNFT(sablier, symbol);
         }

@@ -6,6 +6,7 @@ import { StdCheats } from "forge-std/src/StdCheats.sol";
 import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupDynamic } from "../../src/interfaces/ISablierV2LockupDynamic.sol";
 import { ISablierV2LockupLinear } from "../../src/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierV2LockupTranched } from "../../src/interfaces/ISablierV2LockupTranched.sol";
 import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
 
 abstract contract DeployOptimized is StdCheats {
@@ -51,6 +52,24 @@ abstract contract DeployOptimized is StdCheats {
         );
     }
 
+    /// @dev Deploys {SablierV2LockupTranched} from an optimized source compiled with `--via-ir`.
+    function deployOptimizedLockupTranched(
+        address initialAdmin,
+        ISablierV2Comptroller comptroller_,
+        ISablierV2NFTDescriptor nftDescriptor_,
+        uint256 maxTrancheCount
+    )
+        internal
+        returns (ISablierV2LockupTranched)
+    {
+        return ISablierV2LockupTranched(
+            deployCode(
+                "out-optimized/SablierV2LockupTranched.sol/SablierV2LockupTranched.json",
+                abi.encode(initialAdmin, address(comptroller_), address(nftDescriptor_), maxTrancheCount)
+            )
+        );
+    }
+
     /// @dev Deploys {SablierV2NFTDescriptor} from an optimized source compiled with `--via-ir`.
     function deployOptimizedNFTDescriptor() internal returns (ISablierV2NFTDescriptor) {
         return
@@ -59,13 +78,15 @@ abstract contract DeployOptimized is StdCheats {
 
     function deployOptimizedCore(
         address initialAdmin,
-        uint256 maxSegmentCount
+        uint256 maxSegmentCount,
+        uint256 maxTrancheCount
     )
         internal
         returns (
             ISablierV2Comptroller comptroller_,
             ISablierV2LockupDynamic lockupDynamic_,
             ISablierV2LockupLinear lockupLinear_,
+            ISablierV2LockupTranched lockupTranched_,
             ISablierV2NFTDescriptor nftDescriptor_
         )
     {
@@ -73,5 +94,6 @@ abstract contract DeployOptimized is StdCheats {
         nftDescriptor_ = deployOptimizedNFTDescriptor();
         lockupDynamic_ = deployOptimizedLockupDynamic(initialAdmin, comptroller_, nftDescriptor_, maxSegmentCount);
         lockupLinear_ = deployOptimizedLockupLinear(initialAdmin, comptroller_, nftDescriptor_);
+        lockupTranched_ = deployOptimizedLockupTranched(initialAdmin, comptroller_, nftDescriptor_, maxTrancheCount);
     }
 }

@@ -26,6 +26,7 @@ FOUNDRY_PROFILE=optimized forge build
 cp out-optimized/SablierV2Comptroller.sol/SablierV2Comptroller.json $artifacts
 cp out-optimized/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json $artifacts
 cp out-optimized/SablierV2LockupLinear.sol/SablierV2LockupLinear.json $artifacts
+cp out-optimized/SablierV2LockupTranched.sol/SablierV2LockupTranched.json $artifacts
 cp out-optimized/SablierV2NFTDescriptor.sol/SablierV2NFTDescriptor.json $artifacts
 
 interfaces=./artifacts/interfaces
@@ -34,6 +35,7 @@ cp out-optimized/ISablierV2Comptroller.sol/ISablierV2Comptroller.json $interface
 cp out-optimized/ISablierV2Lockup.sol/ISablierV2Lockup.json $interfaces
 cp out-optimized/ISablierV2LockupDynamic.sol/ISablierV2LockupDynamic.json $interfaces
 cp out-optimized/ISablierV2LockupLinear.sol/ISablierV2LockupLinear.json $interfaces
+cp out-optimized/ISablierV2LockupTranched.sol/ISablierV2LockupTranched.json $interfaces
 cp out-optimized/ISablierV2NFTDescriptor.sol/ISablierV2NFTDescriptor.json $interfaces
 
 erc20=./artifacts/interfaces/erc20

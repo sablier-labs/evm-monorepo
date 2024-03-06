@@ -97,7 +97,7 @@ library Errors {
     /// @notice Thrown when trying to create a stream with no segments.
     error SablierV2LockupDynamic_SegmentCountZero();
 
-    /// @notice Thrown when trying to create a stream with unordered segment timestampts.
+    /// @notice Thrown when trying to create a stream with unordered segment timestamps.
     error SablierV2LockupDynamic_SegmentTimestampsNotOrdered(
         uint256 index, uint40 previousTimestamp, uint40 currentTimestamp
     );
@@ -130,4 +130,31 @@ library Errors {
 
     /// @notice Thrown when trying to generate the token URI for an unknown ERC-721 NFT contract.
     error SablierV2NFTDescriptor_UnknownNFT(IERC721Metadata nft, string symbol);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                             SABLIER-V2-LOCKUP-TRANCHE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to create a stream with a deposit amount not equal to the sum of the
+    /// tranche amounts.
+    error SablierV2LockupTranched_DepositAmountNotEqualToTrancheAmountsSum(
+        uint128 depositAmount, uint128 trancheAmountsSum
+    );
+
+    /// @notice Thrown when trying to create a stream with a start time not strictly less than the first
+    /// tranche timestamp.
+    error SablierV2LockupTranched_StartTimeNotLessThanFirstTrancheTimestamp(
+        uint40 startTime, uint40 firstTrancheTimestamp
+    );
+
+    /// @notice Thrown when trying to create a stream with more tranches than the maximum allowed.
+    error SablierV2LockupTranched_TrancheCountTooHigh(uint256 count);
+
+    /// @notice Thrown when trying to create a stream with no tranches.
+    error SablierV2LockupTranched_TrancheCountZero();
+
+    /// @notice Thrown when trying to create a stream with unordered tranche timestamps.
+    error SablierV2LockupTranched_TrancheTimestampsNotOrdered(
+        uint256 index, uint40 previousTimestamp, uint40 currentTimestamp
+    );
 }

@@ -7,7 +7,7 @@ import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
 import { Vm } from "@prb/test/src/PRBTest.sol";
 import { StdUtils } from "forge-std/src/StdUtils.sol";
 
-import { LockupDynamic } from "../../src/types/DataTypes.sol";
+import { LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
 
 abstract contract Utils is StdUtils, PRBMathUtils {
     /// @dev The virtual address of the Foundry VM.
@@ -49,6 +49,27 @@ abstract contract Utils is StdUtils, PRBMathUtils {
                     amount: segments[i].amount,
                     exponent: segments[i].exponent,
                     timestamp: segmentsWithTimestamps[i - 1].timestamp + segments[i].duration
+                });
+            }
+        }
+    }
+
+    /// @dev Turns the tranches with durations into canonical tranches, which have timestamps.
+    function getTranchesWithTimestamps(LockupTranched.TrancheWithDuration[] memory tranches)
+        internal
+        view
+        returns (LockupTranched.Tranche[] memory tranchesWithTimestamps)
+    {
+        unchecked {
+            tranchesWithTimestamps = new LockupTranched.Tranche[](tranches.length);
+            tranchesWithTimestamps[0] = LockupTranched.Tranche({
+                amount: tranches[0].amount,
+                timestamp: getBlockTimestamp() + tranches[0].duration
+            });
+            for (uint256 i = 1; i < tranches.length; ++i) {
+                tranchesWithTimestamps[i] = LockupTranched.Tranche({
+                    amount: tranches[i].amount,
+                    timestamp: tranchesWithTimestamps[i - 1].timestamp + tranches[i].duration
                 });
             }
         }

@@ -1,0 +1,5 @@
+getRange.t.sol
+├── given the id references a null stream
+│  └── it should revert
+└── given the id does not reference a null stream
+   └── it should return the correct range

@@ -6,7 +6,7 @@ import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uin
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
 import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
-import { LockupDynamic } from "../../src/types/DataTypes.sol";
+import { LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
 
 import { Defaults } from "./Defaults.sol";
 
@@ -111,5 +111,36 @@ abstract contract Calculations {
             SD59x18 streamedAmountSd = multiplier.mul(segment.amount.intoSD59x18());
             return uint128(streamedAmountSd.intoUint256());
         }
+    }
+
+    /// @dev Helper function that replicates the logic of {SablierV2LockupTranched._calculateStreamedAmount}.
+    function calculateStreamedAmountForTranches(
+        uint40 currentTime,
+        LockupTranched.Tranche[] memory tranches,
+        uint128 depositAmount
+    )
+        internal
+        pure
+        returns (uint128)
+    {
+        if (currentTime >= tranches[tranches.length - 1].timestamp) {
+            return depositAmount;
+        }
+
+        // Sum the amounts in all tranches that precede the current time.
+        uint128 streamedAmount = tranches[0].amount;
+        uint40 currentTrancheTimestamp = tranches[1].timestamp;
+        uint256 index = 1;
+
+        // Using unchecked arithmetic is safe because the tranches amounts sum equal to total amount at this point.
+        unchecked {
+            while (currentTrancheTimestamp <= currentTime) {
+                streamedAmount += tranches[index].amount;
+                index += 1;
+                currentTrancheTimestamp = tranches[index].timestamp;
+            }
+        }
+
+        return streamedAmount;
     }
 }
