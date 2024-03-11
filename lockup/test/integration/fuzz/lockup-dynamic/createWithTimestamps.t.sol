@@ -100,9 +100,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
     {
         depositDiff = boundUint128(depositDiff, 100, defaults.TOTAL_AMOUNT());
 
-        // Disable both the protocol and the broker fee so that they don't interfere with the calculations.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         UD60x18 brokerFee = ZERO;
         changePrank({ msgSender: users.sender });
 
@@ -128,33 +125,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         lockupDynamic.createWithTimestamps(params);
     }
 
-    function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
-        external
-        whenNotDelegateCalled
-        whenRecipientNonZeroAddress
-        whenDepositAmountNotZero
-        whenSegmentCountNotZero
-        whenSegmentCountNotTooHigh
-        whenSegmentAmountsSumDoesNotOverflow
-        whenStartTimeLessThanFirstSegmentTimestamp
-        whenSegmentTimestampsOrdered
-        whenEndTimeInTheFuture
-        whenDepositAmountEqualToSegmentAmountsSum
-    {
-        protocolFee = _bound(protocolFee, MAX_FEE + ud(1), MAX_UD60x18);
-
-        // Set the protocol fee.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: protocolFee });
-        changePrank({ msgSender: users.sender });
-
-        // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_ProtocolFeeTooHigh.selector, protocolFee, MAX_FEE)
-        );
-        createDefaultStream();
-    }
-
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNotDelegateCalled
@@ -167,23 +137,22 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
-        givenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
-        broker.fee = _bound(broker.fee, MAX_FEE + ud(1), MAX_UD60x18);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_FEE));
+        broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
+        );
         createDefaultStreamWithBroker(broker);
     }
 
     struct Vars {
         uint256 actualNextStreamId;
         address actualNFTOwner;
-        uint256 actualProtocolRevenues;
         Lockup.Status actualStatus;
         Lockup.CreateAmounts createAmounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
-        uint256 expectedProtocolRevenues;
         Lockup.Status expectedStatus;
         bool isCancelable;
         bool isSettled;
@@ -200,11 +169,9 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
     /// - Start time in the future
     /// - Start time equal and not equal to the first segment timestamp
     /// - Multiple values for the broker fee, including zero
-    /// - Multiple values for the protocol fee, including zero
     function testFuzz_CreateWithTimestamps(
         address funder,
-        LockupDynamic.CreateWithTimestamps memory params,
-        UD60x18 protocolFee
+        LockupDynamic.CreateWithTimestamps memory params
     )
         external
         whenNotDelegateCalled
@@ -217,33 +184,26 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenSegmentTimestampsOrdered
         whenEndTimeInTheFuture
         whenDepositAmountEqualToSegmentAmountsSum
-        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
         whenAssetERC20
     {
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.segments.length != 0);
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
-        protocolFee = _bound(protocolFee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
         params.transferable = true;
 
         // Fuzz the segment timestamps.
         fuzzSegmentTimestamps(params.segments, params.startTime);
 
-        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        // Fuzz the segment amounts and calculate the total and create amounts (deposit and broker fee).
         Vars memory vars;
         (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts({
             upperBound: MAX_UINT128,
             segments: params.segments,
-            protocolFee: protocolFee,
             brokerFee: params.broker.fee
         });
-
-        // Set the fuzzed protocol fee.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: protocolFee });
 
         // Make the fuzzed funder the caller in the rest of this test.
         changePrank(funder);
@@ -255,11 +215,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         dai.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
-        expectCallToTransferFrom({
-            from: funder,
-            to: address(lockupDynamic),
-            value: vars.createAmounts.deposit + vars.createAmounts.protocolFee
-        });
+        expectCallToTransferFrom({ from: funder, to: address(lockupDynamic), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.createAmounts.brokerFee > 0) {
@@ -333,11 +289,6 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         vars.actualNextStreamId = lockupDynamic.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
-
-        // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = lockupDynamic.protocolRevenues(dai);
-        vars.expectedProtocolRevenues = vars.createAmounts.protocolFee;
-        assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
         vars.actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });

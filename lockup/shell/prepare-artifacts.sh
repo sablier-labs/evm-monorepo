@@ -23,15 +23,12 @@ mkdir $artifacts \
 FOUNDRY_PROFILE=optimized forge build
 
 # Copy the production artifacts
-cp out-optimized/SablierV2Comptroller.sol/SablierV2Comptroller.json $artifacts
 cp out-optimized/SablierV2LockupDynamic.sol/SablierV2LockupDynamic.json $artifacts
 cp out-optimized/SablierV2LockupLinear.sol/SablierV2LockupLinear.json $artifacts
 cp out-optimized/SablierV2LockupTranched.sol/SablierV2LockupTranched.json $artifacts
 cp out-optimized/SablierV2NFTDescriptor.sol/SablierV2NFTDescriptor.json $artifacts
 
 interfaces=./artifacts/interfaces
-cp out-optimized/ISablierV2Base.sol/ISablierV2Base.json $interfaces
-cp out-optimized/ISablierV2Comptroller.sol/ISablierV2Comptroller.json $interfaces
 cp out-optimized/ISablierV2Lockup.sol/ISablierV2Lockup.json $interfaces
 cp out-optimized/ISablierV2LockupDynamic.sol/ISablierV2LockupDynamic.json $interfaces
 cp out-optimized/ISablierV2LockupLinear.sol/ISablierV2LockupLinear.json $interfaces

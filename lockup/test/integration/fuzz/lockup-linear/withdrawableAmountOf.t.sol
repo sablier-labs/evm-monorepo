@@ -34,9 +34,6 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
     }
 
     modifier whenCliffTimeNotInTheFuture() {
-        // Disable the protocol fee so that it doesn't interfere with the calculations.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
         _;
     }

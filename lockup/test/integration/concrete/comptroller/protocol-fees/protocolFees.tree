@@ -1,5 +1,0 @@
-protocolFees.t.sol
-├── given the protocol fee has not been set
-│  └── it should return zero
-└── given the protocol fee has been set
-   └── it should return the correct protocol fee

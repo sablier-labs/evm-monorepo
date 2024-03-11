@@ -14,21 +14,15 @@ contract Constructor_LockupDynamic_Integration_Concrete_Test is LockupDynamic_In
         // Construct the contract.
         SablierV2LockupDynamic constructedLockupDynamic = new SablierV2LockupDynamic({
             initialAdmin: users.admin,
-            initialComptroller: comptroller,
             initialNFTDescriptor: nftDescriptor,
             maxSegmentCount: defaults.MAX_COUNT()
         });
 
-        // {SablierV2Base.constructor}
+        // {SablierV2Lockup.constructor}
         address actualAdmin = constructedLockupDynamic.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");
 
-        address actualComptroller = address(constructedLockupDynamic.comptroller());
-        address expectedComptroller = address(comptroller);
-        assertEq(actualComptroller, expectedComptroller, "comptroller");
-
-        // {SablierV2Lockup.constructor}
         uint256 actualStreamId = constructedLockupDynamic.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");

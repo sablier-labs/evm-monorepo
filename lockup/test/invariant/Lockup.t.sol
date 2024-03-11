@@ -40,7 +40,6 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
     // solhint-disable max-line-length
     function invariant_ContractBalance() external useCurrentTimestamp {
         uint256 contractBalance = dai.balanceOf(address(lockup));
-        uint256 protocolRevenues = lockup.protocolRevenues(dai);
 
         uint256 lastStreamId = lockupStore.lastStreamId();
         uint256 depositedAmountsSum;
@@ -55,8 +54,8 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
 
         assertGte(
             contractBalance,
-            depositedAmountsSum + protocolRevenues - refundedAmountsSum - withdrawnAmountsSum,
-            unicode"Invariant violation: contract balances < Σ deposited amounts + protocol revenues - Σ refunded amounts - Σ withdrawn amounts"
+            depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum,
+            unicode"Invariant violation: contract balances < Σ deposited amounts - Σ refunded amounts - Σ withdrawn amounts"
         );
     }
 

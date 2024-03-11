@@ -50,10 +50,6 @@ contract CreateWithTimestamps_Integration_Shared_Test is LockupTranched_Integrat
         _;
     }
 
-    modifier givenProtocolFeeNotTooHigh() {
-        _;
-    }
-
     modifier whenBrokerFeeNotTooHigh() {
         _;
     }

@@ -17,7 +17,7 @@ interface IERC20Mint {
     function mint(address beneficiary, uint256 value) external;
 }
 
-/// @notice Initializes the protocol by setting up the comptroller and creating some streams.
+/// @notice Initializes the protocol by creating some streams.
 contract Init is BaseScript {
     function run(
         ISablierV2LockupLinear lockupLinear,

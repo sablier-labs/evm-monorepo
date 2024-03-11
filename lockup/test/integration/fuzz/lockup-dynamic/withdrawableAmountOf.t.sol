@@ -20,9 +20,6 @@ contract WithdrawableAmountOf_LockupDynamic_Integration_Fuzz_Test is
         LockupDynamic_Integration_Fuzz_Test.setUp();
         WithdrawableAmountOf_Integration_Shared_Test.setUp();
 
-        // Disable the protocol fee so that it doesn't interfere with the calculations.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
     }
 

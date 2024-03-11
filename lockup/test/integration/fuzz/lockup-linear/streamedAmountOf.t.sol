@@ -21,9 +21,6 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         StreamedAmountOf_Integration_Shared_Test.setUp();
         defaultStreamId = createDefaultStream();
 
-        // Disable the protocol fee so that it doesn't interfere with the calculations.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
     }
 

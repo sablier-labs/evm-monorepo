@@ -25,12 +25,8 @@ abstract contract Fuzzers is Constants, Utils {
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
-        (totalAmount, createAmounts) = fuzzDynamicStreamAmounts({
-            upperBound: MAX_UINT128,
-            segments: segments,
-            protocolFee: defaults.PROTOCOL_FEE(),
-            brokerFee: defaults.BROKER_FEE()
-        });
+        (totalAmount, createAmounts) =
+            fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments, brokerFee: defaults.BROKER_FEE() });
     }
 
     /// @dev Just like {fuzzDynamicStreamAmounts} but with defaults.
@@ -43,7 +39,6 @@ abstract contract Fuzzers is Constants, Utils {
         (totalAmount, createAmounts) = fuzzDynamicStreamAmounts({
             upperBound: MAX_UINT128,
             segments: segmentsWithTimestamps,
-            protocolFee: defaults.PROTOCOL_FEE(),
             brokerFee: defaults.BROKER_FEE()
         });
         for (uint256 i = 0; i < segmentsWithTimestamps.length; ++i) {
@@ -51,12 +46,10 @@ abstract contract Fuzzers is Constants, Utils {
         }
     }
 
-    /// @dev Fuzzes the segment amounts and calculates the create amounts (total, deposit, protocol fee, and broker
-    /// fee).
+    /// @dev Fuzzes the segment amounts and calculate the total and create amounts (deposit and broker fee).
     function fuzzDynamicStreamAmounts(
         uint128 upperBound,
         LockupDynamic.SegmentWithDuration[] memory segments,
-        UD60x18 protocolFee,
         UD60x18 brokerFee
     )
         internal
@@ -64,19 +57,16 @@ abstract contract Fuzzers is Constants, Utils {
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
         LockupDynamic.Segment[] memory segmentsWithTimestamps = getSegmentsWithTimestamps(segments);
-        (totalAmount, createAmounts) =
-            fuzzDynamicStreamAmounts(upperBound, segmentsWithTimestamps, protocolFee, brokerFee);
+        (totalAmount, createAmounts) = fuzzDynamicStreamAmounts(upperBound, segmentsWithTimestamps, brokerFee);
         for (uint256 i = 0; i < segmentsWithTimestamps.length; ++i) {
             segments[i].amount = segmentsWithTimestamps[i].amount;
         }
     }
 
-    /// @dev Fuzzes the segment amounts and calculates the create amounts (total, deposit, protocol fee and broker
-    /// fee).
+    /// @dev Fuzzes the segment amounts and calculate the total and create amounts (deposit and broker fee).
     function fuzzDynamicStreamAmounts(
         uint128 upperBound,
         LockupDynamic.Segment[] memory segments,
-        UD60x18 protocolFee,
         UD60x18 brokerFee
     )
         internal
@@ -102,19 +92,17 @@ abstract contract Fuzzers is Constants, Utils {
         // must equal the deposit amount) using this formula:
         //
         // $$
-        // total = \frac{deposit}{1e18 - protocolFee - brokerFee}
+        // total = \frac{deposit}{1e18 - brokerFee}
         // $$
-        totalAmount = ud(estimatedDepositAmount).div(ud(uUNIT - protocolFee.intoUint256() - brokerFee.intoUint256()))
-            .intoUint128();
+        totalAmount = ud(estimatedDepositAmount).div(ud(uUNIT - brokerFee.intoUint256())).intoUint128();
 
-        // Calculate the fee amounts.
-        createAmounts.protocolFee = ud(totalAmount).mul(protocolFee).intoUint128();
+        // Calculate the broker fee amount.
         createAmounts.brokerFee = ud(totalAmount).mul(brokerFee).intoUint128();
 
         // Here, we account for rounding errors and adjust the estimated deposit amount and the segments. We know
         // that the estimated deposit amount is not greater than the adjusted deposit amount below, because the inverse
-        // of {Helpers.checkAndCalculateFees} over-expresses the weight of the fees.
-        createAmounts.deposit = totalAmount - createAmounts.protocolFee - createAmounts.brokerFee;
+        // of {Helpers.checkAndCalculateBrokerFee} over-expresses the weight of the broker fee.
+        createAmounts.deposit = totalAmount - createAmounts.brokerFee;
         segments[segments.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }
 
@@ -172,12 +160,8 @@ abstract contract Fuzzers is Constants, Utils {
         view
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
-        (totalAmount, createAmounts) = fuzzTranchedStreamAmounts({
-            upperBound: MAX_UINT128,
-            tranches: tranches,
-            protocolFee: defaults.PROTOCOL_FEE(),
-            brokerFee: defaults.BROKER_FEE()
-        });
+        (totalAmount, createAmounts) =
+            fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches, brokerFee: defaults.BROKER_FEE() });
     }
 
     /// @dev Just like {fuzzTranchedStreamAmounts} but with defaults.
@@ -190,7 +174,6 @@ abstract contract Fuzzers is Constants, Utils {
         (totalAmount, createAmounts) = fuzzTranchedStreamAmounts({
             upperBound: MAX_UINT128,
             tranches: tranchesWithTimestamps,
-            protocolFee: defaults.PROTOCOL_FEE(),
             brokerFee: defaults.BROKER_FEE()
         });
         for (uint256 i = 0; i < tranchesWithTimestamps.length; ++i) {
@@ -198,12 +181,10 @@ abstract contract Fuzzers is Constants, Utils {
         }
     }
 
-    /// @dev Fuzzes the tranche amounts and calculates the create amounts (total, deposit, protocol fee, and broker
-    /// fee).
+    /// @dev Fuzzes the tranche amounts and calculates the total and create amounts (deposit and broker fee).
     function fuzzTranchedStreamAmounts(
         uint128 upperBound,
         LockupTranched.TrancheWithDuration[] memory tranches,
-        UD60x18 protocolFee,
         UD60x18 brokerFee
     )
         internal
@@ -211,19 +192,16 @@ abstract contract Fuzzers is Constants, Utils {
         returns (uint128 totalAmount, Lockup.CreateAmounts memory createAmounts)
     {
         LockupTranched.Tranche[] memory tranchesWithTimestamps = getTranchesWithTimestamps(tranches);
-        (totalAmount, createAmounts) =
-            fuzzTranchedStreamAmounts(upperBound, tranchesWithTimestamps, protocolFee, brokerFee);
+        (totalAmount, createAmounts) = fuzzTranchedStreamAmounts(upperBound, tranchesWithTimestamps, brokerFee);
         for (uint256 i = 0; i < tranchesWithTimestamps.length; ++i) {
             tranches[i].amount = tranchesWithTimestamps[i].amount;
         }
     }
 
-    /// @dev Fuzzes the tranche amounts and calculates the create amounts (total, deposit, protocol fee and broker
-    /// fee).
+    /// @dev Fuzzes the tranche amounts and calculates the total and create amounts (deposit and broker fee).
     function fuzzTranchedStreamAmounts(
         uint128 upperBound,
         LockupTranched.Tranche[] memory tranches,
-        UD60x18 protocolFee,
         UD60x18 brokerFee
     )
         internal
@@ -249,19 +227,17 @@ abstract contract Fuzzers is Constants, Utils {
         // must equal the deposit amount) using this formula:
         //
         // $$
-        // total = \frac{deposit}{1e18 - protocolFee - brokerFee}
+        // total = \frac{deposit}{1e18 - brokerFee}
         // $$
-        totalAmount = ud(estimatedDepositAmount).div(ud(uUNIT - protocolFee.intoUint256() - brokerFee.intoUint256()))
-            .intoUint128();
+        totalAmount = ud(estimatedDepositAmount).div(ud(uUNIT - brokerFee.intoUint256())).intoUint128();
 
-        // Calculate the fee amounts.
-        createAmounts.protocolFee = ud(totalAmount).mul(protocolFee).intoUint128();
+        // Calculate the broker fee amount.
         createAmounts.brokerFee = ud(totalAmount).mul(brokerFee).intoUint128();
 
         // Here, we account for rounding errors and adjust the estimated deposit amount and the tranches. We know
         // that the estimated deposit amount is not greater than the adjusted deposit amount below, because the inverse
-        // of {Helpers.checkAndCalculateFees} over-expresses the weight of the fees.
-        createAmounts.deposit = totalAmount - createAmounts.protocolFee - createAmounts.brokerFee;
+        // of {Helpers.checkAndCalculateBrokerFee} over-expresses the weight of the broker fee.
+        createAmounts.deposit = totalAmount - createAmounts.brokerFee;
         tranches[tranches.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }
 

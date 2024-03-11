@@ -3,7 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
 import { LockupDynamic } from "src/types/DataTypes.sol";
 
@@ -19,7 +18,6 @@ contract LockupDynamicCreateHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2Comptroller public comptroller;
     ISablierV2LockupDynamic public lockupDynamic;
     LockupStore public lockupStore;
 
@@ -31,13 +29,11 @@ contract LockupDynamicCreateHandler is BaseHandler {
         IERC20 asset_,
         TimestampStore timestampStore_,
         LockupStore lockupStore_,
-        ISablierV2Comptroller comptroller_,
         ISablierV2LockupDynamic lockupDynamic_
     )
         BaseHandler(asset_, timestampStore_)
     {
         lockupStore = lockupStore_;
-        comptroller = comptroller_;
         lockupDynamic = lockupDynamic_;
     }
 
@@ -66,16 +62,15 @@ contract LockupDynamicCreateHandler is BaseHandler {
         }
 
         // Bound the broker fee.
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
 
         // Fuzz the durations.
         fuzzSegmentDurations(params.segments);
 
-        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        // Fuzz the segment amounts and calculate the total amount.
         (params.totalAmount,) = fuzzDynamicStreamAmounts({
             upperBound: 1_000_000_000e18,
             segments: params.segments,
-            protocolFee: comptroller.protocolFees(asset),
             brokerFee: params.broker.fee
         });
 
@@ -113,17 +108,16 @@ contract LockupDynamicCreateHandler is BaseHandler {
             return;
         }
 
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.startTime = boundUint40(params.startTime, 0, getBlockTimestamp());
 
         // Fuzz the segment timestamps.
         fuzzSegmentTimestamps(params.segments, params.startTime);
 
-        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        // Fuzz the segment amounts and calculate the total amount.
         (params.totalAmount,) = fuzzDynamicStreamAmounts({
             upperBound: 1_000_000_000e18,
             segments: params.segments,
-            protocolFee: comptroller.protocolFees(asset),
             brokerFee: params.broker.fee
         });
 

@@ -3,7 +3,6 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2Comptroller } from "src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupTranched } from "src/interfaces/ISablierV2LockupTranched.sol";
 import { LockupTranched } from "src/types/DataTypes.sol";
 
@@ -19,7 +18,6 @@ contract LockupTranchedCreateHandler is BaseHandler {
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2Comptroller public comptroller;
     LockupStore public lockupStore;
     ISablierV2LockupTranched public lockupTranched;
 
@@ -31,13 +29,11 @@ contract LockupTranchedCreateHandler is BaseHandler {
         IERC20 asset_,
         TimestampStore timestampStore_,
         LockupStore lockupStore_,
-        ISablierV2Comptroller comptroller_,
         ISablierV2LockupTranched lockupTranched_
     )
         BaseHandler(asset_, timestampStore_)
     {
         lockupStore = lockupStore_;
-        comptroller = comptroller_;
         lockupTranched = lockupTranched_;
     }
 
@@ -66,16 +62,15 @@ contract LockupTranchedCreateHandler is BaseHandler {
         }
 
         // Bound the broker fee.
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
 
         // Fuzz the durations.
         fuzzTrancheDurations(params.tranches);
 
-        // Fuzz the tranche amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        // Fuzz the tranche amounts and calculate the total amount.
         (params.totalAmount,) = fuzzTranchedStreamAmounts({
             upperBound: 1_000_000_000e18,
             tranches: params.tranches,
-            protocolFee: comptroller.protocolFees(asset),
             brokerFee: params.broker.fee
         });
 
@@ -113,17 +108,16 @@ contract LockupTranchedCreateHandler is BaseHandler {
             return;
         }
 
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.startTime = boundUint40(params.startTime, 0, getBlockTimestamp());
 
         // Fuzz the tranche timestamps.
         fuzzTrancheTimestamps(params.tranches, params.startTime);
 
-        // Fuzz the tranche amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        // Fuzz the tranche amounts and calculate the total amount.
         (params.totalAmount,) = fuzzTranchedStreamAmounts({
             upperBound: 1_000_000_000e18,
             tranches: params.tranches,
-            protocolFee: comptroller.protocolFees(asset),
             brokerFee: params.broker.fee
         });
 

@@ -3,12 +3,10 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2Comptroller } from "../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupDynamic } from "../src/interfaces/ISablierV2LockupDynamic.sol";
 import { ISablierV2LockupLinear } from "../src/interfaces/ISablierV2LockupLinear.sol";
 import { ISablierV2LockupTranched } from "../src/interfaces/ISablierV2LockupTranched.sol";
 import { ISablierV2NFTDescriptor } from "../src/interfaces/ISablierV2NFTDescriptor.sol";
-import { SablierV2Comptroller } from "../src/SablierV2Comptroller.sol";
 import { SablierV2LockupDynamic } from "../src/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "../src/SablierV2LockupLinear.sol";
 import { SablierV2LockupTranched } from "../src/SablierV2LockupTranched.sol";
@@ -40,7 +38,6 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2Comptroller internal comptroller;
     ERC20Mock internal dai;
     Defaults internal defaults;
     GoodRecipient internal goodRecipient;
@@ -128,17 +125,15 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     /// for contracts deployed via `CREATE` are based on the caller-and-nonce-hash).
     function deployCoreConditionally() internal {
         if (!isTestOptimizedProfile()) {
-            comptroller = new SablierV2Comptroller(users.admin);
             nftDescriptor = new SablierV2NFTDescriptor();
-            lockupDynamic = new SablierV2LockupDynamic(users.admin, comptroller, nftDescriptor, defaults.MAX_COUNT());
-            lockupLinear = new SablierV2LockupLinear(users.admin, comptroller, nftDescriptor);
-            lockupTranched = new SablierV2LockupTranched(users.admin, comptroller, nftDescriptor, defaults.MAX_COUNT());
+            lockupDynamic = new SablierV2LockupDynamic(users.admin, nftDescriptor, defaults.MAX_COUNT());
+            lockupLinear = new SablierV2LockupLinear(users.admin, nftDescriptor);
+            lockupTranched = new SablierV2LockupTranched(users.admin, nftDescriptor, defaults.MAX_COUNT());
         } else {
-            (comptroller, lockupDynamic, lockupLinear, lockupTranched, nftDescriptor) =
-                deployOptimizedCore(users.admin, defaults.MAX_COUNT(), defaults.MAX_COUNT());
+            (lockupDynamic, lockupLinear, lockupTranched, nftDescriptor) =
+                deployOptimizedCore(users.admin, defaults.MAX_COUNT());
         }
 
-        vm.label({ account: address(comptroller), newLabel: "Comptroller" });
         vm.label({ account: address(lockupDynamic), newLabel: "LockupDynamic" });
         vm.label({ account: address(lockupLinear), newLabel: "LockupLinear" });
         vm.label({ account: address(lockupTranched), newLabel: "LockupTranched" });

@@ -14,21 +14,15 @@ contract Constructor_LockupTranched_Integration_Concrete_Test is LockupTranched_
         // Construct the contract.
         SablierV2LockupTranched constructedLockupTranched = new SablierV2LockupTranched({
             initialAdmin: users.admin,
-            initialComptroller: comptroller,
             initialNFTDescriptor: nftDescriptor,
             maxTrancheCount: defaults.MAX_COUNT()
         });
 
-        // {SablierV2Base.constructor}
+        // {SablierV2Lockup.constructor}
         address actualAdmin = constructedLockupTranched.admin();
         address expectedAdmin = users.admin;
         assertEq(actualAdmin, expectedAdmin, "admin");
 
-        address actualComptroller = address(constructedLockupTranched.comptroller());
-        address expectedComptroller = address(comptroller);
-        assertEq(actualComptroller, expectedComptroller, "comptroller");
-
-        // {SablierV2Lockup.constructor}
         uint256 actualStreamId = constructedLockupTranched.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");

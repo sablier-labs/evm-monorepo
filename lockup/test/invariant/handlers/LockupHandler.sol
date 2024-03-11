@@ -135,22 +135,6 @@ abstract contract LockupHandler is BaseHandler {
         lockup.cancel(currentStreamId);
     }
 
-    function claimProtocolRevenues(uint256 timeJumpSeed)
-        external
-        instrument("claimProtocolRevenues")
-        adjustTimestamp(timeJumpSeed)
-        useAdmin
-    {
-        // Can claim revenues only if the protocol has revenues.
-        uint128 protocolRevenues = lockup.protocolRevenues(asset);
-        if (protocolRevenues == 0) {
-            return;
-        }
-
-        // Claim the protocol revenues.
-        lockup.claimProtocolRevenues(asset);
-    }
-
     function renounce(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed

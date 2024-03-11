@@ -119,9 +119,6 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
         // Make the Sender the stream's funder
         address funder = users.sender;
 
-        // Load the initial protocol revenues.
-        uint128 initialProtocolRevenues = lockupTranched.protocolRevenues(dai);
-
         // Declare the range.
         uint40 currentTime = getBlockTimestamp();
         LockupTranched.Range memory range =
@@ -134,11 +131,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
         tranches[2].timestamp = tranches[1].timestamp + tranchesWithDurations[2].duration;
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupTranched}.
-        expectCallToTransferFrom({
-            from: funder,
-            to: address(lockupTranched),
-            value: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
-        });
+        expectCallToTransferFrom({ from: funder, to: address(lockupTranched), value: defaults.DEPOSIT_AMOUNT() });
 
         // Expect the broker fee to be paid to the broker.
         expectCallToTransferFrom({ from: funder, to: users.broker, value: defaults.BROKER_FEE_AMOUNT() });
@@ -181,11 +174,6 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
         uint256 actualNextStreamId = lockupTranched.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
-
-        // Assert that the protocol fee has been recorded.
-        uint128 actualProtocolRevenues = lockupTranched.protocolRevenues(dai);
-        uint128 expectedProtocolRevenues = initialProtocolRevenues + defaults.PROTOCOL_FEE_AMOUNT();
-        assertEq(actualProtocolRevenues, expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
         address actualNFTOwner = lockupTranched.ownerOf({ tokenId: streamId });

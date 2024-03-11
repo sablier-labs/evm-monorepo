@@ -31,28 +31,23 @@ createWithTimestamps.t.sol
                            ├── when the deposit amount is not equal to the segment amounts sum
                            │  └── it should revert
                            └── when the deposit amount is equal to the segment amounts sum
-                              ├── given the protocol fee is too high
+                              ├── when the broker fee is too high
                               │  └── it should revert
-                              └── given the protocol fee is not too high
-                                 ├── when the broker fee is too high
+                              └── when the broker fee is not too high
+                                 ├── when the asset is not a contract
                                  │  └── it should revert
-                                 └── when the broker fee is not too high
-                                    ├── when the asset is not a contract
-                                    │  └── it should revert
-                                    └── when the asset is a contract
-                                       ├── when the asset misses the ERC-20 return value
-                                       │  ├── it should create the stream
-                                       │  ├── it should bump the next stream id
-                                       │  ├── it should record the protocol fee
-                                       │  ├── it should mint the NFT
-                                       │  ├── it should emit a {MetadataUpdate} event
-                                       │  ├── it should perform the ERC-20 transfers
-                                       │  └── it should emit a {CreateLockupDynamicStream} event
-                                       └── when the asset does not miss the ERC-20 return value
-                                          ├── it should create the stream
-                                          ├── it should bump the next stream id
-                                          ├── it should record the protocol fee
-                                          ├── it should mint the NFT
-                                          ├── it should emit a {MetadataUpdate} event
-                                          ├── it should perform the ERC-20 transfers
-                                          └── it should emit a {CreateLockupDynamicStream} event
+                                 └── when the asset is a contract
+                                    ├── when the asset misses the ERC-20 return value
+                                    │  ├── it should create the stream
+                                    │  ├── it should bump the next stream id
+                                    │  ├── it should mint the NFT
+                                    │  ├── it should emit a {MetadataUpdate} event
+                                    │  ├── it should perform the ERC-20 transfers
+                                    │  └── it should emit a {CreateLockupDynamicStream} event
+                                    └── when the asset does not miss the ERC-20 return value
+                                       ├── it should create the stream
+                                       ├── it should bump the next stream id
+                                       ├── it should mint the NFT
+                                       ├── it should emit a {MetadataUpdate} event
+                                       ├── it should perform the ERC-20 transfers
+                                       └── it should emit a {CreateLockupDynamicStream} event

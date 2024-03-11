@@ -19,9 +19,6 @@ contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is
         LockupTranched_Integration_Fuzz_Test.setUp();
         StreamedAmountOf_Integration_Shared_Test.setUp();
 
-        // Disable the protocol fee so that it doesn't interfere with the calculations.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
     }
 
@@ -58,12 +55,8 @@ contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is
         fuzzTrancheTimestamps(tranches, defaults.START_TIME());
 
         // Fuzz the tranche amounts.
-        (uint128 totalAmount,) = fuzzTranchedStreamAmounts({
-            upperBound: MAX_UINT128,
-            tranches: tranches,
-            protocolFee: ZERO,
-            brokerFee: ZERO
-        });
+        (uint128 totalAmount,) =
+            fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches, brokerFee: ZERO });
 
         // Bound the time jump.
         uint40 firstTrancheDuration = tranches[1].timestamp - tranches[0].timestamp;
@@ -109,12 +102,8 @@ contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is
         fuzzTrancheTimestamps(tranches, defaults.START_TIME());
 
         // Fuzz the tranche amounts.
-        (uint128 totalAmount,) = fuzzTranchedStreamAmounts({
-            upperBound: MAX_UINT128,
-            tranches: tranches,
-            protocolFee: ZERO,
-            brokerFee: ZERO
-        });
+        (uint128 totalAmount,) =
+            fuzzTranchedStreamAmounts({ upperBound: MAX_UINT128, tranches: tranches, brokerFee: ZERO });
 
         // Bound the time warps.
         uint40 firstTrancheDuration = tranches[1].timestamp - tranches[0].timestamp;

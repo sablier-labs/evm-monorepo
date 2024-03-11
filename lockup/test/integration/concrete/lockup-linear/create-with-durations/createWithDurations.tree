@@ -7,7 +7,6 @@ createWithDurations.t.sol
       └── when the total duration calculation does not overflow uint256
           ├── it should create the stream
           ├── it should bump the next stream id
-          ├── it should record the protocol fee
           ├── it should mint the NFT
           ├── it should perform the ERC-20 transfers
           └── it should emit a {CreateLockupLinearStream} event

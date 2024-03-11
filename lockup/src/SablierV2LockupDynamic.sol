@@ -7,10 +7,8 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { PRBMathCastingUint128 as CastingUint128 } from "@prb/math/src/casting/Uint128.sol";
 import { PRBMathCastingUint40 as CastingUint40 } from "@prb/math/src/casting/Uint40.sol";
 import { SD59x18 } from "@prb/math/src/SD59x18.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
-import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupDynamic } from "./interfaces/ISablierV2LockupDynamic.sol";
 import { ISablierV2NFTDescriptor } from "./interfaces/ISablierV2NFTDescriptor.sol";
 import { Helpers } from "./libraries/Helpers.sol";
@@ -37,7 +35,7 @@ import { Lockup, LockupDynamic } from "./types/DataTypes.sol";
 /// @title SablierV2LockupDynamic
 /// @notice See the documentation in {ISablierV2LockupDynamic}.
 contract SablierV2LockupDynamic is
-    ISablierV2LockupDynamic, // 6 inherited components
+    ISablierV2LockupDynamic, // 5 inherited components
     SablierV2Lockup // 14 inherited components
 {
     using CastingUint128 for uint128;
@@ -60,17 +58,15 @@ contract SablierV2LockupDynamic is
 
     /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
-    /// @param initialComptroller The address of the initial comptroller.
     /// @param initialNFTDescriptor The address of the NFT descriptor contract.
     /// @param maxSegmentCount The maximum number of segments allowed in a stream.
     constructor(
         address initialAdmin,
-        ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNFTDescriptor,
         uint256 maxSegmentCount
     )
         ERC721("Sablier V2 Lockup Dynamic NFT", "SAB-V2-LOCKUP-DYN")
-        SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor)
+        SablierV2Lockup(initialAdmin, initialNFTDescriptor)
     {
         MAX_SEGMENT_COUNT = maxSegmentCount;
         nextStreamId = 1;
@@ -317,13 +313,9 @@ contract SablierV2LockupDynamic is
         internal
         returns (uint256 streamId)
     {
-        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
-        // not call other unknown contracts.
-        UD60x18 protocolFee = comptroller.protocolFees(params.asset);
-
-        // Checks: check the fees and calculate the fee amounts.
+        // Checks: check the broker fee and calculate the amounts.
         Lockup.CreateAmounts memory createAmounts =
-            Helpers.checkAndCalculateFees(params.totalAmount, protocolFee, params.broker.fee, MAX_FEE);
+            Helpers.checkAndCalculateBrokerFee(params.totalAmount, params.broker.fee, MAX_BROKER_FEE);
 
         // Checks: validate the user-provided parameters.
         Helpers.checkCreateWithTimestamps(createAmounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
@@ -352,24 +344,16 @@ contract SablierV2LockupDynamic is
                 _segments[streamId].push(params.segments[i]);
             }
 
-            // Effects: bump the next stream id and record the protocol fee.
+            // Effects: bump the next stream id.
             // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
             nextStreamId = streamId + 1;
-            protocolRevenues[params.asset] = protocolRevenues[params.asset] + createAmounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.
         _mint({ to: params.recipient, tokenId: streamId });
 
-        // Interactions: transfer the deposit and the protocol fee.
-        // Using unchecked arithmetic because the deposit and the protocol fee are bounded by the total amount.
-        unchecked {
-            params.asset.safeTransferFrom({
-                from: msg.sender,
-                to: address(this),
-                value: createAmounts.deposit + createAmounts.protocolFee
-            });
-        }
+        // Interactions: transfer the deposit amount.
+        params.asset.safeTransferFrom({ from: msg.sender, to: address(this), value: createAmounts.deposit });
 
         // Interactions: pay the broker fee, if not zero.
         if (createAmounts.brokerFee > 0) {

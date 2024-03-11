@@ -13,46 +13,36 @@ library Helpers {
                              INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks that neither fee is greater than `maxFee`, and then calculates the protocol fee amount, the
-    /// broker fee amount, and the deposit amount from the total amount.
-    function checkAndCalculateFees(
+    /// @dev Checks the broker fee is not greater than `maxBrokerFee`, and then calculates the broker fee amount and the
+    /// deposit amount from the total amount.
+    function checkAndCalculateBrokerFee(
         uint128 totalAmount,
-        UD60x18 protocolFee,
         UD60x18 brokerFee,
-        UD60x18 maxFee
+        UD60x18 maxBrokerFee
     )
         internal
         pure
         returns (Lockup.CreateAmounts memory amounts)
     {
-        // When the total amount is zero, the fees are also zero.
+        // When the total amount is zero, the broker fee is also zero.
         if (totalAmount == 0) {
-            return Lockup.CreateAmounts(0, 0, 0);
+            return Lockup.CreateAmounts(0, 0);
         }
 
-        // Checks: the protocol fee is not greater than `maxFee`.
-        if (protocolFee.gt(maxFee)) {
-            revert Errors.SablierV2Lockup_ProtocolFeeTooHigh(protocolFee, maxFee);
+        // Checks: the broker fee is not greater than `maxBrokerFee`.
+        if (brokerFee.gt(maxBrokerFee)) {
+            revert Errors.SablierV2Lockup_BrokerFeeTooHigh(brokerFee, maxBrokerFee);
         }
-        // Checks: the broker fee is not greater than `maxFee`.
-        if (brokerFee.gt(maxFee)) {
-            revert Errors.SablierV2Lockup_BrokerFeeTooHigh(brokerFee, maxFee);
-        }
-
-        // Calculate the protocol fee amount.
-        // The cast to uint128 is safe because the maximum fee is hard coded.
-        amounts.protocolFee = uint128(ud(totalAmount).mul(protocolFee).intoUint256());
 
         // Calculate the broker fee amount.
         // The cast to uint128 is safe because the maximum fee is hard coded.
         amounts.brokerFee = uint128(ud(totalAmount).mul(brokerFee).intoUint256());
 
-        // Assert that the total amount is strictly greater than the sum of the protocol fee amount and the
-        // broker fee amount.
-        assert(totalAmount > amounts.protocolFee + amounts.brokerFee);
+        // Assert that the total amount is strictly greater than the broker fee amount.
+        assert(totalAmount > amounts.brokerFee);
 
-        // Calculate the deposit amount (the amount to stream, net of fees).
-        amounts.deposit = totalAmount - amounts.protocolFee - amounts.brokerFee;
+        // Calculate the deposit amount (the amount to stream, net of the broker fee).
+        amounts.deposit = totalAmount - amounts.brokerFee;
     }
 
     /// @dev Checks the parameters of the {SablierV2LockupDynamic-_createWithTimestamps} function.

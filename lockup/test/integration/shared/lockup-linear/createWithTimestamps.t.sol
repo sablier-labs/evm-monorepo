@@ -34,10 +34,6 @@ abstract contract CreateWithTimestamps_Integration_Shared_Test is LockupLinear_I
         _;
     }
 
-    modifier givenProtocolFeeNotTooHigh() {
-        _;
-    }
-
     modifier whenBrokerFeeNotTooHigh() {
         _;
     }

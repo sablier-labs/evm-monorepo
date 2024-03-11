@@ -4,10 +4,8 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
-import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupTranched } from "./interfaces/ISablierV2LockupTranched.sol";
 import { ISablierV2NFTDescriptor } from "./interfaces/ISablierV2NFTDescriptor.sol";
 import { Helpers } from "./libraries/Helpers.sol";
@@ -34,7 +32,7 @@ import { Lockup, LockupTranched } from "./types/DataTypes.sol";
 /// @title SablierV2LockupTranched
 /// @notice See the documentation in {ISablierV2LockupTranched}.
 contract SablierV2LockupTranched is
-    ISablierV2LockupTranched, // 6 inherited components
+    ISablierV2LockupTranched, // 5 inherited components
     SablierV2Lockup // 14 inherited components
 {
     using SafeERC20 for IERC20;
@@ -55,17 +53,15 @@ contract SablierV2LockupTranched is
 
     /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
-    /// @param initialComptroller The address of the initial comptroller.
     /// @param initialNFTDescriptor The address of the NFT descriptor contract.
     /// @param maxTrancheCount The maximum number of tranches allowed in a stream.
     constructor(
         address initialAdmin,
-        ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNFTDescriptor,
         uint256 maxTrancheCount
     )
         ERC721("Sablier V2 Lockup Tranched NFT", "SAB-V2-LOCKUP-TRA")
-        SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor)
+        SablierV2Lockup(initialAdmin, initialNFTDescriptor)
     {
         MAX_TRANCHE_COUNT = maxTrancheCount;
         nextStreamId = 1;
@@ -226,13 +222,9 @@ contract SablierV2LockupTranched is
         internal
         returns (uint256 streamId)
     {
-        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
-        // not call other unknown contracts.
-        UD60x18 protocolFee = comptroller.protocolFees(params.asset);
-
-        // Checks: check the fees and calculate the fee amounts.
+        // Checks: check the broker fee and calculate the amounts.
         Lockup.CreateAmounts memory createAmounts =
-            Helpers.checkAndCalculateFees(params.totalAmount, protocolFee, params.broker.fee, MAX_FEE);
+            Helpers.checkAndCalculateBrokerFee(params.totalAmount, params.broker.fee, MAX_BROKER_FEE);
 
         // Checks: validate the user-provided parameters.
         Helpers.checkCreateWithTimestamps(createAmounts.deposit, params.tranches, MAX_TRANCHE_COUNT, params.startTime);
@@ -261,24 +253,16 @@ contract SablierV2LockupTranched is
                 _tranches[streamId].push(params.tranches[i]);
             }
 
-            // Effects: bump the next stream id and record the protocol fee.
+            // Effects: bump the next stream id.
             // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
             nextStreamId = streamId + 1;
-            protocolRevenues[params.asset] = protocolRevenues[params.asset] + createAmounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.
         _mint({ to: params.recipient, tokenId: streamId });
 
-        // Interactions: transfer the deposit and the protocol fee.
-        // Using unchecked arithmetic because the deposit and the protocol fee are bounded by the total amount.
-        unchecked {
-            params.asset.safeTransferFrom({
-                from: msg.sender,
-                to: address(this),
-                value: createAmounts.deposit + createAmounts.protocolFee
-            });
-        }
+        // Interactions: transfer the deposit amount.
+        params.asset.safeTransferFrom({ from: msg.sender, to: address(this), value: createAmounts.deposit });
 
         // Interactions: pay the broker fee, if not zero.
         if (createAmounts.brokerFee > 0) {

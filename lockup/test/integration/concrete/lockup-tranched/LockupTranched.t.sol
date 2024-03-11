@@ -8,8 +8,6 @@ import { Integration_Test } from "../../Integration.t.sol";
 import { Burn_Integration_Concrete_Test } from "../lockup/burn/burn.t.sol";
 import { Cancel_Integration_Concrete_Test } from "../lockup/cancel/cancel.t.sol";
 import { CancelMultiple_Integration_Concrete_Test } from "../lockup/cancel-multiple/cancelMultiple.t.sol";
-import { ClaimProtocolRevenues_Integration_Concrete_Test } from
-    "../lockup/claim-protocol-revenues/claimProtocolRevenues.t.sol";
 import { GetAsset_Integration_Concrete_Test } from "../lockup/get-asset/getAsset.t.sol";
 import { GetDepositedAmount_Integration_Concrete_Test } from "../lockup/get-deposited-amount/getDepositedAmount.t.sol";
 import { GetEndTime_Integration_Concrete_Test } from "../lockup/get-end-time/getEndTime.t.sol";
@@ -24,10 +22,8 @@ import { IsDepleted_Integration_Concrete_Test } from "../lockup/is-depleted/isDe
 import { IsStream_Integration_Concrete_Test } from "../lockup/is-stream/isStream.t.sol";
 import { IsTransferable_Integration_Concrete_Test } from "../lockup/is-transferable/isTransferable.t.sol";
 import { IsWarm_Integration_Concrete_Test } from "../lockup/is-warm/isWarm.t.sol";
-import { ProtocolRevenues_Integration_Concrete_Test } from "../lockup/protocol-revenues/protocolRevenues.t.sol";
 import { RefundableAmountOf_Integration_Concrete_Test } from "../lockup/refundable-amount-of/refundableAmountOf.t.sol";
 import { Renounce_Integration_Concrete_Test } from "../lockup/renounce/renounce.t.sol";
-import { SetComptroller_Integration_Concrete_Test } from "../lockup/set-comptroller/setComptroller.t.sol";
 import { SetNFTDescriptor_Integration_Concrete_Test } from "../lockup/set-nft-descriptor/setNFTDescriptor.t.sol";
 import { StatusOf_Integration_Concrete_Test } from "../lockup/status-of/statusOf.t.sol";
 import { TransferFrom_Integration_Concrete_Test } from "../lockup/transfer-from/transferFrom.t.sol";
@@ -53,8 +49,7 @@ abstract contract LockupTranched_Integration_Concrete_Test is
         Integration_Test.setUp();
         LockupTranched_Integration_Shared_Test.setUp();
 
-        // Cast the LockupTranched contract as {ISablierV2Base} and {ISablierV2Lockup}.
-        base = ISablierV2Lockup(lockupTranched);
+        // Cast the LockupTranched contract as {ISablierV2Lockup}.
         lockup = ISablierV2Lockup(lockupTranched);
     }
 }
@@ -102,20 +97,6 @@ contract CancelMultiple_LockupTranched_Integration_Concrete_Test is
     {
         LockupTranched_Integration_Concrete_Test.setUp();
         CancelMultiple_Integration_Concrete_Test.setUp();
-    }
-}
-
-contract ClaimProtocolRevenues_LockupTranched_Integration_Concrete_Test is
-    LockupTranched_Integration_Concrete_Test,
-    ClaimProtocolRevenues_Integration_Concrete_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupTranched_Integration_Concrete_Test, ClaimProtocolRevenues_Integration_Concrete_Test)
-    {
-        LockupTranched_Integration_Concrete_Test.setUp();
-        ClaimProtocolRevenues_Integration_Concrete_Test.setUp();
     }
 }
 
@@ -315,20 +296,6 @@ contract IsWarm_LockupTranched_Integration_Concrete_Test is
     }
 }
 
-contract ProtocolRevenues_LockupTranched_Integration_Concrete_Test is
-    LockupTranched_Integration_Concrete_Test,
-    ProtocolRevenues_Integration_Concrete_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupTranched_Integration_Concrete_Test, ProtocolRevenues_Integration_Concrete_Test)
-    {
-        LockupTranched_Integration_Concrete_Test.setUp();
-        ProtocolRevenues_Integration_Concrete_Test.setUp();
-    }
-}
-
 contract RefundableAmountOf_LockupTranched_Integration_Concrete_Test is
     LockupTranched_Integration_Concrete_Test,
     RefundableAmountOf_Integration_Concrete_Test
@@ -354,20 +321,6 @@ contract Renounce_LockupTranched_Integration_Concrete_Test is
     {
         LockupTranched_Integration_Concrete_Test.setUp();
         Renounce_Integration_Concrete_Test.setUp();
-    }
-}
-
-contract SetComptroller_LockupTranched_Integration_Concrete_Test is
-    LockupTranched_Integration_Concrete_Test,
-    SetComptroller_Integration_Concrete_Test
-{
-    function setUp()
-        public
-        virtual
-        override(LockupTranched_Integration_Concrete_Test, SetComptroller_Integration_Concrete_Test)
-    {
-        LockupTranched_Integration_Concrete_Test.setUp();
-        SetComptroller_Integration_Concrete_Test.setUp();
     }
 }
 

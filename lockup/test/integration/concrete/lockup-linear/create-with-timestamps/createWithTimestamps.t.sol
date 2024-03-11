@@ -40,7 +40,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
     }
 
     /// @dev It is not possible to obtain a zero deposit amount from a non-zero total amount, because the
-    /// `MAX_FEE` is hard coded to 10%.
+    /// `MAX_BROKER_FEE` is hard coded to 10%.
     function test_RevertWhen_DepositAmountZero() external whenNotDelegateCalled whenRecipientNonZeroAddress {
         vm.expectRevert(Errors.SablierV2Lockup_DepositAmountZero.selector);
         createDefaultStreamWithTotalAmount(0);
@@ -160,30 +160,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         createDefaultStream();
     }
 
-    function test_RevertGiven_ProtocolFeeTooHigh()
-        external
-        whenNotDelegateCalled
-        whenRecipientNonZeroAddress
-        whenDepositAmountNotZero
-        whenCliffTimeGreaterThanZero
-        whenStartTimeNotGreaterThanCliffTime
-        whenCliffTimeLessThanEndTime
-        whenEndTimeInTheFuture
-    {
-        UD60x18 protocolFee = MAX_FEE + ud(1);
-
-        // Set the protocol fee.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: protocolFee });
-        changePrank({ msgSender: users.sender });
-
-        // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_ProtocolFeeTooHigh.selector, protocolFee, MAX_FEE)
-        );
-        createDefaultStream();
-    }
-
     function test_RevertWhen_BrokerFeeTooHigh()
         external
         whenNotDelegateCalled
@@ -193,10 +169,11 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
-        givenProtocolFeeNotTooHigh
     {
-        UD60x18 brokerFee = MAX_FEE + ud(1);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, MAX_FEE));
+        UD60x18 brokerFee = MAX_BROKER_FEE + ud(1);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, brokerFee, MAX_BROKER_FEE)
+        );
         createDefaultStreamWithBroker(Broker({ account: users.broker, fee: brokerFee }));
     }
 
@@ -209,7 +186,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
-        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
     {
         address nonContract = address(8128);
@@ -226,7 +202,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
-        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
     {
@@ -241,7 +216,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
-        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
         whenAssetERC20
@@ -259,7 +233,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
             asset: IERC20(asset),
             from: funder,
             to: address(lockupLinear),
-            value: defaults.DEPOSIT_AMOUNT() + defaults.PROTOCOL_FEE_AMOUNT()
+            value: defaults.DEPOSIT_AMOUNT()
         });
 
         // Expect the broker fee to be paid to the broker.

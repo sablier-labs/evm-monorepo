@@ -22,15 +22,12 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
     struct Vars {
         uint256 actualNextStreamId;
         address actualNFTOwner;
-        uint256 actualProtocolRevenues;
         Lockup.Status actualStatus;
         Lockup.CreateAmounts createAmounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
-        uint256 expectedProtocolRevenues;
         Lockup.Status expectedStatus;
         address funder;
-        uint128 initialProtocolRevenues;
         bool isCancelable;
         bool isSettled;
         LockupDynamic.Segment[] segmentsWithTimestamps;
@@ -50,24 +47,17 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         Vars memory vars;
         fuzzSegmentDurations(segments);
 
-        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        // Fuzz the segment amounts and calculate the total and create amounts (deposit and broker fee).
         (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts(segments);
 
         // Make the Sender the stream's funder (recall that the Sender is the default caller).
         vars.funder = users.sender;
 
-        // Load the initial protocol revenues.
-        vars.initialProtocolRevenues = lockupDynamic.protocolRevenues(dai);
-
         // Mint enough assets to the fuzzed funder.
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
-        expectCallToTransferFrom({
-            from: vars.funder,
-            to: address(lockupDynamic),
-            value: vars.createAmounts.deposit + vars.createAmounts.protocolFee
-        });
+        expectCallToTransferFrom({ from: vars.funder, to: address(lockupDynamic), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.createAmounts.brokerFee > 0) {
@@ -132,11 +122,6 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         vars.actualNextStreamId = lockupDynamic.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
-
-        // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = lockupDynamic.protocolRevenues(dai);
-        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
-        assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
         vars.actualNFTOwner = lockupDynamic.ownerOf({ tokenId: streamId });

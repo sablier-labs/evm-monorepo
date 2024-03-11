@@ -5,7 +5,6 @@
   ffi = true
   fs_permissions = [{ access = "read", path = "out-optimized" }]
   gas_reports = [
-    "SablierV2Comptroller",
     "SablierV2LockupDynamic",
     "SablierV2LockupLinear",
     "SablierV2LockupTranched",

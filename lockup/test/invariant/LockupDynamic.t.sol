@@ -34,7 +34,6 @@ contract LockupDynamic_Invariant_Test is Lockup_Invariant_Test {
             asset_: dai,
             timestampStore_: timestampStore,
             lockupStore_: lockupStore,
-            comptroller_: comptroller,
             lockupDynamic_: lockupDynamic
         });
 

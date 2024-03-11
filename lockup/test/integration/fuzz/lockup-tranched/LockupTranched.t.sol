@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2Base } from "src/interfaces/ISablierV2Base.sol";
 import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 
 import { LockupTranched_Integration_Shared_Test } from "../../shared/lockup-tranched/LockupTranched.t.sol";
@@ -26,8 +25,7 @@ abstract contract LockupTranched_Integration_Fuzz_Test is Integration_Test, Lock
         Integration_Test.setUp();
         LockupTranched_Integration_Shared_Test.setUp();
 
-        // Cast the LockupTranched contract as {ISablierV2Base} and {ISablierV2Lockup}.
-        base = ISablierV2Base(lockupTranched);
+        // Cast the LockupTranched contract as {ISablierV2Lockup}.
         lockup = ISablierV2Lockup(lockupTranched);
     }
 }

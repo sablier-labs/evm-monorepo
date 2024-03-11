@@ -3,15 +3,16 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 import { Lockup } from "../types/DataTypes.sol";
-import { ISablierV2Base } from "./ISablierV2Base.sol";
+import { IAdminable } from "./IAdminable.sol";
 import { ISablierV2NFTDescriptor } from "./ISablierV2NFTDescriptor.sol";
 
 /// @title ISablierV2Lockup
 /// @notice Common logic between all Sablier V2 Lockup streaming contracts.
 interface ISablierV2Lockup is
-    ISablierV2Base, // 1 inherited component
+    IAdminable, // 0 inherited components
     IERC721Metadata // 2 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
@@ -130,6 +131,11 @@ interface ISablierV2Lockup is
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream id for the query.
     function isWarm(uint256 streamId) external view returns (bool result);
+
+    /// @notice Retrieves the maximum broker fee that can be charged by the broker, denoted as a fixed-point
+    /// number where 1e18 is 100%.
+    /// @dev This value is hard coded as a constant.
+    function MAX_BROKER_FEE() external view returns (UD60x18);
 
     /// @notice Counter for stream ids, used in the create functions.
     function nextStreamId() external view returns (uint256);

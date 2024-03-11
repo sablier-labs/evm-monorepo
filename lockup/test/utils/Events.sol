@@ -2,9 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierV2Comptroller } from "../../src/interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
 
@@ -29,22 +27,6 @@ abstract contract Events {
     //////////////////////////////////////////////////////////////////////////*/
 
     event TransferAdmin(address indexed oldAdmin, address indexed newAdmin);
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  SABLIER-V2-BASE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    event ClaimProtocolRevenues(address indexed admin, IERC20 indexed asset, uint128 protocolRevenues);
-
-    event SetComptroller(
-        address indexed admin, ISablierV2Comptroller oldComptroller, ISablierV2Comptroller newComptroller
-    );
-
-    /*//////////////////////////////////////////////////////////////////////////
-                               SABLIER-V2-COMPTROLLER
-    //////////////////////////////////////////////////////////////////////////*/
-
-    event SetProtocolFee(address indexed admin, IERC20 indexed asset, UD60x18 oldProtocolFee, UD60x18 newProtocolFee);
 
     /*//////////////////////////////////////////////////////////////////////////
                                  SABLIER-V2-LOCKUP

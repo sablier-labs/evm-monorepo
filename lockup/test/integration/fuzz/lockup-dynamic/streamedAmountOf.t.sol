@@ -19,9 +19,6 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         LockupDynamic_Integration_Fuzz_Test.setUp();
         StreamedAmountOf_Integration_Shared_Test.setUp();
 
-        // Disable the protocol fee so that it doesn't interfere with the calculations.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: ZERO });
         changePrank({ msgSender: users.sender });
     }
 
@@ -102,12 +99,8 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         fuzzSegmentTimestamps(segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
-        (uint128 totalAmount,) = fuzzDynamicStreamAmounts({
-            upperBound: MAX_UINT128,
-            segments: segments,
-            protocolFee: ZERO,
-            brokerFee: ZERO
-        });
+        (uint128 totalAmount,) =
+            fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments, brokerFee: ZERO });
 
         // Bound the time jump.
         uint40 firstSegmentDuration = segments[1].timestamp - segments[0].timestamp;
@@ -153,12 +146,8 @@ contract StreamedAmountOf_LockupDynamic_Integration_Fuzz_Test is
         fuzzSegmentTimestamps(segments, defaults.START_TIME());
 
         // Fuzz the segment amounts.
-        (uint128 totalAmount,) = fuzzDynamicStreamAmounts({
-            upperBound: MAX_UINT128,
-            segments: segments,
-            protocolFee: ZERO,
-            brokerFee: ZERO
-        });
+        (uint128 totalAmount,) =
+            fuzzDynamicStreamAmounts({ upperBound: MAX_UINT128, segments: segments, brokerFee: ZERO });
 
         // Bound the time warps.
         uint40 firstSegmentDuration = segments[1].timestamp - segments[0].timestamp;

@@ -8,7 +8,6 @@ import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
 import { SablierV2Lockup } from "./abstracts/SablierV2Lockup.sol";
-import { ISablierV2Comptroller } from "./interfaces/ISablierV2Comptroller.sol";
 import { ISablierV2LockupLinear } from "./interfaces/ISablierV2LockupLinear.sol";
 import { ISablierV2NFTDescriptor } from "./interfaces/ISablierV2NFTDescriptor.sol";
 import { Helpers } from "./libraries/Helpers.sol";
@@ -35,7 +34,7 @@ import { Lockup, LockupLinear } from "./types/DataTypes.sol";
 /// @title SablierV2LockupLinear
 /// @notice See the documentation in {ISablierV2LockupLinear}.
 contract SablierV2LockupLinear is
-    ISablierV2LockupLinear, // 6 inherited components
+    ISablierV2LockupLinear, // 5 inherited components
     SablierV2Lockup // 14 inherited components
 {
     using SafeERC20 for IERC20;
@@ -53,15 +52,13 @@ contract SablierV2LockupLinear is
 
     /// @dev Emits a {TransferAdmin} event.
     /// @param initialAdmin The address of the initial contract admin.
-    /// @param initialComptroller The address of the initial comptroller.
     /// @param initialNFTDescriptor The address of the initial NFT descriptor.
     constructor(
         address initialAdmin,
-        ISablierV2Comptroller initialComptroller,
         ISablierV2NFTDescriptor initialNFTDescriptor
     )
         ERC721("Sablier V2 Lockup Linear NFT", "SAB-V2-LOCKUP-LIN")
-        SablierV2Lockup(initialAdmin, initialComptroller, initialNFTDescriptor)
+        SablierV2Lockup(initialAdmin, initialNFTDescriptor)
     {
         nextStreamId = 1;
     }
@@ -236,13 +233,9 @@ contract SablierV2LockupLinear is
         internal
         returns (uint256 streamId)
     {
-        // Safe Interactions: query the protocol fee. This is safe because it's a known Sablier contract that does
-        // not call other unknown contracts.
-        UD60x18 protocolFee = comptroller.protocolFees(params.asset);
-
-        // Checks: check the fees and calculate the fee amounts.
+        // Checks: check the broker fee and calculate the amounts.
         Lockup.CreateAmounts memory createAmounts =
-            Helpers.checkAndCalculateFees(params.totalAmount, protocolFee, params.broker.fee, MAX_FEE);
+            Helpers.checkAndCalculateBrokerFee(params.totalAmount, params.broker.fee, MAX_BROKER_FEE);
 
         // Checks: validate the user-provided parameters.
         Helpers.checkCreateWithTimestamps(createAmounts.deposit, params.range);
@@ -269,25 +262,17 @@ contract SablierV2LockupLinear is
             _cliffs[streamId] = params.range.cliff;
         }
 
-        // Effects: bump the next stream id and record the protocol fee.
+        // Effects: bump the next stream id.
         // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
-            protocolRevenues[params.asset] = protocolRevenues[params.asset] + createAmounts.protocolFee;
         }
 
         // Effects: mint the NFT to the recipient.
         _mint({ to: params.recipient, tokenId: streamId });
 
-        // Interactions: transfer the deposit and the protocol fee.
-        // Using unchecked arithmetic because the deposit and the protocol fee are bounded by the total amount.
-        unchecked {
-            params.asset.safeTransferFrom({
-                from: msg.sender,
-                to: address(this),
-                value: createAmounts.deposit + createAmounts.protocolFee
-            });
-        }
+        // Interactions: transfer the deposit amount.
+        params.asset.safeTransferFrom({ from: msg.sender, to: address(this), value: createAmounts.deposit });
 
         // Interactions: pay the broker fee, if not zero.
         if (createAmounts.brokerFee > 0) {

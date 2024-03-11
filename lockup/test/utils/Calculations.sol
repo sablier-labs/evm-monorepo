@@ -16,20 +16,10 @@ abstract contract Calculations {
 
     Defaults private defaults = new Defaults();
 
-    /// @dev Calculates the deposit amount by calculating and subtracting the protocol fee amount and the
-    /// broker fee amount from the total amount.
-    function calculateDepositAmount(
-        uint128 totalAmount,
-        UD60x18 protocolFee,
-        UD60x18 brokerFee
-    )
-        internal
-        pure
-        returns (uint128)
-    {
-        uint128 protocolFeeAmount = ud(totalAmount).mul(protocolFee).intoUint128();
+    /// @dev Calculates the deposit amount by calculating and subtracting the broker fee amount from the total amount.
+    function calculateDepositAmount(uint128 totalAmount, UD60x18 brokerFee) internal pure returns (uint128) {
         uint128 brokerFeeAmount = ud(totalAmount).mul(brokerFee).intoUint128();
-        return totalAmount - protocolFeeAmount - brokerFeeAmount;
+        return totalAmount - brokerFeeAmount;
     }
 
     /// @dev Helper function that replicates the logic of {SablierV2LockupLinear.streamedAmountOf}.

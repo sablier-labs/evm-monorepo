@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22 <0.9.0;
 
-import { ISablierV2Comptroller } from "../src/interfaces/ISablierV2Comptroller.sol";
 import { SablierV2LockupDynamic } from "../src/SablierV2LockupDynamic.sol";
 import { SablierV2LockupLinear } from "../src/SablierV2LockupLinear.sol";
 import { SablierV2LockupTranched } from "../src/SablierV2LockupTranched.sol";
@@ -18,10 +17,7 @@ import { BaseScript } from "./Base.s.sol";
 ///
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicCore3 is BaseScript {
-    function run(
-        address initialAdmin,
-        ISablierV2Comptroller comptroller
-    )
+    function run(address initialAdmin)
         public
         virtual
         broadcast
@@ -34,8 +30,8 @@ contract DeployDeterministicCore3 is BaseScript {
     {
         bytes32 salt = constructCreate2Salt();
         nftDescriptor = new SablierV2NFTDescriptor{ salt: salt }();
-        lockupDynamic = new SablierV2LockupDynamic{ salt: salt }(initialAdmin, comptroller, nftDescriptor, maxCount);
-        lockupLinear = new SablierV2LockupLinear{ salt: salt }(initialAdmin, comptroller, nftDescriptor);
-        lockupTranched = new SablierV2LockupTranched{ salt: salt }(initialAdmin, comptroller, nftDescriptor, maxCount);
+        lockupDynamic = new SablierV2LockupDynamic{ salt: salt }(initialAdmin, nftDescriptor, maxCount);
+        lockupLinear = new SablierV2LockupLinear{ salt: salt }(initialAdmin, nftDescriptor);
+        lockupTranched = new SablierV2LockupTranched{ salt: salt }(initialAdmin, nftDescriptor, maxCount);
     }
 }

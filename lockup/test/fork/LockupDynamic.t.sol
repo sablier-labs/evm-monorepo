@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
@@ -37,7 +36,6 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         address sender;
         address recipient;
         uint128 withdrawAmount;
-        UD60x18 protocolFee;
         uint40 startTime;
         uint40 warpTimestamp;
         LockupDynamic.Segment[] segments;
@@ -66,14 +64,11 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         uint256 actualBrokerBalance;
         uint256 actualHolderBalance;
         uint256 actualNextStreamId;
-        uint256 actualProtocolRevenues;
         Lockup.CreateAmounts createAmounts;
         uint256 expectedBrokerBalance;
         uint256 expectedHolderBalance;
-        uint256 expectedProtocolRevenues;
         uint256 expectedNextStreamId;
         uint256 initialBrokerBalance;
-        uint256 initialProtocolRevenues;
         uint128 totalAmount;
         // Withdraw vars
         uint128 actualWithdrawnAmount;
@@ -92,7 +87,6 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
     /// - It should perform all expected ERC-20 transfers.
     /// - It should create the stream.
     /// - It should bump the next stream id.
-    /// - It should record the protocol fee.
     /// - It should mint the NFT.
     /// - It should emit a {CreateLockupDynamicStream} event.
     /// - It may make a withdrawal.
@@ -110,31 +104,24 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
     /// - Start time in the future
     /// - Start time equal and not equal to the first segment timestamp
     /// - Multiple values for the broker fee, including zero
-    /// - Multiple values for the protocol fee, including zero
     /// - Multiple values for the withdraw amount, including zero
     /// - The whole gamut of stream statuses
     function testForkFuzz_LockupDynamic_CreateWithdrawCancel(Params memory params) external {
         checkUsers(params.sender, params.recipient, params.broker.account, address(lockupDynamic));
         vm.assume(params.segments.length != 0);
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
-        params.protocolFee = _bound(params.protocolFee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
 
         // Fuzz the segment timestamps.
         fuzzSegmentTimestamps(params.segments, params.startTime);
 
-        // Fuzz the segment amounts and calculate the create amounts (total, deposit, protocol fee, and broker fee).
+        // Fuzz the segment amounts and calculate the total and create amounts (deposit and broker fee).
         Vars memory vars;
         (vars.totalAmount, vars.createAmounts) = fuzzDynamicStreamAmounts({
             upperBound: uint128(initialHolderBalance),
             segments: params.segments,
-            protocolFee: params.protocolFee,
             brokerFee: params.broker.fee
         });
-
-        // Set the fuzzed protocol fee.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: ASSET, newProtocolFee: params.protocolFee });
 
         // Make the holder the caller.
         changePrank(HOLDER);
@@ -142,9 +129,6 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         /*//////////////////////////////////////////////////////////////////////////
                                             CREATE
         //////////////////////////////////////////////////////////////////////////*/
-
-        // Load the pre-create protocol revenues.
-        vars.initialProtocolRevenues = lockupDynamic.protocolRevenues(ASSET);
 
         // Load the pre-create asset balances.
         vars.balances =
@@ -224,11 +208,6 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         vars.expectedNextStreamId = vars.streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "post-create nextStreamId");
 
-        // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = lockupDynamic.protocolRevenues(ASSET);
-        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
-        assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "post-create protocolRevenues");
-
         // Assert that the NFT has been minted.
         vars.actualNFTOwner = lockupDynamic.ownerOf({ tokenId: vars.streamId });
         vars.expectedNFTOwner = params.recipient;
@@ -242,8 +221,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         vars.actualBrokerBalance = vars.balances[2];
 
         // Assert that the contract's balance has been updated.
-        vars.expectedLockupDynamicBalance =
-            vars.initialLockupDynamicBalance + vars.createAmounts.deposit + vars.createAmounts.protocolFee;
+        vars.expectedLockupDynamicBalance = vars.initialLockupDynamicBalance + vars.createAmounts.deposit;
         assertEq(
             vars.actualLockupDynamicBalance,
             vars.expectedLockupDynamicBalance,

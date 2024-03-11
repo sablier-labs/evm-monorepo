@@ -2,7 +2,7 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { UD60x18, ud } from "@prb/math/src/UD60x18.sol";
+import { ud } from "@prb/math/src/UD60x18.sol";
 import { Solarray } from "solarray/src/Solarray.sol";
 
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
@@ -38,7 +38,6 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         address recipient;
         uint128 totalAmount;
         uint128 withdrawAmount;
-        UD60x18 protocolFee;
         uint40 warpTimestamp;
         LockupLinear.Range range;
         Broker broker;
@@ -65,13 +64,10 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         // Create vars
         uint256 actualBrokerBalance;
         uint256 actualNextStreamId;
-        uint256 actualProtocolRevenues;
         Lockup.CreateAmounts createAmounts;
         uint256 expectedBrokerBalance;
         uint256 expectedNextStreamId;
-        uint256 expectedProtocolRevenues;
         uint256 initialBrokerBalance;
-        uint256 initialProtocolRevenues;
         // Withdraw vars
         uint128 actualWithdrawnAmount;
         uint128 expectedWithdrawnAmount;
@@ -89,7 +85,6 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
     /// - It should perform all expected ERC-20 transfers.
     /// - It should create the stream.
     /// - It should bump the next stream id.
-    /// - It should record the protocol fee.
     /// - It should mint the NFT.
     /// - It should emit a {MetadataUpdate} event
     /// - It should emit a {CreateLockupLinearStream} event.
@@ -105,7 +100,6 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
     /// - Multiple values for the total amount
     /// - Multiple values for the cliff time and the end time
     /// - Multiple values for the broker fee, including zero
-    /// - Multiple values for the protocol fee, including zero
     /// - Multiple values for the withdraw amount, including zero
     /// - Start time in the past
     /// - Start time in the present
@@ -117,8 +111,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
 
         // Bound the parameters.
         uint40 currentTime = getBlockTimestamp();
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
-        params.protocolFee = _bound(params.protocolFee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.range.start = boundUint40(params.range.start, currentTime - 1000 seconds, currentTime + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start + 1, params.range.start + 52 weeks);
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
@@ -131,10 +124,6 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
             MAX_UNIX_TIMESTAMP
         );
 
-        // Set the fuzzed protocol fee.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: ASSET, newProtocolFee: params.protocolFee });
-
         // Make the holder the caller.
         changePrank(HOLDER);
 
@@ -142,9 +131,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
                                             CREATE
         //////////////////////////////////////////////////////////////////////////*/
 
-        // Load the pre-create protocol revenues.
         Vars memory vars;
-        vars.initialProtocolRevenues = lockupLinear.protocolRevenues(ASSET);
 
         // Load the pre-create asset balances.
         vars.balances =
@@ -152,10 +139,9 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         vars.initialLockupLinearBalance = vars.balances[0];
         vars.initialBrokerBalance = vars.balances[1];
 
-        // Calculate the fee amounts and the deposit amount.
-        vars.createAmounts.protocolFee = ud(params.totalAmount).mul(params.protocolFee).intoUint128();
+        // Calculate the broker fee amount and the deposit amount.
         vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
+        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.brokerFee;
 
         vars.streamId = lockupLinear.nextStreamId();
 
@@ -214,11 +200,6 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         vars.expectedNextStreamId = vars.streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "post-create nextStreamId");
 
-        // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = lockupLinear.protocolRevenues(ASSET);
-        vars.expectedProtocolRevenues = vars.initialProtocolRevenues + vars.createAmounts.protocolFee;
-        assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "post-create protocolRevenues");
-
         // Assert that the NFT has been minted.
         vars.actualNFTOwner = lockupLinear.ownerOf({ tokenId: vars.streamId });
         vars.expectedNFTOwner = params.recipient;
@@ -232,8 +213,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         vars.actualBrokerBalance = vars.balances[2];
 
         // Assert that the LockupLinear contract's balance has been updated.
-        vars.expectedLockupLinearBalance =
-            vars.initialLockupLinearBalance + vars.createAmounts.deposit + vars.createAmounts.protocolFee;
+        vars.expectedLockupLinearBalance = vars.initialLockupLinearBalance + vars.createAmounts.deposit;
         assertEq(vars.actualLockupLinearBalance, vars.expectedLockupLinearBalance, "post-create LockupLinear balance");
 
         // Assert that the holder's balance has been updated.

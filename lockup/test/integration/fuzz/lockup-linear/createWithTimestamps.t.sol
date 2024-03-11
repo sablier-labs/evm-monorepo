@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { MAX_UD60x18, UD60x18, ud } from "@prb/math/src/UD60x18.sol";
+import { MAX_UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
@@ -59,29 +59,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime }));
     }
 
-    function testFuzz_RevertWhen_ProtocolFeeTooHigh(UD60x18 protocolFee)
-        external
-        whenNotDelegateCalled
-        whenRecipientNonZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotGreaterThanCliffTime
-        whenCliffTimeLessThanEndTime
-        whenEndTimeInTheFuture
-    {
-        protocolFee = _bound(protocolFee, MAX_FEE + ud(1), MAX_UD60x18);
-
-        // Set the protocol fee.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: protocolFee });
-        changePrank({ msgSender: users.sender });
-
-        // Run the test.
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_ProtocolFeeTooHigh.selector, protocolFee, MAX_FEE)
-        );
-        createDefaultStream();
-    }
-
     function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
         external
         whenNotDelegateCalled
@@ -90,25 +67,23 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
-        givenProtocolFeeNotTooHigh
     {
         vm.assume(broker.account != address(0));
-        broker.fee = _bound(broker.fee, MAX_FEE + ud(1), MAX_UD60x18);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_FEE));
+        broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
+        );
         createDefaultStreamWithBroker(broker);
     }
 
     struct Vars {
         uint256 actualNextStreamId;
         address actualNFTOwner;
-        uint256 actualProtocolRevenues;
         Lockup.Status actualStatus;
         Lockup.CreateAmounts createAmounts;
         uint256 expectedNextStreamId;
         address expectedNFTOwner;
-        uint256 expectedProtocolRevenues;
         Lockup.Status expectedStatus;
-        uint128 initialProtocolRevenues;
     }
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
@@ -122,11 +97,9 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
     /// - Start time lower than and equal to cliff time
     /// - Multiple values for the cliff time and the end time
     /// - Multiple values for the broker fee, including zero
-    /// - Multiple values for the protocol fee, including zero
     function testFuzz_CreateWithTimestamps(
         address funder,
-        LockupLinear.CreateWithTimestamps memory params,
-        UD60x18 protocolFee
+        LockupLinear.CreateWithTimestamps memory params
     )
         external
         whenNotDelegateCalled
@@ -134,7 +107,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
-        givenProtocolFeeNotTooHigh
         whenBrokerFeeNotTooHigh
         whenAssetContract
         whenAssetERC20
@@ -145,19 +117,14 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
             boundUint40(params.range.start, defaults.START_TIME(), defaults.START_TIME() + 10_000 seconds);
         params.range.cliff = boundUint40(params.range.cliff, params.range.start + 1, params.range.start + 52 weeks);
         params.range.end = boundUint40(params.range.end, params.range.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
-        params.broker.fee = _bound(params.broker.fee, 0, MAX_FEE);
-        protocolFee = _bound(protocolFee, 0, MAX_FEE);
+        params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.transferable = true;
 
         // Calculate the fee amounts and the deposit amount.
         Vars memory vars;
-        vars.createAmounts.protocolFee = ud(params.totalAmount).mul(protocolFee).intoUint128();
-        vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
-        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.protocolFee - vars.createAmounts.brokerFee;
 
-        // Set the fuzzed protocol fee.
-        changePrank({ msgSender: users.admin });
-        comptroller.setProtocolFee({ asset: dai, newProtocolFee: protocolFee });
+        vars.createAmounts.brokerFee = ud(params.totalAmount).mul(params.broker.fee).intoUint128();
+        vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.brokerFee;
 
         // Make the fuzzed funder the caller in this test.
         changePrank(funder);
@@ -169,11 +136,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         dai.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
-        expectCallToTransferFrom({
-            from: funder,
-            to: address(lockupLinear),
-            value: vars.createAmounts.deposit + vars.createAmounts.protocolFee
-        });
+        expectCallToTransferFrom({ from: funder, to: address(lockupLinear), value: vars.createAmounts.deposit });
 
         // Expect the broker fee to be paid to the broker, if not zero.
         if (vars.createAmounts.brokerFee > 0) {
@@ -232,11 +195,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         vars.actualNextStreamId = lockupLinear.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");
-
-        // Assert that the protocol fee has been recorded.
-        vars.actualProtocolRevenues = lockupLinear.protocolRevenues(dai);
-        vars.expectedProtocolRevenues = vars.createAmounts.protocolFee;
-        assertEq(vars.actualProtocolRevenues, vars.expectedProtocolRevenues, "protocolRevenues");
 
         // Assert that the NFT has been minted.
         vars.actualNFTOwner = lockupLinear.ownerOf({ tokenId: streamId });
