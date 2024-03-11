@@ -2,11 +2,11 @@
 // solhint-disable max-line-length,no-inline-assembly,reason-string
 pragma solidity >=0.8.22;
 
-import { ISablierV2LockupDynamic } from "../../src/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "../../src/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2LockupTranched } from "../../src/interfaces/ISablierV2LockupTranched.sol";
-import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
-import { SablierV2NFTDescriptor } from "../../src/SablierV2NFTDescriptor.sol";
+import { ISablierV2LockupDynamic } from "../src/interfaces/ISablierV2LockupDynamic.sol";
+import { ISablierV2LockupLinear } from "../src/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierV2LockupTranched } from "../src/interfaces/ISablierV2LockupTranched.sol";
+import { ISablierV2NFTDescriptor } from "../src/interfaces/ISablierV2NFTDescriptor.sol";
+import { SablierV2NFTDescriptor } from "../src/SablierV2NFTDescriptor.sol";
 
 /// @notice This is useful for external integrations seeking to test against the exact deployed bytecode, as recompiling
 /// with via IR enabled would be time-consuming.
@@ -187,6 +187,7 @@ contract Precompiles {
     /// 2. {SablierV2LockupDynamic}
     /// 3. {SablierV2LockupLinear}
     /// 4. {SablierV2LockupTranched}
+    /// 5. {SablierV2NFTDescriptor}
     function deployCore(address initialAdmin)
         public
         returns (

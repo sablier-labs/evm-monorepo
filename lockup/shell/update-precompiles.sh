@@ -17,7 +17,7 @@ lockup_linear=$(cat out-optimized/SablierV2LockupLinear.sol/SablierV2LockupLinea
 lockup_tranched=$(cat out-optimized/SablierV2LockupTranched.sol/SablierV2LockupTranched.json | jq -r '.bytecode.object' | cut -c 3-)
 nft_descriptor=$(cat out-optimized/SablierV2NFTDescriptor.sol/SablierV2NFTDescriptor.json | jq -r '.bytecode.object' | cut -c 3-)
 
-precompiles_path="test/utils/Precompiles.sol"
+precompiles_path="precompiles/Precompiles.sol"
 if [ ! -f $precompiles_path ]; then
     echo "Precompiles file does not exist"
     exit 1

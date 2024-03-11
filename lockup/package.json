@@ -24,6 +24,7 @@
   },
   "files": [
     "artifacts",
+    "precompiles",
     "src",
     "test/utils",
     "CHANGELOG.md",
