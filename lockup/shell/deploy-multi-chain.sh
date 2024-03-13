@@ -288,7 +288,7 @@ for chain in "${provided_chains[@]}"; do
     if [[ ${DETERMINISTIC_DEPLOYMENT} == true ]]; then
         echo -e "${SC}+${NC} Deterministic address"
         if [[ ${sol_script} == "" ]]; then
-            deployment_command+=("script" "script/DeployDeterministicCore3.s.sol" "--ffi")
+            deployment_command+=("script" "script/DeployDeterministicCore.s.sol" "--ffi")
         else
             deployment_command+=("script" "${sol_script}")
         fi
@@ -307,7 +307,7 @@ for chain in "${provided_chains[@]}"; do
     else
         # Construct the command
         if [[ ${sol_script} == "" ]]; then
-            deployment_command+=("script" "script/DeployCore3.s.sol")
+            deployment_command+=("script" "script/DeployCore.s.sol")
         else
             deployment_command+=("script" "${sol_script}")
         fi

@@ -187,7 +187,6 @@ contract Precompiles {
     /// 2. {SablierV2LockupDynamic}
     /// 3. {SablierV2LockupLinear}
     /// 4. {SablierV2LockupTranched}
-    /// 5. {SablierV2NFTDescriptor}
     function deployCore(address initialAdmin)
         public
         returns (
