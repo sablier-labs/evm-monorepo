@@ -179,9 +179,10 @@ library LockupDynamic {
 
     /// @notice Struct encapsulating all the data for a specific id, allowing anyone to retrieve all information within
     /// one call to the contract.
-    /// @dev It contains the same data as the `Lockup.Stream` struct, plus the segments.
+    /// @dev It contains the same data as the `Lockup.Stream` struct, plus the recipient and the segments.
     struct StreamLD {
         address sender;
+        address recipient;
         uint40 startTime;
         uint40 endTime;
         bool isCancelable;
@@ -264,9 +265,10 @@ library LockupLinear {
 
     /// @notice Struct encapsulating all the data for a specific id, allowing anyone to retrieve all information within
     /// one call to the contract.
-    /// @dev It contains the same data as the `Lockup.Stream` struct, plus the cliff value.
+    /// @dev It contains the same data as the `Lockup.Stream` struct, plus the recipient and the cliff value.
     struct StreamLL {
         address sender;
+        address recipient;
         uint40 startTime;
         bool isCancelable;
         bool wasCanceled;
@@ -342,9 +344,10 @@ library LockupTranched {
 
     /// @notice Struct encapsulating all the data for a specific id, allowing anyone to retrieve all information within
     /// one call to the contract.
-    /// @dev It contains the same data as the `Lockup.Stream` struct, plus the tranches.
+    /// @dev It contains the same data as the `Lockup.Stream` struct, plus the recipient and the tranches.
     struct StreamLT {
         address sender;
+        address recipient;
         uint40 startTime;
         uint40 endTime;
         bool isCancelable;

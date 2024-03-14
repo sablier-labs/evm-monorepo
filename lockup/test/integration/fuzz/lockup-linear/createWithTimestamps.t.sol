@@ -182,6 +182,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         assertEq(actualStream.isDepleted, false, "isStream");
         assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isStream, true, "isStream");
+        assertEq(actualStream.recipient, params.recipient, "recipient");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.range.start, "startTime");
         assertEq(actualStream.wasCanceled, false, "wasCanceled");

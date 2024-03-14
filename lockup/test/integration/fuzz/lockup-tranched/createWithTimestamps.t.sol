@@ -272,6 +272,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isDepleted, false, "isStream");
         assertEq(actualStream.isStream, true, "isStream");
+        assertEq(actualStream.recipient, params.recipient, "recipient");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.tranches, params.tranches, "tranches");
         assertEq(actualStream.startTime, range.start, "startTime");

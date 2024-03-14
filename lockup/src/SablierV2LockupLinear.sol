@@ -112,6 +112,7 @@ contract SablierV2LockupLinear is
             isTransferable: lockupStream.isTransferable,
             isDepleted: lockupStream.isDepleted,
             isStream: lockupStream.isStream,
+            recipient: _ownerOf(streamId),
             sender: lockupStream.sender,
             startTime: lockupStream.startTime,
             wasCanceled: lockupStream.wasCanceled

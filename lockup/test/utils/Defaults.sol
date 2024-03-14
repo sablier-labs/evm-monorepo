@@ -96,6 +96,7 @@ contract Defaults is Constants {
             isDepleted: false,
             isStream: true,
             isTransferable: true,
+            recipient: users.recipient,
             segments: segments(),
             sender: users.sender,
             startTime: START_TIME,
@@ -117,6 +118,7 @@ contract Defaults is Constants {
             isTransferable: true,
             isDepleted: false,
             isStream: true,
+            recipient: users.recipient,
             sender: users.sender,
             startTime: START_TIME,
             wasCanceled: false
@@ -136,6 +138,7 @@ contract Defaults is Constants {
             isDepleted: false,
             isStream: true,
             isTransferable: true,
+            recipient: users.recipient,
             sender: users.sender,
             startTime: START_TIME,
             tranches: tranches(),

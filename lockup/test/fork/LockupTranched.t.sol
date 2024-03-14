@@ -189,6 +189,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isStream, true, "isStream");
+        assertEq(actualStream.recipient, params.recipient, "recipient");
         assertEq(actualStream.tranches, params.tranches, "tranches");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.startTime, "startTime");

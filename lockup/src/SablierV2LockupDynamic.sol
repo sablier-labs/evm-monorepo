@@ -122,8 +122,9 @@ contract SablierV2LockupDynamic is
             isTransferable: lockupStream.isTransferable,
             isDepleted: lockupStream.isDepleted,
             isStream: lockupStream.isStream,
-            sender: lockupStream.sender,
+            recipient: _ownerOf(streamId),
             segments: _segments[streamId],
+            sender: lockupStream.sender,
             startTime: lockupStream.startTime,
             wasCanceled: lockupStream.wasCanceled
         });
