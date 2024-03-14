@@ -151,7 +151,7 @@ contract SablierV2LockupDynamic is
         returns (uint256 streamId)
     {
         // Generate the canonical segments.
-        LockupDynamic.Segment[] memory segments = Helpers.calculateSegmentsTimestamps(params.segments);
+        LockupDynamic.Segment[] memory segments = Helpers.calculateSegmentTimestamps(params.segments);
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithTimestamps(

@@ -146,7 +146,7 @@ contract SablierV2LockupTranched is
         returns (uint256 streamId)
     {
         // Generate the canonical tranches.
-        LockupTranched.Tranche[] memory tranches = Helpers.calculateTranchesTimestamps(params.tranches);
+        LockupTranched.Tranche[] memory tranches = Helpers.calculateTrancheTimestamps(params.tranches);
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithTimestamps(
