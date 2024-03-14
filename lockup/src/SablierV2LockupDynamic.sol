@@ -150,8 +150,8 @@ contract SablierV2LockupDynamic is
         noDelegateCall
         returns (uint256 streamId)
     {
-        // Checks: check the durations and generate the canonical segments.
-        LockupDynamic.Segment[] memory segments = Helpers.checkDurationsAndCalculateTimestamps(params.segments);
+        // Generate the canonical segments.
+        LockupDynamic.Segment[] memory segments = Helpers.calculateSegmentsTimestamps(params.segments);
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithTimestamps(

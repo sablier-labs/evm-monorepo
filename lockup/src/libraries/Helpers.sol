@@ -139,8 +139,8 @@ library Helpers {
         _checkTranches(tranches, depositAmount, startTime);
     }
 
-    /// @dev Checks that the segment array counts match, and then adjusts the segments by calculating the timestamps.
-    function checkDurationsAndCalculateTimestamps(LockupDynamic.SegmentWithDuration[] memory segments)
+    /// @dev Calculate the timestamps and return the segments.
+    function calculateSegmentsTimestamps(LockupDynamic.SegmentWithDuration[] memory segments)
         internal
         view
         returns (LockupDynamic.Segment[] memory segmentsWithTimestamps)
@@ -172,8 +172,8 @@ library Helpers {
         }
     }
 
-    /// @dev Checks that the tranche array counts match, and then adjusts the tranches by calculating the timestamps.
-    function checkDurationsAndCalculateTimestamps(LockupTranched.TrancheWithDuration[] memory tranches)
+    /// @dev Calculate the timestamps and return the tranches.
+    function calculateTranchesTimestamps(LockupTranched.TrancheWithDuration[] memory tranches)
         internal
         view
         returns (LockupTranched.Tranche[] memory tranchesWithTimestamps)

@@ -145,8 +145,8 @@ contract SablierV2LockupTranched is
         noDelegateCall
         returns (uint256 streamId)
     {
-        // Checks: check the durations and generate the canonical tranches.
-        LockupTranched.Tranche[] memory tranches = Helpers.checkDurationsAndCalculateTimestamps(params.tranches);
+        // Generate the canonical tranches.
+        LockupTranched.Tranche[] memory tranches = Helpers.calculateTranchesTimestamps(params.tranches);
 
         // Checks, Effects and Interactions: create the stream.
         streamId = _createWithTimestamps(
@@ -196,12 +196,11 @@ contract SablierV2LockupTranched is
         }
 
         // Sum the amounts in all tranches that precede the current time.
+        // Using unchecked arithmetic is safe because the sum of the tranche amounts is equal to the total amount
+        // at this point.
         uint128 streamedAmount = tranches[0].amount;
         uint40 currentTrancheTimestamp = tranches[1].timestamp;
         uint256 index = 1;
-
-        // Using unchecked arithmetic is safe here because the sums of the tranche amounts are equal to the total amount
-        // at this point.
         unchecked {
             while (currentTrancheTimestamp <= currentTime) {
                 streamedAmount += tranches[index].amount;
