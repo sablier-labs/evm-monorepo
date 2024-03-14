@@ -114,7 +114,7 @@ interface ISablierV2LockupTranched is ISablierV2Lockup {
     /// Requirements:
     /// - Must not be delegate called.
     /// - `params.totalAmount` must be greater than zero.
-    /// - If set, `params.broker.fee` must not be greater than `MAX_FEE`.
+    /// - If set, `params.broker.fee` must not be greater than `MAX_BROKER_FEE`.
     /// - `params.tranches` must have at least one tranche, but not more than `MAX_TRANCHE_COUNT`.
     /// - `params.startTime` must be less than the first tranche's timestamp.
     /// - The tranche timestamps must be arranged in ascending order.
