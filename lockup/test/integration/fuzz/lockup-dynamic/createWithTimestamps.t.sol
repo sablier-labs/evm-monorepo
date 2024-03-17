@@ -177,6 +177,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
@@ -191,7 +192,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         vm.assume(funder != address(0) && params.recipient != address(0) && params.broker.account != address(0));
         vm.assume(params.segments.length != 0);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-        params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
+        params.startTime = boundUint40(params.startTime, 1, defaults.START_TIME());
         params.transferable = true;
 
         // Fuzz the segment timestamps.

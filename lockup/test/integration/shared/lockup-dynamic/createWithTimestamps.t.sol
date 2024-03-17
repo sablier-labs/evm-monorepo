@@ -22,6 +22,10 @@ contract CreateWithTimestamps_Integration_Shared_Test is LockupDynamic_Integrati
         _;
     }
 
+    modifier whenStartTimeNotZero() {
+        _;
+    }
+
     modifier whenSegmentCountNotZero() {
         _;
     }

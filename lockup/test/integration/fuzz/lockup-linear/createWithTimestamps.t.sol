@@ -104,6 +104,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         external
         whenNotDelegateCalled
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture

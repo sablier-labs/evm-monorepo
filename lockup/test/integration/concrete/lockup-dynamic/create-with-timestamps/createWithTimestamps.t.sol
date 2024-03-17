@@ -48,11 +48,22 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         createDefaultStreamWithTotalAmount(totalAmount);
     }
 
+    function test_RevertWhen_StartTimeZero()
+        external
+        whenNotDelegateCalled
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+    {
+        vm.expectRevert(Errors.SablierV2Lockup_StartTimeZero.selector);
+        createDefaultStreamWithStartTime(0);
+    }
+
     function test_RevertWhen_SegmentCountZero()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
     {
         LockupDynamic.Segment[] memory segments;
         vm.expectRevert(Errors.SablierV2LockupDynamic_SegmentCountZero.selector);
@@ -64,6 +75,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
     {
         uint256 segmentCount = defaults.MAX_COUNT() + 1;
@@ -79,6 +91,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
     {
@@ -94,6 +107,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
@@ -120,6 +134,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
@@ -146,6 +161,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
@@ -175,6 +191,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
@@ -192,6 +209,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
@@ -229,6 +247,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
@@ -249,6 +268,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
@@ -272,6 +292,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow
@@ -290,6 +311,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenSegmentCountNotZero
         whenSegmentCountNotTooHigh
         whenSegmentAmountsSumDoesNotOverflow

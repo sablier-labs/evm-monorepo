@@ -118,8 +118,8 @@ interface ISablierV2LockupDynamic is ISablierV2Lockup {
     /// - Must not be delegate called.
     /// - `params.totalAmount` must be greater than zero.
     /// - If set, `params.broker.fee` must not be greater than `MAX_BROKER_FEE`.
+    /// - `params.startTime` must be greater than zero and less than the first segment's timestamp
     /// - `params.segments` must have at least one segment, but not more than `MAX_SEGMENT_COUNT`.
-    /// - `params.startTime` must be less than the first segment's timestamp.
     /// - The segment timestamps must be arranged in ascending order.
     /// - The last segment timestamp (i.e. the stream's end time) must be in the future.
     /// - The sum of the segment amounts must equal the deposit amount.

@@ -22,6 +22,10 @@ abstract contract CreateWithTimestamps_Integration_Shared_Test is LockupLinear_I
         _;
     }
 
+    modifier whenStartTimeNotZero() {
+        _;
+    }
+
     modifier whenStartTimeNotGreaterThanCliffTime() {
         _;
     }

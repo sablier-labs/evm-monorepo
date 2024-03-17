@@ -58,26 +58,6 @@ contract LockupDynamic_Invariant_Test is Lockup_Invariant_Test {
                                      INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev The deposited amount must not be zero.
-    function invariant_DepositedAmountNotZero() external useCurrentTimestamp {
-        uint256 lastStreamId = lockupStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupStore.streamIds(i);
-            LockupDynamic.StreamLD memory stream = lockupDynamic.getStream(streamId);
-            assertNotEq(stream.amounts.deposited, 0, "Invariant violated: stream non-null, deposited amount zero");
-        }
-    }
-
-    /// @dev The end time cannot be zero because it must be greater than the start time (which can be zero).
-    function invariant_EndTimeNotZero() external useCurrentTimestamp {
-        uint256 lastStreamId = lockupStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = lockupStore.streamIds(i);
-            LockupDynamic.StreamLD memory stream = lockupDynamic.getStream(streamId);
-            assertNotEq(stream.endTime, 0, "Invariant violated: end time zero");
-        }
-    }
-
     /// @dev Unordered segment timestamps are not allowed.
     function invariant_SegmentTimestampsOrdered() external useCurrentTimestamp {
         uint256 lastStreamId = lockupStore.lastStreamId();

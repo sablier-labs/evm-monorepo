@@ -109,7 +109,7 @@ contract LockupTranchedCreateHandler is BaseHandler {
         }
 
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-        params.startTime = boundUint40(params.startTime, 0, getBlockTimestamp());
+        params.startTime = boundUint40(params.startTime, 1, getBlockTimestamp());
 
         // Fuzz the tranche timestamps.
         fuzzTrancheTimestamps(params.tranches, params.startTime);

@@ -177,6 +177,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
         whenTrancheAmountsSumDoesNotOverflow
@@ -192,7 +193,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         vm.assume(params.tranches.length != 0);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
 
-        params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
+        params.startTime = boundUint40(params.startTime, 1, defaults.START_TIME());
         params.transferable = true;
 
         // Fuzz the tranche timestamps.

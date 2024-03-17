@@ -60,6 +60,11 @@ library Helpers {
             revert Errors.SablierV2Lockup_DepositAmountZero();
         }
 
+        // Checks: the start time is not zero.
+        if (startTime == 0) {
+            revert Errors.SablierV2Lockup_StartTimeZero();
+        }
+
         // Checks: the segment count is not zero.
         uint256 segmentCount = segments.length;
         if (segmentCount == 0) {
@@ -84,7 +89,7 @@ library Helpers {
 
         // Checks: the start time is not zero.
         if (range.start == 0) {
-            revert Errors.SablierV2LockupLinear_StartTimeZero();
+            revert Errors.SablierV2Lockup_StartTimeZero();
         }
 
         // Checks: the start time is strictly less than the end time.
@@ -122,6 +127,11 @@ library Helpers {
         // Checks: the deposit amount is not zero.
         if (depositAmount == 0) {
             revert Errors.SablierV2Lockup_DepositAmountZero();
+        }
+
+        // Checks: the start time is not zero.
+        if (startTime == 0) {
+            revert Errors.SablierV2Lockup_StartTimeZero();
         }
 
         // Checks: the tranche count is not zero.

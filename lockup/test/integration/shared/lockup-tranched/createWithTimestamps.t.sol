@@ -22,6 +22,10 @@ contract CreateWithTimestamps_Integration_Shared_Test is LockupTranched_Integrat
         _;
     }
 
+    modifier whenStartTimeNotZero() {
+        _;
+    }
+
     modifier whenTrancheCountNotZero() {
         _;
     }

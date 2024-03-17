@@ -49,11 +49,22 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         createDefaultStreamWithTotalAmount(totalAmount);
     }
 
+    function test_RevertWhen_StartTimeZero()
+        external
+        whenNotDelegateCalled
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+    {
+        vm.expectRevert(Errors.SablierV2Lockup_StartTimeZero.selector);
+        createDefaultStreamWithStartTime(0);
+    }
+
     function test_RevertWhen_TrancheCountZero()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
     {
         LockupTranched.Tranche[] memory tranches;
         vm.expectRevert(Errors.SablierV2LockupTranched_TrancheCountZero.selector);
@@ -65,6 +76,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
     {
         uint256 trancheCount = defaults.MAX_COUNT() + 1;
@@ -80,6 +92,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
     {
@@ -95,6 +108,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
         whenTrancheAmountsSumDoesNotOverflow
@@ -121,6 +135,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
         whenTrancheAmountsSumDoesNotOverflow
@@ -147,6 +162,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
         whenTrancheAmountsSumDoesNotOverflow
@@ -176,6 +192,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
         whenTrancheAmountsSumDoesNotOverflow
@@ -193,6 +210,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
         whenTrancheAmountsSumDoesNotOverflow
@@ -230,6 +248,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
         whenTrancheAmountsSumDoesNotOverflow
@@ -250,6 +269,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
         whenTrancheAmountsSumDoesNotOverflow
@@ -273,6 +293,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
         whenTrancheAmountsSumDoesNotOverflow
@@ -291,6 +312,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenTrancheCountNotZero
         whenTrancheCountNotTooHigh
         whenTrancheAmountsSumDoesNotOverflow

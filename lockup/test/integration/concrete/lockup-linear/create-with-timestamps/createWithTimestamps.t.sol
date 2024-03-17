@@ -46,11 +46,16 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithTotalAmount(0);
     }
 
-    function test_RevertWhen_StartTimeZero() external whenNotDelegateCalled whenRecipientNonZeroAddress {
+    function test_RevertWhen_StartTimeZero()
+        external
+        whenNotDelegateCalled
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+    {
         uint40 cliffTime = defaults.CLIFF_TIME();
         uint40 endTime = defaults.END_TIME();
 
-        vm.expectRevert(Errors.SablierV2LockupLinear_StartTimeZero.selector);
+        vm.expectRevert(Errors.SablierV2Lockup_StartTimeZero.selector);
         createDefaultStreamWithRange(LockupLinear.Range({ start: 0, cliff: cliffTime, end: endTime }));
     }
 
@@ -62,6 +67,8 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenCliffTimeZero
     {
         uint40 startTime = defaults.END_TIME();
@@ -80,6 +87,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenCliffTimeZero
     {
         createDefaultStreamWithRange(
@@ -112,6 +120,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
     {
         uint40 startTime = defaults.CLIFF_TIME();
@@ -130,6 +139,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
     {
@@ -149,6 +159,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
@@ -165,6 +176,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
@@ -182,6 +194,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
@@ -198,6 +211,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
@@ -212,6 +226,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         external
         whenNotDelegateCalled
         whenDepositAmountNotZero
+        whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
         whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime

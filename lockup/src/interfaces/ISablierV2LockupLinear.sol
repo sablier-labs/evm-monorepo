@@ -113,10 +113,8 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - Must not be delegate called.
     /// - `params.totalAmount` must be greater than zero.
     /// - If set, `params.broker.fee` must not be greater than `MAX_BROKER_FEE`.
-    /// - `params.range.start` must be greater than zero.
-    /// - `params.range.start` must be less than `params.range.end`.
-    /// - If set, `params.range.cliff` must be greater than `params.range.start`.
-    /// - If set, `params.range.cliff` must be less than `params.range.end`.
+    /// - `params.range.start` must be greater than zero and less than `params.range.end`.
+    /// - If set, `params.range.cliff` must be greater than `params.range.start` and less than `params.range.end`.
     /// - `params.range.end` must be in the future.
     /// - `params.recipient` must not be the zero address.
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.

@@ -95,6 +95,15 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         }
     }
 
+    function invariant_DepositedAmountNotZero() external useCurrentTimestamp {
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupStore.streamIds(i);
+            uint128 depositAmount = lockup.getDepositedAmount(streamId);
+            assertNotEq(depositAmount, 0, "Invariant violated: stream non-null, deposited amount zero");
+        }
+    }
+
     function invariant_EndTimeGtStartTime() external useCurrentTimestamp {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
@@ -112,6 +121,15 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 nextStreamId = lockup.nextStreamId();
             assertEq(nextStreamId, lastStreamId + 1, "Invariant violation: next stream id not incremented");
+        }
+    }
+
+    function invariant_StartTimeNotZero() external useCurrentTimestamp {
+        uint256 lastStreamId = lockupStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = lockupStore.streamIds(i);
+            uint40 startTime = lockup.getStartTime(streamId);
+            assertGt(startTime, 0, "Invariant violated: start time zero");
         }
     }
 

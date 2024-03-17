@@ -39,6 +39,9 @@ library Errors {
     /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
     error SablierV2Lockup_Overdraw(uint256 streamId, uint128 amount, uint128 withdrawableAmount);
 
+    /// @notice Thrown when trying to create a stream with a zero start time.
+    error SablierV2Lockup_StartTimeZero();
+
     /// @notice Thrown when trying to cancel or renounce a canceled stream.
     error SablierV2Lockup_StreamCanceled(uint256 streamId);
 
@@ -109,9 +112,6 @@ library Errors {
 
     /// @notice Thrown when trying to create a stream with a start time greater than the end time.
     error SablierV2LockupLinear_StartTimeNotLessThanEndTime(uint40 startTime, uint40 endTime);
-
-    /// @notice Thrown when trying to create a stream with a start time equal to zero.
-    error SablierV2LockupLinear_StartTimeZero();
 
     /*//////////////////////////////////////////////////////////////////////////
                              SABLIER-V2-NFT-DESCRIPTOR

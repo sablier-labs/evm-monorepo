@@ -110,7 +110,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         checkUsers(params.sender, params.recipient, params.broker.account, address(lockupDynamic));
         vm.assume(params.segments.length != 0);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-        params.startTime = boundUint40(params.startTime, 0, defaults.START_TIME());
+        params.startTime = boundUint40(params.startTime, 1, defaults.START_TIME());
 
         // Fuzz the segment timestamps.
         fuzzSegmentTimestamps(params.segments, params.startTime);
