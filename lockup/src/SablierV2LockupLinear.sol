@@ -147,7 +147,11 @@ contract SablierV2LockupLinear is
         // {_createWithTimestamps} will nonetheless check that the end time is greater than the cliff time,
         // and also that the cliff time, if set, is greater than or equal to the start time.
         unchecked {
-            range.cliff = params.durations.cliff > 0 ? range.start + params.durations.cliff : 0;
+            // If the cliff duration is greater than zero, calculate the cliff time.
+            if (params.durations.cliff > 0) {
+                range.cliff = range.start + params.durations.cliff;
+            }
+
             range.end = range.start + params.durations.total;
         }
 
