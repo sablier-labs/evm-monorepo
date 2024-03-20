@@ -14,13 +14,45 @@ import { BaseScript } from "./Base.s.sol";
 /// 2. {SablierV2LockupLinear}
 /// 3. {SablierV2LockupTranched}
 contract DeployCore2 is BaseScript {
-    function run(
+    /// @dev Deploy using Forge CLI.
+    function runBroadcast(
         address initialAdmin,
         ISablierV2NFTDescriptor nftDescriptor
     )
         public
         virtual
         broadcast
+        returns (
+            SablierV2LockupDynamic lockupDynamic,
+            SablierV2LockupLinear lockupLinear,
+            SablierV2LockupTranched lockupTranched
+        )
+    {
+        (lockupDynamic, lockupLinear, lockupTranched) = _run(initialAdmin, nftDescriptor);
+    }
+
+    /// @dev Deploy using Sphinx CLI.
+    function runSphinx(
+        address initialAdmin,
+        ISablierV2NFTDescriptor nftDescriptor
+    )
+        public
+        virtual
+        sphinx
+        returns (
+            SablierV2LockupDynamic lockupDynamic,
+            SablierV2LockupLinear lockupLinear,
+            SablierV2LockupTranched lockupTranched
+        )
+    {
+        (lockupDynamic, lockupLinear, lockupTranched) = _run(initialAdmin, nftDescriptor);
+    }
+
+    function _run(
+        address initialAdmin,
+        ISablierV2NFTDescriptor nftDescriptor
+    )
+        internal
         returns (
             SablierV2LockupDynamic lockupDynamic,
             SablierV2LockupLinear lockupLinear,

@@ -3,15 +3,19 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { Sphinx } from "@sphinx-labs/contracts/SphinxPlugin.sol";
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
 
-contract BaseScript is Script {
+contract BaseScript is Script, Sphinx {
     using Strings for uint256;
 
     /// @dev The Avalanche chain ID.
     uint256 internal constant AVALANCHE_CHAIN_ID = 43_114;
+
+    /// @dev The project name for the Sphinx plugin.
+    string internal constant SPHINX_PROJECT_NAME = "test-test";
 
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
@@ -26,24 +30,29 @@ contract BaseScript is Script {
     /// block gas limit.
     uint256 internal maxCount;
 
-    /// @dev Used to derive the broadcaster's address if $ETH_FROM is not defined.
+    /// @dev Used to derive the broadcaster's address if $EOA is not defined.
     string internal mnemonic;
+
+    /// @dev The project name for the Sphinx plugin.
+    string internal sphinxProjectName;
 
     /// @dev Initializes the transaction broadcaster like this:
     ///
-    /// - If $ETH_FROM is defined, use it.
+    /// - If $EOA is defined, use it.
     /// - Otherwise, derive the broadcaster address from $MNEMONIC.
     /// - If $MNEMONIC is not defined, default to a test mnemonic.
+    /// - If $SPHINX_PROJECT_NAME is not defined, default to a test project name.
     ///
-    /// The use case for $ETH_FROM is to specify the broadcaster key and its address via the command line.
+    /// The use case for $EOA is to specify the broadcaster key and its address via the command line.
     constructor() {
-        address from = vm.envOr({ name: "ETH_FROM", defaultValue: address(0) });
+        address from = vm.envOr({ name: "EOA", defaultValue: address(0) });
         if (from != address(0)) {
             broadcaster = from;
         } else {
             mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
+        sphinxProjectName = vm.envOr({ name: "SPHINX_PROJECT_NAME", defaultValue: SPHINX_PROJECT_NAME });
 
         // Sets `maxCount` to 300 for Avalanche, and 500 for all other chains.
         if (block.chainid == AVALANCHE_CHAIN_ID) {
@@ -57,6 +66,19 @@ contract BaseScript is Script {
         vm.startBroadcast(broadcaster);
         _;
         vm.stopBroadcast();
+    }
+
+    /// @dev Configures the Sphinx plugin to use Sphinx managed deployment for smart contracts.
+    /// Refer to https://github.com/sphinx-labs/sphinx/tree/main/docs.
+    /// CLI example:
+    /// - bun sphinx propose script/DeployCore.s.sol --networks testnets --sig "runSphinx(address)" $ADMIN
+    function configureSphinx() public override {
+        sphinxConfig.mainnets = ["arbitrum", "avalanche", "bnb", "gnosis", "ethereum", "optimism", "polygon"];
+        sphinxConfig.orgId = vm.envOr({ name: "SPHINX_ORG_ID", defaultValue: TEST_MNEMONIC });
+        sphinxConfig.owners = [broadcaster];
+        sphinxConfig.projectName = sphinxProjectName;
+        sphinxConfig.testnets = ["sepolia"];
+        sphinxConfig.threshold = 1;
     }
 
     /// @dev The presence of the salt instructs Forge to deploy contracts via this deterministic CREATE2 factory:

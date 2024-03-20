@@ -2,8 +2,13 @@
   auto_detect_solc = false
   bytecode_hash = "none"
   emv_version = "paris"
+  extra_output = ['storageLayout']
   ffi = true
-  fs_permissions = [{ access = "read", path = "out-optimized" }]
+  fs_permissions = [
+    { access = "read", path = "out-optimized" },
+    { access = "read", path = "./out" },
+    { access = "read-write", path = "./cache" }
+  ]
   gas_reports = [
     "SablierV2LockupDynamic",
     "SablierV2LockupLinear",
@@ -94,9 +99,10 @@
 [rpc_endpoints]
   arbitrum = "https://arbitrum-mainnet.infura.io/v3/${API_KEY_INFURA}"
   avalanche = "https://avalanche-mainnet.infura.io/v3/${API_KEY_INFURA}"
-  bnb_smart_chain = "https://bsc-dataseed.binance.org"
-  gnosis_chain = "https://rpc.gnosischain.com"
+  bnb = "https://bsc-dataseed.binance.org"
+  gnosis = "https://rpc.gnosischain.com"
   localhost = "http://localhost:8545"
+  ethereum = "${RPC_URL_MAINNET}"
   mainnet = "${RPC_URL_MAINNET}"
   optimism = "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}"
   polygon = "https://polygon-mainnet.infura.io/v3/${API_KEY_INFURA}"

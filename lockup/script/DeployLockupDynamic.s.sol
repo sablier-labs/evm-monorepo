@@ -7,13 +7,37 @@ import { SablierV2LockupDynamic } from "../src/SablierV2LockupDynamic.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract DeployLockupDynamic is BaseScript {
-    function run(
+    /// @dev Deploy using Forge CLI.
+    function runBroadcast(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor
     )
         public
         virtual
         broadcast
+        returns (SablierV2LockupDynamic lockupDynamic)
+    {
+        lockupDynamic = _run(initialAdmin, initialNFTDescriptor);
+    }
+
+    /// @dev Deploy using Sphinx CLI.
+    function runSphinx(
+        address initialAdmin,
+        ISablierV2NFTDescriptor initialNFTDescriptor
+    )
+        public
+        virtual
+        sphinx
+        returns (SablierV2LockupDynamic lockupDynamic)
+    {
+        lockupDynamic = _run(initialAdmin, initialNFTDescriptor);
+    }
+
+    function _run(
+        address initialAdmin,
+        ISablierV2NFTDescriptor initialNFTDescriptor
+    )
+        internal
         returns (SablierV2LockupDynamic lockupDynamic)
     {
         lockupDynamic = new SablierV2LockupDynamic(initialAdmin, initialNFTDescriptor, maxCount);

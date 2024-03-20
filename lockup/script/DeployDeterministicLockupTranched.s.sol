@@ -9,13 +9,37 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev Deploys {SablierV2LockupTranched} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
 contract DeployDeterministicLockupTranched is BaseScript {
-    function run(
+    /// @dev Deploy using Forge CLI.
+    function runBroadcast(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor
     )
         public
         virtual
         broadcast
+        returns (SablierV2LockupTranched lockupTranched)
+    {
+        lockupTranched = _run(initialAdmin, initialNFTDescriptor);
+    }
+
+    /// @dev Deploy using Sphinx CLI.
+    function runSphinx(
+        address initialAdmin,
+        ISablierV2NFTDescriptor initialNFTDescriptor
+    )
+        public
+        virtual
+        sphinx
+        returns (SablierV2LockupTranched lockupTranched)
+    {
+        lockupTranched = _run(initialAdmin, initialNFTDescriptor);
+    }
+
+    function _run(
+        address initialAdmin,
+        ISablierV2NFTDescriptor initialNFTDescriptor
+    )
+        internal
         returns (SablierV2LockupTranched lockupTranched)
     {
         bytes32 salt = constructCreate2Salt();
