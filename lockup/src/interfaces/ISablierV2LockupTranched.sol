@@ -63,26 +63,6 @@ interface ISablierV2LockupTranched is ISablierV2Lockup {
     /// @dev This is initialized at construction time and cannot be changed later.
     function MAX_TRANCHE_COUNT() external view returns (uint256);
 
-    /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
-    ///
-    /// When the stream is warm, the streaming function is:
-    ///
-    /// $$
-    /// f(x) = \Sigma(esa)
-    /// $$
-    ///
-    /// Where:
-    ///
-    /// - $\Sigma(esa)$ is the sum of all elapsed tranches' amounts.
-    ///
-    /// Upon cancellation of the stream, the amount streamed is calculated as the difference between the deposited
-    /// amount and the refunded amount. Ultimately, when the stream becomes depleted, the streamed amount is equivalent
-    /// to the total amount withdrawn.
-    ///
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream id for the query.
-    function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
-
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

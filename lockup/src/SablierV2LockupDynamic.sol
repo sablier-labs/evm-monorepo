@@ -130,16 +130,6 @@ contract SablierV2LockupDynamic is
         });
     }
 
-    /// @inheritdoc ISablierV2LockupDynamic
-    function streamedAmountOf(uint256 streamId)
-        public
-        view
-        override(SablierV2Lockup, ISablierV2LockupDynamic)
-        returns (uint128)
-    {
-        return super.streamedAmountOf(streamId);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -186,6 +176,18 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierV2Lockup
+    /// @dev The streaming function is:
+    ///
+    /// $$
+    /// f(x) = x^{exp} * csa + \Sigma(esa)
+    /// $$
+    ///
+    /// Where:
+    ///
+    /// - $x$ is the elapsed time divided by the total time in the current segment.
+    /// - $exp$ is the current segment exponent.
+    /// - $csa$ is the current segment amount.
+    /// - $\Sigma(esa)$ is the sum of all elapsed segments' amounts.
     function _calculateStreamedAmount(uint256 streamId) internal view override returns (uint128) {
         // If the start time is in the future, return zero.
         uint40 currentTime = uint40(block.timestamp);

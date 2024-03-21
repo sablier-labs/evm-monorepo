@@ -125,16 +125,6 @@ contract SablierV2LockupTranched is
         tranches = _tranches[streamId];
     }
 
-    /// @inheritdoc ISablierV2LockupTranched
-    function streamedAmountOf(uint256 streamId)
-        public
-        view
-        override(SablierV2Lockup, ISablierV2LockupTranched)
-        returns (uint128)
-    {
-        return super.streamedAmountOf(streamId);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -181,9 +171,17 @@ contract SablierV2LockupTranched is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierV2Lockup
+    /// @dev The streaming function is:
+    ///
+    /// $$
+    /// f(x) = \Sigma(eta)
+    /// $$
+    ///
+    /// Where:
+    ///
+    /// - $\Sigma(eta)$ is the sum of all elapsed tranches' amounts.
     function _calculateStreamedAmount(uint256 streamId) internal view override returns (uint128) {
         uint40 currentTime = uint40(block.timestamp);
-
         LockupTranched.Tranche[] memory tranches = _tranches[streamId];
 
         // If the first timestamp in the tranches is in the future, return zero.
@@ -200,7 +198,6 @@ contract SablierV2LockupTranched is
         // Using unchecked arithmetic is safe because the sum of the tranche amounts is equal to the total amount
         // at this point.
         uint128 streamedAmount = tranches[0].amount;
-
         uint256 index = 1;
         unchecked {
             while (tranches[index].timestamp <= currentTime) {

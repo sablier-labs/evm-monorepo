@@ -119,15 +119,6 @@ contract SablierV2LockupLinear is
         });
     }
 
-    function streamedAmountOf(uint256 streamId)
-        public
-        view
-        override(SablierV2Lockup, ISablierV2LockupLinear)
-        returns (uint128)
-    {
-        return super.streamedAmountOf(streamId);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -186,6 +177,17 @@ contract SablierV2LockupLinear is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierV2Lockup
+    /// @dev The streaming function is:
+    ///
+    /// $$
+    /// f(x) = x * d + c
+    /// $$
+    ///
+    /// Where:
+    ///
+    /// - $x$ is the elapsed time divided by the stream's total duration.
+    /// - $d$ is the deposited amount.
+    /// - $c$ is the cliff amount.
     function _calculateStreamedAmount(uint256 streamId) internal view override returns (uint128) {
         // If the cliff time is in the future, return zero.
         uint256 cliffTime = uint256(_cliffs[streamId]);

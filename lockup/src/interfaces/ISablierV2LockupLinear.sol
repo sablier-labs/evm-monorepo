@@ -59,28 +59,6 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @param streamId The stream id for the query.
     function getStream(uint256 streamId) external view returns (LockupLinear.StreamLL memory stream);
 
-    /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
-    ///
-    /// When the stream is warm, the streaming function is:
-    ///
-    /// $$
-    /// f(x) = x * d + c
-    /// $$
-    ///
-    /// Where:
-    ///
-    /// - $x$ is the elapsed time divided by the stream's total duration.
-    /// - $d$ is the deposited amount.
-    /// - $c$ is the cliff amount.
-    ///
-    /// Upon cancellation of the stream, the amount streamed is calculated as the difference between the deposited
-    /// amount and the refunded amount. Ultimately, when the stream becomes depleted, the streamed amount is equivalent
-    /// to the total amount withdrawn.
-    ///
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream id for the query.
-    function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
-
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

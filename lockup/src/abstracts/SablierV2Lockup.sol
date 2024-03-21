@@ -198,7 +198,6 @@ abstract contract SablierV2Lockup is
     function streamedAmountOf(uint256 streamId)
         public
         view
-        virtual
         override
         notNull(streamId)
         returns (uint128 streamedAmount)

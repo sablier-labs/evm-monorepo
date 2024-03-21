@@ -155,6 +155,12 @@ interface ISablierV2Lockup is
 
     /// @notice Calculates the amount streamed to the recipient, denoted in units of the asset's decimals.
     /// @dev Reverts if `streamId` references a null stream.
+    ///
+    /// Notes:
+    /// - Upon cancellation of the stream, the amount streamed is calculated as the difference between the deposited
+    /// amount and the refunded amount. Ultimately, when the stream becomes depleted, the streamed amount is equivalent
+    /// to the total amount withdrawn.
+    ///
     /// @param streamId The stream id for the query.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
