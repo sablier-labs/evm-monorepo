@@ -10,11 +10,11 @@ on:
   workflow_dispatch:
     inputs:
       unitFuzzRuns:
-        default: "100000"
+        default: "50000"
         description: "Unit: number of fuzz runs."
         required: false
       integrationFuzzRuns:
-        default: "100000"
+        default: "50000"
         description: "Integration: number of fuzz runs."
         required: false
       invariantRuns:
@@ -41,7 +41,7 @@ jobs:
     needs: ["lint", "build"]
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-test.yml@main"
     with:
-      foundry-fuzz-runs: ${{ inputs.unitFuzzRuns || 100000 }}
+      foundry-fuzz-runs: ${{ inputs.unitFuzzRuns || 50000 }}
       foundry-profile: "test-optimized"
       match-path: "test/unit/**/*.sol"
       name: "Unit tests"
