@@ -51,13 +51,13 @@ This installation method is not recommended, but it is available for those who p
 First, install the submodule using Forge:
 
 ```shell
-forge install sablier-labs/v2-core
+forge install --no-commit sablier-labs/v2-core
 ```
 
 Second, install the project's dependencies:
 
 ```shell
-forge install --no-commit OpenZeppelin/openzeppelin-contracts@v4.9.2 PaulRBerg/prb-math@v4
+forge install --no-commit OpenZeppelin/openzeppelin-contracts@v5.0.0 PaulRBerg/prb-math
 ```
 
 Finally, add these to your `remappings.txt` file:
