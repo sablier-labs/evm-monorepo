@@ -13,7 +13,6 @@ import { Base_Test } from "../Base.t.sol";
 
 contract Precompiles_Test is Base_Test {
     using LibString for address;
-    using LibString for string;
 
     Precompiles internal precompiles = new Precompiles();
 
@@ -100,9 +99,10 @@ contract Precompiles_Test is Base_Test {
         returns (bytes memory)
     {
         return vm.parseBytes(
-            vm.toString(bytecode).replace({
-                search: expectedAddress.toHexStringNoPrefix(),
-                replacement: actualAddress.toHexStringNoPrefix()
+            vm.replace({
+                input: vm.toString(bytecode),
+                from: expectedAddress.toHexStringNoPrefix(),
+                to: actualAddress.toHexStringNoPrefix()
             })
         );
     }

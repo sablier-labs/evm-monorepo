@@ -23,7 +23,7 @@ contract StreamedAmountOf_LockupTranched_Integration_Concrete_Test is
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
     {
-        vm.warp({ timestamp: 0 });
+        vm.warp({ newTimestamp: 0 });
         uint128 actualStreamedAmount = lockupTranched.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -35,7 +35,7 @@ contract StreamedAmountOf_LockupTranched_Integration_Concrete_Test is
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
     {
-        vm.warp({ timestamp: defaults.START_TIME() });
+        vm.warp({ newTimestamp: defaults.START_TIME() });
         uint128 actualStreamedAmount = lockupTranched.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -54,7 +54,7 @@ contract StreamedAmountOf_LockupTranched_Integration_Concrete_Test is
         whenStartTimeInThePast
     {
         // Warp 1 second to the future.
-        vm.warp({ timestamp: defaults.START_TIME() + 1 seconds });
+        vm.warp({ newTimestamp: defaults.START_TIME() + 1 seconds });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupTranched.streamedAmountOf(defaultStreamId);
@@ -75,7 +75,7 @@ contract StreamedAmountOf_LockupTranched_Integration_Concrete_Test is
         givenMultipleTranches
         givenCurrentTimestampNot1st
     {
-        vm.warp({ timestamp: defaults.END_TIME() - 1 seconds });
+        vm.warp({ newTimestamp: defaults.END_TIME() - 1 seconds });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupTranched.streamedAmountOf(defaultStreamId);

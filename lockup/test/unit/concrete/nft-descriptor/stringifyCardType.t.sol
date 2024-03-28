@@ -6,7 +6,7 @@ import { SVGElements } from "src/libraries/SVGElements.sol";
 import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
 
 contract StringifyCardType_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
-    function test_StringifyCardType() external {
+    function test_StringifyCardType() external view {
         assertEq(nftDescriptorMock.stringifyCardType_(SVGElements.CardType.PROGRESS), "Progress");
         assertEq(nftDescriptorMock.stringifyCardType_(SVGElements.CardType.STATUS), "Status");
         assertEq(nftDescriptorMock.stringifyCardType_(SVGElements.CardType.AMOUNT), "Amount");

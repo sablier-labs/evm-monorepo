@@ -25,7 +25,7 @@ abstract contract Lockup_Integration_Shared_Test is Base_Test {
 
     function setUp() public virtual override {
         // Make the Sender the default caller in this test suite.
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

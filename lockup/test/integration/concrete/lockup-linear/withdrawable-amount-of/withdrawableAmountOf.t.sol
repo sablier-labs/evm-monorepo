@@ -30,7 +30,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Concrete_Test is
     }
 
     modifier givenCliffTimeNotInTheFuture() {
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         _;
     }
 

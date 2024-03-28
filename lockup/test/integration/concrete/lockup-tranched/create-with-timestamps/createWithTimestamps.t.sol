@@ -200,7 +200,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenTrancheTimestampsOrdered
     {
         uint40 endTime = defaults.END_TIME();
-        vm.warp({ timestamp: endTime });
+        vm.warp({ newTimestamp: endTime });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeNotInTheFuture.selector, endTime, endTime));
         createDefaultStream();
     }
@@ -219,7 +219,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
         whenEndTimeInTheFuture
     {
         UD60x18 brokerFee = ZERO;
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
 
         // Adjust the default deposit amount.
         uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();
@@ -281,7 +281,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Concrete_Test is
     {
         address nonContract = address(8128);
 
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Address.AddressEmptyCode.selector, nonContract));

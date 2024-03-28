@@ -20,7 +20,7 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Fuzz_Test is
         LockupTranched_Integration_Fuzz_Test.setUp();
         WithdrawableAmountOf_Integration_Shared_Test.setUp();
 
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
     }
 
     modifier whenStartTimeInThePast() {
@@ -46,7 +46,7 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Fuzz_Test is
 
         // Simulate the passage of time.
         uint40 currentTime = defaults.START_TIME() + timeJump;
-        vm.warp({ timestamp: currentTime });
+        vm.warp({ newTimestamp: currentTime });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupTranched.withdrawableAmountOf(streamId);
@@ -95,7 +95,7 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Fuzz_Test is
         uint256 streamId = lockupTranched.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: currentTime });
+        vm.warp({ newTimestamp: currentTime });
 
         // Make the withdrawal.
         lockupTranched.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });

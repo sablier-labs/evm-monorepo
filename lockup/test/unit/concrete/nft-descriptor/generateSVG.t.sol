@@ -11,7 +11,7 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
     /// @dev If you need to update the hard-coded token URI:
     /// 1. Use "vm.writeFile" to log the strings to a file.
     /// 2. Remember to escape 'Courier New' with \'Courier New\'.
-    function test_GenerateSVG_Pending() external {
+    function test_GenerateSVG_Pending() external view {
         string memory actualSVG = nftDescriptorMock.generateSVG_(
             NFTSVG.SVGParams({
                 accentColor: "hsl(155,18%,30%)",
@@ -31,7 +31,7 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
         assertEq(actualSVG, expectedSVG, "SVG mismatch");
     }
 
-    function test_GenerateSVG_Streaming() external {
+    function test_GenerateSVG_Streaming() external view {
         string memory actualSVG = nftDescriptorMock.generateSVG_(
             NFTSVG.SVGParams({
                 accentColor: "hsl(114,3%,53%)",
@@ -51,7 +51,7 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
         assertEq(actualSVG, expectedSVG, "SVG mismatch");
     }
 
-    function test_GenerateSVG_Depleted() external {
+    function test_GenerateSVG_Depleted() external view {
         string memory actualSVG = nftDescriptorMock.generateSVG_(
             NFTSVG.SVGParams({
                 accentColor: "hsl(123,25%,44%)",

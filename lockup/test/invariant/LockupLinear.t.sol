@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22 <0.9.0;
 
-import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
+import { Lockup } from "src/types/DataTypes.sol";
 
 import { Lockup_Invariant_Test } from "./Lockup.t.sol";
 import { LockupLinearHandler } from "./handlers/LockupLinearHandler.sol";
@@ -87,7 +87,7 @@ contract LockupLinear_Invariant_Test is Lockup_Invariant_Test {
     }
 
     /// @dev Settled streams must not appear as cancelable in {SablierV2LockupLinear.getStream}.
-    function invariant_StatusSettled_GetStream() external {
+    function invariant_StatusSettled_GetStream() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);

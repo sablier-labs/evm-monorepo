@@ -25,7 +25,7 @@ contract GetStream_LockupLinear_Integration_Concrete_Test is LockupLinear_Integr
     }
 
     function test_GetStream_StatusSettled() external givenNotNull {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(defaultStreamId);
         LockupLinear.StreamLL memory expectedStream = defaults.lockupLinearStream();
         expectedStream.isCancelable = false;

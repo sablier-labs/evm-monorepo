@@ -40,7 +40,7 @@ abstract contract Fork_Test is Base_Test {
         labelContracts();
 
         // Make the ASSET HOLDER the caller in this test suite.
-        changePrank({ msgSender: HOLDER });
+        resetPrank({ msgSender: HOLDER });
 
         // Query the initial balance of the ASSET HOLDER.
         initialHolderBalance = ASSET.balanceOf(HOLDER);

@@ -74,7 +74,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         uint256[] memory streamIds = Solarray.uint256s(testStreamIds[0], testStreamIds[1], nullStreamId);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Expect the relevant error to be thrown.
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
@@ -94,7 +94,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         uint128[] memory amounts = Solarray.uint128s(defaults.WITHDRAW_AMOUNT());
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
 
         // Deplete the first test stream.
         lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient });
@@ -114,7 +114,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         givenNoNull
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
 
         // Deplete the first test stream.
         lockup.withdrawMax({ streamId: testStreamIds[0], to: users.recipient });
@@ -136,7 +136,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenToNonZeroAddress
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Run the test.
         uint128[] memory amounts = Solarray.uint128s(defaults.WITHDRAW_AMOUNT(), 0, 0);
@@ -155,7 +155,7 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenNoAmountZero
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Run the test.
         uint128 withdrawableAmount = lockup.withdrawableAmountOf(testStreamIds[2]);
@@ -180,14 +180,14 @@ abstract contract WithdrawMultiple_Integration_Concrete_Test is
         whenNoAmountOverdraws
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: earlyStopTime });
+        vm.warp({ newTimestamp: earlyStopTime });
 
         // Cancel the 3rd stream.
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
         lockup.cancel(testStreamIds[2]);
 
         // Run the test with the caller provided in {whenCallerAuthorizedAllStreams}.
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
 
         // Expect the withdrawals to be made.
         expectCallToTransfer({ to: users.recipient, value: testAmounts[0] });

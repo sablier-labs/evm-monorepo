@@ -31,7 +31,7 @@ abstract contract CancelMultiple_Integration_Fuzz_Test is Integration_Test, Canc
         uint256 streamId = createDefaultStreamWithEndTime(endTime);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Create the stream ids array.
         uint256[] memory streamIds = Solarray.uint256s(testStreamIds[0], streamId);

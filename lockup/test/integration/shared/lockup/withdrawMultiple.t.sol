@@ -19,7 +19,7 @@ abstract contract WithdrawMultiple_Integration_Shared_Test is Lockup_Integration
     /// @dev Creates the default streams used throughout the tests.
     function createTestStreams() internal {
         // Warp back to the original timestamp.
-        vm.warp({ timestamp: originalTime });
+        vm.warp({ newTimestamp: originalTime });
 
         // Define the default amounts.
         testAmounts = new uint128[](3);
@@ -54,7 +54,7 @@ abstract contract WithdrawMultiple_Integration_Shared_Test is Lockup_Integration
     }
 
     modifier givenNoDepletedStream() {
-        vm.warp({ timestamp: defaults.START_TIME() });
+        vm.warp({ newTimestamp: defaults.START_TIME() });
         _;
     }
 
@@ -71,14 +71,14 @@ abstract contract WithdrawMultiple_Integration_Shared_Test is Lockup_Integration
         _;
         createTestStreams();
         caller = users.recipient;
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
         _;
         createTestStreams();
         caller = users.operator;
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
         lockup.setApprovalForAll({ operator: users.operator, approved: true });
         caller = users.operator;
-        changePrank({ msgSender: users.operator });
+        resetPrank({ msgSender: users.operator });
         _;
     }
 

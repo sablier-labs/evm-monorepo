@@ -2,7 +2,6 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Vm } from "@prb/test/src/PRBTest.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
 
 import { Constants } from "../../utils/Constants.sol";
@@ -17,9 +16,6 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
 
     /// @dev Maximum number of streams that can be created during an invariant campaign.
     uint256 internal constant MAX_STREAM_COUNT = 100;
-
-    /// @dev The virtual address of the Foundry VM.
-    address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
 
     /// @dev Maps function names to the number of times they have been called.
     mapping(string func => uint256 calls) public calls;
@@ -36,9 +32,6 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
 
     /// @dev Reference to the timestamp store, which is needed for simulating the passage of time.
     TimestampStore public timestampStore;
-
-    /// @dev An instance of the Foundry VM, which contains cheatcodes for testing.
-    Vm internal constant vm = Vm(VM_ADDRESS);
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -87,7 +80,7 @@ abstract contract BaseHandler is Constants, Fuzzers, StdCheats {
 
     /// @dev Makes the provided sender the caller.
     modifier useNewSender(address sender) {
-        changePrank(sender);
+        resetPrank(sender);
         _;
     }
 }

@@ -8,7 +8,7 @@ import { Adminable_Unit_Shared_Test } from "../../../shared/Adminable.t.sol";
 contract TransferAdmin_Unit_Concrete_Test is Adminable_Unit_Shared_Test {
     function test_RevertWhen_CallerNotAdmin() external {
         // Make Eve the caller in this test.
-        changePrank(users.eve);
+        resetPrank(users.eve);
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.admin, users.eve));

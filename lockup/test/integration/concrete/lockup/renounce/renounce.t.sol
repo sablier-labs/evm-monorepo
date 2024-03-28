@@ -40,37 +40,37 @@ abstract contract Renounce_Integration_Concrete_Test is Integration_Test, Lockup
     }
 
     function test_RevertGiven_StatusDepleted() external whenNotDelegateCalled givenStreamCold {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamDepleted.selector, defaultStreamId));
         lockup.renounce(defaultStreamId);
     }
 
     function test_RevertGiven_StatusCanceled() external whenNotDelegateCalled givenStreamCold {
-        vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         lockup.cancel(defaultStreamId);
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamCanceled.selector, defaultStreamId));
         lockup.renounce(defaultStreamId);
     }
 
     function test_RevertGiven_StatusSettled() external whenNotDelegateCalled givenStreamCold {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamSettled.selector, defaultStreamId));
         lockup.renounce(defaultStreamId);
     }
 
     /// @dev This modifier runs the test twice: once with a "PENDING" status, and once with a "STREAMING" status.
     modifier givenStreamWarm() {
-        vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
+        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
         _;
-        vm.warp({ timestamp: defaults.START_TIME() });
+        vm.warp({ newTimestamp: defaults.START_TIME() });
         defaultStreamId = createDefaultStream();
         _;
     }
 
     function test_RevertWhen_CallerNotSender() external whenNotDelegateCalled givenStreamWarm {
         // Make Eve the caller in this test.
-        changePrank({ msgSender: users.eve });
+        resetPrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(

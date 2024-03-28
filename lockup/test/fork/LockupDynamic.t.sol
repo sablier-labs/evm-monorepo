@@ -124,7 +124,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         });
 
         // Make the holder the caller.
-        changePrank(HOLDER);
+        resetPrank(HOLDER);
 
         /*//////////////////////////////////////////////////////////////////////////
                                             CREATE
@@ -243,7 +243,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
 
         // Simulate the passage of time.
         params.warpTimestamp = boundUint40(params.warpTimestamp, vars.range.start, vars.range.end + 100 seconds);
-        vm.warp({ timestamp: params.warpTimestamp });
+        vm.warp({ newTimestamp: params.warpTimestamp });
 
         // Bound the withdraw amount.
         vars.withdrawableAmount = lockupDynamic.withdrawableAmountOf(vars.streamId);
@@ -272,7 +272,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
             emit MetadataUpdate({ _tokenId: vars.streamId });
 
             // Make the withdrawal.
-            changePrank({ msgSender: params.recipient });
+            resetPrank({ msgSender: params.recipient });
             lockupDynamic.withdraw({ streamId: vars.streamId, to: params.recipient, amount: params.withdrawAmount });
 
             // Assert that the stream's status is correct.
@@ -335,7 +335,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
             emit MetadataUpdate({ _tokenId: vars.streamId });
 
             // Cancel the stream.
-            changePrank({ msgSender: params.sender });
+            resetPrank({ msgSender: params.sender });
             lockupDynamic.cancel(vars.streamId);
 
             // Assert that the stream's status is correct.

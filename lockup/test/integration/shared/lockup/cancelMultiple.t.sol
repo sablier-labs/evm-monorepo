@@ -15,7 +15,7 @@ abstract contract CancelMultiple_Integration_Shared_Test is Lockup_Integration_S
     /// @dev Creates the default streams used throughout the tests.
     function createTestStreams() internal {
         // Warp back to the original timestamp.
-        vm.warp({ timestamp: originalTime });
+        vm.warp({ newTimestamp: originalTime });
 
         // Create the test streams.
         testStreamIds = new uint256[](2);
@@ -46,9 +46,9 @@ abstract contract CancelMultiple_Integration_Shared_Test is Lockup_Integration_S
 
     modifier whenCallerAuthorizedAllStreams() {
         _;
-        vm.warp({ timestamp: originalTime });
+        vm.warp({ newTimestamp: originalTime });
         createTestStreams();
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
         _;
     }
 

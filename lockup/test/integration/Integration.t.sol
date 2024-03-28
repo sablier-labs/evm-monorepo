@@ -31,7 +31,7 @@ abstract contract Integration_Test is Base_Test {
         labelContracts();
 
         // Make the Admin the default caller in this test suite.
-        changePrank({ msgSender: users.admin });
+        resetPrank({ msgSender: users.admin });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Expects a delegate call error.
-    function expectRevertDueToDelegateCall(bool success, bytes memory returnData) internal {
+    function expectRevertDueToDelegateCall(bool success, bytes memory returnData) internal pure {
         assertFalse(success, "delegatecall success");
         assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
     }

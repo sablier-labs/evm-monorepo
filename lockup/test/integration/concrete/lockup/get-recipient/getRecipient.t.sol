@@ -25,10 +25,10 @@ abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test, Lo
 
     function test_RevertGiven_NFTBurned() external {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
 
         // Make the Recipient the caller.
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
 
         // Deplete the stream.
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
@@ -45,7 +45,7 @@ abstract contract GetRecipient_Integration_Concrete_Test is Integration_Test, Lo
         _;
     }
 
-    function test_GetRecipient() external givenNotNull givenNFTNotBurned {
+    function test_GetRecipient() external view givenNotNull givenNFTNotBurned {
         address actualRecipient = lockup.getRecipient(defaultStreamId);
         address expectedRecipient = users.recipient;
         assertEq(actualRecipient, expectedRecipient, "recipient");

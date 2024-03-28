@@ -166,7 +166,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenEndTimeInTheFuture
     {
         uint40 endTime = defaults.END_TIME();
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_EndTimeNotInTheFuture.selector, endTime, endTime));
         createDefaultStream();
     }

@@ -29,7 +29,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
 
     function test_RevertWhen_CallerNotCurrentRecipient() external whenNotDelegateCalled givenNotNull {
         // Make Eve the caller in this test.
-        changePrank({ msgSender: users.eve });
+        resetPrank({ msgSender: users.eve });
 
         // Run the test.
         vm.expectRevert(
@@ -40,7 +40,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
 
     function test_RevertGiven_NFTBurned() external whenNotDelegateCalled givenNotNull whenCallerCurrentRecipient {
         // Deplete the stream.
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
 
         // Burn the NFT.
@@ -60,7 +60,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         whenCallerCurrentRecipient
         givenNFTNotBurned
     {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: defaultStreamId, to: users.recipient });
         lockup.withdrawMaxAndTransfer({ streamId: defaultStreamId, newRecipient: users.alice });
     }
@@ -90,7 +90,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Concrete_Test is
         givenStreamTransferable
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);

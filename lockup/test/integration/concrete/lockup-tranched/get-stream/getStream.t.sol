@@ -25,7 +25,7 @@ contract GetStream_LockupTranched_Integration_Concrete_Test is LockupTranched_In
     }
 
     function test_GetStream_StatusSettled() external givenNotNull {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(defaultStreamId);
         LockupTranched.StreamLT memory expectedStream = defaults.lockupTranchedStream();
         expectedStream.isCancelable = false;

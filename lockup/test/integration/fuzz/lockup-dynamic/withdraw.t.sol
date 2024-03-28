@@ -69,7 +69,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         deal({ token: address(dai), to: vars.funder, give: vars.totalAmount });
 
         // Make the Sender the caller.
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
 
         // Create the stream with the fuzzed segments.
         LockupDynamic.CreateWithTimestamps memory createParams = defaults.createWithTimestampsLD();
@@ -79,7 +79,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         vars.streamId = lockupDynamic.createWithTimestamps(createParams);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + params.timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + params.timeJump });
 
         // Query the withdrawable amount.
         vars.withdrawableAmount = lockupDynamic.withdrawableAmountOf(vars.streamId);
@@ -102,7 +102,7 @@ contract Withdraw_LockupDynamic_Integration_Fuzz_Test is
         emit MetadataUpdate({ _tokenId: vars.streamId });
 
         // Make the Recipient the caller.
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
 
         // Make the withdrawal.
         lockupDynamic.withdraw({ streamId: vars.streamId, to: params.to, amount: vars.withdrawAmount });

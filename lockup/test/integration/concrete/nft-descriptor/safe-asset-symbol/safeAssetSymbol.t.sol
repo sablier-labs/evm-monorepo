@@ -6,14 +6,14 @@ import { ERC20Bytes32 } from "../../../../mocks/erc20/ERC20Bytes32.sol";
 import { NFTDescriptor_Integration_Concrete_Test } from "../NFTDescriptor.t.sol";
 
 contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_Concrete_Test {
-    function test_SafeAssetSymbol_EOA() external {
+    function test_SafeAssetSymbol_EOA() external view {
         address eoa = vm.addr({ privateKey: 1 });
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(eoa));
         string memory expectedSymbol = "ERC20";
         assertEq(actualSymbol, expectedSymbol, "symbol");
     }
 
-    function test_SafeAssetSymbol_SymbolNotImplemented() external {
+    function test_SafeAssetSymbol_SymbolNotImplemented() external view {
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(noop));
         string memory expectedSymbol = "ERC20";
         assertEq(actualSymbol, expectedSymbol, "symbol");
@@ -48,7 +48,7 @@ contract SafeAssetSymbol_Integration_Concrete_Test is NFTDescriptor_Integration_
         _;
     }
 
-    function test_SafeAssetSymbol() external whenERC20Contract givenSymbolString givenSymbolNotLong {
+    function test_SafeAssetSymbol() external view whenERC20Contract givenSymbolString givenSymbolNotLong {
         string memory actualSymbol = nftDescriptorMock.safeAssetSymbol_(address(dai));
         string memory expectedSymbol = dai.symbol();
         assertEq(actualSymbol, expectedSymbol, "symbol");

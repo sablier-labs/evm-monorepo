@@ -19,7 +19,7 @@ abstract contract RefundableAmountOf_Integration_Fuzz_Test is Integration_Test, 
         timeJump = _bound(timeJump, 0 seconds, defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Get the streamed amount.
         uint128 streamedAmount = lockup.streamedAmountOf(defaultStreamId);

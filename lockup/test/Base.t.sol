@@ -89,8 +89,8 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
 
         defaults.setUsers(users);
 
-        // Warp to May 1, 2023 at 00:00 GMT to provide a more realistic testing environment.
-        vm.warp({ timestamp: MAY_1_2023 });
+        // Warp to May 1, 2024 at 00:00 GMT to provide a more realistic testing environment.
+        vm.warp({ newTimestamp: MAY_1_2024 });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
 
     /// @dev Approves all V2 Core contracts to spend assets from the address passed.
     function approveProtocol(address from) internal {
-        changePrank({ msgSender: from });
+        resetPrank({ msgSender: from });
         dai.approve({ spender: address(lockupLinear), value: MAX_UINT256 });
         dai.approve({ spender: address(lockupDynamic), value: MAX_UINT256 });
         dai.approve({ spender: address(lockupTranched), value: MAX_UINT256 });

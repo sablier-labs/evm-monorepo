@@ -128,7 +128,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         vars.createAmounts.deposit = params.totalAmount - vars.createAmounts.brokerFee;
 
         // Make the fuzzed funder the caller in this test.
-        changePrank(funder);
+        resetPrank(funder);
 
         // Mint enough assets to the funder.
         deal({ token: address(dai), to: funder, give: params.totalAmount });

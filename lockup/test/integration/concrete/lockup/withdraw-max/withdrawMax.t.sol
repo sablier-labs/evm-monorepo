@@ -13,7 +13,7 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
 
     function test_WithdrawMax_EndTimeNotInTheFuture() external {
         // Warp to the stream's end.
-        vm.warp({ timestamp: defaults.END_TIME() + 1 seconds });
+        vm.warp({ newTimestamp: defaults.END_TIME() + 1 seconds });
 
         // Expect the ERC-20 assets to be transferred to the Recipient.
         expectCallToTransfer({ to: users.recipient, value: defaults.DEPOSIT_AMOUNT() });
@@ -52,7 +52,7 @@ abstract contract WithdrawMax_Integration_Concrete_Test is Integration_Test, Wit
 
     function test_WithdrawMax() external givenEndTimeInTheFuture {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);

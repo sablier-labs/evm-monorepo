@@ -8,7 +8,7 @@ import { Integration_Test } from "../../../Integration.t.sol";
 
 abstract contract TransferFrom_Integration_Concrete_Test is Integration_Test, Lockup_Integration_Shared_Test {
     function setUp() public virtual override(Integration_Test, Lockup_Integration_Shared_Test) {
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
     }
 
     function test_RevertGiven_StreamNotTransferable() external {

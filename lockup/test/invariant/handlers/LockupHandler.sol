@@ -49,7 +49,7 @@ abstract contract LockupHandler is BaseHandler {
 
     modifier useAdmin() {
         address admin = lockup.admin();
-        changePrank(admin);
+        resetPrank(admin);
         _;
     }
 
@@ -68,14 +68,14 @@ abstract contract LockupHandler is BaseHandler {
     modifier useFuzzedStreamRecipient() {
         uint256 lastStreamId = lockupStore.lastStreamId();
         currentRecipient = lockupStore.recipients(currentStreamId);
-        changePrank(currentRecipient);
+        resetPrank(currentRecipient);
         _;
     }
 
     modifier useFuzzedStreamSender() {
         uint256 lastStreamId = lockupStore.lastStreamId();
         currentSender = lockupStore.senders(currentStreamId);
-        changePrank(currentSender);
+        resetPrank(currentSender);
         _;
     }
 

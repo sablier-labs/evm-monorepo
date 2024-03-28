@@ -19,6 +19,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
 
     function test_StreamedAmountOf_CliffTimeInThePast()
         external
+        view
         givenNotNull
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
@@ -34,7 +35,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
     {
-        vm.warp({ timestamp: defaults.CLIFF_TIME() });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
         uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = defaults.CLIFF_AMOUNT();
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -46,7 +47,7 @@ contract StreamedAmountOf_LockupLinear_Integration_Concrete_Test is
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
     {
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 2600e18;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");

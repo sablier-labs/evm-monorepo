@@ -31,7 +31,7 @@ abstract contract WithdrawMaxAndTransfer_Integration_Fuzz_Test is
         timeJump = _bound(timeJump, 0, defaults.TOTAL_DURATION() * 2);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Get the withdraw amount.
         uint128 withdrawAmount = lockup.withdrawableAmountOf(defaultStreamId);

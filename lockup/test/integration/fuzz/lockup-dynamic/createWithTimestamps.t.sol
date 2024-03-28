@@ -101,7 +101,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         depositDiff = boundUint128(depositDiff, 100, defaults.TOTAL_AMOUNT());
 
         UD60x18 brokerFee = ZERO;
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
 
         // Adjust the default deposit amount.
         uint128 defaultDepositAmount = defaults.DEPOSIT_AMOUNT();
@@ -207,7 +207,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         });
 
         // Make the fuzzed funder the caller in the rest of this test.
-        changePrank(funder);
+        resetPrank(funder);
 
         // Mint enough assets to the fuzzed funder.
         deal({ token: address(dai), to: funder, give: vars.totalAmount });

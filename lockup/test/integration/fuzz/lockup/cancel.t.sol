@@ -22,7 +22,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         timeJump = _bound(timeJump, 1 seconds, 100 weeks);
 
         // Warp to the past.
-        vm.warp({ timestamp: getBlockTimestamp() - timeJump });
+        vm.warp({ newTimestamp: getBlockTimestamp() - timeJump });
 
         // Cancel the stream.
         lockup.cancel(defaultStreamId);
@@ -63,7 +63,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
         uint256 streamId = createDefaultStreamWithRecipient(address(goodRecipient));
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the withdraw amount.
         uint128 streamedAmount = lockup.streamedAmountOf(streamId);

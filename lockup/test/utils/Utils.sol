@@ -3,19 +3,11 @@ pragma solidity >=0.8.22;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { PRBMathUtils } from "@prb/math/test/utils/Utils.sol";
-
-import { Vm } from "@prb/test/src/PRBTest.sol";
-import { StdUtils } from "forge-std/src/StdUtils.sol";
+import { CommonBase } from "forge-std/src/Base.sol";
 
 import { LockupDynamic, LockupTranched } from "../../src/types/DataTypes.sol";
 
-abstract contract Utils is StdUtils, PRBMathUtils {
-    /// @dev The virtual address of the Foundry VM.
-    address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
-
-    /// @dev An instance of the Foundry VM, which contains cheatcodes for testing.
-    Vm private constant vm = Vm(VM_ADDRESS);
-
+abstract contract Utils is CommonBase, PRBMathUtils {
     /// @dev Bounds a `uint128` number.
     function boundUint128(uint128 x, uint128 min, uint128 max) internal pure returns (uint128) {
         return uint128(_bound(uint256(x), uint256(min), uint256(max)));
@@ -76,8 +68,14 @@ abstract contract Utils is StdUtils, PRBMathUtils {
     }
 
     /// @dev Checks if the Foundry profile is "test-optimized".
-    function isTestOptimizedProfile() internal returns (bool) {
+    function isTestOptimizedProfile() internal view returns (bool) {
         string memory profile = vm.envOr({ name: "FOUNDRY_PROFILE", defaultValue: string("default") });
         return Strings.equal(profile, "test-optimized");
+    }
+
+    /// @dev Stops the active prank and sets a new one.
+    function resetPrank(address msgSender) internal {
+        vm.stopPrank();
+        vm.startPrank(msgSender);
     }
 }

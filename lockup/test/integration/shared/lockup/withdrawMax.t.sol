@@ -8,7 +8,7 @@ abstract contract WithdrawMax_Integration_Shared_Test is Lockup_Integration_Shar
 
     function setUp() public virtual override {
         defaultStreamId = createDefaultStream();
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
     }
 
     modifier givenEndTimeInTheFuture() {

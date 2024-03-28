@@ -52,7 +52,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
             withdrawnAmountsSum += uint256(lockup.getWithdrawnAmount(streamId));
         }
 
-        assertGte(
+        assertGe(
             contractBalance,
             depositedAmountsSum - refundedAmountsSum - withdrawnAmountsSum,
             unicode"Invariant violation: contract balances < Σ deposited amounts - Σ refunded amounts - Σ withdrawn amounts"
@@ -63,7 +63,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            assertGte(
+            assertGe(
                 lockup.getDepositedAmount(streamId),
                 lockup.streamedAmountOf(streamId),
                 "Invariant violation: deposited amount < streamed amount"
@@ -75,7 +75,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            assertGte(
+            assertGe(
                 lockup.getDepositedAmount(streamId),
                 lockup.withdrawableAmountOf(streamId),
                 "Invariant violation: deposited amount < withdrawable amount"
@@ -87,7 +87,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            assertGte(
+            assertGe(
                 lockup.getDepositedAmount(streamId),
                 lockup.getWithdrawnAmount(streamId),
                 "Invariant violation: deposited amount < withdrawn amount"
@@ -315,7 +315,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            assertGte(
+            assertGe(
                 lockup.streamedAmountOf(streamId),
                 lockup.withdrawableAmountOf(streamId),
                 "Invariant violation: streamed amount < withdrawable amount"
@@ -327,7 +327,7 @@ abstract contract Lockup_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
-            assertGte(
+            assertGe(
                 lockup.streamedAmountOf(streamId),
                 lockup.getWithdrawnAmount(streamId),
                 "Invariant violation: streamed amount < withdrawn amount"

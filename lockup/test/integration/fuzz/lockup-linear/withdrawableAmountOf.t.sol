@@ -27,14 +27,14 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         givenStreamHasNotBeenCanceled
     {
         timeJump = boundUint40(timeJump, 0, defaults.CLIFF_DURATION() - 1);
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
     modifier whenCliffTimeNotInTheFuture() {
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
         _;
     }
 
@@ -68,7 +68,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
 
         // Simulate the passage of time.
         uint40 currentTime = defaults.START_TIME() + timeJump;
-        vm.warp({ timestamp: currentTime });
+        vm.warp({ newTimestamp: currentTime });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(streamId);
@@ -122,7 +122,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         uint256 streamId = lockupLinear.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: currentTime });
+        vm.warp({ newTimestamp: currentTime });
 
         // Make the withdrawal.
         lockupLinear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });

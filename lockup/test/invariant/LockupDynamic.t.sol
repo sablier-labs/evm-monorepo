@@ -73,7 +73,7 @@ contract LockupDynamic_Invariant_Test is Lockup_Invariant_Test {
     }
 
     /// @dev Settled streams must not appear as cancelable in {SablierV2LockupDynamic.getStream}.
-    function invariant_StatusSettled_GetStream() external {
+    function invariant_StatusSettled_GetStream() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);

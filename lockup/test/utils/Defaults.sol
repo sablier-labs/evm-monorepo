@@ -42,7 +42,7 @@ contract Defaults is Constants {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
-        START_TIME = uint40(MAY_1_2023) + 2 days;
+        START_TIME = uint40(MAY_1_2024) + 2 days;
         CLIFF_TIME = START_TIME + CLIFF_DURATION;
         END_TIME = START_TIME + TOTAL_DURATION;
         MAX_SEGMENT_DURATION = TOTAL_DURATION / uint40(MAX_COUNT);

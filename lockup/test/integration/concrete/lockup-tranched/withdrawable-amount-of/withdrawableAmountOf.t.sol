@@ -24,7 +24,7 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Concrete_Test is
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
     {
-        vm.warp({ timestamp: defaults.START_TIME() });
+        vm.warp({ newTimestamp: defaults.START_TIME() });
         uint128 actualWithdrawableAmount = lockupTranched.withdrawableAmountOf(defaultStreamId);
         uint128 expectedWithdrawableAmount = 0;
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
@@ -42,7 +42,7 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Concrete_Test is
         givenStartTimeInThePast
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() });
+        vm.warp({ newTimestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupTranched.withdrawableAmountOf(defaultStreamId);
@@ -63,7 +63,7 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Concrete_Test is
         whenWithWithdrawals
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() });
+        vm.warp({ newTimestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() });
 
         // Make the withdrawal.
         lockupTranched.withdraw({ streamId: defaultStreamId, to: users.recipient, amount: defaults.CLIFF_AMOUNT() });

@@ -3,22 +3,21 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/utils/Assertions.sol";
-import { PRBTest } from "@prb/test/src/PRBTest.sol";
 
 import { Lockup, LockupDynamic, LockupLinear, LockupTranched } from "../../src/types/DataTypes.sol";
 
-abstract contract Assertions is PRBTest, PRBMathAssertions {
+abstract contract Assertions is PRBMathAssertions {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    event LogNamedArray(string key, LockupDynamic.Segment[] segments);
+    event log_named_array(string key, LockupDynamic.Segment[] segments);
 
-    event LogNamedArray(string key, LockupTranched.Tranche[] tranches);
+    event log_named_array(string key, LockupTranched.Tranche[] tranches);
 
-    event LogNamedUint128(string key, uint128 value);
+    event log_named_uint128(string key, uint128 value);
 
-    event LogNamedUint40(string key, uint40 value);
+    event log_named_uint40(string key, uint40 value);
 
     /*//////////////////////////////////////////////////////////////////////////
                                      ASSERTIONS
@@ -32,12 +31,12 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     }
 
     /// @dev Compares two {IERC20} values.
-    function assertEq(IERC20 a, IERC20 b) internal {
+    function assertEq(IERC20 a, IERC20 b) internal pure {
         assertEq(address(a), address(b));
     }
 
     /// @dev Compares two {IERC20} values.
-    function assertEq(IERC20 a, IERC20 b, string memory err) internal {
+    function assertEq(IERC20 a, IERC20 b, string memory err) internal pure {
         assertEq(address(a), address(b), err);
     }
 
@@ -109,9 +108,9 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two {LockupDynamic.Segment[]} arrays.
     function assertEq(LockupDynamic.Segment[] memory a, LockupDynamic.Segment[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit Log("Error: a == b not satisfied [LockupDynamic.Segment[]]");
-            emit LogNamedArray("   Left", a);
-            emit LogNamedArray("  Right", b);
+            emit log("Error: a == b not satisfied [LockupDynamic.Segment[]]");
+            emit log_named_array("   Left", a);
+            emit log_named_array("  Right", b);
             fail();
         }
     }
@@ -119,7 +118,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two `LockupDynamic.Segment[]` arrays.
     function assertEq(LockupDynamic.Segment[] memory a, LockupDynamic.Segment[] memory b, string memory err) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit LogNamedString("Error", err);
+            emit log_named_string("Error", err);
             assertEq(a, b);
         }
     }
@@ -127,9 +126,9 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two {LockupTranched.Tranche[]} arrays.
     function assertEq(LockupTranched.Tranche[] memory a, LockupTranched.Tranche[] memory b) internal {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit Log("Error: a == b not satisfied [LockupTranched.Tranche[]]");
-            emit LogNamedArray("   Left", a);
-            emit LogNamedArray("  Right", b);
+            emit log("Error: a == b not satisfied [LockupTranched.Tranche[]]");
+            emit log_named_array("   Left", a);
+            emit log_named_array("  Right", b);
             fail();
         }
     }
@@ -143,27 +142,27 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         internal
     {
         if (keccak256(abi.encode(a)) != keccak256(abi.encode(b))) {
-            emit LogNamedString("Error", err);
+            emit log_named_string("Error", err);
             assertEq(a, b);
         }
     }
 
     /// @dev Compares two {Lockup.Status} enum values.
-    function assertEq(Lockup.Status a, Lockup.Status b) internal {
+    function assertEq(Lockup.Status a, Lockup.Status b) internal pure {
         assertEq(uint256(a), uint256(b), "status");
     }
 
     /// @dev Compares two {Lockup.Status} enum values.
-    function assertEq(Lockup.Status a, Lockup.Status b, string memory err) internal {
+    function assertEq(Lockup.Status a, Lockup.Status b, string memory err) internal pure {
         assertEq(uint256(a), uint256(b), err);
     }
 
     /// @dev Compares two `uint128` numbers.
     function assertEqUint128(uint128 a, uint128 b) internal {
         if (a != b) {
-            emit Log("Error: a == b not satisfied [uint128]");
-            emit LogNamedUint128("   Left", a);
-            emit LogNamedUint128("  Right", b);
+            emit log("Error: a == b not satisfied [uint128]");
+            emit log_named_uint128("   Left", a);
+            emit log_named_uint128("  Right", b);
             fail();
         }
     }
@@ -171,7 +170,7 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two `uint128` numbers.
     function assertEqUint128(uint128 a, uint128 b, string memory err) internal {
         if (a != b) {
-            emit LogNamedString("Error", err);
+            emit log_named_string("Error", err);
             assertEqUint128(a, b);
         }
     }
@@ -179,9 +178,9 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two `uint40` numbers.
     function assertEqUint40(uint40 a, uint40 b) internal {
         if (a != b) {
-            emit Log("Error: a == b not satisfied [uint40]");
-            emit LogNamedUint40("   Left", a);
-            emit LogNamedUint40("  Right", b);
+            emit log("Error: a == b not satisfied [uint40]");
+            emit log_named_uint40("   Left", a);
+            emit log_named_uint40("  Right", b);
             fail();
         }
     }
@@ -189,18 +188,18 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two `uint40` numbers.
     function assertEqUint40(uint40 a, uint40 b, string memory err) internal {
         if (a != b) {
-            emit LogNamedString("Error", err);
+            emit log_named_string("Error", err);
             assertEqUint40(a, b);
         }
     }
 
     /// @dev Compares two {Lockup.Status} enum values.
-    function assertNotEq(Lockup.Status a, Lockup.Status b) internal {
+    function assertNotEq(Lockup.Status a, Lockup.Status b) internal pure {
         assertNotEq(uint256(a), uint256(b), "status");
     }
 
     /// @dev Compares two {Lockup.Status} enum values.
-    function assertNotEq(Lockup.Status a, Lockup.Status b, string memory err) internal {
+    function assertNotEq(Lockup.Status a, Lockup.Status b, string memory err) internal pure {
         assertNotEq(uint256(a), uint256(b), err);
     }
 }

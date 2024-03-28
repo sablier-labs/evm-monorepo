@@ -25,7 +25,7 @@ contract GetStream_LockupDynamic_Integration_Concrete_Test is LockupDynamic_Inte
     }
 
     function test_GetStream_StatusSettled() external givenNotNull {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(defaultStreamId);
         LockupDynamic.StreamLD memory expectedStream = defaults.lockupDynamicStream();
         expectedStream.isCancelable = false;

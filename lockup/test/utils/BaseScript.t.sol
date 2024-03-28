@@ -2,11 +2,11 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { PRBTest } from "@prb/test/src/PRBTest.sol";
+import { StdAssertions } from "forge-std/src/StdAssertions.sol";
 
 import { BaseScript } from "script/Base.s.sol";
 
-contract BaseScript_Test is PRBTest {
+contract BaseScript_Test is StdAssertions {
     using Strings for uint256;
 
     BaseScript internal baseScript;

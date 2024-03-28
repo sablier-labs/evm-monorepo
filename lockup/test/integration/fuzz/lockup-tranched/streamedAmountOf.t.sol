@@ -19,7 +19,7 @@ contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is
         LockupTranched_Integration_Fuzz_Test.setUp();
         StreamedAmountOf_Integration_Shared_Test.setUp();
 
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
     }
 
     modifier givenMultipleTranches() {
@@ -75,7 +75,7 @@ contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is
 
         // Simulate the passage of time.
         uint40 currentTime = defaults.START_TIME() + timeJump;
-        vm.warp({ timestamp: currentTime });
+        vm.warp({ newTimestamp: currentTime });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupTranched.streamedAmountOf(streamId);
@@ -122,16 +122,16 @@ contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is
         uint256 streamId = lockupTranched.createWithTimestamps(params);
 
         // Warp to the future for the first time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp0 });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeWarp0 });
 
         // Calculate the streamed amount at this midpoint in time.
         uint128 streamedAmount0 = lockupTranched.streamedAmountOf(streamId);
 
         // Warp to the future for the second time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeWarp1 });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeWarp1 });
 
         // Assert that this streamed amount is greater than or equal to the previous streamed amount.
         uint128 streamedAmount1 = lockupTranched.streamedAmountOf(streamId);
-        assertGte(streamedAmount1, streamedAmount0, "streamedAmount");
+        assertGe(streamedAmount1, streamedAmount0, "streamedAmount");
     }
 }

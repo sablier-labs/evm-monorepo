@@ -10,7 +10,7 @@ contract GenerateDescription_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_T
     string internal constant INFO_TRANSFERABLE =
         unicode"⚠️ WARNING: Transferring the NFT makes the new owner the recipient of the stream. The funds are not automatically withdrawn for the previous recipient.";
 
-    function test_GenerateDescription_Empty() external {
+    function test_GenerateDescription_Empty() external view {
         string memory actualDescription = nftDescriptorMock.generateDescription_("", "", "", "", "", true);
         string memory expectedDescription = string.concat(
             "This NFT represents a payment stream in a Sablier V2 ",
@@ -27,7 +27,7 @@ contract GenerateDescription_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_T
         assertEq(actualDescription, expectedDescription, "metadata description");
     }
 
-    function test_GenerateDescription_NonTransferable() external {
+    function test_GenerateDescription_NonTransferable() external view {
         string memory actualDescription = nftDescriptorMock.generateDescription_(
             "Lockup Linear",
             dai.symbol(),
@@ -58,7 +58,7 @@ contract GenerateDescription_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_T
         assertEq(actualDescription, expectedDescription, "metadata description");
     }
 
-    function test_GenerateDescription() external {
+    function test_GenerateDescription() external view {
         string memory actualDescription = nftDescriptorMock.generateDescription_(
             "Lockup Linear",
             dai.symbol(),

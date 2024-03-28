@@ -33,7 +33,7 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
         timeJump = _bound(timeJump, defaults.TOTAL_DURATION(), defaults.TOTAL_DURATION() * 2 - 1 seconds);
 
         // Create a new stream with an end time double that of the default stream.
-        changePrank({ msgSender: users.sender });
+        resetPrank({ msgSender: users.sender });
         uint40 ongoingEndTime = defaults.END_TIME() + defaults.TOTAL_DURATION();
         uint256 ongoingStreamId = createDefaultStreamWithEndTime(ongoingEndTime);
 
@@ -42,10 +42,10 @@ abstract contract WithdrawMultiple_Integration_Fuzz_Test is
         uint128 settledWithdrawAmount = defaults.DEPOSIT_AMOUNT();
 
         // Run the test with the caller provided in {whenCallerAuthorizedAllStreams}.
-        changePrank({ msgSender: caller });
+        resetPrank({ msgSender: caller });
 
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + timeJump });
+        vm.warp({ newTimestamp: defaults.START_TIME() + timeJump });
 
         // Bound the ongoing withdraw amount.
         uint128 ongoingWithdrawableAmount = lockup.withdrawableAmountOf(ongoingStreamId);

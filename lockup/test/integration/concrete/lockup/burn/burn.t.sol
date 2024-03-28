@@ -18,7 +18,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         notTransferableStreamId = createDefaultStreamNotTransferable();
 
         // Make the Recipient (owner of the NFT) the caller in this test suite.
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
     }
 
     function test_RevertWhen_DelegateCalled() external {
@@ -51,7 +51,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenNotNull
         givenStreamHasNotBeenDepleted
     {
-        vm.warp({ timestamp: getBlockTimestamp() - 1 seconds });
+        vm.warp({ newTimestamp: getBlockTimestamp() - 1 seconds });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
@@ -62,7 +62,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenNotNull
         givenStreamHasNotBeenDepleted
     {
-        vm.warp({ timestamp: defaults.WARP_26_PERCENT() });
+        vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
@@ -73,7 +73,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenNotNull
         givenStreamHasNotBeenDepleted
     {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
@@ -84,16 +84,16 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenNotNull
         givenStreamHasNotBeenDepleted
     {
-        vm.warp({ timestamp: defaults.CLIFF_TIME() });
-        changePrank({ msgSender: users.sender });
+        vm.warp({ newTimestamp: defaults.CLIFF_TIME() });
+        resetPrank({ msgSender: users.sender });
         lockup.cancel(streamId);
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_StreamNotDepleted.selector, streamId));
         lockup.burn(streamId);
     }
 
     modifier givenStreamHasBeenDepleted(uint256 streamId_) {
-        vm.warp({ timestamp: defaults.END_TIME() });
+        vm.warp({ newTimestamp: defaults.END_TIME() });
         lockup.withdrawMax({ streamId: streamId_, to: users.recipient });
         _;
     }
@@ -104,7 +104,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         givenNotNull
         givenStreamHasBeenDepleted(streamId)
     {
-        changePrank({ msgSender: users.eve });
+        resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Unauthorized.selector, streamId, users.eve));
         lockup.burn(streamId);
     }
@@ -165,7 +165,7 @@ abstract contract Burn_Integration_Concrete_Test is Integration_Test, Lockup_Int
         lockup.approve({ to: users.operator, tokenId: streamId });
 
         // Make the approved operator the caller in this test.
-        changePrank({ msgSender: users.operator });
+        resetPrank({ msgSender: users.operator });
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockup) });

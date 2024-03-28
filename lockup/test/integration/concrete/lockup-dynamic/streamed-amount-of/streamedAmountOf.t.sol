@@ -25,7 +25,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
     {
-        vm.warp({ timestamp: 0 });
+        vm.warp({ newTimestamp: 0 });
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -37,7 +37,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         givenStreamHasNotBeenCanceled
         givenStatusStreaming
     {
-        vm.warp({ timestamp: defaults.START_TIME() });
+        vm.warp({ newTimestamp: defaults.START_TIME() });
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
         uint128 expectedStreamedAmount = 0;
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
@@ -51,7 +51,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         whenStartTimeInThePast
     {
         // Simulate the passage of time.
-        vm.warp({ timestamp: defaults.START_TIME() + 2000 seconds });
+        vm.warp({ newTimestamp: defaults.START_TIME() + 2000 seconds });
 
         // Create an array with one segment.
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](1);
@@ -83,7 +83,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         whenStartTimeInThePast
     {
         // Warp 1 second to the future.
-        vm.warp({ timestamp: defaults.START_TIME() + 1 seconds });
+        vm.warp({ newTimestamp: defaults.START_TIME() + 1 seconds });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
@@ -105,7 +105,7 @@ contract StreamedAmountOf_LockupDynamic_Integration_Concrete_Test is
         givenCurrentTimestampNot1st
     {
         // Simulate the passage of time. 750 seconds is ~10% of the way in the second segment.
-        vm.warp({ timestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 750 seconds });
+        vm.warp({ newTimestamp: defaults.START_TIME() + defaults.CLIFF_DURATION() + 750 seconds });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupDynamic.streamedAmountOf(defaultStreamId);
