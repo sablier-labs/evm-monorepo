@@ -240,13 +240,14 @@ contract SablierV2LockupDynamic is
             currentSegmentTimestamp = segments[index].timestamp;
 
             uint40 previousTimestamp;
-            if (index > 0) {
-                // When the current segment's index is greater than or equal to 1, it implies that the segment is not
+            if (index == 0) {
+                // When the current segment's index is equal to 0, the current segment is the first, so use the start
+                // time as the previous timestamp.
+                previousTimestamp = stream.startTime;
+            } else {
+                // Otherwise, when the current segment's index is greater than 0, it implies that the segment is not
                 // the first. In this case, use the previous segment's timestamp.
                 previousTimestamp = segments[index - 1].timestamp;
-            } else {
-                // Otherwise, the current segment is the first, so use the start time as the previous timestamp.
-                previousTimestamp = stream.startTime;
             }
 
             // Calculate how much time has passed since the segment started, and the total time of the segment.
