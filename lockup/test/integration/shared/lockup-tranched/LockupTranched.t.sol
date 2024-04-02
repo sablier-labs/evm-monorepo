@@ -156,4 +156,19 @@ abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_S
         params.totalAmount = totalAmount;
         streamId = lockupTranched.createWithTimestamps(params);
     }
+
+    /// @dev Creates the default stream with the provided sender and recipient.
+    function createDefaultStreamWithUsers(
+        address recipient,
+        address sender
+    )
+        internal
+        override
+        returns (uint256 streamId)
+    {
+        LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
+        params.sender = sender;
+        params.recipient = recipient;
+        streamId = lockupTranched.createWithTimestamps(params);
+    }
 }
