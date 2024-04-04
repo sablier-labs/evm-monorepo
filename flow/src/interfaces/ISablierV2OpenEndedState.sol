@@ -5,9 +5,10 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { OpenEnded } from "../types/DataTypes.sol";
 
-/// @title ISablierV2OpenEndedStorage
-/// @notice Storage variables and their getters for the {SablierV2OpenEnded} contract.
-interface ISablierV2OpenEndedStorage {
+/// @title ISablierV2OpenEndedState
+/// @notice State variables, storage and constants, for the {SablierV2OpenEnded} contract, and their respective getters.
+/// @dev This contract includes relevant modifiers and helper functions.
+interface ISablierV2OpenEndedState {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

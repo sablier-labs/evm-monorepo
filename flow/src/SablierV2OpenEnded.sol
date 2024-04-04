@@ -7,14 +7,14 @@ import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
-import { SablierV2OpenEndedStorage } from "./abstracts/SablierV2OpenEndedStorage.sol";
+import { SablierV2OpenEndedState } from "./abstracts/SablierV2OpenEndedState.sol";
 import { ISablierV2OpenEnded } from "./interfaces/ISablierV2OpenEnded.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { OpenEnded } from "./types/DataTypes.sol";
 
 /// @title SablierV2OpenEnded
 /// @notice See the documentation in {ISablierV2OpenEnded}.
-contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2OpenEndedStorage {
+contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2OpenEndedState {
     using SafeCast for uint256;
     using SafeERC20 for IERC20;
 
