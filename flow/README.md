@@ -160,5 +160,5 @@ Should we add `pause` function? Basically it would be a duplication of `cancel` 
 
 - createMultiple
 - withdrawMultiple
-- add broker fees and protocol fees (implicitely comptroller + adminable contract)
+- add broker fees
   - The fee should be on `create` or on `deposit` ? both?
