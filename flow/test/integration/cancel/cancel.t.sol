@@ -12,7 +12,7 @@ contract Cancel_Integration_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
-        vm.warp({ timestamp: WARP_ONE_MONTH });
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -89,10 +89,10 @@ contract Cancel_Integration_Test is Integration_Test {
         whenNoOverrefund
     {
         // Set the timestamp to 1 month ago to create the stream with the same `lastTimeUpdate` as `defaultStreamId`.
-        vm.warp({ timestamp: WARP_ONE_MONTH - ONE_MONTH });
+        vm.warp({ newTimestamp: WARP_ONE_MONTH - ONE_MONTH });
         uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
         openEnded.deposit(streamId, DEPOSIT_AMOUNT);
-        vm.warp({ timestamp: WARP_ONE_MONTH });
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
         test_Cancel(streamId, IERC20(address(usdt)));
     }

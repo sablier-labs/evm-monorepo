@@ -63,7 +63,7 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = openEndedStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
-            assertGte(
+            assertGe(
                 uint40(block.timestamp),
                 openEnded.getLastTimeUpdate(streamId),
                 "Invariant violation: block timestamp < last time update"
@@ -81,7 +81,7 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
             streamBalancesSumNormalized += uint256(normalizeBalance(streamId));
         }
 
-        assertGte(
+        assertGe(
             contractBalance,
             streamBalancesSumNormalized,
             unicode"Invariant violation: contract balances < Σ stream balances normalized"
@@ -92,7 +92,7 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         uint256 streamDepositedAmountsSum = openEndedStore.streamDepositedAmountsSum();
         uint256 streamExtractedAmountsSum = openEndedStore.streamExtractedAmountsSum();
 
-        assertGte(
+        assertGe(
             streamDepositedAmountsSum,
             streamExtractedAmountsSum,
             "Invariant violation: stream deposited amounts sum < stream extracted amounts sum"
@@ -126,7 +126,7 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
             if (!openEnded.isCanceled(streamId)) {
-                assertGte(
+                assertGe(
                     openEnded.getBalance(streamId),
                     openEnded.withdrawableAmountOf(streamId),
                     "Invariant violation: stream balance < withdrawable amount"
@@ -140,7 +140,7 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
             if (!openEnded.isCanceled(streamId)) {
-                assertGte(
+                assertGe(
                     openEnded.getBalance(streamId),
                     openEnded.refundableAmountOf(streamId),
                     "Invariant violation: stream balance < refundable amount"
@@ -154,7 +154,7 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
             if (!openEnded.isCanceled(streamId)) {
-                assertGte(
+                assertGe(
                     openEnded.streamedAmountOf(streamId),
                     openEnded.withdrawableAmountOf(streamId),
                     "Invariant violation: streamed amount < withdrawable amount"

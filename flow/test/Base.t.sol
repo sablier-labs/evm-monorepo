@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { StdCheats } from "@forge-std/src/StdCheats.sol";
+import { Test } from "@forge-std/src/Test.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
@@ -18,7 +18,7 @@ struct Users {
     address recipient;
 }
 
-abstract contract Base_Test is Assertions, Events, Modifiers, StdCheats {
+abstract contract Base_Test is Assertions, Events, Modifiers, Test {
     using SafeCast for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
