@@ -19,26 +19,6 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
     using SafeERC20 for IERC20;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Checks that `streamId` does not reference a canceled stream.
-    modifier notCanceled(uint256 streamId) {
-        if (isCanceled(streamId)) {
-            revert Errors.SablierV2OpenEnded_StreamCanceled(streamId);
-        }
-        _;
-    }
-
-    /// @dev Checks the `msg.sender` is the stream's sender.
-    modifier onlySender(uint256 streamId) {
-        if (!_isCallerStreamSender(streamId)) {
-            revert Errors.SablierV2OpenEnded_Unauthorized(streamId, msg.sender);
-        }
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
