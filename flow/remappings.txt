@@ -1,4 +1,3 @@
 @forge-std/=node_modules/forge-std/
 @openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
 @prb/math/=node_modules/@prb/math/
-@prb/test/=node_modules/@prb/test/
