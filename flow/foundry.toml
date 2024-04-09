@@ -18,8 +18,9 @@
 [profile.default.invariant]
   call_override = false # Override unsafe external calls to perform reentrancy checks
   depth = 20            # Number of calls executed in one run
+  fail_on_revert = true
   runs = 20
-
+  
 [profile.ci]
   fuzz = { runs = 10_000 }
   verbosity = 4
@@ -35,12 +36,14 @@
   wrap_comments = true
 
 [rpc_endpoints]
-  arbitrum_one = "https://arbitrum-mainnet.infura.io/v3/${API_KEY_INFURA}"
+  arbitrum = "https://arbitrum-mainnet.infura.io/v3/${API_KEY_INFURA}"
   avalanche = "https://avalanche-mainnet.infura.io/v3/${API_KEY_INFURA}"
-  bnb_smart_chain = "https://bsc-dataseed.binance.org"
-  gnosis_chain = "https://rpc.gnosischain.com"
+  base = "https://mainnet.base.org"
+  bnb = "https://bsc-dataseed.binance.org"
+  gnosis = "https://rpc.gnosischain.com"
   localhost = "http://localhost:8545"
-  mainnet = "https://mainnet.infura.io/v3/${API_KEY_INFURA}"
+  ethereum = "${RPC_URL_MAINNET}"
+  mainnet = "${RPC_URL_MAINNET}"
   optimism = "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}"
   polygon = "https://polygon-mainnet.infura.io/v3/${API_KEY_INFURA}"
   sepolia = "https://sepolia.infura.io/v3/${API_KEY_INFURA}"
