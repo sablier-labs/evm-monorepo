@@ -65,6 +65,8 @@ jobs:
 
   coverage:
     needs: ["lint", "build"]
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     uses: "sablier-labs/reusable-workflows/.github/workflows/forge-coverage.yml@main"
     with:
       match-path: "test/{integration,unit}/**/*.sol"
