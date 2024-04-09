@@ -37,7 +37,7 @@ contract Cancel_Integration_Test is Integration_Test {
         givenNotCanceled
         whenCallerUnauthorized
     {
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2OpenEnded_Unauthorized.selector, defaultStreamId, users.recipient)
         );
@@ -52,7 +52,7 @@ contract Cancel_Integration_Test is Integration_Test {
         whenCallerUnauthorized
     {
         vm.assume(maliciousThirdParty != users.sender && maliciousThirdParty != users.recipient);
-        changePrank({ msgSender: maliciousThirdParty });
+        resetPrank({ msgSender: maliciousThirdParty });
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2OpenEnded_Unauthorized.selector, defaultStreamId, maliciousThirdParty

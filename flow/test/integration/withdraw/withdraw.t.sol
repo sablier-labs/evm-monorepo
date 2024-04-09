@@ -54,7 +54,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         whenCallerUnauthorized
     {
         vm.assume(maliciousThirdParty != users.sender && maliciousThirdParty != users.recipient);
-        changePrank({ msgSender: maliciousThirdParty });
+        resetPrank({ msgSender: maliciousThirdParty });
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierV2OpenEnded_Unauthorized.selector, defaultStreamId, maliciousThirdParty
@@ -70,7 +70,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         givenNotCanceled
         whenCallerAuthorized
     {
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
         vm.expectRevert(Errors.SablierV2OpenEnded_WithdrawToZeroAddress.selector);
         openEnded.withdraw({ streamId: defaultStreamId, to: address(0), time: WITHDRAW_TIME });
     }
@@ -158,7 +158,7 @@ contract Withdraw_Integration_Test is Integration_Test {
     }
 
     function test_Withdraw(uint256 streamId, IERC20 asset) internal {
-        changePrank({ msgSender: users.recipient });
+        resetPrank({ msgSender: users.recipient });
 
         uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(streamId);
         uint40 expectedLastTimeUpdate = uint40(block.timestamp - ONE_MONTH);

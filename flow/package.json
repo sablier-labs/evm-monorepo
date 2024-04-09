@@ -7,7 +7,7 @@
     "url": "https://sablier.com"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.0.1",
+    "@openzeppelin/contracts": "5.0.2",
     "@prb/math": "github:PaulRBerg/prb-math#a111d11"
   },
   "devDependencies": {

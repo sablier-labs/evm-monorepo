@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { Test } from "@forge-std/src/Test.sol";
+import { Test } from "forge-std/src/Test.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
@@ -69,8 +69,6 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test {
         vm.label(address(usdt), "USDT");
 
         vm.startPrank({ msgSender: users.sender });
-        dai.approve({ spender: address(openEnded), value: type(uint256).max });
-        usdt.approve({ spender: address(openEnded), value: type(uint256).max });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -82,6 +80,9 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test {
         vm.deal({ account: user, newBalance: 100 ether });
         deal({ token: address(dai), to: user, give: 1_000_000e18 });
         deal({ token: address(usdt), to: user, give: 1_000_000e18 });
+        resetPrank(user);
+        dai.approve({ spender: address(openEnded), value: type(uint256).max });
+        usdt.approve({ spender: address(openEnded), value: type(uint256).max });
         return user;
     }
 
@@ -136,5 +137,11 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test {
     /// @dev Expects a call to {IERC20.transferFrom}.
     function expectCallToTransferFrom(IERC20 asset, address from, address to, uint256 amount) internal {
         vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
+    }
+
+    /// @dev Stops the active prank and sets a new one.
+    function resetPrank(address msgSender) internal {
+        vm.stopPrank();
+        vm.startPrank(msgSender);
     }
 }
