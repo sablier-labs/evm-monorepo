@@ -7,7 +7,7 @@ import { OpenEnded } from "../types/DataTypes.sol";
 
 /// @title ISablierV2OpenEndedState
 /// @notice State variables, storage and constants, for the {SablierV2OpenEnded} contract, and their respective getters.
-/// @dev This contract includes relevant modifiers and helper functions.
+/// @dev This contract includes helpful modifiers and helper functions.
 interface ISablierV2OpenEndedState {
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
