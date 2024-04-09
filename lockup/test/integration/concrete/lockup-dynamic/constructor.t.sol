@@ -16,7 +16,7 @@ contract Constructor_LockupDynamic_Integration_Concrete_Test is LockupDynamic_In
         SablierV2LockupDynamic constructedLockupDynamic = new SablierV2LockupDynamic({
             initialAdmin: users.admin,
             initialNFTDescriptor: nftDescriptor,
-            maxSegmentCount: defaults.MAX_COUNT()
+            maxSegmentCount: defaults.MAX_SEGMENT_COUNT()
         });
 
         // {SablierV2Lockup.constant}
@@ -39,7 +39,7 @@ contract Constructor_LockupDynamic_Integration_Concrete_Test is LockupDynamic_In
 
         // {SablierV2LockupDynamic.constructor}
         uint256 actualMaxSegmentCount = constructedLockupDynamic.MAX_SEGMENT_COUNT();
-        uint256 expectedMaxSegmentCount = defaults.MAX_COUNT();
-        assertEq(actualMaxSegmentCount, expectedMaxSegmentCount, "MAX_COUNT");
+        uint256 expectedMaxSegmentCount = defaults.MAX_SEGMENT_COUNT();
+        assertEq(actualMaxSegmentCount, expectedMaxSegmentCount, "MAX_SEGMENT_COUNT");
     }
 }

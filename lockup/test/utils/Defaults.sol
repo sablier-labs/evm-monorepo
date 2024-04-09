@@ -23,8 +23,9 @@ contract Defaults is Constants {
     uint40 public constant CLIFF_DURATION = 2500 seconds;
     uint128 public constant DEPOSIT_AMOUNT = 10_000e18;
     uint40 public immutable END_TIME;
-    uint256 public constant MAX_COUNT = 500;
+    uint256 public constant MAX_SEGMENT_COUNT = 500;
     uint40 public immutable MAX_SEGMENT_DURATION;
+    uint256 public constant MAX_TRANCHE_COUNT = 500;
     uint128 public constant REFUND_AMOUNT = DEPOSIT_AMOUNT - CLIFF_AMOUNT;
     uint256 public SEGMENT_COUNT;
     uint40 public immutable START_TIME;
@@ -45,7 +46,7 @@ contract Defaults is Constants {
         START_TIME = uint40(MAY_1_2024) + 2 days;
         CLIFF_TIME = START_TIME + CLIFF_DURATION;
         END_TIME = START_TIME + TOTAL_DURATION;
-        MAX_SEGMENT_DURATION = TOTAL_DURATION / uint40(MAX_COUNT);
+        MAX_SEGMENT_DURATION = TOTAL_DURATION / uint40(MAX_SEGMENT_COUNT);
         SEGMENT_COUNT = 2;
         TRANCHE_COUNT = 3;
         WARP_26_PERCENT = START_TIME + CLIFF_DURATION + 100 seconds;

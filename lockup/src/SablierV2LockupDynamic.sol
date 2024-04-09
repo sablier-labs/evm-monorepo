@@ -49,7 +49,7 @@ contract SablierV2LockupDynamic is
     /// @inheritdoc ISablierV2LockupDynamic
     uint256 public immutable override MAX_SEGMENT_COUNT;
 
-    /// @dev Stream segments mapped by stream ids.
+    /// @dev Stream segments mapped by stream IDs. This complements the `_streams` mapping in {SablierV2Lockup}.
     mapping(uint256 id => LockupDynamic.Segment[] segments) internal _segments;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ contract SablierV2LockupDynamic is
         notNull(streamId)
         returns (LockupDynamic.StreamLD memory stream)
     {
-        // Retrieve the lockup stream from storage.
+        // Retrieve the Lockup stream from storage.
         Lockup.Stream memory lockupStream = _streams[streamId];
 
         // Settled streams cannot be canceled.
@@ -119,9 +119,9 @@ contract SablierV2LockupDynamic is
             asset: lockupStream.asset,
             endTime: lockupStream.endTime,
             isCancelable: lockupStream.isCancelable,
-            isTransferable: lockupStream.isTransferable,
             isDepleted: lockupStream.isDepleted,
             isStream: lockupStream.isStream,
+            isTransferable: lockupStream.isTransferable,
             recipient: _ownerOf(streamId),
             segments: _segments[streamId],
             sender: lockupStream.sender,
@@ -145,7 +145,7 @@ contract SablierV2LockupDynamic is
         LockupDynamic.Segment[] memory segments = Helpers.calculateSegmentTimestamps(params.segments);
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithTimestamps(
+        streamId = _create(
             LockupDynamic.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
@@ -168,7 +168,7 @@ contract SablierV2LockupDynamic is
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithTimestamps(params);
+        streamId = _create(params);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -176,7 +176,7 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierV2Lockup
-    /// @dev The streaming function is:
+    /// @dev The distribution function is:
     ///
     /// $$
     /// f(x) = x^{exp} * csa + \Sigma(esa)
@@ -184,25 +184,25 @@ contract SablierV2LockupDynamic is
     ///
     /// Where:
     ///
-    /// - $x$ is the elapsed time divided by the total time in the current segment.
+    /// - $x$ is the elapsed time divided by the total duration of the current segment.
     /// - $exp$ is the current segment exponent.
     /// - $csa$ is the current segment amount.
-    /// - $\Sigma(esa)$ is the sum of all elapsed segments' amounts.
+    /// - $\Sigma(esa)$ is the sum of all vested segments' amounts.
     function _calculateStreamedAmount(uint256 streamId) internal view override returns (uint128) {
         // If the start time is in the future, return zero.
-        uint40 currentTime = uint40(block.timestamp);
-        if (_streams[streamId].startTime >= currentTime) {
+        uint40 blockTimestamp = uint40(block.timestamp);
+        if (_streams[streamId].startTime >= blockTimestamp) {
             return 0;
         }
 
         // If the end time is not in the future, return the deposited amount.
         uint40 endTime = _streams[streamId].endTime;
-        if (endTime <= currentTime) {
+        if (endTime <= blockTimestamp) {
             return _streams[streamId].amounts.deposited;
         }
 
         if (_segments[streamId].length > 1) {
-            // If there is more than one segment, it may be necessary to iterate over all of them.
+            // If there is more than one segment, it may be required to iterate over all of them.
             return _calculateStreamedAmountForMultipleSegments(streamId);
         } else {
             // Otherwise, there is only one segment, and the calculation is simpler.
@@ -220,15 +220,15 @@ contract SablierV2LockupDynamic is
     /// bounds" error.
     function _calculateStreamedAmountForMultipleSegments(uint256 streamId) internal view returns (uint128) {
         unchecked {
-            uint40 currentTime = uint40(block.timestamp);
+            uint40 blockTimestamp = uint40(block.timestamp);
             Lockup.Stream memory stream = _streams[streamId];
             LockupDynamic.Segment[] memory segments = _segments[streamId];
 
-            // Sum the amounts in all segments that precede the current time.
+            // Sum the amounts in all segments that precede the block timestamp.
             uint128 previousSegmentAmounts;
             uint40 currentSegmentTimestamp = segments[0].timestamp;
             uint256 index = 0;
-            while (currentSegmentTimestamp < currentTime) {
+            while (currentSegmentTimestamp < blockTimestamp) {
                 previousSegmentAmounts += segments[index].amount;
                 index += 1;
                 currentSegmentTimestamp = segments[index].timestamp;
@@ -245,20 +245,20 @@ contract SablierV2LockupDynamic is
                 // time as the previous timestamp.
                 previousTimestamp = stream.startTime;
             } else {
-                // Otherwise, when the current segment's index is greater than 0, it implies that the segment is not
+                // Otherwise, when the current segment's index is greater than zero, it means that the segment is not
                 // the first. In this case, use the previous segment's timestamp.
                 previousTimestamp = segments[index - 1].timestamp;
             }
 
-            // Calculate how much time has passed since the segment started, and the total time of the segment.
-            SD59x18 elapsedSegmentTime = (currentTime - previousTimestamp).intoSD59x18();
-            SD59x18 totalSegmentTime = (currentSegmentTimestamp - previousTimestamp).intoSD59x18();
+            // Calculate how much time has passed since the segment started, and the total duration of the segment.
+            SD59x18 elapsedTime = (blockTimestamp - previousTimestamp).intoSD59x18();
+            SD59x18 segmentDuration = (currentSegmentTimestamp - previousTimestamp).intoSD59x18();
 
-            // Divide the elapsed segment time by the total duration of the segment.
-            SD59x18 elapsedSegmentTimePercentage = elapsedSegmentTime.div(totalSegmentTime);
+            // Divide the elapsed time by the total duration of the segment.
+            SD59x18 elapsedTimePercentage = elapsedTime.div(segmentDuration);
 
             // Calculate the streamed amount using the special formula.
-            SD59x18 multiplier = elapsedSegmentTimePercentage.pow(currentSegmentExponent);
+            SD59x18 multiplier = elapsedTimePercentage.pow(currentSegmentExponent);
             SD59x18 segmentStreamedAmount = multiplier.mul(currentSegmentAmount);
 
             // Although the segment streamed amount should never exceed the total segment amount, this condition is
@@ -283,10 +283,10 @@ contract SablierV2LockupDynamic is
         unchecked {
             // Calculate how much time has passed since the stream started, and the stream's total duration.
             SD59x18 elapsedTime = (uint40(block.timestamp) - _streams[streamId].startTime).intoSD59x18();
-            SD59x18 totalTime = (_streams[streamId].endTime - _streams[streamId].startTime).intoSD59x18();
+            SD59x18 totalDuration = (_streams[streamId].endTime - _streams[streamId].startTime).intoSD59x18();
 
             // Divide the elapsed time by the stream's total duration.
-            SD59x18 elapsedTimePercentage = elapsedTime.div(totalTime);
+            SD59x18 elapsedTimePercentage = elapsedTime.div(totalDuration);
 
             // Cast the stream parameters to SD59x18.
             SD59x18 exponent = _segments[streamId][0].exponent.intoSD59x18();
@@ -313,27 +313,24 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _createWithTimestamps(LockupDynamic.CreateWithTimestamps memory params)
-        internal
-        returns (uint256 streamId)
-    {
-        // Checks: check the broker fee and calculate the amounts.
+    function _create(LockupDynamic.CreateWithTimestamps memory params) internal returns (uint256 streamId) {
+        // Check: verify the broker fee and calculate the amounts.
         Lockup.CreateAmounts memory createAmounts =
             Helpers.checkAndCalculateBrokerFee(params.totalAmount, params.broker.fee, MAX_BROKER_FEE);
 
-        // Checks: validate the user-provided parameters.
-        Helpers.checkCreateWithTimestamps(createAmounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
+        // Check: validate the user-provided parameters.
+        Helpers.checkCreateLockupDynamic(createAmounts.deposit, params.segments, MAX_SEGMENT_COUNT, params.startTime);
 
-        // Load the stream id in a variable.
+        // Load the stream ID in a variable.
         streamId = nextStreamId;
 
-        // Effects: create the stream.
+        // Effect: create the stream.
         Lockup.Stream storage stream = _streams[streamId];
         stream.amounts.deposited = createAmounts.deposit;
         stream.asset = params.asset;
         stream.isCancelable = params.cancelable;
-        stream.isTransferable = params.transferable;
         stream.isStream = true;
+        stream.isTransferable = params.transferable;
         stream.sender = params.sender;
         stream.startTime = params.startTime;
 
@@ -342,24 +339,24 @@ contract SablierV2LockupDynamic is
             uint256 segmentCount = params.segments.length;
             stream.endTime = params.segments[segmentCount - 1].timestamp;
 
-            // Effects: store the segments. Since Solidity lacks a syntax for copying arrays directly from
+            // Effect: store the segments. Since Solidity lacks a syntax for copying arrays of structs directly from
             // memory to storage, a manual approach is necessary. See https://github.com/ethereum/solidity/issues/12783.
             for (uint256 i = 0; i < segmentCount; ++i) {
                 _segments[streamId].push(params.segments[i]);
             }
 
-            // Effects: bump the next stream id.
+            // Effect: bump the next stream ID.
             // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
             nextStreamId = streamId + 1;
         }
 
-        // Effects: mint the NFT to the recipient.
+        // Effect: mint the NFT to the recipient.
         _mint({ to: params.recipient, tokenId: streamId });
 
-        // Interactions: transfer the deposit amount.
+        // Interaction: transfer the deposit amount.
         params.asset.safeTransferFrom({ from: msg.sender, to: address(this), value: createAmounts.deposit });
 
-        // Interactions: pay the broker fee, if not zero.
+        // Interaction: pay the broker fee, if not zero.
         if (createAmounts.brokerFee > 0) {
             params.asset.safeTransferFrom({ from: msg.sender, to: params.broker.account, value: createAmounts.brokerFee });
         }

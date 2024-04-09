@@ -108,7 +108,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
         usdt.approve({ spender: address(lockupTranched), value: MAX_UINT256 });
     }
 
-    /// @dev Generates a user, labels its address, funds it with test assets and approve the protocol contracts.
+    /// @dev Generates a user, labels its address, funds it with test assets, and approves the protocol contracts.
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
@@ -126,12 +126,12 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     function deployCoreConditionally() internal {
         if (!isTestOptimizedProfile()) {
             nftDescriptor = new SablierV2NFTDescriptor();
-            lockupDynamic = new SablierV2LockupDynamic(users.admin, nftDescriptor, defaults.MAX_COUNT());
+            lockupDynamic = new SablierV2LockupDynamic(users.admin, nftDescriptor, defaults.MAX_SEGMENT_COUNT());
             lockupLinear = new SablierV2LockupLinear(users.admin, nftDescriptor);
-            lockupTranched = new SablierV2LockupTranched(users.admin, nftDescriptor, defaults.MAX_COUNT());
+            lockupTranched = new SablierV2LockupTranched(users.admin, nftDescriptor, defaults.MAX_TRANCHE_COUNT());
         } else {
             (lockupDynamic, lockupLinear, lockupTranched, nftDescriptor) =
-                deployOptimizedCore(users.admin, defaults.MAX_COUNT());
+                deployOptimizedCore(users.admin, defaults.MAX_SEGMENT_COUNT(), defaults.MAX_TRANCHE_COUNT());
         }
 
         vm.label({ account: address(lockupDynamic), newLabel: "LockupDynamic" });

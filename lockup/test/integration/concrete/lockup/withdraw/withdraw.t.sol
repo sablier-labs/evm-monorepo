@@ -46,7 +46,7 @@ abstract contract Withdraw_Integration_Concrete_Test is Integration_Test, Withdr
 
     function test_RevertWhen_ToZeroAddress() external whenNotDelegateCalled givenNotNull givenStreamNotDepleted {
         uint128 withdrawAmount = defaults.WITHDRAW_AMOUNT();
-        vm.expectRevert(Errors.SablierV2Lockup_WithdrawToZeroAddress.selector);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_WithdrawToZeroAddress.selector, defaultStreamId));
         lockup.withdraw({ streamId: defaultStreamId, to: address(0), amount: withdrawAmount });
     }
 

@@ -8,11 +8,11 @@ withdrawMultiple.t.sol
       ├── when the array counts are zero
       │  └── it should do nothing
       └── when the array counts are not zero
-         ├── given the stream ids array references only null streams
+         ├── given the stream IDs array references only null streams
          │  └── it should revert
-         ├── given the stream ids array references some null streams
+         ├── given the stream IDs array references some null streams
          │  └── it should revert
-         └── given the stream ids array references only non-null streams
+         └── given the stream IDs array references only non-null streams
             ├── given all streams' statuses are "DEPLETED"
             │  └── it should revert
             ├── given some streams' statuses are "DEPLETED"

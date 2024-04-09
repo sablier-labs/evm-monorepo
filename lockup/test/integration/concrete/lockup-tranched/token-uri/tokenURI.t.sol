@@ -10,7 +10,7 @@ import { Base64 } from "solady/src/utils/Base64.sol";
 import { LockupTranched_Integration_Concrete_Test } from "../LockupTranched.t.sol";
 
 /// @dev Requirements for these tests to work:
-/// - The stream id must be 1
+/// - The stream ID must be 1
 /// - The stream's sender must be `0x6332e7b1deb1f1a0b77b2bb18b144330c7291bca`, i.e. `makeAddr("Sender")`
 /// - The stream asset must have the DAI symbol
 /// - The contract deployer, i.e. the `sender` config option in `foundry.toml`, must have the default value

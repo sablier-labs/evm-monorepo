@@ -33,11 +33,11 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
         uint128 depositedAmount;
         string json;
         ISablierV2Lockup sablier;
-        string sablierAddress;
+        string sablierModel;
+        string sablierStringified;
         string status;
         string svg;
         uint256 streamedPercentage;
-        string streamingModel;
     }
 
     /// @inheritdoc ISablierV2NFTDescriptor
@@ -46,7 +46,8 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
         // Load the contracts.
         vars.sablier = ISablierV2Lockup(address(sablier));
-        vars.sablierAddress = address(sablier).toHexString();
+        vars.sablierModel = mapSymbol(sablier);
+        vars.sablierStringified = address(sablier).toHexString();
         vars.asset = address(vars.sablier.getAsset(streamId));
         vars.assetSymbol = safeAssetSymbol(vars.asset);
         vars.depositedAmount = vars.sablier.getDepositedAmount(streamId);
@@ -57,7 +58,6 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             streamedAmount: vars.sablier.streamedAmountOf(streamId),
             depositedAmount: vars.depositedAmount
         });
-        vars.streamingModel = mapSymbol(sablier);
 
         // Generate the SVG.
         vars.svg = NFTSVG.generateSVG(
@@ -70,11 +70,11 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
                     startTime: vars.sablier.getStartTime(streamId),
                     endTime: vars.sablier.getEndTime(streamId)
                 }),
-                sablierAddress: vars.sablierAddress,
+                sablierAddress: vars.sablierStringified,
                 progress: stringifyPercentage(vars.streamedPercentage),
                 progressNumerical: vars.streamedPercentage,
                 status: vars.status,
-                streamingModel: vars.streamingModel
+                sablierModel: vars.sablierModel
             })
         );
 
@@ -88,15 +88,15 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
             }),
             ',"description":"',
             generateDescription({
-                streamingModel: vars.streamingModel,
+                sablierModel: vars.sablierModel,
                 assetSymbol: vars.assetSymbol,
-                sablierAddress: vars.sablierAddress,
+                sablierStringified: vars.sablierStringified,
                 assetAddress: vars.asset.toHexString(),
                 streamId: streamId.toString(),
                 isTransferable: vars.sablier.isTransferable(streamId)
             }),
             '","external_url":"https://sablier.com","name":"',
-            generateName({ streamingModel: vars.streamingModel, streamId: streamId.toString() }),
+            generateName({ sablierModel: vars.sablierModel, streamId: streamId.toString() }),
             '","image":"data:image/svg+xml;base64,',
             Base64.encode(bytes(vars.svg)),
             '"}'
@@ -194,7 +194,7 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
     /// @notice Generates a pseudo-random HSL color by hashing together the `chainid`, the `sablier` address,
     /// and the `streamId`. This will be used as the accent color for the SVG.
     function generateAccentColor(address sablier, uint256 streamId) internal view returns (string memory) {
-        // The chain id is part of the hash so that the generated color is different across chains.
+        // The chain ID is part of the hash so that the generated color is different across chains.
         uint256 chainId = block.chainid;
 
         // Hash the parameters to generate a pseudo-random bit field, which will be used as entropy.
@@ -249,9 +249,9 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
     /// @notice Generates a string with the NFT's JSON metadata description, which provides a high-level overview.
     function generateDescription(
-        string memory streamingModel,
+        string memory sablierModel,
         string memory assetSymbol,
-        string memory sablierAddress,
+        string memory sablierStringified,
         string memory assetAddress,
         string memory streamId,
         bool isTransferable
@@ -268,15 +268,15 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
         return string.concat(
             "This NFT represents a payment stream in a Sablier V2 ",
-            streamingModel,
+            sablierModel,
             " contract. The owner of this NFT can withdraw the streamed assets, which are denominated in ",
             assetSymbol,
             ".\\n\\n- Stream ID: ",
             streamId,
             "\\n- ",
-            streamingModel,
+            sablierModel,
             " Address: ",
-            sablierAddress,
+            sablierStringified,
             "\\n- ",
             assetSymbol,
             " Address: ",
@@ -288,11 +288,11 @@ contract SablierV2NFTDescriptor is ISablierV2NFTDescriptor {
 
     /// @notice Generates a string with the NFT's JSON metadata name, which is unique for each stream.
     /// @dev The `streamId` is equivalent to the ERC-721 `tokenId`.
-    function generateName(string memory streamingModel, string memory streamId) internal pure returns (string memory) {
-        return string.concat("Sablier V2 ", streamingModel, " #", streamId);
+    function generateName(string memory sablierModel, string memory streamId) internal pure returns (string memory) {
+        return string.concat("Sablier V2 ", sablierModel, " #", streamId);
     }
 
-    /// @notice Maps ERC-721 symbols to human-readable streaming models.
+    /// @notice Maps ERC-721 symbols to human-readable model names.
     /// @dev Reverts if the symbol is unknown.
     function mapSymbol(IERC721Metadata sablier) internal view returns (string memory) {
         string memory symbol = sablier.symbol();

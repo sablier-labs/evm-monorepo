@@ -283,7 +283,7 @@ abstract contract LockupHandler is BaseHandler {
         // Make the max withdrawal and transfer the NFT.
         lockup.withdrawMaxAndTransfer({ streamId: currentStreamId, newRecipient: newRecipient });
 
-        // Update the recipient associated with this stream id.
+        // Update the recipient associated with this stream ID.
         lockupStore.updateRecipient(currentStreamId, newRecipient);
     }
 
@@ -320,7 +320,7 @@ abstract contract LockupHandler is BaseHandler {
         // Transfer the NFT to the new recipient.
         lockup.transferFrom({ from: currentRecipient, to: newRecipient, tokenId: currentStreamId });
 
-        // Update the recipient associated with this stream id.
+        // Update the recipient associated with this stream ID.
         lockupStore.updateRecipient(currentStreamId, newRecipient);
     }
 }

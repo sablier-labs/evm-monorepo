@@ -28,12 +28,12 @@ library Errors {
     error SablierV2Lockup_DepositAmountZero();
 
     /// @notice Thrown when trying to create a stream with an end time not in the future.
-    error SablierV2Lockup_EndTimeNotInTheFuture(uint40 currentTime, uint40 endTime);
+    error SablierV2Lockup_EndTimeNotInTheFuture(uint40 blockTimestamp, uint40 endTime);
 
     /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
     error SablierV2Lockup_NotTransferable(uint256 tokenId);
 
-    /// @notice Thrown when the id references a null stream.
+    /// @notice Thrown when the ID references a null stream.
     error SablierV2Lockup_Null(uint256 streamId);
 
     /// @notice Thrown when trying to withdraw an amount greater than the withdrawable amount.
@@ -66,12 +66,12 @@ library Errors {
     /// @notice Thrown when trying to withdraw zero assets from a stream.
     error SablierV2Lockup_WithdrawAmountZero(uint256 streamId);
 
-    /// @notice Thrown when trying to withdraw from multiple streams and the number of stream ids does
+    /// @notice Thrown when trying to withdraw from multiple streams and the number of stream IDs does
     /// not match the number of withdraw amounts.
     error SablierV2Lockup_WithdrawArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
 
     /// @notice Thrown when trying to withdraw to the zero address.
-    error SablierV2Lockup_WithdrawToZeroAddress();
+    error SablierV2Lockup_WithdrawToZeroAddress(uint256 streamId);
 
     /*//////////////////////////////////////////////////////////////////////////
                              SABLIER-V2-LOCKUP-DYNAMIC
@@ -107,10 +107,11 @@ library Errors {
     /// @notice Thrown when trying to create a stream with a cliff time not strictly less than the end time.
     error SablierV2LockupLinear_CliffTimeNotLessThanEndTime(uint40 cliffTime, uint40 endTime);
 
-    /// @notice Thrown when trying to create a stream with a start time greater than the cliff time.
+    /// @notice Thrown when trying to create a stream with a start time not strictly less than the cliff time, when the
+    /// cliff time does not have a zero value.
     error SablierV2LockupLinear_StartTimeNotLessThanCliffTime(uint40 startTime, uint40 cliffTime);
 
-    /// @notice Thrown when trying to create a stream with a start time greater than the end time.
+    /// @notice Thrown when trying to create a stream with a start time not strictly less than the end time.
     error SablierV2LockupLinear_StartTimeNotLessThanEndTime(uint40 startTime, uint40 endTime);
 
     /*//////////////////////////////////////////////////////////////////////////

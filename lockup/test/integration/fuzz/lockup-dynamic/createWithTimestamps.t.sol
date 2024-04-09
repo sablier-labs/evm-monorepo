@@ -7,7 +7,7 @@ import { stdError } from "forge-std/src/StdError.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { CreateWithTimestamps_Integration_Shared_Test } from "../../shared/lockup-dynamic/createWithTimestamps.t.sol";
+import { CreateWithTimestamps_Integration_Shared_Test } from "../../shared/lockup/createWithTimestamps.t.sol";
 import { LockupDynamic_Integration_Fuzz_Test } from "./LockupDynamic.t.sol";
 
 contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
@@ -30,7 +30,8 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         whenDepositAmountNotZero
         whenSegmentCountNotZero
     {
-        segmentCount = _bound(segmentCount, defaults.MAX_COUNT() + 1 seconds, defaults.MAX_COUNT() * 10);
+        uint256 defaultMax = defaults.MAX_SEGMENT_COUNT();
+        segmentCount = _bound(segmentCount, defaultMax + 1, defaultMax * 10);
         LockupDynamic.Segment[] memory segments = new LockupDynamic.Segment[](segmentCount);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2LockupDynamic_SegmentCountTooHigh.selector, segmentCount)
@@ -267,9 +268,9 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
-        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isDepleted, false, "isStream");
         assertEq(actualStream.isStream, true, "isStream");
+        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.recipient, params.recipient, "recipient");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.segments, params.segments, "segments");
@@ -287,7 +288,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Fuzz_Test is
         }
         assertEq(vars.actualStatus, vars.expectedStatus);
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         vars.actualNextStreamId = lockupDynamic.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");

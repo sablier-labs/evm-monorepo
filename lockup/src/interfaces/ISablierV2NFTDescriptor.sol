@@ -10,7 +10,7 @@ interface ISablierV2NFTDescriptor {
     /// @notice Produces the URI describing a particular stream NFT.
     /// @dev This is a data URI with the JSON contents directly inlined.
     /// @param sablier The address of the Sablier contract the stream was created in.
-    /// @param streamId The id of the stream for which to produce a description.
+    /// @param streamId The ID of the stream for which to produce a description.
     /// @return uri The URI of the ERC721-compliant metadata.
     function tokenURI(IERC721Metadata sablier, uint256 streamId) external view returns (string memory uri);
 }

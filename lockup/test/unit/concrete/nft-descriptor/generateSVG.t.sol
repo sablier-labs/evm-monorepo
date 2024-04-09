@@ -22,8 +22,8 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
                 progress: "0%",
                 progressNumerical: 0,
                 sablierAddress: "0xf3a045dc986015be9ae43bb3462ae5981b0816e0",
-                status: "Pending",
-                streamingModel: "Lockup Linear"
+                sablierModel: "Lockup Linear",
+                status: "Pending"
             })
         );
         string memory expectedSVG =
@@ -42,8 +42,8 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
                 progress: "42.35%",
                 progressNumerical: 4235,
                 sablierAddress: "0xf3a045dc986015be9ae43bb3462ae5981b0816e0",
-                status: "Streaming",
-                streamingModel: "Lockup Linear"
+                sablierModel: "Lockup Linear",
+                status: "Streaming"
             })
         );
         string memory expectedSVG =
@@ -62,8 +62,8 @@ contract GenerateSVG_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
                 progress: "100%",
                 progressNumerical: 100,
                 sablierAddress: "0xf3a045dc986015be9ae43bb3462ae5981b0816e0",
-                status: "Depleted",
-                streamingModel: "Lockup Linear"
+                sablierModel: "Lockup Linear",
+                status: "Depleted"
             })
         );
         string memory expectedSVG =

@@ -7,7 +7,7 @@ import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupDynamic } from "src/types/DataTypes.sol";
 
-import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup-dynamic/createWithDurations.t.sol";
+import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup/createWithDurations.t.sol";
 import { LockupDynamic_Integration_Concrete_Test } from "../LockupDynamic.t.sol";
 
 contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
@@ -126,9 +126,9 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
         address funder = users.sender;
 
         // Declare the range.
-        uint40 currentTime = getBlockTimestamp();
+        uint40 blockTimestamp = getBlockTimestamp();
         LockupDynamic.Range memory range =
-            LockupDynamic.Range({ start: currentTime, end: currentTime + defaults.TOTAL_DURATION() });
+            LockupDynamic.Range({ start: blockTimestamp, end: blockTimestamp + defaults.TOTAL_DURATION() });
 
         // Adjust the segments.
         LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations = defaults.segmentsWithDurations();
@@ -176,7 +176,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         uint256 actualNextStreamId = lockupDynamic.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");

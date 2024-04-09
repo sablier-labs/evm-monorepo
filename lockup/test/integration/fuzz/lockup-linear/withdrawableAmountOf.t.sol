@@ -67,12 +67,12 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         uint256 streamId = lockupLinear.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = defaults.START_TIME() + timeJump;
-        vm.warp({ newTimestamp: currentTime });
+        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
+        vm.warp({ newTimestamp: blockTimestamp });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupLinear.withdrawableAmountOf(streamId);
-        uint128 expectedWithdrawableAmount = calculateStreamedAmount(currentTime, depositAmount);
+        uint128 expectedWithdrawableAmount = calculateStreamedAmount(blockTimestamp, depositAmount);
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -105,11 +105,11 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
         depositAmount = boundUint128(depositAmount, 10_000, MAX_UINT128);
 
-        // Define the current time.
-        uint40 currentTime = defaults.START_TIME() + timeJump;
+        // Define the block timestamp.
+        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
 
         // Bound the withdraw amount.
-        uint128 streamedAmount = calculateStreamedAmount(currentTime, depositAmount);
+        uint128 streamedAmount = calculateStreamedAmount(blockTimestamp, depositAmount);
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Mint enough assets to the Sender.
@@ -122,7 +122,7 @@ contract WithdrawableAmountOf_LockupLinear_Integration_Fuzz_Test is
         uint256 streamId = lockupLinear.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: currentTime });
+        vm.warp({ newTimestamp: blockTimestamp });
 
         // Make the withdrawal.
         lockupLinear.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });

@@ -44,7 +44,7 @@ contract SablierV2LockupTranched is
     /// @inheritdoc ISablierV2LockupTranched
     uint256 public immutable override MAX_TRANCHE_COUNT;
 
-    /// @dev Stream tranches mapped by stream ids.
+    /// @dev Stream tranches mapped by stream IDs. This complements the `_streams` mapping in {SablierV2Lockup}.
     mapping(uint256 id => LockupTranched.Tranche[] tranches) internal _tranches;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ contract SablierV2LockupTranched is
         notNull(streamId)
         returns (LockupTranched.StreamLT memory stream)
     {
-        // Retrieve the lockup stream from storage.
+        // Retrieve the Lockup stream from storage.
         Lockup.Stream memory lockupStream = _streams[streamId];
 
         // Settled streams cannot be canceled.
@@ -103,9 +103,9 @@ contract SablierV2LockupTranched is
             asset: lockupStream.asset,
             endTime: lockupStream.endTime,
             isCancelable: lockupStream.isCancelable,
-            isTransferable: lockupStream.isTransferable,
             isDepleted: lockupStream.isDepleted,
             isStream: lockupStream.isStream,
+            isTransferable: lockupStream.isTransferable,
             recipient: _ownerOf(streamId),
             sender: lockupStream.sender,
             startTime: lockupStream.startTime,
@@ -140,7 +140,7 @@ contract SablierV2LockupTranched is
         LockupTranched.Tranche[] memory tranches = Helpers.calculateTrancheTimestamps(params.tranches);
 
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithTimestamps(
+        streamId = _create(
             LockupTranched.CreateWithTimestamps({
                 sender: params.sender,
                 recipient: params.recipient,
@@ -163,7 +163,7 @@ contract SablierV2LockupTranched is
         returns (uint256 streamId)
     {
         // Checks, Effects and Interactions: create the stream.
-        streamId = _createWithTimestamps(params);
+        streamId = _create(params);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ contract SablierV2LockupTranched is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc SablierV2Lockup
-    /// @dev The streaming function is:
+    /// @dev The distribution function is:
     ///
     /// $$
     /// f(x) = \Sigma(eta)
@@ -179,30 +179,33 @@ contract SablierV2LockupTranched is
     ///
     /// Where:
     ///
-    /// - $\Sigma(eta)$ is the sum of all elapsed tranches' amounts.
+    /// - $\Sigma(eta)$ is the sum of all vested tranches' amounts.
     function _calculateStreamedAmount(uint256 streamId) internal view override returns (uint128) {
-        uint40 currentTime = uint40(block.timestamp);
+        uint40 blockTimestamp = uint40(block.timestamp);
         LockupTranched.Tranche[] memory tranches = _tranches[streamId];
 
-        // If the first timestamp in the tranches is in the future, return zero.
-        if (tranches[0].timestamp > currentTime) {
+        // If the first tranche's timestamp is in the future, return zero.
+        if (tranches[0].timestamp > blockTimestamp) {
             return 0;
         }
 
         // If the end time is not in the future, return the deposited amount.
-        if (_streams[streamId].endTime <= currentTime) {
+        if (_streams[streamId].endTime <= blockTimestamp) {
             return _streams[streamId].amounts.deposited;
         }
 
-        // Sum the amounts in all tranches that precede the current time.
+        // Sum the amounts in all tranches that have already been vested.
         // Using unchecked arithmetic is safe because the sum of the tranche amounts is equal to the total amount
         // at this point.
         uint128 streamedAmount = tranches[0].amount;
-        uint256 index = 1;
-        unchecked {
-            while (tranches[index].timestamp <= currentTime) {
-                streamedAmount += tranches[index].amount;
-                index += 1;
+        for (uint256 i = 1; i < tranches.length; ++i) {
+            // The loop breaks at the first tranche with a timestamp in the future. A tranche is considered vested if
+            // its timestamp is less than or equal to the block timestamp.
+            if (tranches[i].timestamp > blockTimestamp) {
+                break;
+            }
+            unchecked {
+                streamedAmount += tranches[i].amount;
             }
         }
 
@@ -214,27 +217,24 @@ contract SablierV2LockupTranched is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _createWithTimestamps(LockupTranched.CreateWithTimestamps memory params)
-        internal
-        returns (uint256 streamId)
-    {
-        // Checks: check the broker fee and calculate the amounts.
+    function _create(LockupTranched.CreateWithTimestamps memory params) internal returns (uint256 streamId) {
+        // Check: verify the broker fee and calculate the amounts.
         Lockup.CreateAmounts memory createAmounts =
             Helpers.checkAndCalculateBrokerFee(params.totalAmount, params.broker.fee, MAX_BROKER_FEE);
 
-        // Checks: validate the user-provided parameters.
-        Helpers.checkCreateWithTimestamps(createAmounts.deposit, params.tranches, MAX_TRANCHE_COUNT, params.startTime);
+        // Check: validate the user-provided parameters.
+        Helpers.checkCreateLockupTranched(createAmounts.deposit, params.tranches, MAX_TRANCHE_COUNT, params.startTime);
 
-        // Load the stream id in a variable.
+        // Load the stream ID in a variable.
         streamId = nextStreamId;
 
-        // Effects: create the stream.
+        // Effect: create the stream.
         Lockup.Stream storage stream = _streams[streamId];
         stream.amounts.deposited = createAmounts.deposit;
         stream.asset = params.asset;
         stream.isCancelable = params.cancelable;
-        stream.isTransferable = params.transferable;
         stream.isStream = true;
+        stream.isTransferable = params.transferable;
         stream.sender = params.sender;
         stream.startTime = params.startTime;
 
@@ -243,24 +243,24 @@ contract SablierV2LockupTranched is
             uint256 trancheCount = params.tranches.length;
             stream.endTime = params.tranches[trancheCount - 1].timestamp;
 
-            // Effects: store the tranches. Since Solidity lacks a syntax for copying arrays directly from
+            // Effect: store the tranches. Since Solidity lacks a syntax for copying arrays of structs directly from
             // memory to storage, a manual approach is necessary. See https://github.com/ethereum/solidity/issues/12783.
             for (uint256 i = 0; i < trancheCount; ++i) {
                 _tranches[streamId].push(params.tranches[i]);
             }
 
-            // Effects: bump the next stream id.
+            // Effect: bump the next stream ID.
             // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
             nextStreamId = streamId + 1;
         }
 
-        // Effects: mint the NFT to the recipient.
+        // Effect: mint the NFT to the recipient.
         _mint({ to: params.recipient, tokenId: streamId });
 
-        // Interactions: transfer the deposit amount.
+        // Interaction: transfer the deposit amount.
         params.asset.safeTransferFrom({ from: msg.sender, to: address(this), value: createAmounts.deposit });
 
-        // Interactions: pay the broker fee, if not zero.
+        // Interaction: pay the broker fee, if not zero.
         if (createAmounts.brokerFee > 0) {
             params.asset.safeTransferFrom({ from: msg.sender, to: params.broker.account, value: createAmounts.brokerFee });
         }

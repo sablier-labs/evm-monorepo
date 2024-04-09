@@ -1,7 +1,7 @@
 getWithdrawnAmount.t.sol
-├── given the id references a null stream
+├── given the ID references a null stream
 │  └── it should revert
-└── given the id does not reference a null stream
+└── given the ID does not reference a null stream
    ├── given there are no previous withdrawals
    │  └── it should return zero
    └── given there are previous withdrawals

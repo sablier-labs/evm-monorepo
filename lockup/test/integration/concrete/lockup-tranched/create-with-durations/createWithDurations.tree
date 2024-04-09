@@ -15,7 +15,7 @@ createWithDurations.t.sol
           │     └── it should revert
           └── when the tranche timestamp calculations do not overflow uint256
              ├── it should create the stream
-             ├── it should bump the next stream id
+             ├── it should bump the next stream ID
              ├── it should mint the NFT
              ├── it should emit a {MetadataUpdate} event
              ├── it should perform the ERC-20 transfers

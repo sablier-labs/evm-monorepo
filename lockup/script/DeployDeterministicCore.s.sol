@@ -17,7 +17,7 @@ import { BaseScript } from "./Base.s.sol";
 ///
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicCore is BaseScript {
-    /// @dev Deploy using Forge.
+    /// @dev Deploy via Forge.
     function runBroadcast(address initialAdmin)
         public
         virtual
@@ -32,7 +32,7 @@ contract DeployDeterministicCore is BaseScript {
         (lockupDynamic, lockupLinear, lockupTranched, nftDescriptor) = _run(initialAdmin);
     }
 
-    /// @dev Deploy using Sphinx.
+    /// @dev Deploy via Sphinx.
     function runSphinx(address initialAdmin)
         public
         virtual
@@ -58,8 +58,8 @@ contract DeployDeterministicCore is BaseScript {
     {
         bytes32 salt = constructCreate2Salt();
         nftDescriptor = new SablierV2NFTDescriptor{ salt: salt }();
-        lockupDynamic = new SablierV2LockupDynamic{ salt: salt }(initialAdmin, nftDescriptor, maxCount);
+        lockupDynamic = new SablierV2LockupDynamic{ salt: salt }(initialAdmin, nftDescriptor, maxSegmentCount);
         lockupLinear = new SablierV2LockupLinear{ salt: salt }(initialAdmin, nftDescriptor);
-        lockupTranched = new SablierV2LockupTranched{ salt: salt }(initialAdmin, nftDescriptor, maxCount);
+        lockupTranched = new SablierV2LockupTranched{ salt: salt }(initialAdmin, nftDescriptor, maxTrancheCount);
     }
 }

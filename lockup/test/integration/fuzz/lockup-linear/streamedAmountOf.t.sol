@@ -70,12 +70,12 @@ contract StreamedAmountOf_LockupLinear_Integration_Fuzz_Test is
         uint256 streamId = lockupLinear.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = defaults.START_TIME() + timeJump;
-        vm.warp({ newTimestamp: currentTime });
+        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
+        vm.warp({ newTimestamp: blockTimestamp });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupLinear.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateStreamedAmount(currentTime, depositAmount);
+        uint128 expectedStreamedAmount = calculateStreamedAmount(blockTimestamp, depositAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 

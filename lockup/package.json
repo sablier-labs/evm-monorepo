@@ -11,11 +11,11 @@
     "url": "https://github.com/sablier-labs/v2-core/issues"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.0.0",
-    "@prb/math": "github:PaulRBerg/prb-math#a111d11"
+    "@openzeppelin/contracts": "5.0.2",
+    "@prb/math": "github:PaulRBerg/prb-math#16419e5"
   },
   "devDependencies": {
-    "@sphinx-labs/plugins": "^0.30.6",
+    "@sphinx-labs/plugins": "^0.31.2",
     "forge-std": "github:foundry-rs/forge-std#v1.8.1",
     "prettier": "^2.8.8",
     "solady": "0.0.129",
@@ -67,7 +67,7 @@
     "gas:snapshot": "forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "gas:snapshot:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "bun run lint:sol && bun run prettier:check",
-    "lint:sol": "forge fmt --check && bun solhint \"{script,src,test}/**/*.sol\"",
+    "lint:sol": "forge fmt --check && bun solhint \"{precompiles,script,src,test}/**/*.sol\"",
     "prepack": "bun install && bash ./shell/prepare-artifacts.sh",
     "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",
     "prettier:write": "prettier --write \"**/*.{json,md,svg,yml}\"",

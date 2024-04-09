@@ -14,11 +14,11 @@ contract BaseScript is Script, Sphinx {
     /// @dev The Avalanche chain ID.
     uint256 internal constant AVALANCHE_CHAIN_ID = 43_114;
 
-    /// @dev The project name for the Sphinx plugin.
-    string internal constant SPHINX_PROJECT_NAME = "test-test";
-
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
+
+    /// @dev The project name for the Sphinx plugin.
+    string internal constant TEST_SPHINX_PROJECT_NAME = "test-test";
 
     /// @dev Needed for the deterministic deployments.
     bytes32 internal constant ZERO_SALT = bytes32(0);
@@ -26,9 +26,11 @@ contract BaseScript is Script, Sphinx {
     /// @dev The address of the transaction broadcaster.
     address internal broadcaster;
 
-    /// @dev The upper limit on the length of data structures to ensure that transactions stay within the
-    /// block gas limit.
-    uint256 internal maxCount;
+    /// @dev The upper limit on the length of segments to ensure that transactions stay within the block gas limit.
+    uint256 internal maxSegmentCount;
+
+    /// @dev The upper limit on the length of tranches to ensure that transactions stay within the block gas limit.
+    uint256 internal maxTrancheCount;
 
     /// @dev Used to derive the broadcaster's address if $EOA is not defined.
     string internal mnemonic;
@@ -52,13 +54,15 @@ contract BaseScript is Script, Sphinx {
             mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
-        sphinxProjectName = vm.envOr({ name: "SPHINX_PROJECT_NAME", defaultValue: SPHINX_PROJECT_NAME });
+        sphinxProjectName = vm.envOr({ name: "SPHINX_PROJECT_NAME", defaultValue: TEST_SPHINX_PROJECT_NAME });
 
-        // Sets `maxCount` to 300 for Avalanche, and 500 for all other chains.
+        // Avalanche has a lower block gas limit than most other chains.
         if (block.chainid == AVALANCHE_CHAIN_ID) {
-            maxCount = 300;
+            maxSegmentCount = 300;
+            maxTrancheCount = 298;
         } else {
-            maxCount = 500;
+            maxSegmentCount = 500;
+            maxTrancheCount = 500;
         }
     }
 
@@ -68,10 +72,11 @@ contract BaseScript is Script, Sphinx {
         vm.stopBroadcast();
     }
 
-    /// @dev Configures the Sphinx plugin to use Sphinx managed deployment for smart contracts.
+    /// @dev Configures the Sphinx plugin to manage the deployment of the contracts.
     /// Refer to https://github.com/sphinx-labs/sphinx/tree/main/docs.
+    ///
     /// CLI example:
-    /// - bun sphinx propose script/DeployCore.s.sol --networks testnets --sig "runSphinx(address)" $ADMIN
+    /// bun sphinx propose script/DeployCore.s.sol --networks testnets --sig "runSphinx(address)" $ADMIN
     function configureSphinx() public override {
         sphinxConfig.mainnets = ["arbitrum", "avalanche", "base", "bnb", "gnosis", "ethereum", "optimism", "polygon"];
         sphinxConfig.orgId = vm.envOr({ name: "SPHINX_ORG_ID", defaultValue: TEST_MNEMONIC });
@@ -88,7 +93,7 @@ contract BaseScript is Script, Sphinx {
     /// - The salt format is "ChainID <chainid>, Version <version>".
     /// - The version is obtained from `package.json` using the `ffi` cheatcode:
     /// https://book.getfoundry.sh/cheatcodes/ffi
-    /// - Requires `jq` CLI tool installed: https://jqlang.github.io/jq/
+    /// - Requires the `jq` CLI installed: https://jqlang.github.io/jq/
     function constructCreate2Salt() public returns (bytes32) {
         string memory chainId = block.chainid.toString();
         string[] memory inputs = new string[](4);

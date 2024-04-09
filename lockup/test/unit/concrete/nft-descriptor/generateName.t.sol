@@ -4,8 +4,8 @@ pragma solidity >=0.8.22 <0.9.0;
 import { NFTDescriptor_Unit_Concrete_Test } from "./NFTDescriptor.t.sol";
 
 contract GenerateName_Unit_Concrete_Test is NFTDescriptor_Unit_Concrete_Test {
-    function gn(string memory streamingModel, string memory streamId) internal view returns (string memory) {
-        return nftDescriptorMock.generateName_(streamingModel, streamId);
+    function gn(string memory sablierModel, string memory streamId) internal view returns (string memory) {
+        return nftDescriptorMock.generateName_(sablierModel, streamId);
     }
 
     function dyn(string memory streamId) internal pure returns (string memory) {

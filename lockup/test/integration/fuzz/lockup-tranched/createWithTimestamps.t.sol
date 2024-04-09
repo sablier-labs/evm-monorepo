@@ -7,7 +7,7 @@ import { stdError } from "forge-std/src/StdError.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupTranched } from "src/types/DataTypes.sol";
 
-import { CreateWithTimestamps_Integration_Shared_Test } from "../../shared/lockup-tranched/createWithTimestamps.t.sol";
+import { CreateWithTimestamps_Integration_Shared_Test } from "../../shared/lockup/createWithTimestamps.t.sol";
 import { LockupTranched_Integration_Fuzz_Test } from "./LockupTranched.t.sol";
 
 contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
@@ -30,7 +30,8 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         whenDepositAmountNotZero
         whenTrancheCountNotZero
     {
-        trancheCount = _bound(trancheCount, defaults.MAX_COUNT() + 1 seconds, defaults.MAX_COUNT() * 10);
+        uint256 defaultMax = defaults.MAX_TRANCHE_COUNT();
+        trancheCount = _bound(trancheCount, defaultMax + 1, defaultMax * 10);
         LockupTranched.Tranche[] memory tranches = new LockupTranched.Tranche[](trancheCount);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2LockupTranched_TrancheCountTooHigh.selector, trancheCount)
@@ -270,9 +271,9 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         assertEq(actualStream.asset, dai, "asset");
         assertEq(actualStream.endTime, range.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
-        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isDepleted, false, "isStream");
         assertEq(actualStream.isStream, true, "isStream");
+        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.recipient, params.recipient, "recipient");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.tranches, params.tranches, "tranches");
@@ -290,7 +291,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         }
         assertEq(vars.actualStatus, vars.expectedStatus);
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         vars.actualNextStreamId = lockupTranched.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");

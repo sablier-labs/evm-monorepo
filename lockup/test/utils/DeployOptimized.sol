@@ -67,7 +67,8 @@ abstract contract DeployOptimized is StdCheats {
 
     function deployOptimizedCore(
         address initialAdmin,
-        uint256 maxCount
+        uint256 maxSegmentCount,
+        uint256 maxTrancheCount
     )
         internal
         returns (
@@ -78,8 +79,8 @@ abstract contract DeployOptimized is StdCheats {
         )
     {
         nftDescriptor_ = deployOptimizedNFTDescriptor();
-        lockupDynamic_ = deployOptimizedLockupDynamic(initialAdmin, nftDescriptor_, maxCount);
+        lockupDynamic_ = deployOptimizedLockupDynamic(initialAdmin, nftDescriptor_, maxSegmentCount);
         lockupLinear_ = deployOptimizedLockupLinear(initialAdmin, nftDescriptor_);
-        lockupTranched_ = deployOptimizedLockupTranched(initialAdmin, nftDescriptor_, maxCount);
+        lockupTranched_ = deployOptimizedLockupTranched(initialAdmin, nftDescriptor_, maxTrancheCount);
     }
 }

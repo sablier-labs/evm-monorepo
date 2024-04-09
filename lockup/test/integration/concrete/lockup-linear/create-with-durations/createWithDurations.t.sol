@@ -5,7 +5,7 @@ import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.so
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup-linear/createWithDurations.t.sol";
+import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup/createWithDurations.t.sol";
 import { LockupLinear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 
 contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
@@ -26,6 +26,28 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
             abi.encodeCall(ISablierV2LockupLinear.createWithDurations, defaults.createWithDurationsLL());
         (bool success, bytes memory returnData) = address(lockupLinear).delegatecall(callData);
         expectRevertDueToDelegateCall(success, returnData);
+    }
+
+    function test_RevertWhen_CliffDurationCalculationOverflows() external whenNotDelegateCalled {
+        uint40 startTime = getBlockTimestamp();
+        uint40 cliffDuration = MAX_UINT40 - startTime + 2 seconds;
+        uint40 totalDuration = defaults.TOTAL_DURATION();
+
+        // Calculate the end time. Needs to be "unchecked" to avoid an overflow.
+        uint40 cliffTime;
+        unchecked {
+            cliffTime = startTime + cliffDuration;
+        }
+
+        // Expect the relevant error to be thrown.
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.SablierV2LockupLinear_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime
+            )
+        );
+
+        // Create the stream.
+        createDefaultStreamWithDurations(LockupLinear.Durations({ cliff: cliffDuration, total: totalDuration }));
     }
 
     function test_RevertWhen_TotalDurationCalculationOverflows()
@@ -66,11 +88,11 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         address funder = users.sender;
 
         // Declare the range.
-        uint40 currentTime = getBlockTimestamp();
+        uint40 blockTimestamp = getBlockTimestamp();
         LockupLinear.Range memory range = LockupLinear.Range({
-            start: currentTime,
-            cliff: currentTime + defaults.CLIFF_DURATION(),
-            end: currentTime + defaults.TOTAL_DURATION()
+            start: blockTimestamp,
+            cliff: blockTimestamp + defaults.CLIFF_DURATION(),
+            end: blockTimestamp + defaults.TOTAL_DURATION()
         });
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupLinear}.
@@ -112,7 +134,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         uint256 actualNextStreamId = lockupLinear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");

@@ -84,7 +84,7 @@ contract LockupTranchedCreateHandler is BaseHandler {
         params.asset = asset;
         uint256 streamId = lockupTranched.createWithDurations(params);
 
-        // Store the stream id.
+        // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
@@ -131,7 +131,7 @@ contract LockupTranchedCreateHandler is BaseHandler {
         params.asset = asset;
         uint256 streamId = lockupTranched.createWithTimestamps(params);
 
-        // Store the stream id.
+        // Store the stream ID.
         lockupStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 }

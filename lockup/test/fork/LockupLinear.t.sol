@@ -51,11 +51,14 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         uint256 actualRecipientBalance;
         Lockup.Status actualStatus;
         uint256[] balances;
+        uint40 blockTimestamp;
+        uint40 endTimeLowerBound;
         uint256 expectedLockupLinearBalance;
         uint256 expectedHolderBalance;
         address expectedNFTOwner;
         uint256 expectedRecipientBalance;
         Lockup.Status expectedStatus;
+        bool hasCliff;
         uint256 initialLockupLinearBalance;
         uint256 initialRecipientBalance;
         bool isDepleted;
@@ -84,7 +87,7 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
     ///
     /// - It should perform all expected ERC-20 transfers.
     /// - It should create the stream.
-    /// - It should bump the next stream id.
+    /// - It should bump the next stream ID.
     /// - It should mint the NFT.
     /// - It should emit a {MetadataUpdate} event
     /// - It should emit a {CreateLockupLinearStream} event.
@@ -98,31 +101,34 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
     ///
     /// - Multiple values for the sender, recipient, and broker
     /// - Multiple values for the total amount
-    /// - Multiple values for the cliff time and the end time
-    /// - Multiple values for the broker fee, including zero
     /// - Multiple values for the withdraw amount, including zero
     /// - Start time in the past
     /// - Start time in the present
     /// - Start time in the future
-    /// - Start time lower than and equal to cliff time
+    /// - Multiple values for the cliff time and the end time
+    /// - Cliff time zero and not zero
+    /// - Multiple values for the broker fee, including zero
     /// - The whole gamut of stream statuses
     function testForkFuzz_LockupLinear_CreateWithdrawCancel(Params memory params) external {
         checkUsers(params.sender, params.recipient, params.broker.account, address(lockupLinear));
 
         // Bound the parameters.
-        uint40 currentTime = getBlockTimestamp();
+        Vars memory vars;
+        vars.blockTimestamp = getBlockTimestamp();
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-        params.range.start = boundUint40(params.range.start, currentTime - 1000 seconds, currentTime + 10_000 seconds);
-        params.range.cliff = boundUint40(params.range.cliff, params.range.start + 1, params.range.start + 52 weeks);
+        params.range.start =
+            boundUint40(params.range.start, vars.blockTimestamp - 1000 seconds, vars.blockTimestamp + 10_000 seconds);
         params.totalAmount = boundUint128(params.totalAmount, 1, uint128(initialHolderBalance));
 
-        // Bound the end time so that it is always greater than both the current time and the cliff time (this is
-        // a requirement of the protocol).
-        params.range.end = boundUint40(
-            params.range.end,
-            (params.range.cliff <= currentTime ? currentTime : params.range.cliff) + 1,
-            MAX_UNIX_TIMESTAMP
-        );
+        // The cliff time must be either zero or greater than the start time.
+        vars.hasCliff = params.range.cliff > 0;
+        if (vars.hasCliff) {
+            params.range.cliff =
+                boundUint40(params.range.cliff, params.range.start + 1 seconds, params.range.start + 52 weeks);
+        }
+        // Bound the end time so that it is always greater than the block timestamp, the start time, and the cliff time.
+        vars.endTimeLowerBound = maxOfThree(params.range.start, params.range.cliff, vars.blockTimestamp);
+        params.range.end = boundUint40(params.range.end, vars.endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
 
         // Make the holder the caller.
         resetPrank(HOLDER);
@@ -130,8 +136,6 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         /*//////////////////////////////////////////////////////////////////////////
                                             CREATE
         //////////////////////////////////////////////////////////////////////////*/
-
-        Vars memory vars;
 
         // Load the pre-create asset balances.
         vars.balances =
@@ -184,8 +188,8 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         assertEq(actualStream.endTime, params.range.end, "endTime");
         assertEq(actualStream.isCancelable, true, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
-        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isStream, true, "isStream");
+        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.recipient, params.recipient, "recipient");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.range.start, "startTime");
@@ -193,10 +197,10 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
 
         // Assert that the stream's status is correct.
         vars.actualStatus = lockupLinear.statusOf(vars.streamId);
-        vars.expectedStatus = params.range.start > currentTime ? Lockup.Status.PENDING : Lockup.Status.STREAMING;
+        vars.expectedStatus = params.range.start > vars.blockTimestamp ? Lockup.Status.PENDING : Lockup.Status.STREAMING;
         assertEq(vars.actualStatus, vars.expectedStatus, "post-create stream status");
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         vars.actualNextStreamId = lockupLinear.nextStreamId();
         vars.expectedNextStreamId = vars.streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "post-create nextStreamId");
@@ -230,7 +234,11 @@ abstract contract LockupLinear_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Simulate the passage of time.
-        params.warpTimestamp = boundUint40(params.warpTimestamp, params.range.cliff, params.range.end + 100 seconds);
+        params.warpTimestamp = boundUint40(
+            params.warpTimestamp,
+            vars.hasCliff ? params.range.cliff : params.range.start + 1 seconds,
+            params.range.end + 100 seconds
+        );
         vm.warp({ newTimestamp: params.warpTimestamp });
 
         // Bound the withdraw amount.

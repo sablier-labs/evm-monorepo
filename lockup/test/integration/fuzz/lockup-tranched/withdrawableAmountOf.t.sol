@@ -45,13 +45,13 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Fuzz_Test is
         uint256 streamId = lockupTranched.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = defaults.START_TIME() + timeJump;
-        vm.warp({ newTimestamp: currentTime });
+        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
+        vm.warp({ newTimestamp: blockTimestamp });
 
         // Run the test.
         uint128 actualWithdrawableAmount = lockupTranched.withdrawableAmountOf(streamId);
         uint128 expectedWithdrawableAmount =
-            calculateStreamedAmountForTranches(currentTime, defaults.tranches(), defaults.DEPOSIT_AMOUNT());
+            calculateStreamedAmountForTranches(blockTimestamp, defaults.tranches(), defaults.DEPOSIT_AMOUNT());
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawableAmount");
     }
 
@@ -79,12 +79,12 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Fuzz_Test is
     {
         timeJump = boundUint40(timeJump, defaults.CLIFF_DURATION(), defaults.TOTAL_DURATION() * 2);
 
-        // Define the current time.
-        uint40 currentTime = defaults.START_TIME() + timeJump;
+        // Define the block timestamp.
+        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
 
         // Bound the withdraw amount.
         uint128 streamedAmount =
-            calculateStreamedAmountForTranches(currentTime, defaults.tranches(), defaults.DEPOSIT_AMOUNT());
+            calculateStreamedAmountForTranches(blockTimestamp, defaults.tranches(), defaults.DEPOSIT_AMOUNT());
         withdrawAmount = boundUint128(withdrawAmount, 1, streamedAmount);
 
         // Create the stream with a custom total amount. The broker fee is disabled so that it doesn't interfere with
@@ -95,7 +95,7 @@ contract WithdrawableAmountOf_LockupTranched_Integration_Fuzz_Test is
         uint256 streamId = lockupTranched.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        vm.warp({ newTimestamp: currentTime });
+        vm.warp({ newTimestamp: blockTimestamp });
 
         // Make the withdrawal.
         lockupTranched.withdraw({ streamId: streamId, to: users.recipient, amount: withdrawAmount });

@@ -12,7 +12,7 @@ withdrawHooks.t.sol
 │   └── when the caller is the recipient
 │       ├── it should make one hook call to the sender
 │       └── it should not make any hook call to the recipient
-└── given the recipient is same as the sender
+└── given the recipient is the same as the sender
     ├── when the caller is unknown
     │   └── it should make one hook call to the sender
     ├── when the caller is an approved third party

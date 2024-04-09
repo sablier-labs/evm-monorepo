@@ -86,7 +86,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
     ///
     /// - It should perform all expected ERC-20 transfers.
     /// - It should create the stream.
-    /// - It should bump the next stream id.
+    /// - It should bump the next stream ID.
     /// - It should mint the NFT.
     /// - It should emit a {CreateLockupDynamicStream} event.
     /// - It may make a withdrawal.
@@ -173,7 +173,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
             })
         );
 
-        // Check if the stream is settled. It is possible for a lockupDynamic stream to settle at the time of creation
+        // Check if the stream is settled. It is possible for a Lockup Dynamic stream to settle at the time of creation
         // because some segment amounts can be zero.
         vars.isSettled = lockupDynamic.refundableAmountOf(vars.streamId) == 0;
         vars.isCancelable = vars.isSettled ? false : true;
@@ -185,8 +185,8 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         assertEq(actualStream.endTime, vars.range.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
-        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isStream, true, "isStream");
+        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.recipient, params.recipient, "recipient");
         assertEq(actualStream.segments, params.segments, "segments");
         assertEq(actualStream.sender, params.sender, "sender");
@@ -204,7 +204,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         }
         assertEq(vars.actualStatus, vars.expectedStatus, "post-create stream status");
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         vars.actualNextStreamId = lockupDynamic.nextStreamId();
         vars.expectedNextStreamId = vars.streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "post-create nextStreamId");
@@ -226,7 +226,7 @@ abstract contract LockupDynamic_Fork_Test is Fork_Test {
         assertEq(
             vars.actualLockupDynamicBalance,
             vars.expectedLockupDynamicBalance,
-            "post-create lockupDynamic contract balance"
+            "post-create LockupDynamic contract balance"
         );
 
         // Assert that the holder's balance has been updated.

@@ -106,7 +106,7 @@ abstract contract Fuzzers is Constants, Utils {
         segments[segments.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
     }
 
-    /// @dev Fuzzes the durations.
+    /// @dev Fuzzes the segment durations.
     function fuzzSegmentDurations(LockupDynamic.SegmentWithDuration[] memory segments) internal view {
         unchecked {
             // Precompute the first segment duration.
@@ -127,8 +127,8 @@ abstract contract Fuzzers is Constants, Utils {
         uint40 segmentCount = uint40(segments.length);
         if (segmentCount == 1) {
             // The end time must be in the future.
-            uint40 currentTime = getBlockTimestamp();
-            segments[0].timestamp = (startTime < currentTime ? currentTime : startTime) + 2 days;
+            uint40 blockTimestamp = getBlockTimestamp();
+            segments[0].timestamp = (startTime < blockTimestamp ? blockTimestamp : startTime) + 2 days;
             return;
         }
 
@@ -153,6 +153,50 @@ abstract contract Fuzzers is Constants, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                   LOCKUP-TRANCHED
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Fuzzes the tranche durations.
+    function fuzzTrancheDurations(LockupTranched.TrancheWithDuration[] memory tranches) internal view {
+        unchecked {
+            // Precompute the first tranche duration.
+            tranches[0].duration = uint40(_bound(tranches[0].duration, 1, 100));
+
+            // Bound the durations so that none is zero and the calculations don't overflow.
+            uint256 durationCount = tranches.length;
+            uint40 maxDuration = (MAX_UNIX_TIMESTAMP - getBlockTimestamp()) / uint40(durationCount);
+            for (uint256 i = 1; i < durationCount; ++i) {
+                tranches[i].duration = boundUint40(tranches[i].duration, 1, maxDuration);
+            }
+        }
+    }
+
+    /// @dev Fuzzes the tranche timestamps.
+    function fuzzTrancheTimestamps(LockupTranched.Tranche[] memory tranches, uint40 startTime) internal view {
+        // Return here if there's only one tranche to not run into division by zero.
+        uint40 trancheCount = uint40(tranches.length);
+        if (trancheCount == 1) {
+            // The end time must be in the future.
+            uint40 blockTimestamp = getBlockTimestamp();
+            tranches[0].timestamp = (startTime < blockTimestamp ? blockTimestamp : startTime) + 2 days;
+            return;
+        }
+
+        // The first timestamps is precomputed to avoid an underflow in the first loop iteration. We have to
+        // add 1 because the first timestamp must be greater than the start time.
+        tranches[0].timestamp = startTime + 1 seconds;
+
+        // Fuzz the timestamps while preserving their order in the array. For each timestamp, set its initial guess
+        // as the sum of the starting timestamp and the step size multiplied by the current index. This ensures that
+        // the initial guesses are evenly spaced. Next, we bound the timestamp within a range of half the step size
+        // around the initial guess.
+        uint256 start = tranches[0].timestamp;
+        uint40 step = (MAX_UNIX_TIMESTAMP - tranches[0].timestamp) / (trancheCount - 1);
+        uint40 halfStep = step / 2;
+        for (uint256 i = 1; i < trancheCount; ++i) {
+            uint256 timestamp = start + i * step;
+            timestamp = _bound(timestamp, timestamp - halfStep, timestamp + halfStep);
+            tranches[i].timestamp = uint40(timestamp);
+        }
+    }
 
     /// @dev Just like {fuzzTranchedStreamAmounts} but with defaults.
     function fuzzTranchedStreamAmounts(LockupTranched.Tranche[] memory tranches)
@@ -239,49 +283,5 @@ abstract contract Fuzzers is Constants, Utils {
         // of {Helpers.checkAndCalculateBrokerFee} over-expresses the weight of the broker fee.
         createAmounts.deposit = totalAmount - createAmounts.brokerFee;
         tranches[tranches.length - 1].amount += (createAmounts.deposit - estimatedDepositAmount);
-    }
-
-    /// @dev Fuzzes the durations.
-    function fuzzTrancheDurations(LockupTranched.TrancheWithDuration[] memory tranches) internal view {
-        unchecked {
-            // Precompute the first tranche duration.
-            tranches[0].duration = uint40(_bound(tranches[0].duration, 1, 100));
-
-            // Bound the durations so that none is zero and the calculations don't overflow.
-            uint256 durationCount = tranches.length;
-            uint40 maxDuration = (MAX_UNIX_TIMESTAMP - getBlockTimestamp()) / uint40(durationCount);
-            for (uint256 i = 1; i < durationCount; ++i) {
-                tranches[i].duration = boundUint40(tranches[i].duration, 1, maxDuration);
-            }
-        }
-    }
-
-    /// @dev Fuzzes the tranche timestamps.
-    function fuzzTrancheTimestamps(LockupTranched.Tranche[] memory tranches, uint40 startTime) internal view {
-        // Return here if there's only one tranche to not run into division by zero.
-        uint40 trancheCount = uint40(tranches.length);
-        if (trancheCount == 1) {
-            // The end time must be in the future.
-            uint40 currentTime = getBlockTimestamp();
-            tranches[0].timestamp = (startTime < currentTime ? currentTime : startTime) + 2 days;
-            return;
-        }
-
-        // The first timestamps is precomputed to avoid an underflow in the first loop iteration. We have to
-        // add 1 because the first timestamp must be greater than the start time.
-        tranches[0].timestamp = startTime + 1 seconds;
-
-        // Fuzz the timestamps while preserving their order in the array. For each timestamp, set its initial guess
-        // as the sum of the starting timestamp and the step size multiplied by the current index. This ensures that
-        // the initial guesses are evenly spaced. Next, we bound the timestamp within a range of half the step size
-        // around the initial guess.
-        uint256 start = tranches[0].timestamp;
-        uint40 step = (MAX_UNIX_TIMESTAMP - tranches[0].timestamp) / (trancheCount - 1);
-        uint40 halfStep = step / 2;
-        for (uint256 i = 1; i < trancheCount; ++i) {
-            uint256 timestamp = start + i * step;
-            timestamp = _bound(timestamp, timestamp - halfStep, timestamp + halfStep);
-            tranches[i].timestamp = uint40(timestamp);
-        }
     }
 }

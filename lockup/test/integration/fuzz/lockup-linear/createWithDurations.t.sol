@@ -4,7 +4,7 @@ pragma solidity >=0.8.22 <0.9.0;
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { CreateWithDurations_Integration_Shared_Test } from "../../shared/lockup-linear/createWithDurations.t.sol";
+import { CreateWithDurations_Integration_Shared_Test } from "../../shared/lockup/createWithDurations.t.sol";
 import { LockupLinear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
 contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
@@ -26,7 +26,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
         whenCliffDurationCalculationDoesNotOverflow
     {
         uint40 startTime = getBlockTimestamp();
-        durations.cliff = boundUint40(durations.cliff, 0, MAX_UINT40 - startTime);
+        durations.cliff = boundUint40(durations.cliff, 1 seconds, MAX_UINT40 - startTime);
         durations.total = boundUint40(durations.total, MAX_UINT40 - startTime + 1 seconds, MAX_UINT40);
 
         // Calculate the cliff time and the end time. Needs to be "unchecked" to allow an overflow.
@@ -40,7 +40,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
         // Expect the relevant error to be thrown.
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2LockupLinear_StartTimeNotLessThanEndTime.selector, startTime, endTime
+                Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
 
@@ -54,7 +54,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
         whenCliffDurationCalculationDoesNotOverflow
         whenTotalDurationCalculationDoesNotOverflow
     {
-        durations.total = boundUint40(durations.total, 1, MAX_UNIX_TIMESTAMP);
+        durations.total = boundUint40(durations.total, 1 seconds, MAX_UNIX_TIMESTAMP);
         vm.assume(durations.cliff < durations.total);
 
         // Make the Sender the stream's funder (recall that the Sender is the default caller).
@@ -104,7 +104,7 @@ contract CreateWithDurations_LockupLinear_Integration_Fuzz_Test is
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         uint256 actualNextStreamId = lockupLinear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");

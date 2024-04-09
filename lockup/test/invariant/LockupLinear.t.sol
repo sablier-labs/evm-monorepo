@@ -58,7 +58,7 @@ contract LockupLinear_Invariant_Test is Lockup_Invariant_Test {
                                      INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev The cliff time must be greater than the start time, if it is not zero.
+    /// @dev If it is not zero, the cliff time must be strictly greater than the start time.
     function invariant_CliffTimeGtStartTimeOrZero() external useCurrentTimestamp {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {

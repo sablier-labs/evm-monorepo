@@ -66,14 +66,14 @@ library Lockup {
         DEPLETED
     }
 
-    /// @notice A common data structure to be stored in all child contracts of {SablierV2Lockup}.
+    /// @notice A common data structure to be stored in all {SablierV2Lockup} models.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
-    /// @param sender The address streaming the assets, with the ability to cancel the stream.
+    /// @param sender The address distributing the assets, with the ability to cancel the stream.
     /// @param startTime The Unix timestamp indicating the stream's start.
     /// @param endTime The Unix timestamp indicating the stream's end.
     /// @param isCancelable Boolean indicating if the stream is cancelable.
     /// @param wasCanceled Boolean indicating if the stream was canceled.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param isDepleted Boolean indicating if the stream is depleted.
     /// @param isStream Boolean indicating if the struct entity exists.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
@@ -98,17 +98,17 @@ library Lockup {
 
 /// @notice Namespace for the structs used in {SablierV2LockupDynamic}.
 library LockupDynamic {
-    /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithDurations} function.
-    /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
-    /// same as `msg.sender`.
+    /// @notice Struct encapsulating the parameters of the {SablierV2LockupDynamic.createWithDurations} function.
+    /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
+    /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be paid, including the stream deposit and any
+    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
     /// broker fee, both denoted in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
-    /// @param segments Segments with durations used to compose the custom streaming curve. Timestamps are calculated by
-    /// starting from `block.timestamp` and adding each duration to the previous timestamp.
+    /// @param segments Segments with durations used to compose the dynamic distribution function. Timestamps are
+    /// calculated by starting from `block.timestamp` and adding each duration to the previous timestamp.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithDurations {
@@ -122,18 +122,17 @@ library LockupDynamic {
         Broker broker;
     }
 
-    /// @notice Struct encapsulating the parameters for the {SablierV2LockupDynamic.createWithTimestamps}
-    /// function.
-    /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
-    /// same as `msg.sender`.
+    /// @notice Struct encapsulating the parameters of the {SablierV2LockupDynamic.createWithTimestamps} function.
+    /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
+    /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be paid, including the stream deposit and any
+    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
     /// broker fee, both denoted in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param startTime The Unix timestamp indicating the stream's start.
-    /// @param segments Segments used to compose the custom streaming curve.
+    /// @param segments Segments used to compose the dynamic distribution function.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithTimestamps {
@@ -157,9 +156,9 @@ library LockupDynamic {
     }
 
     /// @notice Segment struct used in the Lockup Dynamic stream.
-    /// @param amount The amount of assets to be streamed in this segment, denoted in units of the asset's decimals.
-    /// @param exponent The exponent of this segment, denoted as a fixed-point number.
-    /// @param timestamp The Unix timestamp indicating this segment's end.
+    /// @param amount The amount of assets to be streamed in the segment, denoted in units of the asset's decimals.
+    /// @param exponent The exponent of the segment, denoted as a fixed-point number.
+    /// @param timestamp The Unix timestamp indicating the segment's end.
     struct Segment {
         // slot 0
         uint128 amount;
@@ -168,18 +167,17 @@ library LockupDynamic {
     }
 
     /// @notice Segment struct used at runtime in {SablierV2LockupDynamic.createWithDurations}.
-    /// @param amount The amount of assets to be streamed in this segment, denoted in units of the asset's decimals.
-    /// @param exponent The exponent of this segment, denoted as a fixed-point number.
-    /// @param duration The time difference in seconds between this segment and the previous one.
+    /// @param amount The amount of assets to be streamed in the segment, denoted in units of the asset's decimals.
+    /// @param exponent The exponent of the segment, denoted as a fixed-point number.
+    /// @param duration The time difference in seconds between the segment and the previous one.
     struct SegmentWithDuration {
         uint128 amount;
         UD2x18 exponent;
         uint40 duration;
     }
 
-    /// @notice Struct encapsulating all the data for a specific id, allowing anyone to retrieve all information within
-    /// one call to the contract.
-    /// @dev It contains the same data as the `Lockup.Stream` struct, plus the recipient and the segments.
+    /// @notice Struct encapsulating the full details of a stream.
+    /// @dev Extends `Lockup.Stream` by including the recipient and the segments.
     struct StreamLD {
         address sender;
         address recipient;
@@ -198,13 +196,13 @@ library LockupDynamic {
 
 /// @notice Namespace for the structs used in {SablierV2LockupLinear}.
 library LockupLinear {
-    /// @notice Struct encapsulating the parameters for the {SablierV2LockupLinear.createWithDurations} function.
-    /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
-    /// same as `msg.sender`.
+    /// @notice Struct encapsulating the parameters of the {SablierV2LockupLinear.createWithDurations} function.
+    /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
+    /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be paid, including the stream deposit and any
+    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
     /// broker fee, both denoted in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param durations Struct containing (i) cliff period duration and (ii) total stream duration, both in seconds.
@@ -221,13 +219,13 @@ library LockupLinear {
         Broker broker;
     }
 
-    /// @notice Struct encapsulating the parameters for the {SablierV2LockupLinear.createWithTimestamps} function.
-    /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
-    /// same as `msg.sender`.
+    /// @notice Struct encapsulating the parameters of the {SablierV2LockupLinear.createWithTimestamps} function.
+    /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
+    /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be paid, including the stream deposit and any
+    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
     /// broker fee, both denoted in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param range Struct containing (i) the stream's start time, (ii) cliff time, and (iii) end time, all as Unix
@@ -263,9 +261,8 @@ library LockupLinear {
         uint40 end;
     }
 
-    /// @notice Struct encapsulating all the data for a specific id, allowing anyone to retrieve all information within
-    /// one call to the contract.
-    /// @dev It contains the same data as the `Lockup.Stream` struct, plus the recipient and the cliff value.
+    /// @notice Struct encapsulating the full details of a stream.
+    /// @dev Extends `Lockup.Stream` by including the recipient and the cliff time.
     struct StreamLL {
         address sender;
         address recipient;
@@ -284,17 +281,17 @@ library LockupLinear {
 
 /// @notice Namespace for the structs used in {SablierV2LockupTranched}.
 library LockupTranched {
-    /// @notice Struct encapsulating the parameters for the {SablierV2LockupTranched.createWithDurations} function.
-    /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
-    /// same as `msg.sender`.
+    /// @notice Struct encapsulating the parameters of the {SablierV2LockupTranched.createWithDurations} function.
+    /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
+    /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be paid, including the stream deposit and any
+    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
     /// broker fee, both denoted in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
-    /// @param tranches Tranches with durations used to compose the custom streaming curve. Timestamps are calculated by
-    /// starting from `block.timestamp` and adding each duration to the previous timestamp.
+    /// @param tranches Tranches with durations used to compose the tranched distribution function. Timestamps are
+    /// calculated by starting from `block.timestamp` and adding each duration to the previous timestamp.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithDurations {
@@ -308,18 +305,17 @@ library LockupTranched {
         Broker broker;
     }
 
-    /// @notice Struct encapsulating the parameters for the {SablierV2LockupTranched.createWithTimestamps}
-    /// function.
-    /// @param sender The address streaming the assets, with the ability to cancel the stream. It doesn't have to be the
-    /// same as `msg.sender`.
+    /// @notice Struct encapsulating the parameters of the {SablierV2LockupTranched.createWithTimestamps} function.
+    /// @param sender The address distributing the assets, with the ability to cancel the stream. It doesn't have to be
+    /// the same as `msg.sender`.
     /// @param recipient The address receiving the assets.
-    /// @param totalAmount The total amount of ERC-20 assets to be paid, including the stream deposit and any
+    /// @param totalAmount The total amount of ERC-20 assets to be distributed, including the stream deposit and any
     /// broker fee, both denoted in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
     /// @param startTime The Unix timestamp indicating the stream's start.
-    /// @param tranches Tranches used to compose the custom streaming curve.
+    /// @param tranches Tranches used to compose the tranched distribution function.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithTimestamps {
@@ -342,9 +338,8 @@ library LockupTranched {
         uint40 end;
     }
 
-    /// @notice Struct encapsulating all the data for a specific id, allowing anyone to retrieve all information within
-    /// one call to the contract.
-    /// @dev It contains the same data as the `Lockup.Stream` struct, plus the recipient and the tranches.
+    /// @notice Struct encapsulating the full details of a stream.
+    /// @dev Extends `Lockup.Stream` by including the recipient and the tranches.
     struct StreamLT {
         address sender;
         address recipient;
@@ -361,8 +356,8 @@ library LockupTranched {
     }
 
     /// @notice Tranche struct used in the Lockup Tranched stream.
-    /// @param amount The amount of assets to be unlocked in this tranche, denoted in units of the asset's decimals.
-    /// @param timestamp The Unix timestamp indicating this tranche's end.
+    /// @param amount The amount of assets to be unlocked in the tranche, denoted in units of the asset's decimals.
+    /// @param timestamp The Unix timestamp indicating the tranche's end.
     struct Tranche {
         // slot 0
         uint128 amount;
@@ -370,8 +365,8 @@ library LockupTranched {
     }
 
     /// @notice Tranche struct used at runtime in {SablierV2LockupTranched.createWithDurations}.
-    /// @param amount The amount of assets to be unlocked in this tranche, denoted in units of the asset's decimals.
-    /// @param duration The time difference in seconds between this tranche and the previous one.
+    /// @param amount The amount of assets to be unlocked in the tranche, denoted in units of the asset's decimals.
+    /// @param duration The time difference in seconds between the tranche and the previous one.
     struct TrancheWithDuration {
         uint128 amount;
         uint40 duration;

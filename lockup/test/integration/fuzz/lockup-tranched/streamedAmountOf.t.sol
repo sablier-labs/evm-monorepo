@@ -74,12 +74,12 @@ contract StreamedAmountOf_LockupTranched_Integration_Fuzz_Test is
         uint256 streamId = lockupTranched.createWithTimestamps(params);
 
         // Simulate the passage of time.
-        uint40 currentTime = defaults.START_TIME() + timeJump;
-        vm.warp({ newTimestamp: currentTime });
+        uint40 blockTimestamp = defaults.START_TIME() + timeJump;
+        vm.warp({ newTimestamp: blockTimestamp });
 
         // Run the test.
         uint128 actualStreamedAmount = lockupTranched.streamedAmountOf(streamId);
-        uint128 expectedStreamedAmount = calculateStreamedAmountForTranches(currentTime, tranches, totalAmount);
+        uint128 expectedStreamedAmount = calculateStreamedAmountForTranches(blockTimestamp, tranches, totalAmount);
         assertEq(actualStreamedAmount, expectedStreamedAmount, "streamedAmount");
     }
 

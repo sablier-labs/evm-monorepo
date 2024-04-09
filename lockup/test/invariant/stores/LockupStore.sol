@@ -21,12 +21,12 @@ contract LockupStore {
     //////////////////////////////////////////////////////////////////////////*/
 
     function pushStreamId(uint256 streamId, address sender, address recipient) external {
-        // Store the stream ids, the senders, and the recipients.
+        // Store the stream IDs, the senders, and the recipients.
         streamIds.push(streamId);
         senders[streamId] = sender;
         recipients[streamId] = recipient;
 
-        // Update the last stream id.
+        // Update the last stream ID.
         lastStreamId = streamId;
     }
 

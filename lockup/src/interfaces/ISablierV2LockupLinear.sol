@@ -7,20 +7,20 @@ import { Lockup, LockupLinear } from "../types/DataTypes.sol";
 import { ISablierV2Lockup } from "./ISablierV2Lockup.sol";
 
 /// @title ISablierV2LockupLinear
-/// @notice Creates and manages Lockup streams with linear streaming functions.
+/// @notice Creates and manages Lockup streams with a linear distribution function.
 interface ISablierV2LockupLinear is ISablierV2Lockup {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when a stream is created.
-    /// @param streamId The id of the newly created stream.
+    /// @param streamId The ID of the newly created stream.
     /// @param funder The address which funded the stream.
-    /// @param sender The address streaming the assets, with the ability to cancel the stream.
+    /// @param sender The address distributing the assets, which will have the ability to cancel the stream.
     /// @param recipient The address receiving the assets.
     /// @param amounts Struct containing (i) the deposit amount, and (ii) the broker fee amount, both denoted
     /// in units of the asset's decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Boolean indicating whether the stream will be cancelable or not.
     /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
     /// @param range Struct containing (i) the stream's start time, (ii) cliff time, and (iii) end time, all as Unix
@@ -46,17 +46,19 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// @notice Retrieves the stream's cliff time, which is a Unix timestamp.  A value of zero means there
     /// is no cliff.
     /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream id for the query.
+    /// @param streamId The stream ID for the query.
     function getCliffTime(uint256 streamId) external view returns (uint40 cliffTime);
 
-    /// @notice Retrieves the stream's range, which is a struct documented in {DataTypes}.
+    /// @notice Retrieves the stream's range.
     /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream id for the query.
+    /// @param streamId The stream ID for the query.
+    /// @return range See the documentation in {DataTypes}.
     function getRange(uint256 streamId) external view returns (LockupLinear.Range memory range);
 
-    /// @notice Retrieves the stream details, which is a struct documented in {DataTypes}.
+    /// @notice Retrieves the full stream details.
     /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream id for the query.
+    /// @param streamId The stream ID for the query.
+    /// @return stream See the documentation in {DataTypes}.
     function getStream(uint256 streamId) external view returns (LockupLinear.StreamLL memory stream);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -73,7 +75,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - All requirements in {createWithTimestamps} must be met for the calculated parameters.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
-    /// @return streamId The id of the newly created stream.
+    /// @return streamId The ID of the newly created stream.
     function createWithDurations(LockupLinear.CreateWithDurations calldata params)
         external
         returns (uint256 streamId);
@@ -98,7 +100,7 @@ interface ISablierV2LockupLinear is ISablierV2Lockup {
     /// - `msg.sender` must have allowed this contract to spend at least `params.totalAmount` assets.
     ///
     /// @param params Struct encapsulating the function parameters, which are documented in {DataTypes}.
-    /// @return streamId The id of the newly created stream.
+    /// @return streamId The ID of the newly created stream.
     function createWithTimestamps(LockupLinear.CreateWithTimestamps calldata params)
         external
         returns (uint256 streamId);

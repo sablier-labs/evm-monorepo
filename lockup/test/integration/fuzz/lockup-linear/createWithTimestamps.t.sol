@@ -6,7 +6,7 @@ import { MAX_UD60x18, ud } from "@prb/math/src/UD60x18.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { CreateWithTimestamps_Integration_Shared_Test } from "../../shared/lockup-linear/createWithTimestamps.t.sol";
+import { CreateWithTimestamps_Integration_Shared_Test } from "../../shared/lockup/createWithTimestamps.t.sol";
 import { LockupLinear_Integration_Fuzz_Test } from "./LockupLinear.t.sol";
 
 contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
@@ -22,7 +22,21 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         CreateWithTimestamps_Integration_Shared_Test.setUp();
     }
 
-    function testFuzz_RevertWhen_StartTimeGreaterThanCliffTime(uint40 startTime)
+    function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
+        external
+        whenNotDelegateCalled
+        whenRecipientNonZeroAddress
+        whenDepositAmountNotZero
+    {
+        vm.assume(broker.account != address(0));
+        broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
+        );
+        createDefaultStreamWithBroker(broker);
+    }
+
+    function testFuzz_RevertWhen_StartTimeNotLessThanCliffTime(uint40 startTime)
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -45,10 +59,9 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
         whenDepositAmountNotZero
-        whenStartTimeNotGreaterThanCliffTime
     {
         uint40 startTime = defaults.START_TIME();
-        endTime = boundUint40(endTime, startTime + 1, startTime + 2 weeks);
+        endTime = boundUint40(endTime, startTime + 1 seconds, startTime + 2 weeks);
         cliffTime = boundUint40(cliffTime, endTime, MAX_UNIX_TIMESTAMP);
 
         vm.expectRevert(
@@ -57,23 +70,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
             )
         );
         createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime }));
-    }
-
-    function testFuzz_RevertWhen_BrokerFeeTooHigh(Broker memory broker)
-        external
-        whenNotDelegateCalled
-        whenRecipientNonZeroAddress
-        whenDepositAmountNotZero
-        whenStartTimeNotGreaterThanCliffTime
-        whenCliffTimeLessThanEndTime
-        whenEndTimeInTheFuture
-    {
-        vm.assume(broker.account != address(0));
-        broker.fee = _bound(broker.fee, MAX_BROKER_FEE + ud(1), MAX_UD60x18);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2Lockup_BrokerFeeTooHigh.selector, broker.fee, MAX_BROKER_FEE)
-        );
-        createDefaultStreamWithBroker(broker);
     }
 
     struct Vars {
@@ -95,6 +91,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
     /// - Start time in the present
     /// - Start time in the future
     /// - Start time lower than and equal to cliff time
+    /// - Cliff time zero and not zero
     /// - Multiple values for the cliff time and the end time
     /// - Multiple values for the broker fee, including zero
     function testFuzz_CreateWithTimestamps(
@@ -105,7 +102,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         whenNotDelegateCalled
         whenDepositAmountNotZero
         whenStartTimeNotZero
-        whenStartTimeNotGreaterThanCliffTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
         whenBrokerFeeNotTooHigh
@@ -116,10 +112,17 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         vm.assume(params.totalAmount != 0);
         params.range.start =
             boundUint40(params.range.start, defaults.START_TIME(), defaults.START_TIME() + 10_000 seconds);
-        params.range.cliff = boundUint40(params.range.cliff, params.range.start + 1, params.range.start + 52 weeks);
-        params.range.end = boundUint40(params.range.end, params.range.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
         params.transferable = true;
+
+        // The cliff time must be either zero or greater than the start time.
+        if (params.range.cliff > 0) {
+            params.range.cliff =
+                boundUint40(params.range.cliff, params.range.start + 1 seconds, params.range.start + 52 weeks);
+            params.range.end = boundUint40(params.range.end, params.range.cliff + 1 seconds, MAX_UNIX_TIMESTAMP);
+        } else {
+            params.range.end = boundUint40(params.range.end, params.range.start + 1 seconds, MAX_UNIX_TIMESTAMP);
+        }
 
         // Calculate the fee amounts and the deposit amount.
         Vars memory vars;
@@ -181,8 +184,8 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         assertEq(actualStream.endTime, params.range.end, "endTime");
         assertEq(actualStream.isCancelable, params.cancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isStream");
-        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.isStream, true, "isStream");
+        assertEq(actualStream.isTransferable, true, "isTransferable");
         assertEq(actualStream.recipient, params.recipient, "recipient");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.startTime, params.range.start, "startTime");
@@ -193,7 +196,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Fuzz_Test is
         vars.expectedStatus = params.range.start > getBlockTimestamp() ? Lockup.Status.PENDING : Lockup.Status.STREAMING;
         assertEq(vars.actualStatus, vars.expectedStatus);
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         vars.actualNextStreamId = lockupLinear.nextStreamId();
         vars.expectedNextStreamId = streamId + 1;
         assertEq(vars.actualNextStreamId, vars.expectedNextStreamId, "nextStreamId");

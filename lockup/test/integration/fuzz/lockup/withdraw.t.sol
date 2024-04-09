@@ -83,7 +83,7 @@ abstract contract Withdraw_Integration_Fuzz_Test is Integration_Test, Withdraw_I
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
-    /// - Multiple values for the current time.
+    /// - Multiple values for the block timestamp.
     /// - Multiple values for the withdrawal address.
     /// - Multiple withdraw amounts.
     function testFuzz_Withdraw_StreamHasBeenCanceled(

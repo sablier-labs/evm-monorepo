@@ -10,7 +10,7 @@ import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.so
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker, Lockup, LockupLinear } from "src/types/DataTypes.sol";
 
-import { CreateWithTimestamps_Integration_Shared_Test } from "../../../shared/lockup-linear/createWithTimestamps.t.sol";
+import { CreateWithTimestamps_Integration_Shared_Test } from "../../../shared/lockup/createWithTimestamps.t.sol";
 import { LockupLinear_Integration_Concrete_Test } from "../LockupLinear.t.sol";
 
 contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
@@ -59,11 +59,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithRange(LockupLinear.Range({ start: 0, cliff: cliffTime, end: endTime }));
     }
 
-    modifier whenCliffTimeZero() {
-        _;
-    }
-
-    function test_RevertWhen_StartTimeGreaterThanEndTime()
+    function test_RevertWhen_StartTimeNotLessThanEndTime()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -82,7 +78,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: 0, end: endTime }));
     }
 
-    function test_CreateWithTimestamps_CliffTimeZero()
+    function test_CreateWithTimestamps_StartTimeLessThanEndTime()
         external
         whenNotDelegateCalled
         whenRecipientNonZeroAddress
@@ -100,7 +96,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         expectedStream.cliffTime = 0;
         assertEq(actualStream, expectedStream);
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         uint256 actualNextStreamId = lockupLinear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");
@@ -111,10 +107,6 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 
-    modifier whenCliffTimeGreaterThanZero() {
-        _;
-    }
-
     function test_RevertWhen_StartTimeGreaterThanCliffTime()
         external
         whenNotDelegateCalled
@@ -122,6 +114,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
+        whenStartTimeLessThanEndTime
     {
         uint40 startTime = defaults.CLIFF_TIME();
         uint40 cliffTime = defaults.START_TIME();
@@ -141,7 +134,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
-        whenStartTimeNotGreaterThanCliffTime
+        whenStartTimeLessThanEndTime
     {
         uint40 startTime = defaults.START_TIME();
         uint40 cliffTime = defaults.END_TIME();
@@ -161,7 +154,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
-        whenStartTimeNotGreaterThanCliffTime
+        whenStartTimeLessThanEndTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
     {
@@ -178,7 +171,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
-        whenStartTimeNotGreaterThanCliffTime
+        whenStartTimeLessThanEndTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
     {
@@ -196,7 +189,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
-        whenStartTimeNotGreaterThanCliffTime
+        whenStartTimeLessThanEndTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
         whenBrokerFeeNotTooHigh
@@ -213,7 +206,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
-        whenStartTimeNotGreaterThanCliffTime
+        whenStartTimeLessThanEndTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
         whenBrokerFeeNotTooHigh
@@ -228,7 +221,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenDepositAmountNotZero
         whenStartTimeNotZero
         whenCliffTimeGreaterThanZero
-        whenStartTimeNotGreaterThanCliffTime
+        whenStartTimeLessThanEndTime
         whenCliffTimeLessThanEndTime
         whenEndTimeInTheFuture
         whenBrokerFeeNotTooHigh
@@ -290,7 +283,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         Lockup.Status expectedStatus = Lockup.Status.PENDING;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         uint256 actualNextStreamId = lockupLinear.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");

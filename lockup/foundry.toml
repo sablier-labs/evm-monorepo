@@ -2,12 +2,12 @@
   auto_detect_solc = false
   bytecode_hash = "none"
   emv_version = "paris"
-  extra_output = ['storageLayout']
+  extra_output = ["storageLayout"]
   ffi = true
   fs_permissions = [
-    { access = "read", path = "out-optimized" },
     { access = "read", path = "./out" },
-    { access = "read-write", path = "./cache" }
+    { access = "read", path = "./out-optimized" },
+    { access = "read-write", path = "./cache" },
   ]
   gas_reports = [
     "SablierV2LockupDynamic",

@@ -5,7 +5,7 @@ import { ISablierV2LockupTranched } from "src/interfaces/ISablierV2LockupTranche
 import { Errors } from "src/libraries/Errors.sol";
 import { Lockup, LockupTranched } from "src/types/DataTypes.sol";
 
-import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup-tranched/createWithDurations.t.sol";
+import { CreateWithDurations_Integration_Shared_Test } from "../../../shared/lockup/createWithDurations.t.sol";
 import { LockupTranched_Integration_Concrete_Test } from "../LockupTranched.t.sol";
 
 contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
@@ -120,9 +120,9 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
         address funder = users.sender;
 
         // Declare the range.
-        uint40 currentTime = getBlockTimestamp();
+        uint40 blockTimestamp = getBlockTimestamp();
         LockupTranched.Range memory range =
-            LockupTranched.Range({ start: currentTime, end: currentTime + defaults.TOTAL_DURATION() });
+            LockupTranched.Range({ start: blockTimestamp, end: blockTimestamp + defaults.TOTAL_DURATION() });
 
         LockupTranched.TrancheWithDuration[] memory tranchesWithDurations = defaults.tranchesWithDurations();
         LockupTranched.Tranche[] memory tranches = defaults.tranches();
@@ -170,7 +170,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
         Lockup.Status expectedStatus = Lockup.Status.STREAMING;
         assertEq(actualStatus, expectedStatus);
 
-        // Assert that the next stream id has been bumped.
+        // Assert that the next stream ID has been bumped.
         uint256 actualNextStreamId = lockupTranched.nextStreamId();
         uint256 expectedNextStreamId = streamId + 1;
         assertEq(actualNextStreamId, expectedNextStreamId, "nextStreamId");

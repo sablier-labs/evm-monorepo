@@ -39,7 +39,7 @@ abstract contract Cancel_Integration_Fuzz_Test is Integration_Test, Cancel_Integ
 
     /// @dev Given enough fuzz runs, all of the following scenarios will be fuzzed:
     ///
-    /// - Multiple values for the current time
+    /// - Multiple values for the block timestamp
     /// - With and without withdrawals
     function testFuzz_Cancel(
         uint256 timeJump,
