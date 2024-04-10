@@ -11,10 +11,6 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
         resetPrank({ msgSender: users.recipient });
     }
 
-    modifier whenNotDelegateCalled() {
-        _;
-    }
-
     modifier givenNotNull() {
         _;
     }
@@ -32,11 +28,7 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
         _;
     }
 
-    modifier whenToNonZeroAddress() {
-        _;
-    }
-
-    modifier whenWithdrawAmountNotZero() {
+    modifier whenCallerRecipient() {
         _;
     }
 
@@ -44,7 +36,15 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
         _;
     }
 
-    modifier whenWithdrawalAddressNotRecipient() {
+    modifier whenNotDelegateCalled() {
+        _;
+    }
+
+    modifier whenStreamHasNotBeenCanceled() {
+        _;
+    }
+
+    modifier whenToNonZeroAddress() {
         _;
     }
 
@@ -52,11 +52,11 @@ abstract contract Withdraw_Integration_Shared_Test is Lockup_Integration_Shared_
         _;
     }
 
-    modifier whenCallerRecipient() {
+    modifier whenWithdrawalAddressNotRecipient() {
         _;
     }
 
-    modifier whenStreamHasNotBeenCanceled() {
+    modifier whenWithdrawAmountNotZero() {
         _;
     }
 }

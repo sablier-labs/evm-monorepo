@@ -13,15 +13,15 @@ abstract contract WithdrawableAmountOf_Integration_Shared_Test is Lockup_Integra
         _;
     }
 
+    modifier givenStatusStreaming() {
+        _;
+    }
+
     modifier givenStreamHasBeenCanceled() {
         _;
     }
 
     modifier givenStreamHasNotBeenCanceled() {
-        _;
-    }
-
-    modifier givenStatusStreaming() {
         _;
     }
 }
