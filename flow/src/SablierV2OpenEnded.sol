@@ -568,34 +568,29 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdraw(uint256 streamId, address to, uint40 time) internal noDelegateCall notCanceled(streamId) {
-        bool isCallerStreamSender = _isCallerStreamSender(streamId);
-        address recipient = _streams[streamId].recipient;
-
-        // Checks: `msg.sender` is the stream's sender or the stream's recipient.
-        if (!isCallerStreamSender && msg.sender != recipient) {
-            revert Errors.SablierV2OpenEnded_Unauthorized(streamId, msg.sender);
-        }
-
-        // Checks: the provided address is the recipient if `msg.sender` is the sender of the stream.
-        if (isCallerStreamSender && to != recipient) {
-            revert Errors.SablierV2OpenEnded_Unauthorized(streamId, msg.sender);
-        }
-
         // Checks: the withdrawal address is not zero.
         if (to == address(0)) {
             revert Errors.SablierV2OpenEnded_WithdrawToZeroAddress();
         }
 
-        uint40 lastTimeUpdate = _streams[streamId].lastTimeUpdate;
+        // Retrieve the recipient from storage.
+        address recipient = _streams[streamId].recipient;
 
-        // Checks: the time reference is greater than the `lastTimeUpdate`.
-        if (time <= lastTimeUpdate) {
-            revert Errors.SablierV2OpenEnded_TimeNotGreaterThanLastUpdate(time, lastTimeUpdate);
+        // Check: if `msg.sender` is neither the stream's recipient, the withdrawal address must be the recipient.
+        if (to != recipient && !(msg.sender == recipient)) {
+            revert Errors.SablierV2OpenEnded_WithdrawalAddressNotRecipient(streamId, msg.sender, to);
         }
 
-        // Checks: the time reference is less than or equal to the current time.
+        uint40 lastTimeUpdate = _streams[streamId].lastTimeUpdate;
+
+        // Checks: the withdrawal time is greater than the `lastTimeUpdate`.
+        if (time <= lastTimeUpdate) {
+            revert Errors.SablierV2OpenEnded_WithdrawalTimeNotGreaterThanLastUpdate(time, lastTimeUpdate);
+        }
+
+        // Checks: the time reference is not in the future.
         if (time > uint40(block.timestamp)) {
-            revert Errors.SablierV2OpenEnded_TimeNotLessOrEqualToCurrentTime(time, uint40(block.timestamp));
+            revert Errors.SablierV2OpenEnded_WithdrawalTimeInTheFuture(time, block.timestamp);
         }
 
         // Calculate how much to withdraw based on the time reference.

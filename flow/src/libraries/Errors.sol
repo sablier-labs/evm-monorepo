@@ -57,15 +57,17 @@ library Errors {
     /// @notice Thrown when trying to restart a stream that is not canceled.
     error SablierV2OpenEnded_StreamNotCanceled(uint256 streamId);
 
-    /// @notice Thrown when trying to withdraw assets with a time reference less than or equal to stream's
-    /// `lastTimeUpdate`.
-    error SablierV2OpenEnded_TimeNotGreaterThanLastUpdate(uint40 time, uint40 lastUpdate);
-
-    /// @notice Thrown when trying to withdraw assets with a time reference greater than the current time.
-    error SablierV2OpenEnded_TimeNotLessOrEqualToCurrentTime(uint40 time, uint40 currentTime);
-
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierV2OpenEnded_Unauthorized(uint256 streamId, address caller);
+
+    /// @notice Thrown when trying to withdraw to an address other than the recipient's.
+    error SablierV2OpenEnded_WithdrawalAddressNotRecipient(uint256 streamId, address caller, address to);
+
+    /// @notice Thrown when trying to withdraw assets with a withdrawal time in the future.
+    error SablierV2OpenEnded_WithdrawalTimeInTheFuture(uint40 time, uint256 currentTime);
+
+    /// @notice Thrown when trying to withdraw assets with a withdrawal time not greater than `lastTimeUpdate`.
+    error SablierV2OpenEnded_WithdrawalTimeNotGreaterThanLastUpdate(uint40 time, uint40 lastUpdate);
 
     /// @notice Thrown when trying to withdraw to the zero address.
     error SablierV2OpenEnded_WithdrawToZeroAddress();

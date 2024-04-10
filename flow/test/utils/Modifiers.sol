@@ -90,11 +90,23 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenTimeNotGreaterThanCurrentTime() {
+    modifier whenCallerRecipient() {
         _;
     }
 
-    modifier whenTimeNotLessThanLastUpdate() {
+    modifier whenWithdrawalAddressIsRecipient() {
+        _;
+    }
+
+    modifier whenWithdrawalAddressNotRecipient() {
+        _;
+    }
+
+    modifier whenWithdrawalTimeNotInTheFuture() {
+        _;
+    }
+
+    modifier whenWithdrawalTimeGreaterThanLastUpdate() {
         _;
     }
 }

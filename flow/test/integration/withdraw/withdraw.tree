@@ -8,33 +8,36 @@ withdraw.t.sol
       ├── given the id references a canceled stream
       │  └── it should revert
       └── given the id does not reference a canceled stream
-          ├── when the caller is unauthorized
-          │  ├── when the caller is the sender
-          │  │  └── it should revert
-          │  └── when the caller is a malicious third party
-          │     └── it should revert
-          └── when the caller is authorized
-              ├── when the provided address is zero
-              │  └── it should revert
-              └── when the provided address is not zero
-                 ├── when the time is less than or equal to the stream's last time update
-                 │  └── it should revert
-                 └── when the time is greater than the stream's last time update
-                    ├── when the time greater than the current time
-                    │  └── it should revert
-                    └── when the time is not greater than the current time
-                       ├── when the caller is the sender
-                       │  └── it should make the withdrawal
-                       └── when the caller is the recipient
-                          ├── given the asset does not have 18 decimals
-                          │  ├── it should make the withdrawal
-                          │  ├── it should update the time
-                          │  ├── it should update the stream balance
-                          │  ├── it should perform the ERC-20 transfer
-                          │  └── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
-                          └── given the asset has 18 decimals
-                             ├── it should make the withdrawal   
-                             ├── it should update the time
-                             ├── it should update the stream balance
-                             ├── it should perform the ERC-20 transfer
-                             └── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
+         ├── when the provided address is zero
+         │  └── it should revert
+         └── when the provided address is not zero
+            ├── when the withdrawal address is not the stream recipient
+            │  ├── when the caller is the sender
+            │  │  └── it should revert
+            │  └── when the caller is unknown
+            │     └── it should revert
+            └── when the withdrawal address is the stream recipient
+               ├── when the withdrawal time is not strictly greater than last time update
+               │  └── it should revert
+               └── when the withdrawal time is strictly greater than last time update
+                  ├── when the withdrawal time is in the future
+                  │  └── it should revert
+                  └── when the withdrawal time is not in the future
+                     ├── when the caller is not the recipient
+                     │  ├── when the caller is the sender
+                     │  │  └── it should make the withdrawal
+                     │  └── when the caller is unknown
+                     │     └── it should make the withdrawal
+                     └── when the caller is the recipient
+                           ├── given the asset does not have 18 decimals
+                           │  ├── it should make the withdrawal
+                           │  ├── it should update the time
+                           │  ├── it should update the stream balance
+                           │  ├── it should perform the ERC-20 transfer
+                           │  └── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
+                           └── given the asset has 18 decimals
+                              ├── it should make the withdrawal   
+                              ├── it should update the time
+                              ├── it should update the stream balance
+                              ├── it should perform the ERC-20 transfer
+                              └── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
