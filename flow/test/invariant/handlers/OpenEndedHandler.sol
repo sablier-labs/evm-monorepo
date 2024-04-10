@@ -60,17 +60,15 @@ contract OpenEndedHandler is BaseHandler {
     modifier useFuzzedStreamRecipient() {
         uint256 lastStreamId = openEndedStore.lastStreamId();
         currentRecipient = openEndedStore.recipients(currentStreamId);
-        vm.startPrank(currentRecipient);
+        resetPrank(currentRecipient);
         _;
-        vm.stopPrank();
     }
 
     modifier useFuzzedStreamSender() {
         uint256 lastStreamId = openEndedStore.lastStreamId();
         currentSender = openEndedStore.senders(currentStreamId);
-        vm.startPrank(currentSender);
+        resetPrank(currentSender);
         _;
-        vm.stopPrank();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -113,7 +111,7 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
-        // Canceled streams cannot be deposited into.
+        // Only non canceled streams can be deposited.
         if (openEnded.isCanceled(currentStreamId)) {
             return;
         }
@@ -146,8 +144,8 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
-        // Only canceled streams can be restarted.
-        if (!openEnded.isCanceled(currentStreamId)) {
+        // Only non canceled streams can be refunded.
+        if (openEnded.isCanceled(currentStreamId)) {
             return;
         }
 

@@ -12,13 +12,14 @@ import { ERC20MissingReturn } from "./mocks/ERC20MissingReturn.sol";
 import { Assertions } from "./utils/Assertions.sol";
 import { Events } from "./utils/Events.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
+import { Utils } from "./utils/Utils.sol";
 
 struct Users {
     address sender;
     address recipient;
 }
 
-abstract contract Base_Test is Assertions, Events, Modifiers, Test {
+abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
     using SafeCast for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -64,11 +65,9 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test {
         users.sender = createUser("sender");
         users.recipient = createUser("recipient");
 
-        vm.label(address(openEnded), "Open Ended");
-        vm.label(address(dai), "DAI");
-        vm.label(address(usdt), "USDT");
+        labelConctracts();
 
-        vm.startPrank({ msgSender: users.sender });
+        resetPrank(users.sender);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -84,6 +83,12 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test {
         dai.approve({ spender: address(openEnded), value: type(uint256).max });
         usdt.approve({ spender: address(openEnded), value: type(uint256).max });
         return user;
+    }
+
+    function labelConctracts() internal {
+        vm.label(address(openEnded), "Open Ended");
+        vm.label(address(dai), "DAI");
+        vm.label(address(usdt), "USDT");
     }
 
     function normalizeBalance(uint256 streamId) internal view returns (uint256) {
@@ -137,11 +142,5 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test {
     /// @dev Expects a call to {IERC20.transferFrom}.
     function expectCallToTransferFrom(IERC20 asset, address from, address to, uint256 amount) internal {
         vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
-    }
-
-    /// @dev Stops the active prank and sets a new one.
-    function resetPrank(address msgSender) internal {
-        vm.stopPrank();
-        vm.startPrank(msgSender);
     }
 }

@@ -2,23 +2,19 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Vm } from "forge-std/src/Vm.sol";
 import { StdCheats } from "forge-std/src/StdCheats.sol";
-import { StdUtils } from "forge-std/src/StdUtils.sol";
 
+import { Utils } from "../../utils/Utils.sol";
 import { TimestampStore } from "../stores/TimestampStore.sol";
 
 /// @notice Base contract with common logic needed by all handler contracts.
-abstract contract BaseHandler is StdCheats, StdUtils {
+abstract contract BaseHandler is StdCheats, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Maximum number of streams that can be created during an invariant campaign.
     uint256 internal constant MAX_STREAM_COUNT = 100;
-
-    /// @dev The virtual address of the Foundry VM.
-    address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
 
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
@@ -39,9 +35,6 @@ abstract contract BaseHandler is StdCheats, StdUtils {
 
     /// @dev Reference to the timestamp store, which is needed for simulating the passage of time.
     TimestampStore public timestampStore;
-
-    /// @dev An instance of the Foundry VM, which contains cheatcodes for testing.
-    Vm internal constant vm = Vm(VM_ADDRESS);
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -90,8 +83,7 @@ abstract contract BaseHandler is StdCheats, StdUtils {
 
     /// @dev Makes the provided sender the caller.
     modifier useNewSender(address sender) {
-        vm.startPrank(sender);
+        resetPrank(sender);
         _;
-        vm.stopPrank();
     }
 }
