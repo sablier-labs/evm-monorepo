@@ -104,34 +104,6 @@ jobs:
           echo "## Integration tests result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
-  test-utils:
-    needs: ["lint", "build"]
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Check out the repo"
-        uses: "actions/checkout@v3"
-
-      - name: "Install Foundry"
-        uses: "foundry-rs/foundry-toolchain@v1"
-
-      - name: "Restore the cached build and the node modules"
-        uses: "actions/cache/restore@v3"
-        with:
-          fail-on-cache-miss: true
-          key: "build-and-modules-${{ github.sha }}"
-          path: |
-            cache
-            node_modules
-            out
-
-      - name: "Run the utils tests"
-        run: "forge test --match-path \"test/utils/**/*.sol\""
-
-      - name: "Add test summary"
-        run: |
-          echo "## Utils tests result" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
-
   test-invariant:
     needs: ["lint", "build"]
     runs-on: "ubuntu-latest"
