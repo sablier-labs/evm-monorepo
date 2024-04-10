@@ -565,8 +565,13 @@ abstract contract SablierV2Lockup is
             revert Errors.SablierV2Lockup_StreamNotCancelable(streamId);
         }
 
-        // Calculate the sender's and the recipient's amount.
-        uint128 senderAmount = amounts.deposited - streamedAmount;
+        // Calculate the sender's amount.
+        uint128 senderAmount;
+        unchecked {
+            senderAmount = amounts.deposited - streamedAmount;
+        }
+
+        // Calculate the recipient's amount.
         uint128 recipientAmount = streamedAmount - amounts.withdrawn;
 
         // Effect: mark the stream as canceled.
