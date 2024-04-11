@@ -438,7 +438,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
 
         uint8 assetDecimals = _safeAssetDecimals(address(asset));
 
-        // Checks: the asset has decimals.
+        // Checks: the asset does not have decimals.
         if (assetDecimals == 0) {
             revert Errors.SablierV2OpenEnded_InvalidAssetDecimals(asset);
         }
@@ -460,7 +460,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
         });
 
         // Effects: bump the next stream id.
-        // Using unchecked arithmetic because these calculations cannot realistically overflow, ever.
+        // Using unchecked arithmetic because this calculation cannot realistically overflow, ever.
         unchecked {
             nextStreamId = streamId + 1;
         }
