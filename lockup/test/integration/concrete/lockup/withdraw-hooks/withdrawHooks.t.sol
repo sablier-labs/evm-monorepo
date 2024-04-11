@@ -31,7 +31,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         uint256 streamId = createDefaultStreamWithUsers(address(goodRecipient), address(goodSender));
 
         // Make `unknownCaller` the caller in this test.
-        changePrank({ msgSender: unknownCaller });
+        resetPrank({ msgSender: unknownCaller });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -69,11 +69,11 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         uint256 streamId = createDefaultStreamWithUsers(address(goodRecipient), address(goodSender));
 
         // Approve the operator to handle the stream.
-        changePrank({ msgSender: address(goodRecipient) });
+        resetPrank({ msgSender: address(goodRecipient) });
         lockup.approve({ to: users.operator, tokenId: streamId });
 
         // Make the operator the caller in this test.
-        changePrank({ msgSender: users.operator });
+        resetPrank({ msgSender: users.operator });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -111,7 +111,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         uint256 streamId = createDefaultStreamWithUsers(address(goodRecipient), address(goodSender));
 
         // Make the sender the caller in this test.
-        changePrank({ msgSender: address(goodSender) });
+        resetPrank({ msgSender: address(goodSender) });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -150,7 +150,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         uint256 streamId = createDefaultStreamWithUsers(address(goodRecipient), address(goodSender));
 
         // Make the recipient the caller in this test.
-        changePrank({ msgSender: address(goodRecipient) });
+        resetPrank({ msgSender: address(goodRecipient) });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -190,7 +190,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         uint256 streamId = createDefaultStreamWithIdenticalUsers(address(goodSender));
 
         // Make unknownCaller the caller in this test.
-        changePrank({ msgSender: unknownCaller });
+        resetPrank({ msgSender: unknownCaller });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -217,11 +217,11 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         uint256 streamId = createDefaultStreamWithIdenticalUsers(address(goodSender));
 
         // Approve the operator to handle the stream.
-        changePrank({ msgSender: address(goodSender) });
+        resetPrank({ msgSender: address(goodSender) });
         lockup.approve({ to: users.operator, tokenId: streamId });
 
         // Make the operator the caller in this test.
-        changePrank({ msgSender: users.operator });
+        resetPrank({ msgSender: users.operator });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
@@ -244,7 +244,7 @@ abstract contract WithdrawHooks_Integration_Concrete_Test is Integration_Test, W
         uint256 streamId = createDefaultStreamWithIdenticalUsers(address(goodSender));
 
         // Approve the operator to handle the stream.
-        changePrank({ msgSender: address(goodSender) });
+        resetPrank({ msgSender: address(goodSender) });
 
         // Simulate the passage of time.
         vm.warp({ newTimestamp: defaults.WARP_26_PERCENT() });
