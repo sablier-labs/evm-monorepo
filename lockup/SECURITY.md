@@ -45,7 +45,8 @@ Vulnerabilities contingent upon the occurrence of any of the following also are 
 Sablier V2 Core has been developed with a number of technical assumptions in mind. For a disclosure to qualify as a
 vulnerability, it must adhere to these assumptions as well:
 
-- The immutable variable `MAX_SEGMENT_COUNT` has a low value that cannot lead to an overflow of the block gas limit.
+- The immutable variables `MAX_SEGMENT_COUNT` and `MAX_TRANCHE_COUNT` have values that cannot lead to an overflow of the
+  block gas limit.
 - The total supply of any ERC-20 token remains below 2<sup>128</sup> - 1, i.e. `type(uint128).max`.
 - The `transfer` and `transferFrom` methods of any ERC-20 token strictly reduce the sender's balance by the transfer
   amount and increase the recipient's balance by the same amount. In other words, tokens that charge fees on transfers
