@@ -86,7 +86,7 @@ WITH_GAS_PRICE=false
 # Flag for all chains
 ON_ALL_CHAINS=false
 
-# Flag for displaying deployement command
+# Flag for displaying deployment command
 READ_ONLY=false
 
 # Flag to enter interactive mode in case .env.deployment not found or --interactive is provided

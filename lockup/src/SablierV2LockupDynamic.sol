@@ -277,7 +277,7 @@ contract SablierV2LockupDynamic is
         }
     }
 
-    /// @dev Calculates the streamed amount for a a stream with one segment. Normalization to 18 decimals is not
+    /// @dev Calculates the streamed amount for a stream with one segment. Normalization to 18 decimals is not
     /// needed because there is no mix of amounts with different decimals.
     function _calculateStreamedAmountForOneSegment(uint256 streamId) internal view returns (uint128) {
         unchecked {
