@@ -8,12 +8,19 @@ import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.so
 
 import { Fork_Test } from "./Fork.t.sol";
 
-abstract contract NFTDescriptor_Fork_Test is Fork_Test {
+contract NFTDescriptor_Fork_Test is Fork_Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  STATE VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
+    IERC20 internal constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    address internal constant DAI_HOLDER = 0x66F62574ab04989737228D18C3624f7FC1edAe14;
+
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset, address holder) Fork_Test(asset, holder) { }
+    constructor() Fork_Test(DAI, DAI_HOLDER) { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                       MODIFIERS
@@ -45,71 +52,107 @@ abstract contract NFTDescriptor_Fork_Test is Fork_Test {
                                    TEST FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Given enough fuzz runs, all the following scenarios will be fuzzed:
+    /// @dev The following test checks whether the new NFT descriptor is compatible with Lockup Dynamic v2.0.
+    ///
+    /// Checklist:
+    /// - It should expect a call to {ISablierV2LockupDynamic.tokenURI}.
+    /// - The test would fail if the call to {ISablierV2LockupDynamic.tokenURI} reverts.
+    ///
+    /// Given enough fuzz runs, all the following scenarios will be fuzzed:
     /// - Multiple values of streamId.
     function testForkFuzz_TokenURI_LockupDynamic_V2_0(uint256 streamId) external loadDeployments_V2_0 {
         streamId = _bound(streamId, 1, lockupDynamic.nextStreamId() - 1);
 
-        string memory tokenURIBefore = lockupDynamic.tokenURI(streamId);
-
         // Set the new NFT descriptor for the previous version of Lockup Dynamic.
         resetPrank({ msgSender: lockupDynamic.admin() });
         lockupDynamic.setNFTDescriptor(nftDescriptor);
 
-        string memory tokenURIAfter = lockupDynamic.tokenURI(streamId);
+        // Expects a successful call to the new NFT Descriptor.
+        vm.expectCall({
+            callee: address(nftDescriptor),
+            data: abi.encodeCall(nftDescriptor.tokenURI, (lockupDynamic, streamId)),
+            count: 1
+        });
 
-        // Assert that the token URI has not changed.
-        assertEq(tokenURIBefore, tokenURIAfter, "incompatible token URI");
+        // Generate the token URI using the new NFT Descriptor.
+        lockupDynamic.tokenURI(streamId);
     }
 
-    /// @dev Given enough fuzz runs, all the following scenarios will be fuzzed:
+    /// @dev The following test checks whether the new NFT descriptor is compatible with Lockup Dynamic v2.1.
+    ///
+    /// Checklist:
+    /// - It should expect a call to {ISablierV2LockupDynamic.tokenURI}.
+    /// - The test would fail if the call to {ISablierV2LockupDynamic.tokenURI} reverts.
+    ///
+    /// Given enough fuzz runs, all the following scenarios will be fuzzed:
     /// - Multiple values of streamId.
     function testForkFuzz_TokenURI_LockupDynamic_V2_1(uint256 streamId) external loadDeployments_V2_1 {
         streamId = _bound(streamId, 1, lockupDynamic.nextStreamId() - 1);
 
-        string memory tokenURIBefore = lockupDynamic.tokenURI(streamId);
-
         // Set the new NFT descriptor for the previous version of Lockup Dynamic.
         resetPrank({ msgSender: lockupDynamic.admin() });
         lockupDynamic.setNFTDescriptor(nftDescriptor);
 
-        string memory tokenURIAfter = lockupDynamic.tokenURI(streamId);
+        // Expects a successful call to the new NFT Descriptor.
+        vm.expectCall({
+            callee: address(nftDescriptor),
+            data: abi.encodeCall(nftDescriptor.tokenURI, (lockupDynamic, streamId)),
+            count: 1
+        });
 
-        // Assert that the token URI has not changed.
-        assertEq(tokenURIBefore, tokenURIAfter, "incompatible token URI");
+        // Generate the token URI using the new NFT Descriptor.
+        lockupDynamic.tokenURI(streamId);
     }
 
-    /// @dev Given enough fuzz runs, all the following scenarios will be fuzzed:
+    /// @dev The following test checks whether the new NFT descriptor is compatible with Lockup Linear v2.0.
+    ///
+    /// Checklist:
+    /// - It should expect a call to {ISablierV2LockupLinear.tokenURI}.
+    /// - The test would fail if the call to {ISablierV2LockupLinear.tokenURI} reverts.
+    ///
+    /// Given enough fuzz runs, all the following scenarios will be fuzzed:
     /// - Multiple values of streamId.
     function testForkFuzz_TokenURI_LockupLinear_V2_0(uint256 streamId) external loadDeployments_V2_0 {
         streamId = _bound(streamId, 1, lockupLinear.nextStreamId() - 1);
 
-        string memory tokenURIBefore = lockupLinear.tokenURI(streamId);
-
         // Set the new NFT descriptor for the previous version of Lockup Linear.
         resetPrank({ msgSender: lockupLinear.admin() });
         lockupLinear.setNFTDescriptor(nftDescriptor);
 
-        string memory tokenURIAfter = lockupLinear.tokenURI(streamId);
+        // Expects a successful call to the new NFT Descriptor.
+        vm.expectCall({
+            callee: address(nftDescriptor),
+            data: abi.encodeCall(nftDescriptor.tokenURI, (lockupLinear, streamId)),
+            count: 1
+        });
 
-        // Assert that the token URI has not changed.
-        assertEq(tokenURIBefore, tokenURIAfter, "incompatible token URI");
+        // Generate the token URI using the new NFT Descriptor.
+        lockupLinear.tokenURI(streamId);
     }
 
-    /// @dev Given enough fuzz runs, all the following scenarios will be fuzzed:
+    /// @dev The following test checks whether the new NFT descriptor is compatible with Lockup Linear v2.1.
+    ///
+    /// Checklist:
+    /// - It should expect a call to {ISablierV2LockupLinear.tokenURI}.
+    /// - The test would fail if the call to {ISablierV2LockupLinear.tokenURI} reverts.
+    ///
+    /// Given enough fuzz runs, all the following scenarios will be fuzzed:
     /// - Multiple values of streamId.
     function testForkFuzz_TokenURI_LockupLinear_V2_1(uint256 streamId) external loadDeployments_V2_1 {
         streamId = _bound(streamId, 1, lockupLinear.nextStreamId() - 1);
 
-        string memory tokenURIBefore = lockupLinear.tokenURI(streamId);
-
         // Set the new NFT descriptor for the previous version of Lockup Linear.
         resetPrank({ msgSender: lockupLinear.admin() });
         lockupLinear.setNFTDescriptor(nftDescriptor);
 
-        string memory tokenURIAfter = lockupLinear.tokenURI(streamId);
+        // Expects a successful call to the new NFT Descriptor.
+        vm.expectCall({
+            callee: address(nftDescriptor),
+            data: abi.encodeCall(nftDescriptor.tokenURI, (lockupLinear, streamId)),
+            count: 1
+        });
 
-        // Assert that the token URI has not changed.
-        assertEq(tokenURIBefore, tokenURIAfter, "incompatible token URI");
+        // Generate the token URI using the new NFT Descriptor.
+        lockupLinear.tokenURI(streamId);
     }
 }

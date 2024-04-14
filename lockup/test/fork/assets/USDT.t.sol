@@ -6,7 +6,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { LockupDynamic_Fork_Test } from "../LockupDynamic.t.sol";
 import { LockupLinear_Fork_Test } from "../LockupLinear.t.sol";
 import { LockupTranched_Fork_Test } from "../LockupTranched.t.sol";
-import { NFTDescriptor_Fork_Test } from "../NFTDescriptor.t.sol";
 
 /// @dev An ERC-20 asset that suffers from the missing return value bug.
 IERC20 constant ASSET = IERC20(0xdAC17F958D2ee523a2206206994597C13D831ec7);
@@ -17,5 +16,3 @@ contract USDT_LockupDynamic_Fork_Test is LockupDynamic_Fork_Test(ASSET, HOLDER) 
 contract USDT_LockupLinear_Fork_Test is LockupLinear_Fork_Test(ASSET, HOLDER) { }
 
 contract USDT_LockupTranched_Fork_Test is LockupTranched_Fork_Test(ASSET, HOLDER) { }
-
-contract USDT_NFTDescriptor_Fork_Test is NFTDescriptor_Fork_Test(ASSET, HOLDER) { }
