@@ -18,7 +18,7 @@ contract WithdrawableAmountOf_Integration_Test is Integration_Test {
         openEnded.withdrawableAmountOf(defaultStreamId);
     }
 
-    function test_WithdrawableAmountOf_BalanceZero() external givenNotNull givenNotCanceled {
+    function test_WithdrawableAmountOf_BalanceZero() external view givenNotNull givenNotCanceled {
         uint128 withdrawableAmount = openEnded.withdrawableAmountOf(defaultStreamId);
         assertEq(withdrawableAmount, 0, "withdrawable amount");
     }

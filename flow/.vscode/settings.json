@@ -9,11 +9,9 @@
     ".gas-snapshot": "julia"
   },
   "editor.formatOnSave": true,
-  "npm.exclude": "**/lib/**",
   "prettier.documentSelectors": ["**/*.svg"],
   "search.exclude": {
-    "**/node_modules": true,
-    "lib": true
+    "**/node_modules": true
   },
   "solidity.formatter": "forge"
 }

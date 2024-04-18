@@ -1,39 +1,71 @@
 {
   "name": "@sablier/v2-open-ended",
   "description": "Open ended smart contracts of the Sablier V2 token streaming protocol",
+  "license": "BUSL-1.1",
   "version": "1.0.0",
   "author": {
     "name": "Sablier Labs Ltd",
     "url": "https://sablier.com"
   },
+  "bugs": {
+    "url": "https://github.com/sablier-labs/v2-open-ended/issues"
+  },
   "dependencies": {
     "@openzeppelin/contracts": "5.0.2",
-    "@prb/math": "github:PaulRBerg/prb-math#a111d11"
+    "@prb/math": "github:PaulRBerg/prb-math#16419e5"
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.8.1",
     "prettier": "3.0.0",
     "solhint": "^4.0.0"
   },
+  "files": [
+    "artifacts",
+    "precompiles",
+    "src",
+    "LICENSE-GPL.md"
+  ],
   "keywords": [
+    "asset-distribution",
+    "asset-streaming",
     "blockchain",
+    "cryptoasset-streaming",
     "ethereum",
     "forge",
     "foundry",
+    "money-streaming",
+    "real-time-finance",
+    "payroll",
+    "sablier",
     "smart-contracts",
     "solidity",
-    "template"
+    "token-distribution",
+    "token-streaming",
+    "web3"
   ],
+  "peerDependencies": {
+    "@prb/math": "4.0.x"
+  },
   "private": true,
+  "publishConfig": {
+    "access": "restricted"
+  },
   "scripts": {
-    "clean": "rm -rf cache out",
     "build": "forge build",
+    "build:optimized": "FOUNDRY_PROFILE=optimized forge build",
+    "clean": "rm -rf artifacts broadcast cache docs out out-optimized out-svg",
+    "gas:report": "forge test --gas-report --mp \"./test/integration/**/*.sol\" --nmt \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:snapshot": "forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fuzz)?_RevertWhen_\\w{1,}?\"",
+    "gas:snapshot:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge snapshot --mp \"./test/integration/**/*.sol\" --nmt \"test(Fork)?(Fuzz)?_RevertWhen_\\w{1,}?\"",
     "lint": "bun run lint:sol && bun run prettier:check",
-    "lint:sol": "forge fmt --check && bun solhint {script,src,test}/**/*.sol",
-    "prettier:check": "prettier --check **/*.{json,md,yml} --ignore-path=.prettierignore",
-    "prettier:write": "prettier --write **/*.{json,md,yml} --ignore-path=.prettierignore",
+    "lint:sol": "forge fmt --check && bun solhint \"{precompiles,script,src,test}/**/*.sol\"",
+    "prepack": "bun install && bash ./shell/prepare-artifacts.sh",
+    "prettier:check": "prettier --check \"**/*.{json,md,svg,yml}\"",
+    "prettier:write": "prettier --write \"**/*.{json,md,svg,yml}\"",
     "test": "forge test",
     "test:coverage": "forge coverage",
-    "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage"
+    "test:coverage:report": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage",
+    "test:lite": "FOUNDRY_PROFILE=lite forge test",
+    "test:optimized": "bun run build:optimized && FOUNDRY_PROFILE=test-optimized forge test"
   }
 }

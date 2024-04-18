@@ -1,29 +1,46 @@
-# Full reference https://github.com/foundry-rs/foundry/tree/master/crates/config
-
 [profile.default]
   auto_detect_solc = false
-  block_timestamp = 1_698_796_800 # November 1, 2023 at 00:00 GMT
   bytecode_hash = "none"
-  evm_version = "paris"           # See https://www.evmdiff.com/features?name=PUSH0&kind=opcode
-  fuzz = { runs = 10_000 }
+  evm_version = "paris"
   gas_reports = ["*"]
   optimizer = true
-  optimizer_runs = 10_000
+  optimizer_runs = 1000
   out = "out"
   script = "script"
   solc = "0.8.23"
   src = "src"
   test = "test"
 
+[profile.default.fuzz]
+  max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
+  runs = 50
+
 [profile.default.invariant]
   call_override = false # Override unsafe external calls to perform reentrancy checks
-  depth = 20            # Number of calls executed in one run
+  depth = 50            # Number of calls executed in one run
   fail_on_revert = true
-  runs = 20
-  
-[profile.ci]
-  fuzz = { runs = 10_000 }
-  verbosity = 4
+  runs = 50
+
+# Speed up compilation and tests during development
+[profile.lite]
+  optimizer = false
+
+# Compile only the production code and the test mocks with via IR and 10,000 optimizer runs
+[profile.optimized]
+  optimizer = true
+  optimizer_runs = 10_000
+  out = "out-optimized"
+  test = "test/mocks"
+  via_ir = true
+
+# Test the optimized contracts without re-compiling them
+[profile.test-optimized]
+  src = "test"
+
+[doc]
+  ignore = ["**/*.t.sol"]
+  out = "docs"
+  repository = "https://github.com/sablier-labs/v2-open-ended"
 
 [fmt]
   bracket_spacing = true
