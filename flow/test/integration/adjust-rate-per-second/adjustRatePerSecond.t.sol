@@ -80,7 +80,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
         whenratePerSecondNonZero
     {
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2OpenEnded_ratePerSecondNotDifferent.selector, RATE_PER_SECOND)
+            abi.encodeWithSelector(Errors.SablierV2OpenEnded_RatePerSecondNotDifferent.selector, RATE_PER_SECOND)
         );
         openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }

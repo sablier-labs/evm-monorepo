@@ -21,7 +21,7 @@ library Errors {
     error SablierV2OpenEnded_RatePerSecondZero();
 
     /// @notice Thrown when trying to change the rate per second with the same rate per second.
-    error SablierV2OpenEnded_ratePerSecondNotDifferent(uint128 ratePerSecond);
+    error SablierV2OpenEnded_RatePerSecondNotDifferent(uint128 ratePerSecond);
 
     /// @notice Thrown when trying to create a OpenEnded stream with a zero deposit amount.
     error SablierV2OpenEnded_DepositAmountZero();

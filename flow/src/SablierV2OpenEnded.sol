@@ -345,7 +345,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
 
         // Checks: the new rate per second is not equal to the actual rate per second.
         if (newRatePerSecond == oldRatePerSecond) {
-            revert Errors.SablierV2OpenEnded_ratePerSecondNotDifferent(newRatePerSecond);
+            revert Errors.SablierV2OpenEnded_RatePerSecondNotDifferent(newRatePerSecond);
         }
 
         uint128 recipientAmount = _withdrawableAmountOf(streamId, uint40(block.timestamp));
