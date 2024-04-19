@@ -120,6 +120,24 @@ contract Withdraw_Integration_Test is Integration_Test {
         openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, time: futureTime });
     }
 
+    function test_RevertWhen_BalanceZero()
+        external
+        whenNotDelegateCalled
+        givenNotNull
+        givenNotCanceled
+        whenToNonZeroAddress
+        whenWithdrawalAddressIsRecipient
+        whenWithdrawalTimeGreaterThanLastUpdate
+        whenWithdrawalTimeNotInTheFuture
+    {
+        vm.warp({ newTimestamp: WARP_ONE_MONTH - ONE_MONTH });
+        uint256 streamId = createDefaultStream();
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2OpenEnded_WithdrawBalanceZero.selector, streamId));
+        openEnded.withdraw({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
+    }
+
     function test_Withdraw_CallerSender()
         external
         whenNotDelegateCalled

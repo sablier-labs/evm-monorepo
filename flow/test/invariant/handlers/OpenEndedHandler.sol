@@ -101,13 +101,11 @@ contract OpenEndedHandler is BaseHandler {
     }
 
     function deposit(
-        uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         uint128 depositAmount
     )
         external
         instrument("deposit")
-        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
@@ -242,6 +240,10 @@ contract OpenEndedHandler is BaseHandler {
 
         // The protocol doesn't allow the withdrawal address to be the zero address.
         if (to == address(0)) {
+            return;
+        }
+
+        if (openEnded.getBalance(currentStreamId) == 0) {
             return;
         }
 

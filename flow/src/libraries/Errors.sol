@@ -71,4 +71,7 @@ library Errors {
 
     /// @notice Thrown when trying to withdraw to the zero address.
     error SablierV2OpenEnded_WithdrawToZeroAddress();
+
+    /// @notice Thrown when trying to withdraw but the stream balance is zero.
+    error SablierV2OpenEnded_WithdrawBalanceZero(uint256 streamId);
 }

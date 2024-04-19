@@ -308,8 +308,8 @@ interface ISablierV2OpenEnded is ISablierV2OpenEndedState {
     /// - `streamId` must not reference a null or canceled stream.
     /// - `to` must not be the zero address.
     /// - `to` must be the recipient if `msg.sender` is not the stream's recipient.
-    /// - `time` must be greater than the stream's `lastTimeUpdate`.
-    /// - `time` must not be greater than the `block.timestamp`.
+    /// - `time` must be greater than the stream's `lastTimeUpdate` and must not be in the future.
+    /// -  The stream balance must be greater than zero.
     ///
     /// @param streamId The id of the stream to withdraw from.
     /// @param to The address receiving the withdrawn assets.

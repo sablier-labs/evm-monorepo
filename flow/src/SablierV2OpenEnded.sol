@@ -593,6 +593,11 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
             revert Errors.SablierV2OpenEnded_WithdrawalTimeInTheFuture(time, block.timestamp);
         }
 
+        // Check: the stream balance is not zero.
+        if (_streams[streamId].balance == 0) {
+            revert Errors.SablierV2OpenEnded_WithdrawBalanceZero(streamId);
+        }
+
         // Calculate how much to withdraw based on the time reference.
         uint128 withdrawAmount = _withdrawableAmountOf(streamId, time);
 
