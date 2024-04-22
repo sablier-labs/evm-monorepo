@@ -576,8 +576,8 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
         // Retrieve the recipient from storage.
         address recipient = _streams[streamId].recipient;
 
-        // Check: if `msg.sender` is neither the stream's recipient, the withdrawal address must be the recipient.
-        if (to != recipient && !(msg.sender == recipient)) {
+        // Check: if `msg.sender` is not the stream's recipient, the withdrawal address must be the recipient.
+        if (to != recipient && msg.sender != recipient) {
             revert Errors.SablierV2OpenEnded_WithdrawalAddressNotRecipient(streamId, msg.sender, to);
         }
 

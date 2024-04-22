@@ -7,7 +7,7 @@ import { BaseScript } from "./Base.s.sol";
 
 /// @notice Deploys {SablierV2OpenEnded} at a deterministic address across chains.
 /// @dev Reverts if the contract has already been deployed.
-contract DeployOpenEnded is BaseScript {
+contract DeployDeterministicOpenEnded is BaseScript {
     function run() public broadcast returns (SablierV2OpenEnded openEnded) {
         openEnded = new SablierV2OpenEnded{ salt: constructCreate2Salt() }();
     }
