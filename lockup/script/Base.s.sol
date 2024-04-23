@@ -7,9 +7,11 @@ import { Sphinx } from "@sphinx-labs/contracts/SphinxPlugin.sol";
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
+import { stdJson } from "forge-std/src/StdJson.sol";
 
 contract BaseScript is Script, Sphinx {
     using Strings for uint256;
+    using stdJson for string;
 
     /// @dev The Avalanche chain ID.
     uint256 internal constant AVALANCHE_CHAIN_ID = 43_114;
@@ -91,18 +93,11 @@ contract BaseScript is Script, Sphinx {
     ///
     /// Notes:
     /// - The salt format is "ChainID <chainid>, Version <version>".
-    /// - The version is obtained from `package.json` using the `ffi` cheatcode:
-    /// https://book.getfoundry.sh/cheatcodes/ffi
-    /// - Requires the `jq` CLI installed: https://jqlang.github.io/jq/
-    function constructCreate2Salt() public returns (bytes32) {
+    /// - The version is obtained from `package.json`.
+    function constructCreate2Salt() public view returns (bytes32) {
         string memory chainId = block.chainid.toString();
-        string[] memory inputs = new string[](4);
-        inputs[0] = "jq";
-        inputs[1] = "-r";
-        inputs[2] = ".version";
-        inputs[3] = "./package.json";
-        bytes memory result = vm.ffi(inputs);
-        string memory version = string(result);
+        string memory json = vm.readFile("package.json");
+        string memory version = json.readString(".version");
         string memory create2Salt = string.concat("ChainID ", chainId, ", Version ", version);
         console2.log("The CREATE2 salt is \"%s\"", create2Salt);
         return bytes32(abi.encodePacked(create2Salt));

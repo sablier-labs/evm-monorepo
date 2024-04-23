@@ -3,10 +3,10 @@
   bytecode_hash = "none"
   emv_version = "paris"
   extra_output = ["storageLayout"]
-  ffi = true
   fs_permissions = [
     { access = "read", path = "./out" },
-    { access = "read", path = "./out-optimized" },
+    { access = "read", path = "./out-optimized"},
+    { access = "read", path = "package.json"},
     { access = "read-write", path = "./cache" },
   ]
   gas_reports = [
@@ -78,7 +78,6 @@
 
 # Test the optimized contracts without re-compiling them
 [profile.test-optimized]
-  ffi = true
   src = "test"
 
 [doc]
