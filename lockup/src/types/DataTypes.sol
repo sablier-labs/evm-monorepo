@@ -147,14 +147,6 @@ library LockupDynamic {
         Broker broker;
     }
 
-    /// @notice Struct encapsulating the time range.
-    /// @param start The Unix timestamp indicating the stream's start.
-    /// @param end The Unix timestamp indicating the stream's end.
-    struct Range {
-        uint40 start;
-        uint40 end;
-    }
-
     /// @notice Segment struct used in the Lockup Dynamic stream.
     /// @param amount The amount of assets to be streamed in the segment, denoted in units of the asset's decimals.
     /// @param exponent The exponent of the segment, denoted as a fixed-point number.
@@ -192,6 +184,14 @@ library LockupDynamic {
         Lockup.Amounts amounts;
         Segment[] segments;
     }
+
+    /// @notice Struct encapsulating the LockupDynamic timestamps.
+    /// @param start The Unix timestamp indicating the stream's start.
+    /// @param end The Unix timestamp indicating the stream's end.
+    struct Timestamps {
+        uint40 start;
+        uint40 end;
+    }
 }
 
 /// @notice Namespace for the structs used in {SablierV2LockupLinear}.
@@ -228,8 +228,8 @@ library LockupLinear {
     /// @param asset The contract address of the ERC-20 asset to be distributed.
     /// @param cancelable Indicates if the stream is cancelable.
     /// @param transferable Indicates if the stream NFT is transferable.
-    /// @param range Struct containing (i) the stream's start time, (ii) cliff time, and (iii) end time, all as Unix
-    /// timestamps.
+    /// @param timestamps Struct containing (i) the stream's start time, (ii) cliff time, and (iii) end time, all as
+    /// Unix timestamps.
     /// @param broker Struct containing (i) the address of the broker assisting in creating the stream, and (ii) the
     /// percentage fee paid to the broker from `totalAmount`, denoted as a fixed-point number. Both can be set to zero.
     struct CreateWithTimestamps {
@@ -239,7 +239,7 @@ library LockupLinear {
         IERC20 asset;
         bool cancelable;
         bool transferable;
-        Range range;
+        Timestamps timestamps;
         Broker broker;
     }
 
@@ -249,16 +249,6 @@ library LockupLinear {
     struct Durations {
         uint40 cliff;
         uint40 total;
-    }
-
-    /// @notice Struct encapsulating the time range.
-    /// @param start The Unix timestamp for the stream's start.
-    /// @param cliff The Unix timestamp for the cliff period's end. A value of zero means there is no cliff.
-    /// @param end The Unix timestamp for the stream's end.
-    struct Range {
-        uint40 start;
-        uint40 cliff;
-        uint40 end;
     }
 
     /// @notice Struct encapsulating the full details of a stream.
@@ -276,6 +266,16 @@ library LockupLinear {
         bool isTransferable;
         Lockup.Amounts amounts;
         uint40 cliffTime;
+    }
+
+    /// @notice Struct encapsulating the LockupLinear timestamps.
+    /// @param start The Unix timestamp for the stream's start.
+    /// @param cliff The Unix timestamp for the cliff period's end. A value of zero means there is no cliff.
+    /// @param end The Unix timestamp for the stream's end.
+    struct Timestamps {
+        uint40 start;
+        uint40 cliff;
+        uint40 end;
     }
 }
 
@@ -330,14 +330,6 @@ library LockupTranched {
         Broker broker;
     }
 
-    /// @notice Struct encapsulating the time range.
-    /// @param start The Unix timestamp indicating the stream's start.
-    /// @param end The Unix timestamp indicating the stream's end.
-    struct Range {
-        uint40 start;
-        uint40 end;
-    }
-
     /// @notice Struct encapsulating the full details of a stream.
     /// @dev Extends `Lockup.Stream` by including the recipient and the tranches.
     struct StreamLT {
@@ -353,6 +345,14 @@ library LockupTranched {
         bool isTransferable;
         Lockup.Amounts amounts;
         Tranche[] tranches;
+    }
+
+    /// @notice Struct encapsulating the LockupTranched timestamps.
+    /// @param start The Unix timestamp indicating the stream's start.
+    /// @param end The Unix timestamp indicating the stream's end.
+    struct Timestamps {
+        uint40 start;
+        uint40 end;
     }
 
     /// @notice Tranche struct used in the Lockup Tranched stream.

@@ -125,15 +125,15 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
         // Make the Sender the stream's funder
         address funder = users.sender;
 
-        // Declare the range.
+        // Declare the timestamps.
         uint40 blockTimestamp = getBlockTimestamp();
-        LockupDynamic.Range memory range =
-            LockupDynamic.Range({ start: blockTimestamp, end: blockTimestamp + defaults.TOTAL_DURATION() });
+        LockupDynamic.Timestamps memory timestamps =
+            LockupDynamic.Timestamps({ start: blockTimestamp, end: blockTimestamp + defaults.TOTAL_DURATION() });
 
         // Adjust the segments.
         LockupDynamic.SegmentWithDuration[] memory segmentsWithDurations = defaults.segmentsWithDurations();
         LockupDynamic.Segment[] memory segments = defaults.segments();
-        segments[0].timestamp = range.start + segmentsWithDurations[0].duration;
+        segments[0].timestamp = timestamps.start + segmentsWithDurations[0].duration;
         segments[1].timestamp = segments[0].timestamp + segmentsWithDurations[1].duration;
 
         // Expect the assets to be transferred from the funder to {SablierV2LockupDynamic}.
@@ -156,7 +156,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
             cancelable: true,
             transferable: true,
             segments: segments,
-            range: range,
+            timestamps: timestamps,
             broker: users.broker
         });
 
@@ -166,9 +166,9 @@ contract CreateWithDurations_LockupDynamic_Integration_Concrete_Test is
         // Assert that the stream has been created.
         LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(streamId);
         LockupDynamic.StreamLD memory expectedStream = defaults.lockupDynamicStream();
-        expectedStream.endTime = range.end;
+        expectedStream.endTime = timestamps.end;
         expectedStream.segments = segments;
-        expectedStream.startTime = range.start;
+        expectedStream.startTime = timestamps.start;
         assertEq(actualStream, expectedStream);
 
         // Assert that the stream's status is "STREAMING".

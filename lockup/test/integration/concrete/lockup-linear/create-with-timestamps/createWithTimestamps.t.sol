@@ -56,7 +56,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         uint40 endTime = defaults.END_TIME();
 
         vm.expectRevert(Errors.SablierV2Lockup_StartTimeZero.selector);
-        createDefaultStreamWithRange(LockupLinear.Range({ start: 0, cliff: cliffTime, end: endTime }));
+        createDefaultStreamWithTimestamps(LockupLinear.Timestamps({ start: 0, cliff: cliffTime, end: endTime }));
     }
 
     function test_RevertWhen_StartTimeNotLessThanEndTime()
@@ -75,7 +75,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
                 Errors.SablierV2LockupLinear_StartTimeNotLessThanEndTime.selector, startTime, endTime
             )
         );
-        createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: 0, end: endTime }));
+        createDefaultStreamWithTimestamps(LockupLinear.Timestamps({ start: startTime, cliff: 0, end: endTime }));
     }
 
     function test_CreateWithTimestamps_StartTimeLessThanEndTime()
@@ -86,8 +86,8 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
         whenStartTimeNotZero
         whenCliffTimeZero
     {
-        createDefaultStreamWithRange(
-            LockupLinear.Range({ start: defaults.START_TIME(), cliff: 0, end: defaults.END_TIME() })
+        createDefaultStreamWithTimestamps(
+            LockupLinear.Timestamps({ start: defaults.START_TIME(), cliff: 0, end: defaults.END_TIME() })
         );
 
         // Assert that the stream has been created.
@@ -124,7 +124,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
                 Errors.SablierV2LockupLinear_StartTimeNotLessThanCliffTime.selector, startTime, cliffTime
             )
         );
-        createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime }));
+        createDefaultStreamWithTimestamps(LockupLinear.Timestamps({ start: startTime, cliff: cliffTime, end: endTime }));
     }
 
     function test_RevertWhen_CliffTimeNotLessThanEndTime()
@@ -144,7 +144,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
                 Errors.SablierV2LockupLinear_CliffTimeNotLessThanEndTime.selector, cliffTime, endTime
             )
         );
-        createDefaultStreamWithRange(LockupLinear.Range({ start: startTime, cliff: cliffTime, end: endTime }));
+        createDefaultStreamWithTimestamps(LockupLinear.Timestamps({ start: startTime, cliff: cliffTime, end: endTime }));
     }
 
     function test_RevertGiven_EndTimeNotInTheFuture()
@@ -265,7 +265,7 @@ contract CreateWithTimestamps_LockupLinear_Integration_Concrete_Test is
             asset: IERC20(asset),
             cancelable: true,
             transferable: true,
-            range: defaults.lockupLinearRange(),
+            timestamps: defaults.lockupLinearTimestamps(),
             broker: users.broker
         });
 

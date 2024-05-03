@@ -361,7 +361,7 @@ contract CreateWithTimestamps_LockupDynamic_Integration_Concrete_Test is
             asset: IERC20(asset),
             cancelable: true,
             transferable: true,
-            range: defaults.lockupDynamicRange(),
+            timestamps: defaults.lockupDynamicTimestamps(),
             broker: users.broker
         });
 

@@ -6,21 +6,21 @@ import { LockupTranched } from "src/types/DataTypes.sol";
 
 import { LockupTranched_Integration_Concrete_Test } from "../LockupTranched.t.sol";
 
-contract GetRange_LockupTranched_Integration_Concrete_Test is LockupTranched_Integration_Concrete_Test {
+contract GetTimestamps_LockupTranched_Integration_Concrete_Test is LockupTranched_Integration_Concrete_Test {
     function test_RevertGiven_Null() external {
         uint256 nullStreamId = 1729;
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2Lockup_Null.selector, nullStreamId));
-        lockupTranched.getRange(nullStreamId);
+        lockupTranched.getTimestamps(nullStreamId);
     }
 
     modifier givenNotNull() {
         _;
     }
 
-    function test_GetRange() external givenNotNull {
+    function test_GetTimestamps() external givenNotNull {
         uint256 streamId = createDefaultStream();
-        LockupTranched.Range memory actualRange = lockupTranched.getRange(streamId);
-        LockupTranched.Range memory expectedRange = defaults.lockupTranchedRange();
-        assertEq(actualRange, expectedRange);
+        LockupTranched.Timestamps memory actualTimestamps = lockupTranched.getTimestamps(streamId);
+        LockupTranched.Timestamps memory expectedTimestamps = defaults.lockupTranchedTimestamps();
+        assertEq(actualTimestamps, expectedTimestamps);
     }
 }

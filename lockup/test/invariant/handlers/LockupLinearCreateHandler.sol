@@ -94,18 +94,19 @@ contract LockupLinearCreateHandler is BaseHandler {
 
         uint40 blockTimestamp = getBlockTimestamp();
         params.broker.fee = _bound(params.broker.fee, 0, MAX_BROKER_FEE);
-        params.range.start = boundUint40(params.range.start, 1 seconds, blockTimestamp);
+        params.timestamps.start = boundUint40(params.timestamps.start, 1 seconds, blockTimestamp);
         params.totalAmount = boundUint128(params.totalAmount, 1, 1_000_000_000e18);
 
         // The cliff time must be either zero or greater than the start time.
-        if (params.range.cliff > 0) {
-            params.range.cliff =
-                boundUint40(params.range.cliff, params.range.start + 1 seconds, params.range.start + 52 weeks);
+        if (params.timestamps.cliff > 0) {
+            params.timestamps.cliff = boundUint40(
+                params.timestamps.cliff, params.timestamps.start + 1 seconds, params.timestamps.start + 52 weeks
+            );
         }
 
         // Bound the end time so that it is always greater than the start time, the cliff time, and the block timestamp.
-        uint40 endTimeLowerBound = maxOfThree(params.range.start, params.range.cliff, blockTimestamp);
-        params.range.end = boundUint40(params.range.end, endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
+        uint40 endTimeLowerBound = maxOfThree(params.timestamps.start, params.timestamps.cliff, blockTimestamp);
+        params.timestamps.end = boundUint40(params.timestamps.end, endTimeLowerBound + 1 seconds, MAX_UNIX_TIMESTAMP);
 
         // Mint enough assets to the Sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + params.totalAmount });

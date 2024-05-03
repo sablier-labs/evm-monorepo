@@ -87,9 +87,9 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         // Make the Sender the stream's funder
         address funder = users.sender;
 
-        // Declare the range.
+        // Declare the timestamps.
         uint40 blockTimestamp = getBlockTimestamp();
-        LockupLinear.Range memory range = LockupLinear.Range({
+        LockupLinear.Timestamps memory timestamps = LockupLinear.Timestamps({
             start: blockTimestamp,
             cliff: blockTimestamp + defaults.CLIFF_DURATION(),
             end: blockTimestamp + defaults.TOTAL_DURATION()
@@ -114,7 +114,7 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
             asset: dai,
             cancelable: true,
             transferable: true,
-            range: range,
+            timestamps: timestamps,
             broker: users.broker
         });
 
@@ -124,9 +124,9 @@ contract CreateWithDurations_LockupLinear_Integration_Concrete_Test is
         // Assert that the stream has been created.
         LockupLinear.StreamLL memory actualStream = lockupLinear.getStream(streamId);
         LockupLinear.StreamLL memory expectedStream = defaults.lockupLinearStream();
-        expectedStream.startTime = range.start;
-        expectedStream.cliffTime = range.cliff;
-        expectedStream.endTime = range.end;
+        expectedStream.startTime = timestamps.start;
+        expectedStream.cliffTime = timestamps.cliff;
+        expectedStream.endTime = timestamps.end;
         assertEq(actualStream, expectedStream);
 
         // Assert that the stream's status is "STREAMING".

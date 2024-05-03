@@ -58,8 +58,8 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         bool isCancelable;
         bool isDepleted;
         bool isSettled;
-        LockupTranched.Range range;
         uint256 streamId;
+        LockupTranched.Timestamps timestamps;
         // Create vars
         uint256 actualBrokerBalance;
         uint256 actualHolderBalance;
@@ -137,7 +137,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         vars.initialBrokerBalance = vars.balances[1];
 
         vars.streamId = lockupTranched.nextStreamId();
-        vars.range = LockupTranched.Range({
+        vars.timestamps = LockupTranched.Timestamps({
             start: params.startTime,
             end: params.tranches[params.tranches.length - 1].timestamp
         });
@@ -156,7 +156,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
             cancelable: true,
             transferable: true,
             tranches: params.tranches,
-            range: vars.range,
+            timestamps: vars.timestamps,
             broker: params.broker.account
         });
 
@@ -184,7 +184,7 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(vars.streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, ASSET, "asset");
-        assertEq(actualStream.endTime, vars.range.end, "endTime");
+        assertEq(actualStream.endTime, vars.timestamps.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
@@ -244,7 +244,8 @@ abstract contract LockupTranched_Fork_Test is Fork_Test {
         //////////////////////////////////////////////////////////////////////////*/
 
         // Simulate the passage of time.
-        params.warpTimestamp = boundUint40(params.warpTimestamp, vars.range.start, vars.range.end + 100 seconds);
+        params.warpTimestamp =
+            boundUint40(params.warpTimestamp, vars.timestamps.start, vars.timestamps.end + 100 seconds);
         vm.warp({ newTimestamp: params.warpTimestamp });
 
         // Bound the withdraw amount.

@@ -87,23 +87,23 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(a.wasCanceled, b.wasCanceled, "wasCanceled");
     }
 
-    /// @dev Compares two {LockupDynamic.Range} struct entities.
-    function assertEq(LockupDynamic.Range memory a, LockupDynamic.Range memory b) internal {
-        assertEqUint40(a.end, b.end, "range.end");
-        assertEqUint40(a.start, b.start, "range.start");
+    /// @dev Compares two {LockupDynamic.Timestamps} struct entities.
+    function assertEq(LockupDynamic.Timestamps memory a, LockupDynamic.Timestamps memory b) internal {
+        assertEqUint40(a.end, b.end, "timestamps.end");
+        assertEqUint40(a.start, b.start, "timestamps.start");
     }
 
-    /// @dev Compares two {LockupLinear.Range} struct entities.
-    function assertEq(LockupLinear.Range memory a, LockupLinear.Range memory b) internal {
-        assertEqUint40(a.cliff, b.cliff, "range.cliff");
-        assertEqUint40(a.end, b.end, "range.end");
-        assertEqUint40(a.start, b.start, "range.start");
+    /// @dev Compares two {LockupLinear.Timestamps} struct entities.
+    function assertEq(LockupLinear.Timestamps memory a, LockupLinear.Timestamps memory b) internal {
+        assertEqUint40(a.cliff, b.cliff, "timestamps.cliff");
+        assertEqUint40(a.end, b.end, "timestamps.end");
+        assertEqUint40(a.start, b.start, "timestamps.start");
     }
 
-    /// @dev Compares two {LockupTranched.Range} struct entities.
-    function assertEq(LockupTranched.Range memory a, LockupTranched.Range memory b) internal {
-        assertEqUint40(a.end, b.end, "range.end");
-        assertEqUint40(a.start, b.start, "range.start");
+    /// @dev Compares two {LockupTranched.Timestamps} struct entities.
+    function assertEq(LockupTranched.Timestamps memory a, LockupTranched.Timestamps memory b) internal {
+        assertEqUint40(a.end, b.end, "timestamps.end");
+        assertEqUint40(a.start, b.start, "timestamps.start");
     }
 
     /// @dev Compares two {LockupDynamic.Segment} arrays.

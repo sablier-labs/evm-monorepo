@@ -119,14 +119,14 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
         // Make the Sender the stream's funder
         address funder = users.sender;
 
-        // Declare the range.
+        // Declare the timestamps.
         uint40 blockTimestamp = getBlockTimestamp();
-        LockupTranched.Range memory range =
-            LockupTranched.Range({ start: blockTimestamp, end: blockTimestamp + defaults.TOTAL_DURATION() });
+        LockupTranched.Timestamps memory timestamps =
+            LockupTranched.Timestamps({ start: blockTimestamp, end: blockTimestamp + defaults.TOTAL_DURATION() });
 
         LockupTranched.TrancheWithDuration[] memory tranchesWithDurations = defaults.tranchesWithDurations();
         LockupTranched.Tranche[] memory tranches = defaults.tranches();
-        tranches[0].timestamp = range.start + tranchesWithDurations[0].duration;
+        tranches[0].timestamp = timestamps.start + tranchesWithDurations[0].duration;
         tranches[1].timestamp = tranches[0].timestamp + tranchesWithDurations[1].duration;
         tranches[2].timestamp = tranches[1].timestamp + tranchesWithDurations[2].duration;
 
@@ -150,7 +150,7 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
             cancelable: true,
             transferable: true,
             tranches: tranches,
-            range: range,
+            timestamps: timestamps,
             broker: users.broker
         });
 
@@ -160,8 +160,8 @@ contract CreateWithDurations_LockupTranched_Integration_Concrete_Test is
         // Assert that the stream has been created.
         LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(streamId);
         LockupTranched.StreamLT memory expectedStream = defaults.lockupTranchedStream();
-        expectedStream.endTime = range.end;
-        expectedStream.startTime = range.start;
+        expectedStream.endTime = timestamps.end;
+        expectedStream.startTime = timestamps.start;
         expectedStream.tranches = tranches;
         assertEq(actualStream, expectedStream);
 

@@ -73,21 +73,6 @@ contract SablierV2LockupLinear is
     }
 
     /// @inheritdoc ISablierV2LockupLinear
-    function getRange(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        returns (LockupLinear.Range memory range)
-    {
-        range = LockupLinear.Range({
-            start: _streams[streamId].startTime,
-            cliff: _cliffs[streamId],
-            end: _streams[streamId].endTime
-        });
-    }
-
-    /// @inheritdoc ISablierV2LockupLinear
     function getStream(uint256 streamId)
         external
         view
@@ -119,6 +104,21 @@ contract SablierV2LockupLinear is
         });
     }
 
+    /// @inheritdoc ISablierV2LockupLinear
+    function getTimestamps(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        returns (LockupLinear.Timestamps memory timestamps)
+    {
+        timestamps = LockupLinear.Timestamps({
+            start: _streams[streamId].startTime,
+            cliff: _cliffs[streamId],
+            end: _streams[streamId].endTime
+        });
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                          USER-FACING NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -131,17 +131,17 @@ contract SablierV2LockupLinear is
         returns (uint256 streamId)
     {
         // Set the current block timestamp as the stream's start time.
-        LockupLinear.Range memory range;
-        range.start = uint40(block.timestamp);
+        LockupLinear.Timestamps memory timestamps;
+        timestamps.start = uint40(block.timestamp);
 
         // Calculate the cliff time and the end time. It is safe to use unchecked arithmetic because {_create} will
         // nonetheless check that the end time is greater than the cliff time, and also that the cliff time, if set,
         // is greater than or equal to the start time.
         unchecked {
             if (params.durations.cliff > 0) {
-                range.cliff = range.start + params.durations.cliff;
+                timestamps.cliff = timestamps.start + params.durations.cliff;
             }
-            range.end = range.start + params.durations.total;
+            timestamps.end = timestamps.start + params.durations.total;
         }
 
         // Checks, Effects and Interactions: create the stream.
@@ -153,7 +153,7 @@ contract SablierV2LockupLinear is
                 asset: params.asset,
                 cancelable: params.cancelable,
                 transferable: params.transferable,
-                range: range,
+                timestamps: timestamps,
                 broker: params.broker
             })
         );
@@ -240,7 +240,7 @@ contract SablierV2LockupLinear is
             Helpers.checkAndCalculateBrokerFee(params.totalAmount, params.broker.fee, MAX_BROKER_FEE);
 
         // Check: validate the user-provided parameters.
-        Helpers.checkCreateLockupLinear(createAmounts.deposit, params.range);
+        Helpers.checkCreateLockupLinear(createAmounts.deposit, params.timestamps);
 
         // Load the stream ID.
         streamId = nextStreamId;
@@ -249,19 +249,19 @@ contract SablierV2LockupLinear is
         _streams[streamId] = Lockup.Stream({
             amounts: Lockup.Amounts({ deposited: createAmounts.deposit, refunded: 0, withdrawn: 0 }),
             asset: params.asset,
-            endTime: params.range.end,
+            endTime: params.timestamps.end,
             isCancelable: params.cancelable,
             isDepleted: false,
             isStream: true,
             isTransferable: params.transferable,
             sender: params.sender,
-            startTime: params.range.start,
+            startTime: params.timestamps.start,
             wasCanceled: false
         });
 
         // Effect: set the cliff time if it is greater than zero.
-        if (params.range.cliff > 0) {
-            _cliffs[streamId] = params.range.cliff;
+        if (params.timestamps.cliff > 0) {
+            _cliffs[streamId] = params.timestamps.cliff;
         }
 
         // Effect: bump the next stream ID.
@@ -291,7 +291,7 @@ contract SablierV2LockupLinear is
             asset: params.asset,
             cancelable: params.cancelable,
             transferable: params.transferable,
-            range: params.range,
+            timestamps: params.timestamps,
             broker: params.broker.account
         });
     }

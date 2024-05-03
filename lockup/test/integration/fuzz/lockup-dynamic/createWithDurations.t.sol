@@ -64,9 +64,9 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
             expectCallToTransferFrom({ from: vars.funder, to: users.broker, value: vars.createAmounts.brokerFee });
         }
 
-        // Create the range struct.
+        // Create the timestamps struct.
         vars.segmentsWithTimestamps = getSegmentsWithTimestamps(segments);
-        LockupDynamic.Range memory range = LockupDynamic.Range({
+        LockupDynamic.Timestamps memory timestamps = LockupDynamic.Timestamps({
             start: getBlockTimestamp(),
             end: vars.segmentsWithTimestamps[vars.segmentsWithTimestamps.length - 1].timestamp
         });
@@ -83,7 +83,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
             cancelable: true,
             transferable: true,
             segments: vars.segmentsWithTimestamps,
-            range: range,
+            timestamps: timestamps,
             broker: users.broker
         });
 
@@ -103,7 +103,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         LockupDynamic.StreamLD memory actualStream = lockupDynamic.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, dai, "asset");
-        assertEq(actualStream.endTime, range.end, "endTime");
+        assertEq(actualStream.endTime, timestamps.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isDepleted");
         assertEq(actualStream.isStream, true, "isStream");
@@ -111,7 +111,7 @@ contract CreateWithDurations_LockupDynamic_Integration_Fuzz_Test is
         assertEq(actualStream.recipient, users.recipient, "recipient");
         assertEq(actualStream.segments, vars.segmentsWithTimestamps, "segments");
         assertEq(actualStream.sender, users.sender, "sender");
-        assertEq(actualStream.startTime, range.start, "startTime");
+        assertEq(actualStream.startTime, timestamps.start, "startTime");
         assertEq(actualStream.wasCanceled, false, "wasCanceled");
 
         // Assert that the stream's status is correct.

@@ -102,14 +102,6 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 
-    /// @dev Creates the default stream with the provided range.
-    function createDefaultStreamWithRange(LockupDynamic.Range memory range) internal returns (uint256 streamId) {
-        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
-        params.startTime = range.start;
-        params.segments[1].timestamp = range.end;
-        streamId = lockupDynamic.createWithTimestamps(params);
-    }
-
     /// @inheritdoc Lockup_Integration_Shared_Test
     function createDefaultStreamWithRecipient(address recipient) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
@@ -138,6 +130,17 @@ abstract contract LockupDynamic_Integration_Shared_Test is Lockup_Integration_Sh
     function createDefaultStreamWithStartTime(uint40 startTime) internal override returns (uint256 streamId) {
         LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
         params.startTime = startTime;
+        streamId = lockupDynamic.createWithTimestamps(params);
+    }
+
+    /// @dev Creates the default stream with the provided timestamps.
+    function createDefaultStreamWithTimestamps(LockupDynamic.Timestamps memory timestamps)
+        internal
+        returns (uint256 streamId)
+    {
+        LockupDynamic.CreateWithTimestamps memory params = _params.createWithTimestamps;
+        params.startTime = timestamps.start;
+        params.segments[1].timestamp = timestamps.end;
         streamId = lockupDynamic.createWithTimestamps(params);
     }
 

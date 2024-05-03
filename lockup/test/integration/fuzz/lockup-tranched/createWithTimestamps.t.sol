@@ -227,7 +227,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
 
         // Expect the relevant event to be emitted.
         vm.expectEmit({ emitter: address(lockupTranched) });
-        LockupTranched.Range memory range = LockupTranched.Range({
+        LockupTranched.Timestamps memory timestamps = LockupTranched.Timestamps({
             start: params.startTime,
             end: params.tranches[params.tranches.length - 1].timestamp
         });
@@ -241,7 +241,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
             cancelable: params.cancelable,
             transferable: params.transferable,
             tranches: params.tranches,
-            range: range,
+            timestamps: timestamps,
             broker: params.broker.account
         });
 
@@ -269,7 +269,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         LockupTranched.StreamLT memory actualStream = lockupTranched.getStream(streamId);
         assertEq(actualStream.amounts, Lockup.Amounts(vars.createAmounts.deposit, 0, 0));
         assertEq(actualStream.asset, dai, "asset");
-        assertEq(actualStream.endTime, range.end, "endTime");
+        assertEq(actualStream.endTime, timestamps.end, "endTime");
         assertEq(actualStream.isCancelable, vars.isCancelable, "isCancelable");
         assertEq(actualStream.isDepleted, false, "isStream");
         assertEq(actualStream.isStream, true, "isStream");
@@ -277,7 +277,7 @@ contract CreateWithTimestamps_LockupTranched_Integration_Fuzz_Test is
         assertEq(actualStream.recipient, params.recipient, "recipient");
         assertEq(actualStream.sender, params.sender, "sender");
         assertEq(actualStream.tranches, params.tranches, "tranches");
-        assertEq(actualStream.startTime, range.start, "startTime");
+        assertEq(actualStream.startTime, timestamps.start, "startTime");
         assertEq(actualStream.wasCanceled, false, "wasCanceled");
 
         // Assert that the stream's status is correct.

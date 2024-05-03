@@ -111,11 +111,14 @@ abstract contract LockupTranched_Integration_Shared_Test is Lockup_Integration_S
         streamId = lockupTranched.createWithTimestamps(params);
     }
 
-    /// @dev Creates the default stream with the provided range.
-    function createDefaultStreamWithRange(LockupTranched.Range memory range) internal returns (uint256 streamId) {
+    /// @dev Creates the default stream with the provided timestamps.
+    function createDefaultStreamWithTimestamps(LockupTranched.Timestamps memory timestamps)
+        internal
+        returns (uint256 streamId)
+    {
         LockupTranched.CreateWithTimestamps memory params = _params.createWithTimestamps;
-        params.startTime = range.start;
-        params.tranches[1].timestamp = range.end;
+        params.startTime = timestamps.start;
+        params.tranches[1].timestamp = timestamps.end;
         streamId = lockupTranched.createWithTimestamps(params);
     }
 

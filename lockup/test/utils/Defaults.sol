@@ -84,10 +84,6 @@ contract Defaults is Constants {
         return Lockup.CreateAmounts({ deposit: DEPOSIT_AMOUNT, brokerFee: BROKER_FEE_AMOUNT });
     }
 
-    function lockupDynamicRange() public view returns (LockupDynamic.Range memory) {
-        return LockupDynamic.Range({ start: START_TIME, end: END_TIME });
-    }
-
     function lockupDynamicStream() public view returns (LockupDynamic.StreamLD memory) {
         return LockupDynamic.StreamLD({
             amounts: lockupAmounts(),
@@ -105,8 +101,8 @@ contract Defaults is Constants {
         });
     }
 
-    function lockupLinearRange() public view returns (LockupLinear.Range memory) {
-        return LockupLinear.Range({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
+    function lockupDynamicTimestamps() public view returns (LockupDynamic.Timestamps memory) {
+        return LockupDynamic.Timestamps({ start: START_TIME, end: END_TIME });
     }
 
     function lockupLinearStream() public view returns (LockupLinear.StreamLL memory) {
@@ -126,8 +122,8 @@ contract Defaults is Constants {
         });
     }
 
-    function lockupTranchedRange() public view returns (LockupTranched.Range memory) {
-        return LockupTranched.Range({ start: START_TIME, end: END_TIME });
+    function lockupLinearTimestamps() public view returns (LockupLinear.Timestamps memory) {
+        return LockupLinear.Timestamps({ start: START_TIME, cliff: CLIFF_TIME, end: END_TIME });
     }
 
     function lockupTranchedStream() public view returns (LockupTranched.StreamLT memory) {
@@ -145,6 +141,10 @@ contract Defaults is Constants {
             tranches: tranches(),
             wasCanceled: false
         });
+    }
+
+    function lockupTranchedTimestamps() public view returns (LockupTranched.Timestamps memory) {
+        return LockupTranched.Timestamps({ start: START_TIME, end: END_TIME });
     }
 
     function segments() public view returns (LockupDynamic.Segment[] memory segments_) {
@@ -263,7 +263,7 @@ contract Defaults is Constants {
             asset: asset,
             cancelable: true,
             transferable: true,
-            range: lockupLinearRange(),
+            timestamps: lockupLinearTimestamps(),
             broker: broker()
         });
     }

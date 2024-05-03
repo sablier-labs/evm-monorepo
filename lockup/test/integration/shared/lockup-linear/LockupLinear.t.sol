@@ -75,14 +75,7 @@ abstract contract LockupLinear_Integration_Shared_Test is Lockup_Integration_Sha
     /// @inheritdoc Lockup_Integration_Shared_Test
     function createDefaultStreamWithEndTime(uint40 endTime) internal override returns (uint256 streamId) {
         LockupLinear.CreateWithTimestamps memory params = _params.createWithTimestamps;
-        params.range.end = endTime;
-        streamId = lockupLinear.createWithTimestamps(params);
-    }
-
-    /// @dev Creates the default stream with the provided range.
-    function createDefaultStreamWithRange(LockupLinear.Range memory range) internal returns (uint256 streamId) {
-        LockupLinear.CreateWithTimestamps memory params = _params.createWithTimestamps;
-        params.range = range;
+        params.timestamps.end = endTime;
         streamId = lockupLinear.createWithTimestamps(params);
     }
 
@@ -103,7 +96,17 @@ abstract contract LockupLinear_Integration_Shared_Test is Lockup_Integration_Sha
     /// @inheritdoc Lockup_Integration_Shared_Test
     function createDefaultStreamWithStartTime(uint40 startTime) internal override returns (uint256 streamId) {
         LockupLinear.CreateWithTimestamps memory params = _params.createWithTimestamps;
-        params.range.start = startTime;
+        params.timestamps.start = startTime;
+        streamId = lockupLinear.createWithTimestamps(params);
+    }
+
+    /// @dev Creates the default stream with the provided timestamps.
+    function createDefaultStreamWithTimestamps(LockupLinear.Timestamps memory timestamps)
+        internal
+        returns (uint256 streamId)
+    {
+        LockupLinear.CreateWithTimestamps memory params = _params.createWithTimestamps;
+        params.timestamps = timestamps;
         streamId = lockupLinear.createWithTimestamps(params);
     }
 

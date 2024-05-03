@@ -24,7 +24,7 @@ interface ISablierV2LockupTranched is ISablierV2Lockup {
     /// @param cancelable Boolean indicating whether the stream will be cancelable or not.
     /// @param transferable Boolean indicating whether the stream NFT is transferable or not.
     /// @param tranches The tranches the protocol uses to compose the tranched distribution function.
-    /// @param range Struct containing (i) the stream's start time and (ii) end time, both as Unix timestamps.
+    /// @param timestamps Struct containing (i) the stream's start time and (ii) end time, both as Unix timestamps.
     /// @param broker The address of the broker who has helped create the stream, e.g. a front-end website.
     event CreateLockupTranchedStream(
         uint256 streamId,
@@ -36,7 +36,7 @@ interface ISablierV2LockupTranched is ISablierV2Lockup {
         bool cancelable,
         bool transferable,
         LockupTranched.Tranche[] tranches,
-        LockupTranched.Range range,
+        LockupTranched.Timestamps timestamps,
         address broker
     );
 
@@ -44,17 +44,17 @@ interface ISablierV2LockupTranched is ISablierV2Lockup {
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Retrieves the stream's range.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    /// @return range See the documentation in {DataTypes}.
-    function getRange(uint256 streamId) external view returns (LockupTranched.Range memory range);
-
     /// @notice Retrieves the full stream details.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     /// @return stream See the documentation in {DataTypes}.
     function getStream(uint256 streamId) external view returns (LockupTranched.StreamLT memory stream);
+
+    /// @notice Retrieves the stream's start and end timestamps.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    /// @return timestamps See the documentation in {DataTypes}.
+    function getTimestamps(uint256 streamId) external view returns (LockupTranched.Timestamps memory timestamps);
 
     /// @notice Retrieves the tranches used to compose the tranched distribution function.
     /// @dev Reverts if `streamId` references a null stream.

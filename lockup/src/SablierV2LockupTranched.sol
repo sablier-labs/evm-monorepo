@@ -72,17 +72,6 @@ contract SablierV2LockupTranched is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupTranched
-    function getRange(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        returns (LockupTranched.Range memory range)
-    {
-        range = LockupTranched.Range({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
-    }
-
-    /// @inheritdoc ISablierV2LockupTranched
     function getStream(uint256 streamId)
         external
         view
@@ -112,6 +101,17 @@ contract SablierV2LockupTranched is
             tranches: _tranches[streamId],
             wasCanceled: lockupStream.wasCanceled
         });
+    }
+
+    /// @inheritdoc ISablierV2LockupTranched
+    function getTimestamps(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        returns (LockupTranched.Timestamps memory timestamps)
+    {
+        timestamps = LockupTranched.Timestamps({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
     }
 
     /// @inheritdoc ISablierV2LockupTranched
@@ -276,7 +276,7 @@ contract SablierV2LockupTranched is
             cancelable: params.cancelable,
             transferable: params.transferable,
             tranches: params.tranches,
-            range: LockupTranched.Range({ start: stream.startTime, end: stream.endTime }),
+            timestamps: LockupTranched.Timestamps({ start: stream.startTime, end: stream.endTime }),
             broker: params.broker.account
         });
     }

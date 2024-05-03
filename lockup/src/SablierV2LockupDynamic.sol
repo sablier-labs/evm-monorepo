@@ -77,17 +77,6 @@ contract SablierV2LockupDynamic is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ISablierV2LockupDynamic
-    function getRange(uint256 streamId)
-        external
-        view
-        override
-        notNull(streamId)
-        returns (LockupDynamic.Range memory range)
-    {
-        range = LockupDynamic.Range({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
-    }
-
-    /// @inheritdoc ISablierV2LockupDynamic
     function getSegments(uint256 streamId)
         external
         view
@@ -128,6 +117,17 @@ contract SablierV2LockupDynamic is
             startTime: lockupStream.startTime,
             wasCanceled: lockupStream.wasCanceled
         });
+    }
+
+    /// @inheritdoc ISablierV2LockupDynamic
+    function getTimestamps(uint256 streamId)
+        external
+        view
+        override
+        notNull(streamId)
+        returns (LockupDynamic.Timestamps memory timestamps)
+    {
+        timestamps = LockupDynamic.Timestamps({ start: _streams[streamId].startTime, end: _streams[streamId].endTime });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -372,7 +372,7 @@ contract SablierV2LockupDynamic is
             cancelable: params.cancelable,
             transferable: params.transferable,
             segments: params.segments,
-            range: LockupDynamic.Range({ start: stream.startTime, end: stream.endTime }),
+            timestamps: LockupDynamic.Timestamps({ start: stream.startTime, end: stream.endTime }),
             broker: params.broker.account
         });
     }
