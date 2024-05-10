@@ -221,7 +221,7 @@ contract OpenEndedHandler is BaseHandler {
         openEndedStore.updateStreamDepositedAmountsSum(depositAmount);
     }
 
-    function withdraw(
+    function withdrawAt(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         address to,
@@ -260,7 +260,7 @@ contract OpenEndedHandler is BaseHandler {
         uint128 withdrawAmount = openEnded.withdrawableAmountOf(currentStreamId, time);
 
         // Withdraw from the stream.
-        openEnded.withdraw({ streamId: currentStreamId, to: to, time: time });
+        openEnded.withdrawAt({ streamId: currentStreamId, to: to, time: time });
 
         // Store the extracted amount.
         openEndedStore.updateStreamExtractedAmountsSum(withdrawAmount);

@@ -322,9 +322,9 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function withdraw(uint256 streamId, address to, uint40 time) external override {
+    function withdrawAt(uint256 streamId, address to, uint40 time) external override {
         // Checks, Effects and Interactions: make the withdrawal.
-        _withdraw(streamId, to, time);
+        _withdrawAt(streamId, to, time);
     }
 
     /// @inheritdoc ISablierV2OpenEnded
@@ -339,14 +339,14 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
         // Iterate over the provided array of stream IDs, and withdraw from each stream to the recipient.
         for (uint256 i = 0; i < streamIdsCount; ++i) {
             // Checks, Effects and Interactions: check the parameters and make the withdrawal.
-            _withdraw({ streamId: streamIds[i], to: _streams[streamIds[i]].recipient, time: times[i] });
+            _withdrawAt({ streamId: streamIds[i], to: _streams[streamIds[i]].recipient, time: times[i] });
         }
     }
 
     /// @inheritdoc ISablierV2OpenEnded
     function withdrawMax(uint256 streamId, address to) external override {
         // Checks, Effects and Interactions: make the withdrawal.
-        _withdraw(streamId, to, uint40(block.timestamp));
+        _withdrawAt(streamId, to, uint40(block.timestamp));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -687,7 +687,7 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _withdraw(
+    function _withdrawAt(
         uint256 streamId,
         address to,
         uint40 time

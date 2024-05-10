@@ -368,7 +368,7 @@ interface ISablierV2OpenEnded is ISablierV2OpenEndedState {
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn assets.
     /// @param time The Unix timestamp for the streamed amount calculation.
-    function withdraw(uint256 streamId, address to, uint40 time) external;
+    function withdrawAt(uint256 streamId, address to, uint40 time) external;
 
     /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.
     ///
