@@ -17,6 +17,7 @@
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std#v1.8.1",
     "prettier": "3.0.0",
+    "solady": "^0.0.192",
     "solhint": "^4.0.0"
   },
   "files": [

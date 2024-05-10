@@ -65,7 +65,11 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        openEnded = new SablierV2OpenEnded();
+        if (!isTestOptimizedProfile()) {
+            openEnded = new SablierV2OpenEnded();
+        } else {
+            openEnded = deployOptimizedOpenEnded();
+        }
 
         users.sender = createUser("sender");
         users.recipient = createUser("recipient");
@@ -89,6 +93,11 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
         dai.approve({ spender: address(openEnded), value: type(uint256).max });
         usdt.approve({ spender: address(openEnded), value: type(uint256).max });
         return user;
+    }
+
+    /// @dev Deploys {SablierV2OpenEnded} from an optimized source compiled with `--via-ir`.
+    function deployOptimizedOpenEnded() internal returns (SablierV2OpenEnded) {
+        return SablierV2OpenEnded(deployCode("out-optimized/SablierV2OpenEnded.sol/SablierV2OpenEnded.json"));
     }
 
     function labelConctracts() internal {
