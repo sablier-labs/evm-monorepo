@@ -17,16 +17,16 @@ contract Cancel_Integration_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(ISablierV2OpenEnded.cancel, (defaultStreamId));
-        _test_RevertWhen_DelegateCall(callData);
+        expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        _test_RevertGiven_Null();
+        expectRevertNull();
         openEnded.cancel(nullStreamId);
     }
 
     function test_RevertGiven_Canceled() external whenNotDelegateCalled givenNotNull {
-        _test_RevertGiven_Canceled();
+        expectRevertCanceled();
         openEnded.cancel(defaultStreamId);
     }
 
@@ -44,19 +44,16 @@ contract Cancel_Integration_Test is Integration_Test {
         openEnded.cancel(defaultStreamId);
     }
 
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty(address maliciousThirdParty)
+    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
         external
         whenNotDelegateCalled
         givenNotNull
         givenNotCanceled
         whenCallerUnauthorized
     {
-        vm.assume(maliciousThirdParty != users.sender && maliciousThirdParty != users.recipient);
-        resetPrank({ msgSender: maliciousThirdParty });
+        resetPrank({ msgSender: users.eve });
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.SablierV2OpenEnded_Unauthorized.selector, defaultStreamId, maliciousThirdParty
-            )
+            abi.encodeWithSelector(Errors.SablierV2OpenEnded_Unauthorized.selector, defaultStreamId, users.eve)
         );
         openEnded.cancel(defaultStreamId);
     }

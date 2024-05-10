@@ -17,18 +17,18 @@ library Errors {
                                  SABLIER-V2-OpenEnded
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when trying to set the rate per second of a stream to zero.
-    error SablierV2OpenEnded_RatePerSecondZero();
-
-    /// @notice Thrown when trying to change the rate per second with the same rate per second.
-    error SablierV2OpenEnded_RatePerSecondNotDifferent(uint128 ratePerSecond);
+    /// @notice Thrown when trying to create multiple streams and the number of senders, recipients and rates per second
+    /// does not match.
+    error SablierV2OpenEnded_CreateMultipleArrayCountsNotEqual(
+        uint256 recipientsCount, uint256 sendersCount, uint256 ratesPerSecondCount
+    );
 
     /// @notice Thrown when trying to create a OpenEnded stream with a zero deposit amount.
     error SablierV2OpenEnded_DepositAmountZero();
 
-    /// @notice Thrown when trying to deposit on multiple streams and the number of stream ids does
+    /// @notice Thrown when trying to deposit on multiple streams and the number of stream IDs does
     /// not match the number of deposit amounts.
-    error SablierV2OpenEnded_DepositArrayCountsNotEqual(uint256 streamIdsCount, uint256 amountsCount);
+    error SablierV2OpenEnded_DepositArrayCountsNotEqual(uint256 streamIdsCount, uint256 depositAmountsCount);
 
     /// @notice Thrown when trying to create a stream with an asset with no decimals.
     error SablierV2OpenEnded_InvalidAssetDecimals(IERC20 asset);
@@ -36,11 +36,17 @@ library Errors {
     /// @notice Thrown when an unexpected error occurs during the calculation of an amount.
     error SablierV2OpenEnded_InvalidCalculation(uint256 streamId, uint128 balance, uint128 amount);
 
-    /// @notice Thrown when the id references a null stream.
+    /// @notice Thrown when the ID references a null stream.
     error SablierV2OpenEnded_Null(uint256 streamId);
 
     /// @notice Thrown when trying to refund an amount greater than the refundable amount.
-    error SablierV2OpenEnded_Overrefund(uint256 streamId, uint128 amount, uint128 refundableAmount);
+    error SablierV2OpenEnded_Overrefund(uint256 streamId, uint128 refundAmount, uint128 refundableAmount);
+
+    /// @notice Thrown when trying to change the rate per second with the same rate per second.
+    error SablierV2OpenEnded_RatePerSecondNotDifferent(uint128 ratePerSecond);
+
+    /// @notice Thrown when trying to set the rate per second of a stream to zero.
+    error SablierV2OpenEnded_RatePerSecondZero();
 
     /// @notice Thrown when trying to create a OpenEnded stream with the recipient as the zero address.
     error SablierV2OpenEnded_RecipientZeroAddress();
@@ -69,9 +75,13 @@ library Errors {
     /// @notice Thrown when trying to withdraw assets with a withdrawal time not greater than `lastTimeUpdate`.
     error SablierV2OpenEnded_WithdrawalTimeNotGreaterThanLastUpdate(uint40 time, uint40 lastUpdate);
 
-    /// @notice Thrown when trying to withdraw to the zero address.
-    error SablierV2OpenEnded_WithdrawToZeroAddress();
-
     /// @notice Thrown when trying to withdraw but the stream balance is zero.
     error SablierV2OpenEnded_WithdrawBalanceZero(uint256 streamId);
+
+    /// @notice Thrown when trying to withdraw from multiple streams and the number of stream IDs does
+    /// not match the number of withdraw times.
+    error SablierV2OpenEnded_WithdrawMultipleArrayCountsNotEqual(uint256 streamIdCount, uint256 timesCount);
+
+    /// @notice Thrown when trying to withdraw to the zero address.
+    error SablierV2OpenEnded_WithdrawToZeroAddress();
 }

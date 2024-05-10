@@ -9,12 +9,12 @@ contract WithdrawableAmountOf_Integration_Test is Integration_Test {
     }
 
     function test_RevertGiven_Null() external {
-        _test_RevertGiven_Null();
+        expectRevertNull();
         openEnded.withdrawableAmountOf(nullStreamId);
     }
 
     function test_RevertGiven_Canceled() external givenNotNull {
-        _test_RevertGiven_Canceled();
+        expectRevertCanceled();
         openEnded.withdrawableAmountOf(defaultStreamId);
     }
 

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// solhint-disable no-console
 pragma solidity >=0.8.22;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
@@ -57,7 +58,7 @@ abstract contract BaseScript is Script {
         string memory json = vm.readFile("package.json");
         string memory version = json.readString(".version");
         string memory create2Salt = string.concat("ChainID ", chainId, ", Version ", version);
-        console2.log("The CREATE2 salt is \"%s\"", create2Salt);
+        console2.log("The CREATE2 salt is %s", create2Salt);
         return bytes32(abi.encodePacked(create2Salt));
     }
 }

@@ -15,16 +15,16 @@ contract Deposit_Integration_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(ISablierV2OpenEnded.deposit, (defaultStreamId, DEPOSIT_AMOUNT));
-        _test_RevertWhen_DelegateCall(callData);
+        expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        _test_RevertGiven_Null();
+        expectRevertNull();
         openEnded.deposit(nullStreamId, DEPOSIT_AMOUNT);
     }
 
     function test_RevertGiven_Canceled() external whenNotDelegateCalled givenNotNull {
-        _test_RevertGiven_Canceled();
+        expectRevertCanceled();
         openEnded.deposit(defaultStreamId, DEPOSIT_AMOUNT);
     }
 
@@ -57,7 +57,12 @@ contract Deposit_Integration_Test is Integration_Test {
         });
 
         vm.expectEmit({ emitter: address(openEnded) });
-        emit DepositOpenEndedStream({ streamId: streamId, funder: users.sender, asset: asset, amount: DEPOSIT_AMOUNT });
+        emit DepositOpenEndedStream({
+            streamId: streamId,
+            funder: users.sender,
+            asset: asset,
+            depositAmount: DEPOSIT_AMOUNT
+        });
 
         expectCallToTransferFrom({
             asset: asset,

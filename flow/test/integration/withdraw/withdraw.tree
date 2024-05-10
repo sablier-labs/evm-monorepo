@@ -23,9 +23,9 @@ withdraw.t.sol
                   ├── when the withdrawal time is in the future
                   │  └── it should revert
                   └── when the withdrawal time is not in the future
-                     ├── when the balance is zero
+                     ├── given the balance is zero
                      │  └── it should revert
-                     └── when the balance is not zero
+                     └── given the balance is not zero
                         ├── when the caller is not the recipient
                         │  ├── when the caller is the sender
                         │  │  └── it should make the withdrawal

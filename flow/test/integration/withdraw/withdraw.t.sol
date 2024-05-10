@@ -20,16 +20,16 @@ contract Withdraw_Integration_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2OpenEnded.withdraw, (defaultStreamId, users.recipient, WITHDRAW_TIME));
-        _test_RevertWhen_DelegateCall(callData);
+        expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        _test_RevertGiven_Null();
+        expectRevertNull();
         openEnded.withdraw({ streamId: nullStreamId, to: users.recipient, time: WITHDRAW_TIME });
     }
 
     function test_RevertGiven_Canceled() external whenNotDelegateCalled givenNotNull {
-        _test_RevertGiven_Canceled();
+        expectRevertCanceled();
         openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
     }
 
@@ -120,7 +120,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, time: futureTime });
     }
 
-    function test_RevertWhen_BalanceZero()
+    function test_RevertGiven_BalanceZero()
         external
         whenNotDelegateCalled
         givenNotNull
@@ -147,6 +147,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         whenWithdrawalAddressIsRecipient
         whenWithdrawalTimeGreaterThanLastUpdate
         whenWithdrawalTimeNotInTheFuture
+        givenBalanceNotZero
     {
         openEnded.withdraw({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
 
@@ -168,6 +169,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         whenWithdrawalAddressIsRecipient
         whenWithdrawalTimeGreaterThanLastUpdate
         whenWithdrawalTimeNotInTheFuture
+        givenBalanceNotZero
     {
         address unknownCaller = address(0xCAFE);
         resetPrank({ msgSender: unknownCaller });
@@ -192,6 +194,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         whenWithdrawalAddressIsRecipient
         whenWithdrawalTimeGreaterThanLastUpdate
         whenWithdrawalTimeNotInTheFuture
+        givenBalanceNotZero
         whenCallerRecipient
     {
         // Set the timestamp to 1 month ago to create the stream with the same `lastTimeUpdate` as `defaultStreamId`.
@@ -212,6 +215,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         whenWithdrawalAddressIsRecipient
         whenWithdrawalTimeGreaterThanLastUpdate
         whenWithdrawalTimeNotInTheFuture
+        givenBalanceNotZero
         whenCallerRecipient
     {
         _test_Withdraw(defaultStreamId, dai);
@@ -236,7 +240,7 @@ contract Withdraw_Integration_Test is Integration_Test {
             streamId: streamId,
             to: users.recipient,
             asset: asset,
-            amount: WITHDRAW_AMOUNT
+            withdrawAmount: WITHDRAW_AMOUNT
         });
 
         expectCallToTransfer({

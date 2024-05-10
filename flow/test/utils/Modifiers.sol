@@ -39,6 +39,14 @@ abstract contract Modifiers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                  CANCEL-MULTIPLE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier whenArrayCountNotZero() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                        CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -51,6 +59,18 @@ abstract contract Modifiers {
     }
 
     modifier whenAssetContract() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  CREATE-MULTIPLE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier whenArrayCountsNotEqual() {
+        _;
+    }
+
+    modifier whenArrayCountsEqual() {
         _;
     }
 
@@ -86,11 +106,15 @@ abstract contract Modifiers {
                                       WITHDRAW
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenToNonZeroAddress() {
+    modifier givenBalanceNotZero() {
         _;
     }
 
     modifier whenCallerRecipient() {
+        _;
+    }
+
+    modifier whenToNonZeroAddress() {
         _;
     }
 

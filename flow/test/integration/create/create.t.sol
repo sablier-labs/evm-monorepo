@@ -17,7 +17,7 @@ contract Create_Integration_Test is Integration_Test {
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
             abi.encodeCall(ISablierV2OpenEnded.create, (users.sender, users.recipient, RATE_PER_SECOND, dai));
-        _test_RevertWhen_DelegateCall(callData);
+        expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertWhen_SenderZeroAddress() external whenNotDelegateCalled {

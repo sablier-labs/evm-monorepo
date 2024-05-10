@@ -17,6 +17,7 @@ import { Utils } from "./utils/Utils.sol";
 struct Users {
     address sender;
     address recipient;
+    address eve;
 }
 
 abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
@@ -28,7 +29,8 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
 
     uint128 public constant RATE_PER_SECOND = 0.001e18; // 86.4 daily
     uint128 public constant DEPOSIT_AMOUNT = 50_000e18;
-    uint40 public immutable ONE_MONTH = 1 days * 30; // "30/360" convention
+    uint40 internal constant MAY_1_2024 = 1_714_518_000;
+    uint40 public immutable ONE_MONTH = 30 days; // "30/360" convention
     uint128 public constant ONE_MONTH_STREAMED_AMOUNT = 2592e18; // 86.4 * 30
     uint128 public constant ONE_MONTH_REFUNDABLE_AMOUNT = DEPOSIT_AMOUNT - ONE_MONTH_STREAMED_AMOUNT;
     uint128 public constant REFUND_AMOUNT = 10_000e18;
@@ -51,6 +53,9 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor() {
+        // Warp to May 1, 2024 at 00:00 GMT to provide a more realistic testing environment.
+        vm.warp({ newTimestamp: MAY_1_2024 });
+
         WARP_ONE_MONTH = uint40(block.timestamp + ONE_MONTH);
         WITHDRAW_TIME = uint40(block.timestamp) + 2_500_000;
     }
@@ -64,6 +69,7 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
 
         users.sender = createUser("sender");
         users.recipient = createUser("recipient");
+        users.eve = createUser("eve");
 
         labelConctracts();
 
