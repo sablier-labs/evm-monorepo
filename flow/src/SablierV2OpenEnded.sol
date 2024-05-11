@@ -328,7 +328,14 @@ contract SablierV2OpenEnded is ISablierV2OpenEnded, NoDelegateCall, SablierV2Ope
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function withdrawMultiple(uint256[] calldata streamIds, uint40[] calldata times) external override noDelegateCall {
+    function withdrawAtMultiple(
+        uint256[] calldata streamIds,
+        uint40[] calldata times
+    )
+        external
+        override
+        noDelegateCall
+    {
         // Check: there is an equal number of `streamIds` and `amounts`.
         uint256 streamIdsCount = streamIds.length;
         uint256 timesCount = times.length;

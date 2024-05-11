@@ -393,5 +393,5 @@ interface ISablierV2OpenEnded is ISablierV2OpenEndedState {
     ///
     /// @param streamIds The IDs of the streams to withdraw from.
     /// @param times The time references to calculate the streamed amount for each stream.
-    function withdrawMultiple(uint256[] calldata streamIds, uint40[] calldata times) external;
+    function withdrawAtMultiple(uint256[] calldata streamIds, uint40[] calldata times) external;
 }
