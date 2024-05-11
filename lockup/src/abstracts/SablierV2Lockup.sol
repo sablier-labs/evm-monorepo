@@ -509,35 +509,6 @@ abstract contract SablierV2Lockup is
         return _calculateStreamedAmount(streamId);
     }
 
-    /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable, and emits an
-    /// ERC-4906 event.
-    /// @dev There are two cases when the transferable flag is ignored:
-    /// - If the current owner is 0, then the update is a mint and is allowed.
-    /// - If `to` is 0, then the update is a burn and is also allowed.
-    /// @param to The address of the new recipient of the stream.
-    /// @param streamId ID of the stream to update.
-    /// @param auth Optional parameter. If the value is not zero, the overridden implementation will check that
-    /// `auth` is either the recipient of the stream, or an approved third party.
-    /// @return The original recipient of the `streamId` before the update.
-    function _update(
-        address to,
-        uint256 streamId,
-        address auth
-    )
-        internal
-        override
-        updateMetadata(streamId)
-        returns (address)
-    {
-        address from = _ownerOf(streamId);
-
-        if (from != address(0) && to != address(0) && !_streams[streamId].isTransferable) {
-            revert Errors.SablierV2Lockup_NotTransferable(streamId);
-        }
-
-        return super._update(to, streamId, auth);
-    }
-
     /// @dev See the documentation for the user-facing functions that call this internal function.
     function _withdrawableAmountOf(uint256 streamId) internal view returns (uint128) {
         return _streamedAmountOf(streamId) - _streams[streamId].amounts.withdrawn;
@@ -625,6 +596,35 @@ abstract contract SablierV2Lockup is
 
         // Effect: renounce the stream by making it not cancelable.
         _streams[streamId].isCancelable = false;
+    }
+
+    /// @notice Overrides the {ERC-721._update} function to check that the stream is transferable, and emits an
+    /// ERC-4906 event.
+    /// @dev There are two cases when the transferable flag is ignored:
+    /// - If the current owner is 0, then the update is a mint and is allowed.
+    /// - If `to` is 0, then the update is a burn and is also allowed.
+    /// @param to The address of the new recipient of the stream.
+    /// @param streamId ID of the stream to update.
+    /// @param auth Optional parameter. If the value is not zero, the overridden implementation will check that
+    /// `auth` is either the recipient of the stream, or an approved third party.
+    /// @return The original recipient of the `streamId` before the update.
+    function _update(
+        address to,
+        uint256 streamId,
+        address auth
+    )
+        internal
+        override
+        updateMetadata(streamId)
+        returns (address)
+    {
+        address from = _ownerOf(streamId);
+
+        if (from != address(0) && to != address(0) && !_streams[streamId].isTransferable) {
+            revert Errors.SablierV2Lockup_NotTransferable(streamId);
+        }
+
+        return super._update(to, streamId, auth);
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
