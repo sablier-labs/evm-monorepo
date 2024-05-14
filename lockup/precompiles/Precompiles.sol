@@ -18,8 +18,8 @@ contract Precompiles {
                                      CONSTANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint256 internal constant MAX_SEGMENT_COUNT = 500;
-    uint256 internal constant MAX_TRANCHE_COUNT = 500;
+    uint256 public constant MAX_SEGMENT_COUNT = 500;
+    uint256 public constant MAX_TRANCHE_COUNT = 500;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      BYTECODES

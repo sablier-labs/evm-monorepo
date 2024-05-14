@@ -13,8 +13,8 @@ contract BaseScript is Script, Sphinx {
     using Strings for uint256;
     using stdJson for string;
 
-    /// @dev The Avalanche chain ID.
-    uint256 internal constant AVALANCHE_CHAIN_ID = 43_114;
+    /// @dev The default value for `maxSegmentCount` and `maxTrancheCount`.
+    uint256 internal constant DEFAULT_MAX_COUNT = 500;
 
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
@@ -37,6 +37,12 @@ contract BaseScript is Script, Sphinx {
     /// @dev Used to derive the broadcaster's address if $EOA is not defined.
     string internal mnemonic;
 
+    /// @dev Maximum segment count mapped by the chain Id.
+    mapping(uint256 chainId => uint256 count) internal segmentCountMap;
+
+    /// @dev Maximum tranche count mapped by the chain Id.
+    mapping(uint256 chainId => uint256 count) internal trancheCountMap;
+
     /// @dev The project name for the Sphinx plugin.
     string internal sphinxProjectName;
 
@@ -58,13 +64,15 @@ contract BaseScript is Script, Sphinx {
         }
         sphinxProjectName = vm.envOr({ name: "SPHINX_PROJECT_NAME", defaultValue: TEST_SPHINX_PROJECT_NAME });
 
-        // Avalanche has a lower block gas limit than most other chains.
-        if (block.chainid == AVALANCHE_CHAIN_ID) {
-            maxSegmentCount = 300;
-            maxTrancheCount = 298;
-        } else {
-            maxSegmentCount = 500;
-            maxTrancheCount = 500;
+        // Populate the segment and tranche count map.
+        populateSegmentAndTranchCountMap();
+
+        // If there is no maximum value set for a specific chain, set a default value.
+        if (segmentCountMap[block.chainid] == 0) {
+            maxSegmentCount = DEFAULT_MAX_COUNT;
+        }
+        if (trancheCountMap[block.chainid] == 0) {
+            maxTrancheCount = DEFAULT_MAX_COUNT;
         }
     }
 
@@ -101,5 +109,52 @@ contract BaseScript is Script, Sphinx {
         string memory create2Salt = string.concat("ChainID ", chainId, ", Version ", version);
         console2.log("The CREATE2 salt is \"%s\"", create2Salt);
         return bytes32(abi.encodePacked(create2Salt));
+    }
+
+    /// @dev Populates the segment & tranche count map. Values are auto updated by the `update-script-counts.sh` script.
+    function populateSegmentAndTranchCountMap() internal {
+        // Arbitrum chain ID
+        segmentCountMap[42_161] = 1170;
+        trancheCountMap[42_161] = 1210;
+
+        // Avalanche chain ID.
+        segmentCountMap[43_114] = 530;
+        trancheCountMap[43_114] = 540;
+
+        // Base chain ID.
+        segmentCountMap[8453] = 2200;
+        trancheCountMap[8453] = 2290;
+
+        // Blast chain ID.
+        segmentCountMap[238] = 1100;
+        trancheCountMap[238] = 1130;
+
+        // BSC chain ID.
+        segmentCountMap[56] = 4870;
+        trancheCountMap[56] = 5180;
+
+        // Ethereum chain ID.
+        segmentCountMap[1] = 1100;
+        trancheCountMap[1] = 1130;
+
+        // Gnosis chain ID.
+        segmentCountMap[100] = 610;
+        trancheCountMap[100] = 620;
+
+        // Optimism chain ID.
+        segmentCountMap[10] = 1100;
+        trancheCountMap[10] = 1130;
+
+        // Polygon chain ID.
+        segmentCountMap[137] = 1100;
+        trancheCountMap[137] = 1130;
+
+        // Scroll chain ID.
+        segmentCountMap[534_352] = 340;
+        trancheCountMap[534_352] = 350;
+
+        // Sepolia chain ID.
+        segmentCountMap[11_155_111] = 1100;
+        trancheCountMap[11_155_111] = 1130;
     }
 }

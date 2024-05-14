@@ -25,7 +25,7 @@ contract Precompiles_Test is Base_Test {
     function test_DeployLockupDynamic() external onlyTestOptimizedProfile {
         address actualLockupDynamic = address(precompiles.deployLockupDynamic(users.admin, nftDescriptor));
         address expectedLockupDynamic =
-            address(deployOptimizedLockupDynamic(users.admin, nftDescriptor, defaults.MAX_SEGMENT_COUNT()));
+            address(deployOptimizedLockupDynamic(users.admin, nftDescriptor, precompiles.MAX_SEGMENT_COUNT()));
         bytes memory expectedLockupDynamicCode =
             adjustBytecode(expectedLockupDynamic.code, expectedLockupDynamic, actualLockupDynamic);
         assertEq(actualLockupDynamic.code, expectedLockupDynamicCode, "bytecodes mismatch");
@@ -42,7 +42,7 @@ contract Precompiles_Test is Base_Test {
     function test_DeployLockupTranched() external onlyTestOptimizedProfile {
         address actualLockupTranched = address(precompiles.deployLockupTranched(users.admin, nftDescriptor));
         address expectedLockupTranched =
-            address(deployOptimizedLockupTranched(users.admin, nftDescriptor, defaults.MAX_TRANCHE_COUNT()));
+            address(deployOptimizedLockupTranched(users.admin, nftDescriptor, precompiles.MAX_TRANCHE_COUNT()));
         bytes memory expectedLockupTranchedCode =
             adjustBytecode(expectedLockupTranched.code, expectedLockupTranched, actualLockupTranched);
         assertEq(actualLockupTranched.code, expectedLockupTranchedCode, "bytecodes mismatch");
@@ -67,7 +67,7 @@ contract Precompiles_Test is Base_Test {
             ISablierV2LockupLinear expectedLockupLinear,
             ISablierV2LockupTranched expectedLockupTranched,
             ISablierV2NFTDescriptor expectedNFTDescriptor
-        ) = deployOptimizedCore(users.admin, defaults.MAX_SEGMENT_COUNT(), defaults.MAX_TRANCHE_COUNT());
+        ) = deployOptimizedCore(users.admin, precompiles.MAX_SEGMENT_COUNT(), precompiles.MAX_TRANCHE_COUNT());
 
         bytes memory expectedLockupDynamicCode = adjustBytecode(
             address(expectedLockupDynamic).code, address(expectedLockupDynamic), address(actualLockupDynamic)
