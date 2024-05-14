@@ -10,36 +10,13 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev Reverts if the contract has already been deployed.
 contract DeployDeterministicLockupTranched is BaseScript {
     /// @dev Deploy via Forge.
-    function runBroadcast(
+    function run(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor
     )
         public
         virtual
         broadcast
-        returns (SablierV2LockupTranched lockupTranched)
-    {
-        lockupTranched = _run(initialAdmin, initialNFTDescriptor);
-    }
-
-    /// @dev Deploy via Sphinx.
-    function runSphinx(
-        address initialAdmin,
-        ISablierV2NFTDescriptor initialNFTDescriptor
-    )
-        public
-        virtual
-        sphinx
-        returns (SablierV2LockupTranched lockupTranched)
-    {
-        lockupTranched = _run(initialAdmin, initialNFTDescriptor);
-    }
-
-    function _run(
-        address initialAdmin,
-        ISablierV2NFTDescriptor initialNFTDescriptor
-    )
-        internal
         returns (SablierV2LockupTranched lockupTranched)
     {
         bytes32 salt = constructCreate2Salt();

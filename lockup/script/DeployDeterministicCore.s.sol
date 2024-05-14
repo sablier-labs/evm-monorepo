@@ -18,37 +18,10 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev Reverts if any contract has already been deployed.
 contract DeployDeterministicCore is BaseScript {
     /// @dev Deploy via Forge.
-    function runBroadcast(address initialAdmin)
+    function run(address initialAdmin)
         public
         virtual
         broadcast
-        returns (
-            SablierV2LockupDynamic lockupDynamic,
-            SablierV2LockupLinear lockupLinear,
-            SablierV2LockupTranched lockupTranched,
-            SablierV2NFTDescriptor nftDescriptor
-        )
-    {
-        (lockupDynamic, lockupLinear, lockupTranched, nftDescriptor) = _run(initialAdmin);
-    }
-
-    /// @dev Deploy via Sphinx.
-    function runSphinx(address initialAdmin)
-        public
-        virtual
-        sphinx
-        returns (
-            SablierV2LockupDynamic lockupDynamic,
-            SablierV2LockupLinear lockupLinear,
-            SablierV2LockupTranched lockupTranched,
-            SablierV2NFTDescriptor nftDescriptor
-        )
-    {
-        (lockupDynamic, lockupLinear, lockupTranched, nftDescriptor) = _run(initialAdmin);
-    }
-
-    function _run(address initialAdmin)
-        internal
         returns (
             SablierV2LockupDynamic lockupDynamic,
             SablierV2LockupLinear lockupLinear,

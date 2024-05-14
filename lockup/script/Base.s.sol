@@ -3,13 +3,12 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { Sphinx } from "@sphinx-labs/contracts/SphinxPlugin.sol";
 
 import { console2 } from "forge-std/src/console2.sol";
 import { Script } from "forge-std/src/Script.sol";
 import { stdJson } from "forge-std/src/StdJson.sol";
 
-contract BaseScript is Script, Sphinx {
+contract BaseScript is Script {
     using Strings for uint256;
     using stdJson for string;
 
@@ -18,9 +17,6 @@ contract BaseScript is Script, Sphinx {
 
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
-
-    /// @dev The project name for the Sphinx plugin.
-    string internal constant TEST_SPHINX_PROJECT_NAME = "test-test";
 
     /// @dev Needed for the deterministic deployments.
     bytes32 internal constant ZERO_SALT = bytes32(0);
@@ -43,15 +39,11 @@ contract BaseScript is Script, Sphinx {
     /// @dev Maximum tranche count mapped by the chain Id.
     mapping(uint256 chainId => uint256 count) internal trancheCountMap;
 
-    /// @dev The project name for the Sphinx plugin.
-    string internal sphinxProjectName;
-
     /// @dev Initializes the transaction broadcaster like this:
     ///
     /// - If $EOA is defined, use it.
     /// - Otherwise, derive the broadcaster address from $MNEMONIC.
     /// - If $MNEMONIC is not defined, default to a test mnemonic.
-    /// - If $SPHINX_PROJECT_NAME is not defined, default to a test project name.
     ///
     /// The use case for $EOA is to specify the broadcaster key and its address via the command line.
     constructor() {
@@ -62,7 +54,6 @@ contract BaseScript is Script, Sphinx {
             mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
-        sphinxProjectName = vm.envOr({ name: "SPHINX_PROJECT_NAME", defaultValue: TEST_SPHINX_PROJECT_NAME });
 
         // Populate the segment and tranche count map.
         populateSegmentAndTranchCountMap();
@@ -80,20 +71,6 @@ contract BaseScript is Script, Sphinx {
         vm.startBroadcast(broadcaster);
         _;
         vm.stopBroadcast();
-    }
-
-    /// @dev Configures the Sphinx plugin to manage the deployment of the contracts.
-    /// Refer to https://github.com/sphinx-labs/sphinx/tree/main/docs.
-    ///
-    /// CLI example:
-    /// bun sphinx propose script/DeployCore.s.sol --networks testnets --sig "runSphinx(address)" $ADMIN
-    function configureSphinx() public override {
-        sphinxConfig.mainnets = ["arbitrum", "avalanche", "base", "bnb", "gnosis", "ethereum", "optimism", "polygon"];
-        sphinxConfig.orgId = vm.envOr({ name: "SPHINX_ORG_ID", defaultValue: TEST_MNEMONIC });
-        sphinxConfig.owners = [broadcaster];
-        sphinxConfig.projectName = sphinxProjectName;
-        sphinxConfig.testnets = ["sepolia"];
-        sphinxConfig.threshold = 1;
     }
 
     /// @dev The presence of the salt instructs Forge to deploy contracts via this deterministic CREATE2 factory:

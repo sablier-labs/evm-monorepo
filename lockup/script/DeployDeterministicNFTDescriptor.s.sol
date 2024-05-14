@@ -9,16 +9,7 @@ import { BaseScript } from "./Base.s.sol";
 /// @dev Reverts if the contract has already been deployed.
 contract DeployDeterministicNFTDescriptor is BaseScript {
     /// @dev Deploy via Forge.
-    function runBroadcast() public virtual broadcast returns (SablierV2NFTDescriptor nftDescriptor) {
-        nftDescriptor = _run();
-    }
-
-    /// @dev Deploy via Sphinx.
-    function runSphinx() public virtual sphinx returns (SablierV2NFTDescriptor nftDescriptor) {
-        nftDescriptor = _run();
-    }
-
-    function _run() internal returns (SablierV2NFTDescriptor nftDescriptor) {
+    function run() public virtual broadcast returns (SablierV2NFTDescriptor nftDescriptor) {
         bytes32 salt = constructCreate2Salt();
         nftDescriptor = new SablierV2NFTDescriptor{ salt: salt }();
     }

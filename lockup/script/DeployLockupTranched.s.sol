@@ -8,36 +8,13 @@ import { BaseScript } from "./Base.s.sol";
 
 contract DeployLockupTranched is BaseScript {
     /// @dev Deploy via Forge.
-    function runBroadcast(
+    function run(
         address initialAdmin,
         ISablierV2NFTDescriptor initialNFTDescriptor
     )
         public
         virtual
         broadcast
-        returns (SablierV2LockupTranched lockupTranched)
-    {
-        lockupTranched = _run(initialAdmin, initialNFTDescriptor);
-    }
-
-    /// @dev Deploy via Sphinx.
-    function runSphinx(
-        address initialAdmin,
-        ISablierV2NFTDescriptor initialNFTDescriptor
-    )
-        public
-        virtual
-        sphinx
-        returns (SablierV2LockupTranched lockupTranched)
-    {
-        lockupTranched = _run(initialAdmin, initialNFTDescriptor);
-    }
-
-    function _run(
-        address initialAdmin,
-        ISablierV2NFTDescriptor initialNFTDescriptor
-    )
-        internal
         returns (SablierV2LockupTranched lockupTranched)
     {
         lockupTranched = new SablierV2LockupTranched(initialAdmin, initialNFTDescriptor, maxTrancheCount);

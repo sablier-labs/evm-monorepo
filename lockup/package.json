@@ -15,7 +15,6 @@
     "@prb/math": "github:PaulRBerg/prb-math#16419e5"
   },
   "devDependencies": {
-    "@sphinx-labs/plugins": "^0.31.9",
     "forge-std": "github:foundry-rs/forge-std#v1.8.1",
     "prettier": "^2.8.8",
     "solady": "0.0.129",
