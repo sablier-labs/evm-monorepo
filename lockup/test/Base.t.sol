@@ -124,7 +124,7 @@ abstract contract Base_Test is Assertions, Calculations, Constants, DeployOptimi
     /// deployer's nonce, which would in turn lead to different addresses (recall that the addresses
     /// for contracts deployed via `CREATE` are based on the caller-and-nonce-hash).
     function deployCoreConditionally() internal {
-        if (!isTestOptimizedProfile() && !isBenchmarkProfile()) {
+        if (!isBenchmarkProfile() && !isTestOptimizedProfile()) {
             nftDescriptor = new SablierV2NFTDescriptor();
             lockupDynamic = new SablierV2LockupDynamic(users.admin, nftDescriptor, defaults.MAX_SEGMENT_COUNT());
             lockupLinear = new SablierV2LockupLinear(users.admin, nftDescriptor);
