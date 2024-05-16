@@ -2,30 +2,30 @@
 
 | Implementation                                             | Gas Usage |
 | ---------------------------------------------------------- | --------- |
-| `burn`                                                     | 15704     |
-| `cancel`                                                   | 71840     |
-| `renounce`                                                 | 41020     |
-| `createWithDurations` (2 segments) (Broker fee set)        | 199085    |
-| `createWithDurations` (2 segments) (Broker fee not set)    | 183577    |
-| `createWithTimestamps` (2 segments) (Broker fee set)       | 183277    |
-| `createWithTimestamps` (2 segments) (Broker fee not set)   | 178569    |
-| `withdraw` (2 segments) (After End Time) (by Recipient)    | 19077     |
-| `withdraw` (2 segments) (Before End Time) (by Recipient)   | 27735     |
-| `withdraw` (2 segments) (After End Time) (by Anyone)       | 13973     |
-| `withdraw` (2 segments) (Before End Time) (by Anyone)      | 27431     |
-| `createWithDurations` (10 segments) (Broker fee set)       | 390783    |
-| `createWithDurations` (10 segments) (Broker fee not set)   | 386082    |
-| `createWithTimestamps` (10 segments) (Broker fee set)      | 380798    |
-| `createWithTimestamps` (10 segments) (Broker fee not set)  | 376105    |
-| `withdraw` (10 segments) (After End Time) (by Recipient)   | 14264     |
-| `withdraw` (10 segments) (Before End Time) (by Recipient)  | 32678     |
-| `withdraw` (10 segments) (After End Time) (by Anyone)      | 13980     |
-| `withdraw` (10 segments) (Before End Time) (by Anyone)     | 32374     |
-| `createWithDurations` (100 segments) (Broker fee set)      | 2705160   |
-| `createWithDurations` (100 segments) (Broker fee not set)  | 2701423   |
-| `createWithTimestamps` (100 segments) (Broker fee set)     | 2606849   |
-| `createWithTimestamps` (100 segments) (Broker fee not set) | 2603145   |
-| `withdraw` (100 segments) (After End Time) (by Recipient)  | 14264     |
-| `withdraw` (100 segments) (Before End Time) (by Recipient) | 88561     |
-| `withdraw` (100 segments) (After End Time) (by Anyone)     | 13960     |
-| `withdraw` (100 segments) (Before End Time) (by Anyone)    | 88257     |
+| `burn`                                                     | 15675     |
+| `cancel`                                                   | 71687     |
+| `renounce`                                                 | 40893     |
+| `createWithDurations` (2 segments) (Broker fee set)        | 198964    |
+| `createWithDurations` (2 segments) (Broker fee not set)    | 183487    |
+| `createWithTimestamps` (2 segments) (Broker fee set)       | 183160    |
+| `createWithTimestamps` (2 segments) (Broker fee not set)   | 178483    |
+| `withdraw` (2 segments) (After End Time) (by Recipient)    | 19001     |
+| `withdraw` (2 segments) (Before End Time) (by Recipient)   | 27557     |
+| `withdraw` (2 segments) (After End Time) (by Anyone)       | 13904     |
+| `withdraw` (2 segments) (Before End Time) (by Anyone)      | 27260     |
+| `createWithDurations` (10 segments) (Broker fee set)       | 390614    |
+| `createWithDurations` (10 segments) (Broker fee not set)   | 385944    |
+| `createWithTimestamps` (10 segments) (Broker fee set)      | 380649    |
+| `createWithTimestamps` (10 segments) (Broker fee not set)  | 375987    |
+| `withdraw` (10 segments) (After End Time) (by Recipient)   | 14188     |
+| `withdraw` (10 segments) (Before End Time) (by Recipient)  | 32500     |
+| `withdraw` (10 segments) (After End Time) (by Anyone)      | 13911     |
+| `withdraw` (10 segments) (Before End Time) (by Anyone)     | 32203     |
+| `createWithDurations` (100 segments) (Broker fee set)      | 2704451   |
+| `createWithDurations` (100 segments) (Broker fee not set)  | 2700745   |
+| `createWithTimestamps` (100 segments) (Broker fee set)     | 2606340   |
+| `createWithTimestamps` (100 segments) (Broker fee not set) | 2602667   |
+| `withdraw` (100 segments) (After End Time) (by Recipient)  | 14188     |
+| `withdraw` (100 segments) (Before End Time) (by Recipient) | 88383     |
+| `withdraw` (100 segments) (After End Time) (by Anyone)     | 13891     |
+| `withdraw` (100 segments) (Before End Time) (by Anyone)    | 88086     |
