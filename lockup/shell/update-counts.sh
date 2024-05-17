@@ -8,13 +8,19 @@
 # Strict mode
 set -euo pipefail
 
-# Path to the Solidity file
-BASE_SCRIPT_FILE="script/Base.s.sol"
+# Path to the Base Script
+BASE_SCRIPT="script/Base.s.sol"
 
-# Compile the contracts with optimized profile
+# Compile the contracts with the optimized profile
 bun run build:optimized
 
-# Generalized function to update counts in the solidity file
+# Helper function to format chain IDs with underscores
+format_chain_id() {
+    local id=$1
+    [[ ${#id} -gt 4 ]] && echo $id | rev | sed 's/\(...\)/\1_/g' | rev | sed 's/^_//' || echo $id
+}
+
+# Generalized function to update counts
 update_counts() {
     local test_name=$1
     local map_name=$2
@@ -35,17 +41,11 @@ update_counts() {
         table+="\n$map_name,$formatted_chain_id,$count"
 
         # Update the map for each chain ID using sd
-        sd "$map_name\[$formatted_chain_id\] = [0-9_]+;" "$map_name[$formatted_chain_id] = $count;" $BASE_SCRIPT_FILE
+        sd "$map_name\[$formatted_chain_id\] = [0-9_]+;" "$map_name[$formatted_chain_id] = $count;" $BASE_SCRIPT
     done < <(echo "$output" | grep 'count:')
 
     # Print the table using the column command
     echo -e $table | column -t -s ','
-}
-
-# Helper function to format chain IDs with underscores
-format_chain_id() {
-    local id=$1
-    [[ ${#id} -gt 4 ]] && echo $id | rev | sed 's/\(...\)/\1_/g' | rev | sed 's/^_//' || echo $id
 }
 
 # Call the function with specific parameters for segments and tranches
@@ -53,6 +53,6 @@ update_counts "Segments" "segmentCountMap"
 update_counts "Tranches" "trancheCountMap"
 
 # Reformat the code with Forge
-forge fmt $BASE_SCRIPT_FILE
+forge fmt $BASE_SCRIPT
 
 printf "\n\nAll mappings updated."

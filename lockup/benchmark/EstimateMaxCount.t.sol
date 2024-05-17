@@ -28,7 +28,7 @@ contract EstimateMaxCount is Test {
         chains.push(ChainInfo({ blockGasLimit: 15_000_000, chainId: 43_114 })); // Avalanche
         chains.push(ChainInfo({ blockGasLimit: 60_000_000, chainId: 8453 })); // Base
         chains.push(ChainInfo({ blockGasLimit: 30_000_000, chainId: 238 })); // Blast
-        chains.push(ChainInfo({ blockGasLimit: 138_000_000, chainId: 56 })); // BSC
+        chains.push(ChainInfo({ blockGasLimit: 138_000_000, chainId: 56 })); // BNB
         chains.push(ChainInfo({ blockGasLimit: 30_000_000, chainId: 1 })); // Ethereum
         chains.push(ChainInfo({ blockGasLimit: 17_000_000, chainId: 100 })); // Gnosis
         chains.push(ChainInfo({ blockGasLimit: 30_000_000, chainId: 10 })); // Optimism

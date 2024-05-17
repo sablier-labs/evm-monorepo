@@ -50,9 +50,9 @@ contract BaseScript is Script {
         }
 
         // Populate the segment and tranche count map.
-        populateSegmentAndTranchCountMap();
+        populateSegmentAndTrancheCountMap();
 
-        // If there is no maximum value set for a specific chain, set a default value.
+        // If there is no maximum value set for a specific chain, use the default value.
         if (segmentCountMap[block.chainid] == 0) {
             segmentCountMap[block.chainid] = DEFAULT_MAX_COUNT;
         }
@@ -82,8 +82,8 @@ contract BaseScript is Script {
         return bytes32(abi.encodePacked(create2Salt));
     }
 
-    /// @dev Populates the segment & tranche count map. Values are auto updated by the `update-script-counts.sh` script.
-    function populateSegmentAndTranchCountMap() internal {
+    /// @dev Populates the segment & tranche count map. Values can be updated using the `update-counts.sh` script.
+    function populateSegmentAndTrancheCountMap() internal {
         // Arbitrum chain ID
         segmentCountMap[42_161] = 1170;
         trancheCountMap[42_161] = 1210;
@@ -100,7 +100,7 @@ contract BaseScript is Script {
         segmentCountMap[238] = 1100;
         trancheCountMap[238] = 1130;
 
-        // BSC chain ID.
+        // BNB chain ID.
         segmentCountMap[56] = 4870;
         trancheCountMap[56] = 5180;
 
