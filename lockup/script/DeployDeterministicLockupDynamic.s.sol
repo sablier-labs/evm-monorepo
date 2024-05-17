@@ -20,6 +20,7 @@ contract DeployDeterministicLockupDynamic is BaseScript {
         returns (SablierV2LockupDynamic lockupDynamic)
     {
         bytes32 salt = constructCreate2Salt();
-        lockupDynamic = new SablierV2LockupDynamic{ salt: salt }(initialAdmin, initialNFTDescriptor, maxSegmentCount);
+        lockupDynamic =
+            new SablierV2LockupDynamic{ salt: salt }(initialAdmin, initialNFTDescriptor, segmentCountMap[block.chainid]);
     }
 }

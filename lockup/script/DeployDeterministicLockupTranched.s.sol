@@ -20,6 +20,8 @@ contract DeployDeterministicLockupTranched is BaseScript {
         returns (SablierV2LockupTranched lockupTranched)
     {
         bytes32 salt = constructCreate2Salt();
-        lockupTranched = new SablierV2LockupTranched{ salt: salt }(initialAdmin, initialNFTDescriptor, maxTrancheCount);
+        lockupTranched = new SablierV2LockupTranched{ salt: salt }(
+            initialAdmin, initialNFTDescriptor, trancheCountMap[block.chainid]
+        );
     }
 }

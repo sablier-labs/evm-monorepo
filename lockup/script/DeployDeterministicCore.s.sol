@@ -31,8 +31,10 @@ contract DeployDeterministicCore is BaseScript {
     {
         bytes32 salt = constructCreate2Salt();
         nftDescriptor = new SablierV2NFTDescriptor{ salt: salt }();
-        lockupDynamic = new SablierV2LockupDynamic{ salt: salt }(initialAdmin, nftDescriptor, maxSegmentCount);
+        lockupDynamic =
+            new SablierV2LockupDynamic{ salt: salt }(initialAdmin, nftDescriptor, segmentCountMap[block.chainid]);
         lockupLinear = new SablierV2LockupLinear{ salt: salt }(initialAdmin, nftDescriptor);
-        lockupTranched = new SablierV2LockupTranched{ salt: salt }(initialAdmin, nftDescriptor, maxTrancheCount);
+        lockupTranched =
+            new SablierV2LockupTranched{ salt: salt }(initialAdmin, nftDescriptor, trancheCountMap[block.chainid]);
     }
 }

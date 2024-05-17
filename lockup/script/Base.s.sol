@@ -12,7 +12,7 @@ contract BaseScript is Script {
     using Strings for uint256;
     using stdJson for string;
 
-    /// @dev The default value for `maxSegmentCount` and `maxTrancheCount`.
+    /// @dev The default value for `segmentCountMap` and `trancheCountMap`.
     uint256 internal constant DEFAULT_MAX_COUNT = 500;
 
     /// @dev Included to enable compilation of the script without a $MNEMONIC environment variable.
@@ -23,12 +23,6 @@ contract BaseScript is Script {
 
     /// @dev The address of the transaction broadcaster.
     address internal broadcaster;
-
-    /// @dev The upper limit on the length of segments to ensure that transactions stay within the block gas limit.
-    uint256 internal maxSegmentCount;
-
-    /// @dev The upper limit on the length of tranches to ensure that transactions stay within the block gas limit.
-    uint256 internal maxTrancheCount;
 
     /// @dev Used to derive the broadcaster's address if $EOA is not defined.
     string internal mnemonic;
@@ -60,10 +54,10 @@ contract BaseScript is Script {
 
         // If there is no maximum value set for a specific chain, set a default value.
         if (segmentCountMap[block.chainid] == 0) {
-            maxSegmentCount = DEFAULT_MAX_COUNT;
+            segmentCountMap[block.chainid] = DEFAULT_MAX_COUNT;
         }
         if (trancheCountMap[block.chainid] == 0) {
-            maxTrancheCount = DEFAULT_MAX_COUNT;
+            trancheCountMap[block.chainid] = DEFAULT_MAX_COUNT;
         }
     }
 

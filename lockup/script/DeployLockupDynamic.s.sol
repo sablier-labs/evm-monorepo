@@ -17,6 +17,6 @@ contract DeployLockupDynamic is BaseScript {
         broadcast
         returns (SablierV2LockupDynamic lockupDynamic)
     {
-        lockupDynamic = new SablierV2LockupDynamic(initialAdmin, initialNFTDescriptor, maxSegmentCount);
+        lockupDynamic = new SablierV2LockupDynamic(initialAdmin, initialNFTDescriptor, segmentCountMap[block.chainid]);
     }
 }

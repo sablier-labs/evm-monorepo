@@ -17,6 +17,6 @@ contract DeployLockupTranched is BaseScript {
         broadcast
         returns (SablierV2LockupTranched lockupTranched)
     {
-        lockupTranched = new SablierV2LockupTranched(initialAdmin, initialNFTDescriptor, maxTrancheCount);
+        lockupTranched = new SablierV2LockupTranched(initialAdmin, initialNFTDescriptor, trancheCountMap[block.chainid]);
     }
 }
