@@ -3,11 +3,11 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { LibString } from "solady/src/utils/LibString.sol";
 
-import { Precompiles } from "../../precompiles/Precompiles.sol";
-import { ISablierV2LockupDynamic } from "../../src/interfaces/ISablierV2LockupDynamic.sol";
-import { ISablierV2LockupLinear } from "../../src/interfaces/ISablierV2LockupLinear.sol";
-import { ISablierV2LockupTranched } from "../../src/interfaces/ISablierV2LockupTranched.sol";
-import { ISablierV2NFTDescriptor } from "../../src/interfaces/ISablierV2NFTDescriptor.sol";
+import { Precompiles } from "precompiles/Precompiles.sol";
+import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.sol";
+import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
+import { ISablierV2LockupTranched } from "src/interfaces/ISablierV2LockupTranched.sol";
+import { ISablierV2NFTDescriptor } from "src/interfaces/ISablierV2NFTDescriptor.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
