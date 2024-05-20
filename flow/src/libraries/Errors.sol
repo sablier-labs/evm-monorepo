@@ -34,7 +34,14 @@ library Errors {
     error SablierV2OpenEnded_InvalidAssetDecimals(IERC20 asset);
 
     /// @notice Thrown when an unexpected error occurs during the calculation of an amount.
-    error SablierV2OpenEnded_InvalidCalculation(uint256 streamId, uint128 balance, uint128 amount);
+    error SablierV2OpenEnded_InvalidCalculation(uint256 streamId, uint128 availableAmount, uint128 amount);
+
+    /// @notice Thrown when trying to withdraw assets with a withdrawal time not greater than or equal to
+    /// `lastTimeUpdate`.
+    error SablierV2OpenEnded_LastUpdateNotLessThanWithdrawalTime(uint40 lastUpdate, uint40 time);
+
+    /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
+    error SablierV2OpenEndedState_NotTransferable(uint256 streamId);
 
     /// @notice Thrown when the ID references a null stream.
     error SablierV2OpenEnded_Null(uint256 streamId);
@@ -47,9 +54,6 @@ library Errors {
 
     /// @notice Thrown when trying to set the rate per second of a stream to zero.
     error SablierV2OpenEnded_RatePerSecondZero();
-
-    /// @notice Thrown when trying to create a OpenEnded stream with the recipient as the zero address.
-    error SablierV2OpenEnded_RecipientZeroAddress();
 
     /// @notice Thrown when trying to refund zero assets from a stream.
     error SablierV2OpenEnded_RefundAmountZero();
@@ -69,14 +73,11 @@ library Errors {
     /// @notice Thrown when trying to withdraw to an address other than the recipient's.
     error SablierV2OpenEnded_WithdrawalAddressNotRecipient(uint256 streamId, address caller, address to);
 
+    /// @notice Thrown when trying to withdraw but the stream no funds available.
+    error SablierV2OpenEnded_WithdrawNoFundsAvailable(uint256 streamId);
+
     /// @notice Thrown when trying to withdraw assets with a withdrawal time in the future.
     error SablierV2OpenEnded_WithdrawalTimeInTheFuture(uint40 time, uint256 currentTime);
-
-    /// @notice Thrown when trying to withdraw assets with a withdrawal time not greater than `lastTimeUpdate`.
-    error SablierV2OpenEnded_WithdrawalTimeNotGreaterThanLastUpdate(uint40 time, uint40 lastUpdate);
-
-    /// @notice Thrown when trying to withdraw but the stream balance is zero.
-    error SablierV2OpenEnded_WithdrawBalanceZero(uint256 streamId);
 
     /// @notice Thrown when trying to withdraw from multiple streams and the number of stream IDs does
     /// not match the number of withdraw times.

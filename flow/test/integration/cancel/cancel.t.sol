@@ -58,22 +58,56 @@ contract Cancel_Integration_Test is Integration_Test {
         openEnded.cancel(defaultStreamId);
     }
 
-    function test_Cancel_RefundableAmountZero_WithdrawableAmountZero()
+    function test_Cancel_WithdrawableAmountZero()
         external
         whenNotDelegateCalled
         givenNotNull
         givenNotCanceled
         whenCallerAuthorized
     {
+        assertEq(openEnded.refundableAmountOf(defaultStreamId), 0, "refundable amount before cancel");
+        assertEq(openEnded.withdrawableAmountOf(defaultStreamId), 0, "withdrawable amount before cancel");
+
         openEnded.cancel(defaultStreamId);
 
         assertTrue(openEnded.isCanceled(defaultStreamId), "is canceled");
 
+        uint128 actualRatePerSecond = openEnded.getRatePerSecond(defaultStreamId);
+        assertEq(actualRatePerSecond, 0, "rate per second");
+
+        uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        assertEq(actualRemainingAmount, 0, "remaining amount");
+
         uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
         assertEq(actualStreamBalance, 0, "stream balance");
+    }
 
-        uint256 actualratePerSecond = openEnded.getRatePerSecond(defaultStreamId);
-        assertEq(actualratePerSecond, 0, "rate per second");
+    function test_Cancel_RefundableAmountZero()
+        external
+        whenNotDelegateCalled
+        givenNotNull
+        givenNotCanceled
+        whenCallerAuthorized
+        whenWithdrawableAmountNotZero
+    {
+        openEnded.deposit(defaultStreamId, WITHDRAW_AMOUNT);
+
+        assertEq(openEnded.getBalance(defaultStreamId), WITHDRAW_AMOUNT, "balance before");
+        assertEq(openEnded.withdrawableAmountOf(defaultStreamId), WITHDRAW_AMOUNT, "withdrawable amount before cancel");
+
+        openEnded.cancel(defaultStreamId);
+
+        assertTrue(openEnded.isCanceled(defaultStreamId), "is canceled");
+
+        uint128 actualRatePerSecond = openEnded.getRatePerSecond(defaultStreamId);
+        assertEq(actualRatePerSecond, 0, "rate per second");
+
+        uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        uint128 expectedRemainingAmount = WITHDRAW_AMOUNT;
+        assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
+
+        uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
+        assertEq(actualStreamBalance, 0, "stream balance");
     }
 
     function test_Cancel_AssetNot18Decimals()
@@ -82,8 +116,8 @@ contract Cancel_Integration_Test is Integration_Test {
         givenNotNull
         givenNotCanceled
         whenCallerAuthorized
-        whenRefundAmountNotZero
-        whenNoOverrefund
+        whenWithdrawableAmountNotZero
+        whenRefundableAmountNotZero
     {
         // Set the timestamp to 1 month ago to create the stream with the same `lastTimeUpdate` as `defaultStreamId`.
         vm.warp({ newTimestamp: WARP_ONE_MONTH - ONE_MONTH });
@@ -100,8 +134,8 @@ contract Cancel_Integration_Test is Integration_Test {
         givenNotNull
         givenNotCanceled
         whenCallerAuthorized
-        whenRefundAmountNotZero
-        whenNoOverrefund
+        whenWithdrawableAmountNotZero
+        whenRefundableAmountNotZero
     {
         test_Cancel(defaultStreamId, dai);
     }
@@ -113,17 +147,10 @@ contract Cancel_Integration_Test is Integration_Test {
         uint128 withdrawableAmount = openEnded.withdrawableAmountOf(streamId);
 
         vm.expectEmit({ emitter: address(asset) });
-        emit Transfer({
+        emit IERC20.Transfer({
             from: address(openEnded),
             to: users.sender,
             value: normalizeTransferAmount(streamId, refundableAmount)
-        });
-
-        vm.expectEmit({ emitter: address(asset) });
-        emit Transfer({
-            from: address(openEnded),
-            to: users.recipient,
-            value: normalizeTransferAmount(streamId, withdrawableAmount)
         });
 
         vm.expectEmit({ emitter: address(openEnded) });
@@ -136,24 +163,26 @@ contract Cancel_Integration_Test is Integration_Test {
             asset: asset
         });
 
+        vm.expectEmit({ emitter: address(openEnded) });
+        emit MetadataUpdate({ _tokenId: streamId });
+
         expectCallToTransfer({
             asset: asset,
             to: users.sender,
             amount: normalizeTransferAmount(streamId, refundableAmount)
         });
-        expectCallToTransfer({
-            asset: asset,
-            to: users.recipient,
-            amount: normalizeTransferAmount(streamId, withdrawableAmount)
-        });
+
         openEnded.cancel(streamId);
 
         assertTrue(openEnded.isCanceled(streamId), "is canceled");
 
+        uint256 actualRatePerSecond = openEnded.getRatePerSecond(streamId);
+        assertEq(actualRatePerSecond, 0, "rate per second");
+
+        uint128 actualRemainingAmount = openEnded.getRemainingAmount(streamId);
+        assertEq(actualRemainingAmount, withdrawableAmount, "remaining amount");
+
         uint128 actualStreamBalance = openEnded.getBalance(streamId);
         assertEq(actualStreamBalance, 0, "stream balance");
-
-        uint256 actualratePerSecond = openEnded.getRatePerSecond(streamId);
-        assertEq(actualratePerSecond, 0, "rate per second");
     }
 }

@@ -2,13 +2,16 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
 import { OpenEnded } from "../types/DataTypes.sol";
 
 /// @title ISablierV2OpenEndedState
 /// @notice State variables, storage and constants, for the {SablierV2OpenEnded} contract, and their respective getters.
-/// @dev This contract includes helpful modifiers and helper functions.
-interface ISablierV2OpenEndedState {
+/// @dev This contract also includes helpful modifiers and helper functions.
+interface ISablierV2OpenEndedState is
+    IERC721Metadata // 2 inherited components
+{
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -43,6 +46,11 @@ interface ISablierV2OpenEndedState {
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function getRecipient(uint256 streamId) external view returns (address recipient);
+
+    /// @notice Retrieves the remaining amount of the stream, denoted in 18 decimals.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    function getRemainingAmount(uint256 streamId) external view returns (uint128 remainingAmount);
 
     /// @notice Retrieves the stream's sender.
     /// @dev Reverts if `streamId` references a null stream.

@@ -30,7 +30,6 @@ abstract contract Assertions is StdAssertions {
         assertEq(a.lastTimeUpdate, b.lastTimeUpdate, "lastTimeUpdate");
         assertEq(a.isCanceled, b.isCanceled, "isCanceled");
         assertEq(a.isStream, b.isStream, "isStream");
-        assertEq(a.recipient, b.recipient, "recipient");
         assertEq(a.sender, b.sender, "sender");
     }
 }

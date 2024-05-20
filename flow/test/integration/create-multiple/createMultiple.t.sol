@@ -22,7 +22,7 @@ contract CreateMultiple_Integration_Test is Integration_Test {
                 defaultRatesPerSecond.length
             )
         );
-        openEnded.createMultiple(recipients, defaultSenders, defaultRatesPerSecond, dai);
+        openEnded.createMultiple(recipients, defaultSenders, defaultRatesPerSecond, dai, defaultIsTransferable);
     }
 
     function test_RevertWhen_SendersCountNotEqual() external whenNotDelegateCalled whenArrayCountsNotEqual {
@@ -36,7 +36,7 @@ contract CreateMultiple_Integration_Test is Integration_Test {
                 defaultRatesPerSecond.length
             )
         );
-        openEnded.createMultiple(defaultRecipients, senders, defaultRatesPerSecond, dai);
+        openEnded.createMultiple(defaultRecipients, senders, defaultRatesPerSecond, dai, defaultIsTransferable);
     }
 
     function test_RevertWhen_RatePerSecondCountNotEqual() external whenNotDelegateCalled whenArrayCountsNotEqual {
@@ -50,12 +50,14 @@ contract CreateMultiple_Integration_Test is Integration_Test {
                 ratesPerSecond.length
             )
         );
-        openEnded.createMultiple(defaultRecipients, defaultSenders, ratesPerSecond, dai);
+        openEnded.createMultiple(defaultRecipients, defaultSenders, ratesPerSecond, dai, defaultIsTransferable);
     }
 
     function test_CreateMultiple() external whenNotDelegateCalled whenArrayCountsEqual {
         uint256 beforeNextStreamId = openEnded.nextStreamId();
 
+        vm.expectEmit({ emitter: address(openEnded) });
+        emit MetadataUpdate({ _tokenId: beforeNextStreamId });
         vm.expectEmit({ emitter: address(openEnded) });
         emit CreateOpenEndedStream({
             streamId: beforeNextStreamId,
@@ -65,6 +67,9 @@ contract CreateMultiple_Integration_Test is Integration_Test {
             asset: dai,
             lastTimeUpdate: uint40(block.timestamp)
         });
+
+        vm.expectEmit({ emitter: address(openEnded) });
+        emit MetadataUpdate({ _tokenId: beforeNextStreamId + 1 });
         vm.expectEmit({ emitter: address(openEnded) });
         emit CreateOpenEndedStream({
             streamId: beforeNextStreamId + 1,
@@ -75,8 +80,9 @@ contract CreateMultiple_Integration_Test is Integration_Test {
             lastTimeUpdate: uint40(block.timestamp)
         });
 
-        uint256[] memory streamIds =
-            openEnded.createMultiple(defaultRecipients, defaultSenders, defaultRatesPerSecond, dai);
+        uint256[] memory streamIds = openEnded.createMultiple(
+            defaultRecipients, defaultSenders, defaultRatesPerSecond, dai, defaultIsTransferable
+        );
 
         uint256 afterNextStreamId = openEnded.nextStreamId();
 
@@ -98,8 +104,9 @@ contract CreateMultiple_Integration_Test is Integration_Test {
             lastTimeUpdate: uint40(block.timestamp),
             isCanceled: false,
             isStream: true,
-            recipient: users.recipient,
-            sender: users.sender
+            isTransferable: IS_TRANFERABLE,
+            sender: users.sender,
+            remainingAmount: 0
         });
 
         OpenEnded.Stream memory actualStream = openEnded.getStream(streamIds[0]);
@@ -107,5 +114,12 @@ contract CreateMultiple_Integration_Test is Integration_Test {
 
         actualStream = openEnded.getStream(streamIds[1]);
         assertEq(actualStream, expectedStream);
+
+        address actualNFTOwner = openEnded.ownerOf({ tokenId: streamIds[0] });
+        address expectedNFTOwner = users.recipient;
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
+
+        actualNFTOwner = openEnded.ownerOf({ tokenId: streamIds[1] });
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

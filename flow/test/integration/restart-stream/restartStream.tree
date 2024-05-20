@@ -23,4 +23,5 @@ restartStream.t.sol
                   ├── it should restart the stream
                   ├── it should update the rate per second
                   ├── it should update the time
-                  └── it should emit a {RestartOpenEndedStream} event
+                  ├── it should emit a {RestartOpenEndedStream} event
+                  └── it should emit a {MetadataUpdate} event

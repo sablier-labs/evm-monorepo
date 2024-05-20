@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
@@ -15,19 +16,32 @@ contract Create_Integration_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData =
-            abi.encodeCall(ISablierV2OpenEnded.create, (users.sender, users.recipient, RATE_PER_SECOND, dai));
+        bytes memory callData = abi.encodeCall(
+            ISablierV2OpenEnded.create, (users.sender, users.recipient, RATE_PER_SECOND, dai, IS_TRANFERABLE)
+        );
         expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertWhen_SenderZeroAddress() external whenNotDelegateCalled {
         vm.expectRevert(Errors.SablierV2OpenEnded_SenderZeroAddress.selector);
-        openEnded.create({ sender: address(0), recipient: users.recipient, ratePerSecond: RATE_PER_SECOND, asset: dai });
+        openEnded.create({
+            sender: address(0),
+            recipient: users.recipient,
+            ratePerSecond: RATE_PER_SECOND,
+            asset: dai,
+            isTransferable: IS_TRANFERABLE
+        });
     }
 
     function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled whenSenderNonZeroAddress {
-        vm.expectRevert(Errors.SablierV2OpenEnded_RecipientZeroAddress.selector);
-        openEnded.create({ sender: users.sender, recipient: address(0), ratePerSecond: RATE_PER_SECOND, asset: dai });
+        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, address(0)));
+        openEnded.create({
+            sender: users.sender,
+            recipient: address(0),
+            ratePerSecond: RATE_PER_SECOND,
+            asset: dai,
+            isTransferable: IS_TRANFERABLE
+        });
     }
 
     function test_RevertWhen_ratePerSecondZero()
@@ -37,7 +51,13 @@ contract Create_Integration_Test is Integration_Test {
         whenRecipientNonZeroAddress
     {
         vm.expectRevert(Errors.SablierV2OpenEnded_RatePerSecondZero.selector);
-        openEnded.create({ sender: users.sender, recipient: users.recipient, ratePerSecond: 0, asset: dai });
+        openEnded.create({
+            sender: users.sender,
+            recipient: users.recipient,
+            ratePerSecond: 0,
+            asset: dai,
+            isTransferable: IS_TRANFERABLE
+        });
     }
 
     function test_RevertWhen_AssetNotContract()
@@ -45,7 +65,7 @@ contract Create_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
-        whenratePerSecondNonZero
+        whenRatePerSecondNonZero
     {
         address nonContract = address(8128);
         vm.expectRevert(
@@ -55,7 +75,8 @@ contract Create_Integration_Test is Integration_Test {
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
-            asset: IERC20(nonContract)
+            asset: IERC20(nonContract),
+            isTransferable: IS_TRANFERABLE
         });
     }
 
@@ -64,11 +85,13 @@ contract Create_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         whenSenderNonZeroAddress
         whenRecipientNonZeroAddress
-        whenratePerSecondNonZero
+        whenRatePerSecondNonZero
         whenAssetContract
     {
         uint256 expectedStreamId = openEnded.nextStreamId();
 
+        vm.expectEmit({ emitter: address(openEnded) });
+        emit MetadataUpdate({ _tokenId: expectedStreamId });
         vm.expectEmit({ emitter: address(openEnded) });
         emit CreateOpenEndedStream({
             streamId: expectedStreamId,
@@ -83,7 +106,8 @@ contract Create_Integration_Test is Integration_Test {
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
-            asset: dai
+            asset: dai,
+            isTransferable: IS_TRANFERABLE
         });
 
         OpenEnded.Stream memory actualStream = openEnded.getStream(actualStreamId);
@@ -95,11 +119,16 @@ contract Create_Integration_Test is Integration_Test {
             lastTimeUpdate: uint40(block.timestamp),
             isCanceled: false,
             isStream: true,
-            recipient: users.recipient,
+            isTransferable: IS_TRANFERABLE,
+            remainingAmount: 0,
             sender: users.sender
         });
 
-        assertEq(actualStreamId, expectedStreamId);
+        assertEq(actualStreamId, expectedStreamId, "stream id");
         assertEq(actualStream, expectedStream);
+
+        address actualNFTOwner = openEnded.ownerOf({ tokenId: actualStreamId });
+        address expectedNFTOwner = users.recipient;
+        assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }
 }

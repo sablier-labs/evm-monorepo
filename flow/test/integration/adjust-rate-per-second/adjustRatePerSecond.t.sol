@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
 
-contract adjustRatePerSecond_Integration_Test is Integration_Test {
+contract AdjustRatePerSecond_Integration_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
     }
@@ -74,7 +72,7 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
         givenNotNull
         givenNotCanceled
         whenCallerAuthorized
-        whenratePerSecondNonZero
+        whenRatePerSecondNonZero
     {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2OpenEnded_RatePerSecondNotDifferent.selector, RATE_PER_SECOND)
@@ -82,20 +80,16 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
         openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
-    function test_adjustRatePerSecond_WithdrawableAmountZero()
+    function test_AdjustRatePerSecond_WithdrawableAmountZero()
         external
         whenNotDelegateCalled
         givenNotNull
         givenNotCanceled
         whenCallerAuthorized
-        whenratePerSecondNonZero
-        whenratePerSecondNotDifferent
+        whenRatePerSecondNonZero
+        whenRatePerSecondNotDifferent
     {
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
-
-        uint128 actualratePerSecond = openEnded.getRatePerSecond(defaultStreamId);
-        uint128 expectedratePerSecond = RATE_PER_SECOND;
-        assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
 
         uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
         uint40 expectedLastTimeUpdate = uint40(block.timestamp - ONE_MONTH);
@@ -106,87 +100,91 @@ contract adjustRatePerSecond_Integration_Test is Integration_Test {
         vm.expectEmit({ emitter: address(openEnded) });
         emit AdjustOpenEndedStream({
             streamId: defaultStreamId,
-            asset: dai,
             recipientAmount: 0,
             oldRatePerSecond: RATE_PER_SECOND,
             newRatePerSecond: newRatePerSecond
         });
 
+        vm.expectEmit({ emitter: address(openEnded) });
+        emit MetadataUpdate({ _tokenId: defaultStreamId });
+
+        uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
+
+        assertEq(actualRemainingAmount, 0, "remaining amount");
+        assertEq(actualStreamBalance, 0, "stream balance");
+
         openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: newRatePerSecond });
 
-        actualratePerSecond = openEnded.getRatePerSecond(defaultStreamId);
-        expectedratePerSecond = newRatePerSecond;
-        assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
+        actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        actualStreamBalance = openEnded.getBalance(defaultStreamId);
+
+        assertEq(actualRemainingAmount, 0, "remaining amount");
+        assertEq(actualStreamBalance, 0, "stream balance");
+
+        uint128 actualRatePerSecond = openEnded.getRatePerSecond(defaultStreamId);
+        uint128 expectedRatePerSecond = newRatePerSecond;
+        assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
 
         actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
         expectedLastTimeUpdate = uint40(block.timestamp);
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
     }
 
-    function test_adjustRatePerSecond_AssetNot18Decimals()
+    function test_AdjustRatePerSecond()
         external
         whenNotDelegateCalled
         givenNotNull
         givenNotCanceled
         whenCallerAuthorized
     {
-        uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
-        test_adjustRatePerSecond(streamId, IERC20(address(usdt)));
-    }
-
-    function test_adjustRatePerSecond()
-        external
-        whenNotDelegateCalled
-        givenNotNull
-        givenNotCanceled
-        whenCallerAuthorized
-    {
-        test_adjustRatePerSecond(defaultStreamId, dai);
-    }
-
-    function test_adjustRatePerSecond(uint256 streamId, IERC20 asset) internal {
-        openEnded.deposit(streamId, DEPOSIT_AMOUNT);
+        openEnded.deposit(defaultStreamId, DEPOSIT_AMOUNT);
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
-        uint128 actualratePerSecond = openEnded.getRatePerSecond(streamId);
-        uint128 expectedratePerSecond = RATE_PER_SECOND;
-        assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
+        uint128 actualRatePerSecond = openEnded.getRatePerSecond(defaultStreamId);
+        uint128 expectedRatePerSecond = RATE_PER_SECOND;
+        assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
 
-        uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(streamId);
+        uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
         uint40 expectedLastTimeUpdate = uint40(block.timestamp - ONE_MONTH);
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
 
-        vm.expectEmit({ emitter: address(asset) });
-        emit Transfer({
-            from: address(openEnded),
-            to: users.recipient,
-            value: normalizeTransferAmount(streamId, ONE_MONTH_STREAMED_AMOUNT)
-        });
+        uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        uint128 expectedRemainingAmount = 0;
+        assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
+
+        uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
+        uint128 expectedStreamBalance = DEPOSIT_AMOUNT;
+        assertEq(actualStreamBalance, DEPOSIT_AMOUNT, "stream balance");
 
         uint128 newRatePerSecond = RATE_PER_SECOND / 2;
 
         vm.expectEmit({ emitter: address(openEnded) });
         emit AdjustOpenEndedStream({
-            streamId: streamId,
-            asset: asset,
+            streamId: defaultStreamId,
             recipientAmount: ONE_MONTH_STREAMED_AMOUNT,
             oldRatePerSecond: RATE_PER_SECOND,
             newRatePerSecond: newRatePerSecond
         });
 
-        expectCallToTransfer({
-            asset: asset,
-            to: users.recipient,
-            amount: normalizeTransferAmount(streamId, ONE_MONTH_STREAMED_AMOUNT)
-        });
+        vm.expectEmit({ emitter: address(openEnded) });
+        emit MetadataUpdate({ _tokenId: defaultStreamId });
 
-        openEnded.adjustRatePerSecond({ streamId: streamId, newRatePerSecond: newRatePerSecond });
+        openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: newRatePerSecond });
 
-        actualratePerSecond = openEnded.getRatePerSecond(streamId);
-        expectedratePerSecond = newRatePerSecond;
-        assertEq(actualratePerSecond, expectedratePerSecond, "rate per second");
+        actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT;
+        assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
-        actualLastTimeUpdate = openEnded.getLastTimeUpdate(streamId);
+        actualStreamBalance = openEnded.getBalance(defaultStreamId);
+        expectedStreamBalance = DEPOSIT_AMOUNT - ONE_MONTH_STREAMED_AMOUNT;
+        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
+
+        actualRatePerSecond = openEnded.getRatePerSecond(defaultStreamId);
+        expectedRatePerSecond = newRatePerSecond;
+        assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
+
+        actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
         expectedLastTimeUpdate = uint40(block.timestamp);
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
     }

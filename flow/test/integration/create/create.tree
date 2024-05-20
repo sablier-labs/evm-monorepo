@@ -16,4 +16,6 @@ create.t.sol
             └── when the asset is a contract
                ├── it should create the stream
                ├── it should bump the next stream id
+               ├── it should mint the NFT
+               ├── it should emit a {MetadataUpdate} event
                └── it should emit a {CreateOpenEndedStream} event

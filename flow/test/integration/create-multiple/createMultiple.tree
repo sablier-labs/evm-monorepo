@@ -9,4 +9,6 @@ createMultiple.t.sol
 └── when array counts are equal
    ├── it should create multiple streams
    ├── it should bump the next stream id multiple times
+   ├── it should mint multiple NFTs
+   ├── it should emit multiple {MetadataUpdate} events
    └── it should emit multiple {CreateOpenEndedStream} events

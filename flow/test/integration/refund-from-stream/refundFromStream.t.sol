@@ -122,7 +122,7 @@ contract RefundFromStream_Integration_Test is Integration_Test {
 
     function test_RefundFromStream(uint256 streamId, IERC20 asset) internal {
         vm.expectEmit({ emitter: address(asset) });
-        emit Transfer({
+        emit IERC20.Transfer({
             from: address(openEnded),
             to: users.sender,
             value: normalizeTransferAmount(streamId, REFUND_AMOUNT)

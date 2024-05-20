@@ -6,7 +6,27 @@ abstract contract Modifiers {
                                        COMMON
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenratePerSecondNonZero() {
+    modifier givenBalanceNotZero() {
+        _;
+    }
+
+    modifier givenBalanceZero() {
+        _;
+    }
+
+    modifier givenNotCanceled() {
+        _;
+    }
+
+    modifier givenNotNull() {
+        _;
+    }
+
+    modifier givenRemainingAmountZero() {
+        _;
+    }
+
+    modifier givenRemainingAmountNotZero() {
         _;
     }
 
@@ -22,11 +42,7 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier givenNotCanceled() {
-        _;
-    }
-
-    modifier givenNotNull() {
+    modifier whenRatePerSecondNonZero() {
         _;
     }
 
@@ -34,7 +50,19 @@ abstract contract Modifiers {
                               ADJUST-AMOUNT-PER-SECOND
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenratePerSecondNotDifferent() {
+    modifier whenRatePerSecondNotDifferent() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                       CANCEL
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier whenRefundableAmountNotZero() {
+        _;
+    }
+
+    modifier whenWithdrawableAmountNotZero() {
         _;
     }
 
@@ -103,14 +131,14 @@ abstract contract Modifiers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      WITHDRAW
+                                    WITHDRAW-AT
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenBalanceNotZero() {
+    modifier whenCallerRecipient() {
         _;
     }
 
-    modifier whenCallerRecipient() {
+    modifier whenLastTimeNotLessThanWithdrawalTime() {
         _;
     }
 
@@ -130,7 +158,15 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenWithdrawalTimeGreaterThanLastUpdate() {
+    /*//////////////////////////////////////////////////////////////////////////
+                                 WITHDRAW-AT-MULTIPLE   
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier whenArrayCountsAreEqual() {
+        _;
+    }
+
+    modifier whenArrayCountsNotZero() {
         _;
     }
 }

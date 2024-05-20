@@ -27,6 +27,7 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
                                      DEFAULTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    bool public constant IS_TRANFERABLE = true;
     uint128 public constant RATE_PER_SECOND = 0.001e18; // 86.4 daily
     uint128 public constant DEPOSIT_AMOUNT = 50_000e18;
     uint40 internal constant MAY_1_2024 = 1_714_518_000;

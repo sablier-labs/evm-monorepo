@@ -10,6 +10,7 @@ contract OpenEndedStore {
     uint256 public lastStreamId;
     mapping(uint256 streamId => address recipient) public recipients;
     mapping(uint256 streamId => address sender) public senders;
+    mapping(uint256 streamId => uint128 remainingAmount) public remainingAmountsSum;
     uint256[] public streamIds;
     uint256 public streamDepositedAmountsSum;
     uint256 public streamExtractedAmountsSum;
@@ -26,6 +27,14 @@ contract OpenEndedStore {
 
         // Update the last stream id.
         lastStreamId = streamId;
+    }
+
+    function sumRemainingAmount(uint256 streamId, uint128 amount) external {
+        remainingAmountsSum[streamId] += amount;
+    }
+
+    function subtractRemainingAmount(uint256 streamId, uint128 amount) external {
+        remainingAmountsSum[streamId] -= amount;
     }
 
     function updateStreamDepositedAmountsSum(uint256 amount) external {

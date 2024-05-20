@@ -21,19 +21,15 @@ adjustRatePerSecond.t.sol
                  │  └── it should revert
                  └── when the provided rate per second is not equal to the actual rate per second
                     ├── given the withdrawable amount is zero
+                    │  ├── it should update the stream balance
                     │  ├── it should update the rate per second
                     │  ├── it should update the stream time
-                    │  └── it should emit a {AdjustOpenEndedStream} event
+                    │  ├── it should emit a {AdjustOpenEndedStream} event
+                    │  └── it should emit a {MetadataUpdate} event
                     └── given the withdrawable amount is not zero
-                       ├── given the asset does not have 18 decimals
-                       │  ├── it should update the rate per second
-                       │  ├── it should update the stream time
-                       │  ├── it should update the stream balance
-                       │  ├── it should perform the ERC-20 transfer
-                       │  └── it should emit a {Transfer} and {AdjustOpenEndedStream} event
-                       └── given the asset has 18 decimals
-                          ├── it should make the withdrawal   
-                          ├── it should update the time
-                          ├── it should update the stream balance
-                          ├── it should perform the ERC-20 transfer
-                          └── it should emit a {Transfer} and {AdjustOpenEndedStream} event
+                       ├── it should update the stream remaining amount
+                       ├── it should update the stream balance
+                       ├── it should update the rate per second
+                       ├── it should update the stream time
+                       ├── it should emit a {AdjustOpenEndedStream} event
+                       └── it should emit a {MetadataUpdate} event

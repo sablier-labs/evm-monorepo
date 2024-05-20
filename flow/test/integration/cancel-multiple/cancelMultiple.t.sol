@@ -73,7 +73,8 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
             sender: users.eve,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
-            asset: dai
+            asset: dai,
+            isTransferable: IS_TRANFERABLE
         });
 
         resetPrank({ msgSender: users.eve });
@@ -95,7 +96,8 @@ contract CancelMultiple_Integration_Concrete_Test is Integration_Test {
             sender: users.recipient,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
-            asset: dai
+            asset: dai,
+            isTransferable: IS_TRANFERABLE
         });
 
         resetPrank({ msgSender: users.recipient });

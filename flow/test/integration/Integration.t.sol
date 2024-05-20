@@ -12,6 +12,7 @@ abstract contract Integration_Test is Base_Test {
     uint128[] internal defaultRatesPerSecond;
     address[] internal defaultRecipients;
     address[] internal defaultSenders;
+    bool[] internal defaultIsTransferable;
     uint256 internal defaultStreamId;
     uint256[] internal defaultStreamIds;
     uint256 internal nullStreamId = 420;
@@ -29,6 +30,7 @@ abstract contract Integration_Test is Base_Test {
             defaultSenders.push(users.sender);
             defaultRatesPerSecond.push(RATE_PER_SECOND);
             defaultDepositAmounts.push(DEPOSIT_AMOUNT);
+            defaultIsTransferable.push(IS_TRANFERABLE);
         }
     }
 
@@ -45,7 +47,8 @@ abstract contract Integration_Test is Base_Test {
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
-            asset: asset_
+            asset: asset_,
+            isTransferable: IS_TRANFERABLE
         });
     }
 

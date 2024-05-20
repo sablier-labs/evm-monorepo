@@ -125,20 +125,19 @@ way he may extract more assets from stream.
 We store the asset decimals, so that we don't have to make an external call to get the decimals of the asset each time a
 deposit or an extraction is made. Decimals are `uint8`, meaning it is not an expensive to store them.
 
-Recipient address **must** be checked because there is no NFT minted in `_create` function.
-
 Sender address **must** be checked because there is no `ERC20` transfer in `_create` function.
-
-In `_cancel` function we can perform both sender and recipient `ERC20` transfers because there is no NFT so we don’t
-have to worry about [this issue](https://github.com/cantinasec/review-sablier/issues/11).
 
 ### Invariants:
 
-_balance = withdrawable amount + refundable amount_
+_withdrawable amount = min(balance, streamed amount) + remaining amount_
+
+_balance = withdrawable amount + refundable amount - remaining amount_
 
 _balance = sum of deposits - sum of withdrawals_
 
-_withdrawable amount ≤ streamed amount_
+_withdrawable amount - remaining amount ≤ streamed amount_
+
+_sum of withdrawn amounts ≤ sum of deposits_
 
 _sum of withdrawn amounts ≤ sum of deposits_
 
@@ -146,19 +145,16 @@ _sum of stream balances normilized to asset decimals ≤ asset.balanceOf(Sablier
 
 _lastTimeUpdate ≤ block.timestamp;_
 
-_if(isCanceled = true) then balance = 0 && ratePerSecond = 0_
+_if(isCanceled = true) then balance = 0 && ratePerSecond = 0 && withdrawable amount = remaining amount_
 
-### Questions:
+### Actions Access Control:
 
-Should we update the time in `_cancel`?
-
-Should we add `TimeUpdated` event?
-
-Should we add `pause` function? Basically it would be a duplication of `cancel` function.
-
-### TODOs:
-
-- createMultiple
-- withdrawMultiple
-- add broker fees
-  - The fee should be on `create` or on `deposit` ? both?
+| Action              | Sender | Recipient | Operator(s) |      Unkown User       |
+| ------------------- | :----: | :-------: | :---------: | :--------------------: |
+| AdjustRatePerSecond |   ✅   |    ❌     |     ❌      |           ❌           |
+| Cancel              |   ✅   |    ❌     |     ❌      |           ❌           |
+| Deposit             |   ✅   |    ✅     |     ✅      |           ✅           |
+| RefundFromStream    |   ✅   |    ❌     |     ❌      |           ❌           |
+| RestartStream       |   ✅   |    ❌     |     ❌      |           ❌           |
+| Transfer NFT        |   ❌   |    ✅     |     ✅      |           ❌           |
+| Withdraw            |   ✅   |    ✅     |     ✅      | ✅ (only to Recipient) |

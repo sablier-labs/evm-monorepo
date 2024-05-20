@@ -40,17 +40,21 @@ contract OpenEndedCreateHandler is BaseHandler {
                                  HANDLER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function create(
-        uint256 timeJumpSeed,
-        address sender,
-        address recipient,
-        uint128 ratePerSecond
-    )
+    /// @dev Struct to prevent stack too deep error.
+    struct CreateParams {
+        uint256 timeJumpSeed;
+        address sender;
+        address recipient;
+        uint128 ratePerSecond;
+        bool isTransferable;
+    }
+
+    function create(CreateParams memory params)
         public
         instrument("createAndDeposit")
-        adjustTimestamp(timeJumpSeed)
-        checkUsers(sender, recipient)
-        useNewSender(sender)
+        adjustTimestamp(params.timeJumpSeed)
+        checkUsers(params.sender, params.recipient)
+        useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
         if (openEndedStore.lastStreamId() >= MAX_STREAM_COUNT) {
@@ -58,28 +62,26 @@ contract OpenEndedCreateHandler is BaseHandler {
         }
 
         // Bound the stream parameters.
-        ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
+        params.ratePerSecond = uint128(_bound(params.ratePerSecond, 0.0001e18, 1e18));
 
         // Create the stream.
         asset = asset;
-        uint256 streamId = openEnded.create(sender, recipient, ratePerSecond, asset);
+        uint256 streamId =
+            openEnded.create(params.sender, params.recipient, params.ratePerSecond, asset, params.isTransferable);
 
         // Store the stream id.
-        openEndedStore.pushStreamId(streamId, sender, recipient);
+        openEndedStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     function createAndDeposit(
-        uint256 timeJumpSeed,
-        address sender,
-        address recipient,
-        uint128 ratePerSecond,
+        CreateParams memory params,
         uint128 depositAmount
     )
         public
         instrument("createAndDeposit")
-        adjustTimestamp(timeJumpSeed)
-        checkUsers(sender, recipient)
-        useNewSender(sender)
+        adjustTimestamp(params.timeJumpSeed)
+        checkUsers(params.sender, params.recipient)
+        useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
         if (openEndedStore.lastStreamId() >= MAX_STREAM_COUNT) {
@@ -87,21 +89,22 @@ contract OpenEndedCreateHandler is BaseHandler {
         }
 
         // Bound the stream parameters.
-        ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
+        params.ratePerSecond = uint128(_bound(params.ratePerSecond, 0.0001e18, 1e18));
         depositAmount = uint128(_bound(depositAmount, 100e18, 1_000_000_000e18));
 
         // Mint enough assets to the Sender.
-        deal({ token: address(asset), to: sender, give: asset.balanceOf(sender) + depositAmount });
+        deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + depositAmount });
 
         // Approve {SablierV2OpenEnded} to spend the assets.
         asset.approve({ spender: address(openEnded), value: depositAmount });
 
         // Create the stream.
-        asset = asset;
-        uint256 streamId = openEnded.createAndDeposit(sender, recipient, ratePerSecond, asset, depositAmount);
+        uint256 streamId = openEnded.createAndDeposit(
+            params.sender, params.recipient, params.ratePerSecond, asset, params.isTransferable, depositAmount
+        );
 
         // Store the stream id.
-        openEndedStore.pushStreamId(streamId, sender, recipient);
+        openEndedStore.pushStreamId(streamId, params.sender, params.recipient);
 
         // Store the deposited amount.
         openEndedStore.updateStreamDepositedAmountsSum(depositAmount);

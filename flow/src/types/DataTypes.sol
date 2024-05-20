@@ -11,26 +11,29 @@ library OpenEnded {
     /// @param balance The amount of assets that is currently available in the stream, i.e. the sum of deposited amounts
     /// subtracted by the sum of withdrawn amounts, denoted in 18 decimals.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    /// @param recipient The address receiving the assets.
+    /// @param sender The address streaming the assets, with the ability to cancel the stream.
     /// @param lastTimeUpdate The Unix timestamp for the streamed amount calculation.
     /// @param isStream Boolean indicating if the struct entity exists.
     /// @param isCanceled Boolean indicating if the stream is canceled.
+    /// @param isTransferable Boolean indicating if the stream NFT is transferable.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param assetDecimals The decimals of the ERC-20 asset used for streaming.
-    /// @param sender The address streaming the assets, with the ability to cancel the stream.
+    /// @param remainingAmount The amount of assets still available for withdrawal, when the stream is canceled or the
+    /// `ratePerSecond` is adjusted, denoted in 18 decimals.
     struct Stream {
         // slot 0
         uint128 balance;
         uint128 ratePerSecond;
         // slot 1
-        address recipient;
+        address sender;
         uint40 lastTimeUpdate;
         bool isStream;
         bool isCanceled;
+        bool isTransferable;
         // slot 2
         IERC20 asset;
         uint8 assetDecimals;
         // slot 3
-        address sender;
+        uint128 remainingAmount;
     }
 }

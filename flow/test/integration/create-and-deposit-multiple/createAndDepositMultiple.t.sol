@@ -22,7 +22,7 @@ contract CreateAndDepositMultiple_Integration_Test is Integration_Test {
             )
         );
         openEnded.createAndDepositMultiple(
-            defaultRecipients, defaultSenders, defaultRatesPerSecond, dai, depositAmounts
+            defaultRecipients, defaultSenders, defaultRatesPerSecond, dai, defaultIsTransferable, depositAmounts
         );
     }
 
@@ -68,7 +68,7 @@ contract CreateAndDepositMultiple_Integration_Test is Integration_Test {
         expectCallToTransferFrom({ asset: dai, from: users.sender, to: address(openEnded), amount: DEPOSIT_AMOUNT });
 
         uint256[] memory streamIds = openEnded.createAndDepositMultiple(
-            defaultRecipients, defaultSenders, defaultRatesPerSecond, dai, defaultDepositAmounts
+            defaultRecipients, defaultSenders, defaultRatesPerSecond, dai, defaultIsTransferable, defaultDepositAmounts
         );
 
         uint256 afterNextStreamId = openEnded.nextStreamId();
@@ -91,7 +91,8 @@ contract CreateAndDepositMultiple_Integration_Test is Integration_Test {
             lastTimeUpdate: uint40(block.timestamp),
             isCanceled: false,
             isStream: true,
-            recipient: users.recipient,
+            isTransferable: IS_TRANFERABLE,
+            remainingAmount: 0,
             sender: users.sender
         });
 

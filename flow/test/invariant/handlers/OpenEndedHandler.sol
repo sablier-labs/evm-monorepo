@@ -75,6 +75,42 @@ contract OpenEndedHandler is BaseHandler {
                                  SABLIER-V2-OPENENDED
     //////////////////////////////////////////////////////////////////////////*/
 
+    function adjustRatePerSecond(
+        uint256 timeJumpSeed,
+        uint256 streamIndexSeed,
+        uint128 newRatePerSecond
+    )
+        external
+        instrument("adjustRatePerSecond")
+        adjustTimestamp(timeJumpSeed)
+        useFuzzedStream(streamIndexSeed)
+        useFuzzedStreamSender
+    {
+        // Only non canceled streams can have their rate per second adjusted.
+        if (openEnded.isCanceled(currentStreamId)) {
+            return;
+        }
+
+        // Bound the rate per second.
+        newRatePerSecond = uint128(_bound(newRatePerSecond, 0.0001e18, 1e18));
+
+        // The rate per second must be different from the current rate per second.
+        if (newRatePerSecond == openEnded.getRatePerSecond(currentStreamId)) {
+            newRatePerSecond += 1;
+        }
+
+        uint128 balance = openEnded.getBalance(currentStreamId);
+        uint128 streamedAmount = openEnded.streamedAmountOf(currentStreamId);
+
+        uint128 remainingAmount = balance > streamedAmount ? streamedAmount : balance;
+
+        // Adjust the rate per second.
+        openEnded.adjustRatePerSecond(currentStreamId, newRatePerSecond);
+
+        // Store the remaining amount.
+        openEndedStore.sumRemainingAmount(currentStreamId, remainingAmount);
+    }
+
     function cancel(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed
@@ -90,14 +126,20 @@ contract OpenEndedHandler is BaseHandler {
             return;
         }
 
+        uint128 balance = openEnded.getBalance(currentStreamId);
         uint128 senderAmount = openEnded.refundableAmountOf(currentStreamId);
-        uint128 recipientAmount = openEnded.withdrawableAmountOf(currentStreamId);
+        uint128 streamedAmount = openEnded.streamedAmountOf(currentStreamId);
+
+        uint128 remainingAmount = balance > streamedAmount ? streamedAmount : balance;
 
         // Cancel the stream.
         openEnded.cancel(currentStreamId);
 
         // Store the extracted amount.
-        openEndedStore.updateStreamExtractedAmountsSum(senderAmount + recipientAmount);
+        openEndedStore.updateStreamExtractedAmountsSum(senderAmount);
+
+        // Store the remaining amount.
+        openEndedStore.sumRemainingAmount(currentStreamId, remainingAmount);
     }
 
     function deposit(
@@ -228,27 +270,23 @@ contract OpenEndedHandler is BaseHandler {
         uint40 time
     )
         external
-        instrument("withdraw")
+        instrument("withdrawAt")
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
     {
-        // Canceled streams cannot be withdrawn from.
-        if (openEnded.isCanceled(currentStreamId)) {
-            return;
-        }
-
         // The protocol doesn't allow the withdrawal address to be the zero address.
         if (to == address(0)) {
             return;
         }
 
-        if (openEnded.getBalance(currentStreamId) == 0) {
+        // If the balance and the remaining amount are zero, there is nothing to withdraw.
+        if (openEnded.getBalance(currentStreamId) == 0 && openEnded.getRemainingAmount(currentStreamId) == 0) {
             return;
         }
 
         // Bound the time so that it is between last time update and current time.
-        time = uint40(_bound(time, openEnded.getLastTimeUpdate(currentStreamId) + 1, block.timestamp));
+        time = uint40(_bound(time, openEnded.getLastTimeUpdate(currentStreamId), block.timestamp));
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.
@@ -257,6 +295,7 @@ contract OpenEndedHandler is BaseHandler {
             to = currentRecipient;
         }
 
+        uint128 remainingAmount = openEnded.getRemainingAmount(currentStreamId);
         uint128 withdrawAmount = openEnded.withdrawableAmountOf(currentStreamId, time);
 
         // Withdraw from the stream.
@@ -264,5 +303,8 @@ contract OpenEndedHandler is BaseHandler {
 
         // Store the extracted amount.
         openEndedStore.updateStreamExtractedAmountsSum(withdrawAmount);
+
+        // Remove the remaining amount.
+        openEndedStore.subtractRemainingAmount(currentStreamId, remainingAmount);
     }
 }

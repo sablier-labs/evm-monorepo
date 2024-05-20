@@ -50,7 +50,7 @@ contract Deposit_Integration_Test is Integration_Test {
 
     function test_Deposit(uint256 streamId, IERC20 asset) internal {
         vm.expectEmit({ emitter: address(asset) });
-        emit Transfer({
+        emit IERC20.Transfer({
             from: users.sender,
             to: address(openEnded),
             value: normalizeTransferAmount(streamId, DEPOSIT_AMOUNT)
@@ -63,6 +63,9 @@ contract Deposit_Integration_Test is Integration_Test {
             asset: asset,
             depositAmount: DEPOSIT_AMOUNT
         });
+
+        vm.expectEmit({ emitter: address(openEnded) });
+        emit MetadataUpdate({ _tokenId: streamId });
 
         expectCallToTransferFrom({
             asset: asset,
