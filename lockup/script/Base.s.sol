@@ -84,13 +84,15 @@ contract BaseScript is Script {
 
     /// @dev Populates the segment & tranche count map. Values can be updated using the `update-counts.sh` script.
     function populateSegmentAndTrancheCountMap() internal {
+        // forgefmt: disable-start
+
         // Arbitrum chain ID
-        segmentCountMap[42_161] = 1170;
-        trancheCountMap[42_161] = 1210;
+        segmentCountMap[42161] = 1170;
+        trancheCountMap[42161] = 1210;
 
         // Avalanche chain ID.
-        segmentCountMap[43_114] = 530;
-        trancheCountMap[43_114] = 540;
+        segmentCountMap[43114] = 530;
+        trancheCountMap[43114] = 540;
 
         // Base chain ID.
         segmentCountMap[8453] = 2200;
@@ -121,11 +123,13 @@ contract BaseScript is Script {
         trancheCountMap[137] = 1130;
 
         // Scroll chain ID.
-        segmentCountMap[534_352] = 340;
-        trancheCountMap[534_352] = 350;
+        segmentCountMap[534352] = 340;
+        trancheCountMap[534352] = 350;
 
         // Sepolia chain ID.
-        segmentCountMap[11_155_111] = 1100;
-        trancheCountMap[11_155_111] = 1130;
+        segmentCountMap[11155111] = 1100;
+        trancheCountMap[11155111] = 1130;
+
+        // forgefmt: disable-end
     }
 }
