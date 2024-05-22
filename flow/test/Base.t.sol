@@ -10,34 +10,18 @@ import { SablierV2OpenEnded } from "src/SablierV2OpenEnded.sol";
 import { ERC20Mock } from "./mocks/ERC20Mock.sol";
 import { ERC20MissingReturn } from "./mocks/ERC20MissingReturn.sol";
 import { Assertions } from "./utils/Assertions.sol";
+import { Constants } from "./utils/Constants.sol";
 import { Events } from "./utils/Events.sol";
 import { Modifiers } from "./utils/Modifiers.sol";
+import { Users } from "./utils/Types.sol";
 import { Utils } from "./utils/Utils.sol";
 
-struct Users {
-    address sender;
-    address recipient;
-    address eve;
-}
-
-abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
+abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, Utils {
     using SafeCast for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     DEFAULTS
+                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
-
-    bool public constant IS_TRANFERABLE = true;
-    uint128 public constant RATE_PER_SECOND = 0.001e18; // 86.4 daily
-    uint128 public constant DEPOSIT_AMOUNT = 50_000e18;
-    uint40 internal constant MAY_1_2024 = 1_714_518_000;
-    uint40 public immutable ONE_MONTH = 30 days; // "30/360" convention
-    uint128 public constant ONE_MONTH_STREAMED_AMOUNT = 2592e18; // 86.4 * 30
-    uint128 public constant ONE_MONTH_REFUNDABLE_AMOUNT = DEPOSIT_AMOUNT - ONE_MONTH_STREAMED_AMOUNT;
-    uint128 public constant REFUND_AMOUNT = 10_000e18;
-    uint40 public immutable WARP_ONE_MONTH;
-    uint128 public constant WITHDRAW_AMOUNT = 2500e18;
-    uint40 public immutable WITHDRAW_TIME;
 
     Users internal users;
 
@@ -46,20 +30,8 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
     //////////////////////////////////////////////////////////////////////////*/
 
     ERC20Mock internal dai = new ERC20Mock("Dai stablecoin", "DAI");
-    ERC20MissingReturn internal usdt = new ERC20MissingReturn("USDT stablecoin", "USDT", 6);
     SablierV2OpenEnded internal openEnded;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
-
-    constructor() {
-        // Warp to May 1, 2024 at 00:00 GMT to provide a more realistic testing environment.
-        vm.warp({ newTimestamp: MAY_1_2024 });
-
-        WARP_ONE_MONTH = uint40(block.timestamp + ONE_MONTH);
-        WITHDRAW_TIME = uint40(block.timestamp) + 2_500_000;
-    }
+    ERC20MissingReturn internal usdt = new ERC20MissingReturn("USDT stablecoin", "USDT", 6);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -72,13 +44,16 @@ abstract contract Base_Test is Assertions, Events, Modifiers, Test, Utils {
             openEnded = deployOptimizedOpenEnded();
         }
 
-        users.sender = createUser("sender");
-        users.recipient = createUser("recipient");
         users.eve = createUser("eve");
+        users.recipient = createUser("recipient");
+        users.sender = createUser("sender");
 
         labelConctracts();
 
         resetPrank(users.sender);
+
+        // Warp to May 1, 2024 at 00:00 GMT to provide a more realistic testing environment.
+        vm.warp({ newTimestamp: MAY_1_2024 });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

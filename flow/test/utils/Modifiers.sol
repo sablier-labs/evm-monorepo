@@ -70,7 +70,7 @@ abstract contract Modifiers {
                                        CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenSenderNonZeroAddress() {
+    modifier whenAssetContract() {
         _;
     }
 
@@ -78,7 +78,7 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenAssetContract() {
+    modifier whenSenderNonZeroAddress() {
         _;
     }
 
