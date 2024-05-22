@@ -173,16 +173,6 @@ interface ISablierV2OpenEnded is
     /// @param streamId The ID of the stream to cancel.
     function cancel(uint256 streamId) external;
 
-    /// @notice Cancels multiple streams and refunds available assets to the sender.
-    ///
-    /// @dev Emits multiple {Transfer} and {CancelOpenEndedStream} events.
-    ///
-    /// Requirements:
-    /// - All requirements from {cancel} must be met for each stream.
-    ///
-    /// @param streamIds The IDs of the streams to cancel.
-    function cancelMultiple(uint256[] calldata streamIds) external;
-
     /// @notice Creates a new open-ended stream with the `block.timestamp` as the time reference and with zero balance.
     /// The stream is wrapped in an ERC-721 NFT.
     ///
@@ -240,57 +230,6 @@ interface ISablierV2OpenEnded is
         external
         returns (uint256 streamId);
 
-    /// @notice Creates multiple open-ended streams with the `block.timestamp` as the time reference and with
-    /// `amounts` balances. The streams are wrapped in ERC-721 NFTs.
-    ///
-    /// @dev Emits multiple {CreateOpenEndedStream}, {Transfer} and {DepositOpenEndedStream} events.
-    ///
-    /// Requirements:
-    /// - All requirements from {create} must be met for each stream.
-    /// - `recipients`, `senders`, `ratesPerSecond` and `amounts` arrays must be of equal length.
-    ///
-    /// @param recipients The addresses receiving the assets.
-    /// @param senders The addresses streaming the assets, with the ability to adjust and cancel the stream.
-    /// @param ratesPerSecond The amounts of assets that are increasing by every second, denoted in 18 decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param isTransferable An array of booleans indicating if the stream NFT is transferable.
-    /// @param amounts The amounts deposited in the streams.
-    /// @return streamIds The IDs of the newly created streams.
-    function createAndDepositMultiple(
-        address[] calldata recipients,
-        address[] calldata senders,
-        uint128[] calldata ratesPerSecond,
-        IERC20 asset,
-        bool[] calldata isTransferable,
-        uint128[] calldata amounts
-    )
-        external
-        returns (uint256[] memory streamIds);
-
-    /// @notice Creates multiple open-ended streams with the `block.timestamp` as the time reference and with zero
-    /// balance. The stream is wrapped in an ERC-721 NFT.
-    ///
-    /// @dev Emits multiple {CreateOpenEndedStream} events.
-    ///
-    /// Requirements:
-    /// - `recipients`, `senders` and `ratesPerSecond` arrays must be of equal length.
-    /// - All requirements from {create} must be met for each stream.
-    ///
-    /// @param recipients The addresses receiving the assets.
-    /// @param senders The addresses streaming the assets, with the ability to adjust and cancel the stream.
-    /// @param ratesPerSecond The amounts of assets that are increasing by every second, denoted in 18 decimals.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param isTransferable An array of booleans indicating if the stream NFTs are transferable.
-    function createMultiple(
-        address[] calldata recipients,
-        address[] calldata senders,
-        uint128[] calldata ratesPerSecond,
-        IERC20 asset,
-        bool[] calldata isTransferable
-    )
-        external
-        returns (uint256[] memory streamIds);
-
     /// @notice Deposits assets in a stream.
     ///
     /// @dev Emits a {Transfer} and {DepositOpenEndedStream} event.
@@ -303,18 +242,6 @@ interface ISablierV2OpenEnded is
     /// @param streamId The ID of the stream to deposit on.
     /// @param amount The amount deposited in the stream, denoted in 18 decimals.
     function deposit(uint256 streamId, uint128 amount) external;
-
-    /// @notice Deposits assets in multiple streams.
-    ///
-    /// @dev Emits multiple {Transfer} and {DepositOpenEndedStream} events.
-    ///
-    /// Requirements:
-    /// - All requirements from {deposit} must be met for each stream.
-    /// - `streamIds` and `amounts` arrays must be of equal length.
-    ///
-    /// @param streamIds The ids of the streams to deposit on.
-    /// @param amounts The amount of assets to be deposited, denoted in 18 decimals.
-    function depositMultiple(uint256[] calldata streamIds, uint128[] calldata amounts) external;
 
     /// @notice Refunds the provided amount of assets from the stream to the sender's address.
     ///
@@ -377,20 +304,6 @@ interface ISablierV2OpenEnded is
     /// @param time The Unix timestamp for the streamed amount calculation.
     function withdrawAt(uint256 streamId, address to, uint40 time) external;
 
-    /// @notice Withdraws assets from streams to the recipient of each stream.
-    ///
-    /// @dev Emits multiple {Transfer} and {WithdrawFromOpenEndedStream} events.
-    ///
-    /// Requirements:
-    /// - Must not be delegate called.
-    /// - `streamIds` and `times` arrays must be of equal length.
-    /// - Each stream ID in the array must not reference a null stream.
-    /// - Each time in the array must be greater than the last time update and must not exceed `block.timestamp`.
-    ///
-    /// @param streamIds The IDs of the streams to withdraw from.
-    /// @param times The time references to calculate the streamed amount for each stream.
-    function withdrawAtMultiple(uint256[] calldata streamIds, uint40[] calldata times) external;
-
     /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.
     ///
     /// @dev Emits a {Transfer}, {WithdrawFromOpenEndedStream} event.
@@ -401,14 +314,4 @@ interface ISablierV2OpenEnded is
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn assets.
     function withdrawMax(uint256 streamId, address to) external;
-
-    /// @notice Withdraws the maximum withdrawable amount from each stream to the recipient of each stream.
-    ///
-    /// @dev Emits multiple {Transfer} and {WithdrawFromOpenEndedStream} events.
-    ///
-    /// Requirements:
-    /// - All requirements from {withdrawAt} must be met for each stream.
-    ///
-    /// @param streamIds The IDs of the streams to withdraw from.
-    function withdrawMaxMultiple(uint256[] calldata streamIds) external;
 }

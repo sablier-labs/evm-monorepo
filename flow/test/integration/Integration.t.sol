@@ -8,30 +8,13 @@ import { Errors } from "src/libraries/Errors.sol";
 import { Base_Test } from "../Base.t.sol";
 
 abstract contract Integration_Test is Base_Test {
-    uint128[] internal defaultDepositAmounts;
-    uint128[] internal defaultRatesPerSecond;
-    address[] internal defaultRecipients;
-    address[] internal defaultSenders;
-    bool[] internal defaultIsTransferable;
     uint256 internal defaultStreamId;
-    uint256[] internal defaultStreamIds;
     uint256 internal nullStreamId = 420;
 
     function setUp() public virtual override {
         Base_Test.setUp();
 
         defaultStreamId = createDefaultStream();
-
-        defaultStreamIds.push(defaultStreamId);
-        defaultStreamIds.push(createDefaultStream());
-
-        for (uint256 i; i < 2; ++i) {
-            defaultRecipients.push(users.recipient);
-            defaultSenders.push(users.sender);
-            defaultRatesPerSecond.push(RATE_PER_SECOND);
-            defaultDepositAmounts.push(DEPOSIT_AMOUNT);
-            defaultIsTransferable.push(IS_TRANFERABLE);
-        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

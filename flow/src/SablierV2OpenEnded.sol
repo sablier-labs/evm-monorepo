@@ -170,16 +170,6 @@ contract SablierV2OpenEnded is
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function cancelMultiple(uint256[] calldata streamIds) external override {
-        // Iterate over the provided array of stream IDs and cancel each stream.
-        uint256 count = streamIds.length;
-        for (uint256 i = 0; i < count; ++i) {
-            // Effects and Interactions: cancel the stream.
-            cancel(streamIds[i]);
-        }
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
     function create(
         address sender,
         address recipient,
@@ -217,65 +207,6 @@ contract SablierV2OpenEnded is
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function createMultiple(
-        address[] calldata recipients,
-        address[] calldata senders,
-        uint128[] calldata ratesPerSecond,
-        IERC20 asset,
-        bool[] calldata isTransferable
-    )
-        public
-        override
-        noDelegateCall
-        returns (uint256[] memory streamIds)
-    {
-        uint256 recipientsCount = recipients.length;
-        uint256 sendersCount = senders.length;
-        uint256 ratesPerSecondCount = ratesPerSecond.length;
-
-        // Check: count of `senders`, `recipients` and `ratesPerSecond` matches.
-        if (recipientsCount != sendersCount || recipientsCount != ratesPerSecondCount) {
-            revert Errors.SablierV2OpenEnded_CreateMultipleArrayCountsNotEqual(
-                recipientsCount, sendersCount, ratesPerSecondCount
-            );
-        }
-
-        streamIds = new uint256[](recipientsCount);
-        for (uint256 i = 0; i < recipientsCount; ++i) {
-            // Checks, Effects and Interactions: create the stream.
-            streamIds[i] = _create(senders[i], recipients[i], ratesPerSecond[i], asset, isTransferable[i]);
-        }
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function createAndDepositMultiple(
-        address[] calldata recipients,
-        address[] calldata senders,
-        uint128[] calldata ratesPerSecond,
-        IERC20 asset,
-        bool[] calldata isTransferable,
-        uint128[] calldata amounts
-    )
-        external
-        override
-        returns (uint256[] memory streamIds)
-    {
-        streamIds = new uint256[](recipients.length);
-        streamIds = createMultiple(recipients, senders, ratesPerSecond, asset, isTransferable);
-
-        uint256 streamIdsCount = streamIds.length;
-        if (streamIdsCount != amounts.length) {
-            revert Errors.SablierV2OpenEnded_DepositArrayCountsNotEqual(streamIdsCount, amounts.length);
-        }
-
-        // Deposit on each stream.
-        for (uint256 i = 0; i < streamIdsCount; ++i) {
-            // Checks, Effects and Interactions: deposit on stream.
-            _deposit(streamIds[i], amounts[i]);
-        }
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
     function deposit(
         uint256 streamId,
         uint128 amount
@@ -289,22 +220,6 @@ contract SablierV2OpenEnded is
     {
         // Checks, Effects and Interactions: deposit on stream.
         _deposit(streamId, amount);
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function depositMultiple(uint256[] memory streamIds, uint128[] calldata amounts) external override {
-        uint256 streamIdsCount = streamIds.length;
-        uint256 amountsCount = amounts.length;
-
-        // Check: count of `streamIds` matches count of `amounts`.
-        if (streamIdsCount != amountsCount) {
-            revert Errors.SablierV2OpenEnded_DepositArrayCountsNotEqual(streamIdsCount, amountsCount);
-        }
-
-        for (uint256 i = 0; i < streamIdsCount; ++i) {
-            // Checks, Effects and Interactions: deposit on stream.
-            deposit(streamIds[i], amounts[i]);
-        }
     }
 
     /// @inheritdoc ISablierV2OpenEnded
@@ -365,44 +280,9 @@ contract SablierV2OpenEnded is
     }
 
     /// @inheritdoc ISablierV2OpenEnded
-    function withdrawAtMultiple(
-        uint256[] calldata streamIds,
-        uint40[] calldata times
-    )
-        external
-        override
-        noDelegateCall
-    {
-        // Check: there is an equal number of `streamIds` and `amounts`.
-        uint256 streamIdsCount = streamIds.length;
-        uint256 timesCount = times.length;
-        if (streamIdsCount != timesCount) {
-            revert Errors.SablierV2OpenEnded_WithdrawMultipleArrayCountsNotEqual(streamIdsCount, timesCount);
-        }
-
-        // Iterate over the provided array of stream IDs, and withdraw from each stream to the recipient.
-        for (uint256 i = 0; i < streamIdsCount; ++i) {
-            // Checks, Effects and Interactions: check the parameters and make the withdrawal.
-            withdrawAt({ streamId: streamIds[i], to: _ownerOf(streamIds[i]), time: times[i] });
-        }
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
     function withdrawMax(uint256 streamId, address to) external override {
         // Checks, Effects and Interactions: make the withdrawal.
         withdrawAt(streamId, to, uint40(block.timestamp));
-    }
-
-    /// @inheritdoc ISablierV2OpenEnded
-    function withdrawMaxMultiple(uint256[] calldata streamIds) external override {
-        uint256 streamIdsCount = streamIds.length;
-        uint40 blockTimestamp = uint40(block.timestamp);
-
-        // Iterate over the provided array of stream IDs, and withdraw from each stream to the recipient.
-        for (uint256 i = 0; i < streamIdsCount; ++i) {
-            // Checks, Effects and Interactions: check the parameters and make the withdrawal.
-            withdrawAt({ streamId: streamIds[i], to: _ownerOf(streamIds[i]), time: blockTimestamp });
-        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -1,9 +1,0 @@
-createAndDepositMultiple.t.sol
-├── when array counts are not equal
-│  └── it should revert
-└── when array counts are equal
-   ├── it should create multiple streams
-   ├── it should update the stream balance
-   ├── it should perform the ERC-20 transfer 
-   ├── it should bump the next stream id multiple times
-   └── it should emit multiple {CreateOpenEndedStream}, {Transfer} and {DepositOpenEndedStream} events

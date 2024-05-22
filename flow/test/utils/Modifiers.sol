@@ -67,14 +67,6 @@ abstract contract Modifiers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  CANCEL-MULTIPLE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenArrayCountNotZero() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                        CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -87,18 +79,6 @@ abstract contract Modifiers {
     }
 
     modifier whenAssetContract() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                  CREATE-MULTIPLE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenArrayCountsNotEqual() {
-        _;
-    }
-
-    modifier whenArrayCountsEqual() {
         _;
     }
 
@@ -155,18 +135,6 @@ abstract contract Modifiers {
     }
 
     modifier whenWithdrawalTimeNotInTheFuture() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                 WITHDRAW-AT-MULTIPLE   
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier whenArrayCountsAreEqual() {
-        _;
-    }
-
-    modifier whenArrayCountsNotZero() {
         _;
     }
 }
