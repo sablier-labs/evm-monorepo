@@ -94,6 +94,17 @@ interface ISablierV2OpenEnded is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Returns the timestamp at which the stream depletes its balance and starts to accumulate debt.
+    /// @dev Reverts if `streamId` refers to a paused or a null stream.
+    ///
+    /// Notes:
+    /// - If the stream has no debt, it returns the timestamp when the debt begins based on current balance and rps.
+    /// - If the stream has debt, it returns 0.
+    ///
+    /// @param streamId The stream ID for the query.
+    /// @return depletionTime The UNIX timestamp.
+    function depletionTimeOf(uint256 streamId) external view returns (uint40 depletionTime);
+
     /// @notice Calculates the amount that the sender can refund from stream, denoted in 18 decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.

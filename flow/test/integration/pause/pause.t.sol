@@ -90,7 +90,7 @@ contract Pause_Integration_Test is Integration_Test {
         givenWithdrawableAmountNotZero
         givenRefundableAmountNotZero
     {
-        defaultDeposit();
+        depositToDefaultStream();
 
         uint128 withdrawableAmount = openEnded.withdrawableAmountOf(defaultStreamId);
 

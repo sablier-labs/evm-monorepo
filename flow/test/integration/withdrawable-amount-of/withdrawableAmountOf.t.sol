@@ -40,7 +40,7 @@ contract WithdrawableAmountOf_Integration_Test is Integration_Test {
 
     function test_WithdrawableAmountOf_StreamPaused() external givenNotNull givenBalanceNotZero givenPaused {
         // Deposit enough funds.
-        defaultDeposit();
+        depositToDefaultStream();
 
         // Simulate passage of time.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
@@ -91,7 +91,7 @@ contract WithdrawableAmountOf_Integration_Test is Integration_Test {
         // Simulate passage of time.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
-        defaultDeposit();
+        depositToDefaultStream();
 
         uint128 newRatePerSecond = RATE_PER_SECOND * 2;
 

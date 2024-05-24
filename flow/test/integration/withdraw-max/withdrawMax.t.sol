@@ -9,7 +9,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
-        defaultDeposit();
+        depositToDefaultStream();
 
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
     }

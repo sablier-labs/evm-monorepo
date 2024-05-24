@@ -14,7 +14,7 @@ contract StreamDebtOf_Integration_Test is Integration_Test {
     }
 
     function test_RevertGiven_BalanceNotLessThanRemainingAmount() external givenNotNull givenPaused {
-        defaultDeposit();
+        depositToDefaultStream();
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
         openEnded.pause(defaultStreamId);
@@ -37,7 +37,7 @@ contract StreamDebtOf_Integration_Test is Integration_Test {
     }
 
     function test_StreamDebtOf_BalanceNotLessThanSum() external givenNotNull givenNotPaused {
-        defaultDeposit();
+        depositToDefaultStream();
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
         uint128 actualDebt = openEnded.streamDebtOf(defaultStreamId);

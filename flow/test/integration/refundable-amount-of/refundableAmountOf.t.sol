@@ -19,7 +19,7 @@ contract RefundableAmountOf_Integration_Test is Integration_Test {
     }
 
     function test_RefundableAmountOf_Paused() external givenNotNull {
-        defaultDeposit();
+        depositToDefaultStream();
         openEnded.refundableAmountOf(defaultStreamId);
 
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
@@ -39,7 +39,7 @@ contract RefundableAmountOf_Integration_Test is Integration_Test {
     }
 
     function test_RefundableAmountOf() external givenNotNull givenNotPaused {
-        defaultDeposit();
+        depositToDefaultStream();
 
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
         uint128 refundableAmount = openEnded.refundableAmountOf(defaultStreamId);
