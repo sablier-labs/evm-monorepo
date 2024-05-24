@@ -80,7 +80,7 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         uint256 streamBalancesSumNormalized;
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
-            streamBalancesSumNormalized += uint256(normalizeBalance(streamId));
+            streamBalancesSumNormalized += uint256(normalizeStreamBalance(streamId));
         }
 
         assertGe(

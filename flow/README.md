@@ -23,7 +23,7 @@ internal balance and a rate-per-second in the Stream entity:
 - Top up, which are public (you can ask a friend to deposit money for you instead)
 - No deposits are required at the time of stream creation; thus, creation and deposit are distinct operations.
 - There are no deposit limits.
-- Streams can be created for an indefinite period, they will be collecting debt until the sender deposits or cancels the
+- Streams can be created for an indefinite period, they will be collecting debt until the sender deposits or pauses the
   stream.
 - Ability to pause and restart streams.
 - The sender can refund from the stream balance at any time.

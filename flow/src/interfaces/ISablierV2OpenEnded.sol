@@ -4,6 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { ISablierV2OpenEndedState } from "./ISablierV2OpenEndedState.sol";
+import { Broker } from "../types/DataTypes.sol";
 
 /// @title ISablierV2OpenEnded
 /// @notice Creates and manages Open Ended streams with linear streaming functions.
@@ -44,7 +45,7 @@ interface ISablierV2OpenEnded is
     /// @param streamId The ID of the open-ended stream.
     /// @param funder The address which funded the stream.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param depositAmount The amount of assets deposited, denoted in 18 decimals.
+    /// @param depositAmount The amount of assets deposited into the stream, denoted in 18 decimals.
     event DepositOpenEndedStream(
         uint256 indexed streamId, address indexed funder, IERC20 indexed asset, uint128 depositAmount
     );
@@ -170,7 +171,7 @@ interface ISablierV2OpenEnded is
     /// @param newRatePerSecond The new rate per second of the open-ended stream, denoted in 18 decimals.
     function adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) external;
 
-    /// @notice Creates a new open-ended stream with the `block.timestamp` as the time reference and with zero balance.
+    /// @notice Creates a new open-ended stream with `block.timestamp` as `lastTimeUpdate` and set stream balance to 0.
     /// The stream is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateOpenEndedStream} event.
@@ -185,6 +186,7 @@ interface ISablierV2OpenEnded is
     /// @param recipient The address receiving the assets.
     /// @param sender The address streaming the assets, with the ability to adjust and pause the stream. It doesn't
     /// have to be the same as `msg.sender`.
+    /// @param sender The address streaming the assets. It doesn't have to be the same as `msg.sender`.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
@@ -199,18 +201,16 @@ interface ISablierV2OpenEnded is
         external
         returns (uint256 streamId);
 
-    /// @notice Creates a new open-ended stream with the `block.timestamp` as the time reference
-    /// and with `amount` balance. The stream is wrapped in an ERC-721 NFT.
+    /// @notice Creates a new open-ended stream with `block.timestamp` as `lastTimeUpdate` and set the stream balance to
+    /// `amount`. The stream is wrapped in an ERC-721 NFT.
     ///
     /// @dev Emits a {CreateOpenEndedStream}, {Transfer} and {DepositOpenEndedStream} events.
     ///
     /// Requirements:
-    /// - `amount` must be greater than zero.
-    /// - Refer to the requirements in {create}.
+    /// - Refer to the requirements in {create} and {deposit}.
     ///
     /// @param recipient The address receiving the assets.
-    /// @param sender The address streaming the assets, with the ability to adjust and pause the stream. It doesn't
-    /// have to be the same as `msg.sender`.
+    /// @param sender The address streaming the assets. It doesn't have to be the same as `msg.sender`.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
@@ -227,6 +227,36 @@ interface ISablierV2OpenEnded is
         external
         returns (uint256 streamId);
 
+    /// @notice Creates a new open-ended stream with `block.timestamp` as `lastTimeUpdate` and set the stream balance to
+    /// an amount calculated from the `totalAmount` after broker fee amount deduction. The stream is wrapped in an
+    /// ERC-721 NFT.
+    ///
+    /// @dev Emits a {CreateOpenEndedStream}, {Transfer} and {DepositOpenEndedStream} events.
+    ///
+    /// Requirements:
+    /// - Refer to the requirements in {create} and {depositViaBroker}.
+    ///
+    /// @param recipient The address receiving the assets.
+    /// @param sender The address streaming the assets. It doesn't have to be the same as `msg.sender`.
+    /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param isTransferable Boolean indicating if the stream NFT is transferable.
+    /// @param totalAmount The total amount, including the stream deposit and broker fee amount, both denoted in 18
+    /// decimals.
+    /// @param broker The broker's address and fee.
+    /// @return streamId The ID of the newly created stream.
+    function createAndDepositViaBroker(
+        address recipient,
+        address sender,
+        uint128 ratePerSecond,
+        IERC20 asset,
+        bool isTransferable,
+        uint128 totalAmount,
+        Broker calldata broker
+    )
+        external
+        returns (uint256 streamId);
+
     /// @notice Deposits assets in a stream.
     ///
     /// @dev Emits a {Transfer} and {DepositOpenEndedStream} event.
@@ -239,6 +269,23 @@ interface ISablierV2OpenEnded is
     /// @param streamId The ID of the stream to deposit on.
     /// @param amount The amount deposited in the stream, denoted in 18 decimals.
     function deposit(uint256 streamId, uint128 amount) external;
+
+    /// @notice Deposits assets in a stream.
+    ///
+    /// @dev Emits a {Transfer} and {DepositOpenEndedStream} event.
+    ///
+    /// Requirements:
+    /// - Must not be delegate called.
+    /// - `streamId` must not reference a null stream.
+    /// - `totalAmount` must be greater than zero. Otherwise it will revert inside {deposit}.
+    /// - `broker.account` must not be 0 address.
+    /// - `broker.fee` must not be greater than `MAX_BROKER_FEE`. It can be zero.
+    ///
+    /// @param streamId The ID of the stream to deposit on.
+    /// @param totalAmount The total amount, including the stream deposit and broker fee amount, both denoted in 18
+    /// decimals.
+    /// @param broker The broker's address and fee.
+    function depositViaBroker(uint256 streamId, uint128 totalAmount, Broker calldata broker) external;
 
     /// @notice Pauses the stream and refunds available assets to the sender.
     ///

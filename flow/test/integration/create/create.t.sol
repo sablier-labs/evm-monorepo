@@ -33,7 +33,7 @@ contract Create_Integration_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled whenSenderNonZeroAddress {
+    function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled whenSenderIsNotZeroAddress {
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, address(0)));
         openEnded.create({
             sender: users.sender,
@@ -47,8 +47,8 @@ contract Create_Integration_Test is Integration_Test {
     function test_RevertWhen_RatePerSecondZero()
         external
         whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
+        whenSenderIsNotZeroAddress
+        whenRecipientIsNotZeroAddress
     {
         vm.expectRevert(Errors.SablierV2OpenEnded_RatePerSecondZero.selector);
         openEnded.create({
@@ -63,9 +63,9 @@ contract Create_Integration_Test is Integration_Test {
     function test_RevertWhen_AssetNotContract()
         external
         whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
-        whenRatePerSecondNonZero
+        whenSenderIsNotZeroAddress
+        whenRecipientIsNotZeroAddress
+        whenRatePerSecondIsNotZero
     {
         address nonContract = address(8128);
         vm.expectRevert(
@@ -83,9 +83,9 @@ contract Create_Integration_Test is Integration_Test {
     function test_Create()
         external
         whenNotDelegateCalled
-        whenSenderNonZeroAddress
-        whenRecipientNonZeroAddress
-        whenRatePerSecondNonZero
+        whenSenderIsNotZeroAddress
+        whenRecipientIsNotZeroAddress
+        whenRatePerSecondIsNotZero
         whenAssetContract
     {
         uint256 expectedStreamId = openEnded.nextStreamId();

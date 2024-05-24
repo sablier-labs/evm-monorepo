@@ -74,7 +74,7 @@ contract RestartStream_Integration_Test is Integration_Test {
         givenNotNull
         givenPaused
         whenCallerIsTheSender
-        whenRatePerSecondNonZero
+        whenRatePerSecondIsNotZero
     {
         vm.expectEmit({ emitter: address(openEnded) });
         emit RestartOpenEndedStream({

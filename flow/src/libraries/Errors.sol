@@ -2,6 +2,7 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 /// @title Errors
 /// @notice Library with custom erros used across the OpenEnded contract.
@@ -17,7 +18,13 @@ library Errors {
                                  SABLIER-V2-OpenEnded
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when trying to create a OpenEnded stream with a zero deposit amount.
+    /// @notice Thrown when trying to create a stream with a broker fee more than the allowed.
+    error SablierV2OpenEnded_BrokerFeeTooHigh(uint256 streamId, UD60x18 fee, UD60x18 maxFee);
+
+    /// @notice Thrown when trying to create a stream with a broker recipient address as zero.
+    error SablierV2OpenEnded_BrokerAddressZero();
+
+    /// @notice Thrown when trying to create a stream with a zero deposit amount.
     error SablierV2OpenEnded_DepositAmountZero();
 
     /// @notice Thrown when trying to create a stream with an asset with no decimals.
@@ -48,7 +55,7 @@ library Errors {
     /// @notice Thrown when trying to refund zero assets from a stream.
     error SablierV2OpenEnded_RefundAmountZero();
 
-    /// @notice Thrown when trying to create a OpenEnded stream with the sender as the zero address.
+    /// @notice Thrown when trying to create a stream with the sender as the zero address.
     error SablierV2OpenEnded_SenderZeroAddress();
 
     /// @notice Thrown when trying to perform an action with a paused stream.

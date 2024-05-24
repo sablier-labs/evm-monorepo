@@ -120,7 +120,7 @@ contract RefundFromStream_Integration_Test is Integration_Test {
         emit IERC20.Transfer({
             from: address(openEnded),
             to: users.sender,
-            value: normalizeTransferAmount(streamId, REFUND_AMOUNT)
+            value: normalizeAmountWithStreamId(streamId, REFUND_AMOUNT)
         });
 
         vm.expectEmit({ emitter: address(openEnded) });
@@ -131,7 +131,11 @@ contract RefundFromStream_Integration_Test is Integration_Test {
             refundAmount: REFUND_AMOUNT
         });
 
-        expectCallToTransfer({ asset: asset, to: users.sender, amount: normalizeTransferAmount(streamId, REFUND_AMOUNT) });
+        expectCallToTransfer({
+            asset: asset,
+            to: users.sender,
+            amount: normalizeAmountWithStreamId(streamId, REFUND_AMOUNT)
+        });
         openEnded.refundFromStream({ streamId: streamId, amount: REFUND_AMOUNT });
 
         uint128 actualStreamBalance = openEnded.getBalance(streamId);

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
+import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
@@ -12,6 +13,11 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         depositToDefaultStream();
 
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
+    }
+
+    function test_RevertWhen_DelegateCall() external {
+        bytes memory callData = abi.encodeCall(ISablierV2OpenEnded.withdrawMax, (defaultStreamId, users.recipient));
+        expectRevertDueToDelegateCall(callData);
     }
 
     function test_WithdrawMax_Paused() external {
@@ -47,7 +53,7 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
         emit IERC20.Transfer({
             from: address(openEnded),
             to: users.recipient,
-            value: normalizeTransferAmount(defaultStreamId, ONE_MONTH_STREAMED_AMOUNT)
+            value: normalizeAmountWithStreamId(defaultStreamId, ONE_MONTH_STREAMED_AMOUNT)
         });
 
         vm.expectEmit({ emitter: address(openEnded) });

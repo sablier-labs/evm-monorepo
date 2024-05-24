@@ -4,15 +4,19 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Errors } from "src/libraries/Errors.sol";
+import { Broker } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
 abstract contract Integration_Test is Base_Test {
+    Broker internal defaultBroker;
     uint256 internal defaultStreamId;
     uint256 internal nullStreamId = 420;
 
     function setUp() public virtual override {
         Base_Test.setUp();
+
+        defaultBroker = broker();
 
         defaultStreamId = createDefaultStream();
     }
@@ -20,6 +24,10 @@ abstract contract Integration_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function broker() public view returns (Broker memory) {
+        return Broker({ account: users.broker, fee: BROKER_FEE });
+    }
 
     function createDefaultStream() internal returns (uint256) {
         return createDefaultStreamWithAsset(dai);

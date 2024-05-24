@@ -29,6 +29,8 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(a.lastTimeUpdate, b.lastTimeUpdate, "lastTimeUpdate");
         assertEq(a.isPaused, b.isPaused, "isPaused");
         assertEq(a.isStream, b.isStream, "isStream");
+        assertEq(a.isTransferable, b.isTransferable, "isTransferable");
+        assertEq(a.remainingAmount, b.remainingAmount, "remainingAmount");
         assertEq(a.sender, b.sender, "sender");
     }
 }

@@ -2,8 +2,16 @@
 pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-// TODO: add Broker
+/// @notice Struct encapsulating the broker parameters passed to the `depositViaBroker` and `createAndDepositViaBroker`
+/// functions.
+/// @param account The address receiving the broker's fee.
+/// @param fee The broker's percentage fee from the amount passed, denoted as a fixed-point number where 1e18 is 100%.
+struct Broker {
+    address account;
+    UD60x18 fee;
+}
 
 library OpenEnded {
     /// @notice OpenEnded stream.

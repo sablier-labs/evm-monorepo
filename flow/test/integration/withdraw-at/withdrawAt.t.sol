@@ -330,7 +330,7 @@ contract WithdrawAt_Integration_Test is Integration_Test {
         emit IERC20.Transfer({
             from: address(openEnded),
             to: users.recipient,
-            value: normalizeTransferAmount(streamId, WITHDRAW_AMOUNT)
+            value: normalizeAmountWithStreamId(streamId, WITHDRAW_AMOUNT)
         });
 
         vm.expectEmit({ emitter: address(openEnded) });
@@ -344,7 +344,7 @@ contract WithdrawAt_Integration_Test is Integration_Test {
         expectCallToTransfer({
             asset: asset,
             to: users.recipient,
-            amount: normalizeTransferAmount(streamId, WITHDRAW_AMOUNT)
+            amount: normalizeAmountWithStreamId(streamId, WITHDRAW_AMOUNT)
         });
         openEnded.withdrawAt({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
 

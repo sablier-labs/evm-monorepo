@@ -22,15 +22,23 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier givenRemainingAmountZero() {
-        _;
-    }
-
     modifier givenRemainingAmountNotZero() {
         _;
     }
 
-    modifier whenCallerIsTheSender() {
+    modifier givenRemainingAmountZero() {
+        _;
+    }
+
+    modifier whenAssetDoesNotMissERC20Return() {
+        _;
+    }
+
+    modifier whenBrokerAddressIsNotZero() {
+        _;
+    }
+
+    modifier whenBrokerFeeNotGreaterThanMaxFee() {
         _;
     }
 
@@ -38,11 +46,27 @@ abstract contract Modifiers {
         _;
     }
 
+    modifier whenCallerIsTheSender() {
+        _;
+    }
+
     modifier whenNotDelegateCalled() {
         _;
     }
 
-    modifier whenRatePerSecondNonZero() {
+    modifier whenRatePerSecondIsNotZero() {
+        _;
+    }
+
+    modifier whenSenderIsNotZeroAddress() {
+        _;
+    }
+
+    modifier whenTokenDecimalIsNotZero() {
+        _;
+    }
+
+    modifier whenTotalAmountIsNotZero() {
         _;
     }
 
@@ -55,14 +79,10 @@ abstract contract Modifiers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                       CANCEL
+                                       PAUSE
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenRefundableAmountNotZero() {
-        _;
-    }
-
-    modifier givenWithdrawableAmountNotZero() {
+    modifier givenStreamHasNoDebt() {
         _;
     }
 
@@ -74,11 +94,7 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenRecipientNonZeroAddress() {
-        _;
-    }
-
-    modifier whenSenderNonZeroAddress() {
+    modifier whenRecipientIsNotZeroAddress() {
         _;
     }
 

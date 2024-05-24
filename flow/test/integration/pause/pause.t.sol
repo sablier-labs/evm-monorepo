@@ -87,8 +87,7 @@ contract Pause_Integration_Test is Integration_Test {
         givenNotNull
         givenNotPaused
         whenCallerIsTheSender
-        givenWithdrawableAmountNotZero
-        givenRefundableAmountNotZero
+        givenStreamHasNoDebt
     {
         depositToDefaultStream();
 

@@ -72,7 +72,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         givenNotNull
         givenNotPaused
         whenCallerIsTheSender
-        whenRatePerSecondNonZero
+        whenRatePerSecondIsNotZero
     {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierV2OpenEnded_RatePerSecondNotDifferent.selector, RATE_PER_SECOND)
@@ -86,7 +86,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         givenNotNull
         givenNotPaused
         whenCallerIsTheSender
-        whenRatePerSecondNonZero
+        whenRatePerSecondIsNotZero
         whenRatePerSecondNotDifferent
     {
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
