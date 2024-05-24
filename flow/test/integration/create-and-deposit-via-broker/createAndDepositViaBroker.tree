@@ -7,4 +7,4 @@ CreateAndDepositViaBroker_Integration_Test
     ├── it should mint the NFT
     ├── it should update the stream balance
     ├── it should perform the ERC20 transfers
-    └── it should emit events: 1 {MetadataUpdate}, 1 {CreateOpenEndedStream}, 2 {Transfer}, 1 {DepositOpenEndedStream}
+    └── it should emit events: 1 {MetadataUpdate}, 1 {CreateFlowStream}, 2 {Transfer}, 1 {DepositFlowStream}

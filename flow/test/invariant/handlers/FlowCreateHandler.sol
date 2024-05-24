@@ -3,22 +3,22 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
-import { OpenEndedStore } from "../stores/OpenEndedStore.sol";
+import { FlowStore } from "../stores/FlowStore.sol";
 import { TimestampStore } from "../stores/TimestampStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
-/// @dev This contract is a complement of {OpenEndedHandler}. The goal is to bias the invariant calls
-/// toward the openEnded functions (especially the create stream functions) by creating multiple handlers for
+/// @dev This contract is a complement of {FlowHandler}. The goal is to bias the invariant calls
+/// toward the Flow functions (especially the create stream functions) by creating multiple handlers for
 /// the contracts.
-contract OpenEndedCreateHandler is BaseHandler {
+contract FlowCreateHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2OpenEnded public openEnded;
-    OpenEndedStore public openEndedStore;
+    ISablierFlow public flow;
+    FlowStore public flowStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -27,13 +27,13 @@ contract OpenEndedCreateHandler is BaseHandler {
     constructor(
         IERC20 asset_,
         TimestampStore timestampStore_,
-        OpenEndedStore openEndedStore_,
-        ISablierV2OpenEnded openEnded_
+        FlowStore flowStore_,
+        ISablierFlow flow_
     )
         BaseHandler(asset_, timestampStore_)
     {
-        openEndedStore = openEndedStore_;
-        openEnded = openEnded_;
+        flowStore = flowStore_;
+        flow = flow_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ contract OpenEndedCreateHandler is BaseHandler {
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        if (openEndedStore.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (flowStore.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -67,10 +67,10 @@ contract OpenEndedCreateHandler is BaseHandler {
         // Create the stream.
         asset = asset;
         uint256 streamId =
-            openEnded.create(params.sender, params.recipient, params.ratePerSecond, asset, params.isTransferable);
+            flow.create(params.sender, params.recipient, params.ratePerSecond, asset, params.isTransferable);
 
         // Store the stream id.
-        openEndedStore.pushStreamId(streamId, params.sender, params.recipient);
+        flowStore.pushStreamId(streamId, params.sender, params.recipient);
     }
 
     function createAndDeposit(
@@ -84,7 +84,7 @@ contract OpenEndedCreateHandler is BaseHandler {
         useNewSender(params.sender)
     {
         // We don't want to create more than a certain number of streams.
-        if (openEndedStore.lastStreamId() >= MAX_STREAM_COUNT) {
+        if (flowStore.lastStreamId() >= MAX_STREAM_COUNT) {
             return;
         }
 
@@ -95,18 +95,18 @@ contract OpenEndedCreateHandler is BaseHandler {
         // Mint enough assets to the Sender.
         deal({ token: address(asset), to: params.sender, give: asset.balanceOf(params.sender) + depositAmount });
 
-        // Approve {SablierV2OpenEnded} to spend the assets.
-        asset.approve({ spender: address(openEnded), value: depositAmount });
+        // Approve {SablierFlow} to spend the assets.
+        asset.approve({ spender: address(flow), value: depositAmount });
 
         // Create the stream.
-        uint256 streamId = openEnded.createAndDeposit(
+        uint256 streamId = flow.createAndDeposit(
             params.sender, params.recipient, params.ratePerSecond, asset, params.isTransferable, depositAmount
         );
 
         // Store the stream id.
-        openEndedStore.pushStreamId(streamId, params.sender, params.recipient);
+        flowStore.pushStreamId(streamId, params.sender, params.recipient);
 
         // Store the deposited amount.
-        openEndedStore.updateStreamDepositedAmountsSum(streamId, depositAmount);
+        flowStore.updateStreamDepositedAmountsSum(streamId, depositAmount);
     }
 }

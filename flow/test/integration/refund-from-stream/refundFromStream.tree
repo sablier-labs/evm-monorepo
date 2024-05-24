@@ -24,9 +24,9 @@ refundFromStream.t.sol
                   │  ├── it should make the refund
                   │  ├── it should update the stream balance
                   │  ├── it should perform the ERC-20 transfer
-                  │  └── it should emit a {Transfer} and {RefundFromOpenEndedStream} event
+                  │  └── it should emit a {Transfer} and {RefundFromFlowStream} event
                   └── given the asset has 18 decimals
                      ├── it should make the refund   
                      ├── it should update the stream balance
                      ├── it should perform the ERC-20 transfer
-                     └── it should emit a {Transfer} and {RefundFromOpenEndedStream} event
+                     └── it should emit a {Transfer} and {RefundFromFlowStream} event

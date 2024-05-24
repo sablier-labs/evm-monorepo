@@ -3,13 +3,13 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2OpenEndedState } from "./ISablierV2OpenEndedState.sol";
+import { ISablierFlowState } from "./ISablierFlowState.sol";
 import { Broker } from "../types/DataTypes.sol";
 
-/// @title ISablierV2OpenEnded
-/// @notice Creates and manages Open Ended streams with linear streaming functions.
-interface ISablierV2OpenEnded is
-    ISablierV2OpenEndedState // 3 inherited component
+/// @title ISablierFlow
+/// @notice Creates and manages Flow streams with linear streaming functions.
+interface ISablierFlow is
+    ISablierFlowState // 3 inherited component
 {
     /*//////////////////////////////////////////////////////////////////////////
                                        EVENTS
@@ -20,11 +20,11 @@ interface ISablierV2OpenEnded is
     /// @param recipientAmount The amount of assets that the recipient is able to withdraw, denoted in 18 decimals.
     /// @param oldRatePerSecond The rate per second to change.
     /// @param newRatePerSecond The newly changed rate per second.
-    event AdjustOpenEndedStream(
+    event AdjustFlowStream(
         uint256 indexed streamId, uint128 recipientAmount, uint128 oldRatePerSecond, uint128 newRatePerSecond
     );
 
-    /// @notice Emitted when a open-ended stream is created.
+    /// @notice Emitted when a Flow stream is created.
     /// @param streamId The ID of the newly created stream.
     /// @param sender The address from which to stream the assets, which has the ability to
     /// adjust and pause the stream.
@@ -32,7 +32,7 @@ interface ISablierV2OpenEnded is
     /// @param ratePerSecond The amount of assets that is increasing by every second.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param lastTimeUpdate The Unix timestamp for the streamed amount calculation.
-    event CreateOpenEndedStream(
+    event CreateFlowStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
@@ -41,22 +41,22 @@ interface ISablierV2OpenEnded is
         uint40 lastTimeUpdate
     );
 
-    /// @notice Emitted when a open-ended stream is funded.
-    /// @param streamId The ID of the open-ended stream.
+    /// @notice Emitted when a Flow stream is funded.
+    /// @param streamId The ID of the Flow stream.
     /// @param funder The address which funded the stream.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param depositAmount The amount of assets deposited into the stream, denoted in 18 decimals.
-    event DepositOpenEndedStream(
+    event DepositFlowStream(
         uint256 indexed streamId, address indexed funder, IERC20 indexed asset, uint128 depositAmount
     );
 
-    /// @notice Emitted when a open-ended stream is paused.
+    /// @notice Emitted when a Flow stream is paused.
     /// @param streamId The ID of the stream.
     /// @param sender The address of the stream's sender.
     /// @param recipient The address of the stream's recipient.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in 18 decimals.
-    event PauseOpenEndedStream(
+    event PauseFlowStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
@@ -64,30 +64,30 @@ interface ISablierV2OpenEnded is
         uint128 recipientAmount
     );
 
-    /// @notice Emitted when assets are refunded from a open-ended stream.
-    /// @param streamId The ID of the open-ended stream.
+    /// @notice Emitted when assets are refunded from a Flow stream.
+    /// @param streamId The ID of the Flow stream.
     /// @param sender The address of the stream's sender.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param refundAmount The amount of assets refunded to the sender, denoted in 18 decimals.
-    event RefundFromOpenEndedStream(
+    event RefundFromFlowStream(
         uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 refundAmount
     );
 
-    /// @notice Emitted when a open-ended stream is re-started.
-    /// @param streamId The ID of the open-ended stream.
+    /// @notice Emitted when a Flow stream is re-started.
+    /// @param streamId The ID of the Flow stream.
     /// @param sender The address of the stream's sender.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    event RestartOpenEndedStream(
+    event RestartFlowStream(
         uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 ratePerSecond
     );
 
-    /// @notice Emitted when assets are withdrawn from a open-ended stream.
+    /// @notice Emitted when assets are withdrawn from a Flow stream.
     /// @param streamId The ID of the stream.
     /// @param to The address that has received the withdrawn assets.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param withdrawnAmount The amount of assets withdrawn, denoted in 18 decimals.
-    event WithdrawFromOpenEndedStream(
+    event WithdrawFromFlowStream(
         uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 withdrawnAmount
     );
 
@@ -155,7 +155,7 @@ interface ISablierV2OpenEnded is
 
     /// @notice Changes the stream's rate per second.
     ///
-    /// @dev Emits a {Transfer} and {AdjustOpenEndedStream} event.
+    /// @dev Emits a {Transfer} and {AdjustFlowStream} event.
     ///
     /// Notes:
     /// - The streamed assets, until the adjustment moment, will be summed up to the remaining amount.
@@ -168,13 +168,13 @@ interface ISablierV2OpenEnded is
     /// - `newRatePerSecond` must be greater than zero and not equal to the current rate per second.
     ///
     /// @param streamId The ID of the stream to adjust.
-    /// @param newRatePerSecond The new rate per second of the open-ended stream, denoted in 18 decimals.
+    /// @param newRatePerSecond The new rate per second of the Flow stream, denoted in 18 decimals.
     function adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) external;
 
-    /// @notice Creates a new open-ended stream with `block.timestamp` as `lastTimeUpdate` and set stream balance to 0.
+    /// @notice Creates a new Flow stream with `block.timestamp` as `lastTimeUpdate` and set stream balance to 0.
     /// The stream is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateOpenEndedStream} event.
+    /// @dev Emits a {CreateFlowStream} event.
     ///
     /// Requiremenets:
     /// - Must not be delegate called.
@@ -201,10 +201,10 @@ interface ISablierV2OpenEnded is
         external
         returns (uint256 streamId);
 
-    /// @notice Creates a new open-ended stream with `block.timestamp` as `lastTimeUpdate` and set the stream balance to
+    /// @notice Creates a new Flow stream with `block.timestamp` as `lastTimeUpdate` and set the stream balance to
     /// `amount`. The stream is wrapped in an ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateOpenEndedStream}, {Transfer} and {DepositOpenEndedStream} events.
+    /// @dev Emits a {CreateFlowStream}, {Transfer} and {DepositFlowStream} events.
     ///
     /// Requirements:
     /// - Refer to the requirements in {create} and {deposit}.
@@ -227,11 +227,11 @@ interface ISablierV2OpenEnded is
         external
         returns (uint256 streamId);
 
-    /// @notice Creates a new open-ended stream with `block.timestamp` as `lastTimeUpdate` and set the stream balance to
+    /// @notice Creates a new Flow stream with `block.timestamp` as `lastTimeUpdate` and set the stream balance to
     /// an amount calculated from the `totalAmount` after broker fee amount deduction. The stream is wrapped in an
     /// ERC-721 NFT.
     ///
-    /// @dev Emits a {CreateOpenEndedStream}, {Transfer} and {DepositOpenEndedStream} events.
+    /// @dev Emits a {CreateFlowStream}, {Transfer} and {DepositFlowStream} events.
     ///
     /// Requirements:
     /// - Refer to the requirements in {create} and {depositViaBroker}.
@@ -259,7 +259,7 @@ interface ISablierV2OpenEnded is
 
     /// @notice Deposits assets in a stream.
     ///
-    /// @dev Emits a {Transfer} and {DepositOpenEndedStream} event.
+    /// @dev Emits a {Transfer} and {DepositFlowStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -272,7 +272,7 @@ interface ISablierV2OpenEnded is
 
     /// @notice Deposits assets in a stream.
     ///
-    /// @dev Emits a {Transfer} and {DepositOpenEndedStream} event.
+    /// @dev Emits a {Transfer} and {DepositFlowStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -289,7 +289,7 @@ interface ISablierV2OpenEnded is
 
     /// @notice Pauses the stream and refunds available assets to the sender.
     ///
-    /// @dev Emits a {Transfer} and {PauseOpenEndedStream} event.
+    /// @dev Emits a {Transfer} and {PauseFlowStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -301,7 +301,7 @@ interface ISablierV2OpenEnded is
 
     /// @notice Refunds the provided amount of assets from the stream to the sender's address.
     ///
-    /// @dev Emits a {Transfer} and {RefundFromOpenEndedStream} event.
+    /// @dev Emits a {Transfer} and {RefundFromFlowStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -315,7 +315,7 @@ interface ISablierV2OpenEnded is
 
     /// @notice Restarts the stream with the provided rate per second.
     ///
-    /// @dev Emits a {RestartOpenEndedStream} event.
+    /// @dev Emits a {RestartFlowStream} event.
     ///   - This function updates stream's `lastTimeUpdate` to the current block timestamp.
     ///
     /// Requirements:
@@ -332,7 +332,7 @@ interface ISablierV2OpenEnded is
     /// @notice Restarts the stream with the provided rate per second, and deposits `amount` in the stream
     /// balance.
     ///
-    /// @dev Emits a {RestartOpenEndedStream}, {Transfer} and {DepositOpenEndedStream} event.
+    /// @dev Emits a {RestartFlowStream}, {Transfer} and {DepositFlowStream} event.
     ///
     /// Requirements:
     /// - `amount` must be greater than zero.
@@ -346,7 +346,7 @@ interface ISablierV2OpenEnded is
     /// @notice Withdraws the amount of assets calculated based on time reference and the remaining amount, from the
     /// stream to the provided `to` address.
     ///
-    /// @dev Emits a {Transfer} and {WithdrawFromOpenEndedStream} event.
+    /// @dev Emits a {Transfer} and {WithdrawFromFlowStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -363,7 +363,7 @@ interface ISablierV2OpenEnded is
 
     /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.
     ///
-    /// @dev Emits a {Transfer}, {WithdrawFromOpenEndedStream} event.
+    /// @dev Emits a {Transfer}, {WithdrawFromFlowStream} event.
     ///
     /// Requirements:
     /// - Refer to the requirements in {withdrawAt}.

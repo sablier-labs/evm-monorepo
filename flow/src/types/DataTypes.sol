@@ -13,8 +13,8 @@ struct Broker {
     UD60x18 fee;
 }
 
-library OpenEnded {
-    /// @notice OpenEnded stream.
+library Flow {
+    /// @notice Struct representing Flow streams.
     /// @dev The fields are arranged like this to save gas via tight variable packing.
     /// @param balance The amount of assets that is currently available in the stream, i.e. the sum of deposited amounts
     /// subtracted by the sum of withdrawn amounts, denoted in 18 decimals.

@@ -17,14 +17,14 @@ abstract contract Events {
     event MetadataUpdate(uint256 _tokenId);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     OPEN-ENDED
+                                    SABLIER-FLOW
     //////////////////////////////////////////////////////////////////////////*/
 
-    event AdjustOpenEndedStream(
+    event AdjustFlowStream(
         uint256 indexed streamId, uint128 recipientAmount, uint128 oldRatePerSecond, uint128 newRatePerSecond
     );
 
-    event PauseOpenEndedStream(
+    event PauseFlowStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
@@ -32,7 +32,7 @@ abstract contract Events {
         uint128 recipientAmount
     );
 
-    event CreateOpenEndedStream(
+    event CreateFlowStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
@@ -41,19 +41,19 @@ abstract contract Events {
         uint40 lastTimeUpdate
     );
 
-    event DepositOpenEndedStream(
+    event DepositFlowStream(
         uint256 indexed streamId, address indexed funder, IERC20 indexed asset, uint128 depositAmount
     );
 
-    event RefundFromOpenEndedStream(
+    event RefundFromFlowStream(
         uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 refundAmount
     );
 
-    event RestartOpenEndedStream(
+    event RestartFlowStream(
         uint256 indexed streamId, address indexed sender, IERC20 indexed asset, uint128 ratePerSecond
     );
 
-    event WithdrawFromOpenEndedStream(
+    event WithdrawFromFlowStream(
         uint256 indexed streamId, address indexed to, IERC20 indexed asset, uint128 withdrawnAmount
     );
 }

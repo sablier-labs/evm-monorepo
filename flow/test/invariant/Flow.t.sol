@@ -2,19 +2,19 @@
 pragma solidity >=0.8.22 <0.9.0;
 
 import { Invariant_Test } from "./Invariant.t.sol";
-import { OpenEndedHandler } from "./handlers/OpenEndedHandler.sol";
-import { OpenEndedCreateHandler } from "./handlers/OpenEndedCreateHandler.sol";
-import { OpenEndedStore } from "./stores/OpenEndedStore.sol";
+import { FlowCreateHandler } from "./handlers/FlowCreateHandler.sol";
+import { FlowHandler } from "./handlers/FlowHandler.sol";
+import { FlowStore } from "./stores/FlowStore.sol";
 
-/// @notice Common invariant test logic needed across contracts that inherit from {SablierV2openEnded}.
-contract OpenEnded_Invariant_Test is Invariant_Test {
+/// @notice Common invariant test logic needed across contracts that inherit from {SablierFlow}.
+contract Flow_Invariant_Test is Invariant_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    OpenEndedHandler internal openEndedHandler;
-    OpenEndedCreateHandler internal openEndedCreateHandler;
-    OpenEndedStore internal openEndedStore;
+    FlowCreateHandler internal flowCreateHandler;
+    FlowHandler internal flowHandler;
+    FlowStore internal flowStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
@@ -23,36 +23,28 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
     function setUp() public virtual override {
         Invariant_Test.setUp();
 
-        // Deploy and the OpenEndedStore contract.
-        openEndedStore = new OpenEndedStore();
+        // Deploy and the FlowStore contract.
+        flowStore = new FlowStore();
 
         // Deploy the handlers.
-        openEndedHandler = new OpenEndedHandler({
-            asset_: dai,
-            timestampStore_: timestampStore,
-            openEndedStore_: openEndedStore,
-            openEnded_: openEnded
-        });
-        openEndedCreateHandler = new OpenEndedCreateHandler({
-            asset_: dai,
-            timestampStore_: timestampStore,
-            openEndedStore_: openEndedStore,
-            openEnded_: openEnded
-        });
+        flowHandler =
+            new FlowHandler({ asset_: dai, timestampStore_: timestampStore, flowStore_: flowStore, flow_: flow });
+        flowCreateHandler =
+            new FlowCreateHandler({ asset_: dai, timestampStore_: timestampStore, flowStore_: flowStore, flow_: flow });
 
         // Label the contracts.
-        vm.label({ account: address(openEndedStore), newLabel: "openEndedStore" });
-        vm.label({ account: address(openEndedHandler), newLabel: "openEndedHandler" });
-        vm.label({ account: address(openEndedCreateHandler), newLabel: "openEndedCreateHandler" });
+        vm.label({ account: address(flowStore), newLabel: "flowStore" });
+        vm.label({ account: address(flowHandler), newLabel: "flowHandler" });
+        vm.label({ account: address(flowCreateHandler), newLabel: "flowCreateHandler" });
 
-        // Target the openEnded handlers for invariant testing.
-        targetContract(address(openEndedHandler));
-        targetContract(address(openEndedCreateHandler));
+        // Target the flow handlers for invariant testing.
+        targetContract(address(flowHandler));
+        targetContract(address(flowCreateHandler));
 
         // Prevent these contracts from being fuzzed as `msg.sender`.
-        excludeSender(address(openEndedStore));
-        excludeSender(address(openEndedHandler));
-        excludeSender(address(openEndedCreateHandler));
+        excludeSender(address(flowStore));
+        excludeSender(address(flowHandler));
+        excludeSender(address(flowCreateHandler));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -60,12 +52,12 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function invariant_BlockTimestampGeLastTimeUpdate() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
+            uint256 streamId = flowStore.streamIds(i);
             assertGe(
                 uint40(block.timestamp),
-                openEnded.getLastTimeUpdate(streamId),
+                flow.getLastTimeUpdate(streamId),
                 "Invariant violation: block timestamp < last time update"
             );
         }
@@ -74,12 +66,12 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
     /// @dev The sum of all stream balances for a specific asset should be less than or equal to the contract
     /// `ERC20.balanceOf`.
     function invariant_ContractBalanceGeStreamBalances() external useCurrentTimestamp {
-        uint256 contractBalance = dai.balanceOf(address(openEnded));
+        uint256 contractBalance = dai.balanceOf(address(flow));
 
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         uint256 streamBalancesSumNormalized;
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
+            uint256 streamId = flowStore.streamIds(i);
             streamBalancesSumNormalized += uint256(normalizeStreamBalance(streamId));
         }
 
@@ -91,13 +83,13 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
     }
 
     function invariant_Debt_WithdrawableAmountEqBalance() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
-            if (openEnded.streamDebtOf(streamId) > 0) {
+            uint256 streamId = flowStore.streamIds(i);
+            if (flow.streamDebtOf(streamId) > 0) {
                 assertEq(
-                    openEnded.withdrawableAmountOf(streamId),
-                    openEnded.getBalance(streamId),
+                    flow.withdrawableAmountOf(streamId),
+                    flow.getBalance(streamId),
                     "Invariant violation: withdrawable amount != balance"
                 );
             }
@@ -105,8 +97,8 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
     }
 
     function invariant_DepositAmountsSumGeExtractedAmountsSum() external useCurrentTimestamp {
-        uint256 streamDepositedAmountsSum = openEndedStore.streamDepositedAmountsSum();
-        uint256 streamExtractedAmountsSum = openEndedStore.streamExtractedAmountsSum();
+        uint256 streamDepositedAmountsSum = flowStore.streamDepositedAmountsSum();
+        uint256 streamExtractedAmountsSum = flowStore.streamExtractedAmountsSum();
 
         assertGe(
             streamDepositedAmountsSum,
@@ -116,19 +108,19 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
     }
 
     function invariant_DepositedAmountsSumGeExtractedAmountsSum() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
+            uint256 streamId = flowStore.streamIds(i);
 
             assertGe(
-                openEndedStore.depositedAmounts(streamId),
-                openEndedStore.extractedAmounts(streamId),
+                flowStore.depositedAmounts(streamId),
+                flowStore.extractedAmounts(streamId),
                 "Invariant violation: deposited amount < extracted amount"
             );
         }
 
-        uint256 streamDepositedAmountsSum = openEndedStore.streamDepositedAmountsSum();
-        uint256 streamExtractedAmountsSum = openEndedStore.streamExtractedAmountsSum();
+        uint256 streamDepositedAmountsSum = flowStore.streamDepositedAmountsSum();
+        uint256 streamExtractedAmountsSum = flowStore.streamExtractedAmountsSum();
 
         assertGe(
             streamDepositedAmountsSum,
@@ -138,21 +130,21 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
     }
 
     function invariant_NextStreamId() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 nextStreamId = openEnded.nextStreamId();
+            uint256 nextStreamId = flow.nextStreamId();
             assertEq(nextStreamId, lastStreamId + 1, "Invariant violation: next stream id not incremented");
         }
     }
 
     function invariant_NoDebt_StreamedPaused_WithdrawableAmountEqRemainingAmount() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
-            if (openEnded.isPaused(streamId) && openEnded.streamDebtOf(streamId) == 0) {
+            uint256 streamId = flowStore.streamIds(i);
+            if (flow.isPaused(streamId) && flow.streamDebtOf(streamId) == 0) {
                 assertEq(
-                    openEnded.withdrawableAmountOf(streamId),
-                    openEnded.getRemainingAmount(streamId),
+                    flow.withdrawableAmountOf(streamId),
+                    flow.getRemainingAmount(streamId),
                     "Invariant violation: paused stream withdrawable amount != remaining amount"
                 );
             }
@@ -160,13 +152,13 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
     }
 
     function invariant_NoDebt_WithdrawableAmountEqStreamedAmountPlusRemainingAmount() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
-            if (!openEnded.isPaused(streamId) && openEnded.streamDebtOf(streamId) == 0) {
+            uint256 streamId = flowStore.streamIds(i);
+            if (!flow.isPaused(streamId) && flow.streamDebtOf(streamId) == 0) {
                 assertEq(
-                    openEnded.withdrawableAmountOf(streamId),
-                    openEnded.streamedAmountOf(streamId) + openEnded.getRemainingAmount(streamId),
+                    flow.withdrawableAmountOf(streamId),
+                    flow.streamedAmountOf(streamId) + flow.getRemainingAmount(streamId),
                     "Invariant violation: withdrawable amount != streamed amount + remaining amount"
                 );
             }
@@ -174,25 +166,25 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
     }
 
     function invariant_StreamBalanceEqWithdrawableAmountPlusRefundableAmount() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
+            uint256 streamId = flowStore.streamIds(i);
             assertEq(
-                openEnded.getBalance(streamId),
-                openEnded.withdrawableAmountOf(streamId) + openEnded.refundableAmountOf(streamId),
+                flow.getBalance(streamId),
+                flow.withdrawableAmountOf(streamId) + flow.refundableAmountOf(streamId),
                 "Invariant violation: stream balance != withdrawable amount + refundable amount"
             );
         }
     }
 
     function invariant_StreamBalanceGeRefundableAmount() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
-            if (!openEnded.isPaused(streamId)) {
+            uint256 streamId = flowStore.streamIds(i);
+            if (!flow.isPaused(streamId)) {
                 assertGe(
-                    openEnded.getBalance(streamId),
-                    openEnded.refundableAmountOf(streamId),
+                    flow.getBalance(streamId),
+                    flow.refundableAmountOf(streamId),
                     "Invariant violation: stream balance < refundable amount"
                 );
             }
@@ -200,25 +192,25 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
     }
 
     function invariant_StreamBalanceGeWithdrawableAmount() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
+            uint256 streamId = flowStore.streamIds(i);
 
             assertGe(
-                openEnded.getBalance(streamId),
-                openEnded.withdrawableAmountOf(streamId),
+                flow.getBalance(streamId),
+                flow.withdrawableAmountOf(streamId),
                 "Invariant violation: withdrawable amount <= balance"
             );
         }
     }
 
     function invariant_StreamPaused_RatePerSecondZero() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
-            if (openEnded.isPaused(streamId)) {
+            uint256 streamId = flowStore.streamIds(i);
+            if (flow.isPaused(streamId)) {
                 assertEq(
-                    openEnded.getRatePerSecond(streamId),
+                    flow.getRatePerSecond(streamId),
                     0,
                     "Invariant violation: paused stream with a non-zero rate per second"
                 );

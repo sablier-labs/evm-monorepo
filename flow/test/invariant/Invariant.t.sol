@@ -35,7 +35,7 @@ abstract contract Invariant_Test is Base_Test {
         vm.label({ account: address(timestampStore), newLabel: "TimestampStore" });
 
         // Prevent these contracts from being fuzzed as `msg.sender`.
-        excludeSender(address(openEnded));
+        excludeSender(address(flow));
         excludeSender(address(timestampStore));
     }
 }

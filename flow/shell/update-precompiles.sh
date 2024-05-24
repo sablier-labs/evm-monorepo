@@ -12,7 +12,7 @@ set -euo pipefail
 FOUNDRY_PROFILE=optimized forge build
 
 # Retrieve the raw bytecodes, removing the "0x" prefix
-open_ended=$(cat out-optimized/SablierV2OpenEnded.sol/SablierV2OpenEnded.json | jq -r '.bytecode.object' | cut -c 3-)
+flow=$(cat out-optimized/SablierFlow.sol/SablierFlow.json | jq -r '.bytecode.object' | cut -c 3-)
 
 precompiles_path="precompiles/Precompiles.sol"
 if [ ! -f $precompiles_path ]; then
@@ -21,7 +21,7 @@ if [ ! -f $precompiles_path ]; then
 fi
 
 # Replace the current bytecodes
-sd "(BYTECODE_OPEN_ENDED =)[^;]+;" "\$1 hex\"$open_ended\";" $precompiles_path
+sd "(BYTECODE_FLOW =)[^;]+;" "\$1 hex\"$flow\";" $precompiles_path
 
 # Reformat the code with Forge
 forge fmt $precompiles_path

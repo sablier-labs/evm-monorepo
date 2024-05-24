@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
@@ -19,13 +19,13 @@ contract WithdrawAt_Integration_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
-            abi.encodeCall(ISablierV2OpenEnded.withdrawAt, (defaultStreamId, users.recipient, WITHDRAW_TIME));
+            abi.encodeCall(ISablierFlow.withdrawAt, (defaultStreamId, users.recipient, WITHDRAW_TIME));
         expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         expectRevertNull();
-        openEnded.withdrawAt({ streamId: nullStreamId, to: users.recipient, time: WITHDRAW_TIME });
+        flow.withdrawAt({ streamId: nullStreamId, to: users.recipient, time: WITHDRAW_TIME });
     }
 
     function test_RevertWhen_CallerUnknown()
@@ -40,14 +40,11 @@ contract WithdrawAt_Integration_Test is Integration_Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2OpenEnded_WithdrawalAddressNotRecipient.selector,
-                defaultStreamId,
-                unknownCaller,
-                unknownCaller
+                Errors.SablierFlow_WithdrawalAddressNotRecipient.selector, defaultStreamId, unknownCaller, unknownCaller
             )
         );
 
-        openEnded.withdrawAt({ streamId: defaultStreamId, to: unknownCaller, time: WITHDRAW_TIME });
+        flow.withdrawAt({ streamId: defaultStreamId, to: unknownCaller, time: WITHDRAW_TIME });
     }
 
     function test_RevertWhen_CallerSender()
@@ -61,14 +58,11 @@ contract WithdrawAt_Integration_Test is Integration_Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2OpenEnded_WithdrawalAddressNotRecipient.selector,
-                defaultStreamId,
-                users.sender,
-                users.sender
+                Errors.SablierFlow_WithdrawalAddressNotRecipient.selector, defaultStreamId, users.sender, users.sender
             )
         );
 
-        openEnded.withdrawAt({ streamId: defaultStreamId, to: users.sender, time: WITHDRAW_TIME });
+        flow.withdrawAt({ streamId: defaultStreamId, to: users.sender, time: WITHDRAW_TIME });
     }
 
     function test_RevertWhen_LastTimeNotLessThanWithdrawalTime()
@@ -78,16 +72,14 @@ contract WithdrawAt_Integration_Test is Integration_Test {
         whenToNonZeroAddress
         whenWithdrawalAddressIsRecipient
     {
-        uint40 lastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
+        uint40 lastTimeUpdate = flow.getLastTimeUpdate(defaultStreamId);
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2OpenEnded_LastUpdateNotLessThanWithdrawalTime.selector,
-                lastTimeUpdate,
-                lastTimeUpdate - 1
+                Errors.SablierFlow_LastUpdateNotLessThanWithdrawalTime.selector, lastTimeUpdate, lastTimeUpdate - 1
             )
         );
-        openEnded.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: lastTimeUpdate - 1 });
+        flow.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: lastTimeUpdate - 1 });
     }
 
     function test_RevertWhen_WithdrawalTimeInTheFuture()
@@ -102,10 +94,10 @@ contract WithdrawAt_Integration_Test is Integration_Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2OpenEnded_WithdrawalTimeInTheFuture.selector, futureTime, uint40(block.timestamp)
+                Errors.SablierFlow_WithdrawalTimeInTheFuture.selector, futureTime, uint40(block.timestamp)
             )
         );
-        openEnded.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: futureTime });
+        flow.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: futureTime });
     }
 
     function test_RevertGiven_BalanceZero()
@@ -122,8 +114,8 @@ contract WithdrawAt_Integration_Test is Integration_Test {
         uint256 streamId = createDefaultStream();
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2OpenEnded_WithdrawNoFundsAvailable.selector, streamId));
-        openEnded.withdrawAt({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_WithdrawNoFundsAvailable.selector, streamId));
+        flow.withdrawAt({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
     }
 
     function test_WithdrawAt_BalanceZero()
@@ -140,24 +132,24 @@ contract WithdrawAt_Integration_Test is Integration_Test {
         uint256 streamId = createDefaultStream();
         vm.warp({ newTimestamp: WITHDRAW_TIME });
 
-        openEnded.deposit(streamId, WITHDRAW_AMOUNT);
-        openEnded.adjustRatePerSecond(streamId, RATE_PER_SECOND - 1);
+        flow.deposit(streamId, WITHDRAW_AMOUNT);
+        flow.adjustRatePerSecond(streamId, RATE_PER_SECOND - 1);
 
-        uint128 actualStreamBalance = openEnded.getBalance(streamId);
+        uint128 actualStreamBalance = flow.getBalance(streamId);
         uint128 expectedStreamBalance = WITHDRAW_AMOUNT;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        uint128 actualRemainingAmount = openEnded.getRemainingAmount(streamId);
+        uint128 actualRemainingAmount = flow.getRemainingAmount(streamId);
         uint128 expectedRemainingAmount = WITHDRAW_AMOUNT;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
-        openEnded.withdrawAt({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
+        flow.withdrawAt({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
 
-        actualRemainingAmount = openEnded.getRemainingAmount(streamId);
+        actualRemainingAmount = flow.getRemainingAmount(streamId);
         expectedRemainingAmount = 0;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
-        actualStreamBalance = openEnded.getBalance(streamId);
+        actualStreamBalance = flow.getBalance(streamId);
         expectedStreamBalance = 0;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
     }
@@ -173,13 +165,13 @@ contract WithdrawAt_Integration_Test is Integration_Test {
         givenBalanceNotZero
         givenRemainingAmountZero
     {
-        openEnded.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
+        flow.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
 
-        uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
+        uint40 actualLastTimeUpdate = flow.getLastTimeUpdate(defaultStreamId);
         uint40 expectedLastTimeUpdate = WITHDRAW_TIME;
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
 
-        uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
+        uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
         uint128 expectedStreamBalance = DEPOSIT_AMOUNT - WITHDRAW_AMOUNT;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
     }
@@ -198,13 +190,13 @@ contract WithdrawAt_Integration_Test is Integration_Test {
         address unknownCaller = address(0xCAFE);
         resetPrank({ msgSender: unknownCaller });
 
-        openEnded.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
+        flow.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
 
-        uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
+        uint40 actualLastTimeUpdate = flow.getLastTimeUpdate(defaultStreamId);
         uint40 expectedLastTimeUpdate = WITHDRAW_TIME;
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
 
-        uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
+        uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
         uint128 expectedStreamBalance = DEPOSIT_AMOUNT - WITHDRAW_AMOUNT;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
     }
@@ -221,17 +213,17 @@ contract WithdrawAt_Integration_Test is Integration_Test {
         givenRemainingAmountNotZero
         whenCallerRecipient
     {
-        openEnded.pause(defaultStreamId);
+        flow.pause(defaultStreamId);
 
-        uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
         uint128 expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
         vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({ from: address(openEnded), to: users.recipient, value: ONE_MONTH_STREAMED_AMOUNT });
+        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: ONE_MONTH_STREAMED_AMOUNT });
 
-        vm.expectEmit({ emitter: address(openEnded) });
-        emit WithdrawFromOpenEndedStream({
+        vm.expectEmit({ emitter: address(flow) });
+        emit WithdrawFromFlowStream({
             streamId: defaultStreamId,
             to: users.recipient,
             asset: dai,
@@ -240,9 +232,9 @@ contract WithdrawAt_Integration_Test is Integration_Test {
 
         expectCallToTransfer({ asset: dai, to: users.recipient, amount: ONE_MONTH_STREAMED_AMOUNT });
 
-        openEnded.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
+        flow.withdrawAt({ streamId: defaultStreamId, to: users.recipient, time: WITHDRAW_TIME });
 
-        actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
         expectedRemainingAmount = 0;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
     }
@@ -265,16 +257,16 @@ contract WithdrawAt_Integration_Test is Integration_Test {
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
         uint128 depositAmount = ONE_MONTH_STREAMED_AMOUNT / 2;
-        openEnded.deposit(streamId, depositAmount);
-        openEnded.adjustRatePerSecond(streamId, RATE_PER_SECOND - 1);
+        flow.deposit(streamId, depositAmount);
+        flow.adjustRatePerSecond(streamId, RATE_PER_SECOND - 1);
 
-        uint128 actualRemainingAmount = openEnded.getRemainingAmount(streamId);
+        uint128 actualRemainingAmount = flow.getRemainingAmount(streamId);
         uint128 expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
-        openEnded.withdrawAt({ streamId: streamId, to: users.recipient, time: WARP_ONE_MONTH });
+        flow.withdrawAt({ streamId: streamId, to: users.recipient, time: WARP_ONE_MONTH });
 
-        actualRemainingAmount = openEnded.getRemainingAmount(streamId);
+        actualRemainingAmount = flow.getRemainingAmount(streamId);
         expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT - depositAmount;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
     }
@@ -298,7 +290,7 @@ contract WithdrawAt_Integration_Test is Integration_Test {
         // Set the timestamp to 1 month ago to create the stream with the same `lastTimeUpdate` as `defaultStreamId`.
         vm.warp({ newTimestamp: WARP_ONE_MONTH - ONE_MONTH });
         uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
-        openEnded.deposit(streamId, DEPOSIT_AMOUNT);
+        flow.deposit(streamId, DEPOSIT_AMOUNT);
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
         _test_Withdraw(streamId, IERC20(address(usdt)));
@@ -322,19 +314,19 @@ contract WithdrawAt_Integration_Test is Integration_Test {
     function _test_Withdraw(uint256 streamId, IERC20 asset) internal {
         resetPrank({ msgSender: users.recipient });
 
-        uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(streamId);
+        uint40 actualLastTimeUpdate = flow.getLastTimeUpdate(streamId);
         uint40 expectedLastTimeUpdate = uint40(block.timestamp - ONE_MONTH);
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
 
         vm.expectEmit({ emitter: address(asset) });
         emit IERC20.Transfer({
-            from: address(openEnded),
+            from: address(flow),
             to: users.recipient,
             value: normalizeAmountWithStreamId(streamId, WITHDRAW_AMOUNT)
         });
 
-        vm.expectEmit({ emitter: address(openEnded) });
-        emit WithdrawFromOpenEndedStream({
+        vm.expectEmit({ emitter: address(flow) });
+        emit WithdrawFromFlowStream({
             streamId: streamId,
             to: users.recipient,
             asset: asset,
@@ -346,13 +338,13 @@ contract WithdrawAt_Integration_Test is Integration_Test {
             to: users.recipient,
             amount: normalizeAmountWithStreamId(streamId, WITHDRAW_AMOUNT)
         });
-        openEnded.withdrawAt({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
+        flow.withdrawAt({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
 
-        actualLastTimeUpdate = openEnded.getLastTimeUpdate(streamId);
+        actualLastTimeUpdate = flow.getLastTimeUpdate(streamId);
         expectedLastTimeUpdate = WITHDRAW_TIME;
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
 
-        uint128 actualStreamBalance = openEnded.getBalance(streamId);
+        uint128 actualStreamBalance = flow.getBalance(streamId);
         uint128 expectedStreamBalance = DEPOSIT_AMOUNT - WITHDRAW_AMOUNT;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
     }

@@ -3,7 +3,7 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/utils/Assertions.sol";
-import { OpenEnded } from "src/types/DataTypes.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 abstract contract Assertions is PRBMathAssertions {
     /*//////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@ abstract contract Assertions is PRBMathAssertions {
         assertEq(address(a), address(b), err);
     }
 
-    /// @dev Compares two {OpenEnded.Stream} struct entities.
-    function assertEq(OpenEnded.Stream memory a, OpenEnded.Stream memory b) internal pure {
+    /// @dev Compares two {Flow.Stream} struct entities.
+    function assertEq(Flow.Stream memory a, Flow.Stream memory b) internal pure {
         assertEq(a.ratePerSecond, b.ratePerSecond, "ratePerSecond");
         assertEq(a.asset, b.asset, "asset");
         assertEq(a.assetDecimals, b.assetDecimals, "assetDecimals");

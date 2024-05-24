@@ -1,6 +1,6 @@
 {
-  "name": "@sablier/v2-open-ended",
-  "description": "Open ended smart contracts of the Sablier V2 token streaming protocol",
+  "name": "@sablier/flow",
+  "description": "Flow smart contracts of the Sablier token distribution protocol",
   "license": "BUSL-1.1",
   "version": "1.0.0",
   "author": {
@@ -8,7 +8,7 @@
     "url": "https://sablier.com"
   },
   "bugs": {
-    "url": "https://github.com/sablier-labs/v2-open-ended/issues"
+    "url": "https://github.com/sablier-labs/flow/issues"
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.0.2",

@@ -4,9 +4,9 @@ pragma solidity >=0.8.22;
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
-import { OpenEnded } from "src/types/DataTypes.sol";
+import { Flow } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
 
@@ -16,15 +16,14 @@ contract Create_Integration_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(
-            ISablierV2OpenEnded.create, (users.sender, users.recipient, RATE_PER_SECOND, dai, IS_TRANFERABLE)
-        );
+        bytes memory callData =
+            abi.encodeCall(ISablierFlow.create, (users.sender, users.recipient, RATE_PER_SECOND, dai, IS_TRANFERABLE));
         expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertWhen_SenderZeroAddress() external whenNotDelegateCalled {
-        vm.expectRevert(Errors.SablierV2OpenEnded_SenderZeroAddress.selector);
-        openEnded.create({
+        vm.expectRevert(Errors.SablierFlow_SenderZeroAddress.selector);
+        flow.create({
             sender: address(0),
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
@@ -35,7 +34,7 @@ contract Create_Integration_Test is Integration_Test {
 
     function test_RevertWhen_RecipientZeroAddress() external whenNotDelegateCalled whenSenderIsNotZeroAddress {
         vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, address(0)));
-        openEnded.create({
+        flow.create({
             sender: users.sender,
             recipient: address(0),
             ratePerSecond: RATE_PER_SECOND,
@@ -50,8 +49,8 @@ contract Create_Integration_Test is Integration_Test {
         whenSenderIsNotZeroAddress
         whenRecipientIsNotZeroAddress
     {
-        vm.expectRevert(Errors.SablierV2OpenEnded_RatePerSecondZero.selector);
-        openEnded.create({
+        vm.expectRevert(Errors.SablierFlow_RatePerSecondZero.selector);
+        flow.create({
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: 0,
@@ -68,10 +67,8 @@ contract Create_Integration_Test is Integration_Test {
         whenRatePerSecondIsNotZero
     {
         address nonContract = address(8128);
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2OpenEnded_InvalidAssetDecimals.selector, IERC20(nonContract))
-        );
-        openEnded.create({
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_InvalidAssetDecimals.selector, IERC20(nonContract)));
+        flow.create({
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
@@ -88,12 +85,12 @@ contract Create_Integration_Test is Integration_Test {
         whenRatePerSecondIsNotZero
         whenAssetContract
     {
-        uint256 expectedStreamId = openEnded.nextStreamId();
+        uint256 expectedStreamId = flow.nextStreamId();
 
-        vm.expectEmit({ emitter: address(openEnded) });
+        vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: expectedStreamId });
-        vm.expectEmit({ emitter: address(openEnded) });
-        emit CreateOpenEndedStream({
+        vm.expectEmit({ emitter: address(flow) });
+        emit CreateFlowStream({
             streamId: expectedStreamId,
             sender: users.sender,
             recipient: users.recipient,
@@ -102,7 +99,7 @@ contract Create_Integration_Test is Integration_Test {
             lastTimeUpdate: uint40(block.timestamp)
         });
 
-        uint256 actualStreamId = openEnded.create({
+        uint256 actualStreamId = flow.create({
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
@@ -110,8 +107,8 @@ contract Create_Integration_Test is Integration_Test {
             isTransferable: IS_TRANFERABLE
         });
 
-        OpenEnded.Stream memory actualStream = openEnded.getStream(actualStreamId);
-        OpenEnded.Stream memory expectedStream = OpenEnded.Stream({
+        Flow.Stream memory actualStream = flow.getStream(actualStreamId);
+        Flow.Stream memory expectedStream = Flow.Stream({
             ratePerSecond: RATE_PER_SECOND,
             asset: dai,
             assetDecimals: 18,
@@ -127,7 +124,7 @@ contract Create_Integration_Test is Integration_Test {
         assertEq(actualStreamId, expectedStreamId, "stream id");
         assertEq(actualStream, expectedStream);
 
-        address actualNFTOwner = openEnded.ownerOf({ tokenId: actualStreamId });
+        address actualNFTOwner = flow.ownerOf({ tokenId: actualStreamId });
         address expectedNFTOwner = users.recipient;
         assertEq(actualNFTOwner, expectedNFTOwner, "NFT owner");
     }

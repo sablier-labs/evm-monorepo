@@ -3,19 +3,19 @@ pragma solidity >=0.8.22 <0.9.0;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
-import { OpenEndedStore } from "../stores/OpenEndedStore.sol";
+import { FlowStore } from "../stores/FlowStore.sol";
 import { TimestampStore } from "../stores/TimestampStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
-contract OpenEndedHandler is BaseHandler {
+contract FlowHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
                                    TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ISablierV2OpenEnded public openEnded;
-    OpenEndedStore public openEndedStore;
+    ISablierFlow public flow;
+    FlowStore public flowStore;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      VARIABLES
@@ -32,13 +32,13 @@ contract OpenEndedHandler is BaseHandler {
     constructor(
         IERC20 asset_,
         TimestampStore timestampStore_,
-        OpenEndedStore openEndedStore_,
-        ISablierV2OpenEnded openEnded_
+        FlowStore flowStore_,
+        ISablierFlow flow_
     )
         BaseHandler(asset_, timestampStore_)
     {
-        openEndedStore = openEndedStore_;
-        openEnded = openEnded_;
+        flowStore = flowStore_;
+        flow = flow_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -48,31 +48,31 @@ contract OpenEndedHandler is BaseHandler {
     /// @dev Picks a random stream from the store.
     /// @param streamIndexSeed A fuzzed value needed for picking the random stream.
     modifier useFuzzedStream(uint256 streamIndexSeed) {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
+        uint256 lastStreamId = flowStore.lastStreamId();
         if (lastStreamId == 0) {
             return;
         }
         uint256 fuzzedStreamId = _bound(streamIndexSeed, 0, lastStreamId - 1);
-        currentStreamId = openEndedStore.streamIds(fuzzedStreamId);
+        currentStreamId = flowStore.streamIds(fuzzedStreamId);
         _;
     }
 
     modifier useFuzzedStreamRecipient() {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
-        currentRecipient = openEndedStore.recipients(currentStreamId);
+        uint256 lastStreamId = flowStore.lastStreamId();
+        currentRecipient = flowStore.recipients(currentStreamId);
         resetPrank(currentRecipient);
         _;
     }
 
     modifier useFuzzedStreamSender() {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
-        currentSender = openEndedStore.senders(currentStreamId);
+        uint256 lastStreamId = flowStore.lastStreamId();
+        currentSender = flowStore.senders(currentStreamId);
         resetPrank(currentSender);
         _;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 SABLIER-V2-OPENENDED
+                                    SABLIER-FLOW
     //////////////////////////////////////////////////////////////////////////*/
 
     function adjustRatePerSecond(
@@ -87,7 +87,7 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStreamSender
     {
         // Only non paused streams can have their rate per second adjusted.
-        if (openEnded.isPaused(currentStreamId)) {
+        if (flow.isPaused(currentStreamId)) {
             return;
         }
 
@@ -95,12 +95,12 @@ contract OpenEndedHandler is BaseHandler {
         newRatePerSecond = uint128(_bound(newRatePerSecond, 0.0001e18, 1e18));
 
         // The rate per second must be different from the current rate per second.
-        if (newRatePerSecond == openEnded.getRatePerSecond(currentStreamId)) {
+        if (newRatePerSecond == flow.getRatePerSecond(currentStreamId)) {
             newRatePerSecond += 1;
         }
 
         // Adjust the rate per second.
-        openEnded.adjustRatePerSecond(currentStreamId, newRatePerSecond);
+        flow.adjustRatePerSecond(currentStreamId, newRatePerSecond);
     }
 
     function pause(
@@ -114,12 +114,12 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStreamSender
     {
         // Paused streams cannot be paused again.
-        if (openEnded.isPaused(currentStreamId)) {
+        if (flow.isPaused(currentStreamId)) {
             return;
         }
 
         // Pause the stream.
-        openEnded.pause(currentStreamId);
+        flow.pause(currentStreamId);
     }
 
     function deposit(
@@ -135,17 +135,17 @@ contract OpenEndedHandler is BaseHandler {
         depositAmount = uint128(_bound(depositAmount, 100e18, 1_000_000_000e18));
 
         // Mint enough assets to the Sender.
-        address sender = openEndedStore.senders(currentStreamId);
+        address sender = flowStore.senders(currentStreamId);
         deal({ token: address(asset), to: sender, give: asset.balanceOf(sender) + depositAmount });
 
-        // Approve {SablierV2OpenEnded} to spend the assets.
-        asset.approve({ spender: address(openEnded), value: depositAmount });
+        // Approve {SablierFlow} to spend the assets.
+        asset.approve({ spender: address(flow), value: depositAmount });
 
         // Deposit into the stream.
-        openEnded.deposit({ streamId: currentStreamId, amount: depositAmount });
+        flow.deposit({ streamId: currentStreamId, amount: depositAmount });
 
         // Store the deposited amount.
-        openEndedStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
+        flowStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
     }
 
     function refundFromStream(
@@ -160,7 +160,7 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStreamSender
     {
         // The protocol doesn't allow zero refund amounts.
-        uint128 refundableAmount = openEnded.refundableAmountOf(currentStreamId);
+        uint128 refundableAmount = flow.refundableAmountOf(currentStreamId);
         if (refundableAmount == 0) {
             return;
         }
@@ -169,10 +169,10 @@ contract OpenEndedHandler is BaseHandler {
         refundAmount = uint128(_bound(refundAmount, 1, refundableAmount));
 
         // Refund from stream.
-        openEnded.refundFromStream(currentStreamId, refundableAmount);
+        flow.refundFromStream(currentStreamId, refundableAmount);
 
         // Store the deposited amount.
-        openEndedStore.updateStreamExtractedAmountsSum(currentStreamId, refundAmount);
+        flowStore.updateStreamExtractedAmountsSum(currentStreamId, refundAmount);
     }
 
     function restartStream(
@@ -187,7 +187,7 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStreamSender
     {
         // Only paused streams can be restarted.
-        if (!openEnded.isPaused(currentStreamId)) {
+        if (!flow.isPaused(currentStreamId)) {
             return;
         }
 
@@ -195,7 +195,7 @@ contract OpenEndedHandler is BaseHandler {
         ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
 
         // Restart the stream.
-        openEnded.restartStream(currentStreamId, ratePerSecond);
+        flow.restartStream(currentStreamId, ratePerSecond);
     }
 
     function restartStreamAndDeposit(
@@ -211,7 +211,7 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStreamSender
     {
         // Only paused streams can be restarted.
-        if (!openEnded.isPaused(currentStreamId)) {
+        if (!flow.isPaused(currentStreamId)) {
             return;
         }
 
@@ -220,17 +220,17 @@ contract OpenEndedHandler is BaseHandler {
         depositAmount = uint128(_bound(depositAmount, 100e18, 1_000_000_000e18));
 
         // Mint enough assets to the Sender.
-        address sender = openEndedStore.senders(currentStreamId);
+        address sender = flowStore.senders(currentStreamId);
         deal({ token: address(asset), to: sender, give: asset.balanceOf(sender) + depositAmount });
 
-        // Approve {SablierV2OpenEnded} to spend the assets.
-        asset.approve({ spender: address(openEnded), value: depositAmount });
+        // Approve {SablierFlow} to spend the assets.
+        asset.approve({ spender: address(flow), value: depositAmount });
 
         // Restart the stream.
-        openEnded.restartStreamAndDeposit(currentStreamId, ratePerSecond, depositAmount);
+        flow.restartStreamAndDeposit(currentStreamId, ratePerSecond, depositAmount);
 
         // Store the deposited amount.
-        openEndedStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
+        flowStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
     }
 
     function withdrawAt(
@@ -251,26 +251,26 @@ contract OpenEndedHandler is BaseHandler {
         }
 
         // If the balance and the remaining amount are zero, there is nothing to withdraw.
-        if (openEnded.getBalance(currentStreamId) == 0 && openEnded.getRemainingAmount(currentStreamId) == 0) {
+        if (flow.getBalance(currentStreamId) == 0 && flow.getRemainingAmount(currentStreamId) == 0) {
             return;
         }
 
         // Bound the time so that it is between last time update and current time.
-        time = uint40(_bound(time, openEnded.getLastTimeUpdate(currentStreamId), block.timestamp));
+        time = uint40(_bound(time, flow.getLastTimeUpdate(currentStreamId), block.timestamp));
 
         // There is an edge case when the sender is the same as the recipient. In this scenario, the withdrawal
         // address must be set to the recipient.
-        address sender = openEndedStore.senders(currentStreamId);
+        address sender = flowStore.senders(currentStreamId);
         if (sender == currentRecipient && to != currentRecipient) {
             to = currentRecipient;
         }
 
-        uint128 withdrawAmount = openEnded.withdrawableAmountOf(currentStreamId, time);
+        uint128 withdrawAmount = flow.withdrawableAmountOf(currentStreamId, time);
 
         // Withdraw from the stream.
-        openEnded.withdrawAt({ streamId: currentStreamId, to: to, time: time });
+        flow.withdrawAt({ streamId: currentStreamId, to: to, time: time });
 
         // Store the extracted amount.
-        openEndedStore.updateStreamExtractedAmountsSum(currentStreamId, withdrawAmount);
+        flowStore.updateStreamExtractedAmountsSum(currentStreamId, withdrawAmount);
     }
 }

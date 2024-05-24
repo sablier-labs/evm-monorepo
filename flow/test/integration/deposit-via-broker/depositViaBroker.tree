@@ -20,8 +20,8 @@ DepositViaBroker_Integration_Test
                         ├── given asset does not have 18 decimals
                         │   ├── it should update the stream balance
                         │   ├── it should perform the ERC20 transfer
-                        │   └── it should emit 2 {Transfer}, 1 {DepositOpenEndedStream}, 1 {MetadataUpdate} events
+                        │   └── it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
                         └── given asset has 18 decimals
                             ├── it should update the stream balance
                             ├── it should perform the ERC20 transfer
-                            └── it should emit 2 {Transfer}, 1 {DepositOpenEndedStream}, 1 {MetadataUpdate} events
+                            └── it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events

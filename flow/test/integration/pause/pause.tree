@@ -22,5 +22,5 @@ pause.t.sol
                 ├── it should pause the stream
                 ├── it should set the rate per second to zero
                 ├── it should update the remaining amount
-                ├── it should emit a {PauseOpenEndedStream} event
+                ├── it should emit a {PauseFlowStream} event
                 └── it should emit a {MetadataUpdate} event

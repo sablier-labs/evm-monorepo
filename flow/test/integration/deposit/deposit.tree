@@ -17,10 +17,10 @@ deposit.t.sol
                ├── given the asset does not have 18 decimals
                │  ├── it should update the stream balance
                │  ├── it should perform the ERC-20 transfer
-               │  ├── it should emit a {Transfer} and {DepositOpenEndedStream} event
+               │  ├── it should emit a {Transfer} and {DepositFlowStream} event
                │  └── it should emit a {MetadataUpdate} event
                └── given the asset has 18 decimals
                   ├── it should update the stream balance
                   ├── it should perform the ERC-20 transfer
-                  ├── it should emit a {Transfer} and {DepositOpenEndedStream} event
+                  ├── it should emit a {Transfer} and {DepositFlowStream} event
                   └── it should emit a {MetadataUpdate} event

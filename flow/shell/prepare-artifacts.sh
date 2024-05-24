@@ -22,11 +22,11 @@ mkdir $artifacts \
 FOUNDRY_PROFILE=optimized forge build
 
 # Copy the production artifacts
-cp out-optimized/SablierV2OpenEnded.sol/SablierV2OpenEnded.json $artifacts
+cp out-optimized/SablierFlow.sol/SablierFlow.json $artifacts
 
 interfaces=./artifacts/interfaces
-cp out-optimized/ISablierV2OpenEnded.sol/ISablierV2OpenEnded.json $interfaces
-cp out-optimized/ISablierV2OpenEndedState.sol/ISablierV2OpenEndedState.json $interfaces
+cp out-optimized/ISablierFlow.sol/ISablierFlow.json $interfaces
+cp out-optimized/ISablierFlowState.sol/ISablierFlowState.json $interfaces
 
 erc20=./artifacts/interfaces/erc20
 cp out-optimized/IERC20.sol/IERC20.json $erc20

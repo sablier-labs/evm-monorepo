@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
@@ -12,19 +12,18 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData =
-            abi.encodeCall(ISablierV2OpenEnded.adjustRatePerSecond, (defaultStreamId, RATE_PER_SECOND));
+        bytes memory callData = abi.encodeCall(ISablierFlow.adjustRatePerSecond, (defaultStreamId, RATE_PER_SECOND));
         expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         expectRevertNull();
-        openEnded.adjustRatePerSecond({ streamId: nullStreamId, newRatePerSecond: RATE_PER_SECOND });
+        flow.adjustRatePerSecond({ streamId: nullStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
     function test_RevertGiven_Paused() external whenNotDelegateCalled givenNotNull {
         expectRevertPaused();
-        openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
+        flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
     function test_RevertWhen_CallerUnauthorized_Recipient()
@@ -36,9 +35,9 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
     {
         resetPrank({ msgSender: users.recipient });
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2OpenEnded_Unauthorized.selector, defaultStreamId, users.recipient)
+            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
         );
-        openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
+        flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
     function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
@@ -49,10 +48,8 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         whenCallerIsNotTheSender
     {
         resetPrank({ msgSender: users.eve });
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2OpenEnded_Unauthorized.selector, defaultStreamId, users.eve)
-        );
-        openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
+        flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
     function test_RevertWhen_RatePerSecondZero()
@@ -62,8 +59,8 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         givenNotPaused
         whenCallerIsTheSender
     {
-        vm.expectRevert(Errors.SablierV2OpenEnded_RatePerSecondZero.selector);
-        openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: 0 });
+        vm.expectRevert(Errors.SablierFlow_RatePerSecondZero.selector);
+        flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: 0 });
     }
 
     function test_RevertWhen_RatePerSecondNotDifferent()
@@ -74,10 +71,8 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         whenCallerIsTheSender
         whenRatePerSecondIsNotZero
     {
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2OpenEnded_RatePerSecondNotDifferent.selector, RATE_PER_SECOND)
-        );
-        openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_RatePerSecondNotDifferent.selector, RATE_PER_SECOND));
+        flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
     function test_AdjustRatePerSecond_WithdrawableAmountZero()
@@ -91,37 +86,37 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
     {
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
-        uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
+        uint40 actualLastTimeUpdate = flow.getLastTimeUpdate(defaultStreamId);
         uint40 expectedLastTimeUpdate = uint40(block.timestamp - ONE_MONTH);
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
 
         uint128 newRatePerSecond = RATE_PER_SECOND / 2;
 
-        vm.expectEmit({ emitter: address(openEnded) });
-        emit AdjustOpenEndedStream({
+        vm.expectEmit({ emitter: address(flow) });
+        emit AdjustFlowStream({
             streamId: defaultStreamId,
             recipientAmount: ONE_MONTH_STREAMED_AMOUNT,
             oldRatePerSecond: RATE_PER_SECOND,
             newRatePerSecond: newRatePerSecond
         });
 
-        vm.expectEmit({ emitter: address(openEnded) });
+        vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
-        uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
         assertEq(actualRemainingAmount, 0, "remaining amount");
 
-        openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: newRatePerSecond });
+        flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: newRatePerSecond });
 
-        actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
         uint128 expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
-        uint128 actualRatePerSecond = openEnded.getRatePerSecond(defaultStreamId);
+        uint128 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         uint128 expectedRatePerSecond = newRatePerSecond;
         assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
 
-        actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
+        actualLastTimeUpdate = flow.getLastTimeUpdate(defaultStreamId);
         expectedLastTimeUpdate = uint40(block.timestamp);
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
     }
@@ -133,45 +128,45 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         givenNotPaused
         whenCallerIsTheSender
     {
-        openEnded.deposit(defaultStreamId, DEPOSIT_AMOUNT);
+        flow.deposit(defaultStreamId, DEPOSIT_AMOUNT);
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
-        uint128 actualRatePerSecond = openEnded.getRatePerSecond(defaultStreamId);
+        uint128 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         uint128 expectedRatePerSecond = RATE_PER_SECOND;
         assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
 
-        uint40 actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
+        uint40 actualLastTimeUpdate = flow.getLastTimeUpdate(defaultStreamId);
         uint40 expectedLastTimeUpdate = uint40(block.timestamp - ONE_MONTH);
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
 
-        uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
         uint128 expectedRemainingAmount = 0;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
         uint128 newRatePerSecond = RATE_PER_SECOND / 2;
 
-        vm.expectEmit({ emitter: address(openEnded) });
-        emit AdjustOpenEndedStream({
+        vm.expectEmit({ emitter: address(flow) });
+        emit AdjustFlowStream({
             streamId: defaultStreamId,
             recipientAmount: ONE_MONTH_STREAMED_AMOUNT,
             oldRatePerSecond: RATE_PER_SECOND,
             newRatePerSecond: newRatePerSecond
         });
 
-        vm.expectEmit({ emitter: address(openEnded) });
+        vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
-        openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: newRatePerSecond });
+        flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: newRatePerSecond });
 
-        actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
         expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
-        actualRatePerSecond = openEnded.getRatePerSecond(defaultStreamId);
+        actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         expectedRatePerSecond = newRatePerSecond;
         assertEq(actualRatePerSecond, expectedRatePerSecond, "rate per second");
 
-        actualLastTimeUpdate = openEnded.getLastTimeUpdate(defaultStreamId);
+        actualLastTimeUpdate = flow.getLastTimeUpdate(defaultStreamId);
         expectedLastTimeUpdate = uint40(block.timestamp);
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
     }

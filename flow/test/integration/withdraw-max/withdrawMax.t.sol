@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
@@ -16,63 +16,63 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(ISablierV2OpenEnded.withdrawMax, (defaultStreamId, users.recipient));
+        bytes memory callData = abi.encodeCall(ISablierFlow.withdrawMax, (defaultStreamId, users.recipient));
         expectRevertDueToDelegateCall(callData);
     }
 
     function test_WithdrawMax_Paused() external {
-        openEnded.pause(defaultStreamId);
+        flow.pause(defaultStreamId);
 
         vm.expectEmit({ emitter: address(dai) });
-        emit IERC20.Transfer({ from: address(openEnded), to: users.recipient, value: ONE_MONTH_STREAMED_AMOUNT });
+        emit IERC20.Transfer({ from: address(flow), to: users.recipient, value: ONE_MONTH_STREAMED_AMOUNT });
 
-        vm.expectEmit({ emitter: address(openEnded) });
-        emit WithdrawFromOpenEndedStream({
+        vm.expectEmit({ emitter: address(flow) });
+        emit WithdrawFromFlowStream({
             streamId: defaultStreamId,
             to: users.recipient,
             asset: dai,
             withdrawnAmount: ONE_MONTH_STREAMED_AMOUNT
         });
 
-        openEnded.withdrawMax(defaultStreamId, users.recipient);
+        flow.withdrawMax(defaultStreamId, users.recipient);
 
-        uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
+        uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
         uint128 expectedStreamBalance = DEPOSIT_AMOUNT - ONE_MONTH_STREAMED_AMOUNT;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
         assertEq(actualRemainingAmount, 0, "remaining amount");
-        assertEq(openEnded.getLastTimeUpdate(defaultStreamId), WARP_ONE_MONTH, "last time update not updated");
+        assertEq(flow.getLastTimeUpdate(defaultStreamId), WARP_ONE_MONTH, "last time update not updated");
     }
 
     function test_WithdrawMax() external givenNotPaused {
-        uint128 beforeStreamBalance = openEnded.getBalance(defaultStreamId);
-        uint128 beforeRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        uint128 beforeStreamBalance = flow.getBalance(defaultStreamId);
+        uint128 beforeRemainingAmount = flow.getRemainingAmount(defaultStreamId);
 
         vm.expectEmit({ emitter: address(dai) });
         emit IERC20.Transfer({
-            from: address(openEnded),
+            from: address(flow),
             to: users.recipient,
             value: normalizeAmountWithStreamId(defaultStreamId, ONE_MONTH_STREAMED_AMOUNT)
         });
 
-        vm.expectEmit({ emitter: address(openEnded) });
-        emit WithdrawFromOpenEndedStream({
+        vm.expectEmit({ emitter: address(flow) });
+        emit WithdrawFromFlowStream({
             streamId: defaultStreamId,
             to: users.recipient,
             asset: dai,
             withdrawnAmount: beforeRemainingAmount + ONE_MONTH_STREAMED_AMOUNT
         });
 
-        openEnded.withdrawMax(defaultStreamId, users.recipient);
+        flow.withdrawMax(defaultStreamId, users.recipient);
 
-        uint128 afterStreamBalance = openEnded.getBalance(defaultStreamId);
-        uint128 afterRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
+        uint128 afterStreamBalance = flow.getBalance(defaultStreamId);
+        uint128 afterRemainingAmount = flow.getRemainingAmount(defaultStreamId);
 
         assertEq(
             beforeStreamBalance - ONE_MONTH_STREAMED_AMOUNT, afterStreamBalance, "stream balance not updated correctly"
         );
         assertEq(afterRemainingAmount, 0, "remaining amount should be 0");
-        assertEq(openEnded.getLastTimeUpdate(defaultStreamId), WARP_ONE_MONTH, "last time update not updated");
+        assertEq(flow.getLastTimeUpdate(defaultStreamId), WARP_ONE_MONTH, "last time update not updated");
     }
 }

@@ -12,7 +12,7 @@ contract TransferFrom_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertGiven_StreamNotTransferable() external {
-        uint256 notTransferableStreamId = openEnded.create({
+        uint256 notTransferableStreamId = flow.create({
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
@@ -20,9 +20,9 @@ contract TransferFrom_Integration_Concrete_Test is Integration_Test {
             isTransferable: false
         });
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierV2OpenEndedState_NotTransferable.selector, notTransferableStreamId)
+            abi.encodeWithSelector(Errors.SablierFlowState_NotTransferable.selector, notTransferableStreamId)
         );
-        openEnded.transferFrom({ from: users.recipient, to: users.eve, tokenId: notTransferableStreamId });
+        flow.transferFrom({ from: users.recipient, to: users.eve, tokenId: notTransferableStreamId });
     }
 
     modifier givenStreamTransferable() {
@@ -34,16 +34,16 @@ contract TransferFrom_Integration_Concrete_Test is Integration_Test {
         uint256 streamId = createDefaultStream();
 
         // Expect the relevant events to be emitted.
-        vm.expectEmit({ emitter: address(openEnded) });
+        vm.expectEmit({ emitter: address(flow) });
         emit Transfer({ from: users.recipient, to: users.sender, tokenId: streamId });
-        vm.expectEmit({ emitter: address(openEnded) });
+        vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });
 
         // Transfer the NFT.
-        openEnded.transferFrom({ from: users.recipient, to: users.sender, tokenId: streamId });
+        flow.transferFrom({ from: users.recipient, to: users.sender, tokenId: streamId });
 
         // Assert that Alice is the new stream recipient (and NFT owner).
-        address actualRecipient = openEnded.getRecipient(streamId);
+        address actualRecipient = flow.getRecipient(streamId);
         address expectedRecipient = users.sender;
         assertEq(actualRecipient, expectedRecipient, "recipient");
     }

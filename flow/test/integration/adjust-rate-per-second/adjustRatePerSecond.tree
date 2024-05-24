@@ -24,11 +24,11 @@ adjustRatePerSecond.t.sol
                     │  ├── it should update the stream remaining amount
                     │  ├── it should update the rate per second
                     │  ├── it should update the stream time
-                    │  ├── it should emit a {AdjustOpenEndedStream} event
+                    │  ├── it should emit a {AdjustFlowStream} event
                     │  └── it should emit a {MetadataUpdate} event
                     └── given the withdrawable amount is not zero
                        ├── it should update the stream remaining amount
                        ├── it should update the rate per second
                        ├── it should update the stream time
-                       ├── it should emit a {AdjustOpenEndedStream} event
+                       ├── it should emit a {AdjustFlowStream} event
                        └── it should emit a {MetadataUpdate} event   

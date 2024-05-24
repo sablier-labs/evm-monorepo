@@ -34,7 +34,7 @@ abstract contract Integration_Test is Base_Test {
     }
 
     function createDefaultStreamWithAsset(IERC20 asset_) internal returns (uint256) {
-        return openEnded.create({
+        return flow.create({
             sender: users.sender,
             recipient: users.recipient,
             ratePerSecond: RATE_PER_SECOND,
@@ -44,7 +44,7 @@ abstract contract Integration_Test is Base_Test {
     }
 
     function depositToDefaultStream() internal {
-        openEnded.deposit(defaultStreamId, DEPOSIT_AMOUNT);
+        flow.deposit(defaultStreamId, DEPOSIT_AMOUNT);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -52,17 +52,17 @@ abstract contract Integration_Test is Base_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function expectRevertDueToDelegateCall(bytes memory callData) internal {
-        (bool success, bytes memory returnData) = address(openEnded).delegatecall(callData);
+        (bool success, bytes memory returnData) = address(flow).delegatecall(callData);
         assertFalse(success, "delegatecall success");
         assertEq(returnData, abi.encodeWithSelector(Errors.DelegateCall.selector), "delegatecall return data");
     }
 
     function expectRevertNull() internal {
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2OpenEnded_Null.selector, nullStreamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Null.selector, nullStreamId));
     }
 
     function expectRevertPaused() internal {
-        openEnded.pause(defaultStreamId);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2OpenEnded_StreamPaused.selector, defaultStreamId));
+        flow.pause(defaultStreamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamPaused.selector, defaultStreamId));
     }
 }

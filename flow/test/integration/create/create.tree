@@ -18,4 +18,4 @@ create.t.sol
                ├── it should bump the next stream id
                ├── it should mint the NFT
                ├── it should emit a {MetadataUpdate} event
-               └── it should emit a {CreateOpenEndedStream} event
+               └── it should emit a {CreateFlowStream} event

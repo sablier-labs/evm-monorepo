@@ -18,14 +18,15 @@ contract Precompiles_Test is Base_Test {
         }
     }
 
-    function test_DeployOpenEnded() external onlyTestOptimizedProfile {
-        address actualOpenEnded = address(precompiles.deployOpenEnded());
-        address expectedOpenEnded = address(deployOptimizedOpenEnded());
-        bytes memory expectedOpenEndedCode = adjustBytecode(expectedOpenEnded.code, expectedOpenEnded, actualOpenEnded);
-        assertEq(actualOpenEnded.code, expectedOpenEndedCode, "bytecodes mismatch");
+    function test_DeployFlow() external onlyTestOptimizedProfile {
+        address actualSablierFlow = address(precompiles.deploySablierFlow());
+        address expectedSablierFlow = address(deployOptimizedSablierFlow());
+        bytes memory expectedSablierFlowCode =
+            adjustBytecode(expectedSablierFlow.code, expectedSablierFlow, actualSablierFlow);
+        assertEq(actualSablierFlow.code, expectedSablierFlowCode, "bytecodes mismatch");
     }
 
-    /// @dev The expected bytecode has to be adjusted because {SablierV2OpenEnded} inherits from {NoDelegateCall}, which
+    /// @dev The expected bytecode has to be adjusted because {SablierFlow} inherits from {NoDelegateCall}, which
     /// saves the contract's own address in storage.
     function adjustBytecode(
         bytes memory bytecode,

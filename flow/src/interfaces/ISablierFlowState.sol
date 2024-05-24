@@ -5,12 +5,12 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
-import { OpenEnded } from "../types/DataTypes.sol";
+import { Flow } from "../types/DataTypes.sol";
 
-/// @title ISablierV2OpenEndedState
-/// @notice State variables, storage and constants, for the {SablierV2OpenEnded} contract, and their respective getters.
+/// @title ISablierFlowState
+/// @notice State variables, storage and constants, for the {SablierFlow} contract, and their respective getters.
 /// @dev This contract also includes helpful modifiers and helper functions.
-interface ISablierV2OpenEndedState is
+interface ISablierFlowState is
     IERC721Metadata // 2 inherited components
 {
     /*//////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ interface ISablierV2OpenEndedState is
     /// @notice Retrieves the stream entity.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    function getStream(uint256 streamId) external view returns (OpenEnded.Stream memory stream);
+    function getStream(uint256 streamId) external view returns (Flow.Stream memory stream);
 
     /// @notice Retrieves a flag indicating whether the stream is paused.
     /// @dev Reverts if `streamId` references a null stream.

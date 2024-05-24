@@ -45,7 +45,7 @@ withdrawAt.t.sol
                               │  ├── it should set the remaining amount to zero
                               │  ├── it should update the stream balance
                               │  ├── it should perform the ERC-20 transfer
-                              │  ├── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
+                              │  ├── it should emit a {Transfer} and {WithdrawFromFlowStream} event
                               │  └── it should emit a {MetadataUpdate} event
                               └── given the asset has 18 decimals
                                  ├── it should make the withdrawal   
@@ -53,5 +53,5 @@ withdrawAt.t.sol
                                  ├── it should update the time
                                  ├── it should update the stream balance
                                  ├── it should perform the ERC-20 transfer
-                                 ├── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
+                                 ├── it should emit a {Transfer} and {WithdrawFromFlowStream} event
                                  └── it should emit a {MetadataUpdate} event

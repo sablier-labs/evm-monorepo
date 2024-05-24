@@ -1,55 +1,59 @@
-## Sablier V2 Open-Ended
+## Sablier Flow
 
-This repository contains the smart contracts for the EOES (EVM open-ended streams) concept. By open-ended, we mean that
-the streams have no fixed duration and no deposit amount at stream creation. This concept is primarily beneficial for
-salaries and not for vesting or airdrops, where lockups are more appropriate.
+This repository contains the smart contracts for Sablier Flow. Streams created using Sablier Flow have no end time and
+no upfront deposit is required. This concept is primarily beneficial for regular rpayments such as salaries,
+subscriptions and use cases where the end time is not specified. If you are looking for vesting or airdrops, kindly
+refer to [our Lockup contracts](https://github.com/sablier-labs/v2-core/).
 
 ### Motivation
 
-One of the most requested feature from Sablier users is the ability to create streams without depositing the full amount
-at start, i.e. the top-up functionality, which introduces the idea of _debt_ . This is enabled by the introduction of an
-internal balance and a rate-per-second in the Stream entity:
+One of the most requested feature from users is the ability to create streams without depositing the amount upfront,
+which requires the introduction of _debt_. _Debt_ is the amount that sender owes to the recipient which but is not
+available in teh stream. This is made possible by introducing a new variables in the Stream struct:
 
 ```solidity
-  struct Stream {
-      uint128 balance;
-      uint128 ratePerSecond;
-      /// rest of the types
-  }
+    struct Stream {
+        uint128 balance;
+        uint128 ratePerSecond;
+        uint40 lastTimeUpdate;
+        // -- snip --
+        uint128 remainingAmount;
+    }
 ```
 
 ### New features
 
-- Top up, which are public (you can ask a friend to deposit money for you instead)
-- No deposits are required at the time of stream creation; thus, creation and deposit are distinct operations.
-- There are no deposit limits.
-- Streams can be created for an indefinite period, they will be collecting debt until the sender deposits or pauses the
-  stream.
-- Ability to pause and restart streams.
-- The sender can refund from the stream balance at any time.
-  - This is only possible when the stream balance exceeds the withdrawable amount. For example, if a stream has a
-    balance of 100 DAI and a withdrawable amount of 50 DAI, the sender can refund up to 50 DAI from the stream.
+- Streams can be created for an indefinite period.
+- No deposits are required at the time of stream creation. Thus, creation and deposit are distinct operations.
+- Anybody can make deposit into a stream. You can ask a colleague to deposit money into your streams on your behalf.
+- There are no limit on the deposit. You can deposit any amount any time. You can refund it as long as it has not been
+  streamed to the recipients.
+- If streams run out of balance, they will start to accumulate debt until they are paused or sufficient deposits are
+  made to them.
+- Sender can pause and restart the streams anytime without losing track of debt and streamed amount.
 
 ### How it works
 
-As mentioned above, the creation and deposit operations are distinct. This means that the balance is set to 0 when a
-stream is created, and deposits are made afterward. However, a `createAndDeposit` function is implemented to maintain
-the same user experience.
+As mentioned above, the creation and deposit are distinct operations. When a stream is created, the baalnce balance
+begins with 0. Sender can deposit any amount into the stream anytime. However, to improve the user experience, a
+`createAndDeposit` function is implemented to initiate create and deposit in a single transaction.
 
-Since the streams are open-ended, we don't have a start time nor an end time, instead we have a time reference
-(`lastTimeUpdate`) which will be set to `block.timestamp` at the creation of the stream. There are several actions that
-will update this time reference:
+These streams don't have a start time or an end time. As a result, we use a time value (`lastTimeUpdate`) which is set
+to `block.timestamp` when the stream is created. `lastTimeUpdate` plays a key role into several features of Sablier
+Flow:
 
-- when a withdrawal is made
+- When a withdrawal is made
 
   - `lastTimeUpdate` will be set to the given `time` parameter passed in the function, you can see why this parameter is
-    needed in the explantion from [this PR](https://github.com/sablier-labs/v2-open-ended/pull/4)
+    needed in the explantion from [this PR](https://github.com/sablier-labs/flow/pull/4)
 
-- when the rate per second is changed
+- When the rate per second is changed
+
   - `lastTimeUpdate` will be set to `block.timestamp`, this time update is required in the `_adjustRatePerSecond`
     function because it would cause loss of funds for the recipient if the previous rate was higher or gain of funds if
     the previous rate was lower
-- when the stream is restarted
+
+- When the stream is restarted
   - `lastTimeUpdate` will be set to `block.timestamp`
 
 ### Amounts calculation
@@ -120,7 +124,7 @@ time to get that 10 per day "streamed", using the 18 decimals format would delay
 
 $\ 0.000115740740740740 \times (oneDayInSeconds + 1 second) = 10.000115740740677000 \$
 
-Currently, I don't think it's possible to address this precision problem entirely, given the nature of open-endedness.
+Currently, I don't think it's possible to address this precision problem entirely.
 
 ### Technical decisions
 
@@ -155,7 +159,7 @@ _bal = sum of deposits - sum of withdrawals_
 
 _sum of withdrawn amounts ≤ sum of deposits_
 
-_sum of stream balances normalized to asset decimals ≤ asset.balanceOf(SablierV2OpenEnded)_
+_sum of stream balances normalized to asset decimals ≤ asset.balanceOf(SablierFlow)_
 
 _ltu ≤ now_
 

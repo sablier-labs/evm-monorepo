@@ -4,7 +4,7 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierV2OpenEnded } from "src/interfaces/ISablierV2OpenEnded.sol";
+import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker } from "src/types/DataTypes.sol";
 
@@ -13,7 +13,7 @@ import { Integration_Test } from "../Integration.t.sol";
 contract DepositViaBroker_Integration_Test is Integration_Test {
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData = abi.encodeCall(
-            ISablierV2OpenEnded.depositViaBroker, (defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker)
+            ISablierFlow.depositViaBroker, (defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker)
         );
         // it should revert
         expectRevertDueToDelegateCall(callData);
@@ -22,7 +22,7 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         // it should revert
         expectRevertNull();
-        openEnded.depositViaBroker(nullStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker);
+        flow.depositViaBroker(nullStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker);
     }
 
     function test_RevertWhen_BrokerFeeGreaterThanMaxFee() external whenNotDelegateCalled givenNotNull {
@@ -30,10 +30,10 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         // it should revert
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.SablierV2OpenEnded_BrokerFeeTooHigh.selector, defaultStreamId, defaultBroker.fee, MAX_BROKER_FEE
+                Errors.SablierFlow_BrokerFeeTooHigh.selector, defaultStreamId, defaultBroker.fee, MAX_BROKER_FEE
             )
         );
-        openEnded.depositViaBroker(defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker);
+        flow.depositViaBroker(defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker);
     }
 
     function test_RevertWhen_BrokeAddressIsZero()
@@ -44,8 +44,8 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
     {
         defaultBroker.account = address(0);
         // it should revert
-        vm.expectRevert(Errors.SablierV2OpenEnded_BrokerAddressZero.selector);
-        openEnded.depositViaBroker(defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker);
+        vm.expectRevert(Errors.SablierFlow_BrokerAddressZero.selector);
+        flow.depositViaBroker(defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker);
     }
 
     function test_RevertWhen_TotalAmountIsZero()
@@ -56,8 +56,8 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         whenBrokerAddressIsNotZero
     {
         // it should revert
-        vm.expectRevert(Errors.SablierV2OpenEnded_DepositAmountZero.selector);
-        openEnded.depositViaBroker(defaultStreamId, 0, defaultBroker);
+        vm.expectRevert(Errors.SablierFlow_DepositAmountZero.selector);
+        flow.depositViaBroker(defaultStreamId, 0, defaultBroker);
     }
 
     function test_WhenAssetMissesERC20Return()
@@ -84,7 +84,7 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
     {
         // it should update the stream balance
         // it should perform the ERC20 transfer
-        // it should emit 2 {Transfer}, 1 {DepositOpenEndedStream}, 1 {MetadataUpdate} events
+        // it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
         uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdc)));
         _test_DepositViaBroker(streamId, IERC20(address(usdc)), defaultBroker);
     }
@@ -100,7 +100,7 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
     {
         // it should update the stream balance
         // it should perform the ERC20 transfer
-        // it should emit 2 {Transfer}, 1 {DepositOpenEndedStream}, 1 {MetadataUpdate} events
+        // it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
         uint256 streamId = createDefaultStreamWithAsset(IERC20(address(dai)));
         _test_DepositViaBroker(streamId, IERC20(address(dai)), defaultBroker);
     }
@@ -109,17 +109,12 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         vm.expectEmit({ emitter: address(asset) });
         emit IERC20.Transfer({
             from: users.sender,
-            to: address(openEnded),
+            to: address(flow),
             value: normalizeAmountWithStreamId(streamId, DEPOSIT_AMOUNT)
         });
 
-        vm.expectEmit({ emitter: address(openEnded) });
-        emit DepositOpenEndedStream({
-            streamId: streamId,
-            funder: users.sender,
-            asset: asset,
-            depositAmount: DEPOSIT_AMOUNT
-        });
+        vm.expectEmit({ emitter: address(flow) });
+        emit DepositFlowStream({ streamId: streamId, funder: users.sender, asset: asset, depositAmount: DEPOSIT_AMOUNT });
 
         vm.expectEmit({ emitter: address(asset) });
         emit IERC20.Transfer({
@@ -128,13 +123,13 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
             value: normalizeAmountWithStreamId(streamId, BROKER_FEE_AMOUNT)
         });
 
-        vm.expectEmit({ emitter: address(openEnded) });
+        vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });
 
         expectCallToTransferFrom({
             asset: asset,
             from: users.sender,
-            to: address(openEnded),
+            to: address(flow),
             amount: normalizeAmountWithStreamId(streamId, DEPOSIT_AMOUNT)
         });
 
@@ -145,9 +140,9 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
             amount: normalizeAmountWithStreamId(streamId, BROKER_FEE_AMOUNT)
         });
 
-        openEnded.depositViaBroker(streamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, broker);
+        flow.depositViaBroker(streamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, broker);
 
-        uint128 actualStreamBalance = openEnded.getBalance(streamId);
+        uint128 actualStreamBalance = flow.getBalance(streamId);
         uint128 expectedStreamBalance = DEPOSIT_AMOUNT;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
     }

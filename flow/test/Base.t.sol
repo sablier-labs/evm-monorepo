@@ -5,7 +5,7 @@ import { Test } from "forge-std/src/Test.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
-import { SablierV2OpenEnded } from "src/SablierV2OpenEnded.sol";
+import { SablierFlow } from "src/SablierFlow.sol";
 
 import { ERC20Mock } from "./mocks/ERC20Mock.sol";
 import { ERC20MissingReturn } from "./mocks/ERC20MissingReturn.sol";
@@ -31,7 +31,7 @@ abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, U
 
     ERC20Mock internal assetWithoutDecimals = new ERC20Mock("Asset without decimals", "AWD", 0);
     ERC20Mock internal dai = new ERC20Mock("Dai stablecoin", "DAI", 18);
-    SablierV2OpenEnded internal openEnded;
+    SablierFlow internal flow;
     ERC20Mock internal usdc = new ERC20Mock("USD Coin", "USDC", 6);
     ERC20MissingReturn internal usdt = new ERC20MissingReturn("USDT stablecoin", "USDT", 6);
 
@@ -41,9 +41,9 @@ abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, U
 
     function setUp() public virtual {
         if (!isTestOptimizedProfile()) {
-            openEnded = new SablierV2OpenEnded();
+            flow = new SablierFlow();
         } else {
-            openEnded = deployOptimizedOpenEnded();
+            flow = deployOptimizedSablierFlow();
         }
 
         users.broker = createUser("broker");
@@ -51,7 +51,7 @@ abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, U
         users.recipient = createUser("recipient");
         users.sender = createUser("sender");
 
-        labelConctracts();
+        labelContracts();
 
         resetPrank(users.sender);
 
@@ -70,20 +70,20 @@ abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, U
         deal({ token: address(usdc), to: user, give: 1_000_000e6 });
         deal({ token: address(usdt), to: user, give: 1_000_000e18 });
         resetPrank(user);
-        dai.approve({ spender: address(openEnded), value: type(uint256).max });
-        usdc.approve({ spender: address(openEnded), value: type(uint256).max });
-        usdt.approve({ spender: address(openEnded), value: type(uint256).max });
+        dai.approve({ spender: address(flow), value: type(uint256).max });
+        usdc.approve({ spender: address(flow), value: type(uint256).max });
+        usdt.approve({ spender: address(flow), value: type(uint256).max });
         return user;
     }
 
-    /// @dev Deploys {SablierV2OpenEnded} from an optimized source compiled with `--via-ir`.
-    function deployOptimizedOpenEnded() internal returns (SablierV2OpenEnded) {
-        return SablierV2OpenEnded(deployCode("out-optimized/SablierV2OpenEnded.sol/SablierV2OpenEnded.json"));
+    /// @dev Deploys {SablierFlow} from an optimized source compiled with `--via-ir`.
+    function deployOptimizedSablierFlow() internal returns (SablierFlow) {
+        return SablierFlow(deployCode("out-optimized/SablierFlow.sol/SablierFlow.json"));
     }
 
-    function labelConctracts() internal {
-        vm.label(address(openEnded), "Open Ended");
+    function labelContracts() internal {
         vm.label(address(dai), "DAI");
+        vm.label(address(flow), "Flow");
         vm.label(address(usdt), "USDT");
     }
 
@@ -112,12 +112,12 @@ abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, U
 
     /// @dev Normalizes `amount` to the decimal of `streamId` asset.
     function normalizeAmountWithStreamId(uint256 streamId, uint128 amount) internal view returns (uint256) {
-        return normalizeAmountToDecimal(amount, openEnded.getAssetDecimals(streamId));
+        return normalizeAmountToDecimal(amount, flow.getAssetDecimals(streamId));
     }
 
     /// @dev Normalizes stream balance to the decimal of `streamId` asset.
     function normalizeStreamBalance(uint256 streamId) internal view returns (uint256) {
-        return normalizeAmountToDecimal(openEnded.getBalance(streamId), openEnded.getAssetDecimals(streamId));
+        return normalizeAmountToDecimal(flow.getBalance(streamId), flow.getAssetDecimals(streamId));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
