@@ -51,11 +51,11 @@ library Errors {
     /// @notice Thrown when trying to create a OpenEnded stream with the sender as the zero address.
     error SablierV2OpenEnded_SenderZeroAddress();
 
-    /// @notice Thrown when trying to perform an action with a canceled stream.
-    error SablierV2OpenEnded_StreamCanceled(uint256 streamId);
+    /// @notice Thrown when trying to perform an action with a paused stream.
+    error SablierV2OpenEnded_StreamPaused(uint256 streamId);
 
-    /// @notice Thrown when trying to restart a stream that is not canceled.
-    error SablierV2OpenEnded_StreamNotCanceled(uint256 streamId);
+    /// @notice Thrown when trying to restart a stream that is not paused.
+    error SablierV2OpenEnded_StreamNotPaused(uint256 streamId);
 
     /// @notice Thrown when `msg.sender` lacks authorization to perform an action.
     error SablierV2OpenEnded_Unauthorized(uint256 streamId, address caller);

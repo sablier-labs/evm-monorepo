@@ -13,17 +13,17 @@ contract StreamedAmountOf_Integration_Test is Integration_Test {
         openEnded.streamedAmountOf(nullStreamId);
     }
 
-    function test_RevertGiven_Canceled() external givenNotNull {
-        expectRevertCanceled();
+    function test_RevertGiven_Paused() external givenNotNull {
+        expectRevertPaused();
         openEnded.streamedAmountOf(defaultStreamId);
     }
 
-    function test_StreamedAmountOf_LastTimeUpdateInThePresent() external view givenNotNull givenNotCanceled {
+    function test_StreamedAmountOf_LastTimeUpdateInThePresent() external view givenNotNull givenNotPaused {
         uint128 streamedAmount = openEnded.streamedAmountOf(defaultStreamId);
         assertEq(streamedAmount, 0, "streamed amount");
     }
 
-    function test_StreamedAmountOf() external givenNotNull givenNotCanceled {
+    function test_StreamedAmountOf() external givenNotNull givenNotPaused {
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
         uint128 streamedAmount = openEnded.streamedAmountOf(defaultStreamId);
         assertEq(streamedAmount, ONE_MONTH_STREAMED_AMOUNT, "streamed amount");

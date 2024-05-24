@@ -13,22 +13,45 @@ contract StreamDebtOf_Integration_Test is Integration_Test {
         openEnded.streamDebtOf(nullStreamId);
     }
 
-    function test_RevertGiven_Canceled() external givenNotNull {
-        expectRevertCanceled();
-        openEnded.streamDebtOf(defaultStreamId);
-    }
-
-    function test_StreamDebtOf_BalanceGreaterThanOrEqualStreamedAmount() external givenNotNull givenNotCanceled {
+    function test_RevertGiven_BalanceNotLessThanRemainingAmount() external givenNotNull givenPaused {
         defaultDeposit();
-        uint128 streamDebt = openEnded.streamDebtOf(defaultStreamId);
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
-        assertEq(streamDebt, 0, "stream debt");
+        openEnded.pause(defaultStreamId);
+
+        uint128 actualDebt = openEnded.streamDebtOf(defaultStreamId);
+        assertEq(actualDebt, 0, "stream debt");
     }
 
-    function test_streamDebtOf() external givenNotNull givenNotCanceled {
-        vm.warp({ newTimestamp: WARP_ONE_MONTH });
-        uint128 streamDebt = openEnded.streamDebtOf(defaultStreamId);
+    function test_RevertGiven_BalanceLessThanRemainingAmount() external givenNotNull givenPaused {
+        uint128 depositAmount = ONE_MONTH_STREAMED_AMOUNT / 2;
+        openEnded.deposit(defaultStreamId, depositAmount);
 
-        assertEq(streamDebt, ONE_MONTH_STREAMED_AMOUNT, "stream debt");
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+
+        openEnded.pause(defaultStreamId);
+
+        uint128 actualDebt = openEnded.streamDebtOf(defaultStreamId);
+        uint128 expectedDebt = ONE_MONTH_STREAMED_AMOUNT - depositAmount;
+        assertEq(actualDebt, expectedDebt, "stream debt");
+    }
+
+    function test_StreamDebtOf_BalanceNotLessThanSum() external givenNotNull givenNotPaused {
+        defaultDeposit();
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+
+        uint128 actualDebt = openEnded.streamDebtOf(defaultStreamId);
+        assertEq(actualDebt, 0, "stream debt");
+    }
+
+    function test_StreamDebtOf() external givenNotNull givenNotPaused {
+        uint128 depositAmount = ONE_MONTH_STREAMED_AMOUNT / 2;
+        openEnded.deposit(defaultStreamId, depositAmount);
+
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+
+        uint128 actualDebt = openEnded.streamDebtOf(defaultStreamId);
+        uint128 expectedDebt = ONE_MONTH_STREAMED_AMOUNT - depositAmount;
+        assertEq(actualDebt, expectedDebt, "stream debt");
     }
 }

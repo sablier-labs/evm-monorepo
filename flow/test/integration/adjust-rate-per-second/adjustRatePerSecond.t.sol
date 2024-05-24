@@ -22,8 +22,8 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         openEnded.adjustRatePerSecond({ streamId: nullStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
-    function test_RevertGiven_Canceled() external whenNotDelegateCalled givenNotNull {
-        expectRevertCanceled();
+    function test_RevertGiven_Paused() external whenNotDelegateCalled givenNotNull {
+        expectRevertPaused();
         openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
@@ -31,8 +31,8 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        givenNotCanceled
-        whenCallerUnauthorized
+        givenNotPaused
+        whenCallerIsNotTheSender
     {
         resetPrank({ msgSender: users.recipient });
         vm.expectRevert(
@@ -45,8 +45,8 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        givenNotCanceled
-        whenCallerUnauthorized
+        givenNotPaused
+        whenCallerIsNotTheSender
     {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(
@@ -55,23 +55,23 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
-    function test_RevertWhen_ratePerSecondZero()
+    function test_RevertWhen_RatePerSecondZero()
         external
         whenNotDelegateCalled
         givenNotNull
-        givenNotCanceled
-        whenCallerAuthorized
+        givenNotPaused
+        whenCallerIsTheSender
     {
         vm.expectRevert(Errors.SablierV2OpenEnded_RatePerSecondZero.selector);
         openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: 0 });
     }
 
-    function test_RevertWhen_ratePerSecondNotDifferent()
+    function test_RevertWhen_RatePerSecondNotDifferent()
         external
         whenNotDelegateCalled
         givenNotNull
-        givenNotCanceled
-        whenCallerAuthorized
+        givenNotPaused
+        whenCallerIsTheSender
         whenRatePerSecondNonZero
     {
         vm.expectRevert(
@@ -84,8 +84,8 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        givenNotCanceled
-        whenCallerAuthorized
+        givenNotPaused
+        whenCallerIsTheSender
         whenRatePerSecondNonZero
         whenRatePerSecondNotDifferent
     {
@@ -100,7 +100,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         vm.expectEmit({ emitter: address(openEnded) });
         emit AdjustOpenEndedStream({
             streamId: defaultStreamId,
-            recipientAmount: 0,
+            recipientAmount: ONE_MONTH_STREAMED_AMOUNT,
             oldRatePerSecond: RATE_PER_SECOND,
             newRatePerSecond: newRatePerSecond
         });
@@ -109,18 +109,13 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
         uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
-        uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
-
         assertEq(actualRemainingAmount, 0, "remaining amount");
-        assertEq(actualStreamBalance, 0, "stream balance");
 
         openEnded.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: newRatePerSecond });
 
         actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
-        actualStreamBalance = openEnded.getBalance(defaultStreamId);
-
-        assertEq(actualRemainingAmount, 0, "remaining amount");
-        assertEq(actualStreamBalance, 0, "stream balance");
+        uint128 expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT;
+        assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
         uint128 actualRatePerSecond = openEnded.getRatePerSecond(defaultStreamId);
         uint128 expectedRatePerSecond = newRatePerSecond;
@@ -135,8 +130,8 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        givenNotCanceled
-        whenCallerAuthorized
+        givenNotPaused
+        whenCallerIsTheSender
     {
         openEnded.deposit(defaultStreamId, DEPOSIT_AMOUNT);
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
@@ -152,10 +147,6 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
         uint128 expectedRemainingAmount = 0;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
-
-        uint128 actualStreamBalance = openEnded.getBalance(defaultStreamId);
-        uint128 expectedStreamBalance = DEPOSIT_AMOUNT;
-        assertEq(actualStreamBalance, DEPOSIT_AMOUNT, "stream balance");
 
         uint128 newRatePerSecond = RATE_PER_SECOND / 2;
 
@@ -175,10 +166,6 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
         expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
-
-        actualStreamBalance = openEnded.getBalance(defaultStreamId);
-        expectedStreamBalance = DEPOSIT_AMOUNT - ONE_MONTH_STREAMED_AMOUNT;
-        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
         actualRatePerSecond = openEnded.getRatePerSecond(defaultStreamId);
         expectedRatePerSecond = newRatePerSecond;

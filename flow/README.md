@@ -72,6 +72,20 @@ The withdrawable amount is actually the streamed amount when there is no debt or
 
 The refundable amount is calculated by subtracting the streamed amount from the balance.
 
+#### Abbreviation table
+
+| Full Name          | Abbreviation |
+| ------------------ | ------------ |
+| lastTimeUpdate     | ltu          |
+| block.timestamp    | now          |
+| balance            | bal          |
+| ratePerSecond      | rps          |
+| remainingAmount    | ra           |
+| streamedAmount     | sa           |
+| debt               | debt         |
+| withdrawableAmount | wa           |
+| refundableAmount   | rfa          |
+
 ### Issues:
 
 Due to the lack of a fixed duration and a fixed deposit amount, the rate per second (rps) introduces a precision problem
@@ -129,32 +143,32 @@ Sender address **must** be checked because there is no `ERC20` transfer in `_cre
 
 ### Invariants:
 
-_withdrawable amount = min(balance, streamed amount) + remaining amount_
+_wa ≤ bal_
 
-_balance = withdrawable amount + refundable amount - remaining amount_
+_if(debt = 0) then wa = sa + ra_
 
-_balance = sum of deposits - sum of withdrawals_
+_if(debt = 0 && isPaused = true) then wa = ra_
 
-_withdrawable amount - remaining amount ≤ streamed amount_
+_if(debt > 0) then wa = bal_
+
+_bal = sum of deposits - sum of withdrawals_
 
 _sum of withdrawn amounts ≤ sum of deposits_
 
-_sum of withdrawn amounts ≤ sum of deposits_
+_sum of stream balances normalized to asset decimals ≤ asset.balanceOf(SablierV2OpenEnded)_
 
-_sum of stream balances normilized to asset decimals ≤ asset.balanceOf(SablierV2OpenEnded)_
+_ltu ≤ now_
 
-_lastTimeUpdate ≤ block.timestamp;_
-
-_if(isCanceled = true) then balance = 0 && ratePerSecond = 0 && withdrawable amount = remaining amount_
+_if(isPaused = true) then rps = 0_
 
 ### Actions Access Control:
 
-| Action              | Sender | Recipient | Operator(s) |      Unkown User       |
+| Action              | Sender | Recipient | Operator(s) |      Unknown User      |
 | ------------------- | :----: | :-------: | :---------: | :--------------------: |
 | AdjustRatePerSecond |   ✅   |    ❌     |     ❌      |           ❌           |
-| Cancel              |   ✅   |    ❌     |     ❌      |           ❌           |
 | Deposit             |   ✅   |    ✅     |     ✅      |           ✅           |
 | RefundFromStream    |   ✅   |    ❌     |     ❌      |           ❌           |
 | RestartStream       |   ✅   |    ❌     |     ❌      |           ❌           |
+| Pause               |   ✅   |    ❌     |     ❌      |           ❌           |
 | Transfer NFT        |   ❌   |    ✅     |     ✅      |           ❌           |
 | Withdraw            |   ✅   |    ✅     |     ✅      | ✅ (only to Recipient) |

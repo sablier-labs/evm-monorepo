@@ -11,15 +11,17 @@ library OpenEnded {
     /// @param balance The amount of assets that is currently available in the stream, i.e. the sum of deposited amounts
     /// subtracted by the sum of withdrawn amounts, denoted in 18 decimals.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    /// @param sender The address streaming the assets, with the ability to cancel the stream.
-    /// @param lastTimeUpdate The Unix timestamp for the streamed amount calculation.
+    /// @param sender The address streaming the assets, with the ability to pause the stream.
+    /// @param lastTimeUpdate The Unix timestamp used for the streamed amount calculation.
     /// @param isStream Boolean indicating if the struct entity exists.
-    /// @param isCanceled Boolean indicating if the stream is canceled.
+    /// @param isPaused Boolean indicating if the stream is paused.
     /// @param isTransferable Boolean indicating if the stream NFT is transferable.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     /// @param assetDecimals The decimals of the ERC-20 asset used for streaming.
-    /// @param remainingAmount The amount of assets still available for withdrawal, when the stream is canceled or the
-    /// `ratePerSecond` is adjusted, denoted in 18 decimals.
+    /// @param remainingAmount The amount of assets that the sender owes to the recipient. This, along with the streamed
+    /// amount, can be used to calculate the total amount owed to the recipient at any given point in time. In case of
+    /// debt, this amount is subtracted by the balance when a withdrawal happens, otherwise, it is set to zero. This
+    /// amount is increased when the stream is paused or the `ratePerSecond` is adjusted, denoted in 18 decimals.
     struct Stream {
         // slot 0
         uint128 balance;
@@ -28,7 +30,7 @@ library OpenEnded {
         address sender;
         uint40 lastTimeUpdate;
         bool isStream;
-        bool isCanceled;
+        bool isPaused;
         bool isTransferable;
         // slot 2
         IERC20 asset;

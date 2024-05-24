@@ -107,6 +107,6 @@ contract OpenEndedCreateHandler is BaseHandler {
         openEndedStore.pushStreamId(streamId, params.sender, params.recipient);
 
         // Store the deposited amount.
-        openEndedStore.updateStreamDepositedAmountsSum(depositAmount);
+        openEndedStore.updateStreamDepositedAmountsSum(streamId, depositAmount);
     }
 }

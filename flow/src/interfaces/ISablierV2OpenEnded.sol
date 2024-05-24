@@ -23,26 +23,10 @@ interface ISablierV2OpenEnded is
         uint256 indexed streamId, uint128 recipientAmount, uint128 oldRatePerSecond, uint128 newRatePerSecond
     );
 
-    /// @notice Emitted when a open-ended stream is canceled.
-    /// @param streamId The ID of the stream.
-    /// @param sender The address of the stream's sender.
-    /// @param recipient The address of the stream's recipient.
-    /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param senderAmount The amount of assets refunded to the stream's sender, denoted in 18 decimals.
-    /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in 18 decimals.
-    event CancelOpenEndedStream(
-        uint256 streamId,
-        address indexed sender,
-        address indexed recipient,
-        IERC20 indexed asset,
-        uint128 senderAmount,
-        uint128 recipientAmount
-    );
-
     /// @notice Emitted when a open-ended stream is created.
     /// @param streamId The ID of the newly created stream.
     /// @param sender The address from which to stream the assets, which has the ability to
-    /// adjust and cancel the stream.
+    /// adjust and pause the stream.
     /// @param recipient The address toward which to stream the assets.
     /// @param ratePerSecond The amount of assets that is increasing by every second.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
@@ -63,6 +47,20 @@ interface ISablierV2OpenEnded is
     /// @param depositAmount The amount of assets deposited, denoted in 18 decimals.
     event DepositOpenEndedStream(
         uint256 indexed streamId, address indexed funder, IERC20 indexed asset, uint128 depositAmount
+    );
+
+    /// @notice Emitted when a open-ended stream is paused.
+    /// @param streamId The ID of the stream.
+    /// @param sender The address of the stream's sender.
+    /// @param recipient The address of the stream's recipient.
+    /// @param asset The contract address of the ERC-20 asset used for streaming.
+    /// @param recipientAmount The amount of assets left for the stream's recipient to withdraw, denoted in 18 decimals.
+    event PauseOpenEndedStream(
+        uint256 streamId,
+        address indexed sender,
+        address indexed recipient,
+        IERC20 indexed asset,
+        uint128 recipientAmount
     );
 
     /// @notice Emitted when assets are refunded from a open-ended stream.
@@ -97,13 +95,13 @@ interface ISablierV2OpenEnded is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Calculates the amount that the sender can refund from stream, denoted in 18 decimals.
-    /// @dev Reverts if `streamId` references a canceled or a null stream.
+    /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     /// @return refundableAmount The amount that the sender can refund.
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
 
     /// @notice Calculates the amount that the sender can refund from stream at `time`, denoted in 18 decimals.
-    /// @dev Reverts if `streamId` references a canceled or a null stream.
+    /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     /// @param time The Unix timestamp for the streamed amount calculation.
     /// @return refundableAmount The amount that the sender can refund.
@@ -111,19 +109,19 @@ interface ISablierV2OpenEnded is
 
     /// @notice Calculates the amount that the sender owes on the stream, i.e. if more assets have been streamed than
     /// its balance, denoted in 18 decimals. If there is no debt, it will return zero.
-    /// @dev Reverts if `streamId` references a canceled or a null stream.
+    /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     function streamDebtOf(uint256 streamId) external view returns (uint128 debt);
 
     /// @notice Calculates the amount streamed to the recipient from the last time update to the current time,
     /// denoted in 18 decimals.
-    /// @dev Reverts if `streamId` references a canceled or a null stream.
+    /// @dev Reverts if `streamId` references a null or a paused stream.
     /// @param streamId The stream ID for the query.
     function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
 
     /// @notice Calculates the amount streamed to the recipient from the last time update to `time` passed as parameter,
     /// denoted in 18 decimals.
-    /// @dev Reverts if `streamId` references a canceled or a null stream.
+    /// @dev Reverts if `streamId` references a null or a paused stream.
     /// @param streamId The stream ID for the query.
     /// @param time The Unix timestamp for the streamed amount calculation.
     function streamedAmountOf(uint256 streamId, uint40 time) external view returns (uint128 streamedAmount);
@@ -153,25 +151,13 @@ interface ISablierV2OpenEnded is
     ///
     /// Requiremenets:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null stream or a canceled stream.
+    /// - `streamId` must not reference a null stream or a paused stream.
     /// - `msg.sender` must be the stream's sender.
     /// - `newRatePerSecond` must be greater than zero and not equal to the current rate per second.
     ///
     /// @param streamId The ID of the stream to adjust.
     /// @param newRatePerSecond The new rate per second of the open-ended stream, denoted in 18 decimals.
     function adjustRatePerSecond(uint256 streamId, uint128 newRatePerSecond) external;
-
-    /// @notice Cancels the stream and refunds available assets to the sender.
-    ///
-    /// @dev Emits a {Transfer} and {CancelOpenEndedStream} event.
-    ///
-    /// Requirements:
-    /// - Must not be delegate called.
-    /// - `streamId` must not reference a null stream or a canceled stream.
-    /// - `msg.sender` must be the stream's sender.
-    ///
-    /// @param streamId The ID of the stream to cancel.
-    function cancel(uint256 streamId) external;
 
     /// @notice Creates a new open-ended stream with the `block.timestamp` as the time reference and with zero balance.
     /// The stream is wrapped in an ERC-721 NFT.
@@ -186,7 +172,7 @@ interface ISablierV2OpenEnded is
     /// - 'asset' must have valid decimals.
     ///
     /// @param recipient The address receiving the assets.
-    /// @param sender The address streaming the assets, with the ability to adjust and cancel the stream. It doesn't
+    /// @param sender The address streaming the assets, with the ability to adjust and pause the stream. It doesn't
     /// have to be the same as `msg.sender`.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
@@ -212,7 +198,7 @@ interface ISablierV2OpenEnded is
     /// - Refer to the requirements in {create}.
     ///
     /// @param recipient The address receiving the assets.
-    /// @param sender The address streaming the assets, with the ability to adjust and cancel the stream. It doesn't
+    /// @param sender The address streaming the assets, with the ability to adjust and pause the stream. It doesn't
     /// have to be the same as `msg.sender`.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
@@ -236,12 +222,24 @@ interface ISablierV2OpenEnded is
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null stream or a canceled stream.
+    /// - `streamId` must not reference a null stream.
     /// - `amount` must be greater than zero.
     ///
     /// @param streamId The ID of the stream to deposit on.
     /// @param amount The amount deposited in the stream, denoted in 18 decimals.
     function deposit(uint256 streamId, uint128 amount) external;
+
+    /// @notice Pauses the stream and refunds available assets to the sender.
+    ///
+    /// @dev Emits a {Transfer} and {PauseOpenEndedStream} event.
+    ///
+    /// Requirements:
+    /// - Must not be delegate called.
+    /// - `streamId` must not reference a null stream or an already paused stream.
+    /// - `msg.sender` must be the stream's sender.
+    ///
+    /// @param streamId The ID of the stream to pause.
+    function pause(uint256 streamId) external;
 
     /// @notice Refunds the provided amount of assets from the stream to the sender's address.
     ///
@@ -249,7 +247,7 @@ interface ISablierV2OpenEnded is
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    /// - `streamId` must not reference a null stream or a canceled stream.
+    /// - `streamId` must not reference a null stream.
     /// - `msg.sender` must be the sender.
     /// - `amount` must be greater than zero and must not exceed the refundable amount.
     ///
@@ -264,7 +262,8 @@ interface ISablierV2OpenEnded is
     ///
     /// Requirements:
     /// - Must not be delegate called.
-    // - `streamId` must not reference a null stream or a canceled stream.
+    /// - `streamId` must not reference a null stream.
+    /// - `streamId` must not reference a paused stream.
     /// - `msg.sender` must be the stream's sender.
     /// - `ratePerSecond` must be greater than zero.
     ///

@@ -24,12 +24,11 @@ abstract contract Events {
         uint256 indexed streamId, uint128 recipientAmount, uint128 oldRatePerSecond, uint128 newRatePerSecond
     );
 
-    event CancelOpenEndedStream(
+    event PauseOpenEndedStream(
         uint256 streamId,
         address indexed sender,
         address indexed recipient,
         IERC20 indexed asset,
-        uint128 senderAmount,
         uint128 recipientAmount
     );
 

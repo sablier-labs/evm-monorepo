@@ -13,17 +13,23 @@ contract RefundableAmountOf_Integration_Test is Integration_Test {
         openEnded.refundableAmountOf(nullStreamId);
     }
 
-    function test_RevertGiven_Canceled() external givenNotNull {
-        expectRevertCanceled();
-        openEnded.refundableAmountOf(defaultStreamId);
-    }
-
-    function test_RefundableAmountOf_BalanceZero() external view givenNotNull givenNotCanceled {
+    function test_RefundableAmountOf_BalanceZero() external view givenNotNull givenNotPaused {
         uint128 refundableAmount = openEnded.refundableAmountOf(defaultStreamId);
         assertEq(refundableAmount, 0, "refundable amount");
     }
 
-    function test_RefundableAmountOf_BalanceLessThanOrEqualStreamedAmount() external givenNotNull givenNotCanceled {
+    function test_RefundableAmountOf_Paused() external givenNotNull {
+        defaultDeposit();
+        openEnded.refundableAmountOf(defaultStreamId);
+
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+        openEnded.pause(defaultStreamId);
+
+        uint128 refundableAmount = openEnded.refundableAmountOf(defaultStreamId);
+        assertEq(refundableAmount, ONE_MONTH_REFUNDABLE_AMOUNT, "refundable amount");
+    }
+
+    function test_RefundableAmountOf_BalanceLessThanOrEqualStreamedAmount() external givenNotNull givenNotPaused {
         uint128 depositAmount = 1e18;
         openEnded.deposit(defaultStreamId, depositAmount);
 
@@ -32,7 +38,7 @@ contract RefundableAmountOf_Integration_Test is Integration_Test {
         assertEq(refundableAmount, 0, "refundable amount");
     }
 
-    function test_RefundableAmountOf() external givenNotNull givenNotCanceled {
+    function test_RefundableAmountOf() external givenNotNull givenNotPaused {
         defaultDeposit();
 
         vm.warp({ newTimestamp: WARP_ONE_MONTH });

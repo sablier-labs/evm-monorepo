@@ -71,27 +71,62 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_ContractBalanceGeStreamBalancesAndRemainingAmountsSum() external useCurrentTimestamp {
+    /// @dev The sum of all stream balances for a specific asset should be less than or equal to the contract
+    /// `ERC20.balanceOf`.
+    function invariant_ContractBalanceGeStreamBalances() external useCurrentTimestamp {
         uint256 contractBalance = dai.balanceOf(address(openEnded));
 
         uint256 lastStreamId = openEndedStore.lastStreamId();
         uint256 streamBalancesSumNormalized;
-        uint256 remainingAmountsSumNormalized;
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
             streamBalancesSumNormalized += uint256(normalizeBalance(streamId));
-            remainingAmountsSumNormalized +=
-                uint256(normalizeTransferAmount(streamId, openEndedStore.remainingAmountsSum(streamId)));
         }
 
         assertGe(
             contractBalance,
-            streamBalancesSumNormalized + remainingAmountsSumNormalized,
-            unicode"Invariant violation: contract balanceOf < Σ stream balances + remaining amounts normalized"
+            streamBalancesSumNormalized,
+            unicode"Invariant violation: contract balanceOf < Σ stream balances"
         );
     }
 
-    function invariant_DepositedAmountsSumGeExtractedAmountsSumPlusRemainingAmount() external useCurrentTimestamp {
+    function invariant_Debt_WithdrawableAmountEqBalance() external useCurrentTimestamp {
+        uint256 lastStreamId = openEndedStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = openEndedStore.streamIds(i);
+            if (openEnded.streamDebtOf(streamId) > 0) {
+                assertEq(
+                    openEnded.withdrawableAmountOf(streamId),
+                    openEnded.getBalance(streamId),
+                    "Invariant violation: withdrawable amount != balance"
+                );
+            }
+        }
+    }
+
+    function invariant_DepositAmountsSumGeExtractedAmountsSum() external useCurrentTimestamp {
+        uint256 streamDepositedAmountsSum = openEndedStore.streamDepositedAmountsSum();
+        uint256 streamExtractedAmountsSum = openEndedStore.streamExtractedAmountsSum();
+
+        assertGe(
+            streamDepositedAmountsSum,
+            streamExtractedAmountsSum,
+            "Invariant violation: stream deposited amounts sum < stream extracted amounts sum"
+        );
+    }
+
+    function invariant_DepositedAmountsSumGeExtractedAmountsSum() external useCurrentTimestamp {
+        uint256 lastStreamId = openEndedStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = openEndedStore.streamIds(i);
+
+            assertGe(
+                openEndedStore.depositedAmounts(streamId),
+                openEndedStore.extractedAmounts(streamId),
+                "Invariant violation: deposited amount < extracted amount"
+            );
+        }
+
         uint256 streamDepositedAmountsSum = openEndedStore.streamDepositedAmountsSum();
         uint256 streamExtractedAmountsSum = openEndedStore.streamExtractedAmountsSum();
 
@@ -110,21 +145,43 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StreamBalanceEqWithdrawableAmountPlusRefundableAmountMinusRemainingAmount()
-        external
-        useCurrentTimestamp
-    {
+    function invariant_NoDebt_StreamedPaused_WithdrawableAmountEqRemainingAmount() external useCurrentTimestamp {
         uint256 lastStreamId = openEndedStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
-            if (!openEnded.isCanceled(streamId)) {
+            if (openEnded.isPaused(streamId) && openEnded.streamDebtOf(streamId) == 0) {
                 assertEq(
-                    openEnded.getBalance(streamId),
-                    openEnded.withdrawableAmountOf(streamId) + openEnded.refundableAmountOf(streamId)
-                        - openEnded.getRemainingAmount(streamId),
-                    "Invariant violation: stream balance != withdrawable amount + refundable amount - remaining amount"
+                    openEnded.withdrawableAmountOf(streamId),
+                    openEnded.getRemainingAmount(streamId),
+                    "Invariant violation: paused stream withdrawable amount != remaining amount"
                 );
             }
+        }
+    }
+
+    function invariant_NoDebt_WithdrawableAmountEqStreamedAmountPlusRemainingAmount() external useCurrentTimestamp {
+        uint256 lastStreamId = openEndedStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = openEndedStore.streamIds(i);
+            if (!openEnded.isPaused(streamId) && openEnded.streamDebtOf(streamId) == 0) {
+                assertEq(
+                    openEnded.withdrawableAmountOf(streamId),
+                    openEnded.streamedAmountOf(streamId) + openEnded.getRemainingAmount(streamId),
+                    "Invariant violation: withdrawable amount != streamed amount + remaining amount"
+                );
+            }
+        }
+    }
+
+    function invariant_StreamBalanceEqWithdrawableAmountPlusRefundableAmount() external useCurrentTimestamp {
+        uint256 lastStreamId = openEndedStore.lastStreamId();
+        for (uint256 i = 0; i < lastStreamId; ++i) {
+            uint256 streamId = openEndedStore.streamIds(i);
+            assertEq(
+                openEnded.getBalance(streamId),
+                openEnded.withdrawableAmountOf(streamId) + openEnded.refundableAmountOf(streamId),
+                "Invariant violation: stream balance != withdrawable amount + refundable amount"
+            );
         }
     }
 
@@ -132,7 +189,7 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         uint256 lastStreamId = openEndedStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
-            if (!openEnded.isCanceled(streamId)) {
+            if (!openEnded.isPaused(streamId)) {
                 assertGe(
                     openEnded.getBalance(streamId),
                     openEnded.refundableAmountOf(streamId),
@@ -142,66 +199,30 @@ contract OpenEnded_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariatn_StreamCanceled_BalanceZero() external useCurrentTimestamp {
+    function invariant_StreamBalanceGeWithdrawableAmount() external useCurrentTimestamp {
         uint256 lastStreamId = openEndedStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
-            if (openEnded.isCanceled(streamId)) {
-                assertEq(
-                    openEnded.getBalance(streamId), 0, "Invariant violation: canceled stream with a non-zero balance"
-                );
-            }
+
+            assertGe(
+                openEnded.getBalance(streamId),
+                openEnded.withdrawableAmountOf(streamId),
+                "Invariant violation: withdrawable amount <= balance"
+            );
         }
     }
 
-    function invariant_StreamCanceled_RatePerSecondZero() external useCurrentTimestamp {
+    function invariant_StreamPaused_RatePerSecondZero() external useCurrentTimestamp {
         uint256 lastStreamId = openEndedStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = openEndedStore.streamIds(i);
-            if (openEnded.isCanceled(streamId)) {
+            if (openEnded.isPaused(streamId)) {
                 assertEq(
                     openEnded.getRatePerSecond(streamId),
                     0,
-                    "Invariant violation: canceled stream with a non-zero rate per second"
+                    "Invariant violation: paused stream with a non-zero rate per second"
                 );
             }
-        }
-    }
-
-    function invariant_StreamedCanceled_WithdrawableAmountEqRemainingAmount() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
-            if (openEnded.isCanceled(streamId)) {
-                assertEq(
-                    openEnded.withdrawableAmountOf(streamId),
-                    openEnded.getRemainingAmount(streamId),
-                    "Invariant violation: canceled stream withdrawable amount != remaining amount"
-                );
-            }
-        }
-    }
-
-    /// @dev The invariant is: withdrawable amount = min(balance, streamed amount) + remaining amount
-    /// This includes both canceled and non-canceled streams.
-    function invariant_WithdrawableAmount() external useCurrentTimestamp {
-        uint256 lastStreamId = openEndedStore.lastStreamId();
-        for (uint256 i = 0; i < lastStreamId; ++i) {
-            uint256 streamId = openEndedStore.streamIds(i);
-            uint128 balance = openEnded.getBalance(streamId);
-            uint128 streamedAmount = 0;
-
-            if (!openEnded.isCanceled(streamId)) {
-                streamedAmount = openEnded.streamedAmountOf(streamId);
-            }
-
-            uint128 balanceOrStreamedAmount = balance > streamedAmount ? streamedAmount : balance;
-
-            assertEq(
-                openEnded.withdrawableAmountOf(streamId),
-                balanceOrStreamedAmount + openEnded.getRemainingAmount(streamId),
-                "Invariant violation: withdrawable amount != min(balance, streamed amount) + remaining amount"
-            );
         }
     }
 }

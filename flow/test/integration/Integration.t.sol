@@ -57,8 +57,8 @@ abstract contract Integration_Test is Base_Test {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2OpenEnded_Null.selector, nullStreamId));
     }
 
-    function expectRevertCanceled() internal {
-        openEnded.cancel(defaultStreamId);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2OpenEnded_StreamCanceled.selector, defaultStreamId));
+    function expectRevertPaused() internal {
+        openEnded.pause(defaultStreamId);
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2OpenEnded_StreamPaused.selector, defaultStreamId));
     }
 }

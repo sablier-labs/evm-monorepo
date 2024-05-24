@@ -2,9 +2,9 @@ streamedAmountOf.t.sol
 ├── given the id references a null stream
 │  └── it should revert
 └── given the id does not reference a null stream
-   ├── given the id references a canceled stream
+   ├── given the id references a paused stream
    │  └── it should revert
-   └── given the id does not reference a canceled stream
+   └── given the id does not reference a paused stream
       ├── given the last time update is in the present
       │  └── it should return zero
       └── given the last time update is in the past

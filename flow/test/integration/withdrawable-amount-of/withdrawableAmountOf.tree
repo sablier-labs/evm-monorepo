@@ -2,16 +2,16 @@ withdrawableAmountOf.t.sol
 ├── given the id references a null stream
 │  └── it should revert
 └── given the id does not reference a null stream
-   ├── given the id references a canceled stream
-   │  └── it should return the remaining amount
-   └── given the id does not reference a canceled stream
-      ├── given the stream balance is zero
-      │  ├── given the remaining amount is zero
-      │  │  └── it should return zero
-      │  └── given the remaining amount is not zero
-      │     └── it should return the remaining amount
-      └── given the stream balance is not zero
-         ├── given the stream balance is less than or equal to the streamed amount
-         │  └── it should return the balance plus the remaining amount
-         └── given the stream balance is greater than the streamed amount
-            └── it should return the correct withdrawable amount
+   ├── given the stream balance is zero
+   │  └── it should return zero
+   └── given the stream balance is not zero
+      ├── given the stream balance is less than the remaining amount
+      │  └── it should return the balance
+      └── given the stream balance is not less than the remaining amount
+         ├── given the id references a paused stream
+         │  └── it should return the remaining amount
+         └── given the id does not reference a paused stream
+            ├── given the sum of the streamed amount and the remaining amount is less than the balance
+            │  └── it should return the balance
+            └── given the sum of the streamed amount and the remaining amount is not less than the balance
+               └── it should return the correct withdrawable amount 

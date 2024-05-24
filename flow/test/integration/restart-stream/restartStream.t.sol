@@ -10,7 +10,7 @@ contract RestartStream_Integration_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
-        openEnded.cancel({ streamId: defaultStreamId });
+        openEnded.pause({ streamId: defaultStreamId });
     }
 
     function test_RevertWhen_DelegateCall() external {
@@ -23,9 +23,9 @@ contract RestartStream_Integration_Test is Integration_Test {
         openEnded.restartStream({ streamId: nullStreamId, ratePerSecond: RATE_PER_SECOND });
     }
 
-    function test_RevertGiven_NotCanceled() external whenNotDelegateCalled givenNotNull {
+    function test_RevertGiven_NotPaused() external whenNotDelegateCalled givenNotNull {
         uint256 streamId = createDefaultStream();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2OpenEnded_StreamNotCanceled.selector, streamId));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierV2OpenEnded_StreamNotPaused.selector, streamId));
         openEnded.restartStream({ streamId: streamId, ratePerSecond: RATE_PER_SECOND });
     }
 
@@ -33,8 +33,8 @@ contract RestartStream_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        givenCanceled
-        whenCallerUnauthorized
+        givenPaused
+        whenCallerIsNotTheSender
     {
         resetPrank({ msgSender: users.recipient });
         vm.expectRevert(
@@ -47,8 +47,8 @@ contract RestartStream_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        givenCanceled
-        whenCallerUnauthorized
+        givenPaused
+        whenCallerIsNotTheSender
     {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(
@@ -57,12 +57,12 @@ contract RestartStream_Integration_Test is Integration_Test {
         openEnded.restartStream({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND });
     }
 
-    function test_RevertWhen_ratePerSecondZero()
+    function test_RevertWhen_RatePerSecondZero()
         external
         whenNotDelegateCalled
         givenNotNull
-        givenCanceled
-        whenCallerAuthorized
+        givenPaused
+        whenCallerIsTheSender
     {
         vm.expectRevert(Errors.SablierV2OpenEnded_RatePerSecondZero.selector);
         openEnded.restartStream({ streamId: defaultStreamId, ratePerSecond: 0 });
@@ -72,8 +72,8 @@ contract RestartStream_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        givenCanceled
-        whenCallerAuthorized
+        givenPaused
+        whenCallerIsTheSender
         whenRatePerSecondNonZero
     {
         vm.expectEmit({ emitter: address(openEnded) });
@@ -88,8 +88,8 @@ contract RestartStream_Integration_Test is Integration_Test {
 
         openEnded.restartStream({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND });
 
-        bool isCanceled = openEnded.isCanceled(defaultStreamId);
-        assertFalse(isCanceled);
+        bool isPaused = openEnded.isPaused(defaultStreamId);
+        assertFalse(isPaused);
 
         uint128 actualratePerSecond = openEnded.getRatePerSecond(defaultStreamId);
         assertEq(actualratePerSecond, RATE_PER_SECOND, "ratePerSecond");

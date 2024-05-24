@@ -32,22 +32,26 @@ withdrawAt.t.sol
                      │  └── when the caller is unknown
                      │     └── it should make the withdrawal
                      └── when the caller is the recipient
-                        ├── when the stream is canceled
-                        │  └── it should withdraw the remaining amount
-                        └── when the stream is not canceled
-                           ├── given the asset does not have 18 decimals
+                        ├── when the stream is paused
+                        │  └── it should make the withdrawal
+                        └── when the stream is not paused
+                           ├── when the stream has debt 
                            │  ├── it should make the withdrawal
-                           │  ├── it should update the time
-                           │  ├── it should set the remaining amount to zero
-                           │  ├── it should update the stream balance
-                           │  ├── it should perform the ERC-20 transfer
-                           │  ├── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
-                           │  └── it should emit a {MetadataUpdate} event
-                           └── given the asset has 18 decimals
-                              ├── it should make the withdrawal   
-                              ├── it should update the time
-                              ├── it should set the remaining amount to zero
-                              ├── it should update the stream balance
-                              ├── it should perform the ERC-20 transfer
-                              ├── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
-                              └── it should emit a {MetadataUpdate} event
+                           │  └── it should update the remaining amount by subtracting the balance
+                           └── when the stream does not have debt
+                              ├── given the asset does not have 18 decimals
+                              │  ├── it should make the withdrawal
+                              │  ├── it should update the time
+                              │  ├── it should set the remaining amount to zero
+                              │  ├── it should update the stream balance
+                              │  ├── it should perform the ERC-20 transfer
+                              │  ├── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
+                              │  └── it should emit a {MetadataUpdate} event
+                              └── given the asset has 18 decimals
+                                 ├── it should make the withdrawal   
+                                 ├── it should set the remaining amount to zero
+                                 ├── it should update the time
+                                 ├── it should update the stream balance
+                                 ├── it should perform the ERC-20 transfer
+                                 ├── it should emit a {Transfer} and {WithdrawFromOpenEndedStream} event
+                                 └── it should emit a {MetadataUpdate} event

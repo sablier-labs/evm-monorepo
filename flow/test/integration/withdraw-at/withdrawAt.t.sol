@@ -8,7 +8,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
 
-contract Withdraw_Integration_Test is Integration_Test {
+contract WithdrawAt_Integration_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
@@ -143,13 +143,13 @@ contract Withdraw_Integration_Test is Integration_Test {
         openEnded.deposit(streamId, WITHDRAW_AMOUNT);
         openEnded.adjustRatePerSecond(streamId, RATE_PER_SECOND - 1);
 
+        uint128 actualStreamBalance = openEnded.getBalance(streamId);
+        uint128 expectedStreamBalance = WITHDRAW_AMOUNT;
+        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
+
         uint128 actualRemainingAmount = openEnded.getRemainingAmount(streamId);
         uint128 expectedRemainingAmount = WITHDRAW_AMOUNT;
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
-
-        uint128 actualStreamBalance = openEnded.getBalance(streamId);
-        uint128 expectedStreamBalance = 0;
-        assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
         openEnded.withdrawAt({ streamId: streamId, to: users.recipient, time: WITHDRAW_TIME });
 
@@ -158,6 +158,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
         actualStreamBalance = openEnded.getBalance(streamId);
+        expectedStreamBalance = 0;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
     }
 
@@ -208,7 +209,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
     }
 
-    function test_WithdrawAt_StreamCanceled()
+    function test_WithdrawAt_StreamPaused()
         external
         whenNotDelegateCalled
         givenNotNull
@@ -220,7 +221,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         givenRemainingAmountNotZero
         whenCallerRecipient
     {
-        openEnded.cancel(defaultStreamId);
+        openEnded.pause(defaultStreamId);
 
         uint128 actualRemainingAmount = openEnded.getRemainingAmount(defaultStreamId);
         uint128 expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT;
@@ -246,6 +247,42 @@ contract Withdraw_Integration_Test is Integration_Test {
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
     }
 
+    function test_WithdrawAt_StreamHasDebt()
+        external
+        whenNotDelegateCalled
+        givenNotNull
+        whenToNonZeroAddress
+        whenWithdrawalAddressIsRecipient
+        whenLastTimeNotLessThanWithdrawalTime
+        whenWithdrawalTimeNotInTheFuture
+        givenBalanceNotZero
+        givenRemainingAmountNotZero
+        whenCallerRecipient
+    {
+        // Set the timestamp to 1 month ago to create the stream with the same `lastTimeUpdate` as `defaultStreamId`.
+        vm.warp({ newTimestamp: WARP_ONE_MONTH - ONE_MONTH });
+        uint256 streamId = createDefaultStream();
+        vm.warp({ newTimestamp: WARP_ONE_MONTH });
+
+        uint128 depositAmount = ONE_MONTH_STREAMED_AMOUNT / 2;
+        openEnded.deposit(streamId, depositAmount);
+        openEnded.adjustRatePerSecond(streamId, RATE_PER_SECOND - 1);
+
+        uint128 actualRemainingAmount = openEnded.getRemainingAmount(streamId);
+        uint128 expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT;
+        assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
+
+        openEnded.withdrawAt({ streamId: streamId, to: users.recipient, time: WARP_ONE_MONTH });
+
+        actualRemainingAmount = openEnded.getRemainingAmount(streamId);
+        expectedRemainingAmount = ONE_MONTH_STREAMED_AMOUNT - depositAmount;
+        assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
+    }
+
+    modifier givenNoDebt() {
+        _;
+    }
+
     function test_WithdrawAt_AssetNot18Decimals()
         external
         whenNotDelegateCalled
@@ -256,6 +293,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         whenWithdrawalTimeNotInTheFuture
         givenBalanceNotZero
         whenCallerRecipient
+        givenNoDebt
     {
         // Set the timestamp to 1 month ago to create the stream with the same `lastTimeUpdate` as `defaultStreamId`.
         vm.warp({ newTimestamp: WARP_ONE_MONTH - ONE_MONTH });
@@ -276,6 +314,7 @@ contract Withdraw_Integration_Test is Integration_Test {
         whenWithdrawalTimeNotInTheFuture
         givenBalanceNotZero
         whenCallerRecipient
+        givenNoDebt
     {
         _test_Withdraw(defaultStreamId, dai);
     }

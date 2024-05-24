@@ -44,7 +44,7 @@ contract Create_Integration_Test is Integration_Test {
         });
     }
 
-    function test_RevertWhen_ratePerSecondZero()
+    function test_RevertWhen_RatePerSecondZero()
         external
         whenNotDelegateCalled
         whenSenderNonZeroAddress
@@ -117,7 +117,7 @@ contract Create_Integration_Test is Integration_Test {
             assetDecimals: 18,
             balance: 0,
             lastTimeUpdate: uint40(block.timestamp),
-            isCanceled: false,
+            isPaused: false,
             isStream: true,
             isTransferable: IS_TRANFERABLE,
             remainingAmount: 0,

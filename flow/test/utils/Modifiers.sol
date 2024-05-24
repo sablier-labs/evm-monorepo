@@ -14,7 +14,7 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier givenNotCanceled() {
+    modifier givenNotPaused() {
         _;
     }
 
@@ -30,11 +30,11 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenCallerAuthorized() {
+    modifier whenCallerIsTheSender() {
         _;
     }
 
-    modifier whenCallerUnauthorized() {
+    modifier whenCallerIsNotTheSender() {
         _;
     }
 
@@ -58,11 +58,11 @@ abstract contract Modifiers {
                                        CANCEL
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier whenRefundableAmountNotZero() {
+    modifier givenRefundableAmountNotZero() {
         _;
     }
 
-    modifier whenWithdrawableAmountNotZero() {
+    modifier givenWithdrawableAmountNotZero() {
         _;
     }
 
@@ -106,7 +106,7 @@ abstract contract Modifiers {
                                    RESTART-STREAM
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier givenCanceled() {
+    modifier givenPaused() {
         _;
     }
 

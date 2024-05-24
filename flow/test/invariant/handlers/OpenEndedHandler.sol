@@ -86,8 +86,8 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
-        // Only non canceled streams can have their rate per second adjusted.
-        if (openEnded.isCanceled(currentStreamId)) {
+        // Only non paused streams can have their rate per second adjusted.
+        if (openEnded.isPaused(currentStreamId)) {
             return;
         }
 
@@ -99,47 +99,27 @@ contract OpenEndedHandler is BaseHandler {
             newRatePerSecond += 1;
         }
 
-        uint128 balance = openEnded.getBalance(currentStreamId);
-        uint128 streamedAmount = openEnded.streamedAmountOf(currentStreamId);
-
-        uint128 remainingAmount = balance > streamedAmount ? streamedAmount : balance;
-
         // Adjust the rate per second.
         openEnded.adjustRatePerSecond(currentStreamId, newRatePerSecond);
-
-        // Store the remaining amount.
-        openEndedStore.sumRemainingAmount(currentStreamId, remainingAmount);
     }
 
-    function cancel(
+    function pause(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed
     )
         external
-        instrument("cancel")
+        instrument("pause")
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
-        // Canceled streams cannot be canceled again.
-        if (openEnded.isCanceled(currentStreamId)) {
+        // Paused streams cannot be paused again.
+        if (openEnded.isPaused(currentStreamId)) {
             return;
         }
 
-        uint128 balance = openEnded.getBalance(currentStreamId);
-        uint128 senderAmount = openEnded.refundableAmountOf(currentStreamId);
-        uint128 streamedAmount = openEnded.streamedAmountOf(currentStreamId);
-
-        uint128 remainingAmount = balance > streamedAmount ? streamedAmount : balance;
-
-        // Cancel the stream.
-        openEnded.cancel(currentStreamId);
-
-        // Store the extracted amount.
-        openEndedStore.updateStreamExtractedAmountsSum(senderAmount);
-
-        // Store the remaining amount.
-        openEndedStore.sumRemainingAmount(currentStreamId, remainingAmount);
+        // Pause the stream.
+        openEnded.pause(currentStreamId);
     }
 
     function deposit(
@@ -151,11 +131,6 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
-        // Only non canceled streams can be deposited.
-        if (openEnded.isCanceled(currentStreamId)) {
-            return;
-        }
-
         // Bound the deposit amount.
         depositAmount = uint128(_bound(depositAmount, 100e18, 1_000_000_000e18));
 
@@ -170,7 +145,7 @@ contract OpenEndedHandler is BaseHandler {
         openEnded.deposit({ streamId: currentStreamId, amount: depositAmount });
 
         // Store the deposited amount.
-        openEndedStore.updateStreamDepositedAmountsSum(depositAmount);
+        openEndedStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
     }
 
     function refundFromStream(
@@ -184,11 +159,6 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
-        // Only non canceled streams can be refunded.
-        if (openEnded.isCanceled(currentStreamId)) {
-            return;
-        }
-
         // The protocol doesn't allow zero refund amounts.
         uint128 refundableAmount = openEnded.refundableAmountOf(currentStreamId);
         if (refundableAmount == 0) {
@@ -202,7 +172,7 @@ contract OpenEndedHandler is BaseHandler {
         openEnded.refundFromStream(currentStreamId, refundableAmount);
 
         // Store the deposited amount.
-        openEndedStore.updateStreamExtractedAmountsSum(refundAmount);
+        openEndedStore.updateStreamExtractedAmountsSum(currentStreamId, refundAmount);
     }
 
     function restartStream(
@@ -216,8 +186,8 @@ contract OpenEndedHandler is BaseHandler {
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
-        // Only canceled streams can be restarted.
-        if (!openEnded.isCanceled(currentStreamId)) {
+        // Only paused streams can be restarted.
+        if (!openEnded.isPaused(currentStreamId)) {
             return;
         }
 
@@ -235,13 +205,13 @@ contract OpenEndedHandler is BaseHandler {
         uint128 depositAmount
     )
         external
-        instrument("restartStream")
+        instrument("restartStreamAndDeposit")
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
-        // Only canceled streams can be restarted.
-        if (!openEnded.isCanceled(currentStreamId)) {
+        // Only paused streams can be restarted.
+        if (!openEnded.isPaused(currentStreamId)) {
             return;
         }
 
@@ -260,7 +230,7 @@ contract OpenEndedHandler is BaseHandler {
         openEnded.restartStreamAndDeposit(currentStreamId, ratePerSecond, depositAmount);
 
         // Store the deposited amount.
-        openEndedStore.updateStreamDepositedAmountsSum(depositAmount);
+        openEndedStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
     }
 
     function withdrawAt(
@@ -295,16 +265,12 @@ contract OpenEndedHandler is BaseHandler {
             to = currentRecipient;
         }
 
-        uint128 remainingAmount = openEnded.getRemainingAmount(currentStreamId);
         uint128 withdrawAmount = openEnded.withdrawableAmountOf(currentStreamId, time);
 
         // Withdraw from the stream.
         openEnded.withdrawAt({ streamId: currentStreamId, to: to, time: time });
 
         // Store the extracted amount.
-        openEndedStore.updateStreamExtractedAmountsSum(withdrawAmount);
-
-        // Remove the remaining amount.
-        openEndedStore.subtractRemainingAmount(currentStreamId, remainingAmount);
+        openEndedStore.updateStreamExtractedAmountsSum(currentStreamId, withdrawAmount);
     }
 }

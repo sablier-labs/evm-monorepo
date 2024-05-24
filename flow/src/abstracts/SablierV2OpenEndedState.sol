@@ -38,18 +38,18 @@ abstract contract SablierV2OpenEndedState is
                                       MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks that `streamId` does not reference a canceled stream.
-    modifier notCanceled(uint256 streamId) {
-        if (_streams[streamId].isCanceled) {
-            revert Errors.SablierV2OpenEnded_StreamCanceled(streamId);
-        }
-        _;
-    }
-
     /// @dev Checks that `streamId` does not reference a null stream.
     modifier notNull(uint256 streamId) {
         if (!_streams[streamId].isStream) {
             revert Errors.SablierV2OpenEnded_Null(streamId);
+        }
+        _;
+    }
+
+    /// @dev Checks that `streamId` does not reference a paused stream.
+    modifier notPaused(uint256 streamId) {
+        if (_streams[streamId].isPaused) {
+            revert Errors.SablierV2OpenEnded_StreamPaused(streamId);
         }
         _;
     }
@@ -148,8 +148,8 @@ abstract contract SablierV2OpenEndedState is
     }
 
     /// @inheritdoc ISablierV2OpenEndedState
-    function isCanceled(uint256 streamId) public view override notNull(streamId) returns (bool result) {
-        result = _streams[streamId].isCanceled;
+    function isPaused(uint256 streamId) public view override notNull(streamId) returns (bool result) {
+        result = _streams[streamId].isPaused;
     }
 
     /// @inheritdoc ISablierV2OpenEndedState

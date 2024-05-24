@@ -62,10 +62,10 @@ interface ISablierV2OpenEndedState is
     /// @param streamId The stream ID for the query.
     function getStream(uint256 streamId) external view returns (OpenEnded.Stream memory stream);
 
-    /// @notice Retrieves a flag indicating whether the stream is canceled.
+    /// @notice Retrieves a flag indicating whether the stream is paused.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    function isCanceled(uint256 streamId) external view returns (bool result);
+    function isPaused(uint256 streamId) external view returns (bool result);
 
     /// @notice Retrieves a flag indicating whether the stream exists.
     /// @dev Does not revert if `streamId` references a null stream.
