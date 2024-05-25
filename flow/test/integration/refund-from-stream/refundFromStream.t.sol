@@ -27,12 +27,7 @@ contract RefundFromStream_Integration_Test is Integration_Test {
         flow.refundFromStream({ streamId: nullStreamId, amount: REFUND_AMOUNT });
     }
 
-    function test_RevertWhen_CallerUnauthorized_Recipient()
-        external
-        whenNotDelegateCalled
-        givenNotNull
-        whenCallerIsNotTheSender
-    {
+    function test_RevertWhen_CallerRecipient() external whenNotDelegateCalled givenNotNull whenCallerIsNotTheSender {
         resetPrank({ msgSender: users.recipient });
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
@@ -40,7 +35,7 @@ contract RefundFromStream_Integration_Test is Integration_Test {
         flow.refundFromStream({ streamId: defaultStreamId, amount: REFUND_AMOUNT });
     }
 
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
+    function test_RevertWhen_CallerMaliciousThirdParty()
         external
         whenNotDelegateCalled
         givenNotNull

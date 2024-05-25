@@ -26,7 +26,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
-    function test_RevertWhen_CallerUnauthorized_Recipient()
+    function test_RevertWhen_CallerRecipient()
         external
         whenNotDelegateCalled
         givenNotNull
@@ -40,7 +40,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: RATE_PER_SECOND });
     }
 
-    function test_RevertWhen_CallerUnauthorized_MaliciousThirdParty()
+    function test_RevertWhen_CallerMaliciousThirdParty()
         external
         whenNotDelegateCalled
         givenNotNull

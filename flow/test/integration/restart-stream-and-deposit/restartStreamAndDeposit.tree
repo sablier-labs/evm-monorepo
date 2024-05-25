@@ -1,0 +1,19 @@
+restartStreamAndDeposit.t.sol
+├── when delegate called
+│  └── it should revert
+└── when not delegate called
+   ├── given the id references a null stream
+   │  └── it should revert
+   └── given the id does not reference a null stream
+      ├── when the caller is not the sender
+      │  ├── when the caller is the recipient
+      │  │  └── it should revert
+      │  └── when the caller is a malicious third party
+      │     └── it should revert
+      └── when the caller is the sender
+         ├── it should restart the stream
+         ├── it should update the time
+         ├── it should update the rate per second
+         ├── it should update the balance
+         ├── it should perform the ERC-20 transfer
+         └── it should emit events: 1 {RestartFlowStream}, 1 {Transfer}, 1 {DepositFlowStream} and 1 {MetadataUpdate}
