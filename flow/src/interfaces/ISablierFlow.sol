@@ -99,7 +99,8 @@ interface ISablierFlow is
     /// @dev Reverts if `streamId` refers to a paused or a null stream.
     ///
     /// Notes:
-    /// - If the stream has no debt, it returns the timestamp when the debt begins based on current balance and rps.
+    /// - If the stream has no debt, it returns the timestamp when the debt begins based on current balance and
+    /// rate per second.
     /// - If the stream has debt, it returns 0.
     ///
     /// @param streamId The stream ID for the query.
