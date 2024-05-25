@@ -312,7 +312,7 @@ interface ISablierFlow is
     ///
     /// @param streamId The ID of the stream to refund from.
     /// @param amount The amount to refund, denoted in 18 decimals.
-    function refundFromStream(uint256 streamId, uint128 amount) external;
+    function refund(uint256 streamId, uint128 amount) external;
 
     /// @notice Restarts the stream with the provided rate per second.
     ///
@@ -328,7 +328,7 @@ interface ISablierFlow is
     ///
     /// @param streamId The ID of the stream to restart.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
-    function restartStream(uint256 streamId, uint128 ratePerSecond) external;
+    function restart(uint256 streamId, uint128 ratePerSecond) external;
 
     /// @notice Restarts the stream with the provided rate per second, and deposits `amount` in the stream
     /// balance.
@@ -337,12 +337,12 @@ interface ISablierFlow is
     ///
     /// Requirements:
     /// - `amount` must be greater than zero.
-    /// - Refer to the requirements in {restartStream}.
+    /// - Refer to the requirements in {restart}.
     ///
     /// @param streamId The ID of the stream to restart.
     /// @param ratePerSecond The amount of assets that is increasing by every second, denoted in 18 decimals.
     /// @param amount The amount deposited in the stream.
-    function restartStreamAndDeposit(uint256 streamId, uint128 ratePerSecond, uint128 amount) external;
+    function restartAndDeposit(uint256 streamId, uint128 ratePerSecond, uint128 amount) external;
 
     /// @notice Withdraws the amount of assets calculated based on time reference and the remaining amount, from the
     /// stream to the provided `to` address.

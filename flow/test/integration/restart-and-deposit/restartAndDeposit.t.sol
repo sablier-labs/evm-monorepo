@@ -8,7 +8,7 @@ import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
 
-contract RestartStreamAndDeposit_Integration_Test is Integration_Test {
+contract RestartAndDeposit_Integration_Test is Integration_Test {
     function setUp() public override {
         Integration_Test.setUp();
 
@@ -17,13 +17,13 @@ contract RestartStreamAndDeposit_Integration_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
-            abi.encodeCall(ISablierFlow.restartStreamAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
+            abi.encodeCall(ISablierFlow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
         expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         expectRevertNull();
-        flow.restartStreamAndDeposit({ streamId: nullStreamId, ratePerSecond: RATE_PER_SECOND, amount: DEPOSIT_AMOUNT });
+        flow.restartAndDeposit({ streamId: nullStreamId, ratePerSecond: RATE_PER_SECOND, amount: DEPOSIT_AMOUNT });
     }
 
     function test_RevertWhen_CallerRecipient()
@@ -37,11 +37,7 @@ contract RestartStreamAndDeposit_Integration_Test is Integration_Test {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
         );
-        flow.restartStreamAndDeposit({
-            streamId: defaultStreamId,
-            ratePerSecond: RATE_PER_SECOND,
-            amount: DEPOSIT_AMOUNT
-        });
+        flow.restartAndDeposit({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND, amount: DEPOSIT_AMOUNT });
     }
 
     function test_RevertWhen_CallerMaliciousThirdParty()
@@ -53,14 +49,10 @@ contract RestartStreamAndDeposit_Integration_Test is Integration_Test {
     {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
-        flow.restartStreamAndDeposit({
-            streamId: defaultStreamId,
-            ratePerSecond: RATE_PER_SECOND,
-            amount: DEPOSIT_AMOUNT
-        });
+        flow.restartAndDeposit({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND, amount: DEPOSIT_AMOUNT });
     }
 
-    function test_RestartStreamAndDeposit()
+    function test_RestartAndDeposit()
         external
         whenNotDelegateCalled
         givenNotNull
@@ -94,11 +86,7 @@ contract RestartStreamAndDeposit_Integration_Test is Integration_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
-        flow.restartStreamAndDeposit({
-            streamId: defaultStreamId,
-            ratePerSecond: RATE_PER_SECOND,
-            amount: DEPOSIT_AMOUNT
-        });
+        flow.restartAndDeposit({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND, amount: DEPOSIT_AMOUNT });
 
         bool isPaused = flow.isPaused(defaultStreamId);
         assertFalse(isPaused);

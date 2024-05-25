@@ -284,7 +284,7 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function restartStream(
+    function restart(
         uint256 streamId,
         uint128 ratePerSecond
     )
@@ -296,11 +296,11 @@ contract SablierFlow is
         updateMetadata(streamId)
     {
         // Checks, Effects and Interactions: restart the stream.
-        _restartStream(streamId, ratePerSecond);
+        _restart(streamId, ratePerSecond);
     }
 
     /// @inheritdoc ISablierFlow
-    function restartStreamAndDeposit(
+    function restartAndDeposit(
         uint256 streamId,
         uint128 ratePerSecond,
         uint128 amount
@@ -313,14 +313,14 @@ contract SablierFlow is
         updateMetadata(streamId)
     {
         // Checks, Effects and Interactions: restart the stream.
-        _restartStream(streamId, ratePerSecond);
+        _restart(streamId, ratePerSecond);
 
         // Checks, Effects and Interactions: deposit on stream.
         _deposit(streamId, amount);
     }
 
     /// @inheritdoc ISablierFlow
-    function refundFromStream(
+    function refund(
         uint256 streamId,
         uint128 amount
     )
@@ -331,7 +331,7 @@ contract SablierFlow is
         onlySender(streamId)
     {
         // Checks, Effects and Interactions: make the refund.
-        _refundFromStream(streamId, amount);
+        _refund(streamId, amount);
     }
 
     /// @inheritdoc ISablierFlow
@@ -654,7 +654,7 @@ contract SablierFlow is
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _refundFromStream(uint256 streamId, uint128 amount) internal {
+    function _refund(uint256 streamId, uint128 amount) internal {
         // Check: the amount is not zero.
         if (amount == 0) {
             revert Errors.SablierFlow_RefundAmountZero();
@@ -682,7 +682,7 @@ contract SablierFlow is
     }
 
     /// @dev See the documentation for the user-facing functions that call this internal function.
-    function _restartStream(uint256 streamId, uint128 ratePerSecond) internal {
+    function _restart(uint256 streamId, uint128 ratePerSecond) internal {
         // Check: the stream is paused.
         if (!_streams[streamId].isPaused) {
             revert Errors.SablierFlow_StreamNotPaused(streamId);

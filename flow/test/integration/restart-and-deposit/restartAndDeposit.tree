@@ -1,4 +1,4 @@
-restartStreamAndDeposit.t.sol
+restartAndDeposit.t.sol
 ├── when delegate called
 │  └── it should revert
 └── when not delegate called

@@ -148,13 +148,13 @@ contract FlowHandler is BaseHandler {
         flowStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
     }
 
-    function refundFromStream(
+    function refund(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         uint128 refundAmount
     )
         external
-        instrument("refundFromStream")
+        instrument("refund")
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
@@ -169,19 +169,19 @@ contract FlowHandler is BaseHandler {
         refundAmount = uint128(_bound(refundAmount, 1, refundableAmount));
 
         // Refund from stream.
-        flow.refundFromStream(currentStreamId, refundableAmount);
+        flow.refund(currentStreamId, refundableAmount);
 
         // Store the deposited amount.
         flowStore.updateStreamExtractedAmountsSum(currentStreamId, refundAmount);
     }
 
-    function restartStream(
+    function restart(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         uint128 ratePerSecond
     )
         external
-        instrument("restartStream")
+        instrument("restart")
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
@@ -195,17 +195,17 @@ contract FlowHandler is BaseHandler {
         ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
 
         // Restart the stream.
-        flow.restartStream(currentStreamId, ratePerSecond);
+        flow.restart(currentStreamId, ratePerSecond);
     }
 
-    function restartStreamAndDeposit(
+    function restartAndDeposit(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         uint128 ratePerSecond,
         uint128 depositAmount
     )
         external
-        instrument("restartStreamAndDeposit")
+        instrument("restartAndDeposit")
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
@@ -227,7 +227,7 @@ contract FlowHandler is BaseHandler {
         asset.approve({ spender: address(flow), value: depositAmount });
 
         // Restart the stream.
-        flow.restartStreamAndDeposit(currentStreamId, ratePerSecond, depositAmount);
+        flow.restartAndDeposit(currentStreamId, ratePerSecond, depositAmount);
 
         // Store the deposited amount.
         flowStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);

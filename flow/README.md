@@ -171,8 +171,8 @@ _if(isPaused = true) then rps = 0_
 | ------------------- | :----: | :-------: | :---------: | :--------------------: |
 | AdjustRatePerSecond |   ✅   |    ❌     |     ❌      |           ❌           |
 | Deposit             |   ✅   |    ✅     |     ✅      |           ✅           |
-| RefundFromStream    |   ✅   |    ❌     |     ❌      |           ❌           |
-| RestartStream       |   ✅   |    ❌     |     ❌      |           ❌           |
+| Refund              |   ✅   |    ❌     |     ❌      |           ❌           |
+| Restart             |   ✅   |    ❌     |     ❌      |           ❌           |
 | Pause               |   ✅   |    ❌     |     ❌      |           ❌           |
 | Transfer NFT        |   ❌   |    ✅     |     ✅      |           ❌           |
 | Withdraw            |   ✅   |    ✅     |     ✅      | ✅ (only to Recipient) |
