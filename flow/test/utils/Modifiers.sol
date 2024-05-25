@@ -14,11 +14,11 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier givenNotPaused() {
+    modifier givenNotNull() {
         _;
     }
 
-    modifier givenNotNull() {
+    modifier givenNotPaused() {
         _;
     }
 
@@ -79,14 +79,6 @@ abstract contract Modifiers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                       PAUSE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier givenStreamHasNoDebt() {
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                        CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -107,7 +99,15 @@ abstract contract Modifiers {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                      REFUND
+                                       PAUSE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier givenStreamHasNoDebt() {
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                       REFUND
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier whenNoOverrefund() {
@@ -134,10 +134,6 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenLastTimeNotLessThanWithdrawalTime() {
-        _;
-    }
-
     modifier whenToNonZeroAddress() {
         _;
     }
@@ -151,6 +147,10 @@ abstract contract Modifiers {
     }
 
     modifier whenWithdrawalTimeNotInTheFuture() {
+        _;
+    }
+
+    modifier whenWithdrawalTimeNotLessThanLastTime() {
         _;
     }
 }
