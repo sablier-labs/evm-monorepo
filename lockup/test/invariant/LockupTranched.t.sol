@@ -24,18 +24,10 @@ contract LockupTranched_Invariant_Test is Lockup_Invariant_Test {
         Lockup_Invariant_Test.setUp();
 
         // Deploy the LockupTranched handlers.
-        tranchedHandler = new LockupTranchedHandler({
-            asset_: dai,
-            timestampStore_: timestampStore,
-            lockupStore_: lockupStore,
-            lockupTranched_: lockupTranched
-        });
-        tranchedCreateHandler = new LockupTranchedCreateHandler({
-            asset_: dai,
-            timestampStore_: timestampStore,
-            lockupStore_: lockupStore,
-            lockupTranched_: lockupTranched
-        });
+        tranchedHandler =
+            new LockupTranchedHandler({ asset_: dai, lockupStore_: lockupStore, lockupTranched_: lockupTranched });
+        tranchedCreateHandler =
+            new LockupTranchedCreateHandler({ asset_: dai, lockupStore_: lockupStore, lockupTranched_: lockupTranched });
 
         // Label the contracts.
         vm.label({ account: address(tranchedHandler), newLabel: "LockupTranchedHandler" });
@@ -73,7 +65,7 @@ contract LockupTranched_Invariant_Test is Lockup_Invariant_Test {
     }
 
     /// @dev Unordered tranche timestamps are not allowed.
-    function invariant_TrancheTimestampsOrdered() external useCurrentTimestamp {
+    function invariant_TrancheTimestampsOrdered() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);

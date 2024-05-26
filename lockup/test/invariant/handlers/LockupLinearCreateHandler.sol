@@ -6,7 +6,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierV2LockupLinear } from "src/interfaces/ISablierV2LockupLinear.sol";
 import { LockupLinear } from "src/types/DataTypes.sol";
 
-import { TimestampStore } from "../stores/TimestampStore.sol";
 import { LockupStore } from "../stores/LockupStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
@@ -25,14 +24,7 @@ contract LockupLinearCreateHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(
-        IERC20 asset_,
-        TimestampStore timestampStore_,
-        LockupStore lockupStore_,
-        ISablierV2LockupLinear lockupLinear_
-    )
-        BaseHandler(asset_, timestampStore_)
-    {
+    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierV2LockupLinear lockupLinear_) BaseHandler(asset_) {
         lockupStore = lockupStore_;
         lockupLinear = lockupLinear_;
     }

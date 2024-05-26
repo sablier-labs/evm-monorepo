@@ -7,7 +7,6 @@ import { ISablierV2LockupDynamic } from "src/interfaces/ISablierV2LockupDynamic.
 import { LockupDynamic } from "src/types/DataTypes.sol";
 
 import { LockupStore } from "../stores/LockupStore.sol";
-import { TimestampStore } from "../stores/TimestampStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 /// @dev This contract is a complement of {LockupDynamicHandler}. The goal is to bias the invariant calls
@@ -25,14 +24,7 @@ contract LockupDynamicCreateHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(
-        IERC20 asset_,
-        TimestampStore timestampStore_,
-        LockupStore lockupStore_,
-        ISablierV2LockupDynamic lockupDynamic_
-    )
-        BaseHandler(asset_, timestampStore_)
-    {
+    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierV2LockupDynamic lockupDynamic_) BaseHandler(asset_) {
         lockupStore = lockupStore_;
         lockupDynamic = lockupDynamic_;
     }

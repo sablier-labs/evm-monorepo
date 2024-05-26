@@ -7,7 +7,6 @@ import { ISablierV2Lockup } from "src/interfaces/ISablierV2Lockup.sol";
 import { Lockup } from "src/types/DataTypes.sol";
 
 import { LockupStore } from "../stores/LockupStore.sol";
-import { TimestampStore } from "../stores/TimestampStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 /// @dev Common handler logic between {LockupLinearHandler} and {LockupDynamicHandler}.
@@ -31,14 +30,7 @@ abstract contract LockupHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(
-        IERC20 asset_,
-        TimestampStore timestampStore_,
-        LockupStore lockupStore_,
-        ISablierV2Lockup lockup_
-    )
-        BaseHandler(asset_, timestampStore_)
-    {
+    constructor(IERC20 asset_, LockupStore lockupStore_, ISablierV2Lockup lockup_) BaseHandler(asset_) {
         lockupStore = lockupStore_;
         lockup = lockup_;
     }
