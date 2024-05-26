@@ -27,10 +27,8 @@ contract Flow_Invariant_Test is Invariant_Test {
         flowStore = new FlowStore();
 
         // Deploy the handlers.
-        flowHandler =
-            new FlowHandler({ asset_: dai, timestampStore_: timestampStore, flowStore_: flowStore, flow_: flow });
-        flowCreateHandler =
-            new FlowCreateHandler({ asset_: dai, timestampStore_: timestampStore, flowStore_: flowStore, flow_: flow });
+        flowHandler = new FlowHandler({ asset_: dai, flowStore_: flowStore, flow_: flow });
+        flowCreateHandler = new FlowCreateHandler({ asset_: dai, flowStore_: flowStore, flow_: flow });
 
         // Label the contracts.
         vm.label({ account: address(flowStore), newLabel: "flowStore" });
@@ -51,7 +49,7 @@ contract Flow_Invariant_Test is Invariant_Test {
                                      INVARIANTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function invariant_BlockTimestampGeLastTimeUpdate() external useCurrentTimestamp {
+    function invariant_BlockTimestampGeLastTimeUpdate() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
@@ -65,7 +63,7 @@ contract Flow_Invariant_Test is Invariant_Test {
 
     /// @dev The sum of all stream balances for a specific asset should be less than or equal to the contract
     /// `ERC20.balanceOf`.
-    function invariant_ContractBalanceGeStreamBalances() external useCurrentTimestamp {
+    function invariant_ContractBalanceGeStreamBalances() external view {
         uint256 contractBalance = dai.balanceOf(address(flow));
 
         uint256 lastStreamId = flowStore.lastStreamId();
@@ -82,7 +80,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         );
     }
 
-    function invariant_Debt_WithdrawableAmountEqBalance() external useCurrentTimestamp {
+    function invariant_Debt_WithdrawableAmountEqBalance() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
@@ -96,7 +94,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_DepositAmountsSumGeExtractedAmountsSum() external useCurrentTimestamp {
+    function invariant_DepositAmountsSumGeExtractedAmountsSum() external view {
         uint256 streamDepositedAmountsSum = flowStore.streamDepositedAmountsSum();
         uint256 streamExtractedAmountsSum = flowStore.streamExtractedAmountsSum();
 
@@ -107,7 +105,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         );
     }
 
-    function invariant_DepositedAmountsSumGeExtractedAmountsSum() external useCurrentTimestamp {
+    function invariant_DepositedAmountsSumGeExtractedAmountsSum() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
@@ -129,7 +127,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         );
     }
 
-    function invariant_NextStreamId() external useCurrentTimestamp {
+    function invariant_NextStreamId() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 nextStreamId = flow.nextStreamId();
@@ -137,7 +135,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_NoDebt_StreamedPaused_WithdrawableAmountEqRemainingAmount() external useCurrentTimestamp {
+    function invariant_NoDebt_StreamedPaused_WithdrawableAmountEqRemainingAmount() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
@@ -151,7 +149,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_NoDebt_WithdrawableAmountEqStreamedAmountPlusRemainingAmount() external useCurrentTimestamp {
+    function invariant_NoDebt_WithdrawableAmountEqStreamedAmountPlusRemainingAmount() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
@@ -165,7 +163,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StreamBalanceEqWithdrawableAmountPlusRefundableAmount() external useCurrentTimestamp {
+    function invariant_StreamBalanceEqWithdrawableAmountPlusRefundableAmount() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
@@ -177,7 +175,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StreamBalanceGeRefundableAmount() external useCurrentTimestamp {
+    function invariant_StreamBalanceGeRefundableAmount() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
@@ -191,7 +189,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StreamBalanceGeWithdrawableAmount() external useCurrentTimestamp {
+    function invariant_StreamBalanceGeWithdrawableAmount() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
@@ -204,7 +202,7 @@ contract Flow_Invariant_Test is Invariant_Test {
         }
     }
 
-    function invariant_StreamPaused_RatePerSecondZero() external useCurrentTimestamp {
+    function invariant_StreamPaused_RatePerSecondZero() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);

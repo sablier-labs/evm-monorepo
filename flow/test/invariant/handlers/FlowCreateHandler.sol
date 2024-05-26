@@ -6,7 +6,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
 import { FlowStore } from "../stores/FlowStore.sol";
-import { TimestampStore } from "../stores/TimestampStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 /// @dev This contract is a complement of {FlowHandler}. The goal is to bias the invariant calls
@@ -24,14 +23,7 @@ contract FlowCreateHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(
-        IERC20 asset_,
-        TimestampStore timestampStore_,
-        FlowStore flowStore_,
-        ISablierFlow flow_
-    )
-        BaseHandler(asset_, timestampStore_)
-    {
+    constructor(IERC20 asset_, FlowStore flowStore_, ISablierFlow flow_) BaseHandler(asset_) {
         flowStore = flowStore_;
         flow = flow_;
     }
@@ -51,7 +43,7 @@ contract FlowCreateHandler is BaseHandler {
 
     function create(CreateParams memory params)
         public
-        instrument("createAndDeposit")
+        instrument("create")
         adjustTimestamp(params.timeJumpSeed)
         checkUsers(params.sender, params.recipient)
         useNewSender(params.sender)

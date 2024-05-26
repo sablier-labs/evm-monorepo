@@ -6,7 +6,6 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 
 import { FlowStore } from "../stores/FlowStore.sol";
-import { TimestampStore } from "../stores/TimestampStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 contract FlowHandler is BaseHandler {
@@ -29,14 +28,7 @@ contract FlowHandler is BaseHandler {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(
-        IERC20 asset_,
-        TimestampStore timestampStore_,
-        FlowStore flowStore_,
-        ISablierFlow flow_
-    )
-        BaseHandler(asset_, timestampStore_)
-    {
+    constructor(IERC20 asset_, FlowStore flowStore_, ISablierFlow flow_) BaseHandler(asset_) {
         flowStore = flowStore_;
         flow = flow_;
     }
@@ -123,11 +115,13 @@ contract FlowHandler is BaseHandler {
     }
 
     function deposit(
+        uint256 timeJumpSeed,
         uint256 streamIndexSeed,
         uint128 depositAmount
     )
         external
         instrument("deposit")
+        adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {

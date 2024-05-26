@@ -6,7 +6,6 @@ import { StdCheats } from "forge-std/src/StdCheats.sol";
 
 import { Constants } from "../../utils/Constants.sol";
 import { Utils } from "../../utils/Utils.sol";
-import { TimestampStore } from "../stores/TimestampStore.sol";
 
 /// @notice Base contract with common logic needed by all handler contracts.
 abstract contract BaseHandler is Constants, StdCheats, Utils {
@@ -34,16 +33,12 @@ abstract contract BaseHandler is Constants, StdCheats, Utils {
     /// @dev Default ERC-20 asset used for testing.
     IERC20 public asset;
 
-    /// @dev Reference to the timestamp store, which is needed for simulating the passage of time.
-    TimestampStore public timestampStore;
-
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IERC20 asset_, TimestampStore timestampStore_) {
+    constructor(IERC20 asset_) {
         asset = asset_;
-        timestampStore = timestampStore_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -51,12 +46,10 @@ abstract contract BaseHandler is Constants, StdCheats, Utils {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Simulates the passage of time. The time jump is upper bounded so that streams don't settle too quickly.
-    /// See https://github.com/foundry-rs/foundry/issues/4994.
     /// @param timeJumpSeed A fuzzed value needed for generating random time warps.
     modifier adjustTimestamp(uint256 timeJumpSeed) {
         uint256 timeJump = _bound(timeJumpSeed, 2 minutes, 40 days);
-        timestampStore.increaseCurrentTimestamp(timeJump);
-        vm.warp(timestampStore.currentTimestamp());
+        vm.warp(block.timestamp + timeJump);
         _;
     }
 
