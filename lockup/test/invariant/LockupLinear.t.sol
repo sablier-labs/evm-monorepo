@@ -24,18 +24,10 @@ contract LockupLinear_Invariant_Test is Lockup_Invariant_Test {
         Lockup_Invariant_Test.setUp();
 
         // Deploy the lockupLinear contract handlers.
-        lockupLinearHandler = new LockupLinearHandler({
-            asset_: dai,
-            timestampStore_: timestampStore,
-            lockupStore_: lockupStore,
-            lockupLinear_: lockupLinear
-        });
-        lockupLinearCreateHandler = new LockupLinearCreateHandler({
-            asset_: dai,
-            timestampStore_: timestampStore,
-            lockupStore_: lockupStore,
-            lockupLinear_: lockupLinear
-        });
+        lockupLinearHandler =
+            new LockupLinearHandler({ asset_: dai, lockupStore_: lockupStore, lockupLinear_: lockupLinear });
+        lockupLinearCreateHandler =
+            new LockupLinearCreateHandler({ asset_: dai, lockupStore_: lockupStore, lockupLinear_: lockupLinear });
 
         // Label the handler contracts.
         vm.label({ account: address(lockupLinearHandler), newLabel: "LockupLinearHandler" });
@@ -59,7 +51,7 @@ contract LockupLinear_Invariant_Test is Lockup_Invariant_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev If it is not zero, the cliff time must be strictly greater than the start time.
-    function invariant_CliffTimeGtStartTimeOrZero() external useCurrentTimestamp {
+    function invariant_CliffTimeGtStartTimeOrZero() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
@@ -74,7 +66,7 @@ contract LockupLinear_Invariant_Test is Lockup_Invariant_Test {
     }
 
     /// @dev The end time must not be less than or equal to the cliff time.
-    function invariant_EndTimeGtCliffTime() external useCurrentTimestamp {
+    function invariant_EndTimeGtCliffTime() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);

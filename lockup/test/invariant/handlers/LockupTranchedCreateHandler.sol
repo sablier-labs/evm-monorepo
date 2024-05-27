@@ -7,7 +7,6 @@ import { ISablierV2LockupTranched } from "src/interfaces/ISablierV2LockupTranche
 import { LockupTranched } from "src/types/DataTypes.sol";
 
 import { LockupStore } from "../stores/LockupStore.sol";
-import { TimestampStore } from "../stores/TimestampStore.sol";
 import { BaseHandler } from "./BaseHandler.sol";
 
 /// @dev This contract is a complement of {LockupTranchedHandler}. The goal is to bias the invariant calls
@@ -27,11 +26,10 @@ contract LockupTranchedCreateHandler is BaseHandler {
 
     constructor(
         IERC20 asset_,
-        TimestampStore timestampStore_,
         LockupStore lockupStore_,
         ISablierV2LockupTranched lockupTranched_
     )
-        BaseHandler(asset_, timestampStore_)
+        BaseHandler(asset_)
     {
         lockupStore = lockupStore_;
         lockupTranched = lockupTranched_;

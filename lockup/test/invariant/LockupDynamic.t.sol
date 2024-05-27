@@ -24,18 +24,10 @@ contract LockupDynamic_Invariant_Test is Lockup_Invariant_Test {
         Lockup_Invariant_Test.setUp();
 
         // Deploy the LockupDynamic handlers.
-        dynamicHandler = new LockupDynamicHandler({
-            asset_: dai,
-            timestampStore_: timestampStore,
-            lockupStore_: lockupStore,
-            lockupDynamic_: lockupDynamic
-        });
-        dynamicCreateHandler = new LockupDynamicCreateHandler({
-            asset_: dai,
-            timestampStore_: timestampStore,
-            lockupStore_: lockupStore,
-            lockupDynamic_: lockupDynamic
-        });
+        dynamicHandler =
+            new LockupDynamicHandler({ asset_: dai, lockupStore_: lockupStore, lockupDynamic_: lockupDynamic });
+        dynamicCreateHandler =
+            new LockupDynamicCreateHandler({ asset_: dai, lockupStore_: lockupStore, lockupDynamic_: lockupDynamic });
 
         // Label the contracts.
         vm.label({ account: address(dynamicHandler), newLabel: "LockupDynamicHandler" });
@@ -59,7 +51,7 @@ contract LockupDynamic_Invariant_Test is Lockup_Invariant_Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Unordered segment timestamps are not allowed.
-    function invariant_SegmentTimestampsOrdered() external useCurrentTimestamp {
+    function invariant_SegmentTimestampsOrdered() external view {
         uint256 lastStreamId = lockupStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = lockupStore.streamIds(i);
