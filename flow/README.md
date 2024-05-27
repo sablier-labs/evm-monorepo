@@ -9,7 +9,7 @@ refer to [our Lockup contracts](https://github.com/sablier-labs/v2-core/).
 
 One of the most requested feature from users is the ability to create streams without depositing the amount upfront,
 which requires the introduction of _debt_. _Debt_ is the amount that sender owes to the recipient which but is not
-available in teh stream. This is made possible by introducing a new variables in the Stream struct:
+available in the stream. This is made possible by introducing some new variables in the Stream struct:
 
 ```solidity
     struct Stream {
