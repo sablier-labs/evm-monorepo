@@ -33,7 +33,7 @@ contract Pause_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenNotPaused
-        whenCallerIsNotTheSender
+        whenCallerIsNotSender
     {
         resetPrank({ msgSender: users.recipient });
         vm.expectRevert(
@@ -47,20 +47,14 @@ contract Pause_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenNotPaused
-        whenCallerIsNotTheSender
+        whenCallerIsNotSender
     {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
         flow.pause(defaultStreamId);
     }
 
-    function test_Pause_StreamHasDebt()
-        external
-        whenNotDelegateCalled
-        givenNotNull
-        givenNotPaused
-        whenCallerIsTheSender
-    {
+    function test_Pause_StreamHasDebt() external whenNotDelegateCalled givenNotNull givenNotPaused whenCallerIsSender {
         assertEq(flow.refundableAmountOf(defaultStreamId), 0, "refundable amount before pause");
         assertEq(flow.withdrawableAmountOf(defaultStreamId), 0, "withdrawable amount before pause");
 
@@ -84,7 +78,7 @@ contract Pause_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenNotPaused
-        whenCallerIsTheSender
+        whenCallerIsSender
         givenStreamHasNoDebt
     {
         depositToDefaultStream();

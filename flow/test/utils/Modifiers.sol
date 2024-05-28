@@ -42,11 +42,11 @@ abstract contract Modifiers {
         _;
     }
 
-    modifier whenCallerIsNotTheSender() {
+    modifier whenCallerIsNotSender() {
         _;
     }
 
-    modifier whenCallerIsTheSender() {
+    modifier whenCallerIsSender() {
         _;
     }
 

@@ -34,7 +34,7 @@ contract Restart_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenPaused
-        whenCallerIsNotTheSender
+        whenCallerIsNotSender
     {
         resetPrank({ msgSender: users.recipient });
         vm.expectRevert(
@@ -48,7 +48,7 @@ contract Restart_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenPaused
-        whenCallerIsNotTheSender
+        whenCallerIsNotSender
     {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
@@ -60,7 +60,7 @@ contract Restart_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenPaused
-        whenCallerIsTheSender
+        whenCallerIsSender
     {
         vm.expectRevert(Errors.SablierFlow_RatePerSecondZero.selector);
         flow.restart({ streamId: defaultStreamId, ratePerSecond: 0 });
@@ -71,7 +71,7 @@ contract Restart_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenPaused
-        whenCallerIsTheSender
+        whenCallerIsSender
         whenRatePerSecondIsNotZero
     {
         vm.expectEmit({ emitter: address(flow) });

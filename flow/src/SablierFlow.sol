@@ -93,15 +93,7 @@ contract SablierFlow is
 
     /// @inheritdoc ISablierFlow
     function streamDebtOf(uint256 streamId) external view override notNull(streamId) returns (uint128 debt) {
-        uint128 balance = _streams[streamId].balance;
-
-        uint128 amountOwedToRecipient = _amountOwedToRecipient(streamId, uint40(block.timestamp));
-
-        if (balance < amountOwedToRecipient) {
-            debt = amountOwedToRecipient - balance;
-        } else {
-            return 0;
-        }
+        debt = _streamDebtOf(streamId);
     }
 
     /// @inheritdoc ISablierFlow
@@ -183,7 +175,7 @@ contract SablierFlow is
         IERC20 asset,
         bool isTransferable
     )
-        public
+        external
         override
         noDelegateCall
         returns (uint256 streamId)
@@ -240,7 +232,7 @@ contract SablierFlow is
         uint256 streamId,
         uint128 amount
     )
-        public
+        external
         override
         noDelegateCall
         notNull(streamId)
@@ -250,12 +242,32 @@ contract SablierFlow is
         _deposit(streamId, amount);
     }
 
+    /// @inheritdoc ISablierFlow
+    function depositAndPause(
+        uint256 streamId,
+        uint128 amount
+    )
+        external
+        override
+        noDelegateCall
+        notNull(streamId)
+        notPaused(streamId)
+        onlySender(streamId)
+        updateMetadata(streamId)
+    {
+        // Checks, Effects and Interactions: deposit on stream.
+        _deposit(streamId, amount);
+
+        // Checks, Effects and Interactions: pause the stream.
+        _pause(streamId);
+    }
+
     function depositViaBroker(
         uint256 streamId,
         uint128 totalAmount,
         Broker calldata broker
     )
-        public
+        external
         override
         noDelegateCall
         notNull(streamId)
@@ -267,7 +279,7 @@ contract SablierFlow is
 
     /// @inheritdoc ISablierFlow
     function pause(uint256 streamId)
-        public
+        external
         override
         noDelegateCall
         notNull(streamId)
@@ -280,11 +292,46 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
+    function refund(
+        uint256 streamId,
+        uint128 amount
+    )
+        external
+        override
+        noDelegateCall
+        notNull(streamId)
+        onlySender(streamId)
+    {
+        // Checks, Effects and Interactions: make the refund.
+        _refund(streamId, amount);
+    }
+
+    /// @inheritdoc ISablierFlow
+    function refundAndPause(
+        uint256 streamId,
+        uint128 amount
+    )
+        external
+        override
+        noDelegateCall
+        notNull(streamId)
+        notPaused(streamId)
+        onlySender(streamId)
+        updateMetadata(streamId)
+    {
+        // Checks, Effects and Interactions: make the refund.
+        _refund(streamId, amount);
+
+        // Checks, Effects and Interactions: pause the stream.
+        _pause(streamId);
+    }
+
+    /// @inheritdoc ISablierFlow
     function restart(
         uint256 streamId,
         uint128 ratePerSecond
     )
-        public
+        external
         override
         noDelegateCall
         notNull(streamId)
@@ -316,27 +363,12 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function refund(
-        uint256 streamId,
-        uint128 amount
-    )
-        external
-        override
-        noDelegateCall
-        notNull(streamId)
-        onlySender(streamId)
-    {
-        // Checks, Effects and Interactions: make the refund.
-        _refund(streamId, amount);
-    }
-
-    /// @inheritdoc ISablierFlow
     function withdrawAt(
         uint256 streamId,
         address to,
         uint40 time
     )
-        public
+        external
         override
         noDelegateCall
         notNull(streamId)
@@ -419,6 +451,19 @@ contract SablierFlow is
         (bool success, bytes memory returnData) = asset.staticcall(abi.encodeCall(IERC20Metadata.decimals, ()));
         if (success && returnData.length == 32) {
             return abi.decode(returnData, (uint8));
+        } else {
+            return 0;
+        }
+    }
+
+    /// @dev Calculates the stream's debt at `block.timestamp`.
+    function _streamDebtOf(uint256 streamId) internal view returns (uint128) {
+        uint128 balance = _streams[streamId].balance;
+
+        uint128 amountOwedToRecipient = _amountOwedToRecipient(streamId, uint40(block.timestamp));
+
+        if (balance < amountOwedToRecipient) {
+            return amountOwedToRecipient - balance;
         } else {
             return 0;
         }

@@ -273,6 +273,17 @@ interface ISablierFlow is
     /// @param amount The amount deposited in the stream, denoted in 18 decimals.
     function deposit(uint256 streamId, uint128 amount) external;
 
+    /// @notice Deposits assets in a stream and pauses it.
+    ///
+    /// @dev Emits a {Transfer}, {DepositFlowStream} and {PauseFlowStream} event.
+    ///
+    /// Requirements:
+    /// - Refer to the requirements in {deposit} and {pause}.
+    ///
+    /// @param streamId The ID of the stream to deposit on and then pause.
+    /// @param amount The amount deposited in the stream, denoted in 18 decimals.
+    function depositAndPause(uint256 streamId, uint128 amount) external;
+
     /// @notice Deposits assets in a stream.
     ///
     /// @dev Emits a {Transfer} and {DepositFlowStream} event.
@@ -290,9 +301,9 @@ interface ISablierFlow is
     /// @param broker The broker's address and fee.
     function depositViaBroker(uint256 streamId, uint128 totalAmount, Broker calldata broker) external;
 
-    /// @notice Pauses the stream and refunds available assets to the sender.
+    /// @notice Pauses the stream.
     ///
-    /// @dev Emits a {Transfer} and {PauseFlowStream} event.
+    /// @dev Emits a {PauseFlowStream} event.
     ///
     /// Requirements:
     /// - Must not be delegate called.
@@ -315,6 +326,17 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream to refund from.
     /// @param amount The amount to refund, denoted in 18 decimals.
     function refund(uint256 streamId, uint128 amount) external;
+
+    /// @notice Refunds the provided amount of assets from the stream to the sender's address.
+    ///
+    /// @dev Emits a {Transfer}, {RefundFromFlowStream} and {PauseFlowStream} event.
+    ///
+    /// Requirements:
+    /// - Refer to the requirements in {refund} and {pause}.
+    ///
+    /// @param streamId The ID of the stream to refund from and then pause.
+    /// @param amount The amount to refund, denoted in 18 decimals.
+    function refundAndPause(uint256 streamId, uint128 amount) external;
 
     /// @notice Restarts the stream with the provided rate per second.
     ///

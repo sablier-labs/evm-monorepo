@@ -31,7 +31,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenNotPaused
-        whenCallerIsNotTheSender
+        whenCallerIsNotSender
     {
         resetPrank({ msgSender: users.recipient });
         vm.expectRevert(
@@ -45,7 +45,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenNotPaused
-        whenCallerIsNotTheSender
+        whenCallerIsNotSender
     {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
@@ -57,7 +57,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenNotPaused
-        whenCallerIsTheSender
+        whenCallerIsSender
     {
         vm.expectRevert(Errors.SablierFlow_RatePerSecondZero.selector);
         flow.adjustRatePerSecond({ streamId: defaultStreamId, newRatePerSecond: 0 });
@@ -68,7 +68,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenNotPaused
-        whenCallerIsTheSender
+        whenCallerIsSender
         whenRatePerSecondIsNotZero
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_RatePerSecondNotDifferent.selector, RATE_PER_SECOND));
@@ -80,7 +80,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         whenNotDelegateCalled
         givenNotNull
         givenNotPaused
-        whenCallerIsTheSender
+        whenCallerIsSender
         whenRatePerSecondIsNotZero
         whenRatePerSecondNotDifferent
     {
@@ -121,13 +121,7 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         assertEq(actualLastTimeUpdate, expectedLastTimeUpdate, "last time updated");
     }
 
-    function test_AdjustRatePerSecond()
-        external
-        whenNotDelegateCalled
-        givenNotNull
-        givenNotPaused
-        whenCallerIsTheSender
-    {
+    function test_AdjustRatePerSecond() external whenNotDelegateCalled givenNotNull givenNotPaused whenCallerIsSender {
         flow.deposit(defaultStreamId, DEPOSIT_AMOUNT);
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 

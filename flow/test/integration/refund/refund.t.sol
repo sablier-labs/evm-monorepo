@@ -27,7 +27,7 @@ contract Refund_Integration_Test is Integration_Test {
         flow.refund({ streamId: nullStreamId, amount: REFUND_AMOUNT });
     }
 
-    function test_RevertWhen_CallerRecipient() external whenNotDelegateCalled givenNotNull whenCallerIsNotTheSender {
+    function test_RevertWhen_CallerRecipient() external whenNotDelegateCalled givenNotNull whenCallerIsNotSender {
         resetPrank({ msgSender: users.recipient });
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
@@ -39,14 +39,14 @@ contract Refund_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        whenCallerIsNotTheSender
+        whenCallerIsNotSender
     {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
         flow.refund({ streamId: defaultStreamId, amount: REFUND_AMOUNT });
     }
 
-    function test_RevertWhen_RefundAmountZero() external whenNotDelegateCalled givenNotNull whenCallerIsTheSender {
+    function test_RevertWhen_RefundAmountZero() external whenNotDelegateCalled givenNotNull whenCallerIsSender {
         vm.expectRevert(Errors.SablierFlow_RefundAmountZero.selector);
         flow.refund({ streamId: defaultStreamId, amount: 0 });
     }
@@ -55,7 +55,7 @@ contract Refund_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        whenCallerIsTheSender
+        whenCallerIsSender
         whenRefundAmountNotZero
     {
         vm.expectRevert(
@@ -69,7 +69,7 @@ contract Refund_Integration_Test is Integration_Test {
         flow.refund({ streamId: defaultStreamId, amount: DEPOSIT_AMOUNT });
     }
 
-    function test_Refund_PausedStream() external whenNotDelegateCalled givenNotNull whenCallerIsTheSender {
+    function test_Refund_PausedStream() external whenNotDelegateCalled givenNotNull whenCallerIsSender {
         flow.pause(defaultStreamId);
 
         expectCallToTransfer({ asset: dai, to: users.sender, amount: REFUND_AMOUNT });
@@ -84,7 +84,7 @@ contract Refund_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        whenCallerIsTheSender
+        whenCallerIsSender
         whenRefundAmountNotZero
         whenNoOverrefund
     {
@@ -101,7 +101,7 @@ contract Refund_Integration_Test is Integration_Test {
         external
         whenNotDelegateCalled
         givenNotNull
-        whenCallerIsTheSender
+        whenCallerIsSender
         whenRefundAmountNotZero
         whenNoOverrefund
     {

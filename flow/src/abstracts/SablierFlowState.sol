@@ -146,12 +146,12 @@ abstract contract SablierFlowState is
     }
 
     /// @inheritdoc ISablierFlowState
-    function isPaused(uint256 streamId) public view override notNull(streamId) returns (bool result) {
+    function isPaused(uint256 streamId) external view override notNull(streamId) returns (bool result) {
         result = _streams[streamId].isPaused;
     }
 
     /// @inheritdoc ISablierFlowState
-    function isStream(uint256 streamId) public view override returns (bool result) {
+    function isStream(uint256 streamId) external view override returns (bool result) {
         result = _streams[streamId].isStream;
     }
 
