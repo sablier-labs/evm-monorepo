@@ -24,6 +24,11 @@ contract FlowHandler is BaseHandler {
     address internal currentSender;
     uint256 internal currentStreamId;
 
+    /// @dev Debt, remaining and streamed amount mapped to each stream id.
+    mapping(uint256 streamId => uint128 amount) public previousDebtOf;
+    mapping(uint256 streamId => uint128 amount) public lastRemainingAmountOf;
+    mapping(uint256 streamId => uint128 amount) public lastStreamedAmountOf;
+
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -36,6 +41,18 @@ contract FlowHandler is BaseHandler {
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Updates the states of Flow stream.
+    modifier updateFlowStates() {
+        previousDebtOf[currentStreamId] = flow.streamDebtOf(currentStreamId);
+        lastRemainingAmountOf[currentStreamId] = flow.getRemainingAmount(currentStreamId);
+        if (!flow.isPaused(currentStreamId)) {
+            lastStreamedAmountOf[currentStreamId] = flow.streamedAmountOf(currentStreamId);
+        } else {
+            lastStreamedAmountOf[currentStreamId] = 0;
+        }
+        _;
+    }
 
     /// @dev Picks a random stream from the store.
     /// @param streamIndexSeed A fuzzed value needed for picking the random stream.
@@ -77,6 +94,7 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
+        updateFlowStates
     {
         // Only non paused streams can have their rate per second adjusted.
         if (flow.isPaused(currentStreamId)) {
@@ -104,6 +122,7 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
+        updateFlowStates
     {
         // Paused streams cannot be paused again.
         if (flow.isPaused(currentStreamId)) {
@@ -124,6 +143,7 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
+        updateFlowStates
     {
         // Bound the deposit amount.
         depositAmount = uint128(_bound(depositAmount, 100e18, 1_000_000_000e18));
@@ -138,7 +158,7 @@ contract FlowHandler is BaseHandler {
         // Deposit into the stream.
         flow.deposit({ streamId: currentStreamId, amount: depositAmount });
 
-        // Store the deposited amount.
+        // Update the deposited amount.
         flowStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
     }
 
@@ -152,6 +172,7 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
+        updateFlowStates
     {
         uint128 refundableAmount = flow.refundableAmountOf(currentStreamId);
 
@@ -166,8 +187,8 @@ contract FlowHandler is BaseHandler {
         // Refund from stream.
         flow.refund(currentStreamId, refundAmount);
 
-        // Store the refunded amount.
-        flowStore.updateStreamExtractedAmountsSum(currentStreamId, refundAmount);
+        // Update the refunded amount.
+        flowStore.updateStreamRefundedAmountsSum(currentStreamId, refundAmount);
     }
 
     function restart(
@@ -180,6 +201,7 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
+        updateFlowStates
     {
         // Only paused streams can be restarted.
         if (!flow.isPaused(currentStreamId)) {
@@ -193,41 +215,6 @@ contract FlowHandler is BaseHandler {
         flow.restart(currentStreamId, ratePerSecond);
     }
 
-    function restartAndDeposit(
-        uint256 timeJumpSeed,
-        uint256 streamIndexSeed,
-        uint128 ratePerSecond,
-        uint128 depositAmount
-    )
-        external
-        instrument("restartAndDeposit")
-        adjustTimestamp(timeJumpSeed)
-        useFuzzedStream(streamIndexSeed)
-        useFuzzedStreamSender
-    {
-        // Only paused streams can be restarted.
-        if (!flow.isPaused(currentStreamId)) {
-            return;
-        }
-
-        // Bound the stream parameter.
-        ratePerSecond = uint128(_bound(ratePerSecond, 0.0001e18, 1e18));
-        depositAmount = uint128(_bound(depositAmount, 100e18, 1_000_000_000e18));
-
-        // Mint enough assets to the Sender.
-        address sender = flowStore.senders(currentStreamId);
-        deal({ token: address(asset), to: sender, give: asset.balanceOf(sender) + depositAmount });
-
-        // Approve {SablierFlow} to spend the assets.
-        asset.approve({ spender: address(flow), value: depositAmount });
-
-        // Restart the stream.
-        flow.restartAndDeposit(currentStreamId, ratePerSecond, depositAmount);
-
-        // Store the deposited amount.
-        flowStore.updateStreamDepositedAmountsSum(currentStreamId, depositAmount);
-    }
-
     function withdrawAt(
         uint256 timeJumpSeed,
         uint256 streamIndexSeed,
@@ -239,6 +226,7 @@ contract FlowHandler is BaseHandler {
         adjustTimestamp(timeJumpSeed)
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamRecipient
+        updateFlowStates
     {
         // The protocol doesn't allow the withdrawal address to be the zero address.
         if (to == address(0)) {
@@ -265,7 +253,7 @@ contract FlowHandler is BaseHandler {
         // Withdraw from the stream.
         flow.withdrawAt({ streamId: currentStreamId, to: to, time: time });
 
-        // Store the extracted amount.
-        flowStore.updateStreamExtractedAmountsSum(currentStreamId, withdrawAmount);
+        // Update the withdrawn amount.
+        flowStore.updateStreamWithdrawnAmountsSum(currentStreamId, withdrawAmount);
     }
 }

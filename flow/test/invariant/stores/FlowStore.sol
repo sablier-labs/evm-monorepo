@@ -11,10 +11,12 @@ contract FlowStore {
     mapping(uint256 streamId => address recipient) public recipients;
     mapping(uint256 streamId => address sender) public senders;
     mapping(uint256 streamId => uint128 depositedAmount) public depositedAmounts;
-    mapping(uint256 streamId => uint128 extractedAmount) public extractedAmounts;
+    mapping(uint256 streamId => uint128 refundedAmount) public refundedAmounts;
+    mapping(uint256 streamId => uint128 withdrawnAmount) public withdrawnAmounts;
     uint256[] public streamIds;
     uint256 public streamDepositedAmountsSum;
-    uint256 public streamExtractedAmountsSum;
+    uint256 public streamRefundedAmountsSum;
+    uint256 public streamWithdrawnAmountsSum;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       HELPERS
@@ -35,8 +37,13 @@ contract FlowStore {
         streamDepositedAmountsSum += amount;
     }
 
-    function updateStreamExtractedAmountsSum(uint256 streamId, uint128 amount) external {
-        extractedAmounts[streamId] += amount;
-        streamExtractedAmountsSum += amount;
+    function updateStreamRefundedAmountsSum(uint256 streamId, uint128 amount) external {
+        refundedAmounts[streamId] += amount;
+        streamRefundedAmountsSum += amount;
+    }
+
+    function updateStreamWithdrawnAmountsSum(uint256 streamId, uint128 amount) external {
+        withdrawnAmounts[streamId] += amount;
+        streamWithdrawnAmountsSum += amount;
     }
 }

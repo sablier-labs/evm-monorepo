@@ -147,32 +147,36 @@ Sender address **must** be checked because there is no `ERC20` transfer in `_cre
 
 ### Invariants:
 
-_wa ≤ bal_
+1. For any stream, $\ ltu \le now $
 
-_if(debt = 0) then wa = sa + ra_
+2. For a given asset, $\sum$ stream balances normalized to asset decimal $\leq$ asset.balanceOf(SablierFlow)
 
-_if(debt = 0 && isPaused = true) then wa = ra_
+3. For any stream, if $debt > 0 \implies wa = bal$
 
-_if(debt > 0) then wa = bal_
+4. if $rps \gt 0$ and no deposits are made $\implies$ debt should never decrease
 
-_bal = sum of deposits - sum of withdrawals_
+5. For any stream, sum of deposited amounts $\ge$ sum of withdrawn amounts + sum of refunded
 
-_sum of withdrawn amounts ≤ sum of deposits_
+6. sum of all deposited amounts $\ge$ sum of all withdrawn amounts + sum of all refunded
 
-_sum of stream balances normalized to asset decimals ≤ asset.balanceOf(SablierFlow)_
+7. next stream id = current stream id + 1
 
-_ltu ≤ now_
+8. if $debt = 0$ and $isPaused = true \implies wa = ra$
 
-_if(isPaused = true) then rps = 0_
+9. if $debt = 0$ and $isPaused = false \implies wa = ra + sa$
 
-### Actions Access Control:
+10. $bal = rfa + wa$
 
-| Action              | Sender | Recipient | Operator(s) |      Unknown User      |
-| ------------------- | :----: | :-------: | :---------: | :--------------------: |
-| AdjustRatePerSecond |   ✅   |    ❌     |     ❌      |           ❌           |
-| Deposit             |   ✅   |    ✅     |     ✅      |           ✅           |
-| Refund              |   ✅   |    ❌     |     ❌      |           ❌           |
-| Restart             |   ✅   |    ❌     |     ❌      |           ❌           |
-| Pause               |   ✅   |    ❌     |     ❌      |           ❌           |
-| Transfer NFT        |   ❌   |    ✅     |     ✅      |           ❌           |
-| Withdraw            |   ✅   |    ✅     |     ✅      | ✅ (only to Recipient) |
+11. if $isPaused = true \implies rps = 0$
+
+### Access Control:
+
+| Action              |         Sender         | Recipient | Operator(s) |      Unknown User      |
+| ------------------- | :--------------------: | :-------: | :---------: | :--------------------: |
+| AdjustRatePerSecond |           ✅           |    ❌     |     ❌      |           ❌           |
+| Deposit             |           ✅           |    ✅     |     ✅      |           ✅           |
+| Refund              |           ✅           |    ❌     |     ❌      |           ❌           |
+| Restart             |           ✅           |    ❌     |     ❌      |           ❌           |
+| Pause               |           ✅           |    ❌     |     ❌      |           ❌           |
+| Transfer NFT        |           ❌           |    ✅     |     ✅      |           ❌           |
+| Withdraw            | ✅ (only to Recipient) |    ✅     |     ✅      | ✅ (only to Recipient) |
