@@ -96,7 +96,7 @@ contract Pause_Integration_Test is Integration_Test {
             streamId: defaultStreamId,
             sender: users.sender,
             recipient: users.recipient,
-            recipientAmount: withdrawableAmount,
+            amountOwedToRecipient: withdrawableAmount,
             asset: dai
         });
 

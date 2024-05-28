@@ -14,8 +14,9 @@ contract StreamedAmountOf_Integration_Test is Integration_Test {
     }
 
     function test_RevertGiven_Paused() external givenNotNull {
-        expectRevertPaused();
-        flow.streamedAmountOf(defaultStreamId);
+        flow.pause(defaultStreamId);
+        uint128 streamedAmount = flow.streamedAmountOf(defaultStreamId);
+        assertEq(streamedAmount, 0, "streamed amount");
     }
 
     function test_StreamedAmountOf_LastTimeUpdateInThePresent() external view givenNotNull givenNotPaused {

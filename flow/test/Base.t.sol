@@ -103,11 +103,11 @@ abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, U
 
         bool isGreaterThan18 = decimals > 18;
 
-        uint8 normalizationFactor = isGreaterThan18 ? decimals - 18 : 18 - decimals;
+        uint8 normalizingFactor = isGreaterThan18 ? decimals - 18 : 18 - decimals;
 
         normalizedAmount = isGreaterThan18
-            ? (amount * (10 ** normalizationFactor)).toUint128()
-            : (amount / (10 ** normalizationFactor)).toUint128();
+            ? (amount * (10 ** normalizingFactor)).toUint128()
+            : (amount / (10 ** normalizingFactor)).toUint128();
     }
 
     /// @dev Normalizes `amount` to the decimal of `streamId` asset.

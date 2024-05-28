@@ -153,19 +153,20 @@ contract FlowHandler is BaseHandler {
         useFuzzedStream(streamIndexSeed)
         useFuzzedStreamSender
     {
-        // The protocol doesn't allow zero refund amounts.
         uint128 refundableAmount = flow.refundableAmountOf(currentStreamId);
+
+        // The protocol doesn't allow zero refund amount.
         if (refundableAmount == 0) {
             return;
         }
 
-        // Bound the refund amount so that it is not zero.
+        // Bound the refund amount so that it does not exceed the `refundableAmount`.
         refundAmount = uint128(_bound(refundAmount, 1, refundableAmount));
 
         // Refund from stream.
-        flow.refund(currentStreamId, refundableAmount);
+        flow.refund(currentStreamId, refundAmount);
 
-        // Store the deposited amount.
+        // Store the refunded amount.
         flowStore.updateStreamExtractedAmountsSum(currentStreamId, refundAmount);
     }
 
@@ -244,8 +245,8 @@ contract FlowHandler is BaseHandler {
             return;
         }
 
-        // If the balance and the remaining amount are zero, there is nothing to withdraw.
-        if (flow.getBalance(currentStreamId) == 0 && flow.getRemainingAmount(currentStreamId) == 0) {
+        // If the balance is zero, there is nothing to withdraw.
+        if (flow.getBalance(currentStreamId) == 0) {
             return;
         }
 

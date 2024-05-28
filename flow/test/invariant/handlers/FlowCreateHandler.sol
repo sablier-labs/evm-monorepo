@@ -57,7 +57,6 @@ contract FlowCreateHandler is BaseHandler {
         params.ratePerSecond = uint128(_bound(params.ratePerSecond, 0.0001e18, 1e18));
 
         // Create the stream.
-        asset = asset;
         uint256 streamId =
             flow.create(params.sender, params.recipient, params.ratePerSecond, asset, params.isTransferable);
 

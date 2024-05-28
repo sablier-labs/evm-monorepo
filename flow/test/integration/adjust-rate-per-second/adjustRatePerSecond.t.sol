@@ -95,9 +95,9 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit AdjustFlowStream({
             streamId: defaultStreamId,
-            recipientAmount: ONE_MONTH_STREAMED_AMOUNT,
             oldRatePerSecond: RATE_PER_SECOND,
-            newRatePerSecond: newRatePerSecond
+            newRatePerSecond: newRatePerSecond,
+            amountOwedToRecipient: ONE_MONTH_STREAMED_AMOUNT
         });
 
         vm.expectEmit({ emitter: address(flow) });
@@ -148,9 +148,9 @@ contract AdjustRatePerSecond_Integration_Test is Integration_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit AdjustFlowStream({
             streamId: defaultStreamId,
-            recipientAmount: ONE_MONTH_STREAMED_AMOUNT,
             oldRatePerSecond: RATE_PER_SECOND,
-            newRatePerSecond: newRatePerSecond
+            newRatePerSecond: newRatePerSecond,
+            amountOwedToRecipient: ONE_MONTH_STREAMED_AMOUNT
         });
 
         vm.expectEmit({ emitter: address(flow) });

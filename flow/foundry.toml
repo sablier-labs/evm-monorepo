@@ -6,7 +6,7 @@
     { access = "read", path = "package.json" },
     { access = "read", path = "./out-optimized" }
   ]
-  gas_reports = ["*"]
+  gas_reports = ["SablierFlow"]
   optimizer = true
   optimizer_runs = 1000
   out = "out"
