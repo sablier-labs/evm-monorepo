@@ -19,10 +19,10 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream.
     /// @param oldRatePerSecond The rate per second to change.
     /// @param newRatePerSecond The newly changed rate per second.
-    /// @param amountOwedToRecipient The amount of assets owed by the sender to the recipient, including debt,
-    /// denominated in 18 decimal places.
+    /// @param amountOwed The amount of assets owed by the sender to the recipient, including debt,
+    /// denoted in 18 decimals.
     event AdjustFlowStream(
-        uint256 indexed streamId, uint128 oldRatePerSecond, uint128 newRatePerSecond, uint128 amountOwedToRecipient
+        uint256 indexed streamId, uint128 oldRatePerSecond, uint128 newRatePerSecond, uint128 amountOwed
     );
 
     /// @notice Emitted when a Flow stream is created.
@@ -32,7 +32,7 @@ interface ISablierFlow is
     /// @param recipient The address toward which to stream the assets.
     /// @param ratePerSecond The amount of assets that is increasing by every second.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
-    /// @param lastTimeUpdate The Unix timestamp for the streamed amount calculation.
+    /// @param lastTimeUpdate The Unix timestamp for the recent amount calculation.
     event CreateFlowStream(
         uint256 streamId,
         address indexed sender,
@@ -55,15 +55,11 @@ interface ISablierFlow is
     /// @param streamId The ID of the stream.
     /// @param sender The address of the stream's sender.
     /// @param recipient The address of the stream's recipient.
-    /// @param amountOwedToRecipient The amount of assets owed by the sender to the recipient, including debt,
-    /// denominated in 18 decimal places.
+    /// @param amountOwed The amount of assets owed by the sender to the recipient, including debt,
+    /// denoted in 18 decimals.
     /// @param asset The contract address of the ERC-20 asset used for streaming.
     event PauseFlowStream(
-        uint256 streamId,
-        address indexed sender,
-        address indexed recipient,
-        uint128 amountOwedToRecipient,
-        IERC20 indexed asset
+        uint256 streamId, address indexed sender, address indexed recipient, uint128 amountOwed, IERC20 indexed asset
     );
 
     /// @notice Emitted when assets are refunded from a Flow stream.
@@ -97,6 +93,12 @@ interface ISablierFlow is
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Returns the amount owed by the sender to the recipient, including debt, denoted in 18 decimals.
+    /// @dev Reverts if `streamId` refers to a null stream.
+    /// @param streamId The stream ID for the query.
+    /// @return amountOwed The amount owed by the sender to the recipient.
+    function amountOwedOf(uint256 streamId) external view returns (uint128 amountOwed);
+
     /// @notice Returns the timestamp at which the stream depletes its balance and starts to accumulate debt.
     /// @dev Reverts if `streamId` refers to a paused or a null stream.
     ///
@@ -109,6 +111,21 @@ interface ISablierFlow is
     /// @return depletionTime The UNIX timestamp.
     function depletionTimeOf(uint256 streamId) external view returns (uint40 depletionTime);
 
+    /// @notice Calculates the recent amount streamed to the recipient from the last time update until the current
+    /// timestamp, denoted in 18 decimals.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    /// @return recentAmount The recent amount from the last time update until the current timestamp.
+    function recentAmountOf(uint256 streamId) external view returns (uint128 recentAmount);
+
+    /// @notice Calculates the recent amount streamed to the recipient from the last time update until the `time` passed
+    /// as parameter, denoted in 18 decimals.
+    /// @dev Reverts if `streamId` references a null stream.
+    /// @param streamId The stream ID for the query.
+    /// @param time The Unix timestamp.
+    /// @return recentAmount The recent amount from the last time update until the `time` passed.
+    function recentAmountOf(uint256 streamId, uint40 time) external view returns (uint128 recentAmount);
+
     /// @notice Calculates the amount that the sender can refund from stream, denoted in 18 decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
@@ -118,7 +135,7 @@ interface ISablierFlow is
     /// @notice Calculates the amount that the sender can refund from stream at `time`, denoted in 18 decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    /// @param time The Unix timestamp for the streamed amount calculation.
+    /// @param time The Unix timestamp.
     /// @return refundableAmount The amount that the sender can refund.
     function refundableAmountOf(uint256 streamId, uint40 time) external view returns (uint128 refundableAmount);
 
@@ -126,30 +143,20 @@ interface ISablierFlow is
     /// its balance, denoted in 18 decimals. If there is no debt, it will return zero.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
+    /// @return debt The amount that the sender owes on the stream.
     function streamDebtOf(uint256 streamId) external view returns (uint128 debt);
-
-    /// @notice Calculates the amount streamed to the recipient from the last time update to the current time,
-    /// denoted in 18 decimals.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    function streamedAmountOf(uint256 streamId) external view returns (uint128 streamedAmount);
-
-    /// @notice Calculates the amount streamed to the recipient from the last time update to `time` passed as parameter,
-    /// denoted in 18 decimals.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    /// @param time The Unix timestamp for the streamed amount calculation.
-    function streamedAmountOf(uint256 streamId, uint40 time) external view returns (uint128 streamedAmount);
 
     /// @notice Calculates the amount that the recipient can withdraw from the stream, denoted in 18 decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
+    /// @return withdrawableAmount The amount that the recipient can withdraw.
     function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
 
     /// @notice Calculates the amount that the recipient can withdraw from the stream at `time`, denoted in 18 decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
-    /// @param time The Unix timestamp for the streamed amount calculation.
+    /// @param time The Unix timestamp.
+    /// @return withdrawableAmount The amount that the recipient can withdraw.
     function withdrawableAmountOf(uint256 streamId, uint40 time) external view returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -383,7 +390,7 @@ interface ISablierFlow is
     ///
     /// @param streamId The ID of the stream to withdraw from.
     /// @param to The address receiving the withdrawn assets.
-    /// @param time The Unix timestamp for the streamed amount calculation.
+    /// @param time The Unix timestamp to calculate the recent streamed amount since last time update.
     function withdrawAt(uint256 streamId, address to, uint40 time) external;
 
     /// @notice Withdraws the maximum withdrawable amount from the stream to the provided address `to`.

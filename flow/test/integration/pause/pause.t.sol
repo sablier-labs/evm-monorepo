@@ -83,14 +83,14 @@ contract Pause_Integration_Test is Integration_Test {
     {
         depositToDefaultStream();
 
-        uint128 withdrawableAmount = flow.withdrawableAmountOf(defaultStreamId);
+        uint128 previousAmountOwed = flow.amountOwedOf(defaultStreamId);
 
         vm.expectEmit({ emitter: address(flow) });
         emit PauseFlowStream({
             streamId: defaultStreamId,
             sender: users.sender,
             recipient: users.recipient,
-            amountOwedToRecipient: withdrawableAmount,
+            amountOwed: previousAmountOwed,
             asset: dai
         });
 
@@ -105,6 +105,6 @@ contract Pause_Integration_Test is Integration_Test {
         assertEq(actualRatePerSecond, 0, "rate per second");
 
         uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
-        assertEq(actualRemainingAmount, withdrawableAmount, "remaining amount");
+        assertEq(actualRemainingAmount, previousAmountOwed, "remaining amount");
     }
 }

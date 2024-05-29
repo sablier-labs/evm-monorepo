@@ -11,7 +11,7 @@ withdrawableAmountOf.t.sol
          ├── given the id references a paused stream
          │  └── it should return the remaining amount
          └── given the id does not reference a paused stream
-            ├── given the sum of the streamed amount and the remaining amount is less than the balance
+            ├── given the amount owed is less than the balance
             │  └── it should return the balance
-            └── given the sum of the streamed amount and the remaining amount is not less than the balance
-               └── it should return the correct withdrawable amount 
+            └── given the amount owed is not less than the balance
+               └── it should return the correct withdrawable amount

@@ -24,10 +24,10 @@ contract FlowHandler is BaseHandler {
     address internal currentSender;
     uint256 internal currentStreamId;
 
-    /// @dev Debt, remaining and streamed amount mapped to each stream id.
+    /// @dev Debt, remaining and recent amount mapped to each stream id.
     mapping(uint256 streamId => uint128 amount) public previousDebtOf;
+    mapping(uint256 streamId => uint128 amount) public lastRecentAmountOf;
     mapping(uint256 streamId => uint128 amount) public lastRemainingAmountOf;
-    mapping(uint256 streamId => uint128 amount) public lastStreamedAmountOf;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -46,11 +46,7 @@ contract FlowHandler is BaseHandler {
     modifier updateFlowStates() {
         previousDebtOf[currentStreamId] = flow.streamDebtOf(currentStreamId);
         lastRemainingAmountOf[currentStreamId] = flow.getRemainingAmount(currentStreamId);
-        if (!flow.isPaused(currentStreamId)) {
-            lastStreamedAmountOf[currentStreamId] = flow.streamedAmountOf(currentStreamId);
-        } else {
-            lastStreamedAmountOf[currentStreamId] = 0;
-        }
+        lastRecentAmountOf[currentStreamId] = flow.recentAmountOf(currentStreamId);
         _;
     }
 

@@ -36,7 +36,7 @@ contract StreamDebtOf_Integration_Test is Integration_Test {
         assertEq(actualDebt, expectedDebt, "stream debt");
     }
 
-    function test_StreamDebtOf_BalanceNotLessThanSum() external givenNotNull givenNotPaused {
+    function test_StreamDebtOf_BalanceNotLessThanAmountOwed() external givenNotNull givenNotPaused {
         depositToDefaultStream();
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 

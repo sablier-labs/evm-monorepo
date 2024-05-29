@@ -1,4 +1,4 @@
-streamedAmountOf.t.sol
+recentAmountOf.t.sol
 ├── given the id references a null stream
 │  └── it should revert
 └── given the id does not reference a null stream
@@ -8,4 +8,4 @@ streamedAmountOf.t.sol
       ├── given the last time update is in the present
       │  └── it should return zero
       └── given the last time update is in the past
-         └── it should return the correct streamed amount
+         └── it should return the correct recent amount

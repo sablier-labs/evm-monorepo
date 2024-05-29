@@ -15,19 +15,19 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         bytes memory callData = abi.encodeCall(
             ISablierFlow.depositViaBroker, (defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker)
         );
-        // it should revert
+        // It should revert
         expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        // it should revert
+        // It should revert
         expectRevertNull();
         flow.depositViaBroker(nullStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker);
     }
 
     function test_RevertWhen_BrokerFeeGreaterThanMaxFee() external whenNotDelegateCalled givenNotNull {
         defaultBroker.fee = MAX_BROKER_FEE.add(ud(1));
-        // it should revert
+        // It should revert
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierFlow_BrokerFeeTooHigh.selector, defaultStreamId, defaultBroker.fee, MAX_BROKER_FEE
@@ -43,7 +43,7 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         whenBrokerFeeNotGreaterThanMaxFee
     {
         defaultBroker.account = address(0);
-        // it should revert
+        // It should revert
         vm.expectRevert(Errors.SablierFlow_BrokerAddressZero.selector);
         flow.depositViaBroker(defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker);
     }
@@ -55,7 +55,7 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressIsNotZero
     {
-        // it should revert
+        // It should revert
         vm.expectRevert(Errors.SablierFlow_DepositAmountZero.selector);
         flow.depositViaBroker(defaultStreamId, 0, defaultBroker);
     }
@@ -68,7 +68,7 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         whenBrokerAddressIsNotZero
         whenTotalAmountIsNotZero
     {
-        // it should make the deposit
+        // It should make the deposit
         uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdt)));
         _test_DepositViaBroker(streamId, IERC20(address(usdt)), defaultBroker);
     }
@@ -82,9 +82,6 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         whenTotalAmountIsNotZero
         whenAssetDoesNotMissERC20Return
     {
-        // it should update the stream balance
-        // it should perform the ERC20 transfer
-        // it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
         uint256 streamId = createDefaultStreamWithAsset(IERC20(address(usdc)));
         _test_DepositViaBroker(streamId, IERC20(address(usdc)), defaultBroker);
     }
@@ -98,14 +95,12 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         whenTotalAmountIsNotZero
         whenAssetDoesNotMissERC20Return
     {
-        // it should update the stream balance
-        // it should perform the ERC20 transfer
-        // it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
         uint256 streamId = createDefaultStreamWithAsset(IERC20(address(dai)));
         _test_DepositViaBroker(streamId, IERC20(address(dai)), defaultBroker);
     }
 
     function _test_DepositViaBroker(uint256 streamId, IERC20 asset, Broker memory broker) private {
+        // It should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
         vm.expectEmit({ emitter: address(asset) });
         emit IERC20.Transfer({
             from: users.sender,
@@ -126,6 +121,7 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: streamId });
 
+        // It should perform the ERC20 transfers
         expectCallToTransferFrom({
             asset: asset,
             from: users.sender,
@@ -142,6 +138,7 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
 
         flow.depositViaBroker(streamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, broker);
 
+        // It should update the stream balance
         uint128 actualStreamBalance = flow.getBalance(streamId);
         uint128 expectedStreamBalance = DEPOSIT_AMOUNT;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");

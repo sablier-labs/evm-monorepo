@@ -18,18 +18,18 @@ contract DepositAndPause_Integration_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData = abi.encodeCall(ISablierFlow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT));
-        // it should revert
+        // It should revert
         expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        // it should revert
+        // It should revert
         expectRevertNull();
         flow.depositAndPause(nullStreamId, DEPOSIT_AMOUNT);
     }
 
     function test_RevertGiven_Paused() external whenNotDelegateCalled givenNotNull {
-        // it should revert
+        // It should revert
         expectRevertPaused();
         flow.depositAndPause(defaultStreamId, DEPOSIT_AMOUNT);
     }
@@ -45,7 +45,7 @@ contract DepositAndPause_Integration_Test is Integration_Test {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
         );
-        // it should revert
+        // It should revert
         flow.depositAndPause(defaultStreamId, DEPOSIT_AMOUNT);
     }
 
@@ -58,17 +58,16 @@ contract DepositAndPause_Integration_Test is Integration_Test {
     {
         resetPrank({ msgSender: users.eve });
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
-        // it should revert
+        // It should revert
         flow.depositAndPause(defaultStreamId, DEPOSIT_AMOUNT);
     }
 
     function test_WhenCallerIsSender() external whenNotDelegateCalled givenNotNull givenNotPaused {
         uint128 depositAmount = flow.streamDebtOf(defaultStreamId);
         uint128 previousStreamBalance = flow.getBalance(defaultStreamId);
-        uint128 previousRemainingAmount = flow.getRemainingAmount(defaultStreamId);
-        uint128 previousStreamedAmount = flow.streamedAmountOf(defaultStreamId);
+        uint128 previousAmountOwed = flow.amountOwedOf(defaultStreamId);
 
-        // it should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
+        // It should emit 1 {Transfer}, 1 {DepositFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
         vm.expectEmit({ emitter: address(dai) });
         emit IERC20.Transfer({
             from: users.sender,
@@ -89,14 +88,14 @@ contract DepositAndPause_Integration_Test is Integration_Test {
             streamId: defaultStreamId,
             sender: users.sender,
             recipient: users.recipient,
-            amountOwedToRecipient: previousRemainingAmount + previousStreamedAmount,
+            amountOwed: previousAmountOwed,
             asset: dai
         });
 
         vm.expectEmit({ emitter: address(flow) });
         emit MetadataUpdate({ _tokenId: defaultStreamId });
 
-        // it should perform the ERC20 transfer
+        // It should perform the ERC20 transfer
         expectCallToTransferFrom({
             asset: dai,
             from: users.sender,
@@ -106,20 +105,20 @@ contract DepositAndPause_Integration_Test is Integration_Test {
 
         flow.depositAndPause(defaultStreamId, depositAmount);
 
-        // it should update the stream balance
+        // It should update the stream balance
         uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
         uint128 expectedStreamBalance = previousStreamBalance + depositAmount;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        // it should pause the stream
+        // It should pause the stream
         assertTrue(flow.isPaused(defaultStreamId), "is paused");
 
-        // it should set rate per second to 0
+        // It should set rate per second to 0
         uint256 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         assertEq(actualRatePerSecond, 0, "rate per second");
 
-        // it should update the remaining amount
+        // It should update the remaining amount
         uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
-        assertEq(actualRemainingAmount, previousRemainingAmount + previousStreamedAmount, "remaining amount");
+        assertEq(actualRemainingAmount, previousAmountOwed, "remaining amount");
     }
 }

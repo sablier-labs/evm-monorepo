@@ -21,7 +21,7 @@ abstract contract Events {
     //////////////////////////////////////////////////////////////////////////*/
 
     event AdjustFlowStream(
-        uint256 indexed streamId, uint128 oldRatePerSecond, uint128 newRatePerSecond, uint128 amountOwedToRecipient
+        uint256 indexed streamId, uint128 oldRatePerSecond, uint128 newRatePerSecond, uint128 amountOwed
     );
 
     event CreateFlowStream(
@@ -38,11 +38,7 @@ abstract contract Events {
     );
 
     event PauseFlowStream(
-        uint256 streamId,
-        address indexed sender,
-        address indexed recipient,
-        uint128 amountOwedToRecipient,
-        IERC20 indexed asset
+        uint256 streamId, address indexed sender, address indexed recipient, uint128 amountOwed, IERC20 indexed asset
     );
 
     event RefundFromFlowStream(

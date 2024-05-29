@@ -8,7 +8,7 @@ streamDebtOf.t.sol
    │  └── given the stream balance is less than the remaining amount
    │     └── it should return the correct stream debt
    └── given the id does not reference a paused stream
-      ├── given the stream balance is not less than the sum of the streamed amount and the remaining amount
+      ├── given the stream balance is not less than the amount owed
       │  └── it should return zero
-      └── given the stream balance is less than the sum of the streamed amount and the remaining amount
+      └── given the stream balance is less than the amount owed
         └── it should return the correct stream debt

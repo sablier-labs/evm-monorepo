@@ -19,18 +19,18 @@ contract RefundAndPause_Integration_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCalled() external {
         bytes memory callData = abi.encodeCall(ISablierFlow.refundAndPause, (defaultStreamId, REFUND_AMOUNT));
-        // it should revert
+        // It should revert
         expectRevertDueToDelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
         expectRevertNull();
-        // it should revert
+        // It should revert
         flow.refundAndPause({ streamId: nullStreamId, amount: REFUND_AMOUNT });
     }
 
     function test_RevertGiven_Paused() external whenNotDelegateCalled givenNotNull {
-        // it should revert
+        // It should revert
         expectRevertPaused();
         flow.refundAndPause(defaultStreamId, REFUND_AMOUNT);
     }
@@ -43,7 +43,7 @@ contract RefundAndPause_Integration_Test is Integration_Test {
         whenCallerIsNotSender
     {
         resetPrank({ msgSender: users.recipient });
-        // it should revert
+        // It should revert
         vm.expectRevert(
             abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
         );
@@ -58,16 +58,15 @@ contract RefundAndPause_Integration_Test is Integration_Test {
         whenCallerIsNotSender
     {
         resetPrank({ msgSender: users.eve });
-        // it should revert
+        // It should revert
         vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
         flow.refundAndPause({ streamId: defaultStreamId, amount: REFUND_AMOUNT });
     }
 
     function test_WhenCallerIsSender() external whenNotDelegateCalled givenNotNull givenNotPaused {
-        uint128 previousRemainingAmount = flow.getRemainingAmount(defaultStreamId);
-        uint128 previousStreamedAmount = flow.streamedAmountOf(defaultStreamId);
+        uint128 previousAmountOwed = flow.amountOwedOf(defaultStreamId);
 
-        // it should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
+        // It should emit 1 {Transfer}, 1 {RefundFromFlowStream}, 1 {PauseFlowStream}, 1 {MetadataUpdate} events
         vm.expectEmit({ emitter: address(dai) });
         emit IERC20.Transfer({
             from: address(flow),
@@ -88,11 +87,11 @@ contract RefundAndPause_Integration_Test is Integration_Test {
             streamId: defaultStreamId,
             sender: users.sender,
             recipient: users.recipient,
-            amountOwedToRecipient: previousRemainingAmount + previousStreamedAmount,
+            amountOwed: previousAmountOwed,
             asset: dai
         });
 
-        // it should perform the ERC20 transfer
+        // It should perform the ERC20 transfer
         expectCallToTransfer({
             asset: dai,
             to: users.sender,
@@ -104,20 +103,20 @@ contract RefundAndPause_Integration_Test is Integration_Test {
 
         flow.refundAndPause(defaultStreamId, REFUND_AMOUNT);
 
-        // it should update the stream balance
+        // It should update the stream balance
         uint128 actualStreamBalance = flow.getBalance(defaultStreamId);
         uint128 expectedStreamBalance = DEPOSIT_AMOUNT - REFUND_AMOUNT;
         assertEq(actualStreamBalance, expectedStreamBalance, "stream balance");
 
-        // it should pause the stream
+        // It should pause the stream
         assertTrue(flow.isPaused(defaultStreamId), "is paused");
 
-        // it should set rate per second to 0
+        // It should set rate per second to 0
         uint256 actualRatePerSecond = flow.getRatePerSecond(defaultStreamId);
         assertEq(actualRatePerSecond, 0, "rate per second");
 
-        // it should update the remaining amount
+        // It should update the remaining amount
         uint128 actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
-        assertEq(actualRemainingAmount, previousRemainingAmount + previousStreamedAmount, "remaining amount");
+        assertEq(actualRemainingAmount, previousAmountOwed, "remaining amount");
     }
 }

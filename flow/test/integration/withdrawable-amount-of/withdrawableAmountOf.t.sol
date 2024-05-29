@@ -57,7 +57,12 @@ contract WithdrawableAmountOf_Integration_Test is Integration_Test {
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawable amount");
     }
 
-    function test_WithdrawableAmountOf_SumLessThanBalance() external givenNotNull givenBalanceZero givenNotPaused {
+    function test_WithdrawableAmountOf_AmountOwedLessThanBalance()
+        external
+        givenNotNull
+        givenBalanceZero
+        givenNotPaused
+    {
         // Simulate passage of time.
         vm.warp({ newTimestamp: WARP_ONE_MONTH });
 
@@ -112,10 +117,10 @@ contract WithdrawableAmountOf_Integration_Test is Integration_Test {
         actualRemainingAmount = flow.getRemainingAmount(defaultStreamId);
         assertEq(actualRemainingAmount, expectedRemainingAmount, "remaining amount");
 
-        // The withdrawable amount should be the calculated streamed amount since the adjustment moment (2 weeks in the
-        // past to know) and the remaining amount which was updated to `ONE_MONTH_STREAMED_AMOUNT`.
+        // The withdrawable amount should be the calculated recent amount streamed since the adjustment moment (2 weeks
+        // in the past to know) and the remaining amount which was updated to `ONE_MONTH_STREAMED_AMOUNT`.
         actualWithdrawableAmount = flow.withdrawableAmountOf(defaultStreamId);
-        expectedWithdrawableAmount = flow.streamedAmountOf(defaultStreamId) + ONE_MONTH_STREAMED_AMOUNT;
+        expectedWithdrawableAmount = flow.recentAmountOf(defaultStreamId) + ONE_MONTH_STREAMED_AMOUNT;
 
         assertEq(actualWithdrawableAmount, expectedWithdrawableAmount, "withdrawable amount");
     }

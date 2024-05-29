@@ -166,16 +166,16 @@ contract Flow_Invariant_Test is Invariant_Test {
     }
 
     /// @dev If there is no debt and the stream is not paused, the withdrawable amount should always be equal to the
-    /// remaining amount plus the streamed amount.
-    function invariant_NoDebt_WithdrawableAmountEqStreamedAmountPlusRemainingAmount() external view {
+    /// sum of remaining amount and recent amount.
+    function invariant_NoDebt_WithdrawableAmountEqRecentAmountPlusRemainingAmount() external view {
         uint256 lastStreamId = flowStore.lastStreamId();
         for (uint256 i = 0; i < lastStreamId; ++i) {
             uint256 streamId = flowStore.streamIds(i);
             if (!flow.isPaused(streamId) && flow.streamDebtOf(streamId) == 0) {
                 assertEq(
                     flow.withdrawableAmountOf(streamId),
-                    flow.streamedAmountOf(streamId) + flow.getRemainingAmount(streamId),
-                    "Invariant violation: withdrawable amount != streamed amount + remaining amount"
+                    flow.recentAmountOf(streamId) + flow.getRemainingAmount(streamId),
+                    "Invariant violation: withdrawable amount != recent amount + remaining amount"
                 );
             }
         }
