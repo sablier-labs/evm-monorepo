@@ -1,105 +1,98 @@
-## Sablier Flow
+# Sablier Flow
 
-This repository contains the smart contracts for Sablier Flow. Streams created using Sablier Flow have no end time and
-no upfront deposit is required. This concept is primarily beneficial for regular rpayments such as salaries,
-subscriptions and use cases where the end time is not specified. If you are looking for vesting or airdrops, kindly
-refer to [our Lockup contracts](https://github.com/sablier-labs/v2-core/).
+This repository contains the smart contracts for Sablier Flow. Streams created with Sablier Flow have no end time and
+require no upfront deposit. This is ideal for regular payments such as salaries and subscriptions, where an end time is
+not specified. For vesting or airdrops, refer to [our Lockup protocol](https://github.com/sablier-labs/v2-core/).
 
-### Motivation
+## Motivation
 
-One of the most requested feature from users is the ability to create streams without depositing the amount upfront,
-which requires the introduction of _debt_. _Debt_ is the amount that sender owes to the recipient which but is not
-available in the stream. This is made possible by introducing some new variables in the Stream struct:
+One of the most requested features from users is the ability to create streams without an upfront deposit. This requires
+the protocol to manage _"debt"_, which is the amount the sender owes the recipient but is not yet available in the
+stream. The following object defines a Flow stream:
 
 ```solidity
-    struct Stream {
-        uint128 balance;
-        uint128 ratePerSecond;
-        uint40 lastTimeUpdate;
-        // -- snip --
-        uint128 remainingAmount;
-    }
+struct Stream {
+  uint128 balance;
+  uint128 ratePerSecond;
+  address sender;
+  uint40 lastTimeUpdate;
+  bool isStream;
+  bool isPaused;
+  bool isTransferable;
+  IERC20 asset;
+  uint8 assetDecimals;
+  uint128 remainingAmount;
+}
 ```
 
-### New features
+## Features
 
-- Streams can be created for an indefinite period.
-- No deposits are required at the time of stream creation. Thus, creation and deposit are distinct operations.
-- Anybody can make deposit into a stream. You can ask a colleague to deposit money into your streams on your behalf.
-- There are no limit on the deposit. You can deposit any amount any time. You can refund it as long as it has not been
-  streamed to the recipients.
-- If streams run out of balance, they will start to accumulate debt until they are paused or sufficient deposits are
-  made to them.
-- Sender can pause and restart the streams anytime without losing track of debt and amount owed to the recipient.
+- Streams can be created indefinitely.
+- No deposits are required at creation; creation and deposit are separate operations.
+- Anyone can deposit into a stream, allowing others to fund your streams.
+- No limit on deposits; any amount can be deposited or refunded if not yet streamed to recipients.
+- Streams without sufficient balance will accumulate debt until paused or sufficiently funded.
+- Senders can pause and restart streams without losing track of debt and the amount owed to the recipient.
 
-### How it works
+## How It Works
 
-As mentioned above, no deposit is required when the stream is created. So at the time of creation, the balance can begin
-with 0. Sender can deposit any amount into the stream anytime. However, to improve the user experience, a
-`createAndDeposit` function is also implemented to allow `create` and `deposit` in a single transaction.
+When a stream is created, no deposit is required, so the initial stream balance can be zero. The sender can deposit any
+amount into the stream at any time. To improve experience for some users, a `createAndDeposit` function has been
+implemented to allow both create and deposit operations in a single transaction.
 
-These streams start streaming as soon as the transaction gets confirmed on the blockchain. They don't have any end date
-but sender can call `pause` to pause the stream at any time. We also use a time value (`lastTimeUpdate`) which is set to
-`block.timestamp` when the stream is created. `lastTimeUpdate` plays a key role into several features of Sablier Flow:
+Streams begin streaming as soon as the transaction is confirmed on the blockchain. They have no end date, but the sender
+can pause the stream at any time. This stops the streaming of assets but retains the record of the amount owed to the
+recipient up to that point.
 
-- When a withdrawal is made
+The `lastTimeUpdate` value, set to `block.timestamp` when the stream is created, is crucial for tracking the amount owed
+over time. The recipient can withdraw the streamed amount at any point. If there are insufficient funds in the stream,
+the recipient can only withdraw the available balance.
 
-  - `lastTimeUpdate` will be set to the given `time` parameter passed in the function, you can see why this parameter is
-    needed in the explantion from [this PR](https://github.com/sablier-labs/flow/pull/4)
+## Core Components
 
-- When the rate per second is changed
-
-  - `lastTimeUpdate` will be set to `block.timestamp`, this time update is required in the `_adjustRatePerSecond`
-    function because it would cause loss of funds for the recipient if the previous rate was higher or gain of funds if
-    the previous rate was lower
-
-- When the stream is restarted
-  - `lastTimeUpdate` will be set to `block.timestamp`
-
-### Amounts calculation
-
-#### Recent amount
+### 1. Recent amount
 
 The recent amount (rca) is calculated as the rate per second (rps) multiplied by the delta between the current time and
-the value of `lastTimeUpdate`:
+`lastTimeUpdate`.
 
 $rca = rps \times (now - ltu)$
 
-#### Remaining amount
+### 2. Remaining amount
 
-The remaining amount (ra) is the amount that sender owed to the recipient until the last time update. When
-`lastTimeUpdate` is updated, remaining amount is increased by recent amount.
+The remaining amount (ra) is the amount that the sender owed to the recipient until the last time update. When
+`lastTimeUpdate` is updated, the remaining amount increases by the recent amount.
 
 $ra = \sum rca_t$
 
-#### Amount Owed
+### 3. Amount Owed
 
-The amount owed (ao) is the amount that the sender owes to the recipient. At a given time, this is calculated as the sum
-of remaining amount and the recent amount.
+The amount owed (ao) is the total amount the sender owes to the recipient. It is calculated as the sum of the remaining
+amount and the recent amount.
 
 $ao = ra + rca$
 
-#### Debt
+### 4. Debt
 
-Since amount owed can be higher than the balance. the _debt_ becomes the difference between _ao_ and the actual balance.
+The debt is the difference between the amount owed and the actual balance, applicable when the amount owed exceeds the
+balance.
 
 $`debt = \begin{cases} ao - bal & \text{if } ao \gt bal \\ 0 & \text{if } ao \le bal \end{cases}`$
 
-#### Withdrawable amount
+### 5. Withdrawable amount
 
-The withdrawable amount is the amount owed when there is no debt. In presence of debt, the withdrawable amount is the
-stream balance.
+The withdrawable amount (wa) is the amount owed when there is no debt. If there is debt, the withdrawable amount is the
+stream balance
 
 $`wa = \begin{cases} ao & \text{if } debt = 0 \\ bal & \text{if } debt \gt 0 \end{cases}`$
 
-#### Refundable amount
+### 6. Refundable amount
 
-The refundable amount is the amount that sender can refund from the stream. It is calculated as the difference between
-stream balance and the amount owed.
+The refundable amount (rfa) is the amount that the sender can refund from the stream. It is the difference between the
+stream balance and the amount owed
 
 $`rfa = \begin{cases} bal - ao & \text{if } debt = 0 \\ 0 & \text{if } debt > 0 \end{cases}`$
 
-#### Abbreviation table
+## Abbreviations
 
 | Full Name          | Abbreviation |
 | ------------------ | ------------ |
@@ -114,62 +107,57 @@ $`rfa = \begin{cases} bal - ao & \text{if } debt = 0 \\ 0 & \text{if } debt > 0 
 | remainingAmount    | ra           |
 | withdrawableAmount | wa           |
 
-### Issues:
+## Precision Issues
 
-Due to the lack of a fixed duration and a fixed deposit amount, the rate per second (rps) introduces a precision problem
-for assets with fewer decimals (e.g. [USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s),
-which has 6 decimals).
+The rate per second (rps) introduces a precision problem for assets with fewer decimals (e.g.
+[USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s), which has 6 decimals).
 
-Let's consider this example: If someone wants to stream 10 USDC per day, the _rps_ should be
+Let's consider an example: if a user wants to stream 10 USDC per day, the _rps_ should be
 
-$rps = 0.000115740740740740740740...$ (with many decimals)
+$rps = 0.000115740740740740740740...$ (infinite decimals)
 
-But since USDC only has 6 decimals, the _rps_ would be limited to $rps = 0.000115$, this leads to
-$0.000115 \times oneDayInSeconds = 9.936000$, at the end of the day, resulting less with $0.064000$.
+But since USDC only has 6 decimals, the _rps_ would be limited to $0.000115$, leading to
+$0.000115 \times \text{seconds in one day} = 9.936000$ USDC streamed in one day. This results in a shortfall of
+$0.064000$ USDC per day, which is problematic
 
-As you can see this is problematic.
+### Solution
 
-#### How to prevent this
+In the contracts, we normalize all internal amounts (e.g. rps, balance, remaining amount, amount owed) to 18 decimals.
+While this doesn't completely solve the issue, it significantly minimizes it.
 
-In the contracts we normalize to 18 decimals all internal amounts, i.e. the _rps_ and the balance. While this doesn't
-completely solves the issue, it minimizes it significantly.
+Using the same example (streaming 10 USDC per day), if _rps_ has 18 decimals, the end-of-day result would be:
 
-Using the above example (stream of 10 USDC per day), if the _rps_ has 18 decimals, at the end of the day the result
-would be:
+$0.000115740740740740 \times \text{seconds in one day} = 9.999999999999936000$
 
-$0.000115740740740740 \times oneDayInSeconds = 9.999999999999936000$
+The difference would be:
 
-$10.000000000000000000 - 9.999999999999936000 = 0.0000000000000064000$
+$10.000000000000000000 - 9.999999999999936000 = 0.000000000000006400$
 
-An improvement by $\approx 10^{11}$, this is not ideal but clearly much better.
+This is an improvement by $\approx 10^{11}$. While not perfect, it is clearly much better.
 
-It is important to mention that the funds will never be stuck on the contract, the recipient will just have to wait more
-time to get that 10 per day "streamed", using the 18 decimals format would delay it to 1 more second:
+The funds will never be stuck in the contract; the recipient may have to wait a bit longer to receive the full 10 USDC
+per day. Using the 18 decimals format would delay it by just 1 more second:
 
-$0.000115740740740740 \times (oneDayInSeconds + 1 second) = 10.000115740740677000$
+$0.000115740740740740 \times (\text{seconds in one day} + 1 second) = 10.000115740740677000$
 
-Currently, I don't think it's possible to address this precision problem entirely.
+Currently, it's not possible to address this precision problem entirely.
 
-### Technical decisions
+### Technical Implementaion
 
-We use 18 fixed-point numbers for all internal amounts and calcalation functions (`balance`, `ratePerSecond`,
-`withdrawable`, `refundable` etc.) to avoid the overload of conversion to actual `ERC20` balances. The only time we
-perform these conversions is during external calls to `ERC20`'s transfer/transferFrom, i.e. the deposit and extract
-operations as you can see in contracts. When we perform these actions, we need to either increase or reduce the
-calculated amount(`withdrawable` or `refundable`) based on the each asset decimals:
+We use 18 fixed-point numbers for all internal amounts and calculation functions (e.g., balance, ratePerSecond,
+withdrawable, refundable) to avoid the overload of conversion to actual `ERC20` balances. The only time we perform these
+conversions is during external calls to `ERC20`'s `transfer`/`transferFrom` (i.e., deposit, withdraw and refund
+operations). When performing these actions, we adjust the calculated amount (withdrawable or refundable) based on the
+asset's decimals:
 
-- if the asset has fewer decimals, the transfer amount is reduced
-- if the asset has more decimals, the transfer amount is increased
+- if the asset has fewer decimals, the transfer amount is reduced.
+- if the asset has more decimals, the transfer amount is increased.
 
-Asset decimals can’t be passed in `create` function because one may create a fake stream with more decimals and in this
-way he may extract more assets from stream.
+Asset decimal is retrieved directly from the ERC20 contract. We store the asset decimals to avoid making an external
+call to get the decimals of the asset each time a deposit or withdraw is made. Decimals are stored as `uint8`, making
+them inexpensive to store.
 
-We store the asset decimals, so that we don't have to make an external call to get the decimals of the asset each time a
-deposit or an extraction is made. Decimals are `uint8`, meaning it is not an expensive to store them.
-
-Sender address **must** be checked because there is no `ERC20` transfer in `_create` function.
-
-### Invariants:
+## Invariants
 
 1. For any stream, $ltu \le now$
 
@@ -193,7 +181,7 @@ Sender address **must** be checked because there is no `ERC20` transfer in `_cre
 
 11. if $isPaused = true \implies rps = 0$
 
-### Access Control:
+## Access Control
 
 | Action              |         Sender         | Recipient | Operator(s) |      Unknown User      |
 | ------------------- | :--------------------: | :-------: | :---------: | :--------------------: |
