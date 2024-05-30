@@ -9,7 +9,7 @@ import { Integration_Test } from "./Integration.t.sol";
 contract Constructor_Integration_Concrete_Test is Integration_Test {
     function test_Constructor() external {
         // Construct the contract.
-        SablierFlow constructedFlow = new SablierFlow();
+        SablierFlow constructedFlow = new SablierFlow(users.admin, nftDescriptor);
 
         // {SablierFlowState.MAX_BROKER_FEE}
         UD60x18 actualMaxBrokerFee = constructedFlow.MAX_BROKER_FEE();
@@ -20,5 +20,13 @@ contract Constructor_Integration_Concrete_Test is Integration_Test {
         uint256 actualStreamId = constructedFlow.nextStreamId();
         uint256 expectedStreamId = 1;
         assertEq(actualStreamId, expectedStreamId, "nextStreamId");
+
+        address actualAdmin = constructedFlow.admin();
+        address expectedAdmin = users.admin;
+        assertEq(actualAdmin, expectedAdmin, "admin");
+
+        address actualNFTDescriptor = address(constructedFlow.nftDescriptor());
+        address expectedNFTDescriptor = address(nftDescriptor);
+        assertEq(actualNFTDescriptor, expectedNFTDescriptor, "nftDescriptor");
     }
 }

@@ -6,6 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 import { SablierFlow } from "src/SablierFlow.sol";
+import { SablierFlowNFTDescriptor } from "src/SablierFlowNFTDescriptor.sol";
 
 import { ERC20Mock } from "./mocks/ERC20Mock.sol";
 import { ERC20MissingReturn } from "./mocks/ERC20MissingReturn.sol";
@@ -31,17 +32,22 @@ abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, U
 
     ERC20Mock internal assetWithoutDecimals = new ERC20Mock("Asset without decimals", "AWD", 0);
     ERC20Mock internal dai = new ERC20Mock("Dai stablecoin", "DAI", 18);
-    SablierFlow internal flow;
     ERC20Mock internal usdc = new ERC20Mock("USD Coin", "USDC", 6);
     ERC20MissingReturn internal usdt = new ERC20MissingReturn("USDT stablecoin", "USDT", 6);
+
+    SablierFlow internal flow;
+    SablierFlowNFTDescriptor internal nftDescriptor;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
+        users.admin = payable(makeAddr("admin"));
+
         if (!isTestOptimizedProfile()) {
-            flow = new SablierFlow();
+            nftDescriptor = new SablierFlowNFTDescriptor();
+            flow = new SablierFlow(users.admin, nftDescriptor);
         } else {
             flow = deployOptimizedSablierFlow();
         }
@@ -78,7 +84,15 @@ abstract contract Base_Test is Assertions, Constants, Events, Modifiers, Test, U
 
     /// @dev Deploys {SablierFlow} from an optimized source compiled with `--via-ir`.
     function deployOptimizedSablierFlow() internal returns (SablierFlow) {
-        return SablierFlow(deployCode("out-optimized/SablierFlow.sol/SablierFlow.json"));
+        nftDescriptor = SablierFlowNFTDescriptor(
+            deployCode("out-optimized/SablierFlowNFTDescriptor.sol/SablierFlowNFTDescriptor.json")
+        );
+
+        return SablierFlow(
+            deployCode(
+                "out-optimized/SablierFlow.sol/SablierFlow.json", abi.encode(users.admin, address(nftDescriptor))
+            )
+        );
     }
 
     function labelContracts() internal {

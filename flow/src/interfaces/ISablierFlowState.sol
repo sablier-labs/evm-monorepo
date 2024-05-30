@@ -5,6 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
+import { ISablierFlowNFTDescriptor } from "./ISablierFlowNFTDescriptor.sol";
 import { Flow } from "../types/DataTypes.sol";
 
 /// @title ISablierFlowState
@@ -13,6 +14,14 @@ import { Flow } from "../types/DataTypes.sol";
 interface ISablierFlowState is
     IERC721Metadata // 2 inherited components
 {
+    /// @notice Emitted when the admin sets a new NFT descriptor contract.
+    /// @param admin The address of the current contract admin.
+    /// @param oldNFTDescriptor The address of the old NFT descriptor contract.
+    /// @param newNFTDescriptor The address of the new NFT descriptor contract.
+    event SetNFTDescriptor(
+        address indexed admin, ISablierFlowNFTDescriptor oldNFTDescriptor, ISablierFlowNFTDescriptor newNFTDescriptor
+    );
+
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -81,4 +90,24 @@ interface ISablierFlowState is
     /// @notice Counter for stream ids.
     /// @return The next stream id.
     function nextStreamId() external view returns (uint256);
+
+    /// @notice Contract that generates the non-fungible token URI.
+    function nftDescriptor() external view returns (ISablierFlowNFTDescriptor);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                               NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Sets a new NFT descriptor contract, which produces the URI describing the Sablier stream NFTs.
+    ///
+    /// @dev Emits a {SetNFTDescriptor} and {BatchMetadataUpdate} event.
+    ///
+    /// Notes:
+    /// - Does not revert if the NFT descriptor is the same.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be the contract admin.
+    ///
+    /// @param newNFTDescriptor The address of the new NFT descriptor contract.
+    function setNFTDescriptor(ISablierFlowNFTDescriptor newNFTDescriptor) external;
 }

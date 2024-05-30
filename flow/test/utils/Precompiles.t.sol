@@ -19,7 +19,7 @@ contract Precompiles_Test is Base_Test {
     }
 
     function test_DeployFlow() external onlyTestOptimizedProfile {
-        address actualSablierFlow = address(precompiles.deploySablierFlow());
+        address actualSablierFlow = address(precompiles.deploySablierFlow(users.admin, nftDescriptor));
         address expectedSablierFlow = address(deployOptimizedSablierFlow());
         bytes memory expectedSablierFlowCode =
             adjustBytecode(expectedSablierFlow.code, expectedSablierFlow, actualSablierFlow);

@@ -2,6 +2,8 @@
 pragma solidity >=0.8.22;
 
 struct Users {
+    // Default protocol admin.
+    address payable admin;
     // Default stream broker.
     address payable broker;
     // Malicious user.

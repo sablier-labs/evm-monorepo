@@ -11,6 +11,7 @@ import { ud } from "@prb/math/src/UD60x18.sol";
 import { NoDelegateCall } from "./abstracts/NoDelegateCall.sol";
 import { SablierFlowState } from "./abstracts/SablierFlowState.sol";
 import { ISablierFlow } from "./interfaces/ISablierFlow.sol";
+import { ISablierFlowNFTDescriptor } from "./interfaces/ISablierFlowNFTDescriptor.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { Broker, Flow } from "./types/DataTypes.sol";
 
@@ -18,8 +19,8 @@ import { Broker, Flow } from "./types/DataTypes.sol";
 /// @notice See the documentation in {ISablierFlow}.
 contract SablierFlow is
     NoDelegateCall, // 0 inherited components
-    ISablierFlow, // 1 inherited components
-    SablierFlowState // 7 inherited components
+    ISablierFlow, // 4 inherited components
+    SablierFlowState // 8 inherited components
 {
     using SafeCast for uint256;
     using SafeERC20 for IERC20;
@@ -28,7 +29,16 @@ contract SablierFlow is
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor() ERC721("Sablier Flow NFT", "SAB-FLOW") { }
+    /// @dev Emits a {TransferAdmin} event.
+    /// @param initialAdmin The address of the initial contract admin.
+    /// @param initialNFTDescriptor The address of the initial NFT descriptor.
+    constructor(
+        address initialAdmin,
+        ISablierFlowNFTDescriptor initialNFTDescriptor
+    )
+        ERC721("Sablier Flow NFT", "SAB-FLOW")
+        SablierFlowState(initialAdmin, initialNFTDescriptor)
+    { }
 
     /*//////////////////////////////////////////////////////////////////////////
                                  CONSTANT FUNCTIONS

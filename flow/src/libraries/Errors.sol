@@ -11,6 +11,9 @@ library Errors {
                                       GENERICS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when `msg.sender` is not the admin.
+    error CallerNotAdmin(address admin, address caller);
+
     /// @notice Thrown when trying to delegate call to a function that disallows delegate calls.
     error DelegateCall();
 

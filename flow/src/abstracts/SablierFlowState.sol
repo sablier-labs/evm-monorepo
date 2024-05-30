@@ -4,15 +4,19 @@ pragma solidity >=0.8.22;
 import { IERC4906 } from "@openzeppelin/contracts/interfaces/IERC4906.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import { IERC721Metadata } from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
+import { Adminable } from "./Adminable.sol";
 import { ISablierFlowState } from "../interfaces/ISablierFlowState.sol";
+import { ISablierFlowNFTDescriptor } from "../interfaces/ISablierFlowNFTDescriptor.sol";
 import { Flow } from "../types/DataTypes.sol";
 import { Errors } from "../libraries/Errors.sol";
 
 /// @title SablierFlowState
 /// @notice See the documentation in {ISablierFlowState}.
 abstract contract SablierFlowState is
+    Adminable, // 1 inherited component
     IERC4906, // 2 inherited components
     ISablierFlowState, // 3 inherited component
     ERC721 // 6 inherited components
@@ -27,6 +31,9 @@ abstract contract SablierFlowState is
     /// @inheritdoc ISablierFlowState
     uint256 public override nextStreamId;
 
+    /// @inheritdoc ISablierFlowState
+    ISablierFlowNFTDescriptor public override nftDescriptor;
+
     /// @dev Sablier Flow streams mapped by unsigned integers.
     mapping(uint256 id => Flow.Stream stream) internal _streams;
 
@@ -34,8 +41,14 @@ abstract contract SablierFlowState is
                                      CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor() {
+    /// @dev Emits a {TransferAdmin} event.
+    /// @param initialAdmin The address of the initial contract admin.
+    /// @param initialNFTDescriptor The address of the initial NFT descriptor.
+    constructor(address initialAdmin, ISablierFlowNFTDescriptor initialNFTDescriptor) {
         nextStreamId = 1;
+        admin = initialAdmin;
+        nftDescriptor = initialNFTDescriptor;
+        emit TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -153,6 +166,36 @@ abstract contract SablierFlowState is
     /// @inheritdoc ISablierFlowState
     function isStream(uint256 streamId) external view override returns (bool result) {
         result = _streams[streamId].isStream;
+    }
+
+    /// @inheritdoc ERC721
+    function tokenURI(uint256 streamId) public view override(IERC721Metadata, ERC721) returns (string memory uri) {
+        // Check: the stream NFT exists.
+        _requireOwned({ tokenId: streamId });
+
+        // Generate the URI describing the stream NFT.
+        uri = nftDescriptor.tokenURI({ sablierFlow: this, streamId: streamId });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                         USER-FACING NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc ISablierFlowState
+    function setNFTDescriptor(ISablierFlowNFTDescriptor newNFTDescriptor) external override onlyAdmin {
+        // Effect: set the NFT descriptor.
+        ISablierFlowNFTDescriptor oldNftDescriptor = nftDescriptor;
+        nftDescriptor = newNFTDescriptor;
+
+        // Log the change of the NFT descriptor.
+        emit ISablierFlowState.SetNFTDescriptor({
+            admin: msg.sender,
+            oldNFTDescriptor: oldNftDescriptor,
+            newNFTDescriptor: newNFTDescriptor
+        });
+
+        // Refresh the NFT metadata for all streams.
+        emit BatchMetadataUpdate({ _fromTokenId: 1, _toTokenId: nextStreamId - 1 });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
