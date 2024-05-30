@@ -86,20 +86,6 @@ contract SablierFlow is
     }
 
     /// @inheritdoc ISablierFlow
-    function recentAmountOf(
-        uint256 streamId,
-        uint40 time
-    )
-        external
-        view
-        override
-        notNull(streamId)
-        returns (uint128 recentAmount)
-    {
-        recentAmount = _recentAmountOf(streamId, time);
-    }
-
-    /// @inheritdoc ISablierFlow
     function refundableAmountOf(uint256 streamId)
         external
         view
@@ -108,20 +94,6 @@ contract SablierFlow is
         returns (uint128 refundableAmount)
     {
         refundableAmount = _refundableAmountOf(streamId, uint40(block.timestamp));
-    }
-
-    /// @inheritdoc ISablierFlow
-    function refundableAmountOf(
-        uint256 streamId,
-        uint40 time
-    )
-        external
-        view
-        override
-        notNull(streamId)
-        returns (uint128 refundableAmount)
-    {
-        refundableAmount = _refundableAmountOf(streamId, time);
     }
 
     /// @inheritdoc ISablierFlow
@@ -146,20 +118,6 @@ contract SablierFlow is
         returns (uint128 withdrawableAmount)
     {
         withdrawableAmount = _withdrawableAmountOf(streamId, uint40(block.timestamp));
-    }
-
-    /// @inheritdoc ISablierFlow
-    function withdrawableAmountOf(
-        uint256 streamId,
-        uint40 time
-    )
-        external
-        view
-        override
-        notNull(streamId)
-        returns (uint128 withdrawableAmount)
-    {
-        withdrawableAmount = _withdrawableAmountOf(streamId, time);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

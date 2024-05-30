@@ -244,12 +244,14 @@ contract FlowHandler is BaseHandler {
             to = currentRecipient;
         }
 
-        uint128 withdrawAmount = flow.withdrawableAmountOf(currentStreamId, time);
+        uint128 initialBalance = flow.getBalance(currentStreamId);
 
         // Withdraw from the stream.
         flow.withdrawAt({ streamId: currentStreamId, to: to, time: time });
 
+        uint128 amountWithdrawn = initialBalance - flow.getBalance(currentStreamId);
+
         // Update the withdrawn amount.
-        flowStore.updateStreamWithdrawnAmountsSum(currentStreamId, withdrawAmount);
+        flowStore.updateStreamWithdrawnAmountsSum(currentStreamId, amountWithdrawn);
     }
 }

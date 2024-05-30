@@ -118,26 +118,11 @@ interface ISablierFlow is
     /// @return recentAmount The recent amount from the last time update until the current timestamp.
     function recentAmountOf(uint256 streamId) external view returns (uint128 recentAmount);
 
-    /// @notice Calculates the recent amount streamed to the recipient from the last time update until the `time` passed
-    /// as parameter, denoted in 18 decimals.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    /// @param time The Unix timestamp.
-    /// @return recentAmount The recent amount from the last time update until the `time` passed.
-    function recentAmountOf(uint256 streamId, uint40 time) external view returns (uint128 recentAmount);
-
     /// @notice Calculates the amount that the sender can refund from stream, denoted in 18 decimals.
     /// @dev Reverts if `streamId` references a null stream.
     /// @param streamId The stream ID for the query.
     /// @return refundableAmount The amount that the sender can refund.
     function refundableAmountOf(uint256 streamId) external view returns (uint128 refundableAmount);
-
-    /// @notice Calculates the amount that the sender can refund from stream at `time`, denoted in 18 decimals.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    /// @param time The Unix timestamp.
-    /// @return refundableAmount The amount that the sender can refund.
-    function refundableAmountOf(uint256 streamId, uint40 time) external view returns (uint128 refundableAmount);
 
     /// @notice Calculates the amount that the sender owes on the stream, i.e. if more assets have been streamed than
     /// its balance, denoted in 18 decimals. If there is no debt, it will return zero.
@@ -151,13 +136,6 @@ interface ISablierFlow is
     /// @param streamId The stream ID for the query.
     /// @return withdrawableAmount The amount that the recipient can withdraw.
     function withdrawableAmountOf(uint256 streamId) external view returns (uint128 withdrawableAmount);
-
-    /// @notice Calculates the amount that the recipient can withdraw from the stream at `time`, denoted in 18 decimals.
-    /// @dev Reverts if `streamId` references a null stream.
-    /// @param streamId The stream ID for the query.
-    /// @param time The Unix timestamp.
-    /// @return withdrawableAmount The amount that the recipient can withdraw.
-    function withdrawableAmountOf(uint256 streamId, uint40 time) external view returns (uint128 withdrawableAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                NON-CONSTANT FUNCTIONS
