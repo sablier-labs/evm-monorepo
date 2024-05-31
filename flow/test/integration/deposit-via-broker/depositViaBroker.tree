@@ -1,7 +1,7 @@
 DepositViaBroker_Integration_Test
-├── when delegate called
+├── when delegate call
 │   └── it should revert
-└── when not delegate called
+└── when not delegate call
     ├── given null
     │   └── it should revert
     └── given not null

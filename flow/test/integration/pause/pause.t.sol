@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
-import { Errors } from "src/libraries/Errors.sol";
-
 import { Integration_Test } from "../Integration.t.sol";
 
 contract Pause_Integration_Test is Integration_Test {
@@ -14,18 +11,18 @@ contract Pause_Integration_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(ISablierFlow.pause, (defaultStreamId));
-        expectRevertDueToDelegateCall(callData);
+        bytes memory callData = abi.encodeCall(flow.pause, (defaultStreamId));
+        expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        expectRevertNull();
-        flow.pause(nullStreamId);
+        bytes memory callData = abi.encodeCall(flow.pause, (nullStreamId));
+        expectRevert_Null(callData);
     }
 
     function test_RevertGiven_Paused() external whenNotDelegateCalled givenNotNull {
-        expectRevertPaused();
-        flow.pause(defaultStreamId);
+        bytes memory callData = abi.encodeCall(flow.pause, (defaultStreamId));
+        expectRevert_Paused(callData);
     }
 
     function test_RevertWhen_CallerRecipient()
@@ -35,11 +32,8 @@ contract Pause_Integration_Test is Integration_Test {
         givenNotPaused
         whenCallerIsNotSender
     {
-        resetPrank({ msgSender: users.recipient });
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
-        );
-        flow.pause(defaultStreamId);
+        bytes memory callData = abi.encodeCall(flow.pause, (defaultStreamId));
+        expectRevert_CallerRecipient(callData);
     }
 
     function test_RevertWhen_CallerMaliciousThirdParty()
@@ -49,9 +43,8 @@ contract Pause_Integration_Test is Integration_Test {
         givenNotPaused
         whenCallerIsNotSender
     {
-        resetPrank({ msgSender: users.eve });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
-        flow.pause(defaultStreamId);
+        bytes memory callData = abi.encodeCall(flow.pause, (defaultStreamId));
+        expectRevert_CallerMaliciousThirdParty(callData);
     }
 
     function test_Pause_StreamHasDebt() external whenNotDelegateCalled givenNotNull givenNotPaused whenCallerIsSender {

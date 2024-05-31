@@ -5,15 +5,15 @@ restart.t.sol
    ├── given the id references a null stream
    │  └── it should revert
    └── given the id does not reference a null stream
-      ├── given the id does not references a paused stream
-      │  └── it should revert
-      └── given the id reference a paused stream
-         ├── when the caller is not the sender
-         │  ├── when the caller is the sender
-         │  │  └── it should revert
-         │  └── when the caller is a malicious third party
-         │     └── it should revert
-         └── when the caller is the sender
+      ├── when the caller is not the sender
+      │  ├── when the caller is the sender
+      │  │  └── it should revert
+      │  └── when the caller is a malicious third party
+      │     └── it should revert
+      └── when the caller is the sender
+         ├── given the id does not references a paused stream
+         │  └── it should revert
+         └── given the id reference a paused stream
             ├── when the provided rate per second is zero
             │  └── it should revert
             └── when the provided rate per second is not zero

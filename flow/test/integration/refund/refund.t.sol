@@ -3,7 +3,6 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
@@ -18,21 +17,18 @@ contract Refund_Integration_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(ISablierFlow.refund, (defaultStreamId, REFUND_AMOUNT));
-        expectRevertDueToDelegateCall(callData);
+        bytes memory callData = abi.encodeCall(flow.refund, (defaultStreamId, REFUND_AMOUNT));
+        expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        expectRevertNull();
-        flow.refund({ streamId: nullStreamId, amount: REFUND_AMOUNT });
+        bytes memory callData = abi.encodeCall(flow.refund, (nullStreamId, REFUND_AMOUNT));
+        expectRevert_Null(callData);
     }
 
     function test_RevertWhen_CallerRecipient() external whenNotDelegateCalled givenNotNull whenCallerIsNotSender {
-        resetPrank({ msgSender: users.recipient });
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
-        );
-        flow.refund({ streamId: defaultStreamId, amount: REFUND_AMOUNT });
+        bytes memory callData = abi.encodeCall(flow.refund, (defaultStreamId, REFUND_AMOUNT));
+        expectRevert_CallerRecipient(callData);
     }
 
     function test_RevertWhen_CallerMaliciousThirdParty()
@@ -41,9 +37,8 @@ contract Refund_Integration_Test is Integration_Test {
         givenNotNull
         whenCallerIsNotSender
     {
-        resetPrank({ msgSender: users.eve });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
-        flow.refund({ streamId: defaultStreamId, amount: REFUND_AMOUNT });
+        bytes memory callData = abi.encodeCall(flow.refund, (defaultStreamId, REFUND_AMOUNT));
+        expectRevert_CallerMaliciousThirdParty(callData);
     }
 
     function test_RevertWhen_RefundAmountZero() external whenNotDelegateCalled givenNotNull whenCallerIsSender {

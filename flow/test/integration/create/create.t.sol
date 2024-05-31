@@ -4,7 +4,6 @@ pragma solidity >=0.8.22;
 import { IERC721Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Flow } from "src/types/DataTypes.sol";
 
@@ -17,8 +16,8 @@ contract Create_Integration_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
-            abi.encodeCall(ISablierFlow.create, (users.sender, users.recipient, RATE_PER_SECOND, dai, IS_TRANFERABLE));
-        expectRevertDueToDelegateCall(callData);
+            abi.encodeCall(flow.create, (users.sender, users.recipient, RATE_PER_SECOND, dai, IS_TRANFERABLE));
+        expectRevert_DelegateCall(callData);
     }
 
     function test_RevertWhen_SenderZeroAddress() external whenNotDelegateCalled {

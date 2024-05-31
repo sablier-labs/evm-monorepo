@@ -3,9 +3,6 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
-import { Errors } from "src/libraries/Errors.sol";
-
 import { Integration_Test } from "../Integration.t.sol";
 
 contract RestartAndDeposit_Integration_Test is Integration_Test {
@@ -17,13 +14,13 @@ contract RestartAndDeposit_Integration_Test is Integration_Test {
 
     function test_RevertWhen_DelegateCall() external {
         bytes memory callData =
-            abi.encodeCall(ISablierFlow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
-        expectRevertDueToDelegateCall(callData);
+            abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
+        expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        expectRevertNull();
-        flow.restartAndDeposit({ streamId: nullStreamId, ratePerSecond: RATE_PER_SECOND, amount: DEPOSIT_AMOUNT });
+        bytes memory callData = abi.encodeCall(flow.restartAndDeposit, (nullStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
+        expectRevert_Null(callData);
     }
 
     function test_RevertWhen_CallerRecipient()
@@ -33,11 +30,9 @@ contract RestartAndDeposit_Integration_Test is Integration_Test {
         givenPaused
         whenCallerIsNotSender
     {
-        resetPrank({ msgSender: users.recipient });
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
-        );
-        flow.restartAndDeposit({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND, amount: DEPOSIT_AMOUNT });
+        bytes memory callData =
+            abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
+        expectRevert_CallerRecipient(callData);
     }
 
     function test_RevertWhen_CallerMaliciousThirdParty()
@@ -47,9 +42,9 @@ contract RestartAndDeposit_Integration_Test is Integration_Test {
         givenPaused
         whenCallerIsNotSender
     {
-        resetPrank({ msgSender: users.eve });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
-        flow.restartAndDeposit({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND, amount: DEPOSIT_AMOUNT });
+        bytes memory callData =
+            abi.encodeCall(flow.restartAndDeposit, (defaultStreamId, RATE_PER_SECOND, DEPOSIT_AMOUNT));
+        expectRevert_CallerMaliciousThirdParty(callData);
     }
 
     function test_RestartAndDeposit()

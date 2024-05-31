@@ -4,30 +4,26 @@ pragma solidity >=0.8.22;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ud } from "@prb/math/src/UD60x18.sol";
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 import { Broker } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
 
 contract DepositViaBroker_Integration_Test is Integration_Test {
-    function test_RevertWhen_DelegateCalled() external {
-        bytes memory callData = abi.encodeCall(
-            ISablierFlow.depositViaBroker, (defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker)
-        );
-        // It should revert
-        expectRevertDueToDelegateCall(callData);
+    function test_RevertWhen_DelegateCall() external {
+        bytes memory callData =
+            abi.encodeCall(flow.depositViaBroker, (defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker));
+        expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        // It should revert
-        expectRevertNull();
-        flow.depositViaBroker(nullStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker);
+        bytes memory callData =
+            abi.encodeCall(flow.depositViaBroker, (nullStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker));
+        expectRevert_Null(callData);
     }
 
     function test_RevertWhen_BrokerFeeGreaterThanMaxFee() external whenNotDelegateCalled givenNotNull {
         defaultBroker.fee = MAX_BROKER_FEE.add(ud(1));
-        // It should revert
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.SablierFlow_BrokerFeeTooHigh.selector, defaultStreamId, defaultBroker.fee, MAX_BROKER_FEE
@@ -43,7 +39,6 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         whenBrokerFeeNotGreaterThanMaxFee
     {
         defaultBroker.account = address(0);
-        // It should revert
         vm.expectRevert(Errors.SablierFlow_BrokerAddressZero.selector);
         flow.depositViaBroker(defaultStreamId, DEPOSIT_AMOUNT_WITH_BROKER_FEE, defaultBroker);
     }
@@ -55,7 +50,6 @@ contract DepositViaBroker_Integration_Test is Integration_Test {
         whenBrokerFeeNotGreaterThanMaxFee
         whenBrokerAddressIsNotZero
     {
-        // It should revert
         vm.expectRevert(Errors.SablierFlow_DepositAmountZero.selector);
         flow.depositViaBroker(defaultStreamId, 0, defaultBroker);
     }

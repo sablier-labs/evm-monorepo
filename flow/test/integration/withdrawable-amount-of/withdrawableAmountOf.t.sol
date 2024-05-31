@@ -9,8 +9,8 @@ contract WithdrawableAmountOf_Integration_Test is Integration_Test {
     }
 
     function test_RevertGiven_Null() external {
-        expectRevertNull();
-        flow.withdrawableAmountOf(nullStreamId);
+        bytes memory callData = abi.encodeCall(flow.withdrawableAmountOf, nullStreamId);
+        expectRevert_Null(callData);
     }
 
     function test_WithdrawableAmountOf_BalanceZero() external view givenNotNull givenBalanceZero {

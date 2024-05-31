@@ -11,9 +11,8 @@ contract AmountOwedOf_Integration_Test is Integration_Test {
     }
 
     function test_RevertGiven_Null() external {
-        // It should revert
-        expectRevertNull();
-        flow.amountOwedOf(nullStreamId);
+        bytes memory callData = abi.encodeCall(flow.amountOwedOf, nullStreamId);
+        expectRevert_Null(callData);
     }
 
     function test_GivenPaused() external givenNotNull {

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
@@ -16,8 +15,8 @@ contract WithdrawMax_Integration_Concrete_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(ISablierFlow.withdrawMax, (defaultStreamId, users.recipient));
-        expectRevertDueToDelegateCall(callData);
+        bytes memory callData = abi.encodeCall(flow.withdrawMax, (defaultStreamId, users.recipient));
+        expectRevert_DelegateCall(callData);
     }
 
     function test_WithdrawMax_Paused() external {

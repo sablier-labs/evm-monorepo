@@ -3,15 +3,14 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Flow } from "src/types/DataTypes.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
 
 contract CreateAndDepositViaBroker_Integration_Test is Integration_Test {
-    function test_RevertWhen_DelegateCalled() external {
+    function test_RevertWhen_DelegateCall() external {
         bytes memory callData = abi.encodeCall(
-            ISablierFlow.createAndDepositViaBroker,
+            flow.createAndDepositViaBroker,
             (
                 users.sender,
                 users.recipient,
@@ -22,8 +21,7 @@ contract CreateAndDepositViaBroker_Integration_Test is Integration_Test {
                 defaultBroker
             )
         );
-        // It should revert
-        expectRevertDueToDelegateCall(callData);
+        expectRevert_DelegateCall(callData);
     }
 
     function test_WhenNotDelegateCalled() external {

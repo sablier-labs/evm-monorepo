@@ -3,9 +3,6 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
-import { Errors } from "src/libraries/Errors.sol";
-
 import { Integration_Test } from "../Integration.t.sol";
 
 contract DepositAndPause_Integration_Test is Integration_Test {
@@ -17,49 +14,40 @@ contract DepositAndPause_Integration_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCalled() external {
-        bytes memory callData = abi.encodeCall(ISablierFlow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT));
-        // It should revert
-        expectRevertDueToDelegateCall(callData);
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT));
+        expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        // It should revert
-        expectRevertNull();
-        flow.depositAndPause(nullStreamId, DEPOSIT_AMOUNT);
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (nullStreamId, DEPOSIT_AMOUNT));
+        expectRevert_Null(callData);
     }
 
     function test_RevertGiven_Paused() external whenNotDelegateCalled givenNotNull {
-        // It should revert
-        expectRevertPaused();
-        flow.depositAndPause(defaultStreamId, DEPOSIT_AMOUNT);
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT));
+        expectRevert_Paused(callData);
     }
 
-    function test_RevertWhen_CallerIsRecipient()
+    function test_RevertWhen_CallerRecipient()
         external
         whenNotDelegateCalled
         givenNotNull
         givenNotPaused
         whenCallerIsNotSender
     {
-        resetPrank({ msgSender: users.recipient });
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
-        );
-        // It should revert
-        flow.depositAndPause(defaultStreamId, DEPOSIT_AMOUNT);
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT));
+        expectRevert_CallerRecipient(callData);
     }
 
-    function test_RevertWhen_CallerIsMaliciousThirdParty()
+    function test_RevertWhen_CallerMaliciousThirdParty()
         external
         whenNotDelegateCalled
         givenNotNull
         givenNotPaused
         whenCallerIsNotSender
     {
-        resetPrank({ msgSender: users.eve });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
-        // It should revert
-        flow.depositAndPause(defaultStreamId, DEPOSIT_AMOUNT);
+        bytes memory callData = abi.encodeCall(flow.depositAndPause, (defaultStreamId, DEPOSIT_AMOUNT));
+        expectRevert_CallerMaliciousThirdParty(callData);
     }
 
     function test_WhenCallerIsSender() external whenNotDelegateCalled givenNotNull givenNotPaused {

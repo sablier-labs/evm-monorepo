@@ -9,11 +9,11 @@ contract RecentAmountOf_Integration_Test is Integration_Test {
     }
 
     function test_RevertGiven_Null() external {
-        expectRevertNull();
-        flow.recentAmountOf(nullStreamId);
+        bytes memory callData = abi.encodeCall(flow.recentAmountOf, nullStreamId);
+        expectRevert_Null(callData);
     }
 
-    function test_RevertGiven_Paused() external givenNotNull {
+    function test_RecentAmountOf_Paused() external givenNotNull {
         flow.pause(defaultStreamId);
         uint128 recentAmount = flow.recentAmountOf(defaultStreamId);
         assertEq(recentAmount, 0, "recent amount");

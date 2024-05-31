@@ -9,8 +9,8 @@ contract StreamDebtOf_Integration_Test is Integration_Test {
     }
 
     function test_RevertGiven_Null() external {
-        expectRevertNull();
-        flow.streamDebtOf(nullStreamId);
+        bytes memory callData = abi.encodeCall(flow.streamDebtOf, nullStreamId);
+        expectRevert_Null(callData);
     }
 
     function test_RevertGiven_BalanceNotLessThanRemainingAmount() external givenNotNull givenPaused {

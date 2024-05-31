@@ -5,15 +5,13 @@ import { Integration_Test } from "../Integration.t.sol";
 
 contract DepletionTimeOf_Integration_Test is Integration_Test {
     function test_RevertGiven_Null() external {
-        // It should revert
-        expectRevertNull();
-        flow.depletionTimeOf(nullStreamId);
+        bytes memory callData = abi.encodeCall(flow.depletionTimeOf, nullStreamId);
+        expectRevert_Null(callData);
     }
 
     function test_RevertGiven_Paused() external givenNotNull {
-        // It should revert
-        expectRevertPaused();
-        flow.depletionTimeOf(defaultStreamId);
+        bytes memory callData = abi.encodeCall(flow.depletionTimeOf, defaultStreamId);
+        expectRevert_Paused(callData);
     }
 
     function test_WhenBalanceIsZero() external view givenNotNull givenNotPaused {

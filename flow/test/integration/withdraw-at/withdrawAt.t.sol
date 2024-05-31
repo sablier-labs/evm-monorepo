@@ -3,7 +3,6 @@ pragma solidity >=0.8.22;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
@@ -18,14 +17,13 @@ contract WithdrawAt_Integration_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData =
-            abi.encodeCall(ISablierFlow.withdrawAt, (defaultStreamId, users.recipient, WITHDRAW_TIME));
-        expectRevertDueToDelegateCall(callData);
+        bytes memory callData = abi.encodeCall(flow.withdrawAt, (defaultStreamId, users.recipient, WITHDRAW_TIME));
+        expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        expectRevertNull();
-        flow.withdrawAt({ streamId: nullStreamId, to: users.recipient, time: WITHDRAW_TIME });
+        bytes memory callData = abi.encodeCall(flow.withdrawAt, (nullStreamId, users.recipient, WITHDRAW_TIME));
+        expectRevert_Null(callData);
     }
 
     function test_RevertWhen_ToAddressZero() external whenNotDelegateCalled givenNotNull {

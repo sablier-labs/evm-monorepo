@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.22;
 
-import { ISablierFlow } from "src/interfaces/ISablierFlow.sol";
 import { Errors } from "src/libraries/Errors.sol";
 
 import { Integration_Test } from "../Integration.t.sol";
@@ -14,19 +13,13 @@ contract Restart_Integration_Test is Integration_Test {
     }
 
     function test_RevertWhen_DelegateCall() external {
-        bytes memory callData = abi.encodeCall(ISablierFlow.restart, (defaultStreamId, RATE_PER_SECOND));
-        expectRevertDueToDelegateCall(callData);
+        bytes memory callData = abi.encodeCall(flow.restart, (defaultStreamId, RATE_PER_SECOND));
+        expectRevert_DelegateCall(callData);
     }
 
     function test_RevertGiven_Null() external whenNotDelegateCalled {
-        expectRevertNull();
-        flow.restart({ streamId: nullStreamId, ratePerSecond: RATE_PER_SECOND });
-    }
-
-    function test_RevertGiven_NotPaused() external whenNotDelegateCalled givenNotNull {
-        uint256 streamId = createDefaultStream();
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamNotPaused.selector, streamId));
-        flow.restart({ streamId: streamId, ratePerSecond: RATE_PER_SECOND });
+        bytes memory callData = abi.encodeCall(flow.restart, (nullStreamId, RATE_PER_SECOND));
+        expectRevert_Null(callData);
     }
 
     function test_RevertWhen_CallerRecipient()
@@ -36,11 +29,8 @@ contract Restart_Integration_Test is Integration_Test {
         givenPaused
         whenCallerIsNotSender
     {
-        resetPrank({ msgSender: users.recipient });
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.recipient)
-        );
-        flow.restart({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND });
+        bytes memory callData = abi.encodeCall(flow.restart, (defaultStreamId, RATE_PER_SECOND));
+        expectRevert_CallerRecipient(callData);
     }
 
     function test_RevertWhen_CallerMaliciousThirdParty()
@@ -50,9 +40,14 @@ contract Restart_Integration_Test is Integration_Test {
         givenPaused
         whenCallerIsNotSender
     {
-        resetPrank({ msgSender: users.eve });
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_Unauthorized.selector, defaultStreamId, users.eve));
-        flow.restart({ streamId: defaultStreamId, ratePerSecond: RATE_PER_SECOND });
+        bytes memory callData = abi.encodeCall(flow.restart, (defaultStreamId, RATE_PER_SECOND));
+        expectRevert_CallerMaliciousThirdParty(callData);
+    }
+
+    function test_RevertGiven_NotPaused() external whenNotDelegateCalled givenNotNull {
+        uint256 streamId = createDefaultStream();
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_StreamNotPaused.selector, streamId));
+        flow.restart({ streamId: streamId, ratePerSecond: RATE_PER_SECOND });
     }
 
     function test_RevertWhen_RatePerSecondZero()
