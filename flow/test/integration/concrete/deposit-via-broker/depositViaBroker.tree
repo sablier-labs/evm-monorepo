@@ -1,0 +1,27 @@
+DepositViaBroker_Integration_Concrete_Test
+├── when delegate call
+│   └── it should revert
+└── when not delegate call
+    ├── given null
+    │   └── it should revert
+    └── given not null
+        ├── when broker fee greater than max fee
+        │   └── it should revert
+        └── when broker fee not greater than max fee
+            ├── when broke address is zero
+            │   └── it should revert
+            └── when broker address is not zero
+                ├── when total amount is zero
+                │   └── it should revert
+                └── when total amount is not zero
+                    ├── when asset misses ERC20 return
+                    │   └── it should make the deposit
+                    └── when asset does not miss ERC20 return
+                        ├── given asset does not have 18 decimals
+                        │   ├── it should update the stream balance
+                        │   ├── it should perform the ERC20 transfers
+                        │   └── it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events
+                        └── given asset has 18 decimals
+                            ├── it should update the stream balance
+                            ├── it should perform the ERC20 transfers
+                            └── it should emit 2 {Transfer}, 1 {DepositFlowStream}, 1 {MetadataUpdate} events

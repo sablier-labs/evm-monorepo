@@ -1,0 +1,14 @@
+DepletionTimeOf_Integration_Concrete_Test
+├── given null
+│   └── it should revert
+└── given not null
+    ├── given paused
+    │   └── it should revert
+    └── given not paused
+        ├── when balance is zero
+        │   └── it should return 0
+        └── when balance is not zero
+            ├── when stream has debt
+            │   └── it should return 0
+            └── when stream has no debt
+                └── it should return the time at which the stream depletes its balance

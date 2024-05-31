@@ -8,6 +8,7 @@ import { Broker } from "src/types/DataTypes.sol";
 
 import { Base_Test } from "../Base.t.sol";
 
+/// @notice Common logic needed by all integration tests, both concrete and fuzz tests.
 abstract contract Integration_Test is Base_Test {
     Broker internal defaultBroker;
     uint256 internal defaultStreamId;

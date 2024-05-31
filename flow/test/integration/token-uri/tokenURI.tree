@@ -1,5 +1,0 @@
-TokenURI_Integration_Test
-├── given NFT does not exist
-│  └── it should revert
-└── given NFT exists
-   └── it should return the correct token URI
