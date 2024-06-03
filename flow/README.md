@@ -8,7 +8,7 @@ not specified. For vesting or airdrops, refer to [our Lockup protocol](https://g
 
 One of the most requested features from users is the ability to create streams without an upfront deposit. This requires
 the protocol to manage _"debt"_, which is the amount the sender owes the recipient but is not yet available in the
-stream. The following object defines a Flow stream:
+stream. The following struct defines a Flow stream:
 
 ```solidity
 struct Stream {
@@ -28,7 +28,7 @@ struct Stream {
 ## Features
 
 - Streams can be created indefinitely.
-- No deposits are required at creation; creation and deposit are separate operations.
+- No deposits are required at creation; thus, creation and deposit are separate operations.
 - Anyone can deposit into a stream, allowing others to fund your streams.
 - No limit on deposits; any amount can be deposited or refunded if not yet streamed to recipients.
 - Streams without sufficient balance will accumulate debt until paused or sufficiently funded.
@@ -109,7 +109,7 @@ $`rfa = \begin{cases} bal - ao & \text{if } debt = 0 \\ 0 & \text{if } debt > 0 
 
 ## Precision Issues
 
-The rate per second (rps) introduces a precision problem for assets with fewer decimals (e.g.
+The `rps` introduces a precision problem for assets with fewer decimals (e.g.
 [USDC](https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48s), which has 6 decimals).
 
 Let's consider an example: if a user wants to stream 10 USDC per day, the _rps_ should be
@@ -122,8 +122,8 @@ $0.064000$ USDC per day, which is problematic
 
 ### Solution
 
-In the contracts, we normalize all internal amounts (e.g. rps, balance, remaining amount, amount owed) to 18 decimals.
-While this doesn't completely solve the issue, it significantly minimizes it.
+In the contracts, we normalize all internal amounts (e.g. `rps`, `bal`, `ra`, `ao`) to 18 decimals. While this doesn't
+completely solve the issue, it significantly minimizes it.
 
 Using the same example (streaming 10 USDC per day), if _rps_ has 18 decimals, the end-of-day result would be:
 
@@ -144,11 +144,10 @@ Currently, it's not possible to address this precision problem entirely.
 
 ### Technical Implementaion
 
-We use 18 fixed-point numbers for all internal amounts and calculation functions (e.g., balance, ratePerSecond,
-withdrawable, refundable) to avoid the overload of conversion to actual `ERC20` balances. The only time we perform these
-conversions is during external calls to `ERC20`'s `transfer`/`transferFrom` (i.e., deposit, withdraw and refund
-operations). When performing these actions, we adjust the calculated amount (withdrawable or refundable) based on the
-asset's decimals:
+We use 18 fixed-point numbers for all internal amounts and calculation functions to avoid the overload of conversion to
+actual `ERC20` balances. The only time we perform these conversions is during external calls to `ERC20`'s
+`transfer`/`transferFrom` (i.e. deposit, withdraw and refund operations). When performing these actions, we adjust the
+calculated amount (withdrawable or refundable) based on the asset's decimals:
 
 - if the asset has fewer decimals, the transfer amount is reduced.
 - if the asset has more decimals, the transfer amount is increased.
