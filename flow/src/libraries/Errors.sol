@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18 } from "@prb/math/src/UD60x18.sol";
 
 /// @title Errors
@@ -18,6 +17,13 @@ library Errors {
     error DelegateCall();
 
     /*//////////////////////////////////////////////////////////////////////////
+                                 SABLIER-FLOW-STATE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
+    error SablierFlowState_NotTransferable(uint256 streamId);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     SABLIER-FLOW
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -31,7 +37,7 @@ library Errors {
     error SablierFlow_DepositAmountZero();
 
     /// @notice Thrown when trying to create a stream with an asset with no decimals.
-    error SablierFlow_InvalidAssetDecimals(IERC20 asset);
+    error SablierFlow_InvalidAssetDecimals(address asset);
 
     /// @notice Thrown when an unexpected error occurs during the calculation of an amount.
     error SablierFlow_InvalidCalculation(uint256 streamId, uint128 availableAmount, uint128 amount);
@@ -39,9 +45,6 @@ library Errors {
     /// @notice Thrown when trying to withdraw assets with a withdrawal time not greater than or equal to
     /// `lastTimeUpdate`.
     error SablierFlow_LastUpdateNotLessThanWithdrawalTime(uint40 lastUpdate, uint40 time);
-
-    /// @notice Thrown when trying to transfer Stream NFT when transferability is disabled.
-    error SablierFlowState_NotTransferable(uint256 streamId);
 
     /// @notice Thrown when the ID references a null stream.
     error SablierFlow_Null(uint256 streamId);

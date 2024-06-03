@@ -66,7 +66,7 @@ contract Create_Integration_Concrete_Test is Integration_Test {
         whenRatePerSecondIsNotZero
     {
         address nonContract = address(8128);
-        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_InvalidAssetDecimals.selector, IERC20(nonContract)));
+        vm.expectRevert(abi.encodeWithSelector(Errors.SablierFlow_InvalidAssetDecimals.selector, nonContract));
         flow.create({
             sender: users.sender,
             recipient: users.recipient,

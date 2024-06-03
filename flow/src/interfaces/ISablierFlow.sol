@@ -169,7 +169,7 @@ interface ISablierFlow is
     /// - `recipient` must not be the zero address.
     /// - `sender` must not be the zero address.
     /// - `ratePerSecond` must be greater than zero.
-    /// - 'asset' must have valid decimals.
+    /// - `asset` must have implemented `decimals` function and should not return a number greater than 255.
     ///
     /// @param recipient The address receiving the assets.
     /// @param sender The address streaming the assets, with the ability to adjust and pause the stream. It doesn't

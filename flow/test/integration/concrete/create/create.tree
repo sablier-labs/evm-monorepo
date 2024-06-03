@@ -12,7 +12,7 @@ create.t.sol
         │  └── it should revert
         └── when the rate per second is not zero
             ├── when the asset is not a contract
-            │  └── it should revert due to no decimals
+            │  └── it should revert due to no decimals function
             └── when the asset is a contract
                ├── it should create the stream
                ├── it should bump the next stream id

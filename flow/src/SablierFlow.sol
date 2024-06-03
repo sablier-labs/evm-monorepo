@@ -440,14 +440,14 @@ contract SablierFlow is
         return _streams[streamId].balance - _withdrawableAmountOf(streamId, time);
     }
 
-    /// @notice Retrieves the asset's decimals safely, defaulting to "0" if an error occurs.
-    /// @dev Performs a low-level call to handle assets in which the decimals are not implemented.
+    /// @notice Retrieves the asset's decimals safely, reverts with a custom error if an error occurs.
+    /// @dev Performs a low-level call to handle assets decimals that are implemented as a number less than 256.
     function _safeAssetDecimals(address asset) internal view returns (uint8) {
         (bool success, bytes memory returnData) = asset.staticcall(abi.encodeCall(IERC20Metadata.decimals, ()));
         if (success && returnData.length == 32) {
             return abi.decode(returnData, (uint8));
         } else {
-            return 0;
+            revert Errors.SablierFlow_InvalidAssetDecimals(asset);
         }
     }
 
@@ -525,11 +525,6 @@ contract SablierFlow is
         }
 
         uint8 assetDecimals = _safeAssetDecimals(address(asset));
-
-        // Check: the asset has decimals.
-        if (assetDecimals == 0) {
-            revert Errors.SablierFlow_InvalidAssetDecimals(asset);
-        }
 
         // Load the stream id.
         streamId = nextStreamId;
